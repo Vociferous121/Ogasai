@@ -282,10 +282,8 @@ function script_mage:run(targetGUID)
 				return 5; 
 			end
 		end 
-		
-		if (self.frostMage) then
 			-- Opener
-			if (not IsInCombat()) then
+		if (not IsInCombat()) then
 				self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 
 				-- Opener spell
@@ -332,12 +330,13 @@ function script_mage:run(targetGUID)
 					if (not targetObj:IsInLineOfSight()) then
 						return 3;
 					end
-					return 0;
-
-				if (IsInCombat()) then
-					-- Combat
-					self.message = "Killing " .. targetObj:GetUnitName() .. "...";
-					-- Dismount
+				return 0;
+				end
+			
+			else
+				-- Combat
+				self.message = "Killing " .. targetObj:GetUnitName() .. "...";
+				-- Dismount
 				if (IsMounted()) then
 					DisMount();
 				end
@@ -507,11 +506,9 @@ function script_mage:run(targetGUID)
 					end
 					if (not targetObj:IsInLineOfSight()) then
 						return 3;
-					end	
+					end
 				elseif(not targetObj:IsSpellInRange('Fireball')) then
 					return 3;
-					
-
 					if (script_mage:cast('Fireball', targetObj)) then
 						return 0;
 					end
@@ -520,12 +517,8 @@ function script_mage:run(targetGUID)
 					end	
 				end
 			end
-			-- fire mage
-		elseif (self.fireMage)then
-			end -- end of elseif firemage
-		end -- end of if frostmage 
-	end -- end of valid enemy
-end -- end of function
+	end
+
 
 function script_mage:rest()
 

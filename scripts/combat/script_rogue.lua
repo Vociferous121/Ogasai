@@ -808,10 +808,12 @@ SameLine();
 			Text("Stealth - Distance to target"); 
 			self.stealthRange = SliderInt('SR (yd)', 1, 50, self.stealthRange);
 			Separator();		
-			Text("Poison on Main Hand");
-			self.mainhandPoison = InputText("PMH", self.mainhandPoison);
-			Text("Poison on Off Hand");
-			self.offhandPoison = InputText("POH", self.offhandPoison);
+			if (CollapsingHeader("Poison Options")) then
+				Text("Poison on Main Hand");
+				self.mainhandPoison = InputText("PMH", self.mainhandPoison);
+				Text("Poison on Off Hand");
+				self.offhandPoison = InputText("POH", self.offhandPoison);
+			end
 		end
 	end
 
