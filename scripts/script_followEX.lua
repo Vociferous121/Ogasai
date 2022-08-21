@@ -127,9 +127,6 @@ end
 		script_shaman:menu();
 	end	
 
-		Text("Script tick rate options:");
-		script_follow.tickRate = SliderFloat("Tick rate (ms)", 0, 2000, script_follow.tickRate);
-
 	if (class == 'Priest') and (CollapsingHeader("Priest Group Heals - Follower Script")) then
 
 
@@ -241,4 +238,7 @@ end
 		wasClicked, script_follow.drawUnits = Checkbox("Show unit info on screen", script_follow.drawUnits);
 		wasClicked, script_follow.drawAggro = Checkbox('Show aggro range -- WORK IN PROGRESS', script_follow.drawAggro);
 	end
+		
+		Text("Script tick rate options:");
+		script_follow.tickRate = SliderFloat("Tick rate (ms)", 0, 2000, script_follow.tickRate);
 end

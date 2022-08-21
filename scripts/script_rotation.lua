@@ -296,12 +296,7 @@ function script_rotation:menu()
 		StopBot(); 
 	end
 
-	Separator();
-
-		Text('Script tic rate (ms)');
-	self.tickRate = SliderInt("TR", 50, 500, self.tickRate);
-
-	Separator();
+	SameLine();
 
 	-- Load combat menu by class
 	local class = UnitClass("player");
@@ -337,4 +332,7 @@ function script_rotation:menu()
 		wasClicked, self.drawUnits = Checkbox("Show unit info on screen", self.drawUnits);
 		wasClicked, self.drawAggro = Checkbox('Show aggro range circles', self.drawAggro);
 	end
+		Separator();
+		Text('Script tic rate (ms)');
+		self.tickRate = SliderInt("TR", 50, 500, self.tickRate);
 end

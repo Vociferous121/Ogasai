@@ -735,6 +735,7 @@ SameLine();
 	end	
 	Separator();
 	if (self.enableGrind) then
+		Separator();
 		if (CollapsingHeader("Rogue Grind Options")) then
 			local wasClicked = false;
 			Text('Eat below health percent');
@@ -777,6 +778,7 @@ SameLine();
 	end
 			-- rotation menu
 	if (self.enableRotation) then
+		Separator();
 		if(CollapsingHeader("Clickable Rotation Options")) then
 			wasClicked, self.useSliceAndDice = Checkbox("Use Slice & Dice", self.useSliceAndDice);
 			SameLine();
@@ -789,6 +791,7 @@ SameLine();
 			wasClicked, self.enableAdrenRush = Checkbox("Adren Rush on CD", self.enableAdrenRush);
 		end
 		if (CollapsingHeader("Rogue Rotation Options")) then
+			Separator();
 			local wasClicked = false;
 			Text('Eat below health percent');
 			self.eatHealth = SliderInt('EHP %', 1, 50, self.eatHealth);
