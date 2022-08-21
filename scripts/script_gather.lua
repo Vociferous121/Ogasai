@@ -233,18 +233,18 @@ function script_gather:gather()
 	if(self.nodeObj ~= nil and self.nodeObj ~= 0) then
 
 			local _x, _y, _z = self.nodeObj:GetPosition();
-			local dist = self.nodeObj:GetDistance();		
-			
+			local dist = self.nodeObj:GetDistance();
+			local selfDist = localObj:GetDistance();
+
 		if(dist < self.lootDistance) then
 			if (IsMoving()) then
 				StopMoving();
 				self.timer = GetTimeEX() + 850;
 				return true;
 			end
-			
 
 			if(not IsLooting() and not IsChanneling()) then
-				self.nodeObj:GameObjectInteract();
+			self.nodeObj:GameObjectInteract();
 				if (IsMoving()) then
 					self.timer = GetTimeEX() + 6700;
 					StopMoving();
@@ -252,7 +252,7 @@ function script_gather:gather()
 				end
 			end
 				if (not LootTarget()) then
-					self.timer = GetTimeEX() + 150;
+					self.timer = GetTimeEX() + 1150;
 					return false;
 			end
 		else

@@ -287,16 +287,23 @@ function script_follow:run()
 		script_follow:setup();
 	end
 	
-	if (not self.navFunctionsLoaded) then self.message = "Error script_nav not loaded..."; return; end
-	if (not self.helperLoaded) then self.message = "Error script_helper not loaded..."; return; end
+	if (not self.navFunctionsLoaded) then self.message = "Error script_nav not loaded...";
+		return; 
+	end
 
-	if (self.pause) then self.message = "Paused by user..."; return; end
+	if (not self.helperLoaded) then self.message = "Error script_helper not loaded...";
+		return;
+	end
+
+	if (self.pause) then self.message = "Paused by user..."; 
+		return; 
+	end
 
 	-- auto unstuck feature
 	if (self.useUnStuck) then
 		if (not script_unstuck:pathClearAuto(2)) then
 			self.message = script_unstuck.message;
-		return;
+			return;
 		end
 	end
 
@@ -306,18 +313,30 @@ function script_follow:run()
 		self.timer = GetTimeEX() + self.tickRate;
 
 		-- Wait out the wait-timer and/or casting or channeling
-		if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then return; end
+		if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then 
+			return; 
+		end
 
 		-- Automatic loading of the nav mesh
-		if (not IsUsingNavmesh()) then UseNavmesh(true); return; end
-		if (not LoadNavmesh()) then self.message = "Make sure you have mmaps-files..."; return; end
-		if (GetLoadNavmeshProgress() ~= 1) then self.message = "Loading the nav mesh... " return; end
+		if (not IsUsingNavmesh()) then UseNavmesh(true);
+			return;
+		end
+
+		if (not LoadNavmesh()) then self.message = "Make sure you have mmaps-files...";
+			return; 
+		end
+
+		if (GetLoadNavmeshProgress() ~= 1) then self.message = "Loading the nav mesh... ";
+			return; 
+		end
 
 		-- Corpse-walk if we are dead
 		if(localObj:IsDead()) then
 			self.message = "Walking to corpse...";
 			-- Release body
-			if(not IsGhost()) then RepopMe(); self.waitTimer = GetTimeEX() + 5000; return; end
+			if(not IsGhost()) then RepopMe(); self.waitTimer = GetTimeEX() + 5000;
+				return;
+			end
 			-- Ressurrect within the ress distance to our corpse
 			local _lx, _ly, _lz = localObj:GetPosition();
 			if(GetDistance3D(_lx, _ly, _lz, GetCorpsePosition()) > self.ressDistance) then
@@ -335,7 +354,8 @@ function script_follow:run()
 
 		-- Check: Rogue only, If we just Vanished, move away from enemies within 30 yards
 		if (localObj:HasBuff("Vanish")) then if (script_nav:runBackwards(1, 30)) then 
-			ClearTarget(); self.message = "Moving away from enemies..."; return; end 
+			ClearTarget(); self.message = "Moving away from enemies...";
+			return; 
 		end
 		
 		-- Rest
@@ -346,12 +366,19 @@ function script_follow:run()
 			if(RunRestScript()) then
 				self.message = "Resting...";
 				-- Stop moving
-				if (IsMoving() and not localObj:IsMovementDisabed()) then StopMoving(); return; end
+				if (IsMoving() and not localObj:IsMovementDisabed()) then
+					StopMoving();
+					return; 
+				end
 				-- Dismount
-				if (IsMounted()) then DisMount(); return; end
+				if (IsMounted()) then DisMount(); 
+					return;
+				end
 				-- Add 2500 ms timer to the rest script rotations (timer could be set already)
-				if ((self.waitTimer - GetTimeEX()) < 2500) then self.waitTimer = GetTimeEX()+2500 end;
-				return;	
+				if ((self.waitTimer - GetTimeEX()) < 2500) then
+					self.waitTimer = GetTimeEX()+2500;
+				end;
+			return;	
 			end
 		end
 
@@ -362,8 +389,7 @@ function script_follow:run()
 
 		-- Clear dead/tapped targets
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
-			if ((self.enemyObj:IsTapped() and not self.enemyObj:IsTappedByMe()) 
-				or self.enemyObj:IsDead()) then
+			if ((self.enemyObj:IsTapped() and not self.enemyObj:IsTappedByMe()) or self.enemyObj:IsDead()) then
 				self.enemyObj = nil;
 				ClearTarget();
 			end
@@ -389,7 +415,8 @@ function script_follow:run()
 			else
 				self.lootObj = nil;
 			end
-			if (self.lootObj == 0) then self.lootObj = nil; end
+			if (self.lootObj == 0) then self.lootObj = nil;
+			end
 			local isLoot = not IsInCombat() and not (self.lootObj == nil);
 			if (isLoot and not AreBagsFull()) then
 				script_grindEX:doLoot(localObj);
@@ -411,38 +438,38 @@ function script_follow:run()
 				local x, y, z = script_follow:GetPartyLeaderObject():GetPosition();
 				self.message = "Following our master...";
 				script_nav:moveToTarget(GetLocalPlayer(), x, y, z);
-				return;
+			return;
 			end
 		end
 			
 		-- Assign the next valid target to be killed
 		-- Check if anything is attacking us Priest
 		if (script_follow:enemiesAttackingUs() >= 1) then
-				local localMana = GetLocalPlayer():GetManaPercentage();
+			local localMana = GetLocalPlayer():GetManaPercentage();
 			if (localMana > 6 and HasSpell('Fade') and not IsSpellOnCD('Fade')) then
 				CastSpellByName('Fade');
 				return;
 			end
+		end
 				
 		-- Check if anything is attacking us Paladin
 		if (script_follow:enemiesAttackingUs() >= 2) then
-				local localMana = GetLocalPlayer():GetManaPercentage();
+			local localMana = GetLocalPlayer():GetManaPercentage();
 			if (localMana > 6 and HasSpell('Divine Protection') and not IsSpellOnCD('Divine Protection')) then
 				CastSpellByName('Divine Protection');
 				return;
 			end
 		end
 
-
-			if (GetTarget() ~= 0 and GetTarget() ~= nil) then
-				local target = GetTarget();
-				if (target:CanAttack()) then
-					self.enemyObj = target;
-				else
-					self.enemyObj = nil;
-				end
+		-- if no target then get target
+		if (GetTarget() ~= 0 and GetTarget() ~= nil) then
+			local target = GetTarget();
+			if (target:CanAttack()) then
+				self.enemyObj = target;
+			else
+				self.enemyObj = nil;
 			end
-		else
+		else -- else follow leader
 			if (script_follow:GetPartyLeaderObject() ~= 0) then
 				if (script_follow:GetPartyLeaderObject():GetUnitsTarget() ~= 0 and not script_follow:GetPartyLeaderObject():IsDead()) then
 					if (script_follow:GetPartyLeaderObject():GetUnitsTarget():GetHealthPercentage() < self.dpsHp) then
@@ -476,7 +503,10 @@ function script_follow:run()
 			-- In range: attack the target, combat script returns 0
 			if(self.combatError == 0) then
 				script_nav:resetNavigate();
-				if IsMoving() then StopMoving(); return; end
+				if IsMoving() then 
+					StopMoving(); 
+					return; 
+				end
 			end
 			-- Invalid target: combat script return 2
 			if(self.combatError == 2) then
@@ -494,20 +524,29 @@ function script_follow:run()
 			end
 
 			-- Do nothing, return : combat script return 4
-			if(self.combatError == 4) then return; end
+			if(self.combatError == 4) then 
+				return;
+			end
 
 			-- Target player pet/totem: pause for 5 seconds, combat script should add target to blacklist
 			if(self.combatError == 5) then
 				self.message = "Targeted a player pet pausing 5s...";
-				ClearTarget(); self.waitTimer = GetTimeEX()+5000; return;
+				ClearTarget(); self.waitTimer = GetTimeEX()+5000;
+				return;
 			end
 
 			-- Stop bot, request from a combat script
-			if(self.combatError == 6) then self.message = "Combat script request stop bot..."; Logout(); StopBot(); return; end
+			if(self.combatError == 6) then self.message = "Combat script request stop bot...";
+				Logout();
+				StopBot();
+				return;
+			end
 		end
 
 		-- Pre checks before navigating
-		if(IsLooting() or IsCasting() or IsChanneling() or IsDrinking() or IsEating() or IsInCombat()) then return; end
+		if(IsLooting() or IsCasting() or IsChanneling() or IsDrinking() or IsEating() or IsInCombat()) then 
+			return;
+		end
 
 		-- Mount before we follow our master
 		--if (script_follow:mountUp()) then return; end		
@@ -518,10 +557,11 @@ function script_follow:run()
 				local x, y, z = script_follow:GetPartyLeaderObject():GetPosition();
 				self.message = "Following our master...";
 				script_nav:moveToTarget(GetLocalPlayer(), x, y, z);
-				return;
+			return;
 			end
 		end
 	end 
+end
 end
 
 --function script_follow:mountUp()

@@ -13,9 +13,11 @@ script_rotation = {
 	helperLoaded = include("scripts\\script_helper.lua"),
 	drawEnabled = true,
 	drawAggro = false,
-	drawGather = true,
-	drawUnits = true,
-	isSetup = false
+	drawGather = false,
+	drawUnits = false,
+	isSetup = false,
+	pullDistance = 150,
+
 }
 
 function script_rotation:setup()
@@ -102,6 +104,93 @@ function script_rotation:run()
 		-- Auto ress?
 
 	end 
+end
+
+function script_rotation:isTargetingMe(i) 
+	local localPlayer = GetLocalPlayer();
+	if (localPlayer ~= nil and localPlayer ~= 0 and not localPlayer:IsDead()) then
+		if (i:GetUnitsTarget() ~= nil and i:GetUnitsTarget() ~= 0) then
+			return i:GetUnitsTarget():GetGUID() == localPlayer:GetGUID();
+		end
+	end
+	return false;
+end
+
+function script_rotation:enemyIsValid(i)
+	if (i ~= 0) then
+		-- Valid Targets: Tapped by us, or is attacking us or our pet
+		if (script_rotation:isTargetingMe(i)) or (i:IsTappedByMe() or not i:IsTapped()) or (i:IsTappedByMe()) and (not i:IsDead()) then 
+				return true; 
+		end
+		-- Valid Targets: Within pull range, levelrange, not tapped, not skipped etc
+		if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
+			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
+			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
+			and not (self.skipHumanoid and i:GetCreatureType() == 'Humanoid')
+			and not (self.skipDemon and i:GetCreatureType() == 'Demon')
+			and not (self.skipBeast and i:GetCreatureType() == 'Beast')
+			and not (self.skipElemental and i:GetCreatureType() == 'Elemental')
+			and not (self.skipUndead and i:GetCreatureType() == 'Undead') 
+			and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
+			) then
+			return true;
+		end
+	end
+	return false;
+end
+
+
+function script_rotation:getTargetAttackingUs() 
+    local currentObj, typeObj = GetFirstObject(); 
+    while currentObj ~= 0 do 
+    	if typeObj == 3 then
+		if (currentObj:CanAttack() and not currentObj:IsDead()) then
+			local localObj = GetLocalPlayer();		
+                	if (currentObj:GetUnitsTarget() == localObj) then 
+                		return currentObj;
+                	end 
+            	end 
+       	end
+        currentObj, typeObj = GetNextObject(currentObj); 
+    end
+    return nil;
+end
+
+function script_rotation:assignTarget() 
+	-- Instantly return the last target if we attacked it and it's still alive and we are in combat
+	if (self.enemyObj ~= 0 and self.enemyObj ~= nil and not self.enemyObj:IsDead() and IsInCombat()) then
+		if (script_rotation:isTargetingMe(self.enemyObj) 
+			or self.enemyObj:IsTappedByMe()) then
+			return self.enemyObj;
+		end
+	end
+
+	-- Find the closest valid target if we have no target or we are not in combat
+	local mobDistance = self.pullDistance;
+	local closestTarget = nil;
+	local i, targetType = GetFirstObject();
+	while i ~= 0 do
+		if (targetType == 3 and not i:IsCritter() and not i:IsDead() and i:CanAttack()) then
+			if (script_rotation:enemyIsValid(i)) then
+				-- save the closest mob or mobs attacking us
+				if (mobDistance > i:GetDistance()) then
+					mobDistance = i:GetDistance();	
+					closestTarget = i;
+				end
+			end
+		end
+		i, targetType = GetNextObject(i);
+	end
+	
+	-- Check: If we are in combat but no valid target, kill the "unvalid" target attacking us
+	if (closestTarget == nil and IsInCombat()) then
+		if (GetTarget() ~= 0) then
+			return GetTarget();
+		end
+	end
+
+	-- Return the closest valid target or nil
+	return closestTarget;
 end
 
 --function script_grind:mountUp()
@@ -209,6 +298,11 @@ function script_rotation:menu()
 
 	Separator();
 
+		Text('Script tic rate (ms)');
+	self.tickRate = SliderInt("TR", 50, 500, self.tickRate);
+
+	Separator();
+
 	-- Load combat menu by class
 	local class = UnitClass("player");
 	if (class == 'Mage') then
@@ -230,9 +324,6 @@ function script_rotation:menu()
 	elseif (class == 'Shaman') then
 		script_shaman:menu();
 	end	
-
-	Text('Script tic rate (ms)');
-	self.tickRate = SliderInt("TR", 50, 500, self.tickRate);
 
 	--Text('Dismount within range to target');
 	--self.disMountRange = SliderInt("DR", 1, 100, self.disMountRange);

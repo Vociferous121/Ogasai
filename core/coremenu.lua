@@ -35,38 +35,38 @@ function coremenu:draw()
 			----------------------------
 		]]--
 		
-		LoadScript("Frostbite - Mage", "scripts\\combat\\script_mage_frostbite.lua");
-		AddScriptToCombat("Frostbite - Mage", "script_mage");
+		LoadScript("Mage", "scripts\\combat\\script_mage.lua");
+		AddScriptToCombat("Mage", "script_mage");
 
-		--LoadScript("Frost Mage Rotation", "scripts\\combat\\script_mage_frost_rotation.lua");
-		--AddScriptToCombat("Frost Mage Rotation", "script_mage");
+		LoadScript("Mage Rotation", "scripts\\combat\\script_mage_frost_rotation.lua");
+		AddScriptToCombat("Mage Rotation", "script_mage_rotation");
 
-		LoadScript("Hidden - Rogue", "scripts\\combat\\script_rogue_hidden.lua");
-		AddScriptToCombat("Hidden - Rogue", "script_rogue");
+		LoadScript("Rogue", "scripts\\combat\\script_rogue.lua");
+		AddScriptToCombat("Rogue", "script_rogue");
 		
-		LoadScript("Beastmaster - Hunter", "scripts\\combat\\script_hunter_beastmaster.lua");
-		AddScriptToCombat("Beastmaster - Hunter", "script_hunter");
+		LoadScript("Rogue Rotation", "scripts\\combat\\script_rogue_rotation.lua");
+		AddScriptToCombat("Rogue Rotation", "script_rogue_rotation");
+
+		LoadScript("Hunter", "scripts\\combat\\script_hunter.lua");
+		AddScriptToCombat("Hunter", "script_hunter");
 		
-		LoadScript("Shadowmaster - Warlock", "scripts\\combat\\script_warlock_shadowmaster.lua");
-		AddScriptToCombat("Shadowmaster - Warlock", "script_warlock");
+		LoadScript("Warlock", "scripts\\combat\\script_warlock.lua");
+		AddScriptToCombat("Warlock", "script_warlock");
 
-		LoadScript("Fury - Warrior", "scripts\\combat\\script_warrior_fury.lua");
-		AddScriptToCombat("Fury - Warrior", "script_warrior");
+		LoadScript("Warrior", "scripts\\combat\\script_warrior_fury.lua");
+		AddScriptToCombat("Warrior", "script_warrior");
 
-		LoadScript("Ret - Paladin", "scripts\\combat\\script_paladin_ret.lua");
-		AddScriptToCombat("Ret - Paladin", "script_paladin");
+		LoadScript("Paladin", "scripts\\combat\\script_paladin.lua");
+		AddScriptToCombat("Paladin", "script_paladin");
 
-		LoadScript("Disc - Priest", "scripts\\combat\\script_priest_disc.lua");
-		AddScriptToCombat("Disc - Priest", "script_priest");
+		LoadScript("Priest", "scripts\\combat\\script_priest.lua");
+		AddScriptToCombat("Priest", "script_priest");
 
-		LoadScript("Enhance - Shaman", "scripts\\combat\\script_shaman_enhance.lua");
+		LoadScript("Shaman", "scripts\\combat\\script_shaman.lua");
 		AddScriptToCombat("Enhance - Shaman", "script_shaman");
 
-		LoadScript("Feral - Druid", "scripts\\combat\\script_druid_feral.lua");
-		AddScriptToCombat("Feral - Druid", "script_druid");
-
-		LoadScript("Tank - Druid", "scripts\\combat\\script_druid_tank.lua");
-		AddScriptToCombat("Feral - Druid", "script_druid");
+		LoadScript("Druid", "scripts\\combat\\script_druid.lua");
+		AddScriptToCombat("Druid", "script_druid");
 
 		--[[
 			----------------------------

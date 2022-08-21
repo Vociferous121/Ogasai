@@ -4,8 +4,10 @@ script_hunterEX = {
 
 function script_hunterEX:chooseAspect(targetObj)
 	local localObj = GetLocalPlayer();
-	if (not IsStanding()) then return false; end
-	hasHawk, hasMonkey, hasCheetah = HasSpell("Aspect of the Hawk"), HasSpell("Aspect of the Monkey"), HasSpell("Aspect of the Cheetah");
+	if (not IsStanding()) then 
+		return false;
+	end
+		hasHawk, hasMonkey, hasCheetah = HasSpell("Aspect of the Hawk"), HasSpell("Aspect of the Monkey"), HasSpell("Aspect of the Cheetah");
 	if (hasMonkey and localObj:GetLevel() < 10) then 
 		if (not localObj:HasBuff('Aspect of the Monkey')) then  
 			CastSpellByName('Aspect of the Monkey'); 
@@ -42,8 +44,13 @@ function script_hunterEX:petChecks()
 	if (pet ~= nil and pet ~= 0) then
 		petHP = pet:GetHealthPercentage();
 	end
-
-	if (script_hunter.hasPet) then if (localObj:GetLevel() < 10) then script_hunter.hasPet = false; end end
+	
+		-- has pet check
+	if (script_hunter.hasPet) then
+		if (localObj:GetLevel() < 10) then
+			script_hunter.hasPet = false;
+		end
+	end
 
 	-- Check: If pet is dismissed then Call pet 
 	if (GetPet() == 0 and script_hunter.hasPet) then
@@ -95,7 +102,10 @@ function script_hunterEX:petChecks()
 		if (not GetPet():IsDead() and script_hunter.feedTimer < GetTimeEX() and not IsInCombat()) then
 			if (happiness < 3 or loyaltyRate < 0) then
 				script_hunter.message = "Pet is not happy, feeding the pet...";
-				if (not IsStanding()) then StopMoving(); return true; end
+				if (not IsStanding()) then
+					StopMoving();
+					return true;
+				end
 				CastSpellByName("Feed Pet"); 
 				TargetUnit("Pet"); 
 				PickupContainerItem(script_hunter.bagWithPetFood-1, script_hunter.slotWithPetFood);

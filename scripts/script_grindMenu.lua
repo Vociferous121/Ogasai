@@ -42,12 +42,12 @@ function script_grindMenu:menu()
 	elseif (class == 'Shaman') then
 		script_shaman:menu();
 	end	
-	if (CollapsingHeader("Talents & Misc options")) then
+	if (CollapsingHeader("Talents, Paranoia & Misc options")) then
 		wasClicked, script_grind.jump = Checkbox("Jump On/Off", script_grind.jump);
-		script_grind.jumpRandom = SliderInt("Jump Rate", 91, 100, script_grind.jumpRandom);
+		script_grind.jumpRandom = SliderInt("Jump Rate", 89, 100, script_grind.jumpRandom);
 		Text("Jump Rate 100 = No Jumping!");
-		wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount); Text('Dismount range');
-		script_grind.disMountRange = SliderInt("DR (yd)", 1, 100, script_grind.disMountRange); Separator();
+		--wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount); Text('Dismount range');
+		--script_grind.disMountRange = SliderInt("DR (yd)", 1, 100, script_grind.disMountRange); Separator();
 		wasClicked, script_grind.autoTalent = Checkbox("Spend talent points", script_grind.autoTalent);
 	Text("Change talents in script_talent.lua");
 	if (script_grind.autoTalent) then Text("Spending next talent point in: " .. (script_talent:getNextTalentName() or " ")); end
