@@ -725,12 +725,12 @@ end
 
 function script_rogue:menu()
 SameLine();
-	if (not self.enableRotation) then
-		wasClicked, self.enableGrind = Checkbox("Grinder", self.enableGrind);
+	if (not self.enableRotation) then -- if not showing rotation button
+		wasClicked, self.enableGrind = Checkbox("Grinder", self.enableGrind); -- then show grind button
 	end
-	SameLine();
-	if (not self.enableGrind) then
-		wasClicked, self.enableRotation = Checkbox("Rotation", self.enableRotation);
+		SameLine();
+	if (not self.enableGrind) then -- if not showing grind button
+		wasClicked, self.enableRotation = Checkbox("Rotation", self.enableRotation); -- then show rotation button
 		SameLine();
 	end	
 	Separator();

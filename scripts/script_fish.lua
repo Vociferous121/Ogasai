@@ -9,7 +9,7 @@ script_fish = {
 	bobberInfo = {},
 	message = 'Fishing...',
 	pause = false,
-	setup = false
+	setup = false,
 }
 
 function script_fish:GetBobber()

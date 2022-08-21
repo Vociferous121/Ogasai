@@ -48,6 +48,15 @@ function script_rotation:run()
 		return; 
 	end
 	
+	local partyMana = GetLocalPlayer():GetManaPercentage();
+	local partyHealth = GetLocalPlayer():GetHealthPercentage();
+	for i = 1, GetNumPartyMembers()+1 do
+		local partyMember = GetPartyMember(i);
+		if (i == GetNumPartyMembers()+1) 
+			then partyMember = GetLocalPlayer();
+		end
+	end
+	
 	localObj = GetLocalPlayer();
 
 	if (IsCasting() or IsChanneling()) then 
@@ -59,6 +68,15 @@ function script_rotation:run()
 	end
 
 	self.timer = GetTimeEX() + self.tickRate;
+
+	if (GetTarget() ~= 0 and GetTarget() ~= nil) then
+		local target = GetTarget();
+		if (target:CanAttack()) then
+			self.enemyObj = target;
+		else
+			self.enemyObj = nil;
+		end
+	end
 	
 	if (not localObj:IsDead()) then
 		
@@ -97,12 +115,10 @@ function script_rotation:run()
 			--end
 
 			self.message = "Waiting for a target...";
-	
 			return;
 		end
 	else
 		-- Auto ress?
-
 	end 
 end
 
@@ -119,7 +135,7 @@ end
 function script_rotation:enemyIsValid(i)
 	if (i ~= 0) then
 		-- Valid Targets: Tapped by us, or is attacking us or our pet
-		if (script_rotation:isTargetingMe(i)) or (i:IsTappedByMe() or not i:IsTapped()) or (i:IsTappedByMe()) and (not i:IsDead()) then 
+		if (script_rotation:isTargetingMe(i) or script_rotation:getTargetAttackingUs()) or (i:IsTappedByMe() or not i:IsTapped()) or (i:IsTappedByMe()) and (not i:IsDead()) then 
 				return true; 
 		end
 		-- Valid Targets: Within pull range, levelrange, not tapped, not skipped etc
@@ -274,7 +290,7 @@ function script_rotation:runRest()
 end
 
 function script_rotation:menu()
-	if (not script_grind.pause) then 
+	if (not self.pause) then 
 		if (Button("Pause")) then 
 			self.pause = true; 
 		end
@@ -331,8 +347,8 @@ function script_rotation:menu()
 		wasClicked, self.drawGather = Checkbox('Show gather nodes', self.drawGather);
 		wasClicked, self.drawUnits = Checkbox("Show unit info on screen", self.drawUnits);
 		wasClicked, self.drawAggro = Checkbox('Show aggro range circles', self.drawAggro);
-	end
 		Separator();
 		Text('Script tic rate (ms)');
 		self.tickRate = SliderInt("TR", 50, 500, self.tickRate);
+	end
 end

@@ -38,14 +38,8 @@ function coremenu:draw()
 		LoadScript("Mage", "scripts\\combat\\script_mage.lua");
 		AddScriptToCombat("Mage", "script_mage");
 
-		LoadScript("Mage Rotation", "scripts\\combat\\script_mage_frost_rotation.lua");
-		AddScriptToCombat("Mage Rotation", "script_mage_rotation");
-
 		LoadScript("Rogue", "scripts\\combat\\script_rogue.lua");
 		AddScriptToCombat("Rogue", "script_rogue");
-		
-		LoadScript("Rogue Rotation", "scripts\\combat\\script_rogue_rotation.lua");
-		AddScriptToCombat("Rogue Rotation", "script_rogue_rotation");
 
 		LoadScript("Hunter", "scripts\\combat\\script_hunter.lua");
 		AddScriptToCombat("Hunter", "script_hunter");
@@ -53,7 +47,7 @@ function coremenu:draw()
 		LoadScript("Warlock", "scripts\\combat\\script_warlock.lua");
 		AddScriptToCombat("Warlock", "script_warlock");
 
-		LoadScript("Warrior", "scripts\\combat\\script_warrior_fury.lua");
+		LoadScript("Warrior", "scripts\\combat\\script_warrior.lua");
 		AddScriptToCombat("Warrior", "script_warrior");
 
 		LoadScript("Paladin", "scripts\\combat\\script_paladin.lua");
