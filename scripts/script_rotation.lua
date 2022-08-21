@@ -17,7 +17,7 @@ script_rotation = {
 	drawUnits = false,
 	isSetup = false,
 	pullDistance = 150,
-
+	showClassOptions = true,
 }
 
 function script_rotation:setup()
@@ -247,7 +247,7 @@ function script_rotation:draw()
 	end
 
 	-- color
-	local r, g, b = 255, 255, 0;
+	local r, g, b = 255, 55, 55;
 
 	-- position
 	local y, x, width = 120, 25, 370;
@@ -258,12 +258,16 @@ function script_rotation:draw()
 
 	-- info
 	if (not self.pause) then
-		DrawRect(x - 10, y - 5, x + width, y + 80, 255, 255, 0,  1, 1, 1);
+		DrawRect(x - 10, y - 5, x + width, y + 120, 255, 255, 0,  1, 1, 1);
 		DrawRectFilled(x - 10, y - 5, x + width, y + 80, 0, 0, 0, 60, 0, 0);
 		DrawText('Rotation', x-5, y-4, r, g, b) y = y + 15;
 		DrawText('Script Idle: ' .. math.max(0, math.floor(self.timer-GetTimeEX())) .. ' ms.', x, y, 255, 255, 255); y = y + 20;
 		DrawText('Rotation status: ', x, y, r, g, b); y = y + 20;
-		DrawText(self.message or "error", x, y, 0, 255, 255);
+		DrawText(self.message or "error", x, y, 100, 255, 255);
+		DrawText('Status: ', x+10, y+30, r, g, b);
+
+		if (self.showClassOptions) then RunCombatDraw(); 
+		end
 	else
 		DrawText('Rotation paused by user...', x-5, y-4, r, g, b);
 	end
