@@ -9,7 +9,34 @@ script_helper = {
 	manaPotion = {},
 	numHealthPotion = 0,
 	numManaPotion = 0,
+	numDebuff = 0,
 }
+
+--function script_helper:debuffRemove()
+--	-- Search for debuff
+--	local localObj = GetLocalPlayer();
+--	local debuffIndex = -1;
+--	for i = 0, self.numDebuff do
+--		if (localObj:HasDebuff(self.debuffList[i])) then
+--			debuffIndex = i;
+--		end
+--	end
+--
+--	if (localObj:HasDebuff(self.debuff[debuffIndex])) then
+--		if (script_helper:debuffRemoveCast()(self.debuff[debuffIndex])) then
+--			return true;
+--		end
+--	end
+--end
+
+
+--function script_helper:debuffRemoveCast()
+--	local localObj = GetLocalPlayer();
+--	if HasSpell('Cleanse') then
+--		CastSpell('cleanse', localObj);
+--	end
+--end
+	
 
 function script_helper:enemiesAttackingUs(range) -- returns number of enemies attacking us within range
     local unitsAttackingUs = 0; 
@@ -77,6 +104,11 @@ function script_helper:useManaPotion()
 	end
 end
 
+function script_helper:addDebuff(name)
+	self.debuff[self.numDebuff] = name;
+	self.numDebuff = self.numDebuff + 1;
+end
+
 function script_helper:addWater(name)
 	self.water[self.numWater] = name;
 	self.numWater = self.numWater + 1;
@@ -129,7 +161,7 @@ function script_helper:setup()
 	script_helper:addFood('Raw Black Truffle');	
 	script_helper:addFood('Delicious Cave Mold');	
 	script_helper:addFood('Spongy Morel');
-	script_helper:addFood("Red-speckled Mushroom");
+	script_helper:addFood('Red-speckled Mushroom');
 	script_helper:addFood('Forest Mushroom Cap');
 	script_helper:addFood('Winter Kimchi');
 
@@ -248,6 +280,9 @@ function script_helper:setup()
 	script_helper:addMount('Reins of the Spotted Frostsaber');
 	script_helper:addMount('Reins of the Striped Frostsaber');
 	script_helper:addMount('Reins of the Striped Nightsaber');
+
+	-- debuffs
+	--script_helper:addDebuff('Poison');
 
 	DEFAULT_CHAT_FRAME:AddMessage('script_helper: loaded...');
 	return true;

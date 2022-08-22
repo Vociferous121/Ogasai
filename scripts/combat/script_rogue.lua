@@ -27,7 +27,7 @@ script_rogue = {
 	enableFaceTarget = true,
 	enableBladeFlurry = true,
 	enableAdrenRush = true,
-	eliteTarget = false,
+	rotationTwo = false,
 }
 
 function script_rogue:setup()
@@ -112,9 +112,9 @@ function script_rogue:checkPoisons()
 end
 
 function script_rogue:canRiposte()
-	for i=1,132 do 
+	for i=1,70 do 
 		local texture = GetActionTexture(i); 
-		if texture ~= nil and string.find(texture,"Ability_Rogue_Riposte") then
+		if texture ~= nil and string.find(texture,"Ability_Warrior_Challenge") then
 			local isUsable, _ = IsUsableAction(i); 
 			if (isUsable == 1 and not IsSpellOnCD(Riposte)) then 
 				return true; 
@@ -194,6 +194,7 @@ function script_rogue:run(targetGUID)
 			return 4;
 		end
 	end
+
 	if (self.enableGrind) then
 		--Valid Enemy
 	if (targetObj ~= 0) then
@@ -402,7 +403,7 @@ function script_rogue:run(targetGUID)
 			end 
 			
 			-- Check: Blade Flury if more than 2 enemies attacks us or we fight an elite enemy
-			if (hasBladeFlurry and (script_helper:enemiesAttackingUs(10) >= 3 or UnitIsPlusMob("target"))) then 
+			if (hasBladeFlurry and (script_helper:enemiesAttackingUs(10) >= 2 or UnitIsPlusMob("target"))) then 
 				if (targetObj:GetDistance() < 6) and (not IsSpellOnCD("Blade Flurry")) then 
 					CastSpellByName('Blade Flurry');
 					return 0;
@@ -540,70 +541,120 @@ function script_rogue:run(targetGUID)
 						end
 					end
 				end
-				-- Combat ROTATION
+				-- Combat  ROTATION NOW IN COMBAT 
 			else	
 
 				local localCP = GetComboPoints("player", "target");
 	
-				-- NEW ELITE COMBAT ROTATION
-				if (self.eliteTarget) then
-					if (UnitIsPlusMob("target")) then
-						self.message = "Using EXPERIMENTAL Elite Target Rotation!";
-						if (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) then 
-							self.message = "Waiting for Riposte Energy ELITE";
-							if (localEnergy < 10) then 
-								return 0; 
-							end -- return until we have energy
-							if (not script_rogue:spellAttack("Riposte", targetObj)) then 
-								self.message = "Using Riposte ELITE";
-								return 0; -- return until we cast Riposte
-							end 
+				-- Combat Rotation 2 COMBAT ROTATION 2
+				if (self.rotationTwo) then
+					self.message = "Using Combat Rotation 2!";
+
+						-- Check: Kick if the target is casting
+					if (HasSpell("Kick") and targetObj:IsCasting() and not IsSpellOnCD("Kick")) then
+						self.message = "Waiting for Kick Energy Combat Rotation 2";
+						if (localEnergy > 24) then 
+							return 0; 
 						end
-						-- Slice and Dice at 2 combo points
-						if (localCP > 2) then
-							if (not localObj:HasBuff('Slice and Dice')) then
-								if (localEnergy < 25) then 
-									self.message = "waiting for 25 energy for Slice and Dice ELITE";
-									return 0; -- return until we have energy
-								end
-								if (not script_rogue:spellAttack('Slice and Dice', targetObj) or localEnergy <= 25) then
-									self.message = "Using Slice and Dice ELITE";
-									return 0;
-								end
-							end
+						if (Cast("Kick", targetObj)) then
+						self.message = "Using Riposte Combat Rotation 2";
+
+							return 0;
 						end
-						if (localCP > 1) and (targetHealth < 25) then
-							if (localEnergy < 35) then
-								self.message = "Waiting for 35 energy for Eviscerate ELITE";
+					end
+
+						-- check: Kidney shot if target is casting and kick is on cooldown
+					if (self.useKidneyShot) then
+						if (HasSpell('Kidney Shot')) and (localCP >= 1 ) and (targetObj:IsCasting()) and (not IsSpellOnCD('Kidney Shot')) then
+							if (localEnergy > 24) then
+								self.message = "Waiting for Kidney Shot Energy Combat Rotation 2";
 								return 0;
 							end
-							if (not script_rogue:spellAttack('Eviscerate', targetObj)) then 
-								self.messsage = "Using Eviscerate ELITE";
-								return 0; -- return until we use Eviscerate
+							if (Cast('Kidney Shot', targetObj)) then
+							self.message = "Using Kidney Shot Combat Rotation 2";
+								return 0;
 							end
 						end
-						-- eviscerate at 5 CP only
-						if (localCP == 5) then
-							if localObj:HasBuff('Slice and Dice') and (targetHealth > 25) and (localEnergy > 35) then
-								if (not script_rogue:spellAttack('Eviscerate', targetObj)) then 
-									self.messsage = "Using Eviscerate 5 Combo Points ELITE";
-									return 0; -- return until we use Eviscerate
-								end
-							end
-						end
-						if (localCP < 5) then
-							if (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) then
-								if (script_rogue:spellAttack(self.cpGenerator, targetObj)) then
-									self.waitTimer = GetTimeEX() + 250;
-									self.message = "Using Combo Points Generator Attack ELITE";
+					end
+						--
+					if (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) then 
+						self.message = "Waiting for Riposte Energy Combat Rotation 2";
+						if (localEnergy < 10) then 
+							return 0; 
+						end -- return until we have energy
+						if (not script_rogue:spellAttack("Riposte", targetObj)) then 
+							self.message = "Using Riposte Combat Rotation 2";
+							return 0; -- return until we cast Riposte
+						end 
+					end
+
+					-- Use Blade Flurry on CD targets > 1
+					if (self.enableBladeFlurry) then
+						if (HasSpell("Blade Flurry")) and (not IsSpellOnCD("Blade Flurry")) and (targetHealth > 50) then
+							if (script_helper:enemiesAttackingUs(5) >= 1) then
+								if (CastSpellByName("Blade Flurry")) then
+								self.message = "Using Blade Flurry Combat Rotation 2";
 									return 0;
 								end
 							end
 						end
 					end
-				end
 
-				if (not self.eliteTarget) then
+					-- Use adrenaline Rush on CD targets > 1
+					if (self.enableAdrenRush)then
+						if (HasSpell("Adrenaline Rush")) and (not IsSpellOnCD("Adrenaline Rush")) and (targetHealth > 60) then
+							if (script_helper:enemiesAttackingUs(5) >= 1) then
+								if(CastSpellByName("Adrenaline Rush")) then
+									self.message = "Using Adrenaline Rush Combat Rotation 2";
+									return 0;
+								end
+							end
+						end
+					end
+						-- Slice and Dice at 2 combo points
+					if (localCP > 2) then
+						if (not localObj:HasBuff('Slice and Dice')) and (targetHealth > 25) then
+							if (localEnergy < 25) then 
+								self.message = "waiting for 25 energy for Slice and Dice Combat Rotation 2";
+								return 0; -- return until we have energy
+							end
+							if (not script_rogue:spellAttack('Slice and Dice', targetObj) or localEnergy <= 25) then
+								self.message = "Using Slice and Dice Combat Rotation 2";
+								return 0;
+							end
+						end
+					end
+					if (localCP > 1) and (targetHealth < 15) then
+						if (localEnergy < 35) then
+							self.message = "Waiting for 35 energy for Eviscerate Combat Rotation 2";
+							return 0;
+						end
+						if (not script_rogue:spellAttack('Eviscerate', targetObj)) then 
+							self.messsage = "Using Eviscerate Combat Rotation 2";
+							return 0; -- return until we use Eviscerate
+						end
+					end
+					-- eviscerate at 5 CP only
+					if (localCP == 5) then
+						if localObj:HasBuff('Slice and Dice') and (targetHealth > 25) and (localEnergy > 35) then
+							if (not script_rogue:spellAttack('Eviscerate', targetObj)) then 
+								self.messsage = "Using Eviscerate 5 Combo Points Combat Rotation 2";
+								return 0; -- return until we use Eviscerate
+							end
+						end
+					end
+					if (localCP < 5) then
+						if (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) then
+							if (script_rogue:spellAttack(self.cpGenerator, targetObj)) then
+								self.waitTimer = GetTimeEX() + 250;
+								self.message = "Using Combo Points Generator Attack Combat Rotation 2";
+								return 0;
+							end
+						end
+					end
+				end
+				-- Combat rotation 1
+				if (not self.rotationTwo) then
 					self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 					-- Dismount
 					if (IsMounted()) then
@@ -651,7 +702,7 @@ function script_rogue:run(targetGUID)
 
 					-- check: Kidney shot if target is casting and kick is on cooldown
 					if (self.useKidneyShot) then
-						if (HasSpell('Kidney Shot')) and (localCP > 0) and (targetObj:IsCasting()) and (IsSpellOnCD('Kick')) and (not IsSpellOnCD('Kidney Shot')) then
+						if (HasSpell('Kidney Shot')) and (localCP > 0) and (targetObj:IsCasting()) and (not IsSpellOnCD('Kidney Shot')) then
 							if (localEnergy > 24) then
 								return 0;
 							end
@@ -663,8 +714,8 @@ function script_rogue:run(targetGUID)
 
 					-- Use Blade Flurry on CD targets > 1
 					if (self.enableBladeFlurry) then
-						if (HasSpell("Blade Flurry")) and (not IsSpellOnCD("Blade Flurry")) and (IsInCombat()) and (targetHealth > 50) then
-							if (script_helper:enemiesAttackingUs() >= 2) then
+						if (HasSpell("Blade Flurry")) and (not IsSpellOnCD("Blade Flurry")) and (targetHealth > 50) then
+							if (script_helper:enemiesAttackingUs(5) >= 1) then
 								if (CastSpellByName("Blade Flurry")) then
 									return 0;
 								end
@@ -674,8 +725,8 @@ function script_rogue:run(targetGUID)
 
 					-- Use adrenaline Rush on CD targets > 1
 					if (self.enableAdrenRush)then
-						if (HasSpell("Adrenaline Rush")) and (not IsSpellOnCD("Adrenaline Rush")) and (IsInCombat()) and (targetHealth > 60) then
-							if (script_helper:enemiesAttackingUs() >= 2) then
+						if (HasSpell("Adrenaline Rush")) and (not IsSpellOnCD("Adrenaline Rush")) and (targetHealth > 60) then
+							if (script_helper:enemiesAttackingUs(5) >= 1) then
 								if(CastSpellByName("Adrenaline Rush")) then
 									return 0;
 								end
@@ -802,7 +853,6 @@ SameLine();
 		wasClicked, self.enableRotation = Checkbox("Rotation", self.enableRotation); -- then show rotation button
 		SameLine();
 	end	
-	Separator();
 	if (self.enableGrind) then
 		Separator();
 		if (CollapsingHeader("Rogue Grind Options")) then
@@ -847,9 +897,9 @@ SameLine();
 	end
 			-- rotation menu
 	if (self.enableRotation) then
-		self.eatHealth = 20;
+		self.meeleDistance = 4.5;
 		Separator();
-		if(CollapsingHeader("Clickable Rotation Options")) then
+		if(CollapsingHeader("Rogue Talent Rotation Options")) then
 			wasClicked, self.useSliceAndDice = Checkbox("Use Slice & Dice", self.useSliceAndDice);
 			SameLine();
 			wasClicked, self.useKidneyShot = Checkbox("Kidney Shot Interrupts", self.useKidneyShot);
@@ -860,7 +910,7 @@ SameLine();
 			SameLine();
 			wasClicked, self.enableAdrenRush = Checkbox("Adren Rush on CD", self.enableAdrenRush);
 			Text("Experimental Elite Target Rotation");
-			wasClicked, self.eliteTarget = Checkbox("Elite Target", self.eliteTarget);
+			wasClicked, self.rotationTwo = Checkbox("Rotation 2", self.rotationTwo);
 		end
 		if (CollapsingHeader("Rogue Rotation Options")) then
 			Separator();

@@ -55,10 +55,10 @@ function script_grindEX:doChecks()
 		end
 
 		if (script_grind:getTargetAttackingUs() == nil) then
-			if (GetLocalPlayer():HasBuff('Bloodrage')) then
-				script_grind.message = "Waiting for bloodrage to fade...";
-				return true;
-			end
+			--if (GetLocalPlayer():HasBuff('Bloodrage')) then
+			--	script_grind.message = "Waiting for bloodrage to fade...";
+			--	return true;
+			--end
 			if (not IsInCombat() and self.avoidBlacklisted) then
 				if (script_aggro:avoidBlacklistedTargets()) then
 					script_grind.message = "Avoiding blacklisted targets...";

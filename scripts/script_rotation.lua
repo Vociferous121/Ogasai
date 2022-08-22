@@ -11,13 +11,16 @@ script_rotation = {
 	gatherLoaded = include("scripts\\script_gather.lua"),
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
 	helperLoaded = include("scripts\\script_helper.lua"),
-	drawEnabled = true,
+	drawEnabled = false,
 	drawAggro = false,
 	drawGather = false,
 	drawUnits = false,
 	isSetup = false,
 	pullDistance = 150,
 	showClassOptions = true,
+	meleeDistance = 4,
+	nextToNodeDist = 4, -- (Set to about half your nav smoothness)
+
 }
 
 function script_rotation:setup()
@@ -43,8 +46,10 @@ function script_rotation:run()
 		script_rotation:setup(); 
 	end
 
+	script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*2);
+
 	if (self.pause) then 
-		self.message = "Paused by user..."; 
+		--self.message = "Paused by user..."; 
 		return; 
 	end
 	
@@ -93,14 +98,14 @@ function script_rotation:run()
 					DisMount(); 
 					return; 
 				end
-			else
+			end
+
+			if (self.enemyObj:GetDistance() <= 20) then
 				-- Attack the target
 				self.message = "Running the combat script on target...";
 				RunCombatScript(self.enemyObj:GetGUID());
+				return;
 			end
-
-			return;
-			
 		else
 			-- Rest
 			if (script_rotation:runRest()) then
@@ -120,6 +125,16 @@ function script_rotation:run()
 	else
 		-- Auto ress?
 	end 
+end
+
+function script_rotation:moveInLineOfSight(target)
+	if (not target:IsInLineOfSight() or target:GetDistance() > self.meleeDistance) then
+		local x, y, z = target:GetPosition();
+		script_nav:moveToTarget(GetTarget(), x , y, z);
+		self.timer = GetTimeEX() + 200;
+		return true;
+	end
+	return false;
 end
 
 function script_rotation:isTargetingMe(i) 
@@ -258,18 +273,13 @@ function script_rotation:draw()
 
 	-- info
 	if (not self.pause) then
-		DrawRect(x - 10, y - 5, x + width, y + 120, 255, 255, 0,  1, 1, 1);
-		DrawRectFilled(x - 10, y - 5, x + width, y + 80, 0, 0, 0, 60, 0, 0);
-		DrawText('Rotation', x-5, y-4, r, g, b) y = y + 15;
-		DrawText('Script Idle: ' .. math.max(0, math.floor(self.timer-GetTimeEX())) .. ' ms.', x, y, 255, 255, 255); y = y + 20;
-		DrawText('Rotation status: ', x, y, r, g, b); y = y + 20;
-		DrawText(self.message or "error", x, y, 100, 255, 255);
-		DrawText('Status: ', x+10, y+30, r, g, b);
-
-		if (self.showClassOptions) then RunCombatDraw(); 
-		end
-	else
-		DrawText('Rotation paused by user...', x-5, y-4, r, g, b);
+		--DrawRect(x - 10, y - 5, x + width, y + 120, 255, 255, 0,  1, 1, 1);
+		--DrawRectFilled(x - 10, y - 5, x + width, y + 80, 0, 0, 0, 60, 0, 0);
+		--DrawText('Rotation', x-5, y-4, r, g, b) y = y + 15;
+		DrawText('Script Idle: ' .. math.max(0, math.floor(self.timer-GetTimeEX())) .. ' ms.', x+255, y, 255, 255, 255); y = y + 20;
+		--DrawText('Rotation status: ', x+255, y, r, g, b); y = y + 20;
+		DrawText(self.message or "error", x+255, y, 100, 255, 255);
+		DrawText('Status: ', x+255, y+30, r, g, b);
 	end
 end
 
@@ -345,7 +355,7 @@ function script_rotation:menu()
 
 	Separator();
 
-	if (CollapsingHeader('[Display options')) then
+	if (CollapsingHeader('Display options')) then
 		local wasClicked = false;
 		wasClicked, self.drawEnabled = Checkbox('Show status window', self.drawEnabled);
 		wasClicked, self.drawGather = Checkbox('Show gather nodes', self.drawGather);
@@ -353,6 +363,6 @@ function script_rotation:menu()
 		wasClicked, self.drawAggro = Checkbox('Show aggro range circles', self.drawAggro);
 		Separator();
 		Text('Script tic rate (ms)');
-		self.tickRate = SliderInt("TR", 50, 500, self.tickRate);
 	end
+		self.tickRate = SliderInt("TR", 50, 500, self.tickRate);
 end

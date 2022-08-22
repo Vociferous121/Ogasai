@@ -126,7 +126,8 @@ end
 	elseif (class == 'Shaman') then
 		script_shaman:menu();
 	end	
-
+	Separator();
+	self.partyTank = InputText("Name", self.partyTank);
 	if (class == 'Priest') and (CollapsingHeader("Priest Group Heals - Follower Script")) then
 
 
