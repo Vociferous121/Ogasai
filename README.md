@@ -1,1 +1,5 @@
 #Ogasai Updated
+
+
+WORK IN PROGRESS 
+ MAGE CURRENTLY BROKEN! :
