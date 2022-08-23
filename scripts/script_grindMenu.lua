@@ -53,6 +53,8 @@ function script_grindMenu:menu()
 	if (script_grind.autoTalent) then Text("Spending next talent point in: " .. (script_talent:getNextTalentName() or " ")); end
 	Separator();
 		wasClicked, script_grind.paranoidOn = Checkbox("Enable Paranoia", script_grind.paranoidOn);
+		SameLine();
+		wasClicked, script_grind.sitParanoid = Checkbox("Sit when Paranoid", script_grind.sitParanoid);
 		wasClicked, script_grind.paranoidOnTargeted = Checkbox("Paranoid when targeted by players", script_grind.paranoidOnTargeted);
 	 	Text('Paranoia Range'); script_grind.paranoidRange = SliderInt("P (yd)", 1, 300, script_grind.paranoidRange);
 	end

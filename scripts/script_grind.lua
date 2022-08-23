@@ -84,6 +84,7 @@ script_grind = {
 	skipHardPull = true,
 	useUnstuck = true,
 	blacklistAdds = 1,
+	sitParanoid = true,
 }
 
 function script_grind:setup()
@@ -193,9 +194,10 @@ function script_grind:run()
 			end
 
 			self.waitTimer = GetTimeEX() + 10000;
-
-			if (IsStanding()) and (not IsInCombat()) then
-				SitOrStand();
+			if (self.sitParanoid) then
+				if (IsStanding()) and (not IsInCombat()) then
+					SitOrStand();
+				end
 			end
 		return;
 		end

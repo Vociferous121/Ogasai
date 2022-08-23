@@ -39,7 +39,7 @@ script_mage = {
 	waitTimer = 0,
 	useWand = true,
 	gemTimer = 0,
-	isChecked = true
+	isChecked = true,
 }
 
 function script_mage:window()
@@ -328,8 +328,7 @@ function script_mage:run(targetGUID)
 				return 3;
 			end
 		return 0;
-		end
-			
+		end	
 	else
 		-- Combat
 		self.message = "Killing " .. targetObj:GetUnitName() .. "...";
@@ -505,14 +504,11 @@ function script_mage:run(targetGUID)
 				return 3;
 			end
 		elseif(not targetObj:IsSpellInRange('Fireball')) then
-			return 3;
 			if (script_mage:cast('Fireball', targetObj)) then
 				return 0;
 			end
 			if (not targetObj:IsInLineOfSight()) then
 				return 3;
-					end	
-				end
 			end
 		end
 	end
