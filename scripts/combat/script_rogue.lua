@@ -112,7 +112,7 @@ function script_rogue:checkPoisons()
 end
 
 function script_rogue:canRiposte()
-	for i=1,70 do 
+	for i=1,132 do 
 		local texture = GetActionTexture(i); 
 		if texture ~= nil and string.find(texture,"Ability_Warrior_Challenge") then
 			local isUsable, _ = IsUsableAction(i); 

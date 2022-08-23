@@ -10,8 +10,9 @@ script_warrior = {
 	waitTimer = 0,
 	stopIfMHBroken = true,
 	overpowerActionBarSlot = 72+5, -- Default: Overpower in slot 5 on the default Battle Stance Bar
+	revengeActionBarSlot = 82+8,  -- default at action bar 1 (82) slot 8 (82+8)
 	enableRotation = false,
-	enableGrind = false,
+	enableGrind = true,
 	enableCharge = true,
 	chargeWalk = false,
 	defensiveStance = false,
@@ -58,12 +59,12 @@ function script_warrior:enemiesAttackingUs(range) -- returns number of enemies a
     local currentObj, typeObj = GetFirstObject(); 
     while currentObj ~= 0 do 
     	if typeObj == 3 then
-		if (currentObj:CanAttack() and not currentObj:IsDead()) then
-                	if (script_grind:isTargetingMe(currentObj) and currentObj:GetDistance() <= range) then 
-                		unitsAttackingUs = unitsAttackingUs + 1; 
-                	end 
-            	end 
-       	end
+			if (currentObj:CanAttack() and not currentObj:IsDead()) then
+				if (script_grind:isTargetingMe(currentObj) and currentObj:GetDistance() <= range) then 
+					unitsAttackingUs = unitsAttackingUs + 1; 
+				end 
+			end 
+		end
         currentObj, typeObj = GetNextObject(currentObj); 
     end
     return unitsAttackingUs;
@@ -91,6 +92,15 @@ function script_warrior:canOverpower()
 	end 
 	return false;
 end
+
+function script_warrior:canRevenge()
+	local isUsable, _ = IsUsableAction(self.revengeActionBarSlot); 
+	if (isUsable == 1 and not IsSpellOnCD('Revenge')) then 
+		return true; 
+	end 
+	return false;
+end
+
 
 -- Run backwards if the target is within range
 function script_warrior:runBackwards(targetObj, range) 
@@ -173,8 +183,10 @@ function script_warrior:run(targetGUID)
 			return 0;
 		end
 		
-		if (not IsStanding()) then
-			StopMoving();
+		if (self.faceTarget) then
+			if (not IsStanding()) then
+				StopMoving();
+			end
 		end
 		
 		-- Auto Attack
@@ -191,6 +203,7 @@ function script_warrior:run(targetGUID)
 				return 5; 
 			end
 		end 
+
 		-- Opener
 		if (not IsInCombat()) then
 			self.targetObjGUID = targetObj:GetGUID();
@@ -214,14 +227,14 @@ function script_warrior:run(targetGUID)
 
 			-- Charge in Defensive Stance
 			if (self.enableCharge and self.defensiveStance) then
-				if (HasSpell("Charge") and targetHealth > 99 ) then
+				if (HasSpell("Charge")) and (targetHealth > 99 or (script_grind:isTargetingMe(currentObj))) then
 					if (not IsSpellOnCD("Charge")) then
-						if (targetObj:GetDistance() > 12) and (targetObj:GetDistance() < 25) and (not IsInCombat()) then
+						if (targetObj:GetDistance() > 10) and (not IsInCombat()) then
 							if (CastSpellByName("Battle Stance")) then
 								self.waitTimer = GetTimeEX() + 1700;
 							end
-							if (CastSpellByName("Charge") and targetObj:GetDistance() > 10) then
-								self.waitTimer = GetTimeEX() + 2500;
+							if (targetObj:GetDistance() > 8) and (targetObj:GetDistance() < 28) and (CastSpellByName("Charge")) then
+								self.waitTimer = GetTimeEX() + 2700;
 							end
 						end
 					end
@@ -250,7 +263,6 @@ function script_warrior:run(targetGUID)
 					end
 				end
 			end	
-			
 
 			-- Check move into meele range
 			if (targetObj:GetDistance() > self.meeleDistance or not targetObj:IsInLineOfSight()) then
@@ -294,18 +306,19 @@ function script_warrior:run(targetGUID)
 				end 
 			end
 			
-
 			-- TAUNT !
-			if (HasSpell("Taunt")) and (not IsSpellOnCD("Taunt")) then
-				if (not targetObj:IsTargetingMe()) and (localObj:GetDistance() < 8) then
-					if (CastSpellByName("Taunt")) then
-						targetObj:FaceTarget();
-						return 0;
-					end
-				end
-			end
+			--if (HasSpell("Taunt")) and (not IsSpellOnCD("Taunt")) then
+			--	if (targetHealth < 96) and (targetObj:GetDebuffStacks("Sunder Armor") >= 1) then
+			--		if (not targetObj:IsTargetingMe()) and (localObj:GetDistance() < 8) then
+			--			if (CastSpellByName("Taunt")) then
+			--				targetObj:FaceTarget();
+			--				return 0;
+			--			end
+			--		end
+			--	end
+			--end
 
-				-- sunder armor defensive stance
+			-- sunder armor defensive stance
 			if (self.defensiveStance) then
 				if (not targetObj:GetCreatureType() ~= 'Mechanical') and (not targetObj:GetCreatureType() ~= 'Elemental') then
 					if (HasSpell("Sunder Armor")) and (localRage > 15) then
@@ -336,6 +349,15 @@ function script_warrior:run(targetGUID)
 				CastSpellByName("War Stomp");
 				self.waitTimer = GetTimeEX() + 200;
 				return 0;
+			end
+
+			-- Use Revenge as main threat gain when we can
+			if (self.defensiveStance) then
+				if (script_warrior:canRevenge() and localRage >= 5 and not IsSpellOnCD('Revenge')) then 
+					CastSpellByName('Revenge'); 
+					self.message = "Using Revenge!";
+					return 0;
+				end  
 			end
 
 			-- Check: Thunder clap if 2 mobs or more
@@ -387,17 +409,20 @@ function script_warrior:run(targetGUID)
 			-- Check: If we are in meele range, do meele attacks
 			if (targetObj:GetDistance() < self.meeleDistance) then
 
-			-- shield block
-				-- main rage user
-			if (self.defensiveStance) then
-				if (HasSpell("Shield Block")) and (not IsSpellOnCD("Shield Block")) and (localRage >= 10) then
-					if (localHealth < 85) and (IsInCombat()) then
-						if (CastSpellByName("Shield Block")) then
-							return 0;
+				-- shield block
+				-- main rage user use only if target has at least 1 sunder for threat gain
+				if (self.defensiveStance) then
+					if (targetObj:GetDebuffStacks("Sunder Armor") >= 1) then
+						if (HasSpell("Shield Block")) and (not IsSpellOnCD("Shield Block")) and (localRage >= 10) then
+							if (localHealth < 85) and (IsInCombat()) then
+								if (CastSpellByName("Shield Block")) then
+									return 0;
+								end
+							end
 						end
 					end
 				end
-			end
+
 				-- Meele Skill: Overpower if possible battle stance
 				if (self.battleStance) then
 					if (script_warrior:canOverpower() and localRage >= 5 and not IsSpellOnCD('Overpower')) then 
@@ -459,7 +484,6 @@ function script_warrior:run(targetGUID)
 				if (self.battleStance) then
 					if (localRage >= 15) then 
 						if (targetObj:GetDistance() < 6) then
-							targetObj:FaceTarget();
 							if (Cast('Heroic Strike', targetObj)) then
 								if (self.faceTarget) then
 									targetObj:FaceTarget();
@@ -471,20 +495,22 @@ function script_warrior:run(targetGUID)
 					end 
 				end
 				-- wait to heroic strike in defensive stance for sunder armor > 1
-				if (not targetObj:GetCreatureType() ~= 'Mechanical') and (not targetObj:GetCreatureType() ~= 'Elemental') then
-					if (self.defensiveStance) then
+				if (self.defensiveStance) then
+					if (not targetObj:GetCreatureType() ~= 'Mechanical') and (not targetObj:GetCreatureType() ~= 'Elemental') then
 						if (localRage >= 35) and (targetObj:GetDebuffStacks("Sunder Armor") >= self.sunderStacks) then 
 							if (targetObj:GetDistance() < 6) then
 								if (Cast('Heroic Strike', targetObj)) then
-									targetObj:FaceTarget();
-									return 0;
+									if (self.faceTarget) then
+										targetObj:FaceTarget();
+									end
+								return 0;
 								end 
 							end
 						end 
 					end
 				end
 				if (self.defensiveStance) then
-					if (localRage >= 35) then 
+					if (localRage >= 50) then 
 						if (targetObj:GetDistance() < 6) then
 							if (Cast('Heroic Strike', targetObj)) then
 								if (self.faceTarget) then
@@ -505,7 +531,7 @@ function script_warrior:run(targetGUID)
 			end
 			return 0; 
 		end
-		return 0;
+	return 0;
 	end
 end
 
@@ -565,9 +591,9 @@ SameLine();
 		SameLine();
 	end	
 	Separator();
-	if (self.enableGrind) then
+	if (self.enableGrind) then -- grind option menu
 		Separator();
-		if (CollapsingHeader("Choose Stance - Experimental")) then
+		if (CollapsingHeader("Choose Stance - Experimental")) then -- stance menu
 			Text("Choose Stance - Experimental");
 			if (not self.defensiveStance) and (not self.berserkerStance) then
 				wasClicked, self.battleStance = Checkbox("Battle (DPS)", self.battleStance);
@@ -582,15 +608,26 @@ SameLine();
 				SameLine();
 			end
 			Separator();
-			if (self.defensiveStance) then
+			if (self.battleStance) then -- batle stance menu
+				if (CollapsingHeader("Battle Stance Options")) then
+					Text("TODO!");
+					Text("Overpower action bar slot");
+					self.overpowerActionBarSlot = InputText("OPS", self.overpowerActionBarSlot);
+					Text('Add 72 to your action bar slot number.. slot 1 would be 73');
+				end
+			end
+			if (self.defensiveStance) then -- defensive stance menu
 				if (CollapsingHeader("Defensive Stance Options")) then
 					Text("How many Sunder Armor Stacks?");
 					self.sunderStacks = SliderInt("stacks", 1, 5, self.sunderStacks);
 					wasClicked, self.enableFaceTarget = Checkbox("FaceTarget On/Off", self.enableFaceTarget);
+					Text("Revenge action bar slot");
+					self.revengeActionBarSlot = InputText("RS", self.revengeActionBarSlot);
+					Text('Add 72 to your action bar slot number.. slot 1 would be 73');
 				end
 			end
 		end
-		if (CollapsingHeader("Warrior Grind Options")) then
+		if (CollapsingHeader("Warrior Grind Options")) then -- grind menu
 			local wasClicked = false;
 			wasClicked, self.enableCharge = Checkbox("Charge On/Off", self.enableCharge);
 			SameLine();
@@ -605,20 +642,15 @@ SameLine();
 			self.bloodRageHealth = SliderInt("BR%", 1, 99, self.bloodRageHealth);
 			Text("Melee Range Distance");
 			self.meeleDistance = SliderFloat("MR (yd)", 1, 6, self.meeleDistance);
-			if (CollapsingHeader("Throwing Weapon Options")) then
+			if (CollapsingHeader("Throwing Weapon Options")) then -- throwing weapon menu
 				wasClicked, self.throwOpener = Checkbox("Pull with throw", self.throwOpener);
 				Text("Throwing weapon");
 				self.throwName = InputText("TW", self.throwName);
 			end
-			if (CollapsingHeader("Overpower Options")) then
-				Text("Overpower action bar slot");
-				self.overpowerActionBarSlot = InputText("OPS", self.overpowerActionBarSlot);
-				Text('E.g. 77 = (72 + 5) = slot 5');
-			end
 		end
 	end
 
-	if (self.enableRotation) then
+	if (self.enableRotation) then -- rotation menu
 		Separator();
 		if (CollapsingHeader("Warrior Rotation Options")) then
 		Text("Charge On/Off");

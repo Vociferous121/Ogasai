@@ -177,13 +177,11 @@ function script_grind:run()
 	if (not localObj:IsDead() and self.paranoidOn and not IsInCombat()) then 
 		if (self.paranoidOnTargeted and script_grind:playersTargetingUs() > 0) then
 			self.message = "Player(s) targeting us, pausing...";
+			self.waitTimer = GetTimeEX() + 3200;
 			ClearTarget();
 			if IsMoving() then
-				StopMoving();
-			end
-			if (IsStanding()) and (not IsInCombat()) then
-				SitOrStand();
 				self.waitTimer = GetTimeEX() + 10000;
+				StopMoving();
 			end
 		return;
 		end
@@ -193,9 +191,11 @@ function script_grind:run()
 			if IsMoving() then
 				StopMoving();
 			end
+
+			self.waitTimer = GetTimeEX() + 10000;
+
 			if (IsStanding()) and (not IsInCombat()) then
 				SitOrStand();
-				self.waitTimer = GetTimeEX() + 10000;
 			end
 		return;
 		end

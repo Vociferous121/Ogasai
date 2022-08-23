@@ -364,7 +364,8 @@ function script_paladin:run(targetGUID)
 			-- Check: Remove desease or poison
 			if (localObj:HasDebuff('Rabies')) or (localObj:HasDebuff('Corrosive Poison')) or (localObj:HasDebuff('Poison')) or (localObj:HasDebuff('Fevered Fatigue'))
 				or (localObj:HasDebuff('Dark Sludge')) or (localObj:HasDebuff('Corrosive Poison')) or (localObj:HasDebuff('Slowing Poison'))
-					or (localObj:HasDebuff('Infected Bite')) or (localObj:HasDebuff('Poison')) then
+					or (localObj:HasDebuff('Infected Bite')) or (localObj:HasDebuff('Poison')) or (localObj:HasDebuff("Wandering Plague"))
+						or (localObj:HasDebuff("Plague Mind")) then
 				if(HasSpell('Cleanse')) then
 					local cleanseRandom = random(1, 100);
 					if (cleanseRandom > 98) then

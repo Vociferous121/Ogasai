@@ -3,7 +3,7 @@ script_aggro = {
 	rX = 0,
 	rY = 0,
 	rZ = 0,
-	rTime = 0
+	rTime = 0,
 }
 
 function script_aggro:DrawCircles(pointX,pointY,pointZ,radius)
@@ -63,7 +63,7 @@ function script_aggro:safePull(target)
  	end
 
 	-- avoid pull if more than 1 add
-	if (countUnitsInRange >  self.blacklistAdds) then
+	if (countUnitsInRange >  1) then
 		return false;
 	end
 
