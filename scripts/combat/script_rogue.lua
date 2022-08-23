@@ -277,7 +277,6 @@ function script_rogue:run(targetGUID)
 				return 3;
 			end
 			
-
 			-- Use CP generator attack 
 			if ((localEnergy >= self.cpGeneratorCost) and HasSpell(self.cpGenerator)) then
 				if(script_rogue:spellAttack(self.cpGenerator, targetObj)) then

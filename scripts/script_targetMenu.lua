@@ -4,7 +4,9 @@ script_targetMenu = {
 function script_targetMenu:menu()
 	if (CollapsingHeader("Target options")) then
 		local wasClicked = false;
-		wasCLicked, script_grind.skipHardPull = Checkbox("Blacklist target with more than 1 add", script_grind.skipHardPull);
+		wasCLicked, script_grind.skipHardPull = Checkbox("Blacklist target with more than set add", script_grind.skipHardPull);
+		Text("Number of adds until blacklisting");
+		wasClicked, script_grind.blacklistAdds = SliderInt("# of adds", 1, 3, script_grind.blacklistAdds);
 		wasClicked, script_grindEX.avoidBlacklisted = Checkbox("Avoid blacklisted targets (buggy)", script_grindEX.avoidBlacklisted);
 		Text("Search for target distance"); script_grind.pullDistance = SliderFloat("PD (yd)", 1, 150, script_grind.pullDistance); Separator();
 		Text('Target level'); script_grind.minLevel = SliderInt("Min lvl", 1, 60, script_grind.minLevel); script_grind.maxLevel = SliderInt("Max lvl", 1, 60, script_grind.maxLevel); Separator();

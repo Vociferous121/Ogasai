@@ -63,7 +63,7 @@ function script_aggro:safePull(target)
  	end
 
 	-- avoid pull if more than 1 add
-	if (countUnitsInRange > 1) then
+	if (countUnitsInRange >  self.blacklistAdds) then
 		return false;
 	end
 

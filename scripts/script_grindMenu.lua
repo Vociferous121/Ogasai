@@ -54,7 +54,7 @@ function script_grindMenu:menu()
 	Separator();
 		wasClicked, script_grind.paranoidOn = Checkbox("Enable Paranoia", script_grind.paranoidOn);
 		wasClicked, script_grind.paranoidOnTargeted = Checkbox("Paranoid when targeted by players", script_grind.paranoidOnTargeted);
-	 	Text('Paranoia Range'); script_grind.paranoidRange = SliderInt("P (yd)", 1, 120, script_grind.paranoidRange);
+	 	Text('Paranoia Range'); script_grind.paranoidRange = SliderInt("P (yd)", 1, 300, script_grind.paranoidRange);
 	end
 	if (CollapsingHeader("Vendor options")) then
 		wasClicked, script_grind.useVendor = Checkbox("Vendor on/off", script_grind.useVendor);

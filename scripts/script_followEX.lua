@@ -126,8 +126,7 @@ end
 	elseif (class == 'Shaman') then
 		script_shaman:menu();
 	end	
-	Separator();
-	self.partyTank = InputText("Name", self.partyTank);
+
 	if (class == 'Priest') and (CollapsingHeader("Priest Group Heals - Follower Script")) then
 
 
@@ -216,6 +215,7 @@ end
 
 		Text("TODO!");
 	end
+
 	if (CollapsingHeader("Follower - OTHER OPTIONS")) then
 		Text("Combat options:");
 		SameLine();
@@ -223,23 +223,21 @@ end
 		script_follow.dpsHp = SliderInt("Enemy HP%", 0, 100, script_follow.dpsHp);
 		Separator();
 		Text("Distance to walk to party members...");
-		script_follow.followDistance = SliderInt("Follow Distance (yd)", 15, 36, script_follow.followDistance);
+		script_follow.followDistance = SliderInt("Follow Distance (yd)", 6, 100, script_follow.followDistance);
 		wasClicked, script_follow.useUnStuck = Checkbox("Turn On/Off Buggy unStuck Script", script_follow.useUnStuck);
 		Separator();
 		Text("Loot options:");
 		wasClicked, script_follow.skipLooting = Checkbox("Skip Looting", script_follow.skipLooting);
 		script_follow.findLootDistance = SliderInt("Find Loot Distance (yd)", 1, 100, script_follow.findLootDistance);	
 		script_follow.lootDistance = SliderInt("Loot Distance (yd)", 1, 6, script_follow.lootDistance);
+		Separator();
 		--Text("Mount options:");
 		--wasClicked, script_follow.useMount = Checkbox("Use Mount", script_follow.useMount);
 		--script_follow.disMountRange = SliderInt("Dismount range", 1, 100, script_follow.disMountRange);
 		--Separator();
-	end
-	if (CollapsingHeader("Display Options")) then
+		Text("Script tick rate options:");
+		script_follow.tickRate = SliderFloat("Tick rate (ms)", 0, 2000, script_follow.tickRate);
 		wasClicked, script_follow.drawUnits = Checkbox("Show unit info on screen", script_follow.drawUnits);
 		wasClicked, script_follow.drawAggro = Checkbox('Show aggro range -- WORK IN PROGRESS', script_follow.drawAggro);
 	end
-		
-		Text("Script tick rate options:");
-		script_follow.tickRate = SliderFloat("Tick rate (ms)", 0, 2000, script_follow.tickRate);
 end

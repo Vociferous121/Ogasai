@@ -42,7 +42,7 @@ script_grind = {
 	skipElites = true,
 	paranoidOn = true,
 	paranoidOnTargeted = true,
-	paranoidRange = 80,
+	paranoidRange = 150,
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
 	helperLoaded = include("scripts\\script_helper.lua"),
 	talentLoaded = include("scripts\\script_talent.lua"),
@@ -82,7 +82,8 @@ script_grind = {
 	drawAggro = false,
 	safeRess = true,
 	skipHardPull = true,
-	useUnstuck = true
+	useUnstuck = true,
+	blacklistAdds = 1,
 }
 
 function script_grind:setup()
@@ -172,18 +173,31 @@ function script_grind:run()
 	end
 	
 	localObj = GetLocalPlayer();
-
 	-- Check: Paranoid feature
 	if (not localObj:IsDead() and self.paranoidOn and not IsInCombat()) then 
 		if (self.paranoidOnTargeted and script_grind:playersTargetingUs() > 0) then
 			self.message = "Player(s) targeting us, pausing...";
 			ClearTarget();
-			return;
+			if IsMoving() then
+				StopMoving();
+			end
+			if (IsStanding()) and (not IsInCombat()) then
+				SitOrStand();
+				self.waitTimer = GetTimeEX() + 10000;
+			end
+		return;
 		end
 		if (script_grind:playersWithinRange(self.paranoidRange)) then
 			self.message = "Player(s) within paranoid range, pausing...";
 			ClearTarget();
-			return;
+			if IsMoving() then
+				StopMoving();
+			end
+			if (IsStanding()) and (not IsInCombat()) then
+				SitOrStand();
+				self.waitTimer = GetTimeEX() + 10000;
+			end
+		return;
 		end
 	end
 
@@ -663,7 +677,7 @@ function script_grind:doLoot(localObj)
 			return;
 		else
 			self.lootObj = nil;
-			self.waitTimer = GetTimeEX() + 450;
+			self.waitTimer = GetTimeEX() + 2250;
 			return;
 		end
 	end
