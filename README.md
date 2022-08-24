@@ -1,6 +1,8 @@
                                           Ogasai Updated Logitech Scripts
 
-## Any bugs reports are greatly appreciated and will help with the process!
+## Core files have been changed! For these to work properly you must download the entire script and core folder. You can make a backup of your old ones!
+
+ Any bugs reports are greatly appreciated and will help with the process!
 
 #-- completed and picking out small bugs
 
