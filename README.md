@@ -2,7 +2,7 @@
 
 ## Any bugs reports are greatly appreciated and will help with the process!
 
--- completed and picking out small bugs
+#-- completed and picking out small bugs
 
 mage frost spec
 
@@ -16,7 +16,9 @@ updated paranoi features with more human-like interaction
 
 follower heals work much better and includes paladin also
 
-#WORK IN PROGRESS 
+
+
+#-- WORK IN PROGRESS 
 
 rogue rotation
 
