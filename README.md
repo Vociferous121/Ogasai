@@ -6,21 +6,21 @@
 
 #-- completed and picking out small bugs
 
-mage frost spec
+    mage frost spec
 
-``--added spells for Twow
+    --added spells for Twow
 
--- added frost/fire ward
+    -- added frost/fire ward
 
--- added cold of cone
+    -- added cold of cone
 
--- added MANY option to turn on/off and change how the bot works for you
+    -- added MANY option to turn on/off and change how the bot works for you
 
--- added wand options and speed
+    -- added wand options and speed
 
--- updated combat logic
+    -- updated combat logic
 
-``
+
 
 
 
