@@ -2,6 +2,8 @@
 
 ## Any bugs reports are greatly appreciated and will help with the process!
 
+-- completed and picking out small bugs
+
 mage frost spec
 
 warrior tank spec
