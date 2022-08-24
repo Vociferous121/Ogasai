@@ -8,7 +8,7 @@
 
 mage frost spec
 
-`--added spells for Twow
+``--added spells for Twow
 
 -- added frost/fire ward
 
@@ -20,7 +20,7 @@ mage frost spec
 
 -- updated combat logic
 
-`
+``
 
 
 
