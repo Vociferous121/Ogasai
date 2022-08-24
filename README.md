@@ -2,13 +2,17 @@
 
 #Ogasai Updated
 
-mage frost
+mage frost spec
 
-warrior tank
+warrior tank spec
+
+rogue combat spec
 
 
 #WORK IN PROGRESS 
 
 rogue rotation
-warrior berserker
-warrior rotation
+
+warrior berserker spec
+
+warrior rotation - tank and berserker ( tank is finished turn off click to move! )
