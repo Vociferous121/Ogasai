@@ -16,6 +16,10 @@ updated paranoi features with more human-like interaction
 
 follower heals work much better and includes paladin also
 
+gatherer better reflects human-like behavior
+
+heavily updated menus to make the bot behave how you want it ( still work in progress ! )
+
 
 
 #-- WORK IN PROGRESS 
