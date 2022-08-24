@@ -1,6 +1,6 @@
-## Any bugs reports are greatly appreciated and will help with the process!
+###Ogasai Updated Logitech Scripts
 
-#Ogasai Updated
+## Any bugs reports are greatly appreciated and will help with the process!
 
 mage frost spec
 
