@@ -10,9 +10,7 @@
 
     --added spells for Twow
 
-    -- added frost/fire ward
-
-    -- added cold of cone
+    -- added misc mage spells
 
     -- added MANY option to turn on/off and change how the bot works for you
 
@@ -22,11 +20,32 @@
 
 
 
+    warrior tank spec
+  
+    --added spells for Twow
+
+    -- added misc mage spells
+
+    -- added MANY option to turn on/off and change how the bot works for you
+
+    -- new tank combat logic
 
 
-warrior tank spec
 
-rogue combat spec
+    rogue combat spec
+    
+    --added spells for Twow
+
+    -- added misc rogue spells
+
+    -- added MANY option to turn on/off and change how the bot works for you
+
+    -- new rotation mode combat logic
+
+    -- new grinder mode combat logic
+
+
+
 
 reduced aggro range circles to better reflect actual aggro range
 
