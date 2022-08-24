@@ -231,7 +231,6 @@ function script_warrior:run(targetGUID)
 			if (not localObj:HasBuff("Battle Shout")) then 
 				if (localRage >= 10 and HasSpell("Battle Shout")) then 
 					CastSpellByName('Battle Shout'); 
-					return 0; 
 				end 
 			end
 		end
@@ -358,7 +357,7 @@ function script_warrior:run(targetGUID)
 			if (self.defensiveStance) then 
 				if (HasSpell("Sunder Armor")) and (localRage >= 15) then
 					if (not targetObj:GetCreatureType() ~= 'Mechanical') and (not targetObj:GetCreatureType() ~= 'Elemental') then
-						if (targetObj:GetDebuffStacks("Sunder Armor") <= 1) then
+						if (targetObj:GetDebuffStacks("Sunder Armor") < 1) then
 							if (Cast('Sunder Armor', targetObj)) then
 								self.waitTimer = GetTimeEX() + 1750;
 							return 0;
@@ -371,7 +370,6 @@ function script_warrior:run(targetGUID)
 					if (localRage >= 10) and (targetHealth >= 10) then
 						CastSpellByName("Shield Bash");
 						self.waitTimer = GetTimeEX() + 700;
-					return 0;
 					end
 				end
 			end
@@ -387,7 +385,7 @@ function script_warrior:run(targetGUID)
 						end
 					end
 					-- use taunt
-				elseif (targetHealth <= 60 and targetHealth >= 8) and (not targetObj:IsTargetingMe()) and (not targetObj:IsStunned()) then
+				elseif (targetHealth <= 60) and (not targetObj:IsTargetingMe()) and (not targetObj:IsStunned()) then
 					if (CastSpellByName("Taunt")) then
 						targetObj:FaceTarget();
 						return 0;
@@ -397,7 +395,7 @@ function script_warrior:run(targetGUID)
 
 			--Taunt last resort all else is on CD or no rage
 			if (HasSpell("Taunt")) and (not IsSpellOnCD("Taunt")) and (not targetObj:IsStunned()) then
-				if (targetHealth <= 99 and targetHealth >= 8) and (not IsSpellOnCD("Revenge")) and (localRage <= 15) then
+				if (targetHealth <= 99) and (IsSpellOnCD("Revenge")) and (localRage <= 15) then
 					if (not targetObj:IsTargetingMe()) and (localObj:GetDistance() <= 10) then
 						if (CastSpellByName("Taunt")) then
 							targetObj:FaceTarget();
@@ -431,7 +429,6 @@ function script_warrior:run(targetGUID)
 					and (targetObj:IsCasting()) and (targetHealth >= 20) then
 					CastSpellByName("Shield Bash");
 					self.waitTimer = GetTimeEX() + 700;
-					return 0;
 				end
 			end
 
@@ -609,8 +606,8 @@ function script_warrior:run(targetGUID)
 								if (self.faceTarget) then
 									targetObj:FaceTarget();
 								end
-								self.waitTimer = GetTimeEX() + 500;
-								return 0;
+							self.waitTimer = GetTimeEX() + 500;
+							return 0;
 							end 
 						end
 					end 
