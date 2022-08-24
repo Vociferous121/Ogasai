@@ -326,6 +326,7 @@ function script_rotation:menu()
 		StopBot(); 
 	end
 
+	Separator();
 	SameLine();
 
 	-- Load combat menu by class
@@ -362,7 +363,7 @@ function script_rotation:menu()
 		wasClicked, self.drawUnits = Checkbox("Show unit info on screen", self.drawUnits);
 		wasClicked, self.drawAggro = Checkbox('Show aggro range circles', self.drawAggro);
 		Separator();
-		Text('Script tic rate (ms)');
 	end
+		Text('Script tic rate (ms)');
 		self.tickRate = SliderInt("TR", 50, 500, self.tickRate);
 end

@@ -703,7 +703,7 @@ function script_mage:rest()
 end
 
 function script_mage:menu()
-	if (CollapsingHeader("Mage - Frostbite")) then
+	if (CollapsingHeader("Mage - Frost")) then
 		local wasClicked = false;
 		Text('Drink below mana percentage');
 		self.drinkMana = SliderFloat("DM%", 1, 100, self.drinkMana);
