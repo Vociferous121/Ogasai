@@ -8,6 +8,22 @@
 
 mage frost spec
 
+`--added spells for Twow
+
+-- added frost/fire ward
+
+-- added cold of cone
+
+-- added MANY option to turn on/off and change how the bot works for you
+
+-- added wand options and speed
+
+-- updated combat logic
+
+`
+
+
+
 warrior tank spec
 
 rogue combat spec
