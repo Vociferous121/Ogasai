@@ -1,4 +1,4 @@
-                                                Ogasai Updated Logitech Scripts
+                                          Ogasai Updated Logitech Scripts
 
 ## Any bugs reports are greatly appreciated and will help with the process!
 
