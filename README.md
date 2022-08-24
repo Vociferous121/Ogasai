@@ -12,9 +12,9 @@ rogue combat spec
 
 reduced aggro range circles to better reflect actual aggro range
 
-updated paranoi features with more human-like interaction
+updated paranoia features with more human-like interaction
 
-follower heals work much better and includes paladin also
+follower heals work much better and also includes paladin
 
 gatherer better reflects human-like behavior
 
