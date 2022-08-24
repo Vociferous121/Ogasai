@@ -19,7 +19,7 @@ function script_aggro:DrawCircles(pointX,pointY,pointZ,radius)
 	while theta <= 2*PI do
 		point = point + 1 -- get next table slot, starts at 0 
 		points[point] = { x = pointX + radius*cos(theta), y = pointY + radius*sin(theta) }
-		theta = theta + 2*PI / 50 -- get next theta
+		theta = theta + 2*PI / 47 -- get next theta
 	end
 	for i = 1, point do
 		local firstPoint = i
