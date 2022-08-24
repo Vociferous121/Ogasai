@@ -22,12 +22,13 @@ script_warrior = {
 	sunderStacks = 2,
 	enableFaceTarget = true,
 	enableShieldBlock = true,
-	shieldBlockRage = 10,
-	shieldBlockHealth = 55,
+	shieldBlockRage = 15,
+	shieldBlockHealth = 50,
 	sunderArmorRage = 15,
 	enableRend = false,
 	enableCleave = false,
 	demoShoutRage = 20, -- set higher than sunder armor due to needed threat gain
+	enableSunder = true,
 
 
 }
@@ -104,7 +105,7 @@ end
 
 function script_warrior:canRevenge()
 	local isUsable, _ = IsUsableAction(self.revengeActionBarSlot); 
-	if (isUsable == 1 and not IsSpellOnCD('Revenge')) then 
+	if (isUsable == 1 and not IsSpellOnCD("Revenge")) then 
 		return true; 
 	end 
 	return false;
@@ -359,7 +360,7 @@ function script_warrior:run(targetGUID)
 				if (HasSpell("Sunder Armor")) and (localRage >= 15) then
 					if (not targetObj:GetCreatureType() ~= 'Mechanical') and (not targetObj:GetCreatureType() ~= 'Elemental') then
 						if (targetObj:GetDebuffStacks("Sunder Armor") < self.sunderStacks) then
-							if (Cast('Sunder Armor', targetObj)) then
+							if (Cast("Sunder Armor", targetObj)) then
 								self.waitTimer = GetTimeEX() + 1750;
 							return 0;
 							end
@@ -376,13 +377,14 @@ function script_warrior:run(targetGUID)
 					-- else get sunder out!
 				elseif (localRage > 15) and (targetObj:GetDebuffStacks("Sunder Armor") < self.sunderStacks) then
 					if (not targetObj:GetCreatureType() ~= 'Mechanical') and (not targetObj:GetCreatureType() ~= 'Elemental') then
+						self.waitTimer = GetTimeEX() + 500
 					end
 				end
 			end
 
 			-- TAUNT !
 			if (HasSpell("Taunt")) and (not IsSpellOnCD("Taunt")) and (not targetObj:IsStunned()) then
-				if (targetHealth <= 96 and targetHealth >= 8) and (targetObj:GetDebuffStacks("Sunder Armor") >= 1) 
+				if (targetHealth <= 96 and targetHealth >= 10) and (targetObj:GetDebuffStacks("Sunder Armor") >= 1) 
 					and (not script_warrior:canRevenge()) then
 					if (not targetObj:IsTargetingMe()) and (localObj:GetDistance() <= 10) then
 						if (CastSpellByName("Taunt")) then
@@ -391,7 +393,7 @@ function script_warrior:run(targetGUID)
 						end
 					end
 					-- use taunt
-				elseif (targetHealth <= 60) and (not targetObj:IsTargetingMe()) and (not targetObj:IsStunned()) then
+				elseif (targetHealth <= 60 and targetHealth >=10) and (not targetObj:IsTargetingMe()) and (not targetObj:IsStunned()) then
 					if (CastSpellByName("Taunt")) then
 						targetObj:FaceTarget();
 						return 0;
@@ -419,13 +421,9 @@ function script_warrior:run(targetGUID)
 					if (not targetObj:IsTargetingMe()) and (not IsSpellOnCD("Revenge")) then 
 						CastSpellByName("Revenge"); 
 						self.message = "Using Revenge!";
+						self.waitTimer = GetTimeEX() + 2500;
 					end
-			
-					-- waste rage on Revenge whenever possible
-				elseif (script_warrior:canRevenge()) and (localRage >= 16) and (not IsSpellOnCD("Revenge")) then
-						CastSpellByName("Revenge"); 
-						self.message = "Using Revenge!";
-				end  
+				end
 			end
 			
 			-- shield bash						first thing in combat!
@@ -462,8 +460,7 @@ function script_warrior:run(targetGUID)
 				if (not targetObj:GetCreatureType() ~= 'Mechanical') and (not targetObj:GetCreatureType() ~= 'Elemental') then
 					if (HasSpell("Sunder Armor")) and (localRage >= 15) then
 						if (targetObj:GetDebuffStacks("Sunder Armor") < self.sunderStacks) then
-							if (Cast('Sunder Armor', targetObj)) then
-								self.waitTimer = GetTimeEX() + 1750;
+							if (Cast("Sunder Armor", targetObj)) then
 							end
 						return 0;
 						end
@@ -474,9 +471,10 @@ function script_warrior:run(targetGUID)
 			-- Use Revenge as main threat gain when we can 
 			-- check # 2
 			if (self.defensiveStance) then
-				if (script_warrior:canRevenge()) and (localRage >= 9) and (not IsSpellOnCD('Revenge')) then 
-					CastSpellByName('Revenge'); 
+				if (script_warrior:canRevenge() and not IsSpellOnCD("Revenge")) and (localRage >= 10) then 
+					CastSpellByName("Revenge"); 
 					self.message = "Using Revenge!";
+					self.waitTimer = GetTimeEX() + 2550;
 				end  
 			end
 	
@@ -493,7 +491,7 @@ function script_warrior:run(targetGUID)
 			if (self.battleStance) or (self.defensiveStance) then
 				if (script_warrior:enemiesAttackingUs(5) >= 2 and HasSpell('Thunder Clap') 
 					and not IsSpellOnCD('Thunder Clap') and not targetObj:HasDebuff('Thunder Clap')) then 
-					if (localRage <= 20) then
+					if (localRage >= 20) then
 						return 0;
 					end
 					CastSpellByName('Thunder Clap'); 
@@ -516,7 +514,7 @@ function script_warrior:run(targetGUID)
 				return 0; 
 			end 
 
-			-- Check: Use Bloodrage when we have more than 70% HP
+			-- Check: Use Bloodrage when we have more than set HP
 			if (GetNumPartyMembers() <= 1) then
 				if (not IsSpellOnCD('Bloodrage') and HasSpell('Bloodrage') and localHealth >= self.bloodRageHealth) then 
 					CastSpellByName('Bloodrage'); 
@@ -546,11 +544,19 @@ function script_warrior:run(targetGUID)
 				-- main rage user use only if target has at least 1 sunder for threat gain
 				if (self.defensiveStance) and (self.enableShieldBlock) then
 					if (HasSpell("Shield Block")) and (not IsSpellOnCD("Shield Block")) and (localRage >= self.shieldBlockRage) then
-						if (targetObj:GetDebuffStacks("Sunder Armor") >= 1 and localHealth <= self.shieldBlockHealth) or (localHealth <= self.shieldBlockHealth) then
-							if (localHealth <= 85) and (IsInCombat()) then
-								if (CastSpellByName("Shield Block")) then
-									return 0;
-								end
+						if (targetObj:GetDebuffStacks("Sunder Armor") >= 1) or (localHealth <= self.shieldBlockHealth) then
+							if (CastSpellByName("Shield Block")) then
+								return 0;
+							end
+						end
+					end
+				end
+
+				if (self.battleStance) then
+					if (HasSpell("Sunder Armor")) and (localRage > 30) then
+						if (targetHealth > 30) and (targetObj:GetDistance() < self.meeleDistance) then
+							if (Cast("Sunder Armor", targetObj)) then
+								return 0;
 							end
 						end
 					end
@@ -595,7 +601,7 @@ function script_warrior:run(targetGUID)
 				end
 
 				-- Meele Skill: Rend if we got more than 10 rage battle or bersker stance
-				if (self.battleStance) or (self.defensiveStance and self.enableRend) then
+				if (self.battleStance) or (self.defensiveStance and self.enableRend) or (self.berserkerStance) then
 					if (targetObj:GetCreatureType() ~= 'Mechanical' and targetObj:GetCreatureType() ~= 'Elemental' and HasSpell('Rend') and not targetObj:HasDebuff("Rend") 
 						and targetHealth >= 30 and localRage >= 10) then 
 						if (Cast('Rend', targetObj)) then 
@@ -719,6 +725,7 @@ SameLine();
 	end	
 	Separator();
 	if (self.enableGrind) then -- grind option menu
+		local wasClicked = false;
 		Separator();
 		if (CollapsingHeader("Choose Stance - Experimental")) then -- stance menu
 			Text("Choose Stance - Experimental");
@@ -737,10 +744,19 @@ SameLine();
 			Separator();
 			if (self.battleStance) then -- batle stance menu
 				if (CollapsingHeader("Battle Stance Options")) then
-					Text("TODO!");
-					Text("Overpower action bar slot");
-					self.overpowerActionBarSlot = InputText("OPS", self.overpowerActionBarSlot);
-					Text('72 is your action bar number.. slot 1 would be 73');
+					wasClicked, self.enableCharge = Checkbox("Charge On/Off", self.enableCharge);
+					SameLine();
+					wasClicked, self.chargeWalk = Checkbox("Pull Back After Charge - Experimental", self.chargeWalk);
+					wasClicked, self.enableRend = Checkbox("Rend On/Off", self.enableRend);
+					SameLine();
+					wasClicked, self.enableCleave = Checkbox("Cleave On/Off TODO", self.enableCleave);
+					wasClicked, self.enableSunder = Checkbox("Use Sunder x1", self.enableSunder);
+					
+					if (CollapsingHeader("Overpower Options")) then
+						Text("Overpower action bar slot");
+						self.overpowerActionBarSlot = InputText("OPS", self.overpowerActionBarSlot);
+						Text('72 is your action bar number.. slot 1 would be 73');
+					end
 				end
 			end
 			if (self.defensiveStance) then -- defensive stance menu
@@ -770,10 +786,6 @@ SameLine();
 			end
 		end
 		if (CollapsingHeader("Warrior Grind Options")) then -- grind menu
-			local wasClicked = false;
-			wasClicked, self.enableCharge = Checkbox("Charge On/Off", self.enableCharge);
-			SameLine();
-			wasClicked, self.chargeWalk = Checkbox("Pull Back After Charge - Experimental", self.chargeWalk);
 			Text('Eat below health percentage');
 			self.eatHealth = SliderInt("EHP %", 1, 100, self.eatHealth);
 			Text('Potion below health percentage');
@@ -784,11 +796,6 @@ SameLine();
 			self.bloodRageHealth = SliderInt("BR%", 1, 99, self.bloodRageHealth);
 			Text("Melee Range Distance");
 			self.meeleDistance = SliderFloat("MR (yd)", 1, 8, self.meeleDistance);
-			if (CollapsingHeader("Other Melee Skill Options")) then
-				wasClicked, self.enableRend = Checkbox("Rend On/Off", self.enableRend);
-				SameLine();
-				wasClicked, self.enableCleave = Checkbox("Cleave On/Off TODO", self.enableCleave);
-			end
 			if (CollapsingHeader("Throwing Weapon Options")) then -- throwing weapon menu
 				wasClicked, self.throwOpener = Checkbox("Pull with throw", self.throwOpener);
 				Text("Throwing weapon");

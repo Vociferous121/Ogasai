@@ -23,19 +23,19 @@ function script_rotationMenu:drawStatus()
 	if (onScreen) then
 	y, x = tY-25, tX+75;
 	end
-	DrawRect(x - 10, y - 5, x + width, y + 80, 255, 255, 0,  1, 1, 1);
-	DrawRectFilled(x - 10, y - 5, x + width, y + 80, 0, 0, 0, 160, 0, 0);
+	--DrawRect(x - 10, y - 5, x + width, y + 80, 255, 255, 0,  1, 1, 1);
+	--DrawRectFilled(x - 10, y - 5, x + width, y + 80, 0, 0, 0, 160, 0, 0);
 	if (script_follow:GetPartyLeaderObject()) then
 		DrawText('Follower - Range: ' .. math.floor(script_follow.followDistance) .. ' yd. ' .. 
-			 	'Master target: ' .. script_follow:GetPartyLeaderObject():GetUnitName(), x-5, y-4, r, g, b) y = y + 15;
+			 	'Master target: ' .. script_follow:GetPartyLeaderObject():GetUnitName(), x+255, y-4, r, g, b) y = y + 15;
 	else
 		DrawText('Follower - Follow range: ' .. math.floor(script_follow.followDistance) .. ' yd. ' .. 
-			 	'Master target: ' .. '', x-5, y-4, r, g, b) y = y + 15;
+			 	'Master target: ' .. '', x+255, y-4, r, g, b) y = y + 15;
 	end 
 
-	DrawText('Status: ', x, y, r, g, b); 
-	y = y + 15; DrawText(script_follow.message or "error", x, y, 0, 255, 255);
-	y = y + 20; DrawText('Combat script status: ', x, y, r, g, b); y = y + 15;
+	DrawText('Status: ', x+255, y, r, g, b); 
+	y = y + 15; DrawText(script_follow.message or "error", x+255, y, 0, 255, 255);
+	y = y + 20; DrawText('Combat script status: ', x+255, y, r, g, b); y = y + 15;
 	RunCombatDraw();
 end
 

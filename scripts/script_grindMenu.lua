@@ -49,9 +49,11 @@ function script_grindMenu:menu()
 		--wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount); Text('Dismount range');
 		--script_grind.disMountRange = SliderInt("DR (yd)", 1, 100, script_grind.disMountRange); Separator();
 		wasClicked, script_grind.autoTalent = Checkbox("Spend talent points", script_grind.autoTalent);
-	Text("Change talents in script_talent.lua");
-	if (script_grind.autoTalent) then Text("Spending next talent point in: " .. (script_talent:getNextTalentName() or " ")); end
-	Separator();
+		Text("Change talents in script_talent.lua");
+		if (script_grind.autoTalent) then
+			Text("Spending next talent point in: " .. (script_talent:getNextTalentName() or " "));
+		end
+		Separator();
 		wasClicked, script_grind.paranoidOn = Checkbox("Enable Paranoia", script_grind.paranoidOn);
 		SameLine();
 		wasClicked, script_grind.sitParanoid = Checkbox("Sit when Paranoid", script_grind.sitParanoid);
@@ -90,8 +92,7 @@ function script_grindMenu:menu()
 		Separator()
 		wasClicked, script_grind.safeRess = Checkbox("Try to ress on a safe spot", script_grind.safeRess);
 		Text('Ress corpse distance'); script_grind.ressDistance = SliderFloat("RD (yd)", 1, 35, script_grind.ressDistance); Separator();
-		Text("Script tick rate"); script_grind.tickRate = SliderFloat("TR (ms)", 0, 2000, script_grind.tickRate);
-			
+		Text("Script tick rate"); script_grind.tickRate = SliderFloat("TR (ms)", 0, 2000, script_grind.tickRate);		
 	end
 
 	script_targetMenu:menu();

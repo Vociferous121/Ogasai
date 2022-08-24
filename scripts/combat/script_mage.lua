@@ -719,48 +719,53 @@ function script_mage:menu()
 		Text('Wand Attack Speed (1.1 = 1100)');
 		self.wandSpeed = InputText("WS", self.wandSpeed);
 		wasClicked, self.useFireBlast = Checkbox("Use Fire Blast", self.useFireBlast);
+		SameLine();
 		wasClicked, self.useConeofCold = Checkbox("Use Cone of Cold", self.useConeofCold);
+		SameLine();
 		wasClicked, self.useManaShield = Checkbox("Use Mana Shield", self.useManaShield);
 		wasClicked, self.polymorphAdds = Checkbox("Polymorph Adds", self.polymorphAdds);
+		SameLine();
 		wasClicked, self.useFrostNova = Checkbox("Use Frost Nova", self.useFrostNova);
+		SameLine();
 		wasClicked, self.useQuelDoreiMeditation = Checkbox("Use QuelDoreiMeditation", self.useQuelDoreiMeditation);
+
 		wasClicked, self.useFrostWard = Checkbox("Use Frost Ward", self.useFrostWard);
+		SameLine();
 		wasClicked, self.useFireWard = Checkbox("Use Fire Ward", self.useFireWard);
-				Separator();
-				Text('Wand options:');
-		Text('Wand below self mana percent');
-		self.useWandMana = SliderFloat("WM%", 1, 75, self.useWandMana);
-		Text('Wand below target HP percent');
-		self.useWandHealth = SliderFloat("WH%", 1, 75, self.useWandHealth);
-				Separator();
-				Text('Cone of Cold options:');
-		Text('Cone of Cold above self mana percent');
-		self.coneOfColdMana = SliderFloat("CCM", 20, 75, self.coneOfColdMana);
-		Text('Cone of Cold above target health percent');
-		self.coneOfColdHealth = SliderFloat("CCH", 5, 50, self.coneOfColdHealth);
-				Separator();
-				Text('Evocation options:');
-		Text('Evocation above health percent');
-		self.evocationHealth = SliderFloat("EH%", 1, 90, self.evocationHealth);
-		Text('Evocation below mana percent');
-		self.evocationMana = SliderFloat("EM%", 1, 90, self.evocationMana);
-		Text('Queldorei Meditation below mana percent');
-		self.QuelDoreiMeditationMana = SliderFloat("QM%", 1, 90, self.QuelDoreiMeditationMana);
-				Separator();
-				Text('Ice Block options:');
-		Text('Ice Block below health percent');
-		self.iceBlockHealth = SliderFloat("IBH%", 5, 90, self.iceBlockHealth);
-		Text('Ice Block below mana percent');
-		self.iceBlockMana = SliderFloat("IBM%", 5, 90, self.iceBlockMana);
-				Separator();
-				Text('Mana Shield options:');
-		Text('Mana Shield below self health percent');
-		self.manaShieldHealth = SliderFloat("MS%", 5, 99, self.manaShieldHealth);
-		Text('Mana Shield above self mana percent');
-		self.manaShieldMana = SliderFloat("MM%", 10, 65, self.manaShieldMana);
-				Separator();
-				Text('Mana Gem options:');
-		Text('Mana Gem below mana percent');
-		self.manaGemMana = SliderFloat("MG%", 1, 90, self.manaGemMana);		
+		if (CollapsingHeader("Wand Options")) then
+			Text('Wand below self mana percent');
+			self.useWandMana = SliderFloat("WM%", 1, 75, self.useWandMana);
+			Text('Wand below target HP percent');
+			self.useWandHealth = SliderFloat("WH%", 1, 75, self.useWandHealth);
+		end
+		if (CollapsingHeader("Cone of Cold Options")) then
+			Text('Cone of Cold above self mana percent');
+			self.coneOfColdMana = SliderFloat("CCM", 20, 75, self.coneOfColdMana);
+			Text('Cone of Cold above target health percent');
+			self.coneOfColdHealth = SliderFloat("CCH", 5, 50, self.coneOfColdHealth);
+		end
+		if (CollapsingHeader("Evocation Options")) then
+			Text('Evocation above health percent');
+			self.evocationHealth = SliderFloat("EH%", 1, 90, self.evocationHealth);
+			Text('Evocation below mana percent');
+			self.evocationMana = SliderFloat("EM%", 1, 90, self.evocationMana);
+			Text('Queldorei Meditation below mana percent');
+			self.QuelDoreiMeditationMana = SliderFloat("QM%", 1, 90, self.QuelDoreiMeditationMana);
+		end
+		if (CollapsingHeader("Ice Block Options")) then
+			Text('Ice Block below health percent');
+			self.iceBlockHealth = SliderFloat("IBH%", 5, 90, self.iceBlockHealth);
+			Text('Ice Block below mana percent');
+			self.iceBlockMana = SliderFloat("IBM%", 5, 90, self.iceBlockMana);
+		end
+		if (CollapsingHeader("Mana Shield Options")) then
+			Text('Mana Shield below self health percent');
+			self.manaShieldHealth = SliderFloat("MS%", 5, 99, self.manaShieldHealth);
+			Text('Mana Shield above self mana percent');
+			self.manaShieldMana = SliderFloat("MM%", 10, 65, self.manaShieldMana);
+		end
+		if (CollapsingHeader("Mana Gem Options")) then
+			self.manaGemMana = SliderFloat("MG%", 1, 90, self.manaGemMana);		
+		end
 	end
 end
