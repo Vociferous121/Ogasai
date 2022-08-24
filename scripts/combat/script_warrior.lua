@@ -23,7 +23,7 @@ script_warrior = {
 	enableFaceTarget = true,
 	enableShieldBlock = true,
 	shieldBlockRage = 10,
-	shieldBlockHealth = 65,
+	shieldBlockHealth = 55,
 	sunderArmorRage = 15,
 	enableRend = false,
 	enableCleave = false,
@@ -358,7 +358,7 @@ function script_warrior:run(targetGUID)
 			if (self.defensiveStance) then 
 				if (HasSpell("Sunder Armor")) and (localRage >= 15) then
 					if (not targetObj:GetCreatureType() ~= 'Mechanical') and (not targetObj:GetCreatureType() ~= 'Elemental') then
-						if (targetObj:GetDebuffStacks("Sunder Armor") <= self.sunderStacks) then
+						if (targetObj:GetDebuffStacks("Sunder Armor") < self.sunderStacks) then
 							if (Cast('Sunder Armor', targetObj)) then
 								self.waitTimer = GetTimeEX() + 1750;
 							return 0;
@@ -371,6 +371,11 @@ function script_warrior:run(targetGUID)
 					if (localRage >= 10) and (targetHealth >= 10) then
 						CastSpellByName("Shield Bash");
 						self.waitTimer = GetTimeEX() + 700;
+					end
+				
+					-- else get sunder out!
+				elseif (localRage > 15) and (targetObj:GetDebuffStacks("Sunder Armor") < self.sunderStacks) then
+					if (not targetObj:GetCreatureType() ~= 'Mechanical') and (not targetObj:GetCreatureType() ~= 'Elemental') then
 					end
 				end
 			end
@@ -396,7 +401,7 @@ function script_warrior:run(targetGUID)
 
 			--Taunt last resort all else is on CD or no rage
 			if (HasSpell("Taunt")) and (not IsSpellOnCD("Taunt")) and (not targetObj:IsStunned()) then
-				if (targetHealth <= 99) and (IsSpellOnCD("Revenge")) and (localRage <= 15) then
+				if (targetHealth <= 99) and (IsSpellOnCD("Revenge") or not script_warrior:canRevenge()) and (localRage <= 15) then
 					if (not targetObj:IsTargetingMe()) and (localObj:GetDistance() <= 10) then
 						if (CastSpellByName("Taunt")) then
 							targetObj:FaceTarget();
@@ -417,7 +422,7 @@ function script_warrior:run(targetGUID)
 					end
 			
 					-- waste rage on Revenge whenever possible
-				elseif (script_warrior:canRevenge()) and (localRage >= 5) and (not IsSpellOnCD("Revenge")) then
+				elseif (script_warrior:canRevenge()) and (localRage >= 16) and (not IsSpellOnCD("Revenge")) then
 						CastSpellByName("Revenge"); 
 						self.message = "Using Revenge!";
 				end  
@@ -456,7 +461,7 @@ function script_warrior:run(targetGUID)
 			if (self.defensiveStance) then
 				if (not targetObj:GetCreatureType() ~= 'Mechanical') and (not targetObj:GetCreatureType() ~= 'Elemental') then
 					if (HasSpell("Sunder Armor")) and (localRage >= 15) then
-						if (targetObj:GetDebuffStacks("Sunder Armor") <= self.sunderStacks) then
+						if (targetObj:GetDebuffStacks("Sunder Armor") < self.sunderStacks) then
 							if (Cast('Sunder Armor', targetObj)) then
 								self.waitTimer = GetTimeEX() + 1750;
 							end
@@ -469,7 +474,7 @@ function script_warrior:run(targetGUID)
 			-- Use Revenge as main threat gain when we can 
 			-- check # 2
 			if (self.defensiveStance) then
-				if (script_warrior:canRevenge()) and (localRage >= 5) and (not IsSpellOnCD('Revenge')) then 
+				if (script_warrior:canRevenge()) and (localRage >= 9) and (not IsSpellOnCD('Revenge')) then 
 					CastSpellByName('Revenge'); 
 					self.message = "Using Revenge!";
 				end  
@@ -541,7 +546,7 @@ function script_warrior:run(targetGUID)
 				-- main rage user use only if target has at least 1 sunder for threat gain
 				if (self.defensiveStance) and (self.enableShieldBlock) then
 					if (HasSpell("Shield Block")) and (not IsSpellOnCD("Shield Block")) and (localRage >= self.shieldBlockRage) then
-						if (targetObj:GetDebuffStacks("Sunder Armor") >= 1) or (localHealth <= self.shieldBlockHealth) then
+						if (targetObj:GetDebuffStacks("Sunder Armor") >= 1 and localHealth <= self.shieldBlockHealth) or (localHealth <= self.shieldBlockHealth) then
 							if (localHealth <= 85) and (IsInCombat()) then
 								if (CastSpellByName("Shield Block")) then
 									return 0;
