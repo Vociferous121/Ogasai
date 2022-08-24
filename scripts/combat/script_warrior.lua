@@ -27,6 +27,7 @@ script_warrior = {
 	sunderArmorRage = 15,
 	enableRend = false,
 	enableCleave = false,
+	demoShoutRage = 20, -- set higher than sunder armor due to needed threat gain
 
 
 }
@@ -339,25 +340,25 @@ function script_warrior:run(targetGUID)
 			end
 
 			-- TEST DEFENSIVE STANCE RETALIATION
-			if (not IsSpellOnCD("Retaliation")) then -- need this first or it will always cast defensive stance
-				if (self.defensiveStance) and (localHealth <= 75 and script_warrior:enemiesAttackingUs(10) >= 5) then
-					if (HasSpell("Retaliation")) then
-						if (CastSpellByName("Battle Stance")) then
-							self.waitTimer = GetTimeEX() + 1800;
-						end
-						if (targetObj:GetDistance() >= 8) and (targetObj:GetDistance() <= 28) and (CastSpellByName("Retaliation")) then
-							self.waitTimer = GetTimeEX() + 2700;
-						end
-					end
-				CastSpellByName("Defensive Stance");
-				end
-			end
+			--if (not IsSpellOnCD("Retaliation")) then -- need this first or it will always cast defensive stance
+			--	if (self.defensiveStance) and (localHealth <= 75 and script_warrior:enemiesAttackingUs(10) >= 5) then
+			--		if (HasSpell("Retaliation")) then
+			--			if (CastSpellByName("Battle Stance")) then
+			--				self.waitTimer = GetTimeEX() + 1800;
+			--			end
+			--			if (targetObj:GetDistance() >= 8) and (targetObj:GetDistance() <= 28) and (CastSpellByName("Retaliation")) then
+			--				self.waitTimer = GetTimeEX() + 2700;
+			--			end
+			--		end
+			--	CastSpellByName("Defensive Stance");
+			--	end
+			--end
 
 			-- Sunder if possible as main threat source! this is most logical and easiest solution for the bot to handle
 			if (self.defensiveStance) then 
 				if (HasSpell("Sunder Armor")) and (localRage >= 15) then
 					if (not targetObj:GetCreatureType() ~= 'Mechanical') and (not targetObj:GetCreatureType() ~= 'Elemental') then
-						if (targetObj:GetDebuffStacks("Sunder Armor") < 1) then
+						if (targetObj:GetDebuffStacks("Sunder Armor") <= self.sunderStacks) then
 							if (Cast('Sunder Armor', targetObj)) then
 								self.waitTimer = GetTimeEX() + 1750;
 							return 0;
@@ -443,7 +444,7 @@ function script_warrior:run(targetGUID)
 
 			--Demoralizing shout if targets >= 1
 			if (HasSpell("Demoralizing Shout")) and (script_warrior:enemiesAttackingUs(10) >= 2) then
-				if (localRage >= 10) and (not localObj:HasBuff("Demoralizing Shout")) then 
+				if (localRage >= self.demoShoutRage) and (not localObj:HasBuff("Demoralizing Shout")) then 
 					if CastSpellByName("Demoralizing Shout") then
 						return 0;
 					end
@@ -750,6 +751,7 @@ SameLine();
 						Text("How many Sunder Armor Stacks?");
 						self.sunderStacks = SliderInt("Sunder Stacks", 1, 5, self.sunderStacks);
 						self.sunderArmorRage = SliderInt("Sunder rage cost", 10, 15, self.sunderArmorRage);
+						self.demoShoutRage = SliderInt("Demo shout above % rage", 10, 50, self.demoShoutRage);
 					if (CollapsingHeader("Revenge Skill Options")) then
 						self.revengeActionBarSlot = InputText("RS", self.revengeActionBarSlot);
 						Text("82 is spell bar number.. slot 1 would be 83");
