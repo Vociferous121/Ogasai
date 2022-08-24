@@ -8,9 +8,9 @@ script_aggro = {
 
 function script_aggro:DrawCircles(pointX,pointY,pointZ,radius)
 	-- thx benjamin
-	local r = 255;
-	local g = 255;
-	local b = 0;
+	local r = 240;
+	local g = 135;
+	local b = 135;
 	-- position
 	local x = 25;
 
@@ -165,7 +165,7 @@ function script_aggro:avoid(pointX,pointY,pointZ, radius, safeDist)
 	local closestPoint = 0;
 	local closestTargetPoint = 0;
 	local closestTargetDist = 999;
-	local quality = 120;
+	local quality = 130;
 
 	while theta <= 2*PI do
 		point = point + 1 -- get next table slot, starts at 0 
@@ -217,12 +217,12 @@ function script_aggro:avoid(pointX,pointY,pointZ, radius, safeDist)
 	if (closestPointToDest ~= nil) then	
 		local diffPoint = closestPointToDest - moveToPoint;
 		if (diffPoint <= 0) then
-			moveToPoint = closestPoint - 4;
+			moveToPoint = closestPoint - 5;
 		else
-			moveToPoint = closestPoint + 4;
+			moveToPoint = closestPoint + 5;
 		end
 	else
-		moveToPoint = closestPoint + 4;
+		moveToPoint = closestPoint + 5;
 	end
 	
 	-- out of bound
@@ -241,7 +241,7 @@ function script_aggro:drawAggroCircles(maxRange)
 
 	while currentObj ~= 0 do
  		if typeObj == 3 and currentObj:GetDistance() < maxRange and not currentObj:IsDead() and currentObj:CanAttack() and not currentObj:IsCritter() then
-			local aggro = currentObj:GetLevel() - localObj:GetLevel() + 17.6;
+			local aggro = currentObj:GetLevel() - localObj:GetLevel() + 17.3;
 			local cx, cy, cz = currentObj:GetPosition();
 			script_aggro:DrawCircles(cx, cy, cz, aggro);
  		end

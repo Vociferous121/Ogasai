@@ -72,7 +72,7 @@ script_grind = {
 	newTargetTime = GetTimeEX(),
 	blacklistTime = 30,
 	drawEnabled = true,
-	showClassOptions = true,
+	showClassOptions = false,
 	pause = false,
 	bagsFull = false,
 	vendorRefill = false,
@@ -118,7 +118,9 @@ end
 
 function script_grind:window()
 	EndWindow();
-	if(NewWindow("Grinder", 320, 300)) then script_grindMenu:menu(); end
+	if(NewWindow("Grinder", 320, 300)) then
+		script_grindMenu:menu();
+	end
 end
 
 function script_grind:setWaitTimer(ms)
@@ -597,33 +599,33 @@ function script_grind:drawStatus()
 	end
 	-- info
 	if (not self.pause) then
-	DrawRect(x - 10, y - 5, x + width, y + 140, 255, 255, 0,  1, 1, 1);
-	DrawRectFilled(x - 10, y - 5, x + width, y + 140, 0, 0, 0, 100, 0, 0);
+	--DrawRect(x - 10, y - 5, x + width, y + 140, 255, 255, 0,  1, 1, 1);
+	--DrawRectFilled(x - 10, y - 5, x + width, y + 140, 0, 0, 0, 100, 0, 0);
 	DrawText('Grinder - Pull range: ' .. math.floor(self.pullDistance) .. ' yd. ' .. 
-			 	'Level range: ' .. self.minLevel .. '-' .. self.maxLevel, x-5, y-4, r, g, b) y = y + 15;
+			 	'Level range: ' .. self.minLevel .. '-' .. self.maxLevel, x+255, y-4, r, g, b) y = y + 15;
 	
-	DrawText('Grinder status: ', x, y, r, g, b); y = y + 15;
-	DrawText(self.message or "error", x, y, 0, 255, 255);
-	y = y + 20; DrawText('Combat script status: ', x, y, r, g, b); y = y + 15;
+	DrawText('Grinder status: ', x+255, y, r, g, b); y = y + 15;
+	DrawText(self.message or "error", x+255, y, 0, 255, 255);
+	y = y + 20; DrawText('Combat script status: ', x+255, y, r, g, b); y = y + 15;
 	if (self.showClassOptions) then RunCombatDraw(); end
 	 y = y + 20;
 	if (self.autoPath) then 
-		DrawText('Auto path: ON! Hotspot: ' .. script_nav:getHotSpotName(), x, y, r, g, b); y = y + 20;
+		DrawText('Auto path: ON! Hotspot: ' .. script_nav:getHotSpotName(), x+255, y, r, g, b); y = y + 20;
 	else
-		DrawText('Auto path: OFF!', x, y, r, g, b); y = y + 20;
+		DrawText('Auto path: OFF!', x+255, y, r, g, b); y = y + 20;
 	end
-	DrawText('Vendor - ' .. script_vendorMenu:getInfo(), x, y, r, g, b); y = y + 15;
-	DrawText('Status: ', x, y, r, g, b);
-	DrawText(script_vendor:getMessage(), x+52, y, 0, 255, 255); 
+	DrawText('Vendor - ' .. script_vendorMenu:getInfo(), x+255, y, r, g, b); y = y + 15;
+	DrawText('Status: ', x+255, y, r, g, b);
+	DrawText(script_vendor:getMessage(), x+302, y, 0, 255, 255); 
 	local time = ((GetTimeEX()-self.newTargetTime)/1000); 
 	if (self.enemyObj ~= 0 and self.enemyObj ~= nil and not self.enemyObj:IsDead()) then
-		DrawRect(x - 10, y + 19, x + width, y + 45, 255, 255, 0,  1, 1, 1);
-		DrawRectFilled(x-10, y+20, x + width, y + 45, 0, 0, 0, 100, 0, 0);
-		DrawText('Blacklist-timer: ' .. self.enemyObj:GetUnitName() .. ': ' .. time .. ' s.', x, y+20, 0, 255, 255); 
-		DrawText('Blacklisting target after ' .. self.blacklistTime .. " s. (If above 80% HP.)", x, y+30, 255, 255, 0);
+		--DrawRect(x - 10, y + 19, x + width, y + 45, 255, 255, 0,  1, 1, 1);
+		--DrawRectFilled(x-10, y+20, x + width, y + 45, 0, 0, 0, 100, 0, 0);
+		DrawText('Blacklist-timer: ' .. self.enemyObj:GetUnitName() .. ': ' .. time .. ' s.', x+255, y+20, 0, 255, 255); 
+		DrawText('Blacklisting target after ' .. self.blacklistTime .. " s. (If above 80% HP.)", x+255, y+30, 255, 255, 0);
 	end
 	else
-		DrawText('Grinder paused by user...', x-5, y-4, r, g, b);
+		DrawText('Grinder paused by user...', x+255, y-4, r, g, b);
 	end
 end
 
