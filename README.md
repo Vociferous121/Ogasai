@@ -1,4 +1,4 @@
-                                          Ogasai Updated Logitech Scripts
+                                     Ogasai Updated Logitech Scripts
 
 ## Core files have been changed! For these to work properly you must download the entire script and core folder. You can make a backup of your old ones!
 
