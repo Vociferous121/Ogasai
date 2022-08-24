@@ -8,7 +8,7 @@
 
     mage frost spec
 
-    --added spells for Twow
+    -- added spells for Twow
 
     -- added misc mage spells
 
@@ -22,7 +22,7 @@
 
     warrior tank spec
   
-    --added spells for Twow
+    -- added spells for Twow
 
     -- added misc mage spells
 
@@ -34,7 +34,7 @@
 
     rogue combat spec
     
-    --added spells for Twow
+    -- added spells for Twow
 
     -- added misc rogue spells
 
