@@ -20,6 +20,7 @@ script_rotation = {
 	showClassOptions = true,
 	meleeDistance = 4,
 	nextToNodeDist = 4, -- (Set to about half your nav smoothness)
+	aggroRangeTank = 100,
 
 }
 
@@ -246,7 +247,7 @@ function script_rotation:draw()
 	script_rotation:window();
 
 	if (self.drawAggro) then 
-		script_aggro:drawAggroCircles(100); 
+		script_aggro:drawAggroCircles(self.aggroRangeTank); 
 	end
 
 	if (self.drawGather) then 
@@ -366,4 +367,6 @@ function script_rotation:menu()
 	end
 		Text('Script tic rate (ms)');
 		self.tickRate = SliderInt("TR", 50, 500, self.tickRate);
+		Text("Aggro Circle Range");
+		self.aggroRangeTank = SliderInt("AR", 30, 300, self.aggroRangeTank);
 end

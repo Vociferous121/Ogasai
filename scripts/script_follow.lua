@@ -158,15 +158,15 @@ function script_follow:healAndBuff()
 			end
 
 			-- Inner Fire
-		--	if (HasSpell("Inner Fire")) and (localMana > 30) then
-		--	local selfPlayer = GetLocalPlayer();
-		--		if (not selfPlayer:HasBuff("Inner Fire")) then
-		--			if (Buff("Inner Fire")) then
-		--				self.waitTimer = GetTimeEX() + 1500;
-		--				return 0;
-		--			end
-		--		end
-		--	end
+			if (HasSpell("Inner Fire")) and (localMana > 30) then
+			local selfPlayer = GetLocalPlayer();
+				if (not selfPlayer:HasBuff("Inner Fire")) then
+					if (Buff("Inner Fire")) then
+					self.waitTimer = GetTimeEX() + 1500;
+						return 0;
+					end
+				end
+			end
 
 			if (self.enableHeals) then
 

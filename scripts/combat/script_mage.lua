@@ -454,17 +454,16 @@ function script_mage:run(targetGUID)
 			end
 
 			-- Wand if low mana or target is low
-			if (self.useWand) then
-				if ((localMana <= self.useWandMana or targetHealth <= self.useWandHealth) and localObj:HasRangedWeapon()) then
+			if (self.useWand) and (IsInCombat()) then
+				wandSpeed = self.wandSpeed;
+				if (localMana <= self.useWandMana) or (targetHealth <= self.useWandHealth) then
 					self.message = "Using wand...";
-					wandSpeed = self.wandSpeed;
 					if (not IsAutoCasting("Shoot")) then
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
 						self.waitTimer = GetTimeEX() + (wandSpeed + 100); 
 						return 0;
 					end
-					return 0;
 				end
 			end
 
