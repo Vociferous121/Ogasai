@@ -9,45 +9,18 @@ script_helper = {
 	manaPotion = {},
 	numHealthPotion = 0,
 	numManaPotion = 0,
-	numDebuff = 0,
 }
-
---function script_helper:debuffRemove()
---	-- Search for debuff
---	local localObj = GetLocalPlayer();
---	local debuffIndex = -1;
---	for i = 0, self.numDebuff do
---		if (localObj:HasDebuff(self.debuffList[i])) then
---			debuffIndex = i;
---		end
---	end
---
---	if (localObj:HasDebuff(self.debuff[debuffIndex])) then
---		if (script_helper:debuffRemoveCast()(self.debuff[debuffIndex])) then
---			return true;
---		end
---	end
---end
-
-
---function script_helper:debuffRemoveCast()
---	local localObj = GetLocalPlayer();
---	if HasSpell('Cleanse') then
---		CastSpell('cleanse', localObj);
---	end
---end
-	
 
 function script_helper:enemiesAttackingUs(range) -- returns number of enemies attacking us within range
     local unitsAttackingUs = 0; 
     local currentObj, typeObj = GetFirstObject(); 
     while currentObj ~= 0 do 
     	if typeObj == 3 then
-		if (currentObj:CanAttack() and not currentObj:IsDead()) then
-                	if (script_grind:isTargetingMe(currentObj) and currentObj:GetDistance() <= range) then 
-                		unitsAttackingUs = unitsAttackingUs + 1; 
-                	end 
-            	end 
+			if (currentObj:CanAttack() and not currentObj:IsDead()) then
+               	if (script_grind:isTargetingMe(currentObj) and currentObj:GetDistance() <= range) then 
+                	unitsAttackingUs = unitsAttackingUs + 1; 
+               	end 
+			end
        	end
         currentObj, typeObj = GetNextObject(currentObj); 
     end
@@ -55,17 +28,13 @@ function script_helper:enemiesAttackingUs(range) -- returns number of enemies at
 end
 
 function script_helper:addHealthPotion(name)
-
 	self.healthPotion[self.numHealthPotion] = name;
 	self.numHealthPotion = self.numHealthPotion + 1;
-
 end
 
 function script_helper:addManaPotion(name)
-
 	self.manaPotion[self.numManaPotion] = name;
 	self.numManaPotion = self.numManaPotion + 1;
-
 end
 
 function script_helper:useHealthPotion()
@@ -102,11 +71,6 @@ function script_helper:useManaPotion()
 			return true;
 		end
 	end
-end
-
-function script_helper:addDebuff(name)
-	self.debuff[self.numDebuff] = name;
-	self.numDebuff = self.numDebuff + 1;
 end
 
 function script_helper:addWater(name)
@@ -281,8 +245,6 @@ function script_helper:setup()
 	script_helper:addMount('Reins of the Striped Frostsaber');
 	script_helper:addMount('Reins of the Striped Nightsaber');
 
-	-- debuffs
-	--script_helper:addDebuff('Poison');
 
 	DEFAULT_CHAT_FRAME:AddMessage('script_helper: loaded...');
 	return true;

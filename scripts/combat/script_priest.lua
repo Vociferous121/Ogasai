@@ -272,7 +272,7 @@ function script_priest:run(targetGUID)
 
 			-- Mind Blast
 			if (HasSpell("Mind Blast")) and (localMana > self.mindBlastMana) then
-				if (not IsSpellOnCD("Mind Blast")) and (targetObj:GetDistance() < 30) then
+				if (not IsSpellOnCD("Mind Blast")) then
 					if (not targetObj:IsInLineOfSight()) then
 						return 3;
 					end
@@ -285,7 +285,7 @@ function script_priest:run(targetGUID)
 			end
 
 			-- shadow word pain if mindblast is on CD
-			if (HasSpell("Shadow Word: Pain")) and (localMana > 10) and (targetObj:GetDistance() < 30) then
+			if (HasSpell("Shadow Word: Pain")) and (localMana > 10) and (targetObj:GetDistance() < 30) and (IsSpellOnCD("Mind Blast")) then
 				if (not targetObj:HasDebuff("Shadow Word: Pain")) and (targetHealth > 15) then
 					if (not targetObj:IsInLineOfSight()) then
 						return 3;
@@ -368,10 +368,12 @@ function script_priest:run(targetGUID)
 			end
 
 			-- Check: Keep Inner Fire up
-			if (not localObj:HasBuff('Inner Fire') and HasSpell('Inner Fire') and localMana > 8) then
-				if (Buff('Inner Fire', localObj)) then
-					self.waitTimer = GetTimeEX() + 750;
-					return 0;
+			if (not localObj:HasBuff('Inner Fire')) and (HasSpell('Inner Fire')) and (localMana > 8) then
+				if (localObj:HasBuff("Power Word: Shield")) then	
+					if (Buff('Inner Fire', localObj)) then
+						self.waitTimer = GetTimeEX() + 750;
+						return 0;
+					end
 				end
 			end
 
@@ -385,6 +387,10 @@ function script_priest:run(targetGUID)
 
 			if (not localObj:HasRangedWeapon()) then
 				self.useSmite = true;
+			end
+
+			if (script_priest:healAndBuff(localObj, localMana)) then
+				return 0;
 			end
 
 			--Wand if set to use wand

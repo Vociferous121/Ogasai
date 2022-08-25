@@ -1,39 +1,32 @@
 script_follow = {
 
--- PRIEST
-	renewMana = 10,				-- Use renew above this mana %
-	partyRenewHealth = 90,		-- Use renew below party member health %
-	shieldMana = 25,			-- Use shield above this mana %
-	partyShieldHealth = 80,		-- Use shield below party member health %
-	lesserHealMana = 5,			-- Use renew above this mana %
-	partyLesserHealHealth = 80,	-- use renew below party member health %
-	healMana = 50,				-- Use heal above this mana %
-	partyHealHealth = 75,		-- Use heal below party member health %
-	greaterHealMana = 20,		-- Use greater heal above this mana %
-	partyGreaterHealHealth = 30,-- Use greater heal below party member health %
-	useGroupLesserHeal = false, -- Use Lesser Heal on startup yes or no
-	flashHealMana = 15,			-- Use Flash Heal above this mana %
-	partyFlashHealHealth = 80,	-- Use Flash Heal abelow party member health%
+	renewMana = 10,
+	partyRenewHealth = 90,
+	shieldMana = 25,
+	partyShieldHealth = 80,
+	lesserHealMana = 5,
+	partyLesserHealHealth = 80,
+	healMana = 50,
+	partyHealHealth = 75,
+	greaterHealMana = 20,
+	partyGreaterHealHealth = 30,
+	useGroupLesserHeal = true,
+	flashHealMana = 15,
+	partyFlashHealHealth = 80,
 	clickRenew = true,
 	clickShield = true,
 	clickFlashHeal = true,
 	clickGreaterHeal = true,
 	clickHeal = false,
 	clickLesserHeal = false,
-
--- PALADIN
 	holyLightMana = 25,
 	partyHolyLightHealth = 25,
 	flashOfLightMana = 3,
 	partyFlashOfLightHealth = 83,
 	layOnHandsHealth = 6,
 	bopHealth = 10,
---
-
--- DRUID
 	clickHealingTouch = true,
 	clickRegrowth = true,
---
 	useMount = false,
 	disMountRange = 32,
 	mountTimer = 0,
@@ -58,7 +51,7 @@ script_follow = {
 	helperLoaded = include("scripts\\script_helper.lua"),
 	extraFunctions = include("scripts\\script_followEX.lua"),
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
-	nextToNodeDist = 4, -- (Set to about half your nav smoothness)
+	nextToNodeDist = 4,
 	isSetup = false,
 	drawUnits = true,
 	acceptTimer = GetTimeEX(),
@@ -68,10 +61,12 @@ script_follow = {
 	isChecked = true,
 	pause = false,
 	enableHeals = true,
+
 }
 
 function script_follow:window()
-	if (self.isChecked) then EndWindow();
+	if (self.isChecked) then 
+		EndWindow();
 		if(NewWindow("Follower Options", 320, 360)) then 
 			script_followEX:menu();
 		end
@@ -86,7 +81,6 @@ function script_follow:moveInLineOfSight(partyMember)
 		self.timer = GetTimeEX() + 200;
 		return true;
 	end
-
 	return false;
 end
 
@@ -103,6 +97,7 @@ function script_follow:healAndBuff()
 		end
 		local partyMembersHP = partyMember:GetHealthPercentage();
 		if (partyMembersHP > 0 and partyMembersHP < 99 and localMana > 1) then
+			local partyMemberDistance = partyMember:GetDistance();
 	
 			-- Move in range: combat script return 3
 			if (self.combatError == 3) then
@@ -116,18 +111,19 @@ function script_follow:healAndBuff()
 				return true; 
 			end
 			
-			-- PALADIN BUFFS
+			-- Blessing of Might/Wisdom
 			if (not IsInCombat() and localMana > 40) then -- buff
 				if (not partyMember:HasBuff("Blessing of Might") and (not partyMember:HasBuff("Blessing of Wisdom") and HasSpell("Blessing of Might"))) then		
-				  if (script_follow:moveInLineOfSight(partyMember)) then return true;
-				  end -- move to member
-                    if (Cast("Blessing of Might", partyMember)) then
-                        return true;
-                    end
-                end
-            end
-			
-			-- PRIEST BUFFS
+				  	if (script_follow:moveInLineOfSight(partyMember)) then
+						return true;
+				 	end -- move to member
+					if (Cast("Blessing of Might", partyMember)) then
+						return true;
+              		end
+         		end
+			end
+
+			-- Power word Fortitude
 			if (not IsInCombat() and localMana > 40) then -- buff
 				if (not partyMember:HasBuff("Power Word: Fortitude") and HasSpell("Power Word: Fortitude") and not partyMember:HasBuff("Power Word: Fortitude")) then
 					if (script_follow:moveInLineOfSight(partyMember)) then return true;
@@ -142,10 +138,10 @@ function script_follow:healAndBuff()
 			if (not IsInCombat() and localMana > 40) then
 				if (not partyMember:HasBuff("Divine Spirit") and HasSpell("Divine Spirit")) then
 					if (script_follow:moveInLineOfSight(partyMember)) then return true;
-				    end -- move to member
-					   if (Cast("Divine Spirit", partyMember)) then
+					end -- move to member
+					if (Cast("Divine Spirit", partyMember)) then
 						return true;
-					  end	
+					end	
 				end
 			end
 
@@ -161,6 +157,17 @@ function script_follow:healAndBuff()
 				end
 			end
 
+			-- Inner Fire
+		--	if (HasSpell("Inner Fire")) and (localMana > 30) then
+		--	local selfPlayer = GetLocalPlayer();
+		--		if (not selfPlayer:HasBuff("Inner Fire")) then
+		--			if (Buff("Inner Fire")) then
+		--				self.waitTimer = GetTimeEX() + 1500;
+		--				return 0;
+		--			end
+		--		end
+		--	end
+
 			if (self.enableHeals) then
 
 				----- .
@@ -171,7 +178,8 @@ function script_follow:healAndBuff()
 				if (self.clickRenew) then
 					if (localMana > self.renewMana and partyMembersHP < self.partyRenewHealth and not partyMember:HasBuff("Renew") and HasSpell("Renew")) then
 						if (CastHeal('Renew', partyMember)) then
-						return true;
+							self.waitTimer = GetTimeEX() + 1500;
+							return true;
 						end
 					end
 				end
@@ -180,6 +188,7 @@ function script_follow:healAndBuff()
 				if (self.clickShield) then
 					if (localMana > self.shieldMana and partyMembersHP < self.partyShieldHealth and not partyMember:HasDebuff("Weakened Soul") and IsInCombat() and HasSpell("Power Word: Shield")) then
 						if (CastHeal('Power Word: Shield', partyMember)) then 
+							self.waitTimer = GetTimeEX() + 1500;
 							return true; 
 						end
 					end
@@ -199,7 +208,7 @@ function script_follow:healAndBuff()
 				if (self.clickHeal) then
 					if (localMana > self.healMana and partyMembersHP < self.partyHealHealth and HasSpell("Heal")) then
 						if (CastHeal('Heal', partyMember)) then
-							self.waitTimer = GetTimeEX() + 4500;
+							self.waitTimer = GetTimeEX() + 2500;
 							return true;
 						end
 					end
@@ -216,18 +225,14 @@ function script_follow:healAndBuff()
 				end
 
 				-- Lesser Heal
-				if (self.clickLesserHeal) then
-					if (self.useGroupLesserHeal and localMana > self.lesserHealMana and partyMembersHP < self.partyLesserHealHealth) then
-						if (CastHeal('Lesser Heal', partyMember)) then
-							self.waitTimer = GetTimeEX() + 2500;
-							return true;
-						end
+				if (self.useGroupLesserHeal) and (localMana > self.lesserHealMana) and (partyMembersHP < self.partyLesserHealHealth) then
+					if (CastHeal('Lesser Heal', partyMember)) then
+						self.waitTimer = GetTimeEX() + 2700;
+						return true;
 					end
 				end
 
-				----- .
 				----- PALADIN SPELLS
-				-----	.
 
 				-- Blessing of Protection
 				if (localMana > 5 and partyMembersHP < self.bopHealth and HasSpell("Blessing of Protection")) then
@@ -294,7 +299,8 @@ function script_follow:run()
 	if (IsMounted()) then
 		script_nav:setNextToNodeDist(5); NavmeshSmooth(10);
 	else
-		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*2);
+		script_nav:setNextToNodeDist(self.nextToNodeDist);
+		NavmeshSmooth(self.nextToNodeDist*2);
 	end
 	
 	if (not self.isSetup) then
@@ -329,18 +335,33 @@ function script_follow:run()
 		self.timer = GetTimeEX() + self.tickRate;
 
 		-- Wait out the wait-timer and/or casting or channeling
-		if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then return; end
+		if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then
+			return;
+		end
 
 		-- Automatic loading of the nav mesh
-		if (not IsUsingNavmesh()) then UseNavmesh(true); return; end
-		if (not LoadNavmesh()) then self.message = "Make sure you have mmaps-files..."; return; end
-		if (GetLoadNavmeshProgress() ~= 1) then self.message = "Loading the nav mesh... " return; end
+		if (not IsUsingNavmesh()) then 
+			UseNavmesh(true);
+			return; 
+		end
+		if (not LoadNavmesh()) then 
+			self.message = "Make sure you have mmaps-files...";
+			return;
+		end
+		if (GetLoadNavmeshProgress() ~= 1) then
+			self.message = "Loading the nav mesh... ";
+			return; 
+		end
 
 		-- Corpse-walk if we are dead
 		if(localObj:IsDead()) then
 			self.message = "Walking to corpse...";
 			-- Release body
-			if(not IsGhost()) then RepopMe(); self.waitTimer = GetTimeEX() + 5000; return; end
+			if(not IsGhost()) then 
+				RepopMe(); 
+				self.waitTimer = GetTimeEX() + 5000;
+				return; 
+			end
 			-- Ressurrect within the ress distance to our corpse
 			local _lx, _ly, _lz = localObj:GetPosition();
 			if(GetDistance3D(_lx, _ly, _lz, GetCorpsePosition()) > self.ressDistance) then
@@ -357,24 +378,33 @@ function script_follow:run()
 		end
 
 		-- Check: Rogue only, If we just Vanished, move away from enemies within 30 yards
-		if (localObj:HasBuff("Vanish")) then if (script_nav:runBackwards(1, 30)) then 
-			ClearTarget(); self.message = "Moving away from enemies..."; return; end 
+		if (localObj:HasBuff("Vanish")) then
+			if (script_nav:runBackwards(1, 30)) then 
+				ClearTarget(); 
+				self.message = "Moving away from enemies..."; 
+				return; 
+			end 
 		end
 		
 		-- Rest
 		if (not IsInCombat() and script_follow:enemiesAttackingUs() == 0 and not localObj:HasBuff('Feign Death')) then
-			-- Move out of water before resting/mounting
-			--if (IsSwimming()) then self.message = "Moving out of the water..."; script_nav:navigate(GetLocalPlayer()); return; end
-			-- Rest before looting, fighting, pathing etc
 			if(RunRestScript()) then
 				self.message = "Resting...";
 				-- Stop moving
-				if (IsMoving() and not localObj:IsMovementDisabed()) then StopMoving(); return; end
+				if (IsMoving() and not localObj:IsMovementDisabed()) then
+					StopMoving(); 
+					return; 
+				end
 				-- Dismount
-				if (IsMounted()) then DisMount(); return; end
+				if (IsMounted()) then
+					DisMount(); 
+					return; 
+				end
 				-- Add 2500 ms timer to the rest script rotations (timer could be set already)
-				if ((self.waitTimer - GetTimeEX()) < 2500) then self.waitTimer = GetTimeEX()+2500 end;
-				return;	
+				if ((self.waitTimer - GetTimeEX()) < 2500) then
+					self.waitTimer = GetTimeEX()+2500;
+				end
+			return;	
 			end
 		end
 
@@ -412,7 +442,9 @@ function script_follow:run()
 			else
 				self.lootObj = nil;
 			end
-			if (self.lootObj == 0) then self.lootObj = nil; end
+			if (self.lootObj == 0) then
+				self.lootObj = nil; 
+			end
 			local isLoot = not IsInCombat() and not (self.lootObj == nil);
 			if (isLoot and not AreBagsFull()) then
 				script_grindEX:doLoot(localObj);
@@ -441,15 +473,16 @@ function script_follow:run()
 		-- Assign the next valid target to be killed
 		-- Check if anything is attacking us Priest
 		if (script_follow:enemiesAttackingUs() >= 1) then
-				local localMana = GetLocalPlayer():GetManaPercentage();
+			local localMana = GetLocalPlayer():GetManaPercentage();
 			if (localMana > 6 and HasSpell('Fade') and not IsSpellOnCD('Fade')) then
 				CastSpellByName('Fade');
 				return;
 			end
+		end
 				
 		-- Check if anything is attacking us Paladin
 		if (script_follow:enemiesAttackingUs() >= 2) then
-				local localMana = GetLocalPlayer():GetManaPercentage();
+			local localMana = GetLocalPlayer():GetManaPercentage();
 			if (localMana > 6 and HasSpell('Divine Protection') and not IsSpellOnCD('Divine Protection')) then
 				CastSpellByName('Divine Protection');
 				return;
@@ -457,13 +490,12 @@ function script_follow:run()
 		end
 
 
-			if (GetTarget() ~= 0 and GetTarget() ~= nil) then
-				local target = GetTarget();
-				if (target:CanAttack()) then
-					self.enemyObj = target;
-				else
-					self.enemyObj = nil;
-				end
+		if (GetTarget() ~= 0 and GetTarget() ~= nil) then
+			local target = GetTarget();
+			if (target:CanAttack()) then
+				self.enemyObj = target;
+			else
+				self.enemyObj = nil;
 			end
 		else
 			if (script_follow:GetPartyLeaderObject() ~= 0) then
@@ -475,12 +507,7 @@ function script_follow:run()
 					end
 				end
 			end
-		end
-
-		-- Check: If we are a priest and we are at least 3 party members, dont do damage if mana below 70%
-		--if (HasSpell('Smite') and GetNumPartyMembers() > 2 and GetLocalPlayer():GetManaPercentage() < 70) then
-		--	self.enemyObj = nil;
-		--end			
+		end	
 
 		-- Finish loot before we engage new targets or navigate
 		if (self.lootObj ~= nil and not IsInCombat()) then 
@@ -499,7 +526,10 @@ function script_follow:run()
 			-- In range: attack the target, combat script returns 0
 			if(self.combatError == 0) then
 				script_nav:resetNavigate();
-				if IsMoving() then StopMoving(); return; end
+				if IsMoving() then
+					StopMoving(); 
+					return;
+				end
 			end
 			-- Invalid target: combat script return 2
 			if(self.combatError == 2) then
@@ -517,20 +547,31 @@ function script_follow:run()
 			end
 
 			-- Do nothing, return : combat script return 4
-			if(self.combatError == 4) then return; end
+			if(self.combatError == 4) then
+				return;
+			end
 
 			-- Target player pet/totem: pause for 5 seconds, combat script should add target to blacklist
 			if(self.combatError == 5) then
 				self.message = "Targeted a player pet pausing 5s...";
-				ClearTarget(); self.waitTimer = GetTimeEX()+5000; return;
+				ClearTarget();
+				self.waitTimer = GetTimeEX()+5000;
+				return;
 			end
 
 			-- Stop bot, request from a combat script
-			if(self.combatError == 6) then self.message = "Combat script request stop bot..."; Logout(); StopBot(); return; end
+			if(self.combatError == 6) then
+				self.message = "Combat script request stop bot...";
+				Logout();
+				StopBot();
+				return;
+			end
 		end
 
 		-- Pre checks before navigating
-		if(IsLooting() or IsCasting() or IsChanneling() or IsDrinking() or IsEating() or IsInCombat()) then return; end
+		if(IsLooting() or IsCasting() or IsChanneling() or IsDrinking() or IsEating() or IsInCombat()) then 
+			return;
+		end
 
 		-- Mount before we follow our master
 		--if (script_follow:mountUp()) then return; end		
@@ -547,23 +588,6 @@ function script_follow:run()
 	end 
 end
 
---function script_follow:mountUp()
---	local __, lastError = GetLastError();
---	if (lastError ~= 75 and self.mountTimer < GetTimeEX()) then
---		-- TODO: change in 2.1.11
---		-- local _, isSwimming = IsSwimming();
---		if(GetLocalPlayer():GetLevel() >= 40 and self.useMount and not IsIndoors() and not IsMounted() and self.lootObj == nil) then
---			self.message = "Mounting...";
---			if (not IsStanding()) then StopMoving(); end
---			if (script_helper:useMount()) then self.waitTimer = GetTimeEX() + 4000; return true; end
---		end
---	else
---		ClearLastError();
---		self.mountTimer = GetTimeEX() + 15000;
---		return false;
---	end
---end
-
 function script_follow:getTarget()
 	return self.enemyObj;
 end
@@ -572,13 +596,13 @@ function script_follow:getTargetAttackingUs()
     local currentObj, typeObj = GetFirstObject(); 
     while currentObj ~= 0 do 
     	if typeObj == 3 then
-		if (currentObj:CanAttack() and not currentObj:IsDead()) then
-			local localObj = GetLocalPlayer();		
-                	if (currentObj:GetUnitsTarget() == localObj) then 
-                		return currentObj;
-                	end 
-            	end 
-       	end
+			if (currentObj:CanAttack() and not currentObj:IsDead()) then
+				local localObj = GetLocalPlayer();		
+				if (currentObj:GetUnitsTarget() == localObj) then 
+                	return currentObj; 
+				end 
+			end
+		end
         currentObj, typeObj = GetNextObject(currentObj); 
     end
     return nil;
@@ -672,13 +696,13 @@ function script_follow:enemiesAttackingUs() -- returns number of enemies attacki
 	local unitsAttackingUs = 0; 
 	local currentObj, typeObj = GetFirstObject(); 
 	while currentObj ~= 0 do 
-    		if typeObj == 3 then
+		if typeObj == 3 then
 			if (currentObj:CanAttack() and not currentObj:IsDead()) then
-                		if (script_follow:isTargetingMe(currentObj)) then 
-                			unitsAttackingUs = unitsAttackingUs + 1; 
-                		end 
-            		end 
-       		end
+				if (script_follow:isTargetingMe(currentObj)) then 
+					unitsAttackingUs = unitsAttackingUs + 1; 
+                end 
+            end 
+       	end
       	currentObj, typeObj = GetNextObject(currentObj); 
 	end
    	return unitsAttackingUs;
@@ -688,13 +712,13 @@ function script_follow:playersTargetingUs() -- returns number of players attacki
 	local nrPlayersTargetingUs = 0; 
 	local currentObj, typeObj = GetFirstObject(); 
 	while currentObj ~= 0 do 
-	if typeObj == 4 then
-		if (script_follow:isTargetingMe(currentObj)) then 
-                	nrPlayersTargetingUs = nrPlayersTargetingUs + 1; 
-                end 
-       	end
+		if typeObj == 4 then
+			if (script_follow:isTargetingMe(currentObj)) then 
+                nrPlayersTargetingUs = nrPlayersTargetingUs + 1; 
+			end 
+		end
         currentObj, typeObj = GetNextObject(currentObj); 
-    end
+	end
     return nrPlayersTargetingUs;
 end
 
@@ -702,12 +726,12 @@ function script_follow:playersWithinRange(range)
 	local currentObj, typeObj = GetFirstObject(); 
 	while currentObj ~= 0 do 
     	if (typeObj == 4 and not currentObj:IsDead()) then
-		if (currentObj:GetDistance() < range) then 
-			local localObj = GetLocalPlayer();
-			if (localObj:GetGUID() ~= currentObj:GetGUID()) then
-                		return true;
-			end
-                end 
+			if (currentObj:GetDistance() < range) then 
+				local localObj = GetLocalPlayer();
+				if (localObj:GetGUID() ~= currentObj:GetGUID()) then
+                	return true;
+				end
+			end 
        	end
         currentObj, typeObj = GetNextObject(currentObj); 
     end
@@ -720,7 +744,10 @@ function script_follow:getDistanceDif()
 	return math.sqrt(xV^2 + yV^2 + zV^2);
 end
 
+
 function script_follow:draw()
 	script_followEX:drawStatus();
-	if (IsMoving()) then script_nav:drawPath() end
+	if (IsMoving()) then 
+		script_nav:drawPath();
+	end
 end

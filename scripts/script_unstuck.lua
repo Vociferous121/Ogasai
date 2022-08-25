@@ -19,7 +19,7 @@ script_unstuck = {
 	_zpr = 0,
 	_angle = 0,
 	unstuckAngle = 0,
-	unstuckTime = GetTimeEX()
+	unstuckTime = GetTimeEX(),
 }
 
 function script_unstuck:DeBugInfo()

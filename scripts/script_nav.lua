@@ -16,7 +16,7 @@ script_nav = {
 	currentHotSpotZ = 0,
 	currentHotSpotName = 0,
 	hotSpotDist = 0,
-	drawNav = true
+	drawNav = true,
 }
 
 function script_nav:setup()
@@ -41,9 +41,9 @@ function script_nav:loadHotspotDB(id)
 			self.currentGoToLocation = 0;
 		end
 		self.currentHotSpotX , self.currentHotSpotY, self.currentHotSpotZ, self.currentHotSpotName =
-			hotspot['pos']['x'], hotspot['pos']['y'], hotspot['pos']['z'], hotspot['name'];
+		hotspot['pos']['x'], hotspot['pos']['y'], hotspot['pos']['z'], hotspot['name'];
 			
-			return true;
+		return true;
 	end
 
 	return false;
