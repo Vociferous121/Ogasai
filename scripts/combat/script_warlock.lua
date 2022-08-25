@@ -418,6 +418,7 @@ function script_warlock:rest()
 	-- Eat and Drink
 	if (not IsDrinking() and localMana < self.drinkMana) then
 		self.message = "Need to drink...";
+		self.waitTimer = GetTimeEX() + 1200;
 		if (IsMoving()) then
 			StopMoving();
 			return true;

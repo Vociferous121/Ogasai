@@ -222,7 +222,7 @@ function script_priest:run(targetGUID)
 			ClearTarget();
 			return 2;
 		end
-		
+
 		if (not IsStanding()) then
 			StopMoving();
 		end
@@ -277,7 +277,7 @@ function script_priest:run(targetGUID)
 						return 3;
 					end
 					if (Cast("Mind Blast", targetObj)) then	
-						self.waitTimer = GetTimeEX() + 200;
+						self.waitTimer = GetTimeEX() + 750;
 						self.message = "Casting Mind Blast!";
 						return 0;
 					end
@@ -286,11 +286,12 @@ function script_priest:run(targetGUID)
 
 			-- shadow word pain if mindblast is on CD
 			if (HasSpell("Shadow Word: Pain")) and (localMana > 10) and (targetObj:GetDistance() < 30) then
-				if (not targetObj:HasDebuff("Shadow Word: Pain")) then
+				if (not targetObj:HasDebuff("Shadow Word: Pain")) and (targetHealth > 15) then
 					if (not targetObj:IsInLineOfSight()) then
 						return 3;
 					end
 					if (Cast("Shadow Word: Pain", targetObj)) then
+						self.waitTimer = GetTimeEX() + 750;
 						return 0;
 					end
 				end
@@ -302,7 +303,7 @@ function script_priest:run(targetGUID)
 					return 3;
 				end
 				if (script_priest:cast('Smite', targetObj)) then
-					self.waitTimer = GetTimeEX() + 200;
+					self.waitTimer = GetTimeEX() + 750;
 					self.message = "Smite was checked, we are using it!";
 					return 0;
 				end
@@ -347,9 +348,20 @@ function script_priest:run(targetGUID)
 				end
 			end
 
+			-- use mind blast on CD
+			if (HasSpell("Mind Blast")) and (not IsSpellOnCD("Mind Blast")) then
+				if (targetHealth > 20) and (localMana > self.mindBlastMana) then
+					if (Cast("Mind Blast", targetObj)) then
+						self.waitTimer = GetTimeEX() + 750;
+						return 0;
+					end
+				end
+			end
+
 			-- Check: Keep Shadow Word: Pain up
 			if (not targetObj:HasDebuff("Shadow Word: Pain") and localMana > 10) then
 				if (Cast('Shadow Word: Pain', targetObj)) then 
+					self.waitTimer = GetTimeEX() + 750;
 					self.message = "Keeping DoT up!";
 					return 0; 
 				end
@@ -358,6 +370,7 @@ function script_priest:run(targetGUID)
 			-- Check: Keep Inner Fire up
 			if (not localObj:HasBuff('Inner Fire') and HasSpell('Inner Fire') and localMana > 8) then
 				if (Buff('Inner Fire', localObj)) then
+					self.waitTimer = GetTimeEX() + 750;
 					return 0;
 				end
 			end
@@ -365,22 +378,18 @@ function script_priest:run(targetGUID)
 			-- Cast: Smite (last choice e.g. at level 1)
 			if (self.useSmite and localMana > 10) then
 				if (Cast('Smite', targetObj)) then 
+					self.waitTimer = GetTimeEX() + 750;
 					return 0; 
 				end
 			end
 
-			-- Mind Blast
-			if (localMana > self.mindBlastMana) then
-				if (Cast('Mind Blast', targetObj)) then
-					self.waitTimer = GetTimeEX() + 200;
-					self.message = "Mind Blast ready to use!";
-					return 0;
-				end
+			if (not localObj:HasRangedWeapon()) then
+				self.useSmite = true;
 			end
 
 			--Wand if set to use wand
 			wandSpeed = self.wandSpeed;
-			if (IsSpellOnCD("Mind Blast")) then
+			if (IsSpellOnCD("Mind Blast")) and (not localObj:IsCasting()) then
 				if ((localMana <= self.useWandMana and targetHealth <= self.useWandHealth) and localObj:HasRangedWeapon() and self.useWand) then
 					if (not IsAutoCasting("Shoot")) then
 						self.message = "Using wand...";
@@ -390,6 +399,7 @@ function script_priest:run(targetGUID)
 						return 0;
 					end
 				end
+			self.waitTimer = GetTimeEX() + 250;
 			end
 		end
 	end
