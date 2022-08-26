@@ -551,12 +551,14 @@ function script_warrior:run(targetGUID)
 						end
 					end
 				end
-
+				-- sunder armor in battle stance x1
 				if (self.battleStance) then
 					if (HasSpell("Sunder Armor")) and (localRage > 30) then
 						if (targetHealth > 30) and (targetObj:GetDistance() < self.meeleDistance) then
-							if (Cast("Sunder Armor", targetObj)) then
-								return 0;
+							if (targetObj:GetDebuffStacks("Sunder Armor") < 1) then
+								if (Cast("Sunder Armor", targetObj)) then
+									return 0;
+								end
 							end
 						end
 					end
@@ -714,7 +716,7 @@ function script_warrior:rest()
 end
 
 function script_warrior:menu()
-SameLine();
+
 	if (not self.enableRotation) then -- if not showing rotation button
 		wasClicked, self.enableGrind = Checkbox("Grinder", self.enableGrind); -- then show grind button
 	end
@@ -765,6 +767,7 @@ SameLine();
 						SameLine();
 						wasClicked, self.enableShieldBlock = Checkbox("Shield Block On/Off", self.enableShieldBlock);
 					if (self.enableShieldBlock) then
+						Text("Shield Block Options");
 						self.shieldBlockHealth = SliderInt("Below % health", 10, 85, self.shieldBlockHealth);
 						self.shieldBlockRage = SliderInt("Above % rage", 10, 50, self.shieldBlockRage);
 					end
