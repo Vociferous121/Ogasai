@@ -148,7 +148,7 @@ function script_grind:run()
 
 	 -- Set next to node distance and nav-mesh smoothness to double that number
 	if (self.useMount and IsMounted()) then
-		script_nav:setNextToNodeDist(5); NavmeshSmooth(10);
+		script_nav:setNextToNodeDist(8); NavmeshSmooth(16);
 	else
 		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*2);
 	end

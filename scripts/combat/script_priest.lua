@@ -1,14 +1,14 @@
 script_priest = {
 	message = 'Priest Combat Script',
-	drinkMana = 50,
+	drinkMana = 45,
 	eatHealth = 35,
 	isSetup = false,
-	renewHP = 90,
+	renewHP = 80,
 	shieldHP = 80,
-	flashHealHP = 75,
-	lesserHealHP = 60,
-	healHP = 45,
-	greaterHealHP = 20,
+	flashHealHP = 65,
+	lesserHealHP = 55,
+	healHP = 40,
+	greaterHealHP = 23,
 	potionMana = 10,
 	potionHealth = 10,
 	waitTimer = 0,
@@ -17,7 +17,6 @@ script_priest = {
 	useWandHealth = 100,
 	isChecked = true,
 	useSmite = false,
-	useLesserHeal = true,
 	mindBlastMana = 30,
 	wandSpeed = '1600',
 	useScream = true,
@@ -27,6 +26,7 @@ script_priest = {
 function script_priest:healAndBuff(targetObject, localMana)
 
 	local targetHealth = targetObject:GetHealthPercentage();
+	local localLevel = GetLocalPlayer():GetLevel();
 
 	-- Buff Fortitude
 	if (localMana > 25 and not IsInCombat() and not targetObject:HasBuff("Power Word: Fortitude")) then
@@ -78,13 +78,21 @@ function script_priest:healAndBuff(targetObject, localMana)
 		end
 	end
 	
-	-- Lesser Heal
-	if (localMana > 10 and targetHealth < self.lesserHealHP) then
-		if (self.useLesserHeal and script_priest:heal('Lesser Heal', targetObject)) then
-			return true;
+	---- Lesser Heal
+	if (localLevel < 20) then
+		if (localMana > 10 and targetHealth < self.lesserHealHP) then
+			if (script_priest:heal('Lesser Heal', targetObject)) then
+				return true;
+			end
+		end
+	elseif (localLevel >= 20) then
+		if (localMana < 10) and (targetHealth < flashHealHP) then
+			if (script_priest:heal('Lesser Heal', targetObject)) then
+				return true;
+			end
 		end
 	end
-
+ 
 	return false;
 end
 
@@ -257,7 +265,7 @@ function script_priest:run(targetGUID)
 			if (IsMounted()) then DisMount(); end
 
 			-- Devouring Plague
-			if (HasSpell("Devouring Plague")) and (localMana > 25) and (targetObj:GetDistance() < 30) then
+			if (HasSpell("Devouring Plague")) and (localMana > 25)  then
 				if (not IsSpellOnCD("Devouring Plague")) then
 					if (not targetObj:IsInLineOfSight()) then
 						return 3;
@@ -281,12 +289,18 @@ function script_priest:run(targetGUID)
 						self.message = "Casting Mind Blast!";
 						return 0;
 					end
+				elseif (not IsAutoCasting("Shoot")) then
+					self.message = "Using wand...";
+					targetObj:FaceTarget();
+					targetObj:CastSpell("Shoot");
+					self.waitTimer = GetTimeEX() + (self.wandSpeed + 250); 
+					return true;
 				end
 			end
 
 			-- shadow word pain if mindblast is on CD
-			if (HasSpell("Shadow Word: Pain")) and (localMana > 10) and (targetObj:GetDistance() < 30) and (IsSpellOnCD("Mind Blast")) then
-				if (not targetObj:HasDebuff("Shadow Word: Pain")) and (targetHealth > 25) then
+			if (HasSpell("Shadow Word: Pain")) and (localMana > 10) and (IsSpellOnCD("Mind Blast")) then
+				if (not targetObj:HasDebuff("Shadow Word: Pain")) and (targetHealth > 15) then
 					if (not targetObj:IsInLineOfSight()) then
 						return 3;
 					end
@@ -294,12 +308,6 @@ function script_priest:run(targetGUID)
 						self.waitTimer = GetTimeEX() + 750;
 						return 0;
 					end
-				elseif (not IsAutoCasting("Shoot")) then
-						self.message = "Using wand...";
-						targetObj:FaceTarget();
-						targetObj:CastSpell("Shoot");
-						self.waitTimer = GetTimeEX() + (self.wandSpeed + 250); 
-				return true;
 				end
 			end
 
@@ -401,7 +409,7 @@ function script_priest:run(targetGUID)
 
 			--Wand if set to use wand
 			wandSpeed = self.wandSpeed;
-			if (IsSpellOnCD("Mind Blast")) and (not localObj:IsCasting()) then
+			if ((IsSpellOnCD("Mind Blast")) or localMana < self.mindBlastMana) and (not localObj:IsCasting()) then
 				if ((localMana <= self.useWandMana and targetHealth <= self.useWandHealth) and localObj:HasRangedWeapon() and self.useWand) then
 					if (not IsAutoCasting("Shoot")) then
 						self.message = "Using wand...";
@@ -519,8 +527,6 @@ function script_priest:menu()
 		local wasClicked = false;
 		wasClicked, self.useScream = Checkbox("Fear On/Off", self.useScream);
 		SameLine();
-		wasClicked, self.useLesserHeal = Checkbox("Lesser Heal On/Off", self.useLesserHeal);
-		SameLine();
 		wasClicked, self.useSmite = Checkbox("Smite On/Off", self.useSmite);
 		SameLine();
 		Separator();
@@ -547,8 +553,10 @@ function script_priest:menu()
 		Text('Self Heals');
 		self.renewHP = SliderInt("Renew HP%", 1, 99, self.renewHP);	
 		self.shieldHP = SliderInt("Shiled HP%", 1, 99, self.shieldHP);
-		self.flashHealHP = SliderInt("Flash heal HP%", 1, 99, self.flashHealHP);	
-		self.lesserHealHP = SliderInt("Lesser heal HP%", 1, 99, self.lesserHealHP);	
+		self.flashHealHP = SliderInt("Flash heal HP%", 1, 99, self.flashHealHP);
+		if (GetLocalPlayer():GetLevel() < 20) then
+			self.lesserHealHP = SliderInt("Lesser heal HP%", 1, 99, self.lesserHealHP);	
+		end
 		self.healHP = SliderInt("Heal HP%", 1, 99, self.healHP);	
 		self.greaterHealHP = SliderInt("Greater Heal HP%", 1, 99, self.greaterHealHP);
 		self.potionHealth = SliderInt("Potion HP%", 1, 99, self.potionHealth);

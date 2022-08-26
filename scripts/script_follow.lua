@@ -11,7 +11,7 @@ script_follow = {
 	greaterHealMana = 20,
 	partyGreaterHealHealth = 30,
 	flashHealMana = 15,
-	partyFlashHealHealth = 80,
+	partyFlashHealHealth = 72,
 	clickRenew = true,
 	clickShield = true,
 	clickFlashHeal = true,
@@ -161,9 +161,8 @@ function script_follow:healAndBuff()
 
 			-- Inner Fire
 			if (HasSpell("Inner Fire")) and (localMana > 30) then
-			local selfPlayer = GetLocalPlayer();
-				if (not selfPlayer:HasBuff("Inner Fire")) then
-					if (Buff("Inner Fire")) then
+				if (not localObj:HasBuff("Inner Fire")) then
+					if (Buff("Inner Fire", localObj)) then
 					self.waitTimer = GetTimeEX() + 1500;
 						return 0;
 					end
@@ -225,14 +224,16 @@ function script_follow:healAndBuff()
 				end
 
 				-- Lesser Heal
-				if (script_priest.useLesserHeal) and (localMana > self.lesserHealMana) and (partyMembersHP < self.partyLesserHealHealth) then
-					if (CastHeal("Lesser Heal", partyMember)) then
-						self.waitTimer = GetTimeEX() + 2400;
-						return true;
+				if (localObj:GetLevel() < 20) then
+					if (localMana > self.lesserHealMana) and (partyMembersHP < self.partyLesserHealHealth) then
+						if (CastHeal("Lesser Heal", partyMember)) then
+							self.waitTimer = GetTimeEX() + 2400;
+							return true;
+						end
 					end
-				elseif (self.clickHeal) then
-					if (localMana > self.healMana and partyMembersHP < self.partyHealHealth and HasSpell("Heal")) then
-						if (CastHeal("Heal", partyMember)) then
+				elseif (localObj:GetLevel() >= 20) then
+					if (localMana < self.flashOfLightMana and partyMembersHP < 20 and HasSpell("Lesser Heal")) then
+						if (CastHeal("Lesser Heal", partyMember)) then
 							self.waitTimer = GetTimeEX() + 2400;
 							return true;
 						end

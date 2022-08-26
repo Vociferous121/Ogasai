@@ -143,12 +143,13 @@ function script_followEX:menu()
 				-- turn ALL heals on/off for group
 		wasClicked, script_follow.enableHeals = Checkbox("Turn On/Off all heals for the group!", script_follow.enableHeals);
 
-						-- Lesser Heal
+				-- Lesser Heal
+		if (GetLocalPlayer():GetLevel() < 20) then
 		Text("Lesser Heal Options -"); SameLine(); Text("Turn On/Off above");
 		script_follow.lesserHealMana = SliderInt("Lesser Heal Mana%", 1, 99, script_follow.lesserHealMana);
 		script_follow.partyLesserHealHealth = SliderInt("Lesser Heal Health%", 1, 99, script_follow.partyLesserHealHealth);
 				Separator();
-
+		end
 				-- Renew
 		Text("Renew Options -"); SameLine(); 
 		wasClicked, script_follow.clickRenew = Checkbox("Renew On/Off", script_follow.clickRenew);
