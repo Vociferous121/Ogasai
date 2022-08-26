@@ -53,7 +53,7 @@ script_follow = {
 	isSetup = false,
 	drawUnits = true,
 	acceptTimer = GetTimeEX(),
-	followMemberDistance = 36,
+	followMemberDistance = 10,
 	followLeaderDistance = 30,
 	followTimer = GetTimeEX(),
 	dpsHp = 0,
@@ -160,64 +160,79 @@ function script_follow:healAndBuff()
 			end
 
 			-- Inner Fire
-			--if (HasSpell("Inner Fire")) and (localMana > 30) then
-			--local selfPlayer = GetLocalPlayer();
-			--	if (not selfPlayer:HasBuff("Inner Fire")) then
-			--		if (Buff("Inner Fire")) then
-			--		self.waitTimer = GetTimeEX() + 1500;
-			--			return 0;
-			--		end
-			--	end
-			--end
+			if (HasSpell("Inner Fire")) and (localMana > 30) then
+			local selfPlayer = GetLocalPlayer();
+				if (not selfPlayer:HasBuff("Inner Fire")) then
+					if (Buff("Inner Fire")) then
+					self.waitTimer = GetTimeEX() + 1500;
+						return 0;
+					end
+				end
+			end
 
 			if (self.enableHeals) then
 
 				----- .
 				----- PRIEST SPELLS
 				-----	.
-				
-				-- Shield
-				if (self.clickShield) then
-					if (localMana > self.shieldMana and partyMembersHP < self.partyShieldHealth and not partyMember:HasDebuff("Weakened Soul") and IsInCombat() and HasSpell("Power Word: Shield")) then
-						if (CastHeal('Power Word: Shield', partyMember)) then 
-							self.waitTimer = GetTimeEX() + 1400;
-							return true; 
-						end
-					end
-				end
 
 				-- Flash Heal
 				if (self.clickFlashHeal) then
  					if (localMana > self.flashHealMana and partyMembersHP < self.partyFlashHealHealth) then
-						if (CastHeal('Flash Heal', partyMember)) then
+						if (CastHeal("Flash Heal", partyMember)) then
 							self.waitTimer = GetTimeEX() + 1500;
 							return true;
 						end
+					elseif (self.clickShield) then
+						if (localMana > self.shieldMana and partyMembersHP < self.partyShieldHealth and not partyMember:HasDebuff("Weakened Soul") and IsInCombat() and HasSpell("Power Word: Shield")) then
+							if (CastHeal("Power Word: Shield", partyMember)) then 
+								self.waitTimer = GetTimeEX() + 1400;
+								return true; 
+							end
+						end
 					end
 				end
-
 				-- Greater Heal
 				if (self.clickGreaterHeal) then
 					if (localMana > self.greaterHealMana and partyMembersHP < self.partyGreaterHealHealth and HasSpell("Greater Heal")) then
-						if (CastHeal('Greater Heal', partyMember)) then
+						if (CastHeal("Greater Heal", partyMember)) then
 							self.waitTimer = GetTimeEX() + 5500;
 							return true;
 						end
-					end					
+					elseif (self.clickFlashHeal) then
+ 						if (localMana > self.flashHealMana and partyMembersHP < self.partyFlashHealHealth) then
+							if (CastHeal("Flash Heal", partyMember)) then
+								self.waitTimer = GetTimeEX() + 1500;
+								return true;
+							end
+						end
+					end				
 				end
-
-						-- Lesser Heal
-				if (script_priest.useLesserHeal) and (localMana > self.lesserHealMana) and (partyMembersHP < self.partyLesserHealHealth) then
-					if (CastHeal('Lesser Heal', partyMember)) then
-						self.waitTimer = GetTimeEX() + 2400;
-						return true;
-					end
-				end
-
+	
 				-- Heal
 				if (self.clickHeal) then
 					if (localMana > self.healMana and partyMembersHP < self.partyHealHealth and HasSpell("Heal")) then
-						if (CastHeal('Heal', partyMember)) then
+						if (CastHeal("Heal", partyMember)) then
+							self.waitTimer = GetTimeEX() + 2400;
+							return true;
+						end
+					elseif (script_priest.useLesserHeal) and (localMana > self.lesserHealMana) and (partyMembersHP < self.partyLesserHealHealth) then
+						if (CastHeal("Lesser Heal", partyMember)) then
+							self.waitTimer = GetTimeEX() + 2400;
+							return true;
+						end
+					end
+				end
+
+				-- Lesser Heal
+				if (script_priest.useLesserHeal) and (localMana > self.lesserHealMana) and (partyMembersHP < self.partyLesserHealHealth) then
+					if (CastHeal("Lesser Heal", partyMember)) then
+						self.waitTimer = GetTimeEX() + 2400;
+						return true;
+					end
+				elseif (self.clickHeal) then
+					if (localMana > self.healMana and partyMembersHP < self.partyHealHealth and HasSpell("Heal")) then
+						if (CastHeal("Heal", partyMember)) then
 							self.waitTimer = GetTimeEX() + 2400;
 							return true;
 						end
@@ -227,9 +242,26 @@ function script_follow:healAndBuff()
 				-- Renew
 				if (self.clickRenew) then
 					if (localMana > self.renewMana and partyMembersHP < self.partyRenewHealth and not partyMember:HasBuff("Renew") and HasSpell("Renew")) then
-						if (CastHeal('Renew', partyMember)) then
+						if (CastHeal("Renew", partyMember)) then
 							self.waitTimer = GetTimeEX() + 1400;
 							return true;
+						end
+					end
+				end
+
+				-- Shield
+				if (self.clickShield) then
+					if (localMana > self.shieldMana and partyMembersHP < self.partyShieldHealth and not partyMember:HasDebuff("Weakened Soul") and IsInCombat() and HasSpell("Power Word: Shield")) then
+						if (CastHeal("Power Word: Shield", partyMember)) then 
+							self.waitTimer = GetTimeEX() + 1400;
+							return true; 
+						end
+					elseif (self.clickRenew) then
+						if (localMana > self.renewMana and partyMembersHP < self.partyRenewHealth and not partyMember:HasBuff("Renew") and HasSpell("Renew")) then
+							if (CastHeal("Renew", partyMember)) then
+								self.waitTimer = GetTimeEX() + 1400;
+								return true;
+							end
 						end
 					end
 				end
@@ -239,7 +271,7 @@ function script_follow:healAndBuff()
 
 				-- Blessing of Protection
 				if (localMana > 5 and partyMembersHP < self.bopHealth and HasSpell("Blessing of Protection")) then
-					if (CastHeal('Lay on Hands', partyMember)) then
+					if (Cast("Blessing of Protection", partyMember)) then
 						self.waitTimer = GetTimeEX() + 1000;
 						return true;
 					end
@@ -247,7 +279,7 @@ function script_follow:healAndBuff()
 
 				-- Lay on Hands
 				if (localMana < 25 and partyMembersHP < self.layOnHandsHealth and HasSpell("Lay on Hands")) then
-					if (CastHeal('Lay on Hands', partyMember)) then
+					if (CastHeal("Lay on Hands", partyMember)) then
 						self.waitTimer = GetTimeEX() + 1000;
 						return true;
 					end
@@ -255,7 +287,7 @@ function script_follow:healAndBuff()
 
 				-- Holy Light
 				if (localMana > self.holyLightMana and partyMembersHP < self.partyHolyLightHealth and HasSpell("Holy Light")) then
-					if (CastHeal('Holy Light', partyMember)) then
+					if (CastHeal("Holy Light", partyMember)) then
 						self.waitTimer = GetTimeEX() + 2500;
 						return true;
 					end
@@ -263,7 +295,7 @@ function script_follow:healAndBuff()
 
 				-- Flash Of Light
 				if (localMana > self.flashOfLightMana and partyMembersHP < self.partyFlashOfLightHealth and HasSpell("Flash of Light")) then
-					if (CastHeal('Flash of Light', partyMember)) then
+					if (CastHeal("Flash of Light", partyMember)) then
 						self.waitTimer = GetTimeEX() + 1500;
 						return true;
 					end
@@ -300,7 +332,7 @@ function script_follow:run()
 	script_follow:window();
 	-- Set next to node distance and nav-mesh smoothness to double that number
 	if (IsMounted()) then
-		script_nav:setNextToNodeDist(5); NavmeshSmooth(10);
+		script_nav:setNextToNodeDist(8); NavmeshSmooth(16);
 	else
 		script_nav:setNextToNodeDist(self.nextToNodeDist);
 		NavmeshSmooth(self.nextToNodeDist*2);
