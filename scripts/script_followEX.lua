@@ -1,7 +1,8 @@
 script_followEX = {
 	
 		drawUnits = true,
-		drawAggro = true,
+		drawAggro = false,
+		drawAggroRange = 100,
 }
 
 function script_followEX:drawStatus()
@@ -12,6 +13,8 @@ function script_followEX:drawStatus()
 	if (script_follow.drawUnits) then 
 		script_nav:drawUnitsDataOnScreen();
 	end
+
+	if (script_aggro.drawAggro) then script_aggro:drawAggroCircles(self.drawAggroRange); end
 	-- color
 	local r, g, b = 255, 255, 0;
 	-- position
@@ -23,7 +26,7 @@ function script_followEX:drawStatus()
 	DrawRect(x - 10, y - 5, x + width, y + 80, 255, 255, 0,  1, 1, 1);
 	DrawRectFilled(x - 10, y - 5, x + width, y + 80, 0, 0, 0, 160, 0, 0);
 	if (script_follow:GetPartyLeaderObject()) then
-		DrawText('Follower - Range: ' .. math.floor(script_follow.followDistance) .. ' yd. ' .. 
+		DrawText('Follower - Range: ' .. math.floor(script_follow.followLeaderDistance) .. ' yd. ' .. 
 		'Master target: ' .. script_follow:GetPartyLeaderObject():GetUnitName(), x-5, y-4, r, g, b) y = y + 15;
 	else
 		DrawText('Follower - Follow range: ' .. math.floor(script_follow.followDistance) .. ' yd. ' .. 
@@ -140,6 +143,12 @@ function script_followEX:menu()
 				-- turn ALL heals on/off for group
 		wasClicked, script_follow.enableHeals = Checkbox("Turn On/Off all heals for the group!", script_follow.enableHeals);
 
+						-- Lesser Heal
+		Text("Lesser Heal Options -"); SameLine(); Text("Turn On/Off above");
+		script_follow.lesserHealMana = SliderInt("Lesser Heal Mana%", 1, 99, script_follow.lesserHealMana);
+		script_follow.partyLesserHealHealth = SliderInt("Lesser Heal Health%", 1, 99, script_follow.partyLesserHealHealth);
+				Separator();
+
 				-- Renew
 		Text("Renew Options -"); SameLine(); 
 		wasClicked, script_follow.clickRenew = Checkbox("Renew On/Off", script_follow.clickRenew);
@@ -173,12 +182,6 @@ function script_followEX:menu()
 		script_follow.partyHealHealth = SliderInt("Heal Health%", 1, 99, script_follow.partyHealHealth);
 				Separator();
 
-				-- Lesser Heal
-		Text("Lesser Heal Options -"); SameLine();
-		wasClicked, script_follow.useGroupLesserHeal = Checkbox("Lesser Heal On/Off", script_follow.useGroupLesserHeal);
-		script_follow.lesserHealMana = SliderInt("Lesser Heal Mana%", 1, 99, script_follow.lesserHealMana);
-		script_follow.partyLesserHealHealth = SliderInt("Lesser Heal Health%", 1, 99, script_follow.partyLesserHealHealth);
-				Separator();
 	end
 
 	if  (class == 'Paladin') and (CollapsingHeader("Paladin Group Heals Follower Script")) then
@@ -229,8 +232,10 @@ function script_followEX:menu()
 		Text("At what enemy HP do we help kill it?")
 		script_follow.dpsHp = SliderInt("Enemy HP%", 0, 100, script_follow.dpsHp);
 		Separator();
-		Text("Distance to walk to party members...");
-		script_follow.followDistance = SliderInt("Follow Distance (yd)", 6, 100, script_follow.followDistance);
+		Text("Distance to walk to party members from your current position");
+		script_follow.followMemberDistance = SliderInt("Party MEMBER Distance (yd)", 5, 40, script_follow.followMemberDistance);
+		Text("Distance to follow PARTY LEADER");
+		script_follow.followLeaderDistance = SliderInt("Follow Leader Distance (yd)", 6, 40, script_follow.followLeaderDistance);
 		wasClicked, script_follow.useUnStuck = Checkbox("Turn On/Off Buggy unStuck Script", script_follow.useUnStuck);
 		Separator();
 		Text("Loot options:");
@@ -244,7 +249,11 @@ function script_followEX:menu()
 		--Separator();
 		Text("Script tick rate options:");
 		script_follow.tickRate = SliderFloat("Tick rate (ms)", 0, 2000, script_follow.tickRate);
+		if (script_aggro.drawAggro) then
+			Text("Draw Aggro Range");
+			self.drawAggroRange = SliderInt("AR", 50, 300, self.drawAggroRange);
+		end
 		wasClicked, script_follow.drawUnits = Checkbox("Show unit info on screen", script_follow.drawUnits);
-		wasClicked, script_follow.drawAggro = Checkbox('Show aggro range -- WORK IN PROGRESS', script_follow.drawAggro);
+		wasClicked, script_aggro.drawAggro = Checkbox('Show aggro range', script_aggro.drawAggro);
 	end
 end

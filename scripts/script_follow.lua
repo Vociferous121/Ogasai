@@ -1,24 +1,22 @@
 script_follow = {
 
-	renewMana = 10,
-	partyRenewHealth = 90,
-	shieldMana = 25,
+	renewMana = 25,
+	partyRenewHealth = 85,
+	shieldMana = 35,
 	partyShieldHealth = 80,
 	lesserHealMana = 5,
-	partyLesserHealHealth = 80,
-	healMana = 50,
-	partyHealHealth = 75,
+	partyLesserHealHealth = 75,
+	healMana = 35,
+	partyHealHealth = 50,
 	greaterHealMana = 20,
 	partyGreaterHealHealth = 30,
-	useGroupLesserHeal = true,
 	flashHealMana = 15,
 	partyFlashHealHealth = 80,
 	clickRenew = true,
 	clickShield = true,
 	clickFlashHeal = true,
 	clickGreaterHeal = true,
-	clickHeal = false,
-	clickLesserHeal = false,
+	clickHeal = true,
 	holyLightMana = 25,
 	partyHolyLightHealth = 25,
 	flashOfLightMana = 3,
@@ -55,7 +53,8 @@ script_follow = {
 	isSetup = false,
 	drawUnits = true,
 	acceptTimer = GetTimeEX(),
-	followDistance = 36,
+	followMemberDistance = 36,
+	followLeaderDistance = 30,
 	followTimer = GetTimeEX(),
 	dpsHp = 0,
 	isChecked = true,
@@ -75,13 +74,15 @@ end
 
 
 function script_follow:moveInLineOfSight(partyMember)
-	if (not partyMember:IsInLineOfSight() or partyMember:GetDistance() > self.followDistance) then
-		local x, y, z = partyMember:GetPosition();
-		script_nav:moveToTarget(GetLocalPlayer(), x , y, z);
-		self.timer = GetTimeEX() + 200;
-		return true;
+	if (partyMember:GetDistance() < self.followMemberDistance) then
+		if (not partyMember:IsInLineOfSight()) then
+			local x, y, z = partyMember:GetPosition();
+			script_nav:moveToTarget(GetLocalPlayer(), x , y, z);
+			self.timer = GetTimeEX() + 200;
+			return true;
+		end
+		return false;
 	end
-	return false;
 end
 
 function script_follow:healAndBuff()
@@ -107,7 +108,7 @@ function script_follow:healAndBuff()
 			end
 			
 			-- Move in line of sight and in range of the party member
-			if (script_follow:moveInLineOfSight(partyMember)) then 
+			if (script_follow:moveInLineOfSight(partyMember)) then
 				return true; 
 			end
 			
@@ -158,15 +159,15 @@ function script_follow:healAndBuff()
 			end
 
 			-- Inner Fire
-			if (HasSpell("Inner Fire")) and (localMana > 30) then
-			local selfPlayer = GetLocalPlayer();
-				if (not selfPlayer:HasBuff("Inner Fire")) then
-					if (Buff("Inner Fire")) then
-					self.waitTimer = GetTimeEX() + 1500;
-						return 0;
-					end
-				end
-			end
+			--if (HasSpell("Inner Fire")) and (localMana > 30) then
+			--local selfPlayer = GetLocalPlayer();
+			--	if (not selfPlayer:HasBuff("Inner Fire")) then
+			--		if (Buff("Inner Fire")) then
+			--		self.waitTimer = GetTimeEX() + 1500;
+			--			return 0;
+			--		end
+			--	end
+			--end
 
 			if (self.enableHeals) then
 
@@ -225,7 +226,7 @@ function script_follow:healAndBuff()
 				end
 
 				-- Lesser Heal
-				if (self.useGroupLesserHeal) and (localMana > self.lesserHealMana) and (partyMembersHP < self.partyLesserHealHealth) then
+				if (script_priest.useLesserHeal) and (localMana > self.lesserHealMana) and (partyMembersHP < self.partyLesserHealHealth) then
 					if (CastHeal('Lesser Heal', partyMember)) then
 						self.waitTimer = GetTimeEX() + 2700;
 						return true;
@@ -462,7 +463,7 @@ function script_follow:run()
 
 		-- Follow our master
 		if (script_follow:GetPartyLeaderObject() ~= 0) then
-			if(script_follow:GetPartyLeaderObject():GetDistance() > self.followDistance and not script_follow:GetPartyLeaderObject():IsDead()) then
+			if(script_follow:GetPartyLeaderObject():GetDistance() > self.followLeaderDistance and not script_follow:GetPartyLeaderObject():IsDead()) then
 				local x, y, z = script_follow:GetPartyLeaderObject():GetPosition();
 				self.message = "Following our master...";
 				script_nav:moveToTarget(GetLocalPlayer(), x, y, z);
@@ -578,7 +579,7 @@ function script_follow:run()
 		
 		-- Follow our master
 		if (script_follow:GetPartyLeaderObject() ~= 0) then
-			if(script_follow:GetPartyLeaderObject():GetDistance() > self.followDistance and not script_follow:GetPartyLeaderObject():IsDead()) then
+			if(script_follow:GetPartyLeaderObject():GetDistance() > self.followLeaderDistance and not script_follow:GetPartyLeaderObject():IsDead()) then
 				local x, y, z = script_follow:GetPartyLeaderObject():GetPosition();
 				self.message = "Following our master...";
 				script_nav:moveToTarget(GetLocalPlayer(), x, y, z);

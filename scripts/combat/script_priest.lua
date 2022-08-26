@@ -17,7 +17,7 @@ script_priest = {
 	useWandHealth = 100,
 	isChecked = true,
 	useSmite = false,
-	useLesserHeal = false,
+	useLesserHeal = true,
 	mindBlastMana = 30,
 	wandSpeed = '1600',
 	useScream = true,
@@ -401,11 +401,10 @@ function script_priest:run(targetGUID)
 						self.message = "Using wand...";
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
-						self.waitTimer = GetTimeEX() + (self.wandSpeed + 100); 
+						self.waitTimer = GetTimeEX() + (self.wandSpeed + 250); 
 						return 0;
 					end
 				end
-			self.waitTimer = GetTimeEX() + 250;
 			end
 		end
 	end
