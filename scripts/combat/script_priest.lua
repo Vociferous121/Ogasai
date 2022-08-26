@@ -286,7 +286,7 @@ function script_priest:run(targetGUID)
 
 			-- shadow word pain if mindblast is on CD
 			if (HasSpell("Shadow Word: Pain")) and (localMana > 10) and (targetObj:GetDistance() < 30) and (IsSpellOnCD("Mind Blast")) then
-				if (not targetObj:HasDebuff("Shadow Word: Pain")) and (targetHealth > 15) then
+				if (not targetObj:HasDebuff("Shadow Word: Pain")) and (targetHealth > 25) then
 					if (not targetObj:IsInLineOfSight()) then
 						return 3;
 					end
@@ -294,6 +294,12 @@ function script_priest:run(targetGUID)
 						self.waitTimer = GetTimeEX() + 750;
 						return 0;
 					end
+				elseif (not IsAutoCasting("Shoot")) then
+						self.message = "Using wand...";
+						targetObj:FaceTarget();
+						targetObj:CastSpell("Shoot");
+						self.waitTimer = GetTimeEX() + (self.wandSpeed + 250); 
+				return true;
 				end
 			end
 
@@ -359,7 +365,7 @@ function script_priest:run(targetGUID)
 			end
 
 			-- Check: Keep Shadow Word: Pain up
-			if (not targetObj:HasDebuff("Shadow Word: Pain") and localMana > 10) then
+			if (not targetObj:HasDebuff("Shadow Word: Pain") and localMana > 10) and (targetHealth > 25) then
 				if (Cast('Shadow Word: Pain', targetObj)) then 
 					self.waitTimer = GetTimeEX() + 750;
 					self.message = "Keeping DoT up!";

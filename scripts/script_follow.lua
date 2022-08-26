@@ -74,7 +74,8 @@ end
 
 
 function script_follow:moveInLineOfSight(partyMember)
-	if (partyMember:GetDistance() < self.followMemberDistance) then
+	if (partyMember:GetDistance() < self.followMemberDistance) 
+		or (leaderObj:GetDistance() < self.followLeaderDistance) then
 		if (not partyMember:IsInLineOfSight()) then
 			local x, y, z = partyMember:GetPosition();
 			script_nav:moveToTarget(GetLocalPlayer(), x , y, z);
@@ -174,43 +175,13 @@ function script_follow:healAndBuff()
 				----- .
 				----- PRIEST SPELLS
 				-----	.
-
-				-- Renew
-				if (self.clickRenew) then
-					if (localMana > self.renewMana and partyMembersHP < self.partyRenewHealth and not partyMember:HasBuff("Renew") and HasSpell("Renew")) then
-						if (CastHeal('Renew', partyMember)) then
-							self.waitTimer = GetTimeEX() + 1500;
-							return true;
-						end
-					end
-				end
-					
+				
 				-- Shield
 				if (self.clickShield) then
 					if (localMana > self.shieldMana and partyMembersHP < self.partyShieldHealth and not partyMember:HasDebuff("Weakened Soul") and IsInCombat() and HasSpell("Power Word: Shield")) then
 						if (CastHeal('Power Word: Shield', partyMember)) then 
-							self.waitTimer = GetTimeEX() + 1500;
+							self.waitTimer = GetTimeEX() + 1400;
 							return true; 
-						end
-					end
-				end
-	
-				-- Greater Heal
-				if (self.clickGreaterHeal) then
-					if (localMana > self.greaterHealMana and partyMembersHP < self.partyGreaterHealHealth and HasSpell("Greater Heal")) then
-						if (CastHeal('Greater Heal', partyMember)) then
-							self.waitTimer = GetTimeEX() + 5500;
-							return true;
-						end
-					end					
-				end
-
-				-- Heal
-				if (self.clickHeal) then
-					if (localMana > self.healMana and partyMembersHP < self.partyHealHealth and HasSpell("Heal")) then
-						if (CastHeal('Heal', partyMember)) then
-							self.waitTimer = GetTimeEX() + 2500;
-							return true;
 						end
 					end
 				end
@@ -225,13 +196,44 @@ function script_follow:healAndBuff()
 					end
 				end
 
-				-- Lesser Heal
+				-- Greater Heal
+				if (self.clickGreaterHeal) then
+					if (localMana > self.greaterHealMana and partyMembersHP < self.partyGreaterHealHealth and HasSpell("Greater Heal")) then
+						if (CastHeal('Greater Heal', partyMember)) then
+							self.waitTimer = GetTimeEX() + 5500;
+							return true;
+						end
+					end					
+				end
+
+						-- Lesser Heal
 				if (script_priest.useLesserHeal) and (localMana > self.lesserHealMana) and (partyMembersHP < self.partyLesserHealHealth) then
 					if (CastHeal('Lesser Heal', partyMember)) then
-						self.waitTimer = GetTimeEX() + 2700;
+						self.waitTimer = GetTimeEX() + 2400;
 						return true;
 					end
 				end
+
+				-- Heal
+				if (self.clickHeal) then
+					if (localMana > self.healMana and partyMembersHP < self.partyHealHealth and HasSpell("Heal")) then
+						if (CastHeal('Heal', partyMember)) then
+							self.waitTimer = GetTimeEX() + 2400;
+							return true;
+						end
+					end
+				end
+
+				-- Renew
+				if (self.clickRenew) then
+					if (localMana > self.renewMana and partyMembersHP < self.partyRenewHealth and not partyMember:HasBuff("Renew") and HasSpell("Renew")) then
+						if (CastHeal('Renew', partyMember)) then
+							self.waitTimer = GetTimeEX() + 1400;
+							return true;
+						end
+					end
+				end
+
 
 				----- PALADIN SPELLS
 
