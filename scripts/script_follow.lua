@@ -113,7 +113,7 @@ function script_follow:healAndBuff()
 			if (script_follow:moveInLineOfSight(partyMember)) then
 				return true; 
 			end
-			
+
 			-- Blessing of Might/Wisdom
 			if (not IsInCombat() and localMana > 40) then -- buff
 				if (not partyMember:HasBuff("Blessing of Might") and (not partyMember:HasBuff("Blessing of Wisdom") and HasSpell("Blessing of Might"))) then		
@@ -172,9 +172,8 @@ function script_follow:healAndBuff()
 
 			if (self.enableHeals) then
 
-				----- .
+
 				----- PRIEST SPELLS
-				-----	.
 
 				-- Flash Heal
 				if (self.clickFlashHeal) then

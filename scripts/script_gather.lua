@@ -239,20 +239,20 @@ function script_gather:gather()
 		if(dist < self.lootDistance) then
 			if (IsMoving()) then
 				StopMoving();
-				self.timer = GetTimeEX() + 850;
+				self.timer = GetTimeEX() + 950;
 				return true;
 			end
 
 			if(not IsLooting() and not IsChanneling()) then
 			self.nodeObj:GameObjectInteract();
 				if (IsMoving()) then
-					self.timer = GetTimeEX() + 6700;
+					self.timer = GetTimeEX() + 7100;
 					StopMoving();
 					return false;
 				end
 			end
 				if (not LootTarget()) then
-					self.timer = GetTimeEX() + 1150;
+					self.timer = GetTimeEX() + 1250;
 					return false;
 			end
 		else
@@ -283,7 +283,7 @@ function script_gather:menu()
 		wasClicked, self.collectHerbs = Checkbox("Herbalism", self.collectHerbs);
 
 		Text('Gather Search Distance');
-		self.gatherDistance = SliderFloat("GSD", 1, 150, self.gatherDistance);
+		self.gatherDistance = SliderFloat("GSD", 1, 300, self.gatherDistance);
 		
 		if (script_gather.collectMinerals or script_gather.collectHerbs) then
 			wasClicked, script_gather.gatherAllPossible = Checkbox("Gather everything we can", script_gather.gatherAllPossible);
