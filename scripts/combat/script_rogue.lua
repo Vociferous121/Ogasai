@@ -852,6 +852,7 @@ SameLine();
 		wasClicked, self.enableRotation = Checkbox("Rotation", self.enableRotation); -- then show rotation button
 		SameLine();
 	end	
+	Separator();
 	if (self.enableGrind) then
 		Separator();
 		if (CollapsingHeader("Rogue Grind Options")) then

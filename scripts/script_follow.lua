@@ -3,15 +3,15 @@ script_follow = {
 	renewMana = 25,
 	partyRenewHealth = 85,
 	shieldMana = 35,
-	partyShieldHealth = 80,
+	partyShieldHealth = 55,
 	lesserHealMana = 5,
 	partyLesserHealHealth = 75,
 	healMana = 35,
 	partyHealHealth = 50,
 	greaterHealMana = 20,
 	partyGreaterHealHealth = 30,
-	flashHealMana = 15,
-	partyFlashHealHealth = 72,
+	flashHealMana = 7,
+	partyFlashHealHealth = 70,
 	clickRenew = true,
 	clickShield = true,
 	clickFlashHeal = true,
@@ -53,7 +53,7 @@ script_follow = {
 	isSetup = false,
 	drawUnits = true,
 	acceptTimer = GetTimeEX(),
-	followMemberDistance = 10,
+	followMemberDistance = 0,
 	followLeaderDistance = 30,
 	followTimer = GetTimeEX(),
 	dpsHp = 0,
@@ -114,6 +114,26 @@ function script_follow:healAndBuff()
 				return true; 
 			end
 
+			-- Dispel Magic
+			if	(HasSpell("Dispel Magic")) then
+ 				if (localMana > 10 and partyMember:HasDebuff("Druid's Slumber")) then
+					if (CastHeal("Dispel Magic", partyMember)) then
+						self.waitTimer = GetTimeEX() + 1500;
+						return true;
+					end
+				end				
+			end
+			
+			-- Cure Disease
+			if (HasSpell("Cure Disease")) and (localMana > 10) then
+				if (partyMember:HasDebuff("Infected Wound")) then	
+					if (CastHeal("Cure Disease", partyMember)) then
+						self.waitTimer = GetTimeEX() + 2400;
+						return true;
+					end
+				end
+			end
+
 			-- Blessing of Might/Wisdom
 			if (not IsInCombat() and localMana > 40) then -- buff
 				if (not partyMember:HasBuff("Blessing of Might") and (not partyMember:HasBuff("Blessing of Wisdom") and HasSpell("Blessing of Might"))) then		
@@ -172,25 +192,26 @@ function script_follow:healAndBuff()
 
 			if (self.enableHeals) then
 
-
 				----- PRIEST SPELLS
-
-				-- Flash Heal
+				-- flash heal
 				if (self.clickFlashHeal) then
  					if (localMana > self.flashHealMana and partyMembersHP < self.partyFlashHealHealth) then
 						if (CastHeal("Flash Heal", partyMember)) then
-							self.waitTimer = GetTimeEX() + 1500;
+							self.waitTimer = GetTimeEX() + 1700;
 							return true;
-						end
-					elseif (HasSpell("Inner Focus")) and (not IsSpellOnCD("Inner Focus")) then
-						if (localMana < self.flashHealMana and leaderObj:GetHealthPercentage() < self.partyFlashHealHealth) then
-							if (Buff("Inner Focus", localObj)) then 
-								self.waitTimer = GetTimeEX() + 1400;
-								return true; 
-							end
 						end
 					end
 				end
+
+				if (HasSpell("Inner Focus")) and (not IsSpellOnCD("Inner Focus")) then
+					if (localMana < self.flashHealMana and leaderObj:GetHealthPercentage() < self.partyFlashHealHealth) then
+						if (Buff("Inner Focus", localObj)) then 
+							self.waitTimer = GetTimeEX() + 1400;
+							return true; 
+						end
+					end
+				end
+
 				-- Greater Heal
 				if (self.clickGreaterHeal) then
 					if (localMana > self.greaterHealMana and partyMembersHP < self.partyGreaterHealHealth and HasSpell("Greater Heal")) then
@@ -198,25 +219,13 @@ function script_follow:healAndBuff()
 							self.waitTimer = GetTimeEX() + 5500;
 							return true;
 						end
-					elseif (self.clickFlashHeal) then
- 						if (localMana > self.flashHealMana and partyMembersHP < self.partyGreaterHealHealth) then
-							if (CastHeal("Flash Heal", partyMember)) then
-								self.waitTimer = GetTimeEX() + 1500;
-								return true;
-							end
-						end
-					end				
+					end
 				end
 	
 				-- Heal
 				if (self.clickHeal) then
 					if (localMana > self.healMana and partyMembersHP < self.partyHealHealth and HasSpell("Heal")) then
 						if (CastHeal("Heal", partyMember)) then
-							self.waitTimer = GetTimeEX() + 2400;
-							return true;
-						end
-					elseif (script_priest.useLesserHeal) and (localMana > self.lesserHealMana) and (partyMembersHP < self.partyHealHealth) then
-						if (CastHeal("Lesser Heal", partyMember)) then
 							self.waitTimer = GetTimeEX() + 2400;
 							return true;
 						end
@@ -333,7 +342,7 @@ function script_follow:run()
 	script_follow:window();
 	-- Set next to node distance and nav-mesh smoothness to double that number
 	if (IsMounted()) then
-		script_nav:setNextToNodeDist(8); NavmeshSmooth(16);
+		script_nav:setNextToNodeDist(6); NavmeshSmooth(14);
 	else
 		script_nav:setNextToNodeDist(self.nextToNodeDist);
 		NavmeshSmooth(self.nextToNodeDist*2);

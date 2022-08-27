@@ -257,7 +257,7 @@ function script_priest:run(targetGUID)
 			
 			-- Opener check range of ALL SPELLS
 			if(not targetObj:IsSpellInRange('Smite'))  then
-			self.message = "Use Smite as range check!";
+				self.message = "Use Smite as range check!";
 				return 3;
 			end
 
@@ -294,7 +294,7 @@ function script_priest:run(targetGUID)
 					targetObj:FaceTarget();
 					targetObj:CastSpell("Shoot");
 					self.waitTimer = GetTimeEX() + (self.wandSpeed + 250); 
-					return true;
+					return 0;
 				end
 			end
 
@@ -354,6 +354,7 @@ function script_priest:run(targetGUID)
 				end 
 			end
 
+			-- fear
 			if (self.useScream and script_priest:enemiesAttackingUs(5) > 1 and targetHealth > 20 and localMana > 10) then
 				if (HasSpell('Psychic Scream') and not IsSpellOnCD('Psychic Scream')) then
 					CastSpellByName('Psychic Scream');
@@ -391,6 +392,7 @@ function script_priest:run(targetGUID)
 				end
 			end
 
+			-- inner focus
 			if (not localObj:HasBuff("Inner Focus")) and (HasSpell("Inner Focus")) and (not IsSpellOnCD("Inner Focus")) then
 				if (localMana < 20) and (LocalHealth < 20) then
 					if (Buff("Inner Focus")) then
