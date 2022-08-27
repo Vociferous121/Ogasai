@@ -47,7 +47,7 @@
 
 
 
-reduced aggro range circles to better reflect actual aggro range
+reduced aggro range circles to better reflect actual aggro range - Twow server
 
 updated paranoia features with more human-like interaction
 
