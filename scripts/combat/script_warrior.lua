@@ -1,34 +1,34 @@
 script_warrior = {
 	message = 'Warrior Combat Script',
-	eatHealth = 64,
-	bloodRageHealth = 60,
-	potionHealth = 10,
-	isSetup = false,
-	meeleDistance = 4.2,
-	throwOpener = false,
-	throwName = "Heavy Throwing Dagger",
-	waitTimer = 0,
-	stopIfMHBroken = true,
+	eatHealth = 64, -- health to use food
+	bloodRageHealth = 60, -- health to use bloodrage
+	potionHealth = 10, -- health to use potion
+	isSetup = false, -- setup check
+	meeleDistance = 4.2, -- melee distance
+	throwOpener = false, -- use throw as opener
+	throwName = "Heavy Throwing Dagger", -- opener throw item name
+	waitTimer = 0, -- set wait time for script
+	stopIfMHBroken = true, -- stop if main hand is broken
 	overpowerActionBarSlot = 72+5, -- Default: Overpower in slot 5 on the default Battle Stance Bar
 	revengeActionBarSlot = 82+8,  -- default at action bar 1 (82) slot 8 (82+8)
-	enableRotation = false,
-	enableGrind = true,
-	enableCharge = true,
-	chargeWalk = false,
-	defensiveStance = false,
-	battleStance = true,
-	berserkerStance = false,
-	autoStance = false,
-	sunderStacks = 2,
-	enableFaceTarget = true,
-	enableShieldBlock = true,
-	shieldBlockRage = 15,
-	shieldBlockHealth = 65,
-	sunderArmorRage = 15,
-	enableRend = false,
-	enableCleave = false,
-	demoShoutRage = 15, -- set higher than sunder armor due to needed threat gain
-	enableSunder = true,
+	enableRotation = false, -- enable/disable rotation settings
+	enableGrind = true, -- enable/disable grind settings
+	enableCharge = true, -- enable/disable charge
+	chargeWalk = false, -- enable/disable walk back after charge
+	defensiveStance = false, -- enable/disable defensive stance settings
+	battleStance = true, -- enable/disable battle stance settings
+	berserkerStance = false, -- enable/disable berskerer stance settings
+	autoStance = false, -- auto stance changed -- not in use
+	sunderStacks = 2, -- how many stacks of sunder armor
+	enableFaceTarget = true, -- enable/disable auto facing target
+	enableShieldBlock = true, -- enable/disable shield block
+	shieldBlockRage = 15,  -- use shield block at this rage
+	shieldBlockHealth = 65, -- use shield block at this health
+	sunderArmorRage = 15,	-- use sunder armor at this rage
+	enableRend = false, -- enable/disable rend
+	enableCleave = false, -- enable/disable cleave
+	demoShoutRage = 15, -- set higher than sunder armor due to needed threat gain -- rage to use demo shout
+	enableSunder = true, -- enable/disable sunder armor in battle stance
 
 
 }
@@ -36,7 +36,7 @@ script_warrior = {
 function script_warrior:window()
 	--Close existing Window
 	EndWindow();
-
+	--open class combat options window
 	if(NewWindow("Class Combat Options", 200, 200)) then
 		script_warrior:menu();
 	end
@@ -48,7 +48,7 @@ function script_warrior:setup()
 	self.isSetup = true;
 end
 
-function script_warrior:spellAttack(spellName, target)
+function script_warrior:spellAttack(spellName, target) -- used in Core files to control casting
 	if (HasSpell(spellName)) then
 		if (target:IsSpellInRange(spellName)) then
 			if (not IsSpellOnCD(spellName)) then
@@ -80,12 +80,12 @@ function script_warrior:enemiesAttackingUs(range) -- returns number of enemies a
     return unitsAttackingUs;
 end
 
-function script_warrior:addPotion(name)
+function script_warrior:addPotion(name) -- add potions to script
 	self.potion[self.numPotion] = name;
 	self.numPotion = self.numPotion + 1;
 end
 
-function script_warrior:equipThrow()
+function script_warrior:equipThrow() -- use throwing weapon function
 	if (not GetLocalPlayer():HasRangedWeapon() and HasItem(self.throwName)) then
 		UseItem(self.throwName);
 		return true;
@@ -95,7 +95,7 @@ function script_warrior:equipThrow()
 	return false;
 end
 
-function script_warrior:canOverpower()
+function script_warrior:canOverpower()	-- use overpower function
 	local isUsable, _ = IsUsableAction(self.overpowerActionBarSlot); 
 	if (isUsable == 1 and not IsSpellOnCD('Overpower')) then 
 		return true; 
@@ -103,7 +103,7 @@ function script_warrior:canOverpower()
 	return false;
 end
 
-function script_warrior:canRevenge()
+function script_warrior:canRevenge()	-- use revenge function
 	local isUsable, _ = IsUsableAction(self.revengeActionBarSlot); 
 	if (isUsable == 1 and not IsSpellOnCD("Revenge")) then 
 		return true; 
@@ -132,7 +132,7 @@ function script_warrior:runBackwards(targetObj, range)
 	return false;
 end
 
-function script_warrior:draw()
+function script_warrior:draw()	-- draw warrior window and status text
 	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
 	if (onScreen) then
 		DrawText(self.message, tX+75, tY+40, 0, 255, 255);
@@ -150,7 +150,7 @@ end
 			5 - targeted player pet/totem
 			6 - stop bot request from combat script  ]]--
 
-function script_warrior:run(targetGUID)
+function script_warrior:run(targetGUID)	-- main content of script
 
 	-- let's use this for defensive stance setup?
 	if (GetNumPartyMembers() >= 3) and (self.defensiveStance) then
@@ -158,7 +158,7 @@ function script_warrior:run(targetGUID)
 		self.enableCharge = false;
 	end
 	
-	if(not self.isSetup) then
+	if(not self.isSetup) then	-- check setup stuff
 		script_warrior:setup();
 	end
 	
@@ -199,6 +199,7 @@ function script_warrior:run(targetGUID)
 			return 0;
 		end
 		
+		-- enable or disable facing target automatically
 		if (self.faceTarget) then
 			if (not IsStanding()) then
 				StopMoving();
@@ -229,6 +230,7 @@ function script_warrior:run(targetGUID)
 			end
 		end
 
+		-- if party members >= 1 and in defensive stance then set battle shout
 		if (GetNumPartyMembers() >= 1) and (self.defensiveStance) then
 			if (not localObj:HasBuff("Battle Shout")) then 
 				if (localRage >= 10 and HasSpell("Battle Shout")) then 
@@ -251,6 +253,7 @@ function script_warrior:run(targetGUID)
 					if (IsMounted()) then DisMount(); 
 						return 0; 
 					end
+					-- cast throw
 					if (Cast("Throw", targetObj)) then
 						self.waitTimer = GetTimeEX() + 4000;
 						return 0;
@@ -289,6 +292,7 @@ function script_warrior:run(targetGUID)
 						if (IsMoving()) then
 							StopMoving();
 						end
+						-- experimental walk back to same position after charging
 						if (self.chargeWalk) then
 							self.waitTimer = GetTimeEX() + 2700;
 							return 0;
@@ -327,6 +331,7 @@ function script_warrior:run(targetGUID)
 				end
 			end
 
+			-- enable/disable facing target automatically
 			if (self.enableFaceTarget) then
 				targetObj:FaceTarget();
 			end
@@ -551,6 +556,7 @@ function script_warrior:run(targetGUID)
 						end
 					end
 				end
+
 				-- sunder armor in battle stance x1
 				if (self.battleStance) then
 					if (HasSpell("Sunder Armor")) and (localRage > 30) then
@@ -731,30 +737,30 @@ function script_warrior:menu()
 		Separator();
 		if (CollapsingHeader("Choose Stance - Experimental")) then -- stance menu
 			Text("Choose Stance - Experimental");
-			if (not self.defensiveStance) and (not self.berserkerStance) then
+			if (not self.defensiveStance) and (not self.berserkerStance) then	-- hide all but battle stance
 				wasClicked, self.battleStance = Checkbox("Battle (DPS)", self.battleStance);
 				SameLine();
 			end
-			if (not self.battleStance) and (not self.berserkerStance) then
+			if (not self.battleStance) and (not self.berserkerStance) then	-- hide all but defensive stance
 				wasClicked, self.defensiveStance = Checkbox("Defensive (Tank)", self.defensiveStance);
 				SameLine();
 			end
-			if (not self.battleStance) and (not self.defensiveStance) then
+			if (not self.battleStance) and (not self.defensiveStance) then	-- hide all but berserker stance
 				wasClicked, self.berserkerStance = Checkbox("Berserker (DPS)", self.berserkerStance);
 				SameLine();
 			end
 			Separator();
 			if (self.battleStance) then -- batle stance menu
 				if (CollapsingHeader("Battle Stance Options")) then
-					wasClicked, self.enableCharge = Checkbox("Charge On/Off", self.enableCharge);
+					wasClicked, self.enableCharge = Checkbox("Charge On/Off", self.enableCharge);	-- charge
 					SameLine();
 					wasClicked, self.chargeWalk = Checkbox("Pull Back After Charge - Experimental", self.chargeWalk);
-					wasClicked, self.enableRend = Checkbox("Rend On/Off", self.enableRend);
+					wasClicked, self.enableRend = Checkbox("Rend On/Off", self.enableRend);	-- rend
 					SameLine();
-					wasClicked, self.enableCleave = Checkbox("Cleave On/Off TODO", self.enableCleave);
-					wasClicked, self.enableSunder = Checkbox("Use Sunder x1", self.enableSunder);
+					wasClicked, self.enableCleave = Checkbox("Cleave On/Off TODO", self.enableCleave);	-- cleave
+					wasClicked, self.enableSunder = Checkbox("Use Sunder x1", self.enableSunder);	-- battle stance sunder
 					
-					if (CollapsingHeader("Overpower Options")) then
+					if (CollapsingHeader("Overpower Options")) then	-- overpower
 						Text("Overpower action bar slot");
 						self.overpowerActionBarSlot = InputText("OPS", self.overpowerActionBarSlot);
 						Text('72 is your action bar number.. slot 1 would be 73');
@@ -762,10 +768,10 @@ function script_warrior:menu()
 				end
 			end
 			if (self.defensiveStance) then -- defensive stance menu
-				if (CollapsingHeader("Defensive Stance Options")) then
-					wasClicked, self.enableFaceTarget = Checkbox("FaceTarget On/Off", self.enableFaceTarget);
+				if (CollapsingHeader("Defensive Stance Options")) then	-- defensive stance
+					wasClicked, self.enableFaceTarget = Checkbox("FaceTarget On/Off", self.enableFaceTarget);	-- facing target
 						SameLine();
-						wasClicked, self.enableShieldBlock = Checkbox("Shield Block On/Off", self.enableShieldBlock);
+						wasClicked, self.enableShieldBlock = Checkbox("Shield Block On/Off", self.enableShieldBlock);	-- shield block
 					if (self.enableShieldBlock) then
 						Text("Shield Block Options");
 						self.shieldBlockHealth = SliderInt("Below % health", 10, 85, self.shieldBlockHealth);
@@ -773,11 +779,11 @@ function script_warrior:menu()
 					end
 						Separator();
 						Text("How many Sunder Armor Stacks?");
-						self.sunderStacks = SliderInt("Sunder Stacks", 1, 5, self.sunderStacks);
+						self.sunderStacks = SliderInt("Sunder Stacks", 1, 5, self.sunderStacks);	-- sunder armor
 						self.sunderArmorRage = SliderInt("Sunder rage cost", 12, 15, self.sunderArmorRage);
 						self.demoShoutRage = SliderInt("Demo shout above % rage", 10, 50, self.demoShoutRage);
 					if (CollapsingHeader("Revenge Skill Options")) then
-						self.revengeActionBarSlot = InputText("RS", self.revengeActionBarSlot);
+						self.revengeActionBarSlot = InputText("RS", self.revengeActionBarSlot);	-- revenge
 						Text("82 is spell bar number.. slot 1 would be 83");
 					end
 				end
@@ -790,15 +796,15 @@ function script_warrior:menu()
 		end
 		if (CollapsingHeader("Warrior Grind Options")) then -- grind menu
 			Text('Eat below health percentage');
-			self.eatHealth = SliderInt("EHP %", 1, 100, self.eatHealth);
+			self.eatHealth = SliderInt("EHP %", 1, 100, self.eatHealth);	-- use food health
 			Text('Potion below health percentage');
-			self.potionHealth = SliderInt("PHP %", 1, 99, self.potionHealth);
+			self.potionHealth = SliderInt("PHP %", 1, 99, self.potionHealth);	-- use potion health
 			Separator();
 			wasClicked, self.stopIfMHBroken = Checkbox("Stop bot if main hand is broken.", self.stopIfMHBroken);
 			Text("Use Bloodrage above health percentage");
-			self.bloodRageHealth = SliderInt("BR%", 1, 99, self.bloodRageHealth);
+			self.bloodRageHealth = SliderInt("BR%", 1, 99, self.bloodRageHealth);	-- bloodrage health
 			Text("Melee Range Distance");
-			self.meeleDistance = SliderFloat("MR (yd)", 1, 8, self.meeleDistance);
+			self.meeleDistance = SliderFloat("MR (yd)", 1, 8, self.meeleDistance);	-- melee distance range
 			if (CollapsingHeader("Throwing Weapon Options")) then -- throwing weapon menu
 				wasClicked, self.throwOpener = Checkbox("Pull with throw", self.throwOpener);
 				Text("Throwing weapon");
