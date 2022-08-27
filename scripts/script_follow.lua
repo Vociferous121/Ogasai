@@ -100,6 +100,7 @@ function script_follow:healAndBuff()
 		local partyMembersHP = partyMember:GetHealthPercentage();
 		if (partyMembersHP > 0 and partyMembersHP < 99 and localMana > 1) then
 			local partyMemberDistance = partyMember:GetDistance();
+			leaderObj = GetPartyMember(GetPartyLeaderIndex());
 	
 			-- Move in range: combat script return 3
 			if (self.combatError == 3) then
@@ -182,9 +183,9 @@ function script_follow:healAndBuff()
 							self.waitTimer = GetTimeEX() + 1500;
 							return true;
 						end
-					elseif (self.clickShield) then
-						if (localMana > self.shieldMana and partyMembersHP < self.partyShieldHealth and not partyMember:HasDebuff("Weakened Soul") and IsInCombat() and HasSpell("Power Word: Shield")) then
-							if (CastHeal("Power Word: Shield", partyMember)) then 
+					elseif (HasSpell("Inner Focus")) and (not IsSpellOnCD("Inner Focus")) then
+						if (localMana < self.flashHealMana and leaderObj:GetHealthPercentage() < self.partyFlashHealHealth) then
+							if (Buff("Inner Focus", localObj)) then 
 								self.waitTimer = GetTimeEX() + 1400;
 								return true; 
 							end
@@ -199,7 +200,7 @@ function script_follow:healAndBuff()
 							return true;
 						end
 					elseif (self.clickFlashHeal) then
- 						if (localMana > self.flashHealMana and partyMembersHP < self.partyFlashHealHealth) then
+ 						if (localMana > self.flashHealMana and partyMembersHP < self.partyGreaterHealHealth) then
 							if (CastHeal("Flash Heal", partyMember)) then
 								self.waitTimer = GetTimeEX() + 1500;
 								return true;
@@ -215,7 +216,7 @@ function script_follow:healAndBuff()
 							self.waitTimer = GetTimeEX() + 2400;
 							return true;
 						end
-					elseif (script_priest.useLesserHeal) and (localMana > self.lesserHealMana) and (partyMembersHP < self.partyLesserHealHealth) then
+					elseif (script_priest.useLesserHeal) and (localMana > self.lesserHealMana) and (partyMembersHP < self.partyHealHealth) then
 						if (CastHeal("Lesser Heal", partyMember)) then
 							self.waitTimer = GetTimeEX() + 2400;
 							return true;
@@ -258,7 +259,7 @@ function script_follow:healAndBuff()
 							return true; 
 						end
 					elseif (self.clickRenew) then
-						if (localMana > self.renewMana and partyMembersHP < self.partyRenewHealth and not partyMember:HasBuff("Renew") and HasSpell("Renew")) then
+						if (localMana > self.renewMana and partyMembersHP < self.partyShieldHealth and not partyMember:HasBuff("Renew") and HasSpell("Renew")) then
 							if (CastHeal("Renew", partyMember)) then
 								self.waitTimer = GetTimeEX() + 1400;
 								return true;

@@ -3,7 +3,7 @@ script_priest = {
 	drinkMana = 45, -- drink health
 	eatHealth = 35,	-- eat health
 	isSetup = false,	
-	renewHP = 80,	-- renew health
+	renewHP = 70,	-- renew health
 	shieldHP = 80,
 	flashHealHP = 65,
 	lesserHealHP = 55,
@@ -391,6 +391,14 @@ function script_priest:run(targetGUID)
 				end
 			end
 
+			if (not localObj:HasBuff("Inner Focus")) and (HasSpell("Inner Focus")) and (not IsSpellOnCD("Inner Focus")) then
+				if (localMana < 20) and (LocalHealth < 20) then
+					if (Buff("Inner Focus")) then
+						return 0;
+					end
+				end
+			end
+
 			-- Cast: Smite (last choice e.g. at level 1)
 			if (self.useSmite and localMana > 10) then
 				if (Cast('Smite', targetObj)) then 
@@ -416,7 +424,7 @@ function script_priest:run(targetGUID)
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
 						self.waitTimer = GetTimeEX() + (self.wandSpeed + 250); 
-					return true;
+					return 0;
 					end
 				end
 			end
