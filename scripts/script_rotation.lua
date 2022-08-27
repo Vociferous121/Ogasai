@@ -20,7 +20,7 @@ script_rotation = {
 	showClassOptions = true,
 	meleeDistance = 4,
 	nextToNodeDist = 4, -- (Set to about half your nav smoothness)
-	aggroRangeTank = 100,
+	aggroRangeTank = 50,
 
 }
 

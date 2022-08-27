@@ -23,11 +23,11 @@ script_warrior = {
 	enableFaceTarget = true,
 	enableShieldBlock = true,
 	shieldBlockRage = 15,
-	shieldBlockHealth = 50,
+	shieldBlockHealth = 65,
 	sunderArmorRage = 15,
 	enableRend = false,
 	enableCleave = false,
-	demoShoutRage = 20, -- set higher than sunder armor due to needed threat gain
+	demoShoutRage = 15, -- set higher than sunder armor due to needed threat gain
 	enableSunder = true,
 
 
@@ -446,8 +446,8 @@ function script_warrior:run(targetGUID)
 			end
 
 			--Demoralizing shout if targets >= 1
-			if (HasSpell("Demoralizing Shout")) and (script_warrior:enemiesAttackingUs(10) >= 2) then
-				if (localRage >= self.demoShoutRage) and (not localObj:HasBuff("Demoralizing Shout")) then 
+			if (HasSpell("Demoralizing Shout")) and (script_warrior:enemiesAttackingUs(10) >= 2) and (not targetObj:HasDebuff("Demoralizing Shout")) then
+				if (localRage >= self.demoShoutRage) then 
 					if CastSpellByName("Demoralizing Shout") then
 						return 0;
 					end
@@ -543,8 +543,8 @@ function script_warrior:run(targetGUID)
 				-- shield block
 				-- main rage user use only if target has at least 1 sunder for threat gain
 				if (self.defensiveStance) and (self.enableShieldBlock) then
-					if (HasSpell("Shield Block")) and (not IsSpellOnCD("Shield Block")) and (localRage >= self.shieldBlockRage) then
-						if (targetObj:GetDebuffStacks("Sunder Armor") >= 1) or (localHealth <= self.shieldBlockHealth) then
+					if (HasSpell("Shield Block")) and (not IsSpellOnCD("Shield Block")) and (localRage >= self.shieldBlockRage) and (localHealth <= self.shieldBlockHealth) then
+						if (targetObj:GetDebuffStacks("Sunder Armor") >= 1) then
 							if (CastSpellByName("Shield Block")) then
 								return 0;
 							end
@@ -774,7 +774,7 @@ function script_warrior:menu()
 						Separator();
 						Text("How many Sunder Armor Stacks?");
 						self.sunderStacks = SliderInt("Sunder Stacks", 1, 5, self.sunderStacks);
-						self.sunderArmorRage = SliderInt("Sunder rage cost", 10, 15, self.sunderArmorRage);
+						self.sunderArmorRage = SliderInt("Sunder rage cost", 12, 15, self.sunderArmorRage);
 						self.demoShoutRage = SliderInt("Demo shout above % rage", 10, 50, self.demoShoutRage);
 					if (CollapsingHeader("Revenge Skill Options")) then
 						self.revengeActionBarSlot = InputText("RS", self.revengeActionBarSlot);

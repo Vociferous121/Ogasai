@@ -370,13 +370,13 @@ function script_paladin:run(targetGUID)
 					local cleanseRandom = random(1, 100);
 					if (cleanseRandom > 98) then
 						if (Buff('Cleanse', localObj)) then 
-						self.message = 'Cleansing...'; 
-						self.waitTimer = GetTimeEX() + 1750; 
-						return 0; 
+							self.message = 'Cleansing...'; 
+							self.waitTimer = GetTimeEX() + 1750; 
+							return 0; 
+						end
 					end
-				end
-			end
-				if(HasSpell('Purify')) then
+						-- remove disease with purify
+				elseif(HasSpell('Purify')) then
 					if (Buff('Purify', localObj)) then 
 						self.message = 'Purifying...'; 
 						self.waitTimer = GetTimeEX() + 1750; 

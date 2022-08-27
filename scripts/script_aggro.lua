@@ -66,7 +66,6 @@ function script_aggro:safePull(target)
 	if (countUnitsInRange >  1) then
 		return false;
 	end
-
 	return true;
 end
 
@@ -241,7 +240,7 @@ function script_aggro:drawAggroCircles(maxRange)
 
 	while currentObj ~= 0 do
  		if typeObj == 3 and currentObj:GetDistance() < maxRange and not currentObj:IsDead() and currentObj:CanAttack() and not currentObj:IsCritter() then
-			local aggro = currentObj:GetLevel() - localObj:GetLevel() + 17.7;
+			local aggro = currentObj:GetLevel() - localObj:GetLevel() + 18.1;
 			local cx, cy, cz = currentObj:GetPosition();
 			script_aggro:DrawCircles(cx, cy, cz, aggro);
  		end

@@ -1,9 +1,9 @@
 script_priest = {
 	message = 'Priest Combat Script',
-	drinkMana = 45,
-	eatHealth = 35,
-	isSetup = false,
-	renewHP = 80,
+	drinkMana = 45, -- drink health
+	eatHealth = 35,	-- eat health
+	isSetup = false,	
+	renewHP = 80,	-- renew health
 	shieldHP = 80,
 	flashHealHP = 65,
 	lesserHealHP = 55,
