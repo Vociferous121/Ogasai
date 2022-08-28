@@ -242,7 +242,9 @@ function script_warlock:run(targetGUID)
 			-- Opener spell
 
 			if (hasPet) and (targetObj:GetDistance() < 40) and (IsMoving() or targetObj:GetDistance() < 40) then
-				PetAttack(); 
+				if (not IsLooting()) and (localHealth > self.eatHealth) then
+					PetAttack(); 
+				end
 			end
 			
 			if(not targetObj:IsSpellInRange('Shadow Bolt') or not targetObj:IsInLineOfSight())  then
