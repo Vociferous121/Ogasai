@@ -26,6 +26,7 @@ script_warlock = {
 	useWandHealth = 10,
 	useWandMana = 10,
 	spamWand = true,
+	petAttack = true;
 }
 
 function script_warlock:cast(spellName, target)
@@ -205,7 +206,7 @@ function script_warlock:run(targetGUID)
 
 		targetHealth = targetObj:GetHealthPercentage();
 
-		-- Auto Attack
+		-- Auto 
 		if (targetObj:GetDistance() < 40) then
 			targetObj:AutoAttack();
 		end
@@ -240,15 +241,19 @@ function script_warlock:run(targetGUID)
 		if (not IsInCombat()) then
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 			-- Opener spell
-
-			if (hasPet) and (targetObj:GetDistance() < 40) and (IsMoving() or targetObj:GetDistance() < 40) then
-				if (not IsLooting()) and (localHealth > self.eatHealth) then
-					PetAttack(); 
-				end
-			end
 			
 			if(not targetObj:IsSpellInRange('Shadow Bolt') or not targetObj:IsInLineOfSight())  then
 				return 3;
+			end
+
+			if (hasPet) and (targetObj:GetDistance() < 40) and (targetHealth > 5) and (IsMoving() or targetObj:GetDistance() < 30) then
+				if (not IsLooting()) and (localHealth > self.eatHealth or localMana > self.drinkMana) and (GetPet():GetHealthPercentage() >= 65) then
+					PetAttack(); 
+				end
+			end
+
+			if (hasPet) and (not IsInCombat()) and (GetPet():GetDistance() > 40) then
+				PetFollow();
 			end
 
 			-- Dismount
@@ -279,8 +284,12 @@ function script_warlock:run(targetGUID)
 		else	
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
+			if (hasPet) and (GetPet():GetDistance() > 30) then
+				PetFollow();
+			end
+
 			-- Set the pet to attack
-			if (hasPet) and (targetObj:GetDistance() < 40) and (IsInCombat()) then
+			if (hasPet) and (targetObj:GetDistance() < 35) then
 				PetAttack();
 			end
 
