@@ -19,12 +19,13 @@ script_warlock = {
 	useImp = false,
 	corruptionCastTime = 0, -- 0-2000 ms = 2000 with no improved corruption talent
 	lifeTapHealth = 80,
-	lifeTapMana = 50,
+	lifeTapMana = 80,
 	soulShard = 0;
 	useShadowBolt = false,
 	useDrainLife = false,
 	useWandHealth = 10,
 	useWandMana = 10,
+	spamWand = true,
 }
 
 function script_warlock:cast(spellName, target)
@@ -277,7 +278,7 @@ function script_warlock:run(targetGUID)
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
 			-- Set the pet to attack
-			if (hasPet) and (targetObj:GetDistance() < 40) then
+			if (hasPet) and (targetObj:GetDistance() < 40) and (IsInCombat()) then
 				PetAttack();
 			end
 
@@ -335,7 +336,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Check: If we don't got a soul shard, try to make one
-			if (targetHealth < 25 and HasSpell("Drain Soul") and not HasItem('Soul Shard')) then
+			if (targetHealth < 30 and HasSpell("Drain Soul") and not HasItem('Soul Shard')) then
 				if (Cast('Drain Soul', targetObj)) then return 0; end
 			end
 
@@ -395,6 +396,18 @@ function script_warlock:run(targetGUID)
 			if HasSpell("Life Tap") and not IsSpellOnCD("Life Tap") and localHealth > 25 and localMana < 15 then
 				if (CastSpellByName("Life Tap")) then
 					return 0;
+				end
+			end
+
+			-- Cast: Drain Life, low health
+			if (HasSpell("Drain Life") and (HasItem("Soul Shard")) and targetObj:GetCreatureType() ~= "Mechanic") then
+				if (targetObj:GetDistance() < 20) and (localHealth <= 50) and (localMana >= 10) then
+					if (IsMoving()) then StopMoving(); 
+						return; 
+					end
+					if (Cast('Drain Life', targetObj)) then 
+						return; 
+					end
 				end
 			end
 
@@ -702,7 +715,8 @@ function script_warlock:menu()
 		Separator();
 
 		if (CollapsingHeader("Wand Options")) then
-			Text("Focus wand attack only on target use with very low mana or target HP");
+			Text("Focus wand attack only");
+			Text("Use on targets with very low HP");
 			wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);
 			Text("Use Wand below target health percent");
 			self.useWandHealth = SliderInt("WH", 1, 100, self.useWandHealth);
