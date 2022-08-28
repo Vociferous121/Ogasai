@@ -467,6 +467,16 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end
 			end
 
+			-- shield block
+			-- main rage user use only if target has at least 1 sunder for threat gain
+			if (self.defensiveStance) and (self.enableShieldBlock) then
+				if (HasSpell("Shield Block")) and (not IsSpellOnCD("Shield Block")) and (localRage >= self.shieldBlockRage) and (localHealth <= self.shieldBlockHealth) then
+					if (CastSpellByName("Shield Block")) then
+						return 0;
+					end
+				end
+			end
+
 			-- sunder armor defensive stance
 			if (self.defensiveStance) then
 				if (not targetObj:GetCreatureType() ~= 'Mechanical') and (not targetObj:GetCreatureType() ~= 'Elemental') then
@@ -556,11 +566,11 @@ function script_warrior:run(targetGUID)	-- main content of script
 				-- main rage user use only if target has at least 1 sunder for threat gain
 				if (self.defensiveStance) and (self.enableShieldBlock) then
 					if (HasSpell("Shield Block")) and (not IsSpellOnCD("Shield Block")) and (localRage >= self.shieldBlockRage) and (localHealth <= self.shieldBlockHealth) then
-						if (targetObj:GetDebuffStacks("Sunder Armor") >= 1) then
+					--	if (targetObj:GetDebuffStacks("Sunder Armor") >= 1) then
 							if (CastSpellByName("Shield Block")) then
 								return 0;
 							end
-						end
+					--	end
 					end
 				end
 
@@ -812,7 +822,7 @@ function script_warrior:menu()
 						Text("Shield Block Options");
 						Text("	Higher values will make healing you easier but...");
 						Text("		you will have more trouble gaining threat...");
-						self.shieldBlockHealth = SliderInt("Below % health", 10, 85, self.shieldBlockHealth);
+						self.shieldBlockHealth = SliderInt("Below % health", 10, 95, self.shieldBlockHealth);
 						self.shieldBlockRage = SliderInt("Above % rage", 10, 50, self.shieldBlockRage);
 					end
 
