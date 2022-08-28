@@ -1,7 +1,7 @@
 script_warrior = {
 	message = 'Warrior Combat Script',
-	eatHealth = 64, -- health to use food
-	bloodRageHealth = 60, -- health to use bloodrage
+	eatHealth = 55, -- health to use food
+	bloodRageHealth = 50, -- health to use bloodrage
 	potionHealth = 10, -- health to use potion
 	isSetup = false, -- setup check
 	meleeDistance = 4.2, -- melee distance
@@ -23,7 +23,7 @@ script_warrior = {
 	enableFaceTarget = true, -- enable/disable auto facing target
 	enableShieldBlock = true, -- enable/disable shield block
 	shieldBlockRage = 10,  -- use shield block at this rage
-	shieldBlockHealth = 85, -- use shield block at this health
+	shieldBlockHealth = 90, -- use shield block at this health
 	sunderArmorRage = 15,	-- use sunder armor at this rage
 	enableRend = false, -- enable/disable rend
 	enableCleave = false, -- enable/disable cleave
@@ -264,10 +264,10 @@ function script_warrior:run(targetGUID)	-- main content of script
 					if (not IsSpellOnCD("Charge")) then
 						if (targetObj:GetDistance() >= 10) and (not IsInCombat()) then
 							if (CastSpellByName("Battle Stance")) then
-								self.waitTimer = GetTimeEX() + 1700;
+								self.waitTimer = GetTimeEX() + 1900;
 							end
 							if (targetObj:GetDistance() >= 8) and (targetObj:GetDistance() <= 28) and (CastSpellByName("Charge")) then
-								self.waitTimer = GetTimeEX() + 2700;
+								self.waitTimer = GetTimeEX() + 2800;
 							end
 						end
 					end
@@ -361,8 +361,10 @@ function script_warrior:run(targetGUID)	-- main content of script
 			-- main rage user use only if target has at least 1 sunder for threat gain
 			if (self.defensiveStance) and (self.enableShieldBlock) then
 				if (HasSpell("Shield Block")) and (not IsSpellOnCD("Shield Block")) and (localRage >= self.shieldBlockRage) and (localHealth <= self.shieldBlockHealth) then
-					if (CastSpellByName("Shield Block")) then
-						return 0;
+					if (targetObj:GetDebuffStacks("Sunder Armor") >= 1) then
+						if (CastSpellByName("Shield Block")) then
+							return 0;
+						end
 					end
 				end
 			end
@@ -481,7 +483,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			-- main rage user use only if target has at least 1 sunder for threat gain
 			if (self.defensiveStance) and (self.enableShieldBlock) then
 				if (HasSpell("Shield Block")) and (not IsSpellOnCD("Shield Block")) and (localRage >= self.shieldBlockRage) and (localHealth <= self.shieldBlockHealth) then
-					if (targetObj:GetDebuffStacks("Sunder Armor") > 1) then
+					if (targetObj:GetDebuffStacks("Sunder Armor") >= 1) then
 						if (CastSpellByName("Shield Block")) then
 							return 0;
 						end
@@ -832,8 +834,6 @@ function script_warrior:menu()
 
 					if (self.enableShieldBlock) then
 						Text("Shield Block Options");
-						Text("	Higher values will make healing you easier but...");
-						Text("		you will have more trouble gaining threat...");
 						self.shieldBlockHealth = SliderInt("Below % health", 50, 95, self.shieldBlockHealth);
 						self.shieldBlockRage = SliderInt("Above % rage", 10, 30, self.shieldBlockRage);
 					end
