@@ -12,7 +12,7 @@ script_warrior = {
 	overpowerActionBarSlot = 72+5, -- Default: Overpower in slot 5 on the default Battle Stance Bar
 	revengeActionBarSlot = 82+8,  -- default at action bar 1 (82) slot 8 (82+8)
 	enableRotation = false, -- enable/disable rotation settings
-	enableGrind = false, -- enable/disable grind settings
+	enableGrind = true, -- enable/disable grind settings
 	enableCharge = false, -- enable/disable charge
 	chargeWalk = false, -- enable/disable walk back after charge
 	defensiveStance = false, -- enable/disable defensive stance settings
@@ -22,8 +22,8 @@ script_warrior = {
 	sunderStacks = 2, -- how many stacks of sunder armor
 	enableFaceTarget = true, -- enable/disable auto facing target
 	enableShieldBlock = true, -- enable/disable shield block
-	shieldBlockRage = 20,  -- use shield block at this rage
-	shieldBlockHealth = 50, -- use shield block at this health
+	shieldBlockRage = 15,  -- use shield block at this rage
+	shieldBlockHealth = 75, -- use shield block at this health
 	sunderArmorRage = 15,	-- use sunder armor at this rage
 	enableRend = false, -- enable/disable rend
 	enableCleave = false, -- enable/disable cleave
@@ -386,7 +386,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 
 			-- Challenging shout
 			if (HasSpell("Challenging Shout")) and (self.defensiveStance) then
-				if (enemiesAttackingUs(10) > self.challengingShoutAdds) and (not IsSpellOnCD("Challenging Shout")) and (localRage >= 5) then
+				if (script_warrior:enemiesAttackingUs(10) > self.challengingShoutAdds) and (not IsSpellOnCD("Challenging Shout")) and (localRage >= 5) then
 					if (CastSpellByName("Challenging Shout")) then
 						self.waitTimer = GetTimeEX() + 1000;
 						return 0;
@@ -810,8 +810,8 @@ function script_warrior:menu()
 
 					if (self.enableShieldBlock) then
 						Text("Shield Block Options");
-						Text("	This will make healing you easier but");
-						Text("		you will have trouble holding aggro");
+						Text("	Higher values will make healing you easier but...");
+						Text("		you will have more trouble gaining threat...");
 						self.shieldBlockHealth = SliderInt("Below % health", 10, 85, self.shieldBlockHealth);
 						self.shieldBlockRage = SliderInt("Above % rage", 10, 50, self.shieldBlockRage);
 					end
