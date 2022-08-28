@@ -13,7 +13,7 @@ script_warlock = {
 	addFeared = false,
 	fearAdds = true,
 	waitTimer = 0,
-	useWand = false,
+	useWand = true,
 	isChecked = true,
 	useVoid = true,
 	useImp = false,
@@ -21,6 +21,10 @@ script_warlock = {
 	lifeTapHealth = 80,
 	lifeTapMana = 50,
 	soulShard = 0;
+	useShadowBolt = false,
+	useDrainLife = false,
+	useWandHealth = 10,
+	useWandMana = 10,
 }
 
 function script_warlock:cast(spellName, target)
@@ -236,8 +240,8 @@ function script_warlock:run(targetGUID)
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 			-- Opener spell
 
-			if (hasPet) and (targetObj:GetDistance() < 40) then
-			PetAttack(); 
+			if (hasPet) and (targetObj:GetDistance() < 40) and (IsMoving() or targetObj:GetDistance() < 40) then
+				PetAttack(); 
 			end
 			
 			if(not targetObj:IsSpellInRange('Shadow Bolt') or not targetObj:IsInLineOfSight())  then
@@ -259,7 +263,7 @@ function script_warlock:run(targetGUID)
 				end
 			elseif (HasSpell("Immolate")) then
 				if (Cast('Immolate', targetObj)) then 
-					self.waitTimer = GetTimeEX() + 2500;
+					self.waitTimer = GetTimeEX() + 2200;
 					return 0;
 				end
 			else
@@ -352,13 +356,13 @@ function script_warlock:run(targetGUID)
 
 			-- Wand if low mana or target is low
 			if (self.useWand) then
-				if ((localMana <= 5 or targetHealth <= 5) and localObj:HasRangedWeapon()) then
+				if ((localMana <= self.useWandMana or targetHealth <= self.useWandHealth) and localObj:HasRangedWeapon()) then
 					self.message = "Using wand...";
 					if (not IsAutoCasting("Shoot")) then
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
 						self.waitTimer = GetTimeEX() + 1250; 
-						return 0;
+						return true;
 					end
 					return 0;
 				end
@@ -376,7 +380,10 @@ function script_warlock:run(targetGUID)
 	
 			-- Check: Keep the Corruption DoT up (15 s duration)
 			if (not targetObj:HasDebuff("Corruption") and targetHealth > 20) then
-				if (Cast('Corruption', targetObj)) then self.waitTimer = GetTimeEX() + 1600 + (self.corruptionCastTime / 10); return 0; end
+				if (Cast('Corruption', targetObj)) then
+					self.waitTimer = GetTimeEX() + 1600 + (self.corruptionCastTime / 10); 
+					return 0; 
+				end
 			end
 	
 			-- Check: Keep the Immolate DoT up (15 s duration)
@@ -392,25 +399,40 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Cast: Drain Life, don't use Drain Life we need a soul shard
-			if (HasSpell("Drain Life") and (HasItem("Soul Shard")) and targetObj:GetCreatureType() ~= "Mechanic") then
-				if (targetObj:GetDistance() < 20) then
-					if (IsMoving()) then StopMoving(); 
-						return; 
+			if (self.useDrainLife) then
+				if (HasSpell("Drain Life") and (HasItem("Soul Shard")) and targetObj:GetCreatureType() ~= "Mechanic") then
+					if (targetObj:GetDistance() < 20) then
+						if (IsMoving()) then StopMoving(); 
+							return; 
+						end
+						if (Cast('Drain Life', targetObj)) then 
+							return; 
+						end
+					else
+						script_nav:moveToTarget(localObj, targetObj:GetPosition()); 
+						self.waitTimer = GetTimeEX() + 2000;
+						return 0;
 					end
-					if (Cast('Drain Life', targetObj)) then 
-						return; 
-					end
-				else
-					script_nav:moveToTarget(localObj, targetObj:GetPosition()); 
-					self.waitTimer = GetTimeEX() + 2000;
-					return 0;
 				end
-			else	
+			elseif (self.useShadowBolt) then
 				-- Cast: Shadow Bolt
 				if (Cast('Shadow Bolt', targetObj)) then
 					return 0;
 				end
-			end
+			elseif (self.spamWand) then
+				if (targetObj:HasDebuff("Immolate") and targetObj:HasDebuff("Corruption") and targetObj:HasDebuff("Curse of Agony")) then
+					if (localObj:HasRangedWeapon()) then
+						self.message = "Using wand...";
+						if (not IsAutoCasting("Shoot")) then
+							targetObj:FaceTarget();
+							targetObj:CastSpell("Shoot");
+							self.waitTimer = GetTimeEX() + 1250; 
+							return true;
+						end
+						return 0;
+					end
+				end
+			end	
 		end
 	end
 end
@@ -509,7 +531,7 @@ function script_warlock:rest()
 			end
 			if (localMana > 40) then
 				CastSpellByName("Summon Voidwalker");
-				self.waitTimer = GetTimeEX() + 12000;
+				self.waitTimer = GetTimeEX() + 14000;
 				self.message = "Summoning Void Walker";
 				return true; 
 			end
@@ -519,7 +541,7 @@ function script_warlock:rest()
 			end
 			if (localMana > 30) then
 				CastSpellByName("Summon Imp");
-				self.waitTimer = GetTimeEX() + 12000;
+				self.waitTimer = GetTimeEX() + 14000;
 				self.message = "Summoning Imp";
 				return true;
 			end
@@ -639,6 +661,7 @@ function script_warlock:menu()
 	if (CollapsingHeader("Warlock Combat Options")) then
 		local wasClicked = false;
 		wasClicked, self.useImp = Checkbox("Use Imp", self.useImp);
+		SameLine();
 		wasClicked, self.useVoid = Checkbox("Use Voidwalker over Imp", self.useVoid);
 		Text('Drink below mana percentage');
 		self.drinkMana = SliderFloat("M%", 1, 100, self.drinkMana);
@@ -650,10 +673,44 @@ function script_warlock:menu()
 		self.potionMana = SliderFloat("MP%", 1, 99, self.potionMana);
 		Separator();
 		Text('Skills options:');
-		wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);
+
 		wasClicked, self.fearAdds = Checkbox("Fear Adds", self.fearAdds);
+		SameLine();
+		wasClicked, self.useDrainLife = Checkbox("Drain Life On/Off", self.useDrainLife);
+		SameLine();
+		wasClicked, self.useShadowBolt = Checkbox("Shadowbolt On/Off", self.useShadowBolt);
+		wasClicked, self.spamWand = Checkbox("Use Wand with all DoT's", self.spamWand)
+		
+		if (self.useDrainLife) then
+			self.useShadowBolt = false;
+			self.spamWand = false;
+			self.drainLife = true;
+		end
+		if (self.useShadowBolt) then
+			self.spamWand = false;
+			self.useDrainLife = false;
+			self.useShadowBolt = true;
+		end
+		if (self.spamWand) then
+			self.useShadowBolt = false;
+			self.useDrainLife = false;
+			self.spamWand = true;
+		end
 		Text("Corruption cast time - 14 is 1.4 seconds");	
 		self.corruptionCastTime = SliderInt("CCT (ms)", 0, 20, self.corruptionCastTime);
+
+		Separator();
+
+		if (CollapsingHeader("Wand Options")) then
+			Text("Focus wand attack only on target use with very low mana or target HP");
+			wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);
+			Text("Use Wand below target health percent");
+			self.useWandHealth = SliderInt("WH", 1, 100, self.useWandHealth);
+			Text("Use Wand below self mana percent");
+			self.useWandMana = SliderInt("WM", 1, 100, self.useWandMana);
+		end
+
+		Separator();
 
 		if (CollapsingHeader("Life Tap Options")) then
 			Text("Use Life Tap above this percent health");

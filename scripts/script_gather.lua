@@ -230,19 +230,20 @@ function script_gather:gather()
 
 	self.nodeID = self.nodeObj:GetObjectDisplayID();
 		
+	-- found a valid node then
 	if(self.nodeObj ~= nil and self.nodeObj ~= 0) then
+		local _x, _y, _z = self.nodeObj:GetPosition();
+		local dist = self.nodeObj:GetDistance();
+		local selfDist = localObj:GetDistance();
 
-			local _x, _y, _z = self.nodeObj:GetPosition();
-			local dist = self.nodeObj:GetDistance();
-			local selfDist = localObj:GetDistance();
-
+		-- reached loot stop moving
 		if(dist < self.lootDistance) then
 			if (IsMoving()) then
 				StopMoving();
 				self.timer = GetTimeEX() + 950;
 				return true;
 			end
-
+			-- if not looting then interact with game object
 			if(not IsLooting() and not IsChanneling()) then
 			self.nodeObj:GameObjectInteract();
 				if (IsMoving()) then
@@ -251,11 +252,13 @@ function script_gather:gather()
 					return false;
 				end
 			end
+				-- if we can loot again and not looting already then loot again
 				if (not LootTarget()) then
 					self.timer = GetTimeEX() + 1250;
 					return false;
-			end
+				end
 		else
+			-- keep moving to node
 			if (_x ~= 0) then
 				script_nav:moveToNav(GetLocalPlayer(), _x, _y, _z);
 				self.timer = GetTimeEX() + 150;

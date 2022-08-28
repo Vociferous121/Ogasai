@@ -12,11 +12,11 @@ script_warrior = {
 	overpowerActionBarSlot = 72+5, -- Default: Overpower in slot 5 on the default Battle Stance Bar
 	revengeActionBarSlot = 82+8,  -- default at action bar 1 (82) slot 8 (82+8)
 	enableRotation = false, -- enable/disable rotation settings
-	enableGrind = true, -- enable/disable grind settings
-	enableCharge = true, -- enable/disable charge
+	enableGrind = false, -- enable/disable grind settings
+	enableCharge = false, -- enable/disable charge
 	chargeWalk = false, -- enable/disable walk back after charge
 	defensiveStance = false, -- enable/disable defensive stance settings
-	battleStance = true, -- enable/disable battle stance settings
+	battleStance = false, -- enable/disable battle stance settings
 	berserkerStance = false, -- enable/disable berskerer stance settings
 	autoStance = false, -- auto stance changed -- not in use
 	sunderStacks = 2, -- how many stacks of sunder armor
@@ -29,6 +29,7 @@ script_warrior = {
 	enableCleave = false, -- enable/disable cleave
 	demoShoutRage = 15, -- set higher than sunder armor due to needed threat gain -- rage to use demo shout
 	enableSunder = true, -- enable/disable sunder armor in battle stance
+	challengingShoutAdds = 5, -- how many adds to use challenging shout. depends on dungeon/raid
 
 	-- note. the checkbox in the menu controls battle, defensive, berserker stance. all spells have arguments for which
 	-- stance they apply to and can be used in. if the palyer does not click defensive stance in-game then the bot
@@ -379,6 +380,16 @@ function script_warrior:run(targetGUID)	-- main content of script
 				elseif (localRage > 15) and (targetObj:GetDebuffStacks("Sunder Armor") < self.sunderStacks) then
 					if (not targetObj:GetCreatureType() ~= 'Mechanical') and (not targetObj:GetCreatureType() ~= 'Elemental') then
 						self.waitTimer = GetTimeEX() + 500
+					end
+				end
+			end
+
+			-- Challenging shout
+			if (HasSpell("Challenging Shout")) and (self.defensiveStance) then
+				if (enemiesAttackingUs(10) > self.challengingShoutAdds) and (not IsSpellOnCD("Challenging Shout")) and (localRage >= 5) then
+					if (CastSpellByName("Challenging Shout")) then
+						self.waitTimer = GetTimeEX() + 1000;
+						return 0;
 					end
 				end
 			end
@@ -741,6 +752,7 @@ function script_warrior:menu()
 
 		if (CollapsingHeader("Choose Stance - Experimental")) then -- stance menu
 			Text("Choose Stance - Experimental");
+			Text("You must enable stance in-game");
 
 			if (not self.defensiveStance) and (not self.berserkerStance) then	-- hide all but battle stance
 				wasClicked, self.battleStance = Checkbox("Battle (DPS)", self.battleStance);
@@ -810,6 +822,7 @@ function script_warrior:menu()
 						self.sunderStacks = SliderInt("Sunder Stacks", 1, 5, self.sunderStacks);	-- sunder armor
 						self.sunderArmorRage = SliderInt("Sunder rage cost", 12, 15, self.sunderArmorRage);
 						self.demoShoutRage = SliderInt("Demo shout above % rage", 10, 50, self.demoShoutRage);
+						self.challengingShoutAdds = SliderInt("Challenging Shout Add Count", 3, 10, self.challengingShoutAdds);
 
 					if (CollapsingHeader("Revenge Skill Options")) then
 						self.revengeActionBarSlot = InputText("RS", self.revengeActionBarSlot);	-- revenge
