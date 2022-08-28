@@ -4,7 +4,7 @@ script_warrior = {
 	bloodRageHealth = 60, -- health to use bloodrage
 	potionHealth = 10, -- health to use potion
 	isSetup = false, -- setup check
-	meeleDistance = 4.2, -- melee distance
+	meleeDistance = 4.2, -- melee distance
 	throwOpener = false, -- use throw as opener
 	throwName = "Heavy Throwing Dagger", -- opener throw item name
 	waitTimer = 0, -- set wait time for script
@@ -22,14 +22,17 @@ script_warrior = {
 	sunderStacks = 2, -- how many stacks of sunder armor
 	enableFaceTarget = true, -- enable/disable auto facing target
 	enableShieldBlock = true, -- enable/disable shield block
-	shieldBlockRage = 15,  -- use shield block at this rage
-	shieldBlockHealth = 65, -- use shield block at this health
+	shieldBlockRage = 20,  -- use shield block at this rage
+	shieldBlockHealth = 50, -- use shield block at this health
 	sunderArmorRage = 15,	-- use sunder armor at this rage
 	enableRend = false, -- enable/disable rend
 	enableCleave = false, -- enable/disable cleave
 	demoShoutRage = 15, -- set higher than sunder armor due to needed threat gain -- rage to use demo shout
 	enableSunder = true, -- enable/disable sunder armor in battle stance
 
+	-- note. the checkbox in the menu controls battle, defensive, berserker stance. all spells have arguments for which
+	-- stance they apply to and can be used in. if the palyer does not click defensive stance in-game then the bot
+	--will assume you are not using defensive stance. 
 
 }
 
@@ -152,11 +155,11 @@ end
 
 function script_warrior:run(targetGUID)	-- main content of script
 
-	-- let's use this for defensive stance setup?
-	if (GetNumPartyMembers() >= 3) and (self.defensiveStance) then
-		self.eatHealth = 7;
-		self.enableCharge = false;
-	end
+	-- let's use this for defensive stance setup? currently just an override for settings for easier tank setup during reloads
+	--if (GetNumPartyMembers() >= 3) and (self.defensiveStance) then
+	--	self.eatHealth = 7;
+	--	self.enableCharge = false;
+	--end
 	
 	if(not self.isSetup) then	-- check setup stuff
 		script_warrior:setup();
@@ -197,13 +200,6 @@ function script_warrior:run(targetGUID)	-- main content of script
 		-- Cant Attack dead targets
 		if (targetObj:IsDead() or not targetObj:CanAttack()) then
 			return 0;
-		end
-		
-		-- enable or disable facing target automatically
-		if (self.faceTarget) then
-			if (not IsStanding()) then
-				StopMoving();
-			end
 		end
 		
 		-- Auto Attack
@@ -278,7 +274,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end
 			end
 
-			-- Check: Charge if possible
+			-- Check: Charge if possible in battle stance
 			if (self.enableCharge and self.battleStance) then
 				if (HasSpell("Charge")) and (not IsSpellOnCD("Charge")) and (targetObj:GetDistance() <= 25) 
 					and (targetObj:GetDistance() >= 12) and (targetObj:IsInLineOfSight()) then
@@ -302,8 +298,8 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end
 			end	
 
-			-- Check move into meele range
-			if (targetObj:GetDistance() >= self.meeleDistance or not targetObj:IsInLineOfSight()) then
+			-- Check move into melee range
+			if (targetObj:GetDistance() >= self.meleeDistance or not targetObj:IsInLineOfSight()) then
 				return 3;
 			end
 
@@ -322,8 +318,8 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end 
 			end
 
-			-- Check if we are in meele range
-			if (targetObj:GetDistance() >= self.meeleDistance or not targetObj:IsInLineOfSight()) then
+			-- Check if we are in melee range
+			if (targetObj:GetDistance() >= self.meleeDistance or not targetObj:IsInLineOfSight()) then
 				return 3;
 			else
 				if (IsMoving()) and (self.faceTarget) then
@@ -542,8 +538,8 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end
 			end
 
-			-- Check: If we are in meele range, do meele attacks
-			if (targetObj:GetDistance() <= self.meeleDistance) then
+			-- Check: If we are in melee range, do melee attacks
+			if (targetObj:GetDistance() <= self.meleeDistance) then
 
 				-- shield block
 				-- main rage user use only if target has at least 1 sunder for threat gain
@@ -560,7 +556,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 				-- sunder armor in battle stance x1
 				if (self.battleStance) then
 					if (HasSpell("Sunder Armor")) and (localRage > 30) then
-						if (targetHealth > 30) and (targetObj:GetDistance() < self.meeleDistance) then
+						if (targetHealth > 30) and (targetObj:GetDistance() < self.meleeDistance) then
 							if (targetObj:GetDebuffStacks("Sunder Armor") < 1) then
 								if (Cast("Sunder Armor", targetObj)) then
 									return 0;
@@ -570,14 +566,14 @@ function script_warrior:run(targetGUID)	-- main content of script
 					end
 				end
 
-				-- Meele Skill: Overpower if possible battle stance
+				-- melee Skill: Overpower if possible battle stance
 				if (self.battleStance) then
 					if (script_warrior:canOverpower() and localRage >= 5 and not IsSpellOnCD('Overpower')) then 
 						CastSpellByName('Overpower'); 
 					end  
 				end
 
-				-- Meele skill Execute the target if possible battle or berserker stance
+				-- melee skill Execute the target if possible battle or berserker stance
 				if (self.battleStance) or (self.berserkerStance) then
 					if (targetHealth <= 20 and HasSpell('Execute')) then 
 						if (Cast('Execute', targetObj)) then 
@@ -588,7 +584,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 					end
 				end
 
-				-- Meele skill: Bloodthirst, save rage for this attack
+				-- melee skill: Bloodthirst, save rage for this attack
 				if (HasSpell("Bloodthirst") and not IsSpellOnCD("Bloodthirst")) then 
 					if (localRage >= 25) then 
 						if (Cast('Bloodthirst', targetObj)) then 
@@ -608,7 +604,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 					end 
 				end
 
-				-- Meele Skill: Rend if we got more than 10 rage battle or bersker stance
+				-- melee Skill: Rend if we got more than 10 rage battle or bersker stance
 				if (self.battleStance) or (self.defensiveStance and self.enableRend) or (self.berserkerStance) then
 					if (targetObj:GetCreatureType() ~= 'Mechanical' and targetObj:GetCreatureType() ~= 'Elemental' and HasSpell('Rend') and not targetObj:HasDebuff("Rend") 
 						and targetHealth >= 30 and localRage >= 10) then 
@@ -618,7 +614,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 					end 
 				end
 
-				-- Meele Skill: Heroic Strike if we got 15 rage battle stance
+				-- melee Skill: Heroic Strike if we got 15 rage battle stance
 				if (self.battleStance) then
 					if (localRage >= 15) then 
 						if (targetObj:GetDistance() <= 6) then
@@ -726,37 +722,59 @@ function script_warrior:menu()
 	if (not self.enableRotation) then -- if not showing rotation button
 		wasClicked, self.enableGrind = Checkbox("Grinder", self.enableGrind); -- then show grind button
 	end
+
 		SameLine();
+
 	if (not self.enableGrind) then -- if not showing grind button
 		wasClicked, self.enableRotation = Checkbox("Rotation TODO", self.enableRotation); -- then show rotation button
+
 		SameLine();
+
 	end	
+
 	Separator();
+
 	if (self.enableGrind) then -- grind option menu
 		local wasClicked = false;
+
 		Separator();
+
 		if (CollapsingHeader("Choose Stance - Experimental")) then -- stance menu
 			Text("Choose Stance - Experimental");
+
 			if (not self.defensiveStance) and (not self.berserkerStance) then	-- hide all but battle stance
 				wasClicked, self.battleStance = Checkbox("Battle (DPS)", self.battleStance);
+
 				SameLine();
+
 			end
 			if (not self.battleStance) and (not self.berserkerStance) then	-- hide all but defensive stance
 				wasClicked, self.defensiveStance = Checkbox("Defensive (Tank)", self.defensiveStance);
+
 				SameLine();
+
 			end
 			if (not self.battleStance) and (not self.defensiveStance) then	-- hide all but berserker stance
 				wasClicked, self.berserkerStance = Checkbox("Berserker (DPS)", self.berserkerStance);
+
 				SameLine();
+
 			end
+
 			Separator();
+
 			if (self.battleStance) then -- batle stance menu
+
 				if (CollapsingHeader("Battle Stance Options")) then
 					wasClicked, self.enableCharge = Checkbox("Charge On/Off", self.enableCharge);	-- charge
+
 					SameLine();
+
 					wasClicked, self.chargeWalk = Checkbox("Pull Back After Charge - Experimental", self.chargeWalk);
 					wasClicked, self.enableRend = Checkbox("Rend On/Off", self.enableRend);	-- rend
+
 					SameLine();
+
 					wasClicked, self.enableCleave = Checkbox("Cleave On/Off TODO", self.enableCleave);	-- cleave
 					wasClicked, self.enableSunder = Checkbox("Use Sunder x1", self.enableSunder);	-- battle stance sunder
 					
@@ -767,44 +785,61 @@ function script_warrior:menu()
 					end
 				end
 			end
+
 			if (self.defensiveStance) then -- defensive stance menu
+
 				if (CollapsingHeader("Defensive Stance Options")) then	-- defensive stance
-					wasClicked, self.enableFaceTarget = Checkbox("FaceTarget On/Off", self.enableFaceTarget);	-- facing target
+					Text("Face Target off for easier manual control");
+					wasClicked, self.enableFaceTarget = Checkbox("Face Target On/Off", self.enableFaceTarget);	-- facing target
+
 						SameLine();
+
 						wasClicked, self.enableShieldBlock = Checkbox("Shield Block On/Off", self.enableShieldBlock);	-- shield block
+
 					if (self.enableShieldBlock) then
 						Text("Shield Block Options");
+						Text("	This will make healing you easier but");
+						Text("		you will have trouble holding aggro");
 						self.shieldBlockHealth = SliderInt("Below % health", 10, 85, self.shieldBlockHealth);
 						self.shieldBlockRage = SliderInt("Above % rage", 10, 50, self.shieldBlockRage);
 					end
+
 						Separator();
+
 						Text("How many Sunder Armor Stacks?");
 						self.sunderStacks = SliderInt("Sunder Stacks", 1, 5, self.sunderStacks);	-- sunder armor
 						self.sunderArmorRage = SliderInt("Sunder rage cost", 12, 15, self.sunderArmorRage);
 						self.demoShoutRage = SliderInt("Demo shout above % rage", 10, 50, self.demoShoutRage);
+
 					if (CollapsingHeader("Revenge Skill Options")) then
 						self.revengeActionBarSlot = InputText("RS", self.revengeActionBarSlot);	-- revenge
 						Text("82 is spell bar number.. slot 1 would be 83");
 					end
 				end
 			end
+
 			if (self.berserkerStance) then -- berserker stance menu
+
 				if (CollapsingHeader("Berserker Stance Options")) then
 							Text("TODO!");	
 				end
 			end
 		end
-		if (CollapsingHeader("Warrior Grind Options")) then -- grind menu
+
+		if (CollapsingHeader("Warrior Grind Options")) then -- grind menu plans to hide this menu once rotation is complete
 			Text('Eat below health percentage');
 			self.eatHealth = SliderInt("EHP %", 1, 100, self.eatHealth);	-- use food health
 			Text('Potion below health percentage');
 			self.potionHealth = SliderInt("PHP %", 1, 99, self.potionHealth);	-- use potion health
+
 			Separator();
+
 			wasClicked, self.stopIfMHBroken = Checkbox("Stop bot if main hand is broken.", self.stopIfMHBroken);
 			Text("Use Bloodrage above health percentage");
 			self.bloodRageHealth = SliderInt("BR%", 1, 99, self.bloodRageHealth);	-- bloodrage health
 			Text("Melee Range Distance");
-			self.meeleDistance = SliderFloat("MR (yd)", 1, 8, self.meeleDistance);	-- melee distance range
+			self.meleeDistance = SliderFloat("MR (yd)", 1, 8, self.meleeDistance);	-- melee distance range
+
 			if (CollapsingHeader("Throwing Weapon Options")) then -- throwing weapon menu
 				wasClicked, self.throwOpener = Checkbox("Pull with throw", self.throwOpener);
 				Text("Throwing weapon");
@@ -813,8 +848,10 @@ function script_warrior:menu()
 		end
 	end
 
-	if (self.enableRotation) then -- rotation menu
+	if (self.enableRotation) then -- rotation menu plans to move to rotation_menu.lua
+
 		Separator();
+
 		if (CollapsingHeader("Warrior Rotation Options")) then
 		Text("Charge On/Off");
 		Text("Turn off Face Target");

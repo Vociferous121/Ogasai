@@ -426,7 +426,7 @@ function script_priest:run(targetGUID)
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
 						self.waitTimer = GetTimeEX() + (self.wandSpeed + 250); 
-					return 0;
+					return true;
 					end
 				end
 			end

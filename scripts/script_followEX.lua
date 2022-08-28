@@ -14,7 +14,9 @@ function script_followEX:drawStatus()
 		script_nav:drawUnitsDataOnScreen();
 	end
 
-	if (script_aggro.drawAggro) then script_aggro:drawAggroCircles(self.drawAggroRange); end
+	if (script_aggro.drawAggro) then 
+		script_aggro:drawAggroCircles(self.drawAggroRange); 
+	end
 	-- color
 	local r, g, b = 255, 255, 0;
 	-- position
@@ -97,7 +99,8 @@ function script_grindEX:doLoot(localObj)
 	script_follow.message = "Moving to loot...";		
 	script_nav:moveToTarget(localObj, _x, _y, _z);	
 	script_grind:setWaitTimer(100);
-	if (script_follow.lootObj:GetDistance() < 3) then script_follow.waitTimer = GetTimeEX() + 450; 
+	if (script_follow.lootObj:GetDistance() < 3) then
+		script_follow.waitTimer = GetTimeEX() + 450; 
 	end
 end
 
@@ -111,8 +114,14 @@ function script_followEX:menu()
 		script_follow.myTime = GetTimeEX(); 
 	end
 	
-	SameLine(); if (Button("Reload Scripts")) then coremenu:reload(); end
-	SameLine(); if (Button("Exit Bot")) then StopBot(); end
+	SameLine();
+	if (Button("Reload Scripts")) then 
+		coremenu:reload(); 
+	end
+	SameLine();
+	if (Button("Exit Bot")) then
+		StopBot();
+	end
 
 	-- Load combat menu by class
 	local class = UnitClass("player");
@@ -140,73 +149,69 @@ function script_followEX:menu()
 	if (class == 'Priest') and (CollapsingHeader("Priest Group Heals - Follower Script")) then
 
 
-				-- turn ALL heals on/off for group
+		-- turn ALL heals on/off for group
 		wasClicked, script_follow.enableHeals = Checkbox("Turn On/Off all heals for the group!", script_follow.enableHeals);
 
-				-- Lesser Heal
+		-- Lesser Heal
 		if (GetLocalPlayer():GetLevel() < 20) then
-		Text("Lesser Heal Options -"); SameLine(); Text("Turn On/Off above");
-		script_follow.lesserHealMana = SliderInt("Lesser Heal Mana%", 1, 99, script_follow.lesserHealMana);
-		script_follow.partyLesserHealHealth = SliderInt("Lesser Heal Health%", 1, 99, script_follow.partyLesserHealHealth);
-				Separator();
+			Text("Lesser Heal Options -"); SameLine(); Text("Turn On/Off above");
+			script_follow.lesserHealMana = SliderInt("Lesser Heal Mana%", 1, 99, script_follow.lesserHealMana);
+			script_follow.partyLesserHealHealth = SliderInt("Lesser Heal Health%", 1, 99, script_follow.partyLesserHealHealth);
+			Separator();
 		end
-				-- Renew
+
+		-- Renew
 		Text("Renew Options -"); SameLine(); 
 		wasClicked, script_follow.clickRenew = Checkbox("Renew On/Off", script_follow.clickRenew);
 		script_follow.renewMana = SliderInt("Renew Mana%", 1, 99, script_follow.renewMana);
 		script_follow.partyRenewHealth = SliderInt("Renew Health%", 1, 99, script_follow.partyRenewHealth);
 
-				-- Shield
+		-- Shield
 		Text("Shield Options -"); SameLine(); 
 		wasClicked, script_follow.clickShield = Checkbox("Shield On/Off", script_follow.clickShield);
 		script_follow.shieldMana = SliderInt("Shield Mana%", 1, 99, script_follow.shieldMana);
 		script_follow.partyShieldHealth = SliderInt("Shield Health%", 1, 99, script_follow.partyShieldHealth);
 
-				-- Flash Heal
+		-- Flash Heal
 		Text("Flash Heal Options -"); SameLine();
 		wasClicked, script_follow.clickFlashHeal = Checkbox("Flash Heal On/Off", script_follow.clickFlashHeal);
 		script_follow.flashHealMana = SliderInt("Flash Heal Mana%", 1, 99, script_follow.flashHealMana);
 		script_follow.partyFlashHealHealth = SliderInt("Flash Heal Health%", 1, 99, script_follow.partyFlashHealHealth);
-				Separator();
 		
-				-- Greater Heal
+		-- Greater Heal
 		Text("Greater Heal Options -"); SameLine();
 		wasClicked, script_follow.clickGreaterHeal = Checkbox("Greater Heal On/Off", script_follow.clickGreaterHeal);
 		script_follow.greaterHealMana = SliderInt("Greater Heal Mana%", 1, 99, script_follow.greaterHealMana);
 		script_follow.partyGreaterHealHealth = SliderInt("Greater Heal Health%", 1, 99, script_follow.partyGreaterHealHealth);	
-				Separator();
 
-				-- Heal(spell)
+		-- Heal(spell)
 		Text("Heal(spell) Options -"); SameLine();
 		wasClicked, script_follow.clickHeal = Checkbox("Heal(spell) On/Off", script_follow.clickHeal);
 		script_follow.healMana = SliderInt("Heal Mana%", 1, 99, script_follow.healMana);
 		script_follow.partyHealHealth = SliderInt("Heal Health%", 1, 99, script_follow.partyHealHealth);
-				Separator();
-
 	end
 
 	if  (class == 'Paladin') and (CollapsingHeader("Paladin Group Heals Follower Script")) then
 
-				-- Holy Light
+		-- Holy Light
 		Text("Holy Light Options -"); SameLine();
 		wasClicked, script_follow.clickHolyLight = Checkbox("Holy Light On/Off", script_follow.clickHolyLight);
 		script_follow.holyLightMana = SliderInt("Holy Light Mana%", 1, 99, script_follow.holyLightMana);
 		script_follow.partyHolyLightHealth = SliderInt("Holy Light Health%", 1, 99, script_follow.partyHolyLightHealth);
 		Separator();
 
-				-- Flash of Light
+		-- Flash of Light
 		Text("Flash of Light Options -"); SameLine();
 		wasClicked, script_follow.clickFlashOfLight = Checkbox("Flash of Light On/Off", script_follow.clickFlashOfLight);
 		script_follow.flashOfLightMana = SliderInt("Flash of Light mana%", 1, 99, script_follow.flashOfLightMana);
 		script_follow.partyFlashOfLightHealth = SliderInt("Flash of Light Health%", 1, 99, script_follow.partyFlashOfLightHealth);
-
 		script_follow.layOnHandsHealth = SliderInt("Lay On Hands Health %", 5, 20, script_follow.layOnHandsHealth);
 		script_follow.bopHealth = SliderInt("Blessing of Protection Health %", 1, 25, script_follow.bopHealth);
 	end
 
 	if (class == 'Druid') and (CollapsingHeader("Druid Group Heals Follower Script")) then
 
-				-- Healing Touch
+		-- Healing Touch
 		Text("TODO!");
 		Text("Healing Touch Options -"); SameLine();
 		wasClicked, script_follow.clickHealingTouch = Checkbox("Healing Touch On/Off", script_follow.clickHealingTouch);
@@ -214,7 +219,7 @@ function script_followEX:menu()
 		script_follow.healingTouchHealth = SliderInt("Healing Touch Health%", 1, 99, script_follow.healingTouchHealth);
 		Separator();
 
-				-- Regrowth
+		-- Regrowth
 		Text("Regrwoth Options -"); SameLine();
 		wasClicked, script_follow.clickRegrowth = Checkbox("Regrowth On/Off", script_follow.clickRegrowth);
 		script_follow.regrowthMana = SliderInt("Regrowth Mana%", 1, 99, script_follow.regrowthMana);
@@ -244,10 +249,6 @@ function script_followEX:menu()
 		script_follow.findLootDistance = SliderInt("Find Loot Distance (yd)", 1, 100, script_follow.findLootDistance);	
 		script_follow.lootDistance = SliderInt("Loot Distance (yd)", 1, 6, script_follow.lootDistance);
 		Separator();
-		--Text("Mount options:");
-		--wasClicked, script_follow.useMount = Checkbox("Use Mount", script_follow.useMount);
-		--script_follow.disMountRange = SliderInt("Dismount range", 1, 100, script_follow.disMountRange);
-		--Separator();
 		Text("Script tick rate options:");
 		script_follow.tickRate = SliderFloat("Tick rate (ms)", 0, 2000, script_follow.tickRate);
 		if (script_aggro.drawAggro) then

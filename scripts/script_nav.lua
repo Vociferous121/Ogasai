@@ -40,12 +40,9 @@ function script_nav:loadHotspotDB(id)
 			self.numSavedLocation = 0;
 			self.currentGoToLocation = 0;
 		end
-		self.currentHotSpotX , self.currentHotSpotY, self.currentHotSpotZ, self.currentHotSpotName =
-		hotspot['pos']['x'], hotspot['pos']['y'], hotspot['pos']['z'], hotspot['name'];
-			
+		self.currentHotSpotX , self.currentHotSpotY, self.currentHotSpotZ, self.currentHotSpotName = hotspot['pos']['x'], hotspot['pos']['y'], hotspot['pos']['z'], hotspot['name'];	
 		return true;
 	end
-
 	return false;
 end
 

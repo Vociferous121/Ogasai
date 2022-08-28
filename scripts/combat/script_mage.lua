@@ -462,7 +462,7 @@ function script_mage:run(targetGUID)
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
 						self.waitTimer = GetTimeEX() + (wandSpeed + 100); 
-						return 0;
+						return true;
 					end
 				end
 			end
