@@ -22,8 +22,8 @@ script_warrior = {
 	sunderStacks = 2, -- how many stacks of sunder armor
 	enableFaceTarget = true, -- enable/disable auto facing target
 	enableShieldBlock = true, -- enable/disable shield block
-	shieldBlockRage = 15,  -- use shield block at this rage
-	shieldBlockHealth = 75, -- use shield block at this health
+	shieldBlockRage = 10,  -- use shield block at this rage
+	shieldBlockHealth = 85, -- use shield block at this health
 	sunderArmorRage = 15,	-- use sunder armor at this rage
 	enableRend = false, -- enable/disable rend
 	enableCleave = false, -- enable/disable cleave
@@ -357,6 +357,16 @@ function script_warrior:run(targetGUID)	-- main content of script
 			--	end
 			--end
 
+			-- shield block
+			-- main rage user use only if target has at least 1 sunder for threat gain
+			if (self.defensiveStance) and (self.enableShieldBlock) then
+				if (HasSpell("Shield Block")) and (not IsSpellOnCD("Shield Block")) and (localRage >= self.shieldBlockRage) and (localHealth <= self.shieldBlockHealth) then
+					if (CastSpellByName("Shield Block")) then
+						return 0;
+					end
+				end
+			end
+
 			-- Sunder if possible as main threat source! this is most logical and easiest solution for the bot to handle
 			if (self.defensiveStance) then 
 				if (HasSpell("Sunder Armor")) and (localRage >= 15) then
@@ -471,8 +481,10 @@ function script_warrior:run(targetGUID)	-- main content of script
 			-- main rage user use only if target has at least 1 sunder for threat gain
 			if (self.defensiveStance) and (self.enableShieldBlock) then
 				if (HasSpell("Shield Block")) and (not IsSpellOnCD("Shield Block")) and (localRage >= self.shieldBlockRage) and (localHealth <= self.shieldBlockHealth) then
-					if (CastSpellByName("Shield Block")) then
-						return 0;
+					if (targetObj:GetDebuffStacks("Sunder Armor") > 1) then
+						if (CastSpellByName("Shield Block")) then
+							return 0;
+						end
 					end
 				end
 			end
@@ -822,8 +834,8 @@ function script_warrior:menu()
 						Text("Shield Block Options");
 						Text("	Higher values will make healing you easier but...");
 						Text("		you will have more trouble gaining threat...");
-						self.shieldBlockHealth = SliderInt("Below % health", 10, 95, self.shieldBlockHealth);
-						self.shieldBlockRage = SliderInt("Above % rage", 10, 50, self.shieldBlockRage);
+						self.shieldBlockHealth = SliderInt("Below % health", 50, 95, self.shieldBlockHealth);
+						self.shieldBlockRage = SliderInt("Above % rage", 10, 30, self.shieldBlockRage);
 					end
 
 						Separator();
