@@ -4,6 +4,7 @@
 
  Any bugs reports are greatly appreciated and will help with the process!
 
+    NOTE - If you open the follower.lua it is probably best to open it with visual studio CODE. There is something odd about it....
 #-- completed and picking out small bugs
 
     mage frost spec
