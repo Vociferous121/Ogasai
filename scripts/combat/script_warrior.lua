@@ -178,7 +178,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 	-- Check: If Mainhand is broken stop bot
 	isMainHandBroken = GetInventoryItemBroken("player", 16);
 	
-	if (self.stopIfMHBroken and isMainHandBroken) then
+	if (self.stopIfMHBroken) and (isMainHandBroken) then
 		self.message = "The main hand weapon is broken...";
 		return 6;
 	end
@@ -191,7 +191,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 	end
 
 	-- Check: Do nothing if we are channeling or casting or wait timer
-	if (IsChanneling() or IsCasting() or (self.waitTimer >= GetTimeEX())) then
+	if (IsChanneling()) or (IsCasting()) or (self.waitTimer >= GetTimeEX()) then
 		return 4;
 	end
 	
@@ -199,7 +199,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 	if (targetObj ~= 0) then
 		
 		-- Cant Attack dead targets
-		if (targetObj:IsDead() or not targetObj:CanAttack()) then
+		if (targetObj:IsDead()) or (not targetObj:CanAttack()) then
 			return 0;
 		end
 		
