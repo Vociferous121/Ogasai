@@ -218,7 +218,6 @@ function script_followEX:menu()
 	if (class == 'Druid') and (CollapsingHeader("Druid Group Heals Follower Script")) then
 
 		-- Healing Touch
-		Text("TODO!");
 		Text("Healing Touch Options -"); SameLine();
 		wasClicked, script_follow.clickHealingTouch = Checkbox("Healing Touch On/Off", script_follow.clickHealingTouch);
 		script_follow.healingTouchMana = SliderInt("Healing Touch Mana%", 1, 99, script_follow.healingTouchMana);
@@ -230,6 +229,12 @@ function script_followEX:menu()
 		wasClicked, script_follow.clickRegrowth = Checkbox("Regrowth On/Off", script_follow.clickRegrowth);
 		script_follow.regrowthMana = SliderInt("Regrowth Mana%", 1, 99, script_follow.regrowthMana);
 		script_follow.regrowthHealth = SliderInt("Regrowth Health%", 1, 99, script_follow.regrowthHealth);
+		Separator();
+
+		-- Rejuvenation
+		Text("Rejuvenation Options -");
+		script_follow.rejuvenationMana = SliderInt("Rejuvenation Mana%", 1, 99, script_follow.rejuvenationMana);
+		script_follow.rejuvenationHealth = SliderInt("Rejuvenation Health%", 1, 99, script_follow.rejuvenationHealth);
 		Separator();	
 	end
 
