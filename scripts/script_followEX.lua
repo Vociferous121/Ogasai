@@ -123,8 +123,14 @@ function script_followEX:menu()
 		StopBot();
 	end
 
+	Separator();
+
+	Text("Distance to follow PARTY LEADER");
+		script_follow.followLeaderDistance = SliderInt("Follow Leader Distance (yd)", 6, 40, script_follow.followLeaderDistance);
 	-- Load combat menu by class
 	local class = UnitClass("player");
+
+	Separator();
 	
 	if (class == 'Mage') then
 		script_mage:menu();
@@ -240,8 +246,6 @@ function script_followEX:menu()
 		Separator();
 		Text("Distance to walk to party members from your current position");
 		script_follow.followMemberDistance = SliderInt("Party MEMBER Distance (yd)", 0, 40, script_follow.followMemberDistance);
-		Text("Distance to follow PARTY LEADER");
-		script_follow.followLeaderDistance = SliderInt("Follow Leader Distance (yd)", 6, 40, script_follow.followLeaderDistance);
 		wasClicked, script_follow.useUnStuck = Checkbox("Turn On/Off Buggy unStuck Script", script_follow.useUnStuck);
 		Separator();
 		Text("Loot options:");

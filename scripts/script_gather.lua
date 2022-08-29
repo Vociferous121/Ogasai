@@ -14,7 +14,9 @@ script_gather = {
 	lootDistance = 3,
 	timer = 0,
 	nodeID = 0,
-	gatherAllPossible = true
+	gatherAllPossible = true,
+	herbTimer = GetTimeEX(),
+
 }
 
 function script_gather:addHerb(name, id, use, req)
@@ -235,7 +237,7 @@ function script_gather:gather()
 		local _x, _y, _z = self.nodeObj:GetPosition();
 		local dist = self.nodeObj:GetDistance();
 		local selfDist = localObj:GetDistance();
-
+		
 		-- reached loot stop moving
 		if(dist < self.lootDistance) then
 			if (IsMoving()) then
@@ -258,11 +260,14 @@ function script_gather:gather()
 					return false;
 				end
 		else
+
 			-- keep moving to node
 			if (_x ~= 0) then
 				script_nav:moveToNav(GetLocalPlayer(), _x, _y, _z);
 				self.timer = GetTimeEX() + 150;
 			end
+
+	
 		end
 
 		return true;
