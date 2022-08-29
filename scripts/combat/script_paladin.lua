@@ -621,34 +621,39 @@ end
 
 function script_paladin:menu()
 	if (CollapsingHeader("Paladin Combat Options")) then
+
 		local wasClicked = false;
-		Text('Aura and Blessing options:');
-		self.aura = InputText("Aura", self.aura);
-		self.blessing = InputText("Blessing", self.blessing);
-		Separator();
+
 		Text('Rest options:');
 		Text('You can add more food/drinks in script_helper.lua');
 		self.eatHealth = SliderInt("Eat below HP%", 1, 100, self.eatHealth);
 		self.drinkMana = SliderInt("Drink below Mana%", 1, 100, self.drinkMana);
-		Separator();
-		Text('Combat options:');
-		Separator();
-		Text("How many Crusader Strike Stacks on target?");
-		self.crusaderStacks = SliderInt("Stacks", 0, 5, self.crusaderStacks);
-		self.crusaderStacksMana = SliderInt("Use above mana %", 10, 99, self.crusaderStacksMana);
-		self.meeleDistance = SliderFloat("Meele range", 1, 6, self.meeleDistance);
-		Separator();
-		wasClicked, self.stopIfMHBroken = Checkbox("Stop bot if main hand is broken (red)...", self.stopIfMHBroken);
 		self.potionHealth = SliderInt("Potion below HP %", 1, 99, self.potionHealth);
 		self.potionMana = SliderInt("Potion below Mana %", 1, 99, self.potionMana);
-		Separator();
-		Text("Heal Options:")
-		wasClicked, self.useFlashOfLightCombat = Checkbox("Flash of Light in Combat On/Off", self.useFlashOfLightCombat);
-		Separator();
-		self.healHealth = SliderInt("Holy Light when below HP % (in combat)", 1, 99, self.healHealth);
-		self.flashOfLightHP = SliderInt("Flash of Light when below HP %", 1, 99, self.flashOfLightHP);
-		self.lohHealth = SliderInt("Lay on Hands below HP %", 5, 50, self.lohHealth);
-		self.bopHealth = SliderInt("Shield below HP %", 1, 99, self.bopHealth);
-		self.consecrationMana = SliderFloat("Consecration above Mana %", 1, 99, self.consecrationMana);
+		wasClicked, self.stopIfMHBroken = Checkbox("Stop bot if main hand is broken (red)...", self.stopIfMHBroken);
+		self.meeleDistance = SliderFloat("Meele range", 1, 6, self.meeleDistance);
+
+		if (CollapsingHeader("--Auras and Blessings")) then
+			Text('Aura and Blessing options:');
+			self.aura = InputText("Aura", self.aura);
+			self.blessing = InputText("Blessing", self.blessing);
+		end
+		
+		if (CollapsingHeader("--Combat Options")) then
+				Text("How many Crusader Strike Stacks on target?");
+				self.crusaderStacks = SliderInt("Stacks", 0, 5, self.crusaderStacks);
+				self.crusaderStacksMana = SliderInt("Use above mana %", 10, 99, self.crusaderStacksMana);
+				self.consecrationMana = SliderFloat("Consecration above Mana %", 1, 99, self.consecrationMana);
+		end
+		
+		if (CollapsingHeader("--Heal Options")) then
+			Text("Heal Options:")
+			wasClicked, self.useFlashOfLightCombat = Checkbox("Flash of Light in Combat On/Off", self.useFlashOfLightCombat);
+			Separator();
+			self.healHealth = SliderInt("Holy Light when below HP % (in combat)", 1, 99, self.healHealth);
+			self.flashOfLightHP = SliderInt("Flash of Light when below HP %", 1, 99, self.flashOfLightHP);
+			self.lohHealth = SliderInt("Lay on Hands below HP %", 5, 50, self.lohHealth);
+			self.bopHealth = SliderInt("Shield below HP %", 1, 99, self.bopHealth);
+		end
 	end
 end

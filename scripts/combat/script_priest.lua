@@ -535,43 +535,47 @@ function script_priest:menu()
 
 	if (1 < 2) then -- I just needed SOMETHING to be true....
 		local wasClicked = false;
-		wasClicked, self.useScream = Checkbox("Fear On/Off", self.useScream);
-		SameLine();
-		wasClicked, self.useSmite = Checkbox("Smite On/Off", self.useSmite);
-		SameLine();
-		Separator();
+
 		if (CollapsingHeader("Priest Combat Options")) then
-		Text('Mind Blast above self mana percent');
-		self.mindBlastMana = SliderInt("MBM%", 10, 100, self.mindBlastMana);
-		Separator();
-		Text('Wand options:');
-		Separator();
-		wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);	
-		Text('Wand below self mana percent');
-		self.useWandMana = SliderInt("WM%", 10, 100, self.useWandMana);
-		Text('Wand below target HP percent');
-		self.useWandHealth = SliderInt("WH%", 10, 100, self.useWandHealth);
-		Text('Wand Attack Speed (1.1 = 1100)');
-		self.wandSpeed = InputText("WS", self.wandSpeed);
+			Text('Mind Blast above self mana percent');
+			self.mindBlastMana = SliderInt("MBM%", 10, 100, self.mindBlastMana);
+			Separator();
+			wasClicked, self.useScream = Checkbox("Fear On/Off", self.useScream);
+			SameLine();
+			wasClicked, self.useSmite = Checkbox("Smite On/Off", self.useSmite);
+
+			if (CollapsingHeader("--Wand Options")) then
+				Text('Wand options:');
+				wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);	
+				Text('Wand below self mana percent');
+				self.useWandMana = SliderInt("WM%", 10, 100, self.useWandMana);
+				Text('Wand below target HP percent');
+				self.useWandHealth = SliderInt("WH%", 10, 100, self.useWandHealth);
+				Text('Wand Attack Speed (1.1 = 1100)');
+				self.wandSpeed = InputText("WS", self.wandSpeed);
+			end
 		end
+
 		if (CollapsingHeader("Priest Self Heals - Combat Script")) then
-		Text('Drink below mana percentage');
-		self.drinkMana = SliderInt("DM%", 1, 99, self.drinkMana);
-		Text('Eat below health percentage');
-		self.eatHealth = SliderInt("EH%", 1, 99, self.eatHealth);
-		Separator();
-		Text('Self Heals');
-		self.renewHP = SliderInt("Renew HP%", 1, 99, self.renewHP);	
-		self.shieldHP = SliderInt("Shiled HP%", 1, 99, self.shieldHP);
-		self.flashHealHP = SliderInt("Flash heal HP%", 1, 99, self.flashHealHP);
-		if (GetLocalPlayer():GetLevel() < 20) then
-			self.lesserHealHP = SliderInt("Lesser heal HP%", 1, 99, self.lesserHealHP);	
+			Text('Drink below mana percentage');
+			self.drinkMana = SliderInt("DM%", 1, 99, self.drinkMana);
+			Text('Eat below health percentage');
+			self.eatHealth = SliderInt("EH%", 1, 99, self.eatHealth);
+			Separator();
+			Text('Self Heals');
+			self.renewHP = SliderInt("Renew HP%", 1, 99, self.renewHP);	
+			self.shieldHP = SliderInt("Shiled HP%", 1, 99, self.shieldHP);
+			self.flashHealHP = SliderInt("Flash heal HP%", 1, 99, self.flashHealHP);
+
+			if (GetLocalPlayer():GetLevel() < 20) then
+				self.lesserHealHP = SliderInt("Lesser heal HP%", 1, 99, self.lesserHealHP);	
+			end
+
+			self.healHP = SliderInt("Heal HP%", 1, 99, self.healHP);	
+			self.greaterHealHP = SliderInt("Greater Heal HP%", 1, 99, self.greaterHealHP);
+			self.potionHealth = SliderInt("Potion HP%", 1, 99, self.potionHealth);
+			self.potionMana = SliderInt("Potion Mana%", 1, 99, self.potionMana);
+			Separator();	
 		end
-		self.healHP = SliderInt("Heal HP%", 1, 99, self.healHP);	
-		self.greaterHealHP = SliderInt("Greater Heal HP%", 1, 99, self.greaterHealHP);
-		self.potionHealth = SliderInt("Potion HP%", 1, 99, self.potionHealth);
-		self.potionMana = SliderInt("Potion Mana%", 1, 99, self.potionMana);
-		Separator();	
 	end
-end
 end

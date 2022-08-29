@@ -514,11 +514,18 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end  
 			end
 	
-			-- War Stomp Tauren
+			-- War Stomp Tauren Racial
 			if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp"))
 				and (targetObj:IsCasting() or script_warrior:enemiesAttackingUs(5) >= 2)
 				and (targetHealth >= 50) and (not IsMoving()) then
 				CastSpellByName("War Stomp");
+				self.waitTimer = GetTimeEX() + 200;
+				return 0;
+			end
+
+			-- Stone Form Dwarf Racial
+			if (HasSpell("Stone Form")) and (not IsSpellOnCD("Stone Form")) and (script_warrior:enemiesAttackingUs(5) >= 2) and (localHealth <= 60) then
+				CastSpellByName("Stone Form");
 				self.waitTimer = GetTimeEX() + 200;
 				return 0;
 			end
@@ -754,36 +761,16 @@ end
 
 function script_warrior:menu()
 
-	if (not self.enableRotation) then -- if not showing rotation button
-		wasClicked, self.enableGrind = Checkbox("Grinder", self.enableGrind); -- then show grind button
-	end
-
+	if (CollapsingHeader("Choose Stance - Experimental")) then -- stance menu
+		Text("Choose Stance - ");
 		SameLine();
+		Text("You must enable stance in-game!");
+		
+		if (not self.defensiveStance) and (not self.berserkerStance) then	-- hide all but battle stance
+			wasClicked, self.battleStance = Checkbox("Battle (DPS)", self.battleStance);
+			SameLine();
+		end
 
-	if (not self.enableGrind) then -- if not showing grind button
-		wasClicked, self.enableRotation = Checkbox("Rotation TODO", self.enableRotation); -- then show rotation button
-
-		SameLine();
-
-	end	
-
-	Separator();
-
-	if (self.enableGrind) then -- grind option menu
-		local wasClicked = false;
-
-		Separator();
-
-		if (CollapsingHeader("Choose Stance - Experimental")) then -- stance menu
-			Text("Choose Stance - Experimental");
-			Text("You must enable stance in-game");
-
-			if (not self.defensiveStance) and (not self.berserkerStance) then	-- hide all but battle stance
-				wasClicked, self.battleStance = Checkbox("Battle (DPS)", self.battleStance);
-
-				SameLine();
-
-			end
 			if (not self.battleStance) and (not self.berserkerStance) then	-- hide all but defensive stance
 				wasClicked, self.defensiveStance = Checkbox("Defensive (Tank)", self.defensiveStance);
 
@@ -814,7 +801,7 @@ function script_warrior:menu()
 					wasClicked, self.enableCleave = Checkbox("Cleave On/Off TODO", self.enableCleave);	-- cleave
 					wasClicked, self.enableSunder = Checkbox("Use Sunder x1", self.enableSunder);	-- battle stance sunder
 					
-					if (CollapsingHeader("Overpower Options")) then	-- overpower
+					if (CollapsingHeader("--Overpower Options")) then	-- overpower
 						Text("Overpower action bar slot");
 						self.overpowerActionBarSlot = InputText("OPS", self.overpowerActionBarSlot);
 						Text('72 is your action bar number.. slot 1 would be 73');
@@ -846,7 +833,7 @@ function script_warrior:menu()
 						self.demoShoutRage = SliderInt("Demo shout above % rage", 10, 50, self.demoShoutRage);
 						self.challengingShoutAdds = SliderInt("Challenging Shout Add Count", 3, 10, self.challengingShoutAdds);
 
-					if (CollapsingHeader("Revenge Skill Options")) then
+					if (CollapsingHeader("--Revenge Skill Options")) then
 						self.revengeActionBarSlot = InputText("RS", self.revengeActionBarSlot);	-- revenge
 						Text("82 is spell bar number.. slot 1 would be 83");
 					end
@@ -875,22 +862,10 @@ function script_warrior:menu()
 			Text("Melee Range Distance");
 			self.meleeDistance = SliderFloat("MR (yd)", 1, 8, self.meleeDistance);	-- melee distance range
 
-			if (CollapsingHeader("Throwing Weapon Options")) then -- throwing weapon menu
+			if (CollapsingHeader("--Throwing Weapon Options")) then -- throwing weapon menu
 				wasClicked, self.throwOpener = Checkbox("Pull with throw", self.throwOpener);
 				Text("Throwing weapon");
 				self.throwName = InputText("TW", self.throwName);
 			end
 		end
-	end
-
-	if (self.enableRotation) then -- rotation menu plans to move to rotation_menu.lua
-
-		Separator();
-
-		if (CollapsingHeader("Warrior Rotation Options")) then
-		Text("Charge On/Off");
-		Text("Turn off Face Target");
-		Text("Rotation 2")
-		end
-	end
 end

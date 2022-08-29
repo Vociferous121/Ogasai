@@ -1,25 +1,25 @@
 script_rogue = {
 	message = 'Rogue Combat Script',
-	eatHealth = 40,
-	potionHealth = 15,
-	isSetup = false,
-	cpGenerator = 'Sinister Strike',
-	cpGeneratorCost = 40,
-	meeleDistance = 3.5,
-	throwOpener = false,
-	throwName = "Heavy Throwing Dagger",
-	useStealth = true,
-	stealthOpener = "Sinister Strike",
-	stealthRange = 100,
-	usePoison = true,
 	mainhandPoison = "Instant Poison",
 	offhandPoison = "Instant Poison",
-	useSliceAndDice = true,
+	cpGenerator = 'Sinister Strike',
+	throwName = "Heavy Throwing Dagger",
+	stealthOpener = "Sinister Strike",
+	eatHealth = 40,
+	potionHealth = 15,
+	cpGeneratorCost = 40,
+	meeleDistance = 3.5,
+	stealthRange = 100,
 	waitTimer = 0,
 	vanishHealth = 8,
 	evasionHealth = 50,
-	stopIfMHBroken = true,
 	adrenRushComboHP = 40,
+	throwOpener = false,
+	isSetup = false,
+	useStealth = true,
+	usePoison = true,
+	useSliceAndDice = true,
+	stopIfMHBroken = true,
 	adrenRushCombo = true,
 	enableRotation = false,
 	enableGrind = false,
@@ -197,261 +197,268 @@ function script_rogue:run(targetGUID)
 
 	if (self.enableGrind) then
 		--Valid Enemy
-	if (targetObj ~= 0) then
+		if (targetObj ~= 0) then
 		
-		-- Cant Attack dead targets
-		if (targetObj:IsDead() or not targetObj:CanAttack()) then
-			return 0;
-		end
+			-- Cant Attack dead targets
+			if (targetObj:IsDead() or not targetObj:CanAttack()) then
+				return 0;
+			end
 		
-		if (not IsStanding()) then
-			StopMoving();
-		end
+			if (not IsStanding()) then
+				StopMoving();
+			end
 		
-		-- Auto Attack
-		if (targetObj:GetDistance() < 40) then
-			targetObj:AutoAttack();
-		end
+			-- Auto Attack
+			if (targetObj:GetDistance() < 40) then
+				targetObj:AutoAttack();
+			end
 	
-		targetHealth = targetObj:GetHealthPercentage();
+			targetHealth = targetObj:GetHealthPercentage();
 
-		-- Don't attack if we should rest first
-		if (localHealth < self.eatHealth and not script_grind:isTargetingMe(targetObj)
-			and targetHealth > 99 and not targetObj:IsStunned()) then
-			self.message = "Need rest...";
-			return 4;
-		end
-
-		-- Check: if we target player pets/totems
-		if (GetTarget() ~= nil and targetObj ~= nil) then
-			if (UnitPlayerControlled("target") and GetTarget() ~= localObj) then 
-				script_grind:addTargetToBlacklist(targetObj:GetGUID());
-				return 5; 
+			-- Don't attack if we should rest first
+			if (localHealth < self.eatHealth and not script_grind:isTargetingMe(targetObj)
+				and targetHealth > 99 and not targetObj:IsStunned()) then
+				self.message = "Need rest...";
+				return 4;
 			end
-		end 
+
+			-- Check: if we target player pets/totems
+			if (GetTarget() ~= nil and targetObj ~= nil) then
+				if (UnitPlayerControlled("target") and GetTarget() ~= localObj) then 
+					script_grind:addTargetToBlacklist(targetObj:GetGUID());
+					return 5; 
+				end
+			end 
 		
-		-- Opener
-		if (not IsInCombat()) then
-			self.targetObjGUID = targetObj:GetGUID();
-			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
+			-- Opener
+			if (not IsInCombat()) then
+				self.targetObjGUID = targetObj:GetGUID();
+				self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 			
-			-- Stealth in range if enabled
-			if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) then
-				if (not localObj:HasBuff("Stealth") and not IsSpellOnCD("Stealth")) then
-					CastSpellByName("Stealth");
-					return 3;
-				end
-				-- Use sprint (when stealthed for pull)
-				if (HasSpell("Sprint") and not IsSpellOnCD("Sprint")) then
-					CastSpellByName("Sprint");
-					return 3;
-				end
-			elseif (not self.useStealth and localObj:HasBuff("Stealth")) then
-				CastSpellByName("Stealth");
-			end
-
-			-- Open with stealth opener
-			if (targetObj:GetDistance() < 6 and self.useStealth and HasSpell(self.stealthOpener) and localObj:HasBuff("Stealth")) then
-				if (script_rogue:spellAttack(self.stealthOpener, targetObj)) then
-					return 0;
-				end
-			end
-			
-			if (not self.useStealth and self.throwOpener and script_rogue:equipThrow()) then
-				if (targetObj:GetDistance() > 30 or not targetObj:IsInLineOfSight()) then
-					return 3;
-				else
-					-- Dismount
-					if (IsMounted()) then 
-						DisMount();
+				-- Stealth in range if enabled
+				if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) then
+					if (not localObj:HasBuff("Stealth") and not IsSpellOnCD("Stealth")) then
+						CastSpellByName("Stealth");
+						return 3;
 					end
-					if (Cast("Throw", targetObj)) then
-						self.waitTimer = GetTimeEX() + 4000;
+					-- Use sprint (when stealthed for pull)
+					if (HasSpell("Sprint") and not IsSpellOnCD("Sprint")) then
+						CastSpellByName("Sprint");
+						return 3;
+					end
+				elseif (not self.useStealth and localObj:HasBuff("Stealth")) then
+					CastSpellByName("Stealth");
+				end
+
+				-- Open with stealth opener
+				if (targetObj:GetDistance() < 6 and self.useStealth and HasSpell(self.stealthOpener) and localObj:HasBuff("Stealth")) then
+					if (script_rogue:spellAttack(self.stealthOpener, targetObj)) then
 						return 0;
 					end
 				end
-			end
-
-			-- Check if we are in meele range
-			if (targetObj:GetDistance() > self.meeleDistance or not targetObj:IsInLineOfSight()) then
-				return 3;
-			end
 			
-			-- Use CP generator attack 
-			if ((localEnergy >= self.cpGeneratorCost) and HasSpell(self.cpGenerator)) then
-				if(script_rogue:spellAttack(self.cpGenerator, targetObj)) then
-					return 0;
+				-- use throw if checked
+				if (not self.useStealth and self.throwOpener and script_rogue:equipThrow()) then
+					if (targetObj:GetDistance() > 30 or not targetObj:IsInLineOfSight()) then
+						return 3;
+					else
+						-- Dismount
+						if (IsMounted()) then 
+							DisMount();
+						end
+						if (Cast("Throw", targetObj)) then
+							self.waitTimer = GetTimeEX() + 4000;
+							return 0;
+						end
+					end
 				end
-			end
- 
-			-- Use CP generator attack  (in combat)
-			if (IsInCombat()) then
+
+				-- Check if we are in meele range
+				if (targetObj:GetDistance() > self.meeleDistance or not targetObj:IsInLineOfSight()) then
+					return 3;
+				end
+			
+				-- Use CP generator attack 
 				if ((localEnergy >= self.cpGeneratorCost) and HasSpell(self.cpGenerator)) then
 					if(script_rogue:spellAttack(self.cpGenerator, targetObj)) then
 						return 0;
 					end
 				end
-			end
-			-- Combat
-		else	
-			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
-			-- Dismount
-			if (IsMounted()) then
-				DisMount();
-			end
-
-			-- Check: Do we have the right target (in UI) ??
-			if (GetTarget() ~= 0 and GetTarget() ~= nil) then
-				if (GetTarget():GetGUID() ~= targetObj:GetGUID()) then
-					ClearTarget();
-					targetObj = 0;
-					return 0;
-				end
-			end
-
-			local localCP = GetComboPoints("player", "target");
-
-			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() < 0.5) then 
-				if (script_rogue:runBackwards(targetObj,3)) then 
-					return 4; 
-				end 
-			end
-
-			-- Check if we are in meele range
-			if (targetObj:GetDistance() > self.meeleDistance or not targetObj:IsInLineOfSight()) then
-				return 3;
-			else
-				if (IsMoving()) then
-					StopMoving();
-				end
-			end
-
-			targetObj:FaceTarget();
-
-			-- Check: Use Vanish 
-			if (HasSpell('Vanish') and HasItem('Flash Powder') and localHealth < self.vanishHealth and not IsSpellOnCD('Vanish')) then 
-				CastSpellByName('Vanish'); 
-				ClearTarget(); 
-				self.targetObj = 0;
-				return 4;
-			end 
-
-			-- Check: Use Healing Potion 
-			if (localHealth < self.potionHealth) then 
-				if (script_helper:useHealthPotion()) then 
-					return 0; 
-				end 
-			end
-
-			-- Check: Kick if the target is casting
-			if (HasSpell("Kick") and targetObj:IsCasting() and not IsSpellOnCD("Kick")) then
-				if (localEnergy <= 25) then return 0; end
-				if (Cast("Kick", targetObj)) then
-					return 0;
-				end
-			end
-
-			-- Set available skills variables
-			hasEvasion = HasSpell('Evasion');
-			
-			-- Talent specific skills variables
-			hasFlurry = HasSpell('Blade Flurry');  
-			hasAdrenalineRush = HasSpell('Adrenaline Rush'); 
-
-			-- Check: Use Riposte whenever we can
-			if (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) then 
-				if (localEnergy < 10) then 
-					return 0; 
-				end -- return until we have energy
-				if (not script_rogue:spellAttack("Riposte", targetObj)) then 
-					return 0; -- return until we cast Riposte
-				end 
-			end
-			
-			-- Check: Use Evasion if low HP or more than one enemy attack us
-			if ((localHealth < self.evasionHealth and localHealth < targetHealth) or (script_helper:enemiesAttackingUs(5) >= 2 and localHealth < self.evasionHealth)) then 
-				if (HasSpell('Evasion') and not IsSpellOnCD('Evasion')) then
-					CastSpellByName('Evasion');
-					return 0;
-				end
-			end 
-			
-			-- Check: Blade Flurry when 2 or more targets within 10 yards
-			if (hasFlurry and script_helper:enemiesAttackingUs(10) >= 2 and not IsSpellOnCD('Blade Flurry')) then 
-				if (targetObj:GetDistance() < 5 and targetHealth > 15 and localHealth > 20) then
-					CastSpellByName('Blade Flurry');
-					return 0;
-				end
-			end 
-
-			 --If Blade Flurry then use Adrenaline Rush on Low HP
-			if (HasSpell('Evasion') and not IsSpellOnCD('Adrenaline Rush') and localHealth < self.adrenRushComboHP and (self.adrenRushCombo)) then 
-				if (targetObj:GetDistance() < 6) then 
-					CastSpellByName('Adrenaline Rush');
-					return 0;
-				end 
-			end
  
-			-- Check: Adrenaline Rush if more than 2 enemies attacks us or we fight an elite enemy
-			if (hasAdrenalineRush and (script_helper:enemiesAttackingUs(10) >= 3 or UnitIsPlusMob("target"))) then 
-				if (targetObj:GetDistance() < 6) and (not IsSpellOnCD("Adrenaline Rush")) then 
-					CastSpellByName('Adrenaline Rush');
-					return 0;
-				end 
-			end 
-			
-			-- Check: Blade Flury if more than 2 enemies attacks us or we fight an elite enemy
-			if (hasBladeFlurry and (script_helper:enemiesAttackingUs(10) >= 2 or UnitIsPlusMob("target"))) then 
-				if (targetObj:GetDistance() < 6) and (not IsSpellOnCD("Blade Flurry")) then 
-					CastSpellByName('Blade Flurry');
-					return 0;
-				end 
-			end 
-			
-			-- Eviscerate with 5 CPs
-			if (localCP == 5) then
-				if (localEnergy < 35) then
-					return 0; 
-				end -- return until we have energy
-				if (not script_rogue:spellAttack('Eviscerate', targetObj)) then 
-					return 0; -- return until we use Eviscerate
-				end 
-			end
-			
-			-- Keep Slice and Dice up
-			if (self.useSliceAndDice and not localObj:HasBuff('Slice and Dice') and targetHealth > 50 and localCP > 1) then
-				if (localEnergy < 25) then 
-					return 0;
-				end -- return until we have energy
-				if (not script_rogue:spellAttack('Slice and Dice', targetObj) or localEnergy <= 25) then
-					return 0;
+				-- Use CP generator attack  (in combat)
+				if (IsInCombat()) then
+					if ((localEnergy >= self.cpGeneratorCost) and HasSpell(self.cpGenerator)) then
+						if(script_rogue:spellAttack(self.cpGenerator, targetObj)) then
+							return 0;
+						end
+					end
 				end
-			end
-			
-			-- Dynamic health check when using Eviscerate between 1 and 4 CP
-			if (targetHealth < (10*localCP)) then
-				if (localEnergy < 35) then
-					return 0; 
-				end -- return until we have energy
-				if (not script_rogue:spellAttack('Eviscerate', targetObj)) then 
-					return 0; -- return until we use Eviscerate
-				end
-			end
 
-			-- Use CP generator attack 
-			if ((localEnergy >= self.cpGeneratorCost) and HasSpell(self.cpGenerator)) then
-				if(script_rogue:spellAttack(self.cpGenerator, targetObj)) then
-					return 0;
+				-- now in Combat
+			else	
+
+				self.message = "Killing " .. targetObj:GetUnitName() .. "...";
+
+				-- Dismount
+				if (IsMounted()) then
+					DisMount();
 				end
+
+				-- Check: Do we have the right target (in UI) ??
+				if (GetTarget() ~= 0 and GetTarget() ~= nil) then
+					if (GetTarget():GetGUID() ~= targetObj:GetGUID()) then
+						ClearTarget();
+						targetObj = 0;
+						return 0;
+					end
+				end
+
+				local localCP = GetComboPoints("player", "target");
+
+				-- Run backwards if we are too close to the target
+				if (targetObj:GetDistance() < 0.5) then 
+					if (script_rogue:runBackwards(targetObj,3)) then 
+						return 4; 
+					end 
+				end
+
+				-- Check if we are in meele range
+				if (targetObj:GetDistance() > self.meeleDistance or not targetObj:IsInLineOfSight()) then
+					return 3;
+				else
+					if (IsMoving()) then
+						StopMoving();
+					end
+				end
+
+				-- auto face target
+				targetObj:FaceTarget();
+
+				-- Check: Use Vanish 
+				if (HasSpell('Vanish') and HasItem('Flash Powder') and localHealth < self.vanishHealth and not IsSpellOnCD('Vanish')) then 
+					CastSpellByName('Vanish'); 
+					ClearTarget(); 
+					self.targetObj = 0;
+					return 4;
+				end 
+
+				-- Check: Use Healing Potion 
+				if (localHealth < self.potionHealth) then 
+					if (script_helper:useHealthPotion()) then 
+						return 0; 
+					end 
+				end
+
+				-- Check: Kick if the target is casting
+				if (HasSpell("Kick") and targetObj:IsCasting() and not IsSpellOnCD("Kick")) then
+					if (localEnergy <= 25) then return 0; end
+					if (Cast("Kick", targetObj)) then
+						return 0;
+					end
+				end
+
+				-- Set available skills variables
+				hasEvasion = HasSpell('Evasion');
+			
+				-- Talent specific skills variables
+				hasFlurry = HasSpell('Blade Flurry');  
+				hasAdrenalineRush = HasSpell('Adrenaline Rush'); 
+
+				-- Check: Use Riposte whenever we can
+				if (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) then 
+					if (localEnergy < 10) then 
+						return 0; 
+					end -- return until we have energy
+					if (not script_rogue:spellAttack("Riposte", targetObj)) then 
+						return 0; -- return until we cast Riposte
+					end 
+				end
+			
+				-- Check: Use Evasion if low HP or more than one enemy attack us
+				if ((localHealth < self.evasionHealth and localHealth < targetHealth) or (script_helper:enemiesAttackingUs(5) >= 2 and localHealth < self.evasionHealth)) then 
+					if (HasSpell('Evasion') and not IsSpellOnCD('Evasion')) then
+						CastSpellByName('Evasion');
+						return 0;
+					end
+				end 
+			
+				-- Check: Blade Flurry when 2 or more targets within 10 yards
+				if (hasFlurry and script_helper:enemiesAttackingUs(10) >= 2 and not IsSpellOnCD('Blade Flurry')) then 
+					if (targetObj:GetDistance() < 5 and targetHealth > 15 and localHealth > 20) then
+						CastSpellByName('Blade Flurry');
+						return 0;
+					end
+				end 
+
+				 --If Blade Flurry then use Adrenaline Rush on Low HP
+				if (HasSpell('Evasion') and not IsSpellOnCD('Adrenaline Rush') and localHealth < self.adrenRushComboHP and (self.adrenRushCombo)) then 
+					if (targetObj:GetDistance() < 6) then 
+						CastSpellByName('Adrenaline Rush');
+						return 0;
+					end 
+				end
+ 
+				-- Check: Adrenaline Rush if more than 2 enemies attacks us or we fight an elite enemy
+				if (hasAdrenalineRush and (script_helper:enemiesAttackingUs(10) >= 3 or UnitIsPlusMob("target"))) then 
+					if (targetObj:GetDistance() < 6) and (not IsSpellOnCD("Adrenaline Rush")) then 
+						CastSpellByName('Adrenaline Rush');
+						return 0;
+					end 
+				end 
+			
+				-- Check: Blade Flury if more than 2 enemies attacks us or we fight an elite enemy
+				if (hasBladeFlurry and (script_helper:enemiesAttackingUs(10) >= 2 or UnitIsPlusMob("target"))) then 
+					if (targetObj:GetDistance() < 6) and (not IsSpellOnCD("Blade Flurry")) then 
+						CastSpellByName('Blade Flurry');
+						return 0;
+					end 
+				end 
+			
+				-- Eviscerate with 5 CPs
+				if (localCP == 5) then
+					if (localEnergy < 35) then
+						return 0; 
+					end -- return until we have energy
+					if (not script_rogue:spellAttack('Eviscerate', targetObj)) then 
+						return 0; -- return until we use Eviscerate
+					end 
+				end
+			
+				-- Keep Slice and Dice up
+				if (self.useSliceAndDice and not localObj:HasBuff('Slice and Dice') and targetHealth > 50 and localCP > 1) then
+					if (localEnergy < 25) then 
+						return 0;
+					end -- return until we have energy
+					if (not script_rogue:spellAttack('Slice and Dice', targetObj) or localEnergy <= 25) then
+						return 0;
+					end
+				end
+			
+				-- Dynamic health check when using Eviscerate between 1 and 4 CP
+				if (targetHealth < (10*localCP)) then
+					if (localEnergy < 35) then
+						return 0; 
+					end -- return until we have energy
+					if (not script_rogue:spellAttack('Eviscerate', targetObj)) then 
+						return 0; -- return until we use Eviscerate
+					end
+				end
+
+				-- Use CP generator attack 
+				if ((localEnergy >= self.cpGeneratorCost) and HasSpell(self.cpGenerator)) then
+					if(script_rogue:spellAttack(self.cpGenerator, targetObj)) then
+						return 0;
+					end
+				end
+			return 0;
 			end
-		return 0;
 		end
-	end
 	end -- end of if self.enablegrind
-	-------
+
 	-- Rotation enabled
+
 	--Valid Enemy
+
 	if (self.enableRotation) then
 
 		if (targetObj ~= 0) then
@@ -461,6 +468,7 @@ function script_rogue:run(targetGUID)
 				return 0;
 			end
 			
+			-- reached our target
 			if (not IsStanding()) then
 				StopMoving();
 			end
@@ -470,10 +478,12 @@ function script_rogue:run(targetGUID)
 				targetObj:AutoAttack();
 			end
 			
+			-- auto face target
 			if (self.enableFaceTarget) then
 				targetObj:FaceTarget();
 			end
 
+			-- set target health variable
 			targetHealth = targetObj:GetHealthPercentage();
 
 			-- Don't attack if we should rest first
@@ -540,7 +550,9 @@ function script_rogue:run(targetGUID)
 						end
 					end
 				end
+
 				-- Combat  ROTATION NOW IN COMBAT 
+
 			else	
 
 				local localCP = GetComboPoints("player", "target");
@@ -575,7 +587,8 @@ function script_rogue:run(targetGUID)
 							end
 						end
 					end
-						--
+
+					-- check riposte
 					if (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) then 
 						self.message = "Waiting for Riposte Energy Combat Rotation 2";
 						if (localEnergy < 10) then 
@@ -610,7 +623,8 @@ function script_rogue:run(targetGUID)
 							end
 						end
 					end
-						-- Slice and Dice at 2 combo points
+
+					-- Slice and Dice at 2 combo points
 					if (localCP > 2) then
 						if (not localObj:HasBuff('Slice and Dice')) and (targetHealth > 25) then
 							if (localEnergy < 25) then 
@@ -623,6 +637,8 @@ function script_rogue:run(targetGUID)
 							end
 						end
 					end
+
+					-- Eviscerate
 					if (localCP > 1) and (targetHealth < 15) then
 						if (localEnergy < 35) then
 							self.message = "Waiting for 35 energy for Eviscerate Combat Rotation 2";
@@ -633,6 +649,7 @@ function script_rogue:run(targetGUID)
 							return 0; -- return until we use Eviscerate
 						end
 					end
+
 					-- eviscerate at 5 CP only
 					if (localCP == 5) then
 						if localObj:HasBuff('Slice and Dice') and (targetHealth > 25) and (localEnergy > 35) then
@@ -642,6 +659,8 @@ function script_rogue:run(targetGUID)
 							end
 						end
 					end
+
+					-- Eviscerate
 					if (localCP < 5) then
 						if (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) then
 							if (script_rogue:spellAttack(self.cpGenerator, targetObj)) then
@@ -652,6 +671,7 @@ function script_rogue:run(targetGUID)
 						end
 					end
 				end
+
 				-- Combat rotation 1
 				if (not self.rotationTwo) then
 					self.message = "Killing " .. targetObj:GetUnitName() .. "...";
@@ -862,42 +882,51 @@ SameLine();
 			Text("Potion below health percent");
 			self.potionHealth = SliderInt('PHP %', 1, 99, self.potionHealth);
 			Separator();
-			wasClicked, self.stopIfMHBroken = Checkbox("Stop bot if main hand is broken", self.stopIfMHBroken);
-			Text("Combo Point ability");
-			Separator();
-			self.cpGenerator = InputText("CPA", self.cpGenerator);
-			Text("Energy cost of CP-ability");
-			self.cpGeneratorCost = SliderInt("Energy", 20, 50, self.cpGeneratorCost);
 			Text("Melee Range to target");
-			Separator();
 			self.meeleDistance = SliderInt('MR (yd)', 1, 6, self.meeleDistance);
+			Separator();
+			wasClicked, self.stopIfMHBroken = Checkbox("Stop bot if main hand is broken", self.stopIfMHBroken);
+			SameLine();
 			wasClicked, self.useSliceAndDice = Checkbox("Use Slice & Dice", self.useSliceAndDice);
-			Separator();
 			wasClicked, self.useStealth = Checkbox("Use Stealth", self.useStealth);
-			Text("Stealth ability opener");
-			self.stealthOpener = InputText("STO", self.stealthOpener);
-			Text("Stealth - Distance to target"); 
+			Text("Stealth range to target");
 			self.stealthRange = SliderInt('SR (yd)', 1, 100, self.stealthRange);
-			wasClicked, self.throwOpener = Checkbox("Pull with throw (if stealth disabled)", self.throwOpener);
-			Separator();		
-			Text("Throwing weapon");
-			self.throwName = InputText("TW", self.throwName);	
-			wasClicked, self.usePoison = Checkbox("Use poison on weapons", self.usePoison);
-			Separator();
-			Text("Poison on Main Hand");
-			self.mainhandPoison = InputText("PMH", self.mainhandPoison);
-			Text("Poison on Off Hand");
-			self.offhandPoison = InputText("POH", self.offhandPoison);
-			Separator();
-			Text("Use Adrenaline Rush with Blade Furry health percent");
-			wasClicked, self.adrenRushCombo = Checkbox("Use Adren Blade Flurry combo", self.adrenRushCombo);
-			self.adrenRushComboHP = SliderInt("Self Health below percent", 15, 75, self.adrenRushComboHP);
-			Separator();
+
+			if (CollapsingHeader("--Combo Point Generator")) then
+				Text("Combo Point ability");
+				self.cpGenerator = InputText("CPA", self.cpGenerator);
+				Text("Energy cost of CP-ability");
+				self.cpGeneratorCost = SliderInt("Energy", 20, 50, self.cpGeneratorCost);
+			end
+			
+			if (CollapsingHeader("--Stealth Ability Opener")) then
+				Text("Stealth ability opener");
+				self.stealthOpener = InputText("STO", self.stealthOpener);
+			end
+
+			if (CollapsingHeader("--Adrenaline Rush / Blade Flurry Options")) then
+				Text("Use Adrenaline Rush with Blade Furry health percent");
+				wasClicked, self.adrenRushCombo = Checkbox("Use Adren Blade Flurry combo", self.adrenRushCombo);
+				self.adrenRushComboHP = SliderInt("Self Health below percent", 15, 75, self.adrenRushComboHP);
+			end
+
+			if (CollapsingHeader("--Throwing Weapon Options")) then
+				wasClicked, self.throwOpener = Checkbox("Pull with throw (if stealth disabled)", self.throwOpener);	
+				Text("Throwing weapon");
+				self.throwName = InputText("TW", self.throwName);
+			end
+			
+			if (CollapsingHeader("--Poisons Options")) then
+				wasClicked, self.usePoison = Checkbox("Use poison on weapons", self.usePoison);
+				Text("Poison on Main Hand");
+				self.mainhandPoison = InputText("PMH", self.mainhandPoison);
+				Text("Poison on Off Hand");
+				self.offhandPoison = InputText("POH", self.offhandPoison);
+			end
 		end
 	end
 			-- rotation menu
 	if (self.enableRotation) then
-		self.meeleDistance = 4.5;
 		Separator();
 		if(CollapsingHeader("Rogue Talent Rotation Options")) then
 			wasClicked, self.useSliceAndDice = Checkbox("Use Slice & Dice", self.useSliceAndDice);
@@ -912,25 +941,29 @@ SameLine();
 			Text("Experimental Elite Target Rotation");
 			wasClicked, self.rotationTwo = Checkbox("Rotation 2", self.rotationTwo);
 		end
-		if (CollapsingHeader("Rogue Rotation Options")) then
+		if (CollapsingHeader("Rogue Rotation Combat Options")) then
 			Separator();
 			local wasClicked = false;
 			Text('Eat below health percent');
 			self.eatHealth = SliderInt('EHP %', 1, 50, self.eatHealth);
 			Text("Potion below health percent");
 			self.potionHealth = SliderInt('PHP %', 1, 50, self.potionHealth);
-			Separator();
-			Text("Combo Point Generator Ability");
-			self.cpGenerator = InputText("CPA", self.cpGenerator);
-			Text("Energy cost of CP-ability");
-			self.cpGeneratorCost = SliderInt("Energy", 20, 50, self.cpGeneratorCost);
-			Separator();
-			Text("Stealth ability opener");
-			self.stealthOpener = InputText("STO", self.stealthOpener);
-			Text("Stealth - Distance to target"); 
-			self.stealthRange = SliderInt('SR (yd)', 1, 50, self.stealthRange);
-			Separator();		
-			if (CollapsingHeader("Poison Options")) then
+
+			if (CollapsingHeader("--Combo Point Generator Options")) then
+				Text("Combo Point Generator Ability");
+				self.cpGenerator = InputText("CPA", self.cpGenerator);
+				Text("Energy cost of CP-ability");
+				self.cpGeneratorCost = SliderInt("Energy", 20, 50, self.cpGeneratorCost);
+			end
+
+			if (CollapsingHeader("--Stealth Opener Options")) then
+				Text("Stealth ability opener");
+				self.stealthOpener = InputText("STO", self.stealthOpener);
+				Text("Stealth - Distance to target"); 
+				self.stealthRange = SliderInt('SR (yd)', 1, 50, self.stealthRange);
+			end
+
+			if (CollapsingHeader("--Poison Options")) then
 				Text("Poison on Main Hand");
 				self.mainhandPoison = InputText("PMH", self.mainhandPoison);
 				Text("Poison on Off Hand");
