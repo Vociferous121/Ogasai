@@ -252,9 +252,9 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
-			if (hasPet) and (not IsInCombat()) and (GetPet():GetDistance() > 40) then
-				PetFollow();
-			end
+			--if (hasPet) and (not IsInCombat()) and (GetPet():GetDistance() > 40) then
+			--	PetFollow();
+			--end
 
 			-- Dismount
 			if(IsMounted()) then DisMount(); end
@@ -332,7 +332,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Check: Fear add
-			if (targetObj ~= nil and self.fearAdds and script_grind:enemiesAttackingUs() > 1 and HasSpell('Fear') and not self.addFeared and self.fearTimer < GetTimeEX()) then
+			if (targetObj ~= nil) and (self.fearAdds) and (script_grind:enemiesAttackingUs(5) > 1) and (HasSpell('Fear')) and (not self.addFeared) and (self.fearTimer < GetTimeEX()) then
 				self.message = "Fearing add...";
 				script_warlock:fearAdd(targetObj:GetGUID());
 			end 

@@ -263,11 +263,11 @@ function script_paladin:run(targetGUID)
 				if(Cast('Holy Strike', targetObj)) then
 						return 0;
 				end
-					if (targetObj:GetDistance() < self.meleeDistance and targetHealth > 95) then
-						if (IsMoving()) then
-							StopMoving();
-						end
+				if (targetObj:GetDistance() < self.meleeDistance and targetHealth > 95) then
+					if (IsMoving()) then
+						StopMoving();
 					end
+				end
 			end
 
 			-- Check: Use Lay of Hands

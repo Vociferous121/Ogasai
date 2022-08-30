@@ -50,7 +50,7 @@ script_follow = {
 	myY = 0,
 	myZ = 0,
 	myTime = GetTimeEX(),
-	nextToNodeDist = 4,
+	nextToNodeDist = 3,
 	isSetup = false,
 	drawUnits = true,
 	acceptTimer = GetTimeEX(),
@@ -467,7 +467,7 @@ function script_follow:run()
 		script_nav:setNextToNodeDist(6); NavmeshSmooth(14);
 	else
 		script_nav:setNextToNodeDist(self.nextToNodeDist);
-		NavmeshSmooth(self.nextToNodeDist*2);
+		NavmeshSmooth(self.nextToNodeDist*3);
 	end
 	
 	if (not self.isSetup) then
@@ -597,7 +597,7 @@ function script_follow:run()
 		end
 
 		-- Healer check: heal/buff the party
-		if (script_follow:healAndBuff() and (HasSpell('Smite') or HasSpell('Holy Light'))) then
+		if (script_follow:healAndBuff()) and (HasSpell('Smite')) or (HasSpell('Holy Light')) or (HasSpell("Rejuvenation")) or (HasSpell("Healing Wave")) then
 			self.message = "Healing/buffing the party...";
 			return;
 		end
@@ -658,14 +658,14 @@ function script_follow:run()
 		end
         
         if (GetTarget() ~= 0 and GetTarget() ~= nil) then
-                local target = GetTarget();
-                if (target:CanAttack()) then
-                    self.enemyObj = target;
-                else
-                    self.enemyObj = nil;
-                end
+            local target = GetTarget();
+            if (target:CanAttack()) then
+                self.enemyObj = target;
+            else
+                self.enemyObj = nil;
+            end
         else
-             if (script_follow:GetPartyLeaderObject() ~= 0) then
+            if (script_follow:GetPartyLeaderObject() ~= 0) then
                 if (script_follow:GetPartyLeaderObject():GetUnitsTarget() ~= 0 and not script_follow:GetPartyLeaderObject():IsDead()) then
                     if (script_follow:GetPartyLeaderObject():GetUnitsTarget():GetHealthPercentage() < self.dpsHp) then
                         self.enemyObj = script_follow:GetPartyLeaderObject():GetUnitsTarget();
@@ -675,6 +675,7 @@ function script_follow:run()
                 end
             end
         end	
+
 		-- Finish loot before we engage new targets or navigate
 		if (self.lootObj ~= nil and not IsInCombat()) then 
 			return; 
@@ -682,7 +683,7 @@ function script_follow:run()
 			-- reset the combat status
 			self.combatError = nil; 
 			-- Run the combat script and retrieve combat script status if we have a valid target
-			if (self.enemyObj ~= nil and self.enemyObj ~= 0) then
+		    if (self.enemyObj ~= nil and self.enemyObj ~= 0) then
 				self.combatError = RunCombatScript(self.enemyObj:GetGUID());
 			end
 		end
