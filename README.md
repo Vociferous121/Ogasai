@@ -55,6 +55,14 @@
     -- new combat logic
     
     -- added MANY option to turn on/off and change how the bot works for you
+    
+    
+    druid follower healer
+    
+    -- added healing spells
+    
+    -- NEEDS TESTED!
+
 
 
 
@@ -78,5 +86,3 @@ warrior berserker spec
 warrior rotation - tank and berserker ( tank is finished turn off click to move! )
 
 shaman follower healer
-
-druid follower healer
