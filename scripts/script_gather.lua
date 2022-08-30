@@ -15,7 +15,8 @@ script_gather = {
 	timer = 0,
 	nodeID = 0,
 	gatherAllPossible = true,
-	herbTimer = GetTimeEX(),
+	waitTimer = GetTimeEX(),
+	toNodeDistance = 3.4,
 
 }
 
@@ -239,42 +240,49 @@ function script_gather:gather()
 		local selfDist = localObj:GetDistance();
 		
 		-- reached loot stop moving
-		if(dist < self.lootDistance) then
-			if (IsMoving()) then
-				StopMoving();
-				self.timer = GetTimeEX() + 950;
-				return true;
-			end
-			-- if not looting then interact with game object
-			if(not IsLooting() and not IsChanneling()) then
-			self.nodeObj:GameObjectInteract();
+		--if (not self.nodeBlacklisted) then
+			if(dist <= selfDist + self.toNodeDistance) then
+				self.waitTimer = GetTimeEX() + 1500;
 				if (IsMoving()) then
-					self.timer = GetTimeEX() + 7100;
 					StopMoving();
-					return false;
+					self.timer = GetTimeEX() + 750;
+					return true;
 				end
-			end
+
+				-- if not looting then interact with game object
+				-- now looting
+				if(not IsLooting() and not IsChanneling()) then
+					self.nodeObj:GameObjectInteract();
+					self.timer = GetTimeEX() + 6100;
+					if (IsMoving()) then
+						self.timer = GetTimeEX() + 6100;
+						StopMoving();
+						return false;
+					end
+				end
+
 				-- if we can loot again and not looting already then loot again
-				if (not LootTarget()) then
-					self.timer = GetTimeEX() + 1250;
-					return false;
+				if (self.collectMinerals) then
+					if (not LootTarget()) and (not IsChanneling()) then
+					self.timer = GetTimeEX() + 2550;
+						return false;
+					end
 				end
-		else
+			else
 
-			-- keep moving to node
-			if (_x ~= 0) then
-				script_nav:moveToNav(GetLocalPlayer(), _x, _y, _z);
-				self.timer = GetTimeEX() + 150;
+				-- keep moving to node
+				if (_x ~= 0) then
+					script_nav:moveToNav(GetLocalPlayer(), _x, _y, _z);
+					self.timer = GetTimeEX() + 150;
+				end
 			end
-
-	
-		end
 
 		return true;
 	end
 
 	return false;
 end
+
 function script_gather:menu()
 
 	if(not self.isSetup) then
@@ -291,7 +299,9 @@ function script_gather:menu()
 		wasClicked, self.collectHerbs = Checkbox("Herbalism", self.collectHerbs);
 
 		Text('Gather Search Distance');
-		self.gatherDistance = SliderFloat("GSD", 1, 300, self.gatherDistance);
+		self.gatherDistance = SliderInt("GSD", 1, 500, self.gatherDistance);
+		Text("Distance to stand from node");
+		self.toNodeDistance = SliderInt("ND", 2, 5, self.toNodeDistance);
 		
 		if (script_gather.collectMinerals or script_gather.collectHerbs) then
 			wasClicked, script_gather.gatherAllPossible = Checkbox("Gather everything we can", script_gather.gatherAllPossible);

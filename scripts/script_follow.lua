@@ -11,7 +11,7 @@ script_follow = {
 	greaterHealMana = 20,
 	partyGreaterHealHealth = 30,
 	flashHealMana = 7,
-	partyFlashHealHealth = 65,
+	partyFlashHealHealth = 70,
     holyLightMana = 25,
 	partyHolyLightHealth = 25,
 	flashOfLightMana = 3,
@@ -106,7 +106,13 @@ function script_follow:healAndBuff()
 		if (partyMembersHP > 0 and partyMembersHP < 99 and localMana > 1) then
 			local partyMemberDistance = partyMember:GetDistance();
 			leaderObj = GetPartyMember(GetPartyLeaderIndex());
-	
+           
+            if (script_follow:isTargetingPet(i)) and (partyMembersHP < 50) then
+                if (CastHeal("Lesser Heal", targetObj)) then
+                    return 0;
+                end
+            end
+
 			-- Move in range: combat script return 3
 			if (self.combatError == 3) then
 				self.message = "Moving to target...";
@@ -167,7 +173,7 @@ function script_follow:healAndBuff()
 
 			-- Power word Fortitude
 			if (HasSpell("Power Word: Fortitude")) and (localMana > 40) and (not partyMember:HasBuff("Power Word: Fortitude")) then -- buff
-				if (script_follow:moveInLineOfSight(partyMember)) then
+				if (script_follow:moveInLineOfSight(partyMember)) or (script_follow:isTargetingPet(i)) then
 					return true;
 				end -- move to member
 				if (Cast("Power Word: Fortitude", partyMember)) then
@@ -652,14 +658,12 @@ function script_follow:run()
 		end
         
         if (GetTarget() ~= 0 and GetTarget() ~= nil) then
-            if(self.dpsHP > 0 and IsInCombat()) then -- don't attack at all if DPS set to 0 %!
                 local target = GetTarget();
                 if (target:CanAttack()) then
                     self.enemyObj = target;
                 else
                     self.enemyObj = nil;
                 end
-            end
         else
              if (script_follow:GetPartyLeaderObject() ~= 0) then
                 if (script_follow:GetPartyLeaderObject():GetUnitsTarget() ~= 0 and not script_follow:GetPartyLeaderObject():IsDead()) then
@@ -771,7 +775,6 @@ function script_follow:getTargetAttackingUs()
 end
 
 function script_follow:assignTarget() 
-    if (self.dpsHP > 0) then  -- don't attack at all if DPS set to 0 %!
         -- Instantly return the last target if we attacked it and it's still alive and we are in combat
         if (self.enemyObj ~= 0 and self.enemyObj ~= nil and not self.enemyObj:IsDead() and IsInCombat()) then
             if (script_follow:isTargetingMe(self.enemyObj) 
@@ -807,7 +810,6 @@ function script_follow:assignTarget()
 
         -- Return the closest valid target or nil
         return closestTarget;
-    end
  end
 
 function script_follow:isTargetingPet(i) 
