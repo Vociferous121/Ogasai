@@ -101,7 +101,7 @@ function script_rotation:run()
 				end
 			end
 
-			if (self.enemyObj:GetDistance() <= 20) then
+			if (self.enemyObj:GetDistance() <= 32) then
 				-- Attack the target
 				self.message = "Running the combat script on target...";
 				RunCombatScript(self.enemyObj:GetGUID());

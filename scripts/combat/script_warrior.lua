@@ -264,7 +264,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 					if (not IsSpellOnCD("Charge")) then
 						if (targetObj:GetDistance() >= 10) and (not IsInCombat()) then
 							if (CastSpellByName("Battle Stance")) then
-								self.waitTimer = GetTimeEX() + 1900;
+								self.waitTimer = GetTimeEX() + 2000;
 							end
 							if (targetObj:GetDistance() >= 8) and (targetObj:GetDistance() <= 28) and (CastSpellByName("Charge")) then
 								self.waitTimer = GetTimeEX() + 2800;
@@ -370,7 +370,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 
 			-- Sunder if possible as main threat source! this is most logical and easiest solution for the bot to handle
-			if (self.defensiveStance) then 
+			if (self.defensiveStance) or (self.battleStance) then 
 				if (HasSpell("Sunder Armor")) and (localRage >= 15) then
 					if (not targetObj:GetCreatureType() ~= 'Mechanical') and (not targetObj:GetCreatureType() ~= 'Elemental') then
 						if (targetObj:GetDebuffStacks("Sunder Armor") < self.sunderStacks) then
@@ -407,31 +407,35 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 
 			-- TAUNT !
-			if (HasSpell("Taunt")) and (not IsSpellOnCD("Taunt")) and (not targetObj:IsStunned()) then
-				if (targetHealth <= 96 and targetHealth >= 10) and (targetObj:GetDebuffStacks("Sunder Armor") >= 1) 
-					and (not script_warrior:canRevenge()) then
-					if (not targetObj:IsTargetingMe()) and (localObj:GetDistance() <= 10) then
+			if (self.defensiveStance) then
+				if (HasSpell("Taunt")) and (not IsSpellOnCD("Taunt")) and (not targetObj:IsStunned()) then
+					if (targetHealth <= 96 and targetHealth >= 10) and (targetObj:GetDebuffStacks("Sunder Armor") >= 1) 
+						and (not script_warrior:canRevenge()) then
+						if (not targetObj:IsTargetingMe()) and (localObj:GetDistance() <= 10) then
+							if (CastSpellByName("Taunt")) then
+								targetObj:FaceTarget();
+								return 0;
+							end
+						end
+						-- use taunt
+					elseif (targetHealth <= 60 and targetHealth >=10) and (not targetObj:IsTargetingMe()) and (not targetObj:IsStunned()) then
 						if (CastSpellByName("Taunt")) then
 							targetObj:FaceTarget();
 							return 0;
 						end
 					end
-					-- use taunt
-				elseif (targetHealth <= 60 and targetHealth >=10) and (not targetObj:IsTargetingMe()) and (not targetObj:IsStunned()) then
-					if (CastSpellByName("Taunt")) then
-						targetObj:FaceTarget();
-						return 0;
-					end
-				end
-			end 
+				end 
+			end
 
 			--Taunt last resort all else is on CD or no rage
-			if (HasSpell("Taunt")) and (not IsSpellOnCD("Taunt")) and (not targetObj:IsStunned()) then
-				if (targetHealth <= 99) and (IsSpellOnCD("Revenge") or not script_warrior:canRevenge()) and (localRage <= 15) then
-					if (not targetObj:IsTargetingMe()) and (localObj:GetDistance() <= 10) then
-						if (CastSpellByName("Taunt")) then
-							targetObj:FaceTarget();
-							return 0;
+			if (self.defensiveStance) then
+				if (HasSpell("Taunt")) and (not IsSpellOnCD("Taunt")) and (not targetObj:IsStunned()) then
+					if (targetHealth <= 99) and (IsSpellOnCD("Revenge") or not script_warrior:canRevenge()) and (localRage <= 15) then
+						if (not targetObj:IsTargetingMe()) and (localObj:GetDistance() <= 10) then
+							if (CastSpellByName("Taunt")) then
+								targetObj:FaceTarget();
+								return 0;
+							end
 						end
 					end
 				end
@@ -461,10 +465,12 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 
 			-- Disarm below selfHP and plent of rage to waste
-			if (HasSpell("Disarm")) and (localHealth <= 51) and (targetHealth >= 41) and (localRage >= 50) then
-				if (targetObj:GetDebuffStacks("Sunder Armor") >= 1) and (not IsSpellOnCD("Disarm")) then
-					if (CastSpellByName("Disarm")) then
-						return 0;
+			if (self.defensiveStance) then
+				if (HasSpell("Disarm")) and (localHealth <= 51) and (targetHealth >= 41) and (localRage >= 50) then
+					if (targetObj:GetDebuffStacks("Sunder Armor") >= 1) and (not IsSpellOnCD("Disarm")) then
+						if (CastSpellByName("Disarm")) then
+							return 0;
+						end
 					end
 				end
 			end
