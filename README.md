@@ -44,6 +44,17 @@
     -- new rotation mode combat logic
 
     -- new grinder mode combat logic
+    
+    
+    priest Disc and Shadow spec
+    
+    -- added new spells for Twow
+    
+    -- added misc priest spells
+    
+    -- new combat logic
+    
+    -- added MANY option to turn on/off and change how the bot works for you
 
 
 
@@ -61,8 +72,6 @@ heavily updated menus to make the bot behave how you want it ( still work in pro
 
 
 #-- WORK IN PROGRESS 
-
-rogue rotation
 
 warrior berserker spec
 
