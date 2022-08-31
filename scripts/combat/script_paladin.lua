@@ -9,7 +9,7 @@ script_paladin = {
 	potionHealth = 12,
 	potionMana = 20,
 	isSetup = false,
-	meeleDistance = 4.5,
+	meleeDistance = 3.5,
 	waitTimer = 0,
 	stopIfMHBroken = true,
 	aura = 'Devotion Aura',
@@ -150,7 +150,6 @@ function script_paladin:run(targetGUID)
 		return 4;
 	end
 
-
 	-- Buff with Blessing
 	if (self.blessing ~= 0 and HasSpell(self.blessing)) then
 		if (localMana > 10 and not localObj:HasBuff(self.blessing)) then
@@ -189,11 +188,17 @@ function script_paladin:run(targetGUID)
 		-- Opener
 		-- buffs and stuff before we are in combat NOT IN COMBAT YET
 		if (not IsInCombat()) then
+
 			self.targetObjGUID = targetObj:GetGUID();
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 
 			-- Dismount
 			if (IsMounted() and targetObj:GetDistance() < 25) then DisMount(); return 0; end
+
+			-- Check move into melee range
+			if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
+				return 3;
+			end
 
 			-- Check: Exorcism
 			if (targetObj:GetCreatureType() == "Demon" or targetObj:GetCreatureType() == "Undead") then
@@ -205,30 +210,29 @@ function script_paladin:run(targetGUID)
 				end
 			end
 
-			--pull with Holy strike
-			if (localMana > 20  and HasSpell("Holy Strike") and (not IsSpellOnCD("Holy Strike")) and (targetObj:GetDistance() < 10)) then
+			--Holy strike
+			if (localMana > 10) and (HasSpell("Holy Strike")) and (not IsSpellOnCD("Holy Strike")) and (targetObj:GetDistance() <= self.meleeDistance) then
 				if(CastWalk('Holy Strike', targetObj)) then
-						targetObj:FaceTarget();
-						return 3;
+					return 0;
 				end
 			end
 
 			-- Check: Seal of the Crusader until we use judgement
 			if (not targetObj:HasDebuff("Judgement of the Crusader")) and (targetObj:GetDistance() < 15)
-				and (not localObj:HasBuff("Seal of the Crusader")) and (not localObj:HasBuff("Seal of Righteousness")) then
+				and (not localObj:HasBuff("Seal of the Crusader")) then
 				--targetObj:FaceTarget();
 				if (Cast('Seal of the Crusader', targetObj)) then
 						return 3;
 				end
 			end 
 
-			-- Check move into meele range
-			if (targetObj:GetDistance() > 8 or not targetObj:IsInLineOfSight()) then
+			-- Check move into melee range
+			if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
 				return 3;
 			end
 
 			-- check if we are in combat?
-			if (IsInCombat()) and (targetObj:GetDistance() < (self.meeleDistance - .5)) and (targetHealth > 99) then
+			if (IsInCombat()) and (targetObj:GetDistance() < self.meleeDistance) and (targetHealth > 99) then
 				targetObj:AutoAttack();
 			end
 				
@@ -246,7 +250,7 @@ function script_paladin:run(targetGUID)
 			end
 
 			-- Check if we are in melee range
-			if (targetObj:GetDistance() > self.meeleDistance or not targetObj:IsInLineOfSight()) then
+			if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
 				--targetObj:FaceTarget();
 				return 3;
 			else
@@ -258,15 +262,9 @@ function script_paladin:run(targetGUID)
 			targetObj:AutoAttack();
 
 			--Holy strike
-			if (localMana > 10) and (HasSpell("Holy Strike")) and (not IsSpellOnCD("Holy Strike")) then
-				targetObj:FaceTarget();
+			if (localMana > 10) and (HasSpell("Holy Strike")) and (not IsSpellOnCD("Holy Strike")) and (targetObj:GetDistance() <= self.meleeDistance) then
 				if(Cast('Holy Strike', targetObj)) then
 						return 0;
-				end
-				if (targetObj:GetDistance() < self.meleeDistance and targetHealth > 95) then
-					if (IsMoving()) then
-						StopMoving();
-					end
 				end
 			end
 
@@ -400,8 +398,8 @@ function script_paladin:run(targetGUID)
 				end
 			end
 
-			-- Check: If we are in meele range, do meele attacks RETURN 0   ONLY USE IN MELEE RANGE
-			if (targetObj:GetDistance() < self.meeleDistance) then
+			-- Check: If we are in melee range, do melee attacks RETURN 0   ONLY USE IN MELEE RANGE
+			if (targetObj:GetDistance() < self.meleeDistance) then
 
 				if (targetObj:IsCasting() and targetObj:IsFleeing() and HasSpell('Hammer of Justice') and not IsSpellOnCD('Hammer of Justice')) then
 					if (Cast('Hammer of Justice', targetObj)) then self.waitTimer = GetTimeEX() + 2000; return 0; end
@@ -631,7 +629,7 @@ function script_paladin:menu()
 		self.potionHealth = SliderInt("Potion below HP %", 1, 99, self.potionHealth);
 		self.potionMana = SliderInt("Potion below Mana %", 1, 99, self.potionMana);
 		wasClicked, self.stopIfMHBroken = Checkbox("Stop bot if main hand is broken (red)...", self.stopIfMHBroken);
-		self.meeleDistance = SliderFloat("Meele range", 1, 6, self.meeleDistance);
+		self.meleeDistance = SliderFloat("Melee range", 1, 6, self.meleeDistance);
 
 		if (CollapsingHeader("--Auras and Blessings")) then
 			Text('Aura and Blessing options:');

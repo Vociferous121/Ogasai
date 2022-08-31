@@ -13,7 +13,7 @@ script_follow = {
 	flashHealMana = 7,
 	partyFlashHealHealth = 70,
     holyLightMana = 25,
-	partyHolyLightHealth = 25,
+	partyHolyLightHealth = 40,
 	flashOfLightMana = 3,
 	partyFlashOfLightHealth = 83,
 	layOnHandsHealth = 6,
@@ -31,6 +31,8 @@ script_follow = {
 	clickHeal = true,
 	clickHealingTouch = true,
 	clickRegrowth = true,
+	clickFlashOfLight = true;
+	clickHolyLight = true;
 	useMount = false,
 	disMountRange = 32,
 	mountTimer = 0,
@@ -50,7 +52,7 @@ script_follow = {
 	myY = 0,
 	myZ = 0,
 	myTime = GetTimeEX(),
-	nextToNodeDist = 3,
+	nextToNodeDist = 4,
 	isSetup = false,
 	drawUnits = true,
 	acceptTimer = GetTimeEX(),
@@ -80,7 +82,7 @@ end
 
 function script_follow:moveInLineOfSight(partyMember)
 	if (not partyMember:IsInLineOfSight()) then
-         if (partyMember:GetDistance() < (self.followLeaderDistance + 5)) then
+         if (partyMember:GetDistance() < self.followLeaderDistance) then
 			local x, y, z = partyMember:GetPosition();
 			script_nav:moveToTarget(GetLocalPlayer(), x , y, z);
 			self.timer = GetTimeEX() + 200;
@@ -145,30 +147,15 @@ function script_follow:healAndBuff()
 				end
 			end
 
-			-- Blessing of Might using mana percent
-			if (HasSpell("Blessing of Might")) and (localMana > 20) then -- buff
-				if (not partyMember:HasBuff("Blessing of Might")) or (not partyMember:HasBuff("Blessing of Wisdom")) then
-                    if (partyMember:GetManaPercentage() < 1) then
-				  	    if (script_follow:moveInLineOfSight(partyMember)) then
-						    return true;
-				 	    end -- move to member
-					    if (Cast("Blessing of Might", partyMember)) then
-                            self.waitTimer = GetTimeEX() + 1500;
-						    return true;
-              		    end
-                    end
-                    -- else cast blessing of wisdom using mana percent
-         		elseif (HasSpell("Blessing of Wisdom")) and (partyMember:GetManaPercentage() > 1) then
-                    if (not partyMember:HasBuff("Blessing of Wisdom")) and (not partyMember:HasBuff("Blessing of Might")) then
-                        if (script_follow:moveInLineOfSight(partyMember)) then
-					        return true;
-				 	    end -- move to member
-					    if (Cast("Blessing of Wisdom", partyMember)) then
-                            self.waitTimer = GetTimeEX() + 1500;
-						    return true;
-              		    end
-                    end
-                end
+			-- blessing of might
+			if (HasSpell("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Wisdom")) then
+				if (script_follow:moveInLineOfSight(partyMember)) then
+					return true;
+				end -- move to member
+				if (Cast("Blessing of Might", partyMember)) then
+                    self.waitTimer = GetTimeEX() + 1500;
+				    return true;
+				end	
 			end
 
 			-- Power word Fortitude
@@ -467,7 +454,7 @@ function script_follow:run()
 		script_nav:setNextToNodeDist(6); NavmeshSmooth(14);
 	else
 		script_nav:setNextToNodeDist(self.nextToNodeDist);
-		NavmeshSmooth(self.nextToNodeDist*3);
+		NavmeshSmooth(self.nextToNodeDist*2);
 	end
 	
 	if (not self.isSetup) then

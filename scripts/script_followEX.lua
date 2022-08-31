@@ -199,6 +199,9 @@ function script_followEX:menu()
 
 	if  (class == 'Paladin') and (CollapsingHeader("Paladin Group Heals Follower Script")) then
 
+		-- turn ALL heals on/off for group
+		wasClicked, script_follow.enableHeals = Checkbox("Turn On/Off all heals for the group!", script_follow.enableHeals);
+
 		-- Holy Light
 		Text("Holy Light Options -"); SameLine();
 		wasClicked, script_follow.clickHolyLight = Checkbox("Holy Light On/Off", script_follow.clickHolyLight);
@@ -216,6 +219,9 @@ function script_followEX:menu()
 	end
 
 	if (class == 'Druid') and (CollapsingHeader("Druid Group Heals Follower Script")) then
+
+		-- turn ALL heals on/off for group
+		wasClicked, script_follow.enableHeals = Checkbox("Turn On/Off all heals for the group!", script_follow.enableHeals);
 
 		-- Healing Touch
 		Text("Healing Touch Options -"); SameLine();
@@ -239,6 +245,9 @@ function script_followEX:menu()
 	end
 
 	if (class == 'Shaman') and (CollapsingHeader("Shaman Group Heals Follower Script")) then
+
+		-- turn ALL heals on/off for group
+		wasClicked, script_follow.enableHeals = Checkbox("Turn On/Off all heals for the group!", script_follow.enableHeals);
 
 		Text("TODO!");
 	end

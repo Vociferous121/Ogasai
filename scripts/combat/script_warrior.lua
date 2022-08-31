@@ -607,6 +607,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 						if (targetHealth > 30) and (targetObj:GetDistance() < self.meleeDistance) then
 							if (targetObj:GetDebuffStacks("Sunder Armor") < 1) then
 								if (Cast("Sunder Armor", targetObj)) then
+									self.waitTimer = GetTimeEX() + 1500;
 									return 0;
 								end
 							end
