@@ -716,10 +716,6 @@ function script_follow:run()
 			end
 		end
 
-		if (not self.assistInCombat and self.enemyObj ~= nil) then
-			ClearTarget();
-		end
-
 		if (self.assistInCombat) then
 			if(self.enemyObj ~= nil or IsInCombat()) then
 				self.message = "Running the combat script...";
