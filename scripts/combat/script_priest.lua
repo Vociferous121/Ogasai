@@ -283,7 +283,7 @@ function script_priest:run(targetGUID)
 	end
 
 	-- else stay in shadowform
-	if (not GetLocalPlayer():HasBuff("Shadowform")) and (localHealth > (self.shadowFormHealth - 300)) then
+	if (HasSpell("Shadowform")) and (not GetLocalPlayer():HasBuff("Shadowform")) and (localHealth > (self.shadowFormHealth - 300)) then
 		if (CastSpellByName("Shadowform")) then
 			self.waitTimer = GetTimeEX() + 2000;
 			return 0;

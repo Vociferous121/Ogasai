@@ -259,7 +259,6 @@ function script_followEX:menu()
 		script_follow.dpsHp = SliderInt("Enemy HP%", 0, 100, script_follow.dpsHp);
 		Separator();
 		Text("Distance to walk to party members from your current position");
-		script_follow.followMemberDistance = SliderInt("Party MEMBER Distance (yd)", 0, 40, script_follow.followMemberDistance);
 		wasClicked, script_follow.useUnStuck = Checkbox("Turn On/Off Buggy unStuck Script", script_follow.useUnStuck);
 		Separator();
 		Text("Loot options:");

@@ -52,7 +52,7 @@ script_grind = {
 	grindMenu = include("scripts\\script_grindMenu.lua"),
 	aggroLoaded = include("scripts\\script_aggro.lua"),
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
-	nextToNodeDist = 8, -- (Set to about half your nav smoothness)
+	nextToNodeDist = 3, -- (Set to about half your nav smoothness)
 	blacklistedTargets = {},
 	blacklistedNum = 0,
 	isSetup = false,
@@ -150,7 +150,7 @@ function script_grind:run()
 	if (self.useMount and IsMounted()) then
 		script_nav:setNextToNodeDist(8); NavmeshSmooth(16);
 	else
-		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*2);
+		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*4);
 	end
 
 	if (not self.isSetup) then script_grind:setup(); end
@@ -195,6 +195,28 @@ function script_grind:run()
 				StopMoving();
 			end
 
+			-- night elve stealth while paranoid
+			if (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) then
+				if (CastSpellByName("Shadowmeld")) then
+					return 0;
+				end
+			end
+
+			-- rogue stealth while paranoid
+			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:HasBuff("Stealth")) then
+				if (CastSpellByName("Stealth")) then
+					return 0;
+				end
+			end
+
+			-- druid stealth while paranoid
+			if (localObj:HasBuff("Cat Form")) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) then
+				if (CastSpellByName("Prowl")) then
+					return 0;
+				end
+			end
+
+			-- wait and sit if enabled
 			self.waitTimer = GetTimeEX() + 10000;
 			if (self.sitParanoid) then
 				if (IsStanding()) and (not IsInCombat()) then

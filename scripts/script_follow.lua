@@ -56,7 +56,6 @@ script_follow = {
 	isSetup = false,
 	drawUnits = true,
 	acceptTimer = GetTimeEX(),
-	followMemberDistance = 0,
 	followLeaderDistance = 30,
 	followTimer = GetTimeEX(),
 	dpsHp = 0,
@@ -81,16 +80,16 @@ function script_follow:window()
 end
 
 function script_follow:moveInLineOfSight(partyMember)
-	if (not partyMember:IsInLineOfSight()) then
-         if (partyMember:GetDistance() < self.followLeaderDistance) then
+	leaderObj = GetPartyMember(GetPartyLeaderIndex());
+	if (not leaderObj:IsInLineOfSight() or leaderObj:GetDistance() > self.followLeaderDistance)
+		or (not partyMember:IsInLineofSight() and partyMember:GetDistance() < (leadyObj:GetDistance() + 10)) then
 			local x, y, z = partyMember:GetPosition();
 			script_nav:moveToTarget(GetLocalPlayer(), x , y, z);
 			self.timer = GetTimeEX() + 200;
             self.message = "Moving to party member LoS";
-			return true;
-		end
-		return false;
+		return true;
 	end
+	return false;
 end
 
 function script_follow:healAndBuff()
@@ -108,12 +107,7 @@ function script_follow:healAndBuff()
 		if (partyMembersHP > 0 and partyMembersHP < 99 and localMana > 1) then
 			local partyMemberDistance = partyMember:GetDistance();
 			leaderObj = GetPartyMember(GetPartyLeaderIndex());
-           
-            if (script_follow:isTargetingPet(i)) and (partyMembersHP < 50) then
-                if (CastHeal("Lesser Heal", targetObj)) then
-                    return 0;
-                end
-            end
+			local localHealth = GetLocalPlayer():GetHealthPercentage();
 
 			-- Move in range: combat script return 3
 			if (self.combatError == 3) then
@@ -149,13 +143,25 @@ function script_follow:healAndBuff()
 
 			-- blessing of might
 			if (HasSpell("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Wisdom")) then
-				if (script_follow:moveInLineOfSight(partyMember)) then
-					return true;
-				end -- move to member
-				if (Cast("Blessing of Might", partyMember)) then
-                    self.waitTimer = GetTimeEX() + 1500;
-				    return true;
-				end	
+				if (partyMember:GetManaPercentage() < 1) then
+					if (script_follow:moveInLineOfSight(partyMember)) then
+						return true;
+					end -- move to member
+					if (Cast("Blessing of Might", partyMember)) then
+                  	  self.waitTimer = GetTimeEX() + 1500;
+				  	  return true;
+					end	
+				elseif (partyMember:GetManaPercentage() > 1) then
+					if (HasSpell("Blessing of Wisdom")) and (not partyMember:HasBuff("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Wisdom")) then
+						if (script_follow:moveInLineOfSight(partyMember)) then
+							return true;
+						end -- move to member
+						if (Cast("Blessing of Wisdom", partyMember)) then
+							self.waitTimer = GetTimeEX() + 1500;
+							return true;
+						end	
+					end
+				end
 			end
 
 			-- Power word Fortitude
@@ -199,13 +205,21 @@ function script_follow:healAndBuff()
 				end
 			end
 
-            -- enable / disble heals for this follower
+			-- night elf Elune's Grace racial
+			if (IsInCombat()) and (HasSpell("Elune's Grace")) and (not IsSpellOnCD("Elune's Grace")) and (not localObj:HasBuff("Elune's Grace")) and (localHealth < 75) then
+				if (Buff("Elune's Grace", localObj)) then
+					self.waitTimer = GetTimeEX() + 1500;
+					return 0;
+				end
+			end
+
+            -- enable / disble heals for follower
 			if (self.enableHeals) then
 
 				-- flash heal 
 				if (self.clickFlashHeal) then
 					if (localMana > self.flashHealMana) and (partyMembersHP < self.partyFlashHealHealth) then
-						if (script_follow:moveInLineOfSight(partyMember)) then
+						if (script_follow:moveInLineOfSight(partyMember)) or (script_follow:isTargetingPet(i)) then
 							return true;
 				 		end -- move to member
 						if (CastHeal("Flash Heal", partyMember)) then
