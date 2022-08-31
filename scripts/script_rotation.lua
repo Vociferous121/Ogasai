@@ -329,7 +329,6 @@ function script_rotation:menu()
 	end
 
 	Separator();
-	SameLine();
 
 	-- Load combat menu by class
 	local class = UnitClass("player");
@@ -359,15 +358,28 @@ function script_rotation:menu()
 	Separator();
 
 	if (CollapsingHeader('Display options')) then
+
 		local wasClicked = false;
+
 		wasClicked, self.drawEnabled = Checkbox('Show status window', self.drawEnabled);
+
 		wasClicked, self.drawGather = Checkbox('Show gather nodes', self.drawGather);
+
 		wasClicked, self.drawUnits = Checkbox("Show unit info on screen", self.drawUnits);
+
 		wasClicked, self.drawAggro = Checkbox('Show aggro range circles', self.drawAggro);
+		
 		Separator();
+
 	end
+
 		Text('Script tic rate (ms)');
 		self.tickRate = SliderInt("TR", 50, 500, self.tickRate);
-		Text("Aggro Circle Range");
-		self.aggroRangeTank = SliderInt("AR", 30, 300, self.aggroRangeTank);
+
+		if (self.drawAggro) then
+
+			Text("Aggro Circle Range");
+			self.aggroRangeTank = SliderInt("AR", 30, 300, self.aggroRangeTank);
+
+		end
 end

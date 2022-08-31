@@ -149,28 +149,37 @@ function script_follow:healAndBuff()
 				end
 			end
 
-			-- blessing of might
-			if (HasSpell("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Wisdom")) then
-				if (partyMember:GetManaPercentage() < 1) then
-					if (script_follow:moveInLineOfSight(partyMember)) then
+			if (HasSpell("Purify")) and (localMana > 10) then
+				if (partyMember:HasDebuff("Irradiated")) or (partyMember:HasDebuff("Infected Wound")) then
+					if (CastHeal("Purify", partyMember)) then
+						self.waitTimer = GetTimeEX() + 1500;
 						return true;
-					end -- move to member
-					if (Cast("Blessing of Might", partyMember)) then
-                  	  self.waitTimer = GetTimeEX() + 1500;
-				  	  return true;
-					end	
-				elseif (partyMember:GetManaPercentage() > 1) then
-					if (HasSpell("Blessing of Wisdom")) and (not partyMember:HasBuff("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Wisdom")) then
-						if (script_follow:moveInLineOfSight(partyMember)) then
-							return true;
-						end -- move to member
-						if (Cast("Blessing of Wisdom", partyMember)) then
-							self.waitTimer = GetTimeEX() + 1500;
-							return true;
-						end	
 					end
 				end
 			end
+
+			-- blessing of might
+			--if (HasSpell("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Wisdom")) then
+			--	if (partyMember:GetRagePercentage() > 1 or partyMember:HasBuff("Bear Form") or partyMember:GetEnergyPercentage() > 1) then
+			--		if (script_follow:moveInLineOfSight(partyMember)) then
+			--			return true;
+			--		end -- move to member
+			--		if (Cast("Blessing of Might", partyMember)) then
+            --    	  self.waitTimer = GetTimeEX() + 1500;
+			--	 	  return true;
+			--		end	
+			--	elseif (partyMember:GetManaPercentage() > 1) then
+			--		if (HasSpell("Blessing of Wisdom")) and (not partyMember:HasBuff("Blessing of Wisdom")) then
+			--			if (script_follow:moveInLineOfSight(partyMember)) then
+			--				return true;
+			--			end -- move to member
+			--			if (Cast("Blessing of Wisdom", partyMember)) then
+			--				self.waitTimer = GetTimeEX() + 1500;
+			--				return true;
+			--			end	
+			--		end
+			--	end
+			--end
 
 			-- Power word Fortitude
 			if (HasSpell("Power Word: Fortitude")) and (localMana > 40) and (not partyMember:HasBuff("Power Word: Fortitude")) then -- buff
@@ -678,7 +687,7 @@ function script_follow:run()
                 if (script_follow:GetPartyLeaderObject():GetUnitsTarget() ~= 0 and not script_follow:GetPartyLeaderObject():IsDead()) then
                     if (self.assistInCombat) then
                         self.enemyObj = script_follow:GetPartyLeaderObject():GetUnitsTarget();
-                     else
+                    else
                         self.enemyObj = nil;
                     end
                 end
