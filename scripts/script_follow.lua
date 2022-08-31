@@ -159,27 +159,27 @@ function script_follow:healAndBuff()
 			end
 
 			-- blessing of might
-			--if (HasSpell("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Wisdom")) then
-			--	if (partyMember:GetRagePercentage() > 1 or partyMember:HasBuff("Bear Form") or partyMember:GetEnergyPercentage() > 1) then
-			--		if (script_follow:moveInLineOfSight(partyMember)) then
-			--			return true;
-			--		end -- move to member
-			--		if (Cast("Blessing of Might", partyMember)) then
-            --    	  self.waitTimer = GetTimeEX() + 1500;
-			--	 	  return true;
-			--		end	
-			--	elseif (partyMember:GetManaPercentage() > 1) then
-			--		if (HasSpell("Blessing of Wisdom")) and (not partyMember:HasBuff("Blessing of Wisdom")) then
-			--			if (script_follow:moveInLineOfSight(partyMember)) then
-			--				return true;
-			--			end -- move to member
-			--			if (Cast("Blessing of Wisdom", partyMember)) then
-			--				self.waitTimer = GetTimeEX() + 1500;
-			--				return true;
-			--			end	
-			--		end
-			--	end
-			--end
+			if (class == 'Rogue' or class == 'Warrior' or partyMember:HasBuff("Bear Form") or partyMember:HasBuff("Cat Form")) then
+				if (HasSpell("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Wisdom")) then
+					if (script_follow:moveInLineOfSight(partyMember)) then
+						return true;
+					end -- move to member
+					if (Cast("Blessing of Might", partyMember)) then
+                	  self.waitTimer = GetTimeEX() + 1500;
+				 	  return true;
+					end	
+				end
+			elseif (class == 'Priest' or class == 'Mage' or class == 'Hunter' or class == 'Shaman') then
+				if (HasSpell("Blessing of Wisdom")) and (not partyMember:HasBuff("Blessing of Wisdom")) then
+					if (script_follow:moveInLineOfSight(partyMember)) then
+						return true;
+					end -- move to member
+					if (Cast("Blessing of Wisdom", partyMember)) then
+						self.waitTimer = GetTimeEX() + 1500;
+						return true;
+					end	
+				end
+			end
 
 			-- Power word Fortitude
 			if (HasSpell("Power Word: Fortitude")) and (localMana > 40) and (not partyMember:HasBuff("Power Word: Fortitude")) then -- buff
@@ -218,7 +218,7 @@ function script_follow:healAndBuff()
 			if (HasSpell("Inner Fire")) and (localMana > 30) and (not localObj:HasBuff("Inner Fire")) then
 				if (Buff("Inner Fire", localObj)) then
 					self.waitTimer = GetTimeEX() + 1500;
-					return 0;
+					return true;
 				end
 			end
 
@@ -226,7 +226,7 @@ function script_follow:healAndBuff()
 			if (IsInCombat()) and (HasSpell("Elune's Grace")) and (not IsSpellOnCD("Elune's Grace")) and (not localObj:HasBuff("Elune's Grace")) and (localHealth < 75) then
 				if (Buff("Elune's Grace", localObj)) then
 					self.waitTimer = GetTimeEX() + 1500;
-					return 0;
+					return true;
 				end
 			end
 
@@ -265,7 +265,7 @@ function script_follow:healAndBuff()
 			    	if (partyMembersHP< 50) or (script_priest:enemiesAttackingUs(8) > 1) then
 				    	if (Buff("Power Infusion")) then
                             self.waitTimer = GetTimeEX() + 1500;
-				    		return 0;
+				    		return true;
 				    	end
 				    end
 			    end
@@ -615,7 +615,7 @@ function script_follow:run()
 		end
 
 		-- Healer check: heal/buff the party
-		if (script_follow:healAndBuff()) and (HasSpell('Smite')) or (HasSpell('Holy Light')) or (HasSpell("Rejuvenation")) or (HasSpell("Healing Wave")) then
+		if (script_follow:healAndBuff()) and (HasSpell('Smite') or HasSpell("Rejuvenation") or HasSpell("Healing Wave") or HasSpell("Holy Light")) then
 			self.message = "Healing/buffing the party...";
 			return;
 		end
