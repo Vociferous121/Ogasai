@@ -237,6 +237,13 @@ function script_follow:healAndBuff()
 			if (HasSpell("Quel'dorei Meditation")) and (not IsSpellOnCD("Quel'dorei Meditation")) and (localMana < 20) then
 				CastSpellByName("Quel'dorei Meditation");
 			end
+			
+			-- priest fear
+			if (script_follow:enemiesAttackingUs(5) > 3) and (HasSpell("Psychic Scream")) then
+				if (CastSpellByName("Psychic Scream")) then
+					return true;
+				end
+			end
 
             -- enable / disble heals for follower
 			if (self.enableHeals) then
