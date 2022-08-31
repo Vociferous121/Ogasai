@@ -52,7 +52,7 @@ script_follow = {
 	myY = 0,
 	myZ = 0,
 	myTime = GetTimeEX(),
-	nextToNodeDist = 4,
+	nextToNodeDist = 3,
 	isSetup = false,
 	drawUnits = false,
 	acceptTimer = GetTimeEX(),
@@ -115,7 +115,7 @@ function script_follow:healAndBuff()
 		if (partyMembersHP > 0 and partyMembersHP < 99 and localMana > 1) then
 			local partyMemberDistance = partyMember:GetDistance();
 			leaderObj = GetPartyMember(GetPartyLeaderIndex());
-			local localHealth = GetLocalPlayer():GetHealthPercentage();
+			local localHealth = GetLocalPlayer():GetHealthPercentage();					
 
 			-- Move in range: combat script return 3
 			if (self.combatError == 3) then
@@ -131,7 +131,8 @@ function script_follow:healAndBuff()
 
 			-- Dispel Magic
 			if	(HasSpell("Dispel Magic")) and (localMana > 10) then 
-                if (partyMember:HasDebuff("Druid's Slumber")) or (partyMember:HasDebuff("Terrify")) then
+                if (partyMember:HasDebuff("Druid's Slumber")) or (partyMember:HasDebuff("Terrify")) or (partyMember:HasDebuff("Chilled")) or
+					(partyMember:HasDebuff("Wavering Will")) then
 					if (CastHeal("Dispel Magic", partyMember)) then
 						self.waitTimer = GetTimeEX() + 1500;
 						return true;
@@ -149,6 +150,7 @@ function script_follow:healAndBuff()
 				end
 			end
 
+			-- purify
 			if (HasSpell("Purify")) and (localMana > 10) then
 				if (partyMember:HasDebuff("Irradiated")) or (partyMember:HasDebuff("Infected Wound")) then
 					if (CastHeal("Purify", partyMember)) then
@@ -159,7 +161,8 @@ function script_follow:healAndBuff()
 			end
 
 			-- blessing of might
-			if (class == 'Rogue' or class == 'Warrior' or partyMember:HasBuff("Bear Form") or partyMember:HasBuff("Cat Form")) then
+			local partyClass = UnitClass("partyMember");
+			if (partyClass == 'Rogue') or (partyClass == 'Warrior') or (partyMember:HasBuff("Bear Form") or partyMember:HasBuff("Cat Form")) then
 				if (HasSpell("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Wisdom")) then
 					if (script_follow:moveInLineOfSight(partyMember)) then
 						return true;
@@ -169,7 +172,7 @@ function script_follow:healAndBuff()
 				 	  return true;
 					end	
 				end
-			elseif (class == 'Priest' or class == 'Mage' or class == 'Hunter' or class == 'Shaman') then
+			elseif (partyClass == 'Priest') or (partyClass == 'Mage') or (partyClass == 'Hunter') or (partyClass == 'Shaman') or (partyClass == 'Paladin') then
 				if (HasSpell("Blessing of Wisdom")) and (not partyMember:HasBuff("Blessing of Wisdom")) then
 					if (script_follow:moveInLineOfSight(partyMember)) then
 						return true;
@@ -228,6 +231,11 @@ function script_follow:healAndBuff()
 					self.waitTimer = GetTimeEX() + 1500;
 					return true;
 				end
+			end
+
+			-- Quel'dorei Meditation on low mana
+			if (HasSpell("Quel'dorei Meditation")) and (not IsSpellOnCD("Quel'dorei Meditation")) and (localMana < 20) then
+				CastSpellByName("Quel'dorei Meditation");
 			end
 
             -- enable / disble heals for follower
@@ -386,7 +394,7 @@ function script_follow:healAndBuff()
 						return true;
 				 	end -- move to member
 					if (CastHeal("Holy Light", partyMember)) then
-						self.waitTimer = GetTimeEX() + 2500;
+						self.waitTimer = GetTimeEX() + 2700;
 						return true;
 					end
 				end
@@ -397,7 +405,7 @@ function script_follow:healAndBuff()
 						return true;
 				 	end -- move to member
 					if (CastHeal("Flash of Light", partyMember)) then
-						self.waitTimer = GetTimeEX() + 1500;
+						self.waitTimer = GetTimeEX() + 1700;
 						return true;
 					end
 				end
@@ -485,7 +493,7 @@ function script_follow:run()
 		script_nav:setNextToNodeDist(6); NavmeshSmooth(14);
 	else
 		script_nav:setNextToNodeDist(self.nextToNodeDist);
-		NavmeshSmooth(self.nextToNodeDist*2);
+		NavmeshSmooth(self.nextToNodeDist*3);
 	end
 	
 	if (not self.isSetup) then
@@ -677,11 +685,13 @@ function script_follow:run()
         
         if (GetTarget() ~= 0 and GetTarget() ~= nil) then
             local target = GetTarget();
-            if (target:CanAttack()) then
-                self.enemyObj = target;
-            else
-                self.enemyObj = nil;
-            end
+			if (self.assistInCombat) then
+				if (target:CanAttack()) then
+					self.enemyObj = target;
+				else
+					self.enemyObj = nil;
+				end
+			end
         else
             if (script_follow:GetPartyLeaderObject() ~= 0) then
                 if (script_follow:GetPartyLeaderObject():GetUnitsTarget() ~= 0 and not script_follow:GetPartyLeaderObject():IsDead()) then
@@ -706,50 +716,56 @@ function script_follow:run()
 			end
 		end
 
-        if(self.enemyObj ~= nil or IsInCombat()) then
-            self.message = "Running the combat script...";
-            -- In range: attack the target, combat script returns 0
-            if(self.combatError == 0) then
-                script_nav:resetNavigate();
-                if IsMoving() then
-                       StopMoving(); 
-                    return;
-                end
-            end
-            -- Invalid target: combat script return 2
-             if(self.combatError == 2) then
-                -- TODO: add blacklist GUID here
-                self.enemyObj = nil;
-                ClearTarget();
-                  return;
-            end
-            -- Move in range: combat script return 3
-            if (self.combatError == 3) then
-                  self.message = "Moving to target...";
-                local _x, _y, _z = self.enemyObj:GetPosition();
-                self.message = script_nav:moveToTarget(GetLocalPlayer(), _x, _y, _z);
-                return;
-            end
-         
-            -- Do nothing, return : combat script return 4
-            if(self.combatError == 4) then
-                return;
-            end
+		if (not self.assistInCombat and self.enemyObj ~= nil) then
+			ClearTarget();
+		end
 
-             -- Target player pet/totem: pause for 5 seconds, combat script should add target to blacklist
-            if(self.combatError == 5) then
-                self.message = "Targeted a player pet pausing 5s...";
-                  ClearTarget();
-                self.waitTimer = GetTimeEX()+5000;
-                return;
-            end
+		if (self.assistInCombat) then
+			if(self.enemyObj ~= nil or IsInCombat()) then
+				self.message = "Running the combat script...";
+				-- In range: attack the target, combat script returns 0
+				if(self.combatError == 0) then
+					script_nav:resetNavigate();
+					if IsMoving() then
+						StopMoving(); 
+						return;
+					end
+				end
+				-- Invalid target: combat script return 2
+				if(self.combatError == 2) then
+					-- TODO: add blacklist GUID here
+					self.enemyObj = nil;
+					ClearTarget();
+					return;
+				end
+				-- Move in range: combat script return 3
+				if (self.combatError == 3) then
+					self.message = "Moving to target...";
+					local _x, _y, _z = self.enemyObj:GetPosition();
+					self.message = script_nav:moveToTarget(GetLocalPlayer(), _x, _y, _z);
+					return;
+				end
+			
+				-- Do nothing, return : combat script return 4
+				if(self.combatError == 4) then
+					return;
+				end
 
-			-- Stop bot, request from a combat script
-			if(self.combatError == 6) then
-				self.message = "Combat script request stop bot...";
-				Logout();
-				StopBot();
-				return;
+				-- Target player pet/totem: pause for 5 seconds, combat script should add target to blacklist
+				if(self.combatError == 5) then
+					self.message = "Targeted a player pet pausing 5s...";
+					ClearTarget();
+					self.waitTimer = GetTimeEX()+5000;
+					return;
+				end
+
+				-- Stop bot, request from a combat script
+				if(self.combatError == 6) then
+					self.message = "Combat script request stop bot...";
+					Logout();
+					StopBot();
+					return;
+				end
 			end
 		end
 
