@@ -54,11 +54,11 @@ script_follow = {
 	myTime = GetTimeEX(),
 	nextToNodeDist = 4,
 	isSetup = false,
-	drawUnits = true,
+	drawUnits = false,
 	acceptTimer = GetTimeEX(),
 	followLeaderDistance = 30,
 	followTimer = GetTimeEX(),
-	dpsHp = 0,
+	assistInCombat = false,
 	isChecked = true,
 	pause = false,
 	enableHeals = true,
@@ -81,15 +81,23 @@ end
 
 function script_follow:moveInLineOfSight(partyMember)
 	leaderObj = GetPartyMember(GetPartyLeaderIndex());
-	if (not leaderObj:IsInLineOfSight() or leaderObj:GetDistance() > self.followLeaderDistance)
-		or (not partyMember:IsInLineofSight() and partyMember:GetDistance() < (leadyObj:GetDistance() + 10)) then
-			local x, y, z = partyMember:GetPosition();
+	if (not leaderObj:IsInLineOfSight() or leaderObj:GetDistance() > self.followLeaderDistance) then
+			local x, y, z = leaderObj:GetPosition();
 			script_nav:moveToTarget(GetLocalPlayer(), x , y, z);
 			self.timer = GetTimeEX() + 200;
             self.message = "Moving to party member LoS";
 		return true;
 	end
-	return false;
+	if (self.followMember) then
+		if (not partyMember:IsInLineOfSight() and partyMember:GetDistance() < self.followLeaderDistance) then
+			local x, y, z = partyMember:GetPosition();
+			script_nav:moveToTarget(GetLocalPlayer(), x , y, z);
+			self.timer = GetTimeEX() + 200;
+			self.message = "Moving to party member LoS";
+		return true;
+	end
+end
+return false;
 end
 
 function script_follow:healAndBuff()
@@ -668,7 +676,7 @@ function script_follow:run()
         else
             if (script_follow:GetPartyLeaderObject() ~= 0) then
                 if (script_follow:GetPartyLeaderObject():GetUnitsTarget() ~= 0 and not script_follow:GetPartyLeaderObject():IsDead()) then
-                    if (script_follow:GetPartyLeaderObject():GetUnitsTarget():GetHealthPercentage() < self.dpsHp) then
+                    if (self.assistInCombat) then
                         self.enemyObj = script_follow:GetPartyLeaderObject():GetUnitsTarget();
                      else
                         self.enemyObj = nil;

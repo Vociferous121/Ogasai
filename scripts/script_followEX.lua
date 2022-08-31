@@ -1,6 +1,6 @@
 script_followEX = {
 	
-		drawUnits = true,
+		drawUnits = false,
 		drawAggro = false,
 		drawAggroRange = 100,
 }
@@ -124,14 +124,39 @@ function script_followEX:menu()
 	end
 
 	Separator();
+	
+	if (CollapsingHeader("Group Options")) then
 
-	Text("Distance to follow PARTY LEADER");
-		script_follow.followLeaderDistance = SliderInt("Follow Leader Distance (yd)", 6, 40, script_follow.followLeaderDistance);
-	-- Load combat menu by class
+		Text("Distance to follow Party Leader     ");
+			SameLine();
+			wasClicked, script_follow.followMember = Checkbox("Follow Party Member", script_follow.followMember);
+			script_follow.followLeaderDistance = SliderInt("Follow Leader Distance (yd)", 6, 40, script_follow.followLeaderDistance);
+			
+			if (script_follow.followMember) then
+				Text("This is the issue with the follower. It will attempt to follow");
+				Text("party members AND the party leader at the same time... ");
+				Text("use with caution");
+			end
+
+			Separator();
+
+			Text("Assist in combat?   ")
+			SameLine();
+			wasClicked, script_follow.assistInCombat = Checkbox("Assist Party Leader", script_follow.assistInCombat);
+			Separator();
+
+			wasClicked, script_follow.useUnStuck = Checkbox("Turn On/Off Buggy unStuck Script", script_follow.useUnStuck);
+			Separator();
+
+			Text("Loot options:");
+			wasClicked, script_follow.skipLooting = Checkbox("Skip Looting", script_follow.skipLooting);
+			script_follow.findLootDistance = SliderInt("Find Loot Distance (yd)", 1, 100, script_follow.findLootDistance);	
+			script_follow.lootDistance = SliderInt("Loot Distance (yd)", 1, 6, script_follow.lootDistance);
+	end
+			-- Load combat menu by class
 	local class = UnitClass("player");
 
-	Separator();
-	
+
 	if (class == 'Mage') then
 		script_mage:menu();
 	elseif (class == 'Hunter') then
@@ -252,22 +277,8 @@ function script_followEX:menu()
 		Text("TODO!");
 	end
 
-	if (CollapsingHeader("Follower - OTHER OPTIONS")) then
-		Text("Combat options:");
-		SameLine();
-		Text("At what enemy HP do we help kill it?")
-		script_follow.dpsHp = SliderInt("Enemy HP%", 0, 100, script_follow.dpsHp);
-		Separator();
-		Text("Distance to walk to party members from your current position");
-		wasClicked, script_follow.useUnStuck = Checkbox("Turn On/Off Buggy unStuck Script", script_follow.useUnStuck);
-		Separator();
-		Text("Loot options:");
-		wasClicked, script_follow.skipLooting = Checkbox("Skip Looting", script_follow.skipLooting);
-		script_follow.findLootDistance = SliderInt("Find Loot Distance (yd)", 1, 100, script_follow.findLootDistance);	
-		script_follow.lootDistance = SliderInt("Loot Distance (yd)", 1, 6, script_follow.lootDistance);
-		Separator();
-		Text("Script tick rate options:");
-		script_follow.tickRate = SliderFloat("Tick rate (ms)", 0, 2000, script_follow.tickRate);
+	if (CollapsingHeader("Display Options")) then
+		
 		if (script_aggro.drawAggro) then
 			Text("Draw Aggro Range");
 			self.drawAggroRange = SliderInt("AR", 50, 300, self.drawAggroRange);

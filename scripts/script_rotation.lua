@@ -11,6 +11,7 @@ script_rotation = {
 	gatherLoaded = include("scripts\\script_gather.lua"),
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
 	helperLoaded = include("scripts\\script_helper.lua"),
+	radarLoaded = include("scripts\\script_radar.lua"),
 	drawEnabled = false,
 	drawAggro = false,
 	drawGather = false,
