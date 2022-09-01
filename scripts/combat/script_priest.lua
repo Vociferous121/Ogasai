@@ -30,11 +30,17 @@ script_priest = {
 
 function script_priest:healAndBuff(targetObject, localMana)
 
+	-- get target health percentage
 	local targetHealth = targetObject:GetHealthPercentage();
 
+	-- get self player level
 	local localLevel = GetLocalPlayer():GetLevel();
 
-	-- Buff Fortitude
+	-- Buff Fortitude if 
+	-- not in shadowform and
+	-- player mana >= 25 and 
+	-- not in combat and
+	-- not already buffed
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 25) and (not IsInCombat()) and (not targetObject:HasBuff("Power Word: Fortitude")) then
 			if (Buff("Power Word: Fortitude", targetObject)) then 
@@ -43,7 +49,10 @@ function script_priest:healAndBuff(targetObject, localMana)
 		end
 	end
 	
-	-- Buff Divine Spirit
+	-- Buff Divine Spirit if 
+	-- not in shadowform and 
+	-- player mana >= 25 and 
+	-- not already buffed
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 25) and (not IsInCombat()) and (not targetObject:HasBuff("Divine Spirit")) then
 			if (Buff("Divine Spirit", targetObject)) then
@@ -52,7 +61,11 @@ function script_priest:healAndBuff(targetObject, localMana)
 		end
 	end
 
-	-- Renew
+	-- Cast Renew if 
+	-- not in shadowform and 
+	-- player mana >= 12 and
+	-- player hp <= than renewHP variable and
+	-- not already buffed
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 12) and (targetHealth <= self.renewHP) and (not targetObject:HasBuff("Renew")) then
 			if (Buff("Renew", targetObject)) then
@@ -61,15 +74,22 @@ function script_priest:healAndBuff(targetObject, localMana)
 		end
 	end
 
-	-- Shield
+	-- Cast Shield if
+	-- player mana >= 10 and
+	-- player health is <= shieldHP variable and
+	-- not buffed by Weakened Soul debuff and
+	-- is in combat (don't cast randomly while not in combat)
 	if (localMana >= 10) and (targetHealth <= self.shieldHP) and (not targetObject:HasDebuff("Weakened Soul")) and (IsInCombat()) then
 		if (Buff("Power Word: Shield", targetObject)) then 
-			targetObj:FaceTarget();
+			-- targetObj:FaceTarget();
 			return true;  -- if buffed return true
 		end
 	end
 
-	-- Greater Heal
+	-- Cast Greater Heal if
+	-- not in shadowform and
+	-- player mana >= 20
+	-- player health is <= greaterHealHealth variable
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 20) and (targetHealth <= self.greaterHealHP) then
 			if (CastHeal("Greater Heal", targetObject)) then
@@ -78,7 +98,10 @@ function script_priest:healAndBuff(targetObject, localMana)
 		end
 	end
 
-	-- Heal
+	-- Cast Heal(spell) if
+	-- not in shadowform and
+	-- player mana >= 15 and
+	-- player health <= healHP variable
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 15) and (targetHealth <= self.healHP) then
 			if (CastHeal("Heal", targetObject)) then
@@ -87,7 +110,10 @@ function script_priest:healAndBuff(targetObject, localMana)
 		end
 	end
 
-	-- Flash Heal
+	-- Cast Flash Heal if
+	-- not in shadowform and
+	-- player mana >= 8 and
+	-- player health <= flashHealHP variable
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 8) and (targetHealth <= self.flashHealHP) then
 			if (CastHeal("Flash Heal", targetObject)) then
@@ -96,7 +122,11 @@ function script_priest:healAndBuff(targetObject, localMana)
 		end
 	end
 
-	---- Lesser Heal
+	-- Cast Lesser Heal if
+	-- not in shadowform and
+	-- player level < 20 and
+	-- player mana >= 10 and
+	-- player health <= lesserHealHP variable
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localLevel < 20) then	-- don't use this when we get flash heal ELSE very low mana
 			if (localMana >= 10) and (targetHealth <= self.lesserHealHP) then
@@ -105,7 +135,10 @@ function script_priest:healAndBuff(targetObject, localMana)
 				end
 			end
 
-		-- lesser heal level 20+ very low mana
+		-- ELSE IF player level >= 20 and
+		-- player mana <= 8 and
+		-- player health <= flashHealHP variable then
+		-- cast lesser heal
 		elseif (localLevel >= 20) then
 			if (localMana <= 8) and (targetHealth <= self.flashHealHP) then
 				if (CastHeal("Lesser Heal", targetObject)) then
@@ -114,8 +147,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 			end
 		end
 	end
-	
-	return false; -- return false to end script when done
+	return false; -- return false to continue loop when function is called and need healed
 end
 
 function script_priest:heal(spellName, target)
@@ -154,51 +186,51 @@ function script_priest:cast(spellName, target)
 end
 
 function script_priest:enemiesAttackingUs(range) -- returns number of enemies attacking us within range
-    local unitsAttackingUs = 0; 
-    local currentObj, typeObj = GetFirstObject(); 
-    while currentObj ~= 0 do 
-    	if typeObj == 3 then
-			if (currentObj:CanAttack()) and (not currentObj:IsDead()) then
-         	   if (script_grind:isTargetingMe(currentObj)) and (currentObj:GetDistance() <= range) then 
-                	unitsAttackingUs = unitsAttackingUs + 1; 
+    local unitsAttackingUs = 0; -- set variable
+    local currentObj, typeObj = GetFirstObject();  -- get game target
+    while currentObj ~= 0 do -- start loop
+    	if typeObj == 3 then -- typeObj is NPC
+			if (currentObj:CanAttack()) and (not currentObj:IsDead()) then -- if can attack and not dead
+         	   if (script_grind:isTargetingMe(currentObj)) and (currentObj:GetDistance() <= range) then -- if being targeted and within range
+                	unitsAttackingUs = unitsAttackingUs + 1; -- count how many units are attacking us
             	end 
         	end 
        	end
-    	currentObj, typeObj = GetNextObject(currentObj); 
+    	currentObj, typeObj = GetNextObject(currentObj); -- get next game target for each typeObj == 3
     end
-    return unitsAttackingUs;
+    return unitsAttackingUs; -- return number of units attacking
 end
 
 -- Run backwards if the target is within range
 function script_priest:runBackwards(targetObj, range) 
 
-	local localObj = GetLocalPlayer();
+	local localObj = GetLocalPlayer(); -- get player
 
- 	if targetObj ~= 0 then
- 		local xT, yT, zT = targetObj:GetPosition();
- 		local xP, yP, zP = localObj:GetPosition();
- 		local distance = targetObj:GetDistance();
- 		local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
+ 	if targetObj ~= 0 then -- if we have any type of target
+ 		local xT, yT, zT = targetObj:GetPosition(); -- get target position
+ 		local xP, yP, zP = localObj:GetPosition(); -- get local position
+ 		local distance = targetObj:GetDistance(); -- get game distance
+ 		local xV, yV, zV = xP - xT, yP - yT, zP - zT;
  		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
  		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
  		local moveX, moveY, moveZ = xT + xUV*10, yT + yUV*10, zT + zUV;	
 	
- 		if (distance <= range and targetObj:IsInLineOfSight()) then 
+ 		if (distance <= range and targetObj:IsInLineOfSight()) then -- if in range and line of sight
  			--script_nav:moveToTarget(localObj, moveX, moveY, moveZ);
-			Move(moveX, moveY, moveZ);
- 			return true;
+			Move(moveX, moveY, moveZ); -- move to calculated coords
+ 			return true; -- return true when done
  		end
 	end
-	return false;
+	return false; -- return false to continue loop if needed
 end
 
 function script_priest:setup()
-	self.waitTimer = GetTimeEX();
-	self.isSetup = true;
-	if (HasSpell("Mind Flay")) then
-		self.drinkMana = 35;
-		self.shieldHP = 95;
-		self.renewHP = 88;
+	self.waitTimer = GetTimeEX(); -- set timer
+	self.isSetup = true; -- setup variable run once
+	if (HasSpell("Mind Flay")) then -- if has mind flay
+		self.drinkMana = 35; -- set drinkMana variable
+		self.shieldHP = 95;	-- set shieldHP variable
+		self.renewHP = 88;	-- set renewHP variable
 	end
 end
 
@@ -231,13 +263,13 @@ function script_priest:run(targetGUID)
 		self.useSmite = true;
 	end
 	
-	local localObj = GetLocalPlayer();
+	local localObj = GetLocalPlayer(); -- get player
 
-	local localMana = localObj:GetManaPercentage();
+	local localMana = localObj:GetManaPercentage(); -- get player mana percentage wow API
 
-	local localHealth = localObj:GetHealthPercentage();
+	local localHealth = localObj:GetHealthPercentage(); -- get player health percentage wow API
 
-	local localLevel = localObj:GetLevel();
+	local localLevel = localObj:GetLevel(); -- get player level wow API
 	
 	-- if target is dead then don't attack
 	if (localObj:IsDead()) then
@@ -245,7 +277,7 @@ function script_priest:run(targetGUID)
 	end
 	
 	-- Assign the target 
-	targetObj =  GetGUIDObject(targetGUID);
+	targetObj =  GetGUIDObject(targetGUID); -- get guid of target and save it
 
 	-- clear target
 	if(targetObj == 0) or (targetObj == nil) or (targetObj:IsDead()) then
