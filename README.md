@@ -5,6 +5,9 @@
  Any bugs reports are greatly appreciated and will help with the process!
 
     NOTE - If you open the follower.lua it is probably best to open it with visual studio CODE. There is something odd about it....
+    
+     combat scripts change depending on spells available. i.e. a priest without shadowform will not see shadowform spells.
+     
 #-- completed and picking out small bugs
 
     mage frost spec
