@@ -195,6 +195,11 @@ end
 function script_priest:setup()
 	self.waitTimer = GetTimeEX();
 	self.isSetup = true;
+	if (HasSpell("Mind Flay")) then
+		self.drinkMana = 35;
+		self.shieldHP = 95;
+		self.renewHP = 88;
+	end
 end
 
 function script_priest:draw()
@@ -555,7 +560,7 @@ function script_priest:run(targetGUID)
 			-- Mind flay 
 			if (self.shadowForm and self.useMindFlay ) or (self.useMindFlay) and (IsSpellOnCD("Mind Blast") or localMana <= self.mindBlastMana) then
 				if (HasSpell("Mind Flay")) and (not IsSpellOnCD("Mind Flay")) and (localMana >= self.mindFlayMana) and (targetHealth >= self.mindFlayHealth) and
-				 (not localObj:IsChanneling()) and (targetObj:GetDistance() <= 20) then
+				 (not localObj:IsChanneling() and targetObj:GetDistance() <= 20) then
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 					end -- move to target
@@ -570,7 +575,8 @@ function script_priest:run(targetGUID)
 			wandSpeed = self.wandSpeed;
 
 			--mind flay and then wand when set
-			if (self.useMindFlay) and (not localObj:IsCasting() or not localObj:IsChanneling()) and (localMana <= self.mindFlayMana) or (targetHealth <= self.mindFlayHealth) then
+			if (self.useMindFlay) and (not localObj:IsCasting() or not localObj:IsChanneling()) and
+				(localMana <= self.mindFlayMana or targetHealth <= self.mindFlayHealth) or (targetObj:GetDistance() >= 21) then
 				if (localObj:HasRangedWeapon()) then
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
@@ -782,7 +788,7 @@ function script_priest:menu()
 				
 				-- if mind flay is clicked then set useWand to false/unclicked
 				if self.useMindFlay then
-
+					
 					self.useWand = false;
 
 				end

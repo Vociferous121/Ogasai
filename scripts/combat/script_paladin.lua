@@ -16,7 +16,7 @@ script_paladin = {
 	potionHealth = 12,
 	potionMana = 20,
 	consecrationMana = 50,
-	meleeDistance = 3.5,
+	meleeDistance = 3,
 	crusaderStacks = 3,
 	crusaderStacksMana = 40,
 }
@@ -24,7 +24,7 @@ script_paladin = {
 function script_paladin:setup()
 
 	-- Sort Aura  
-	if (not HasSpell("Retribution Aura")) and (not HasSpell("Sanctity Aura")) and (not localObj:HasBuff("Stoneskin Totem")) then
+	if (not HasSpell("Retribution Aura")) and (not HasSpell("Sanctity Aura")) and (not localObj:HasBuff("Stoneskin")) then
 		self.aura = "Devotion Aura";	
 
 	elseif (not HasSpell("Sanctity Aura")) and (HasSpell("Retribution Aura")) then
@@ -211,9 +211,9 @@ function script_paladin:run(targetGUID)
 			 end
 
 			-- Check move into melee range
-		--	if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
-		--		return 3;
-		--	end
+			if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
+				return 3;
+			end
 
 			-- Check: Exorcism
 			if (targetObj:GetCreatureType() == "Demon") or (targetObj:GetCreatureType() == "Undead") then
