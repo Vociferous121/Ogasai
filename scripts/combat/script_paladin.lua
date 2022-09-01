@@ -24,7 +24,7 @@ script_paladin = {
 function script_paladin:setup()
 
 	-- Sort Aura  
-	if (not HasSpell("Retribution Aura")) and (not HasSpell("Sanctity Aura")) then
+	if (not HasSpell("Retribution Aura")) and (not HasSpell("Sanctity Aura")) and (not localObj:HasBuff("Stoneskin Totem")) then
 		self.aura = "Devotion Aura";	
 
 	elseif (not HasSpell("Sanctity Aura")) and (HasSpell("Retribution Aura")) then
