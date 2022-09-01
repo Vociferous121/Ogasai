@@ -246,37 +246,43 @@ function script_warlock:run(targetGUID)
 				return 3;
 			end
 
-			if (hasPet) and (targetObj:GetDistance() < 40) and (targetHealth > 5) and (IsMoving() or targetObj:GetDistance() < 30) then
-				if (not IsLooting()) and (localHealth > self.eatHealth or localMana > self.drinkMana) and (GetPet():GetHealthPercentage() >= 65) then
-					PetAttack(); 
-				end
+			if (hasPet) and (not IsInCombat()) and (GetPet():GetDistance() > 40) then
+				PetFollow();
 			end
-
-			--if (hasPet) and (not IsInCombat()) and (GetPet():GetDistance() > 40) then
-			--	PetFollow();
-			--end
 
 			-- Dismount
 			if(IsMounted()) then DisMount(); end
 			-- In range:
 			if (HasSpell("Siphon Life")) then
+				if (hasPet) then
+					PetAttack();
+				end
 				if (Cast("Siphon Life", targetObj)) then 
 					self.waitTimer = GetTimeEX() + 1600; 
 					return 0;
 				end
 			elseif (HasSpell("Curse of Agony")) then
+				if (hasPet) then
+					PetAttack();
+				end
 				if (Cast('Curse of Agony', targetObj)) then 
 					self.waitTimer = GetTimeEX() + 1600;
 					return 0;
 				end
 			elseif (HasSpell("Immolate")) then
+				if (hasPet) then
+					PetAttack();
+				end
 				if (Cast('Immolate', targetObj)) then 
 					self.waitTimer = GetTimeEX() + 2200;
 					return 0;
 				end
 			else
 				if (Cast('Shadow Bolt', targetObj)) then
-					return 0;
+					if (hasPet) then
+						PetAttack();
+					end
+				return 0;
 				end
 			end
 	
