@@ -137,21 +137,24 @@ function script_followEX:menu()
 			Text("Distance to follow Party Leader  ");
 			script_follow.followLeaderDistance = SliderInt("Follow Leader Distance (yd)", 6, 40, script_follow.followLeaderDistance);
 
-			
-			Text("Loot options:");
-			wasClicked, script_follow.skipLooting = Checkbox("Skip Looting", script_follow.skipLooting);
-			SameLine();
-			wasClicked, script_follow.useUnStuck = Checkbox("Turn On/Off Buggy unStuck Script", script_follow.useUnStuck);
-			script_follow.findLootDistance = SliderInt("Find Loot Distance (yd)", 1, 100, script_follow.findLootDistance);	
-			script_follow.lootDistance = SliderInt("Loot Distance (yd)", 1, 6, script_follow.lootDistance);
-			
 			wasClicked, script_follow.followMember = Checkbox("Follow Party Member", script_follow.followMember);			
+			
 			Separator();
+			
 			if (script_follow.followMember) then
 				Text("This is the issue with the follower. It will attempt to follow");
 				Text("party members AND the party leader at the same time... ");
 				Text("use with caution");
 				Separator();
+			end
+
+			if (CollapsingHeader("-- Loot Options")) then
+				Text("Loot options:");
+				wasClicked, script_follow.skipLooting = Checkbox("Skip Looting", script_follow.skipLooting);
+				SameLine();
+				wasClicked, script_follow.useUnStuck = Checkbox("Turn On/Off Buggy unStuck Script", script_follow.useUnStuck);
+				script_follow.findLootDistance = SliderInt("Find Loot Distance (yd)", 1, 100, script_follow.findLootDistance);	
+				script_follow.lootDistance = SliderInt("Loot Distance (yd)", 1, 6, script_follow.lootDistance);
 			end
 	
 		end

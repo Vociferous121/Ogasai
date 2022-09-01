@@ -131,7 +131,7 @@ function script_follow:healAndBuff()
 
 			-- Dispel Magic
 			if	(HasSpell("Dispel Magic")) and (localMana > 10) then 
-                if (partyMember:HasDebuff("Druid's Slumber")) or (partyMember:HasDebuff("Terrify")) or (partyMember:HasDebuff("Chilled")) or
+                if (partyMember:HasDebuff("Druid's Slumber")) or (partyMember:HasDebuff("Terrify")) or (partyMember:HasDebuff("Frost Nova")) or
 					(partyMember:HasDebuff("Wavering Will")) then
 					if (CastHeal("Dispel Magic", partyMember)) then
 						self.waitTimer = GetTimeEX() + 1500;
@@ -344,7 +344,7 @@ function script_follow:healAndBuff()
 							return true;
 				 		end -- move to member
 						if (CastHeal("Renew", partyMember)) then
-							self.waitTimer = GetTimeEX() + 1550;
+							self.waitTimer = GetTimeEX() + 1650;
 							return true;
 						end
 					end
