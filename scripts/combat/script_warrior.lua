@@ -749,6 +749,12 @@ function script_warrior:rest()
 			return true; 
 		end		
 	end
+	-- night elve stealth while resting
+	if (IsDrinking() or IsEating()) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) then
+		if (CastSpellByName("Shadowmeld")) then
+			return 0;
+		end
+	end
 
 	-- Continue eating until we are full
 	if(localHealth <= 98 and IsEating()) then

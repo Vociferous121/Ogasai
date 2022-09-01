@@ -1,7 +1,7 @@
 script_nav = {
 	useNavMesh = true,
-	nextNavNodeDistance = 5, -- for mobs and loot
-	nextPathNodeDistance = 5, -- for walking paths
+	nextNavNodeDistance = 3, -- for mobs and loot
+	nextPathNodeDistance = 4, -- for walking paths
 	lastPathIndex = -1,
 	navPosition = {},
 	navPathPosition = {},
@@ -337,7 +337,7 @@ function script_nav:moveToTarget(localObj, _x, _y, _z) -- use when moving to mov
 
 	-- Check: If move to coords are too far away, something wrong, dont move... BUT WHY ?!
 	if (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
-		GeneratePath(_lx, _ly, _lz, _lx, _ly, _lz);
+		GeneratePath(_lx, _ly, _lz, _lx+10, _ly+5, _lz);
 		return "Generating a new path...";
 	end
 

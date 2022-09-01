@@ -562,7 +562,15 @@ function script_hunter:rest()
 		end
 		return true;
 	end
+
+	-- night elve stealth while resting
+	if (IsDrinking() or IsEating()) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) then
+		if (CastSpellByName("Shadowmeld")) then
+			return 0;
+		end
+	end
 	
+	-- continue resting if eating or drinking
 	if((localMana < 98 and IsDrinking()) or (localHealth < 98 and IsEating())) then
 		self.message = "Resting, eating and/or drinking...";
 		return true;
