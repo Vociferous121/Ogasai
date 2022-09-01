@@ -25,6 +25,7 @@ script_priest = {
 	shadowFormHealth = 50,	-- shadowform change health
 	useMindFlay = false,	-- use mind flay yes/no
 	spiritTap = 15,	-- wait timer while spirit tap buff is active
+	swpMana = 30, -- Use shadow word: pain above this mana %
 }
 
 function script_priest:healAndBuff(targetObject, localMana)
@@ -469,7 +470,7 @@ function script_priest:run(targetGUID)
 			end
 
 			-- Check: Keep Shadow Word: Pain up
-			if (not targetObj:HasDebuff("Shadow Word: Pain")) and (HasSpell("Shadow Word: Pain")) and (localMana > 10) and (targetHealth > 25) then
+			if (not targetObj:HasDebuff("Shadow Word: Pain")) and (HasSpell("Shadow Word: Pain")) and (localMana > self.swpMana) and (targetHealth > 25) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 					return 3; -- target not in line of sight
 				end -- move to target
@@ -707,16 +708,31 @@ end
 
 function script_priest:menu()
 
-	if (1 < 2) then -- needed something to be true
+	-- obtain class from game using wow api
+	local class = UnitClass("player");
+
+	-- if we are priest then show menu
+	if (class == 'Priest') then
 
 		local wasClicked = false;
 
 		-- priest combat options all COMBAT spells under here. skills spells talents
 		if (CollapsingHeader("Priest Combat Options")) then
 
-			Text('Mind Blast above self mana percent');
-			self.mindBlastMana = SliderInt("MBM%", 10, 100, self.mindBlastMana);
-			
+			-- hide spell if not obtained yet
+			if (HasSpell("Mind Blast")) then
+				Text('Mind Blast above self mana percent');
+				self.mindBlastMana = SliderInt("MBM%", 10, 100, self.mindBlastMana);
+			end
+
+			Separator();
+
+			-- hide spell if not obtained yet
+			if (HasSpell("Shadow Word: Pain")) then
+				Text("Shadow Word: Pain above self mana percent");
+				self.swpMana = SliderInt("SPM", 10, 100, self.swpMana)
+			end
+
 			Separator();
 
 			-- shadowform appears in menu if has the spell
@@ -729,7 +745,10 @@ function script_priest:menu()
 
 			end
 
-			wasClicked, self.useScream = Checkbox("Fear On/Off", self.useScream);
+			-- hide spell if not obtained yet
+			if (HasSpell("Psychic Scream")) then
+				wasClicked, self.useScream = Checkbox("Fear On/Off", self.useScream);
+			end
 
 			SameLine();
 
@@ -758,7 +777,7 @@ function script_priest:menu()
 				if (localObj:HasRangedWeapon()) then
 
 					-- wand options menu
-					if (CollapsingHeader("--Wand Options")) then
+					if (CollapsingHeader("-- Wand Options")) then
 
 						Text('Wand options:');
 						wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);
@@ -785,8 +804,11 @@ function script_priest:menu()
 			Text('Eat below health percentage');
 			self.eatHealth = SliderInt("EH%", 10, 99, self.eatHealth);
 
-			Text("Wait with Spirit Tap Buff - seconds");
-			self.spiritTap = SliderInt("ST", 0, 20, self.spiritTap);
+			-- hide spell if not obtained yet
+			if (GetLocalPlayer():GetLevel() > 10) then
+				Text("Wait with Spirit Tap Buff - seconds");
+				self.spiritTap = SliderInt("ST", 0, 20, self.spiritTap);
+			end
 
 			Separator();
 
@@ -797,11 +819,31 @@ function script_priest:menu()
 				self.lesserHealHP = SliderInt("Lesser heal HP%", 1, 99, self.lesserHealHP);	
 			end
 			
-			self.renewHP = SliderInt("Renew HP%", 1, 99, self.renewHP);	
-			self.shieldHP = SliderInt("Shiled HP%", 1, 99, self.shieldHP);
-			self.flashHealHP = SliderInt("Flash heal HP%", 1, 99, self.flashHealHP);
-			self.healHP = SliderInt("Heal HP%", 1, 99, self.healHP);	
-			self.greaterHealHP = SliderInt("Greater Heal HP%", 1, 99, self.greaterHealHP);
+			-- hide spell if not obtained yet
+			if (HasSpell("Renew")) then
+				self.renewHP = SliderInt("Renew HP%", 1, 99, self.renewHP);	
+			end
+
+			-- hide spell if not obtained yet
+			if (HasSpell("Power Word: Shield")) then
+				self.shieldHP = SliderInt("Shiled HP%", 1, 99, self.shieldHP);
+			end
+
+			-- hide spell if not obtained yet
+			if (HasSpell("Flash Heal")) then
+				self.flashHealHP = SliderInt("Flash heal HP%", 1, 99, self.flashHealHP);
+			end
+
+			-- hide spell if not obtained yet
+			if (HasSpell("Heal")) then
+				self.healHP = SliderInt("Heal HP%", 1, 99, self.healHP);	
+			end
+
+			-- hide spell if not obtained yet
+			if (HasSpell("Greater Heal")) then
+				self.greaterHealHP = SliderInt("Greater Heal HP%", 1, 99, self.greaterHealHP);
+			end
+
 			self.potionHealth = SliderInt("Potion HP%", 1, 99, self.potionHealth);
 			self.potionMana = SliderInt("Potion Mana%", 1, 99, self.potionMana);
 

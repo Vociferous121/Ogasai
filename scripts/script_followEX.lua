@@ -127,32 +127,34 @@ function script_followEX:menu()
 	
 	if (CollapsingHeader("Group Options")) then
 
-		Text("Distance to follow Party Leader     ");
-			SameLine();
-			wasClicked, script_follow.followMember = Checkbox("Follow Party Member", script_follow.followMember);
-			script_follow.followLeaderDistance = SliderInt("Follow Leader Distance (yd)", 6, 40, script_follow.followLeaderDistance);
+			Text("Assist in combat? ")
 			
+			SameLine();
+			
+			wasClicked, script_follow.assistInCombat = Checkbox("Assist Party Leader - best under 30 (yd)", script_follow.assistInCombat);
+			
+			Separator();
+			Text("Distance to follow Party Leader  ");
+			script_follow.followLeaderDistance = SliderInt("Follow Leader Distance (yd)", 6, 40, script_follow.followLeaderDistance);
+
+			
+			Text("Loot options:");
+			wasClicked, script_follow.skipLooting = Checkbox("Skip Looting", script_follow.skipLooting);
+			SameLine();
+			wasClicked, script_follow.useUnStuck = Checkbox("Turn On/Off Buggy unStuck Script", script_follow.useUnStuck);
+			script_follow.findLootDistance = SliderInt("Find Loot Distance (yd)", 1, 100, script_follow.findLootDistance);	
+			script_follow.lootDistance = SliderInt("Loot Distance (yd)", 1, 6, script_follow.lootDistance);
+			
+			wasClicked, script_follow.followMember = Checkbox("Follow Party Member", script_follow.followMember);			
+			Separator();
 			if (script_follow.followMember) then
 				Text("This is the issue with the follower. It will attempt to follow");
 				Text("party members AND the party leader at the same time... ");
 				Text("use with caution");
+				Separator();
 			end
-
-			Separator();
-
-			Text("Assist in combat?   ")
-			SameLine();
-			wasClicked, script_follow.assistInCombat = Checkbox("Assist Party Leader", script_follow.assistInCombat);
-			Separator();
-
-			wasClicked, script_follow.useUnStuck = Checkbox("Turn On/Off Buggy unStuck Script", script_follow.useUnStuck);
-			Separator();
-
-			Text("Loot options:");
-			wasClicked, script_follow.skipLooting = Checkbox("Skip Looting", script_follow.skipLooting);
-			script_follow.findLootDistance = SliderInt("Find Loot Distance (yd)", 1, 100, script_follow.findLootDistance);	
-			script_follow.lootDistance = SliderInt("Loot Distance (yd)", 1, 6, script_follow.lootDistance);
-	end
+	
+		end
 			-- Load combat menu by class
 	local class = UnitClass("player");
 
