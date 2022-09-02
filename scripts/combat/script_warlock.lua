@@ -22,7 +22,6 @@ script_warlock = {
 	lifeTapMana = 80,
 	soulShard = 0;
 	useShadowBolt = false,
-	useDrainLife = false,
 	useWandHealth = 100,
 	useWandMana = 100,
 	enableGatherShards = false,
@@ -33,7 +32,8 @@ script_warlock = {
 	drainLifeHealth = 75,
 	healPetHealth = 40,
 	sacrificeVoid = true,
-	sacrificeVoidHealth = 20,
+	sacrificeVoidHealth = 10,
+	useUnendingBreath = false,
 }
 
 function script_warlock:cast(spellName, target)
@@ -142,6 +142,20 @@ function script_warlock:setup()
 	if (not HasSpell("Summon Voidwalker")) then
 		self.useImp = true;
 		self.useVoid = false;
+	end
+
+	if (GetLocalPlayer():GetLevel() < 10) then
+		self.corruptionCastTime = 20;
+	elseif (GetLocalPlayer():GetLevel() == 10) then
+		self.corruptionCastTime = 16;
+	elseif (GetLocalPlayer():GetLevel() == 11) then
+			self.corruptionCastTime = 12;
+	elseif (GetLocalPlayer():GetLevel() == 12) then
+		self.corruptionCastTime = 8;
+	elseif (GetLocalPlayer():GetLevel() == 13) then
+			self.corruptionCastTime = 4;
+	elseif (GetLocalPlayer():GetLevel() == 14) then
+		self.corruptionCastTime = 0;
 	end
 
 	self.isSetup = true;
@@ -333,7 +347,8 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Set the pet to attack
-			if (hasPet) and (targetObj:GetDistance() < 35) and (targetHealth < 99 or targetObj:HasDebuff("Curse of Agony") or targetObj:HasDebuff("Corruption")) then
+			if (hasPet) and (targetObj:GetDistance() < 35) and (targetHealth < 99 or targetObj:HasDebuff("Curse of Agony") or 
+				targetObj:HasDebuff("Corruption")) or (script_grind:isTargetingMe(targetObj)) then
 				PetAttack();
 			end
 
@@ -357,7 +372,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- sacrifice voidwalker low health
-			if (hasPet) and (self.sacrificeVoid) and (localHealth <= self.sacrificeVoidHealth) then
+			if (hasPet) and (self.sacrificeVoid) and (localHealth <= self.sacrificeVoidHealth or GetPet():GetHealthPercentage() < self.sacrificeVoidHealth) then
 				hasPet = false;
 				CastSpellByName("Sacrifice");
 				return 0;
@@ -409,13 +424,9 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Check: Heal the pet if it's below 50% and we are above 50%
-			local petHP = 0; 
-			if (hasPet) then 
-				local petHP = GetPet():GetHealthPercentage();
-			end
-			if (hasPet and petHP > 0 and petHP <= self.healPetHealth and HasSpell("Health Funnel") and localHealth > 50) then
+			if (hasPet) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 50) then
 				if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) then
-					script_nave:moveToTarget(localObj, GetPet():GetPosition()); 
+					script_nav:moveToTarget(localObj, GetPet():GetPosition()); 
 					self.waitTimer = GetTimeEX() + 2000;
 					return 0;
 				else
@@ -516,31 +527,25 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Drain Life on low health
-			if (self.useDrainLife) then
-				if (HasSpell("Drain Life")) and (targetObj:GetCreatureType() ~= "Mechanic") and (localHealth <= self.drainLifeHealth) then
-					if (targetObj:GetDistance() < 20) then
-						if (IsMoving()) then StopMoving(); 
-							return; 
-						end
-						if (Cast('Drain Life', targetObj)) then 
-							return; 
-						end
-					else
-						script_nav:moveToTarget(localObj, targetObj:GetPosition()); 
-						self.waitTimer = GetTimeEX() + 2000;
-						return 0;
+			if (HasSpell("Drain Life")) and (targetObj:GetCreatureType() ~= "Mechanic") and (localHealth <= self.drainLifeHealth) then
+				if (targetObj:GetDistance() < 20) then
+					if (IsMoving()) then StopMoving(); 
+						return; 
 					end
+					if (Cast('Drain Life', targetObj)) then 
+						return; 
+					end
+				else
+					script_nav:moveToTarget(localObj, targetObj:GetPosition()); 
+					self.waitTimer = GetTimeEX() + 2000;
+					return 0;
 				end
 			end
 
 			-- Check: Heal the pet if it's below 50% and we are above 50%
-			local petHP = 0; 
-			if (hasPet) then 
-				local petHP = GetPet():GetHealthPercentage();
-			end
-			if (hasPet and petHP > 0 and petHP <= self.healPetHealth and HasSpell("Health Funnel") and localHealth > 50) then
+			if (hasPet) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 50) then
 				if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) then
-					script_nave:moveToTarget(localObj, GetPet():GetPosition()); 
+					script_nav:moveToTarget(localObj, GetPet():GetPosition()); 
 					self.waitTimer = GetTimeEX() + 2000;
 					return 0;
 				else
@@ -654,8 +659,9 @@ function script_warlock:rest()
 	end
 
 	if (hasPet) and (self.useVoid) and (GetPet():GetHealthPercentage() < 75) then
-		CastSpellByName("Consmue Shadows");
+		CastSpellByName("Consume Shadows");
 		self.waitTimer = GetTimeEX() + 7500;
+		self.message = "Using Voidwalker Consume Shadows";
 		return true;
 	end
 
@@ -667,13 +673,12 @@ function script_warlock:rest()
 	end
 	
 	-- Check: Summon our Demon if we are not in combat (Voidwalker is Summoned in favor of the Imp)
-	if (not IsEating() and not IsDrinking()) then	
+	if (not IsEating() and not IsDrinking() and (not hasPet)) then	
 		if ((not hasPet or petIsImp) and HasSpell("Summon Voidwalker") and HasItem('Soul Shard') and self.useVoid) then
 			if (not IsStanding() or IsMoving()) then 
-				hasPet = true;
 				StopMoving();
 			end
-			if (localMana > 40) then
+			if (localMana > 40) and (not hasPet) then
 				CastSpellByName("Summon Voidwalker");
 				self.waitTimer = GetTimeEX() + 14000;
 				self.message = "Summoning Void Walker";
@@ -681,7 +686,6 @@ function script_warlock:rest()
 			end
 		elseif (not hasPet and HasSpell("Summon Imp") and self.useImp) then
 			if (not IsStanding() or IsMoving()) then
-				hasPet = true;
 				StopMoving();
 			end
 			if (localMana > 30) then
@@ -735,7 +739,7 @@ function script_warlock:rest()
 				return true;
 			end
 		end
-		if (HasSpell("Unending Breath")) then
+		if (HasSpell("Unending Breath")) and (self.useUnendingBreath) then
 			if (not localObj:HasBuff('Unending Breath')) then
 				if (not Buff('Unending Breath', localObj)) then
 					return false;
@@ -748,19 +752,15 @@ function script_warlock:rest()
 	end
 
 	-- Check: Health funnel on the pet or wait for it to regen if lower than 70%
-	local petHP = 0;
-	if (GetPet() ~= 0) then
-		petHP = GetPet():GetHealthPercentage();
-	end
-	if (hasPet and petHP > 0) then
-		if (petHP < 70) then
+	if (hasPet and GetPet():GetHealthPercentage() > 0) then
+		if (GetPet():GetHealthPercentage() < 70) then
 			if (GetPet():GetDistance() > 8) then
 				PetFollow();
 				self.waitTimer = GetTimeEX() + 1850; 
 				return true;
 			end
 			if (GetPet():GetDistance() < 20 and localMana > 10) then
-				if (hasPet and petHP < 70 and petHP > 0) then
+				if (hasPet and GetPet():GetHealthPercentage() < 70 and GetPet():GetHealthPercentage() > 0) then
 					self.message = "Pet has lower than 70% HP, using health funnel...";
 					if (IsMoving() or not IsStanding()) then StopMoving(); return true; end
 					if (HasSpell('Health Funnel')) then CastSpellByName('Health Funnel'); end
@@ -839,6 +839,10 @@ function script_warlock:menu()
 
 		Text('Skills options:');
 
+		if (HasSpell("Unending Breath")) then
+			wasClicked, self.useUnendingBreath = Checkbox("Unending Breath On/Off", self.useUnendingBreath);
+		end
+
 		if (HasSpell("Fear")) then
 			wasClicked, self.fearAdds = Checkbox("Fear Adds", self.fearAdds);
 			SameLine();
@@ -854,20 +858,20 @@ function script_warlock:menu()
 
 		if (HasSpell("Drain Life")) then
 			Text("Use Drain Life below self health percent");
-			self.drainLifeHealth = SliderInt("DLH", 0, 80, self.drainLifeHealth);
+			self.drainLifeHealth = SliderInt("DLH", 1, 80, self.drainLifeHealth);
 			Separator();
 		end
 
 		if (HasSpell("Health Funnel")) then
 			Text("Heal Pet below pet health percent");
-			self.healPetHealth = SliderInt("HPH", 0, 80, self.healPetHealth);
+			self.healPetHealth = SliderInt("HPH", 1, 80, self.healPetHealth);
 		end
 
 		if (self.useVoid) then
 			wasClicked, self.sacrificeVoid = Checkbox("Sacrifice Voidwalker when low self health", self.sacrificeVoid);
 			if (self.sacrificeVoid) then
-				Text("Self Health percent to Sacrifice Voidwalker")
-				self.sacrificeVoidHealth = SliderInt("SVH", 0, 30, self.sacrificeVoidHealth);
+				Text("Self Health OR Pet Health percent to Sacrifice Voidwalker")
+				self.sacrificeVoidHealth = SliderInt("SVH", 1, 25, self.sacrificeVoidHealth);
 				Separator();
 			end
 		end
