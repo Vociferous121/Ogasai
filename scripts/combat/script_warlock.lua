@@ -142,11 +142,15 @@ function script_warlock:setup()
 	self.fearTimer = GetTimeEX();
 	self.cooldownTimer = GetTimeEX();
 
+
+-- issue with hasPet and not having pet low level causing the bot to stop
+-- may be a combat command. learning a pet spell and summoning pet continues the script
+
 	if (not HasSpell("Summon Voidwalker")) and (HasSpell("Summon Imp")) then
 		self.useImp = true;
 		self.useVoid = false;
 		self.useSuccubus = false;
-	elseif (not HasSpell("Summon Succubus") and HasSpell("Summon Voidwalker")) then
+	elseif (HasSpell("Summon Voidwalker")) then
 		self.useImp = false;
 		self.useVoid = true;
 		self.useSuccubus = false;
@@ -254,6 +258,11 @@ function script_warlock:run(targetGUID)
 
 		-- set target health
 		targetHealth = targetObj:GetHealthPercentage();
+
+		if (not targetObj:IsInLineOfSight()) then -- check line of sight
+			self.message = "Moving into Line of Sight of target";
+			return 3;
+		end
 
 		-- Auto attack
 		if (targetObj:GetDistance() < 40) then
@@ -383,6 +392,7 @@ function script_warlock:run(targetGUID)
 			if (hasPet) and (GetPet():GetDistance() > 30) then
 				self.message = "Recalling Pet - too far!";
 				PetFollow();
+				return 0;
 			end
 
 			-- Set the pet to attack
@@ -780,7 +790,6 @@ function script_warlock:rest()
 					hasPet = true;
 					return true; 
 				end
-		   		hasPet = true;
 			end
 		elseif (not hasPet) and (self.useVoid) and (HasSpell("Summon Voidwalker")) and (HasItem('Soul Shard')) then
 			if (not IsStanding() or IsMoving()) then 
@@ -794,7 +803,6 @@ function script_warlock:rest()
 					hasPet = true;
 					return true; 
 				end
-				hasPet = true;
 			end
 		elseif (not hasPet) and (HasSpell("Summon Imp")) and (self.useImp) then
 			if (not IsStanding() or IsMoving()) then
@@ -808,7 +816,6 @@ function script_warlock:rest()
 				hasPet = true;
 				return true;
 			end
-			hasPet = true;
 		end
 		self.waitTimer = GetTimeEX() + 12000;
 	end
@@ -923,6 +930,7 @@ function script_warlock:window()
 end
 
 function script_warlock:menu()
+	localObj = GetLocalPlayer();
 	if (CollapsingHeader("Warlock Combat Options")) then
 
 		local wasClicked = false;
@@ -1000,7 +1008,10 @@ function script_warlock:menu()
 
 		-- shadowbolt
 		wasClicked, self.useShadowBolt = Checkbox("Shadowbolt instead of wand", self.useShadowBolt);
-	
+		
+		if (not localObj:HasRangedWeapon()) then
+			self.useShadowBolt = true;
+		end
 		if (self.useShadowBolt) then
 			self.useWand = false;
 		end
@@ -1029,7 +1040,7 @@ function script_warlock:menu()
 			self.healPetHealth = SliderInt("HPH", 1, 80, self.healPetHealth);
 		end
 
-		if (self.useVoid) then
+		if (self.useVoid) and (HasSpell("Sacrifice")) then
 			wasClicked, self.sacrificeVoid = Checkbox("Sacrifice Voidwalker when low self health", self.sacrificeVoid);
 			if (self.sacrificeVoid) then
 				Text("Self Health OR Pet Health percent to Sacrifice Voidwalker")
@@ -1069,7 +1080,7 @@ function script_warlock:menu()
 			Text("TODO! ?? maybe.. is it worth it?");
 		end
 
-		if (localObj:HasRangedWeapon() and self.useWand) then
+		if (localObj:HasRangedWeapon()) and (self.useWand) then
 			if (CollapsingHeader("-- Wand Options")) then
 				Text("Use Wand below target health percent");
 				self.useWandHealth = SliderInt("WH", 1, 100, self.useWandHealth);

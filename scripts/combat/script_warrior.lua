@@ -262,7 +262,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			if (self.enableCharge and self.defensiveStance) then
 				if (HasSpell("Charge")) and (targetHealth >= 99 or (not script_grind:isTargetingMe(currentObj))) then
 					if (not IsSpellOnCD("Charge")) then
-						if (targetObj:GetDistance() >= 10) and (not IsInCombat()) then
+						if (targetObj:GetDistance() >= 10 and targetObj:GetDistance() <= 28) and (not IsInCombat()) then
 							if (CastSpellByName("Battle Stance")) then
 								self.waitTimer = GetTimeEX() + 2000;
 							end
@@ -302,6 +302,10 @@ function script_warrior:run(targetGUID)	-- main content of script
 			-- Check move into melee range
 			if (targetObj:GetDistance() >= self.meleeDistance or not targetObj:IsInLineOfSight()) then
 				return 3;
+			else
+				if (IsMoving()) and (self.faceTarget) then
+					StopMoving();
+				end
 			end
 
 			-- Combat
