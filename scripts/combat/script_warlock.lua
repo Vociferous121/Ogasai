@@ -17,7 +17,7 @@ script_warlock = {
 	isChecked = true,
 	useVoid = false,
 	useImp = false,
-	useSuccubus = false;
+	useSuccubus = false,
 	corruptionCastTime = 0, -- 0-2000 ms = 2000 with no improved corruption talent
 	lifeTapHealth = 75,
 	lifeTapMana = 80,
@@ -35,7 +35,8 @@ script_warlock = {
 	sacrificeVoid = true,
 	sacrificeVoidHealth = 10,
 	useUnendingBreath = false,
-	alwaysFear = false;
+	alwaysFear = false,
+	useDrainMana = false,
 }
 
 function script_warlock:cast(spellName, target)
@@ -202,8 +203,10 @@ function script_warlock:run(targetGUID)
 
 	local hasPet = false;
 	
-	if (GetPet():GetHealthPercentage() <= 0) then
-		hasPet = false;
+	if (hasPet) then
+		if (GetPet():GetHealthPercentage() <= 0) then
+			hasPet = false;
+		end
 	end
 
 	-- if has pet then set variable
@@ -404,11 +407,25 @@ function script_warlock:run(targetGUID)
 				end 
 			end
 
+			-- voidwalker taunt
+			if (self.useVoid) and (HasSpell("Suffering")) and (not IsSpellOnCD("Suffering")) and (GetPet():GetHealthPercentage() > 25) and (script_grind:enemiesAttackingUs(10) >= 2) and (hasPet) then
+				CastSpellByName("Suffering");
+				return 0;
+			end
+
 			-- sacrifice voidwalker low health
 			if (hasPet) and (self.useVoid) and (self.sacrificeVoid) and (localHealth <= self.sacrificeVoidHealth or GetPet():GetHealthPercentage() < self.sacrificeVoidHealth) then
 				hasPet = false;
 				CastSpellByName("Sacrifice");
 				return 0;
+			end
+
+			-- resummon when sacrifice is active
+			if (self.useVoid) and (self.sacrificeVoid) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (localObj:HasBuff("Sacrifice")) then
+				if (CastSpellByName("Summon Voidwalker")) then
+				return 0;
+				end
+				hasPet = true;
 			end
 
 			-- Check: If we get Nightfall buff then cast Shadow Bolt
@@ -593,6 +610,23 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
+			-- Drain Mana on low mana
+			if (HasSpell("Drain Mana")) and(self.useDrainMana) and (targetObj:GetCreatureType() ~= "Mechanic") and (targetObj:GetManaPercentage() >= 25) and (localMana <= 35) then
+				self.message = "Casting Drain Mana";
+				if (targetObj:GetDistance() < 20) then
+					if (IsMoving()) then StopMoving(); 
+						return; 
+					end
+					if (Cast('Drain Mana', targetObj)) then 
+						return; 
+					end
+				else
+					script_nav:moveToTarget(localObj, targetObj:GetPosition()); 
+					self.waitTimer = GetTimeEX() + 2000;
+					return 0;
+				end
+			end
+
 			-- Check: Heal the pet if it's below 50% and we are above 50%
 			if (hasPet) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) then
 				self.message = "Healing pet with Health Funnel";
@@ -616,7 +650,7 @@ function script_warlock:run(targetGUID)
 					return 0;
 				end
 				-- wand instead
-			elseif (self.useWand) and (localHealth > self.drainLifeHealth and GetPet():GetHealthPercentage() > self.healPetHealth) and (not IsChanneling()) then
+			elseif (self.useWand) and (localHealth > self.drainLifeHealth or GetPet():GetHealthPercentage() > self.healPetHealth) and (not IsChanneling()) then
 				if (localObj:HasRangedWeapon()) then
 					self.message = "Using wand...";
 					if (not IsAutoCasting("Shoot")) then
@@ -666,7 +700,7 @@ function script_warlock:rest()
 	end
 
 	-- Cast: Life Tap if conditions are right, see the function
-	if (not IsDrinking() and not IsEating()) then
+	if (not IsDrinking() and not IsEating() and IsStanding()) then
 		if (script_warlock:lifeTap(localHealth, localMana)) then
 			return true; 
 		end
@@ -730,34 +764,43 @@ function script_warlock:rest()
 			if (not IsStanding() or IsMoving()) then 
 				StopMoving();
 			end
-			if (localMana > 75) and (GetPet() == 0) then
+			-- summon succubus
+			if (localMana > 75) and (GetPet() == 0 or not hasPet) then
 				if (CastSpellByName("Summon Succubus")) then
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Succubus";
+					hasPet = true;
 					return true; 
 				end
+		   		hasPet = true;
 			end
 		elseif ((not hasPet or petIsImp) and HasSpell("Summon Voidwalker") and HasItem('Soul Shard') and self.useVoid) then
 			if (not IsStanding() or IsMoving()) then 
 				StopMoving();
 			end
-			if (localMana > 75) and (GetPet() == 0) then
+			-- summon voidwalker
+			if (localMana > 75) and (GetPet() == 0 or not hasPet) then
 				if (CastSpellByName("Summon Voidwalker")) then
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Void Walker";
+					hasPet = true;
 					return true; 
 				end
+				hasPet = true;
 			end
 		elseif (not hasPet and HasSpell("Summon Imp") and self.useImp) then
 			if (not IsStanding() or IsMoving()) then
 				StopMoving();
 			end
+			-- summon Imp
 			if (localMana > 75) then
 				CastSpellByName("Summon Imp");
 				self.waitTimer = GetTimeEX() + 14000;
 				self.message = "Summoning Imp";
+				hasPet = true;
 				return true;
 			end
+			hasPet = true;
 		end
 		self.waitTimer = GetTimeEX() + 12000;
 	end
@@ -819,7 +862,7 @@ function script_warlock:rest()
 	end
 
 	-- Check: Health funnel on the pet or wait for it to regen if lower than 70%
-	if (hasPet and GetPet():GetHealthPercentage() > 0) then
+	if (hasPet and GetPet() ~= 0) then
 		if (GetPet():GetHealthPercentage() < 70) and (localHealth > 60) then
 			if (GetPet():GetDistance() > 8) then
 				PetFollow();
@@ -955,6 +998,12 @@ function script_warlock:menu()
 		-- unending breath
 		if (HasSpell("Unending Breath")) then
 			wasClicked, self.useUnendingBreath = Checkbox("Unending Breath On/Off", self.useUnendingBreath);
+		end
+		
+		SameLine();
+
+		if (HasSpell("Drain Mana")) then
+			wasClicked, self.useDrainMana = Checkbox("Drain Mana On/Off", self.useDrainMana);
 		end
 
 		Separator();
