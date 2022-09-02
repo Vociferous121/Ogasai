@@ -287,6 +287,7 @@ function script_warlock:run(targetGUID)
 			-- spells to pull
 
 			if (HasSpell("Siphon Life")) and (self.enableSiphonLife) then
+				self.message = "Stacking DoT's";
 				if (hasPet) then
 					PetAttack();
 				end
@@ -298,6 +299,7 @@ function script_warlock:run(targetGUID)
 					return 0;
 				end
 			elseif (HasSpell("Curse of Agony")) and (self.enableCurseOfAgony) then
+				self.message = "Stacking DoT's";
 				if (hasPet) then
 					PetAttack();
 				end
@@ -309,6 +311,7 @@ function script_warlock:run(targetGUID)
 					return 0;
 				end
 			elseif (HasSpell("Immolate")) and (self.enableImmolate) then
+				self.message = "Stacking DoT's";
 				if (hasPet) then
 					PetAttack();
 				end
@@ -321,6 +324,7 @@ function script_warlock:run(targetGUID)
 				end
 			else
 				if (Cast('Shadow Bolt', targetObj)) then
+					self.message = "Pulling Target";
 					if (hasPet) then
 						PetAttack();
 					end
@@ -332,6 +336,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			if (not targetObj:IsInLineOfSight()) then -- check line of sight
+				self.message = "Moving into Line of Sight of target";
 				return 3;
 			end
 	
@@ -343,12 +348,14 @@ function script_warlock:run(targetGUID)
 
 			-- recall pet if too far > 30
 			if (hasPet) and (GetPet():GetDistance() > 30) then
+				self.message = "Recalling Pet - too far!";
 				PetFollow();
 			end
 
 			-- Set the pet to attack
 			if (hasPet) and (targetObj:GetDistance() < 35) and (targetHealth < 99 or targetObj:HasDebuff("Curse of Agony") or 
 				targetObj:HasDebuff("Corruption")) or (script_grind:isTargetingMe(targetObj)) then
+				self.message = "Sending pet to attack";
 				PetAttack();
 			end
 
@@ -426,6 +433,7 @@ function script_warlock:run(targetGUID)
 			-- Check: Heal the pet if it's below 50% and we are above 50%
 			if (hasPet) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 50) then
 				if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) then
+					self.message = "Healing pet!";
 					script_nav:moveToTarget(localObj, GetPet():GetPosition()); 
 					self.waitTimer = GetTimeEX() + 2000;
 					return 0;
@@ -437,7 +445,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Wand if low mana
-			if (localMana <= 15 or targetHealth <= 10) and (localObj:HasRangedWeapon()) then
+			if (localMana <= 5 or targetHealth <= 10) and (localObj:HasRangedWeapon()) then
 				self.message = "Using wand...";
 				if (not IsAutoCasting("Shoot")) then
 					targetObj:FaceTarget();
@@ -502,12 +510,14 @@ function script_warlock:run(targetGUID)
 			-- life tap in combat
 			if HasSpell("Life Tap") and not IsSpellOnCD("Life Tap") and localHealth > 35 and localMana < 15 then
 				if (CastSpellByName("Life Tap")) then
+					self.message = "Using Life Tap!";
 					return 0;
 				end
 			end
 
 			-- gather shards enabled
 			if (self.enableGatherShards) then
+				self.message = "Gathering Soulshards - bot will NOT stop";
 				if (targetHealth < 35) and (HasSpell("Drain Soul")) then
 					if (targetObj:GetDistance() <= 20) then
 						if (IsAutoCasting("Shoot")) then
@@ -527,7 +537,8 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Drain Life on low health
-			if (HasSpell("Drain Life")) and (targetObj:GetCreatureType() ~= "Mechanic") and (localHealth <= self.drainLifeHealth) then
+			if (HasSpell("Drain Life")) and (targetObj:GetCreatureType() ~= "Mechanic") and (localHealth <= self.drainLifeHealth) and (localMana > 5) then
+				self.message = "Casting Drain Life";
 				if (targetObj:GetDistance() < 20) then
 					if (IsMoving()) then StopMoving(); 
 						return; 
@@ -544,6 +555,7 @@ function script_warlock:run(targetGUID)
 
 			-- Check: Heal the pet if it's below 50% and we are above 50%
 			if (hasPet) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 50) then
+				self.message = "Healing pet with Health Funnel";
 				if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) then
 					script_nav:moveToTarget(localObj, GetPet():GetPosition()); 
 					self.waitTimer = GetTimeEX() + 2000;
@@ -564,7 +576,7 @@ function script_warlock:run(targetGUID)
 					return 0;
 				end
 				-- wand instead
-			elseif (self.useWand) then
+			elseif (self.useWand) and (localHealth > self.drainLifeHealth and GetPet():GetHealthPercentage() > self.healPetHealth) then
 				if (localObj:HasRangedWeapon()) then
 					self.message = "Using wand...";
 					if (not IsAutoCasting("Shoot")) then
@@ -714,7 +726,7 @@ function script_warlock:rest()
 				return true;
 			end
 			if (HasSpell('Create Healthstone')) then
-				CastSpellByName('Create Healthstone');
+			CastSpellByName('Create Healthstone');
 				return true;
 			end
 		end

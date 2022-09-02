@@ -72,7 +72,7 @@ script_grind = {
 	newTargetTime = GetTimeEX(),
 	blacklistTime = 30,
 	drawEnabled = true,
-	showClassOptions = false,
+	showClassOptions = true,
 	pause = false,
 	bagsFull = false,
 	vendorRefill = false,
@@ -91,7 +91,7 @@ function script_grind:setup()
 	self.lootCheck['target'] = 0;
 	self.lootCheck['timer'] = GetTimeEX();
 
-	-- Classes that doesn't use mana
+	-- Classes that don't use mana
 	local class, classFileName = UnitClass("player");
 	if (strfind("Warrior", class) or strfind("Rogue", class)) then self.useMana = false; self.restMana = 0; end
 	
@@ -249,7 +249,7 @@ function script_grind:run()
 		-- Jump
 		if (self.jump) then
 			local jumpRandom = random(1, 100);
-			if (jumpRandom > 91 and IsMoving()) then
+			if (jumpRandom > 91 and IsMoving() and not IsInCombat()) then
 				JumpOrAscendStart();
 			end
 		end

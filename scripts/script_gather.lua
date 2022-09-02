@@ -242,10 +242,10 @@ function script_gather:gather()
 		-- reached loot stop moving
 		--if (not self.nodeBlacklisted) then
 			if(dist <= selfDist + self.toNodeDistance) then
-				self.waitTimer = GetTimeEX() + 1500;
+				self.waitTimer = GetTimeEX() + 300;
 				if (IsMoving()) then
 					StopMoving();
-					self.timer = GetTimeEX() + 750;
+					self.timer = GetTimeEX() + 500;
 					return true;
 				end
 
@@ -299,9 +299,9 @@ function script_gather:menu()
 		wasClicked, self.collectHerbs = Checkbox("Herbalism", self.collectHerbs);
 
 		Text('Gather Search Distance');
-		self.gatherDistance = SliderInt("GSD", 1, 500, self.gatherDistance);
+		self.gatherDistance = SliderInt("GSD (yd)", 1, 500, self.gatherDistance);
 		Text("Distance to stand from node");
-		self.toNodeDistance = SliderInt("ND", 2, 5, self.toNodeDistance);
+		self.toNodeDistance = SliderInt("ND (yd)", 2, 5, self.toNodeDistance);
 		
 		if (script_gather.collectMinerals or script_gather.collectHerbs) then
 			wasClicked, script_gather.gatherAllPossible = Checkbox("Gather everything we can", script_gather.gatherAllPossible);
