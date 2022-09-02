@@ -142,14 +142,19 @@ function script_warlock:setup()
 	self.fearTimer = GetTimeEX();
 	self.cooldownTimer = GetTimeEX();
 
-	if (not HasSpell("Summon Voidwalker")) then
+	if (not HasSpell("Summon Voidwalker")) and (HasSpell("Summon Imp")) then
 		self.useImp = true;
 		self.useVoid = false;
 		self.useSuccubus = false;
-	elseif (not HasSpell("Summon Succubus")) then
+	elseif (not HasSpell("Summon Succubus") and HasSpell("Summon Voidwalker")) then
 		self.useImp = false;
 		self.useVoid = true;
 		self.useSuccubus = false;
+	elseif (not HasSpell("Summon Imp") and not HasSpell("Summon Voidwalker") and not HasSpell("Summon Succubus")) then
+		self.useImp = false;
+		self.useVoid = false;
+		self.useSuccubus = false;
+		hasPet = false;
 	-- elseif (HasSpell("Summon Succubus")) then
 	-- 	self.useSuccubus = true;
 	-- 	self.useImp = false;
@@ -273,7 +278,7 @@ function script_warlock:run(targetGUID)
 		end
 
 		-- move to cancel Drain Life when we get Nightfall buff
-		if (GetTarget() ~= 0) then	
+		if (GetTarget() ~= 0) and (HasSpell("Drain Life") )then	
 			if (GetTarget():HasDebuff("Drain Life") and localObj:HasBuff("Shadow Trance")) then
 				local _x, _y, _z = localObj:GetPosition();
 				script_nav:moveToTarget(localObj, _x + 1, _y, _z); 
@@ -310,17 +315,19 @@ function script_warlock:run(targetGUID)
 				return 0;
 			end
 
-			if (HasSpell("Siphon Life")) and (self.enableSiphonLife) then
-				self.message = "Stacking DoT's";
-				if (hasPet) then
-					PetAttack();
-				end
-				if (not targetObj:IsInLineOfSight()) then -- check line of sight
-					return 3; -- target not in line of sight
-				end -- move to target
-				if (Cast("Siphon Life", targetObj)) then 
-					self.waitTimer = GetTimeEX() + 1600; 
-					return 0;
+			if (HasSpell("Siphon Life")) then
+				if (self.enableSiphonLife) then
+					self.message = "Stacking DoT's";
+					if (hasPet) then
+						PetAttack();
+					end
+					if (not targetObj:IsInLineOfSight()) then -- check line of sight
+						return 3; -- target not in line of sight
+					end -- move to target
+					if (Cast("Siphon Life", targetObj)) then 
+						self.waitTimer = GetTimeEX() + 1600; 
+						return 0;
+					end
 				end
 			elseif (HasSpell("Curse of Agony")) and (self.enableCurseOfAgony) then
 				self.message = "Stacking DoT's";
@@ -408,13 +415,13 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- voidwalker taunt
-			if (self.useVoid) and (HasSpell("Suffering")) and (not IsSpellOnCD("Suffering")) and (GetPet():GetHealthPercentage() > 25) and (script_grind:enemiesAttackingUs(10) >= 2) and (hasPet) then
+			if (hasPet) and (self.useVoid) and (HasSpell("Suffering")) and (not IsSpellOnCD("Suffering")) and (GetPet():GetHealthPercentage() > 25) and (script_grind:enemiesAttackingUs(10) >= 2) and (hasPet) then
 				CastSpellByName("Suffering");
 				return 0;
 			end
 
 			-- sacrifice voidwalker low health
-			if (hasPet) and (self.useVoid) and (self.sacrificeVoid) and (localHealth <= self.sacrificeVoidHealth or GetPet():GetHealthPercentage() < self.sacrificeVoidHealth) then
+			if (hasPet) and (self.useVoid) and (HasSpell("Sacrifice")) and (self.sacrificeVoid) and (localHealth <= self.sacrificeVoidHealth or GetPet():GetHealthPercentage() < self.sacrificeVoidHealth) then
 				hasPet = false;
 				CastSpellByName("Sacrifice");
 				return 0;
@@ -700,7 +707,7 @@ function script_warlock:rest()
 	end
 
 	-- Cast: Life Tap if conditions are right, see the function
-	if (not IsDrinking() and not IsEating() and IsStanding()) then
+	if (not IsDrinking()) and (not IsEating()) and (IsStanding()) then
 		if (script_warlock:lifeTap(localHealth, localMana)) then
 			return true; 
 		end
@@ -758,9 +765,10 @@ function script_warlock:rest()
 		if (name == "Firebolt") then petIsImp = true; end
 	end
 	
-	-- Check: Summon our Demon if we are not in combat (Voidwalker is Summoned in favor of the Imp)
-	if (not IsEating() and not IsDrinking() and (not hasPet)) and (GetPet() == 0) then	
-		if (not hasPet and not self.useVoid or self.useImp) or (HasSpell("Summon Succubus")) and HasItem('Soul Shard') and (self.useSuccubus) then
+	-- Check: Summon our Demon if we are not in combat
+	if (not IsEating()) and (not IsDrinking()) and (not hasPet) and (GetPet() == 0) then
+		-- succubus	
+		if (not hasPet) and (not self.useVoid or not self.useImp) and (self.useSuccubus) and (HasSpell("Summon Succubus")) and HasItem('Soul Shard') then
 			if (not IsStanding() or IsMoving()) then 
 				StopMoving();
 			end
@@ -774,7 +782,7 @@ function script_warlock:rest()
 				end
 		   		hasPet = true;
 			end
-		elseif ((not hasPet or petIsImp) and HasSpell("Summon Voidwalker") and HasItem('Soul Shard') and self.useVoid) then
+		elseif (not hasPet) and (self.useVoid) and (HasSpell("Summon Voidwalker")) and (HasItem('Soul Shard')) then
 			if (not IsStanding() or IsMoving()) then 
 				StopMoving();
 			end
@@ -788,7 +796,7 @@ function script_warlock:rest()
 				end
 				hasPet = true;
 			end
-		elseif (not hasPet and HasSpell("Summon Imp") and self.useImp) then
+		elseif (not hasPet) and (HasSpell("Summon Imp")) and (self.useImp) then
 			if (not IsStanding() or IsMoving()) then
 				StopMoving();
 			end
@@ -946,6 +954,8 @@ function script_warlock:menu()
 		if (HasSpell("Drain Soul")) then
 			wasClicked, self.enableGatherShards = Checkbox("Gather Soul Shards", self.enableGatherShards);
 		end
+
+		Separator();
 
 		Text('Drink below mana percentage');
 		self.drinkMana = SliderFloat("M%", 1, 100, self.drinkMana);
