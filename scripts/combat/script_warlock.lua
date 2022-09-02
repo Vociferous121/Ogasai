@@ -15,8 +15,9 @@ script_warlock = {
 	waitTimer = 0,
 	useWand = true,
 	isChecked = true,
-	useVoid = true,
+	useVoid = false,
 	useImp = false,
+	useSuccubus = true;
 	corruptionCastTime = 0, -- 0-2000 ms = 2000 with no improved corruption talent
 	lifeTapHealth = 75,
 	lifeTapMana = 80,
@@ -34,6 +35,7 @@ script_warlock = {
 	sacrificeVoid = true,
 	sacrificeVoidHealth = 10,
 	useUnendingBreath = false,
+	alwaysFear = false;
 }
 
 function script_warlock:cast(spellName, target)
@@ -142,6 +144,12 @@ function script_warlock:setup()
 	if (not HasSpell("Summon Voidwalker")) then
 		self.useImp = true;
 		self.useVoid = false;
+	elseif (not HasSpell("Summon Succubus")) then
+		self.useImp = false;
+		self.useVoid = true;
+	elseif (HasSpell("Summon Succubus")) then
+		self.useSuccubus = true;
+		self.alwaysFear = true;
 	end
 
 	if (GetLocalPlayer():GetLevel() < 10) then
@@ -403,6 +411,17 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
+			-- Fear single Target
+			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 10) then
+				if (not targetObj:IsInLineOfSight()) then -- check line of sight
+					return 3; -- target not in line of sight
+				end -- move to target
+				if (Cast("Fear", targetObj)) then
+					self.waitTimer = GetTimeEX() + 2300;
+					return 0;
+				end
+			end
+
 			-- Check if add already feared
 			if (not script_warlock:isAddFeared() and not (self.fearTimer < GetTimeEX())) then
 				self.addFeared = false;
@@ -501,6 +520,7 @@ function script_warlock:run(targetGUID)
 						return 3; -- target not in line of sight
 					end -- move to target
 					if (Cast('Immolate', targetObj)) then
+						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 2500;
 						return 0;
 					end
@@ -521,7 +541,8 @@ function script_warlock:run(targetGUID)
 				if (targetHealth < 35) and (HasSpell("Drain Soul")) then
 					if (targetObj:GetDistance() <= 20) then
 						if (IsAutoCasting("Shoot")) then
-							script_nav:moveToTarget(localObj, _x + 1, _y, _z); 
+							script_nav:moveToTarget(localObj, _x + 1, _y, _z);
+							targetObj:FaceTarget();
 							return 0;
 						end
 						if (Cast('Drain Soul', targetObj)) then
@@ -669,7 +690,7 @@ function script_warlock:rest()
 		return true;
 	end
 
-	if (hasPet) and (self.useVoid) and (GetPet():GetHealthPercentage() < 75) then
+	if (hasPet) and (self.useVoid) and (GetPet():GetHealthPercentage() < 75) and (HasSpell("Consume Shadows")) then
 		CastSpellByName("Consume Shadows");
 		self.waitTimer = GetTimeEX() + 7500;
 		self.message = "Using Voidwalker Consume Shadows";
@@ -685,7 +706,17 @@ function script_warlock:rest()
 	
 	-- Check: Summon our Demon if we are not in combat (Voidwalker is Summoned in favor of the Imp)
 	if (not IsEating() and not IsDrinking() and (not hasPet)) then	
-		if ((not hasPet or petIsImp) and HasSpell("Summon Voidwalker") and HasItem('Soul Shard') and self.useVoid) then
+		if (not hasPet and not self.useVoid or self.useImp) or (HasSpell("Summon Succubus")) and HasItem('Soul Shard') and (self.useSuccubus) then
+			if (not IsStanding() or IsMoving()) then 
+				StopMoving();
+			end
+			if (localMana > 40) and (not hasPet) then
+				CastSpellByName("Summon Succubus");
+				self.waitTimer = GetTimeEX() + 14000;
+				self.message = "Summoning Succubus";
+				return true; 
+			end
+		elseif ((not hasPet or petIsImp) and HasSpell("Summon Voidwalker") and HasItem('Soul Shard') and self.useVoid) then
 			if (not IsStanding() or IsMoving()) then 
 				StopMoving();
 			end
@@ -828,11 +859,21 @@ function script_warlock:menu()
 		end
 		
 		if (HasSpell("Summon Voidwalker")) then
-			wasClicked, self.useVoid = Checkbox("Use Voidwalker over Imp", self.useVoid);
+			wasClicked, self.useVoid = Checkbox("Use Voidwalker", self.useVoid);
 			SameLine();
 
 			if (self.useVoid) then
 				self.useImp = false;
+				self.useSuccubus = false;
+			end
+		end
+
+		if (HasSpell("Summon Succubus")) then
+			wasClicked, self.useSuccubus = Checkbox("Use Succubus", self.useSuccubus);
+
+			if (self.useSuccubus) then
+				self.useImp = false;
+				self.useVoid = false;
 			end
 		end
 		
@@ -852,21 +893,47 @@ function script_warlock:menu()
 
 		Text('Skills options:');
 
+		-- always fear
+		if (HasSpell("Fear")) then
+			wasClicked, self.alwaysFear = Checkbox("Fear Single Targets", self.alwaysFear);
+			SameLine();
+			
+			if (self.alwaysFear) then
+				self.fearAdds = false;
+			end
+		end
+		
+		-- fear only adds
+		if (HasSpell("Fear")) then
+			wasClicked, self.fearAdds = Checkbox("Fear Adds", self.fearAdds);
+
+			if (self.fearAdds) then
+				self.alwaysFear = false;
+			end
+		end
+
+		-- use wand
+		if (localObj:HasRangedWeapon()) then
+			wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);
+			SameLine();
+
+			if (self.useWand) then
+				self.useShadowBolt = false;
+			end
+		end
+
+		-- shadowbolt
+		wasClicked, self.useShadowBolt = Checkbox("Shadowbolt instead of wand", self.useShadowBolt);
+	
+		if (self.useShadowBolt) then
+			self.useWand = false;
+		end
+
+		-- unending breath
 		if (HasSpell("Unending Breath")) then
 			wasClicked, self.useUnendingBreath = Checkbox("Unending Breath On/Off", self.useUnendingBreath);
 		end
 
-		if (HasSpell("Fear")) then
-			wasClicked, self.fearAdds = Checkbox("Fear Adds", self.fearAdds);
-			SameLine();
-		end
-
-		if (localObj:HasRangedWeapon()) then
-			wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);
-			SameLine();
-		end
-
-		wasClicked, self.useShadowBolt = Checkbox("Shadowbolt instead of wand", self.useShadowBolt);
 		Separator();
 
 		if (HasSpell("Drain Life")) then
