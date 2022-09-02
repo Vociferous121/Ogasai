@@ -33,6 +33,8 @@ script_warlock = {
 	enableCorruption = true,
 	drainLifeHealth = 75,
 	healPetHealth = 40,
+	sacrificeVoid = true,
+	sacrificeVoidHealth = 15,
 }
 
 function script_warlock:cast(spellName, target)
@@ -355,6 +357,13 @@ function script_warlock:run(targetGUID)
 				end 
 			end
 
+			-- sacrifice voidwalker low health
+			if (hasPet) and (self.sacrificeVoid) and (localHealth > self.sacrificeVoidHealth) then
+				hasPet = false;
+				CastSpellByName("Sacrifice");
+				return 0;
+			end
+
 			-- Check: If we get Nightfall buff then cast Shadow Bolt
 			if (localObj:HasBuff("Shadow Trance")) then
 				if (Cast('Shadow Bolt', targetObj)) then
@@ -638,7 +647,7 @@ function script_warlock:rest()
 		end	
 	end
 
-	if((localMana < 98 and IsDrinking()) or (localHealth < 98 and IsEating())) then
+	if (localMana < 98 and IsDrinking()) or (localHealth < 98 and IsEating()) then
 		self.message = "Resting to full hp/mana...";
 		return true;
 	end
@@ -789,11 +798,23 @@ function script_warlock:menu()
 
 		local wasClicked = false;
 
-		wasClicked, self.useImp = Checkbox("Use Imp", self.useImp);
-		SameLine();
-		wasClicked, self.useVoid = Checkbox("Use Voidwalker over Imp", self.useVoid);
-		SameLine();
-		wasClicked, self.enableGatherShards = Checkbox("Gather Soul Shards", self.enableGatherShards);
+		if (HasSpell("Summon Imp")) then
+			wasClicked, self.useImp = Checkbox("Use Imp", self.useImp);
+			SameLine();
+		end
+		
+		if (HasSpell("Summon Voidwalker")) then
+			wasClicked, self.useVoid = Checkbox("Use Voidwalker over Imp", self.useVoid);
+			SameLine();
+
+			if (self.useVoid) then
+				self.useImp = false;
+			end
+		end
+		
+		if (HasSpell("Drain Soul")) then
+			wasClicked, self.enableGatherShards = Checkbox("Gather Soul Shards", self.enableGatherShards);
+		end
 
 		Text('Drink below mana percentage');
 		self.drinkMana = SliderFloat("M%", 1, 100, self.drinkMana);
@@ -807,49 +828,88 @@ function script_warlock:menu()
 
 		Text('Skills options:');
 
-		wasClicked, self.fearAdds = Checkbox("Fear Adds", self.fearAdds);
-		SameLine();
-		wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);
-		SameLine();
+		if (HasSpell("Fear")) then
+			wasClicked, self.fearAdds = Checkbox("Fear Adds", self.fearAdds);
+			SameLine();
+		end
+
+		if (localObj:HasRangedWeapon()) then
+			wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);
+			SameLine();
+		end
+
 		wasClicked, self.useShadowBolt = Checkbox("Shadowbolt instead of wand", self.useShadowBolt);
 		Separator();
-		Text("Use Drain Life below self health percent");
-		self.drainLifeHealth = SliderInt("DLH", 0, 80, self.drainLifeHealth);
-		Separator();
-		Text("Heal Pet below pet health percent");
-		self.healPetHealth = SliderInt("HPH", 0, 80, self.healPetHealth);
+
+		if (HasSpell("Drain Life")) then
+			Text("Use Drain Life below self health percent");
+			self.drainLifeHealth = SliderInt("DLH", 0, 80, self.drainLifeHealth);
+			Separator();
+		end
+
+		if (HasSpell("Health Funnel")) then
+			Text("Heal Pet below pet health percent");
+			self.healPetHealth = SliderInt("HPH", 0, 80, self.healPetHealth);
+		end
+
+		if (self.useVoid) then
+			wasClicked, self.sacrificeVoid = Checkbox("Sacrifice Voidwalker when low self health", self.sacrificeVoid);
+			if (self.sacrificeVoid) then
+				Text("Self Health percent to Sacrifice Voidwalker")
+				self.sacrificeVoidHealth = SliderInt("SVH", 0, 30, self.sacrificeVoidHealth);
+				Separator();
+			end
+		end
 
 		if (CollapsingHeader("-- DoT Options")) then
-			Text("Corruption cast time - 14 is 1.4 seconds");	
-			self.corruptionCastTime = SliderInt("CCT (ms)", 0, 20, self.corruptionCastTime);
-			Separator();
-			wasClicked, self.enableSiphonLife = Checkbox("Siphon Life On/Off", self.enableSiphonLife);
-			SameLine();
-			wasClicked, self.enableImmolate = Checkbox("Immolate On/Off",self.enableImmolate);
+			if (HasSpell("Corruption")) and (self.enableCorruption) then
+				Text("Corruption cast time - 14 is 1.4 seconds");	
+				self.corruptionCastTime = SliderInt("CCT (ms)", 0, 20, self.corruptionCastTime);
+				Separator();
+			end
 			
-			wasClicked, self.enableCurseOfAgony = Checkbox("Curse of Agony On/Off", self.enableCurseOfAgony);
-			SameLine();
-			wasClicked, self.enableCorruption = Checkbox("Corruption On/Off", self.enableCorruption);
+			if (HasSpell("Siphon Life")) then
+				wasClicked, self.enableSiphonLife = Checkbox("Siphon Life On/Off", self.enableSiphonLife);
+				SameLine();
+			end
+
+			if (HasSpell("Immolate")) then
+				wasClicked, self.enableImmolate = Checkbox("Immolate On/Off",self.enableImmolate);
+			end
+
+			if (HasSpell("Curse of Agony")) then
+				wasClicked, self.enableCurseOfAgony = Checkbox("Curse of Agony On/Off", self.enableCurseOfAgony);
+				SameLine();
+			end
+
+			if (HasSpell("Corruption")) then
+				wasClicked, self.enableCorruption = Checkbox("Corruption On/Off", self.enableCorruption);
+			end
+
 		end		
 
 		if (CollapsingHeader("-- Curse Options")) then
 			Text("TODO! ?? maybe.. is it worth it?");
 		end
 
-		if (CollapsingHeader("-- Wand Options")) then
-			Text("Use Wand below target health percent");
-			self.useWandHealth = SliderInt("WH", 1, 100, self.useWandHealth);
-			Text("Use Wand below self mana percent");
-			self.useWandMana = SliderInt("WM", 1, 100, self.useWandMana);
+		if (localObj:HasRangedWeapon()) then
+			if (CollapsingHeader("-- Wand Options")) then
+				Text("Use Wand below target health percent");
+				self.useWandHealth = SliderInt("WH", 1, 100, self.useWandHealth);
+				Text("Use Wand below self mana percent");
+				self.useWandMana = SliderInt("WM", 1, 100, self.useWandMana);
+			end
 		end
 
 		Separator();
 
-		if (CollapsingHeader("-- Life Tap Options")) then
-			Text("Use Life Tap above this percent health");
-			self.lifeTapHealth = SliderInt("LTH", 50, 90, self.lifeTapHealth);
-			Text("Use Life Tap below this percent mana");
-			self.lifeTapMana = SliderInt("LTM", 15, 80, self.lifeTapMana);
+		if (HasSpell("Life Tap")) then
+			if (CollapsingHeader("-- Life Tap Options")) then
+				Text("Use Life Tap above this percent health");
+				self.lifeTapHealth = SliderInt("LTH", 50, 90, self.lifeTapHealth);
+				Text("Use Life Tap below this percent mana");
+				self.lifeTapMana = SliderInt("LTM", 15, 80, self.lifeTapMana);
+			end
 		end
 	end
 end
