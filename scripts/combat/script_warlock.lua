@@ -365,10 +365,13 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Set the pet to attack
-			if (hasPet) and (targetObj:GetDistance() < 35) and (targetHealth < 99 or targetObj:HasDebuff("Curse of Agony") or 
+			if (hasPet) and (GetPet():GetHealthPercentage() >= 1) and (targetObj:GetDistance() < 35) and (targetHealth < 99 or targetObj:HasDebuff("Curse of Agony") or 
 				targetObj:HasDebuff("Corruption")) or (script_grind:isTargetingMe(targetObj)) then
 				self.message = "Sending pet to attack";
 				PetAttack();
+			elseif (HasSpell("Fear")) then
+				CastSpellByName("Fear");
+				return 0;
 			end
 
 			-- Dismount
@@ -391,7 +394,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- sacrifice voidwalker low health
-			if (hasPet) and (self.sacrificeVoid) and (localHealth <= self.sacrificeVoidHealth or GetPet():GetHealthPercentage() < self.sacrificeVoidHealth) then
+			if (hasPet) and (self.useVoid) and (self.sacrificeVoid) and (localHealth <= self.sacrificeVoidHealth or GetPet():GetHealthPercentage() < self.sacrificeVoidHealth) then
 				hasPet = false;
 				CastSpellByName("Sacrifice");
 				return 0;
@@ -543,18 +546,18 @@ function script_warlock:run(targetGUID)
 			if (self.enableGatherShards) then
 				self.message = "Gathering Soulshards - bot will NOT stop";
 				if (targetHealth < 35) and (HasSpell("Drain Soul")) then
-					if (targetObj:GetDistance() <= 20) then
-						if (IsAutoCasting("Shoot")) then
-							script_nav:moveToTarget(localObj, _x + 1, _y, _z);
-							targetObj:FaceTarget();
-							return 0;
-						end
+					if (IsAutoCasting("Shoot")) then
+						script_nav:moveToTarget(localObj, targetObj:GetPosition()); 
+						self.waitTimer = GetTimeEX() + 1000;
+						return 0;
+					elseif (targetObj:GetDistance() <= 30) then
 						if (Cast('Drain Soul', targetObj)) then
-							return 0;
+						self.waitTimer = GetTimeEX() + 1500;
+						return 0;
 						end
 					else
 						script_nav:moveToTarget(localObj, targetObj:GetPosition()); 
-						self.waitTimer = GetTimeEX() + 1000;
+						self.waitTimer = GetTimeEX() + 500;
 						return 0;
 					end
 				end
@@ -607,7 +610,7 @@ function script_warlock:run(targetGUID)
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
 						self.waitTimer = GetTimeEX() + 1250; 
-						return false;
+						return true;
 					end
 				end
 			end	
@@ -709,12 +712,12 @@ function script_warlock:rest()
 	end
 	
 	-- Check: Summon our Demon if we are not in combat (Voidwalker is Summoned in favor of the Imp)
-	if (not IsEating() and not IsDrinking() and (not hasPet)) then	
+	if (not IsEating() and not IsDrinking() and (not hasPet)) and (GetPet() == 0) then	
 		if (not hasPet and not self.useVoid or self.useImp) or (HasSpell("Summon Succubus")) and HasItem('Soul Shard') and (self.useSuccubus) then
 			if (not IsStanding() or IsMoving()) then 
 				StopMoving();
 			end
-			if (localMana > 40) and (not hasPet) then
+			if (localMana > 75) and (GetPet() == 0) then
 				CastSpellByName("Summon Succubus");
 				self.waitTimer = GetTimeEX() + 14000;
 				self.message = "Summoning Succubus";
@@ -724,7 +727,7 @@ function script_warlock:rest()
 			if (not IsStanding() or IsMoving()) then 
 				StopMoving();
 			end
-			if (localMana > 40) and (not hasPet) then
+			if (localMana > 75) and (GetPet() == 0) then
 				CastSpellByName("Summon Voidwalker");
 				self.waitTimer = GetTimeEX() + 14000;
 				self.message = "Summoning Void Walker";
@@ -734,7 +737,7 @@ function script_warlock:rest()
 			if (not IsStanding() or IsMoving()) then
 				StopMoving();
 			end
-			if (localMana > 30) then
+			if (localMana > 75) then
 				CastSpellByName("Summon Imp");
 				self.waitTimer = GetTimeEX() + 14000;
 				self.message = "Summoning Imp";
