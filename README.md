@@ -8,6 +8,10 @@
     
      combat scripts change depending on spells available. i.e. a priest without shadowform will not see shadowform spells.
      
+     
+     
+     warlock currently broken under level 4 ( needs a pet to work )
+     
 #-- completed and picking out small bugs
 
     mage frost spec
