@@ -195,12 +195,21 @@ function script_grind:run()
 				StopMoving();
 			end
 
-			-- night elve stealth while paranoid
-			if (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) then
+			-- night elf stealth while paranoid
+			if (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) and (not localObj:HasBuff("Bear Form")) and
+				 (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Cat Form")) then
+				if (CastSpellByName("Shadowmeld")) then
+					return 0;
+				end
+			elseif (localObj:HasBuff("Bear Form")) then
+				if (CastSpellByName("Bear Form")) then
+					return 0;
+				end
 				if (CastSpellByName("Shadowmeld")) then
 					return 0;
 				end
 			end
+
 
 			-- rogue stealth while paranoid
 			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:HasBuff("Stealth")) then

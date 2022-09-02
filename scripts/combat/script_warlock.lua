@@ -198,6 +198,10 @@ function script_warlock:run(targetGUID)
 	local localLevel = localObj:GetLevel();
 
 	local hasPet = false;
+	
+	if (GetPet():GetHealthPercentage() <= 0) then
+		hasPet = false;
+	end
 
 	-- if has pet then set variable
 	if(GetPet() ~= 0) then
