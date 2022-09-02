@@ -144,12 +144,15 @@ function script_warlock:setup()
 	if (not HasSpell("Summon Voidwalker")) then
 		self.useImp = true;
 		self.useVoid = false;
+		self.useSuccubus = false;
 	elseif (not HasSpell("Summon Succubus")) then
 		self.useImp = false;
 		self.useVoid = true;
+		self.useSuccubus = false;
 	elseif (HasSpell("Summon Succubus")) then
 		self.useSuccubus = true;
-		self.alwaysFear = true;
+		self.useImp = false;
+		self.useVoid = false;
 	end
 
 	if (GetLocalPlayer():GetLevel() < 10) then
@@ -297,6 +300,12 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- spells to pull
+
+			-- Amplify Curse on CD
+			if (HasSpell("Amplify Curse")) and (not IsSpellOnCD("Amplify Curse")) and (targetObj:GetDistance() <= 50) then
+				CastSpellByName("Amplify Curse");
+				return 0;
+			end
 
 			if (HasSpell("Siphon Life")) and (self.enableSiphonLife) then
 				self.message = "Stacking DoT's";
@@ -457,7 +466,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Check: Heal the pet if it's below 50% and we are above 50%
-			if (hasPet) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 50) then
+			if (hasPet) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) then
 				if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) then
 					self.message = "Healing pet!";
 					script_nav:moveToTarget(localObj, GetPet():GetPosition()); 
@@ -545,14 +554,14 @@ function script_warlock:run(targetGUID)
 			-- gather shards enabled
 			if (self.enableGatherShards) then
 				self.message = "Gathering Soulshards - bot will NOT stop";
-				if (targetHealth < 35) and (HasSpell("Drain Soul")) then
+				if (targetHealth <= 30) and (HasSpell("Drain Soul")) then
 					if (IsAutoCasting("Shoot")) then
 						script_nav:moveToTarget(localObj, targetObj:GetPosition()); 
-						self.waitTimer = GetTimeEX() + 1000;
+						self.waitTimer = GetTimeEX() + 500;
 						return 0;
 					elseif (targetObj:GetDistance() <= 30) then
 						if (Cast('Drain Soul', targetObj)) then
-						self.waitTimer = GetTimeEX() + 1500;
+						self.waitTimer = GetTimeEX() + 500;
 						return 0;
 						end
 					else
@@ -581,7 +590,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Check: Heal the pet if it's below 50% and we are above 50%
-			if (hasPet) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 50) then
+			if (hasPet) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) then
 				self.message = "Healing pet with Health Funnel";
 				if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) then
 					script_nav:moveToTarget(localObj, GetPet():GetPosition()); 
@@ -804,7 +813,7 @@ function script_warlock:rest()
 
 	-- Check: Health funnel on the pet or wait for it to regen if lower than 70%
 	if (hasPet and GetPet():GetHealthPercentage() > 0) then
-		if (GetPet():GetHealthPercentage() < 70) then
+		if (GetPet():GetHealthPercentage() < 70) and (localHealth > 60) then
 			if (GetPet():GetDistance() > 8) then
 				PetFollow();
 				self.waitTimer = GetTimeEX() + 1850; 
