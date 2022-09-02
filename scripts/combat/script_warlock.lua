@@ -25,7 +25,6 @@ script_warlock = {
 	useDrainLife = false,
 	useWandHealth = 100,
 	useWandMana = 100,
-	petAttack = true,
 	enableGatherShards = false,
 	enableSiphonLife = true,
 	enableCurseOfAgony = true,
@@ -34,7 +33,7 @@ script_warlock = {
 	drainLifeHealth = 75,
 	healPetHealth = 40,
 	sacrificeVoid = true,
-	sacrificeVoidHealth = 15,
+	sacrificeVoidHealth = 20,
 }
 
 function script_warlock:cast(spellName, target)
@@ -702,6 +701,7 @@ function script_warlock:rest()
 			break;
 		end
 	end
+
 	if (stoneIndex == -1 and HasItem("Soul Shard")) then 
 		if (localMana > 10 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
 			self.message = "Creating a healthstone...";
@@ -709,7 +709,8 @@ function script_warlock:rest()
 				StopMoving();
 				return true;
 			end
-			if (HasSpell('Create Healthstone') and CastSpellByName('Create Healthstone')) then
+			if (HasSpell('Create Healthstone')) then
+				CastSpellByName('Create Healthstone');
 				return true;
 			end
 		end
