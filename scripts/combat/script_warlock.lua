@@ -258,7 +258,7 @@ function script_warlock:run(targetGUID)
 		if (GetTarget() ~= 0) then	
 			if (GetTarget():HasDebuff("Drain Life") and localObj:HasBuff("Shadow Trance")) then
 				local _x, _y, _z = localObj:GetPosition();
-				script_nav:moveToTarget(localObj, _x + 1, _y + 1, _z); 
+				script_nav:moveToTarget(localObj, _x + 1, _y, _z); 
 				return 0;
 			end
 		end
@@ -445,7 +445,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Wand if low mana
-			if (localMana <= 5 or targetHealth <= 10) and (localObj:HasRangedWeapon()) then
+			if (localMana <= 5 or targetHealth <= 10) and (localObj:HasRangedWeapon()) and (not self.enableGatherShards) then
 				self.message = "Using wand...";
 				if (not IsAutoCasting("Shoot")) then
 					targetObj:FaceTarget();
@@ -521,8 +521,7 @@ function script_warlock:run(targetGUID)
 				if (targetHealth < 35) and (HasSpell("Drain Soul")) then
 					if (targetObj:GetDistance() <= 20) then
 						if (IsAutoCasting("Shoot")) then
-							script_nav:moveToTarget(localObj, _x + 1, _y + 1, _z); 
-							self.waitTimer = GetTimeEX() + 500;
+							script_nav:moveToTarget(localObj, _x + 1, _y, _z); 
 							return 0;
 						end
 						if (Cast('Drain Soul', targetObj)) then
@@ -530,7 +529,7 @@ function script_warlock:run(targetGUID)
 						end
 					else
 						script_nav:moveToTarget(localObj, targetObj:GetPosition()); 
-						self.waitTimer = GetTimeEX() + 2000;
+						self.waitTimer = GetTimeEX() + 1000;
 						return 0;
 					end
 				end
@@ -576,7 +575,7 @@ function script_warlock:run(targetGUID)
 					return 0;
 				end
 				-- wand instead
-			elseif (self.useWand) and (localHealth > self.drainLifeHealth and GetPet():GetHealthPercentage() > self.healPetHealth) then
+			elseif (self.useWand) and (localHealth > self.drainLifeHealth and GetPet():GetHealthPercentage() > self.healPetHealth) and (not IsChanneling()) then
 				if (localObj:HasRangedWeapon()) then
 					self.message = "Using wand...";
 					if (not IsAutoCasting("Shoot")) then
@@ -718,16 +717,18 @@ function script_warlock:rest()
 		end
 	end
 
-	if (stoneIndex == -1 and HasItem("Soul Shard")) then 
-		if (localMana > 10 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
-			self.message = "Creating a healthstone...";
-			if (HasSpell('Create Healthstone') and IsMoving()) then
-				StopMoving();
-				return true;
-			end
-			if (HasSpell('Create Healthstone')) then
-			CastSpellByName('Create Healthstone');
-				return true;
+	if (HasSpell('Create Healthstone')) then
+		if (stoneIndex == -1 and HasItem("Soul Shard")) then 
+			if (localMana > 10 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
+				self.message = "Creating a healthstone...";
+				if (HasSpell('Create Healthstone') and IsMoving()) then
+					StopMoving();
+					return true;
+				end
+				if (HasSpell('Create Healthstone')) then
+				CastSpellByName('Create Healthstone');
+					return true;
+				end
 			end
 		end
 	end
@@ -919,7 +920,7 @@ function script_warlock:menu()
 			Text("TODO! ?? maybe.. is it worth it?");
 		end
 
-		if (localObj:HasRangedWeapon()) then
+		if (localObj:HasRangedWeapon() and self.useWand) then
 			if (CollapsingHeader("-- Wand Options")) then
 				Text("Use Wand below target health percent");
 				self.useWandHealth = SliderInt("WH", 1, 100, self.useWandHealth);
