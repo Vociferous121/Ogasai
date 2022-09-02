@@ -18,21 +18,16 @@ script_warlock = {
 	useVoid = true,
 	useImp = false,
 	corruptionCastTime = 0, -- 0-2000 ms = 2000 with no improved corruption talent
-	lifeTapHealth = 75,
+	lifeTapHealth = 80,
 	lifeTapMana = 80,
 	soulShard = 0;
 	useShadowBolt = false,
 	useDrainLife = false,
-	useWandHealth = 100,
-	useWandMana = 100,
+	useWandHealth = 10,
+	useWandMana = 10,
+	spamWand = true,
 	petAttack = true,
 	enableGatherShards = false,
-	enableSiphonLife = true,
-	enableCurseOfAgony = true,
-	enableImmolate = true,
-	enableCorruption = true,
-	drainLifeHealth = 75,
-	healPetHealth = 40,
 }
 
 function script_warlock:cast(spellName, target)
@@ -58,12 +53,12 @@ function script_warlock:getTargetNotFeared()
 			if (currentObj:CanAttack() and not currentObj:IsDead()) then
                	if ((script_grind:isTargetingMe(currentObj) or script_grind:isTargetingPet(currentObj)) and not currentObj:HasDebuff('Fear')) then 
            			return currentObj;
-               	end 
-           	end 
-       	end
-        currentObj, typeObj = GetNextObject(currentObj); 
-    end
-	return nil;
+               		end 
+           		end 
+       		end
+        	currentObj, typeObj = GetNextObject(currentObj); 
+    	end
+   	return nil;
 end
 
 function script_warlock:isAddFeared()
@@ -100,7 +95,7 @@ function script_warlock:fearAdd(targetObjGUID)
 		end
         currentObj, typeObj = GetNextObject(currentObj); 
 	end
-    return false;
+    	return false;
 end
 
 -- Run backwards if the target is within range
@@ -230,7 +225,7 @@ function script_warlock:run(targetGUID)
 			end
 		end 
 
-		-- move to cancel Health Funnel when payer has low HP
+		-- Check: When channeling, cancel Health Funnel when low HP
 		if (hasPet) then
 			if (GetPet():HasBuff("Health Funnel") and localHealth < 40) then
 				local _x, _y, _z = localObj:GetPosition();
@@ -239,7 +234,7 @@ function script_warlock:run(targetGUID)
 			end
 		end
 
-		-- move to cancel Drain Life when we get Nightfall buff
+		-- Check: When channeling, cancel Drain Life when we get Nightfall buff
 		if (GetTarget() ~= 0) then	
 			if (GetTarget():HasDebuff("Drain Life") and localObj:HasBuff("Shadow Trance")) then
 				local _x, _y, _z = localObj:GetPosition();
@@ -255,7 +250,7 @@ function script_warlock:run(targetGUID)
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 			
 			-- Opener check range of ALL SPELLS
-			if(not targetObj:IsSpellInRange('Shadow Bolt') or not targetObj:IsInLineOfSight()) then
+			if(not targetObj:IsSpellInRange('Shadow Bolt') or not targetObj:IsInLineOfSight())  then
 				return 3;
 			end
 
@@ -270,36 +265,26 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- spells to pull
-
-			if (HasSpell("Siphon Life")) and (self.enableSiphonLife) then
+			if (HasSpell("Siphon Life")) then
 				if (hasPet) then
 					PetAttack();
 				end
-				if (not targetObj:IsInLineOfSight()) then -- check line of sight
-					return 3; -- target not in line of sight
-				end -- move to target
 				if (Cast("Siphon Life", targetObj)) then 
 					self.waitTimer = GetTimeEX() + 1600; 
 					return 0;
 				end
-			elseif (HasSpell("Curse of Agony")) and (self.enableCurseOfAgony) then
+			elseif (HasSpell("Curse of Agony")) then
 				if (hasPet) then
 					PetAttack();
 				end
-				if (not targetObj:IsInLineOfSight()) then -- check line of sight
-					return 3; -- target not in line of sight
-				end -- move to target
 				if (Cast('Curse of Agony', targetObj)) then 
 					self.waitTimer = GetTimeEX() + 1600;
 					return 0;
 				end
-			elseif (HasSpell("Immolate")) and (self.enableImmolate) then
+			elseif (HasSpell("Immolate")) then
 				if (hasPet) then
 					PetAttack();
 				end
-				if (not targetObj:IsInLineOfSight()) then -- check line of sight
-					return 3; -- target not in line of sight
-				end -- move to target
 				if (Cast('Immolate', targetObj)) then 
 					self.waitTimer = GetTimeEX() + 2200;
 					return 0;
@@ -309,10 +294,7 @@ function script_warlock:run(targetGUID)
 					if (hasPet) then
 						PetAttack();
 					end
-					if (not targetObj:IsInLineOfSight()) then -- check line of sight
-						return 3; -- target not in line of sight
-					end -- move to target
-					return 0;
+				return 0;
 				end
 			end
 
@@ -320,9 +302,9 @@ function script_warlock:run(targetGUID)
 				return 3;
 			end
 	
-			-- IN COMBAT
+		-- IN COMBAT
 
-			-- Combat
+		-- Combat
 		else	
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
@@ -337,9 +319,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Dismount
-			if(IsMounted()) then 
-				DisMount();
-			end
+			if(IsMounted()) then DisMount(); end
 
 			-- Check: Use Healing Potion 
 			if (localHealth < self.potionHealth) then 
@@ -355,11 +335,9 @@ function script_warlock:run(targetGUID)
 				end 
 			end
 
-			-- Check: If we get Nightfall buff then cast Shadow Bolt
+			-- Check: If we got Nightfall buff then cast Shadow Bolt
 			if (localObj:HasBuff("Shadow Trance")) then
-				if (Cast('Shadow Bolt', targetObj)) then
-					return 0;
-				end
+				if (Cast('Shadow Bolt', targetObj)) then return 0; end
 			end	
 
 			-- Use Healthstone
@@ -393,7 +371,7 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
-			-- Check: If we don't have a soul shard, try to make one
+			-- Check: If we don't got a soul shard, try to make one
 			if (targetHealth < 30 and HasSpell("Drain Soul") and not HasItem('Soul Shard')) then
 				if (Cast('Drain Soul', targetObj)) then
 					return 0;
@@ -405,83 +383,56 @@ function script_warlock:run(targetGUID)
 			if (hasPet) then 
 				local petHP = GetPet():GetHealthPercentage();
 			end
-			if (hasPet and petHP > 0 and petHP <= self.healPetHealth and HasSpell("Health Funnel") and localHealth > 50) then
-				if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) then
+			if (hasPet and petHP > 0 and petHP < 50 and HasSpell("Health Funnel") and localHealth > 50) then
+				if (GetPet():GetDistance() > 20 or not GetPet():IsInLineOfSight()) then
 					script_nave:moveToTarget(localObj, GetPet():GetPosition()); 
 					self.waitTimer = GetTimeEX() + 2000;
 					return 0;
 				else
 					StopMoving();
 				end
-				CastSpellByName("Health Funnel"); 
-				return 0;
+				CastSpellByName("Health Funnel"); return 0;
 			end
 
-			-- Wand if low mana
-			if (localMana <= 15 or targetHealth <= 10) and (localObj:HasRangedWeapon()) then
-				self.message = "Using wand...";
-				if (not IsAutoCasting("Shoot")) then
-					targetObj:FaceTarget();
-					targetObj:CastSpell("Shoot");
-					self.waitTimer = GetTimeEX() + 1250; 
-					return true;
+			-- Wand if low mana or target is low
+			if (self.useWand) then
+				if ((localMana <= self.useWandMana or targetHealth <= self.useWandHealth) and localObj:HasRangedWeapon()) then
+					self.message = "Using wand...";
+					if (not IsAutoCasting("Shoot")) then
+						targetObj:FaceTarget();
+						targetObj:CastSpell("Shoot");
+						self.waitTimer = GetTimeEX() + 1250; 
+						return true;
+					end
+					return 0;
 				end
 			end
 			
 			-- Check: Keep Siphon Life up (30 s duration)
-			if (self.enableSiphonLife) then
-				if (not targetObj:HasDebuff("Siphon Life") and targetHealth > 20) then
-					if (not targetObj:IsInLineOfSight()) then -- check line of sight
-						return 3; -- target not in line of sight
-					end -- move to target
-					if (Cast('Siphon Life', targetObj)) then
-						self.waitTimer = GetTimeEX() + 1600;
-						return 0;
-					end
-				end
+			if (not targetObj:HasDebuff("Siphon Life") and targetHealth > 20) then
+				if (Cast('Siphon Life', targetObj)) then self.waitTimer = GetTimeEX() + 1600; return 0; end
 			end
 
 			-- Check: Keep the Curse of Agony up (24 s duration)
-			if (self.enableCurseOfAgony) then
-				if (not targetObj:HasDebuff("Curse of Agony") and targetHealth > 20) then
-					if (not targetObj:IsInLineOfSight()) then -- check line of sight
-						return 3; -- target not in line of sight
-					end -- move to target
-					if (Cast('Curse of Agony', targetObj)) then
-						self.waitTimer = GetTimeEX() + 1600;
-						return 0;
-					end
-				end
+			if (not targetObj:HasDebuff("Curse of Agony") and targetHealth > 20) then
+				if (Cast('Curse of Agony', targetObj)) then self.waitTimer = GetTimeEX() + 1600; return 0; end
 			end
 	
 			-- Check: Keep the Corruption DoT up (15 s duration)
-			if (self.enableCorruption) then
-				if (not targetObj:HasDebuff("Corruption") and targetHealth > 20) then
-					if (not targetObj:IsInLineOfSight()) then -- check line of sight
-						return 3; -- target not in line of sight
-					end -- move to target
-					if (Cast('Corruption', targetObj)) then
-						self.waitTimer = GetTimeEX() + 1600 + (self.corruptionCastTime / 10); 
-						return 0; 
-					end
+			if (not targetObj:HasDebuff("Corruption") and targetHealth > 20) then
+				if (Cast('Corruption', targetObj)) then
+					self.waitTimer = GetTimeEX() + 1600 + (self.corruptionCastTime / 10); 
+					return 0; 
 				end
 			end
 	
 			-- Check: Keep the Immolate DoT up (15 s duration)
-			if (self.enableImmolate) then
-				if (not targetObj:HasDebuff("Immolate") and targetHealth > 20) then
-					if (not targetObj:IsInLineOfSight()) then -- check line of sight
-						return 3; -- target not in line of sight
-					end -- move to target
-					if (Cast('Immolate', targetObj)) then
-						self.waitTimer = GetTimeEX() + 2500;
-						return 0;
-					end
-				end
+			if (not targetObj:HasDebuff("Immolate") and targetHealth > 20) then
+				if (Cast('Immolate', targetObj)) then self.waitTimer = GetTimeEX() + 2500; return 0; end
 			end
 
 			-- life tap in combat
-			if HasSpell("Life Tap") and not IsSpellOnCD("Life Tap") and localHealth > 35 and localMana < 15 then
+			if HasSpell("Life Tap") and not IsSpellOnCD("Life Tap") and localHealth > 25 and localMana < 15 then
 				if (CastSpellByName("Life Tap")) then
 					return 0;
 				end
@@ -490,24 +441,27 @@ function script_warlock:run(targetGUID)
 			-- gather shards enabled
 			if (self.enableGatherShards) then
 				if (targetHealth < 30) and (HasSpell("Drain Soul")) then
-					if (targetObj:GetDistance() <=20) then
-						if (not targetObj:IsInLineOfSight()) then -- check line of sight
-							return 3; -- target not in line of sight
-						end -- move to target
-						if (Cast('Drain Soul', targetObj)) then
-							return 0;
-						end
-					else
-						script_nav:moveToTarget(localObj, targetObj:GetPosition()); 
-						self.waitTimer = GetTimeEX() + 2000;
+					if (Cast('Drain Soul', targetObj)) then
 						return 0;
 					end
 				end
 			end
 
-			-- Drain Life on low health
+			-- Cast: Drain Life, low health
+			if (HasSpell("Drain Life") and (HasItem("Soul Shard")) and targetObj:GetCreatureType() ~= "Mechanic") then
+				if (targetObj:GetDistance() < 20) and (localHealth <= 50) and (localMana >= 10) then
+					if (IsMoving()) then StopMoving(); 
+						return; 
+					end
+					if (Cast('Drain Life', targetObj)) then 
+						return; 
+					end
+				end
+			end
+
+			-- Cast: Drain Life, don't use Drain Life we need a soul shard
 			if (self.useDrainLife) then
-				if (HasSpell("Drain Life")) and (targetObj:GetCreatureType() ~= "Mechanic") and (localHealth <= self.drainLifeHealth) then
+				if (HasSpell("Drain Life") and (HasItem("Soul Shard")) and targetObj:GetCreatureType() ~= "Mechanic") then
 					if (targetObj:GetDistance() < 20) then
 						if (IsMoving()) then StopMoving(); 
 							return; 
@@ -521,42 +475,21 @@ function script_warlock:run(targetGUID)
 						return 0;
 					end
 				end
-			end
-
-			-- Check: Heal the pet if it's below 50% and we are above 50%
-			local petHP = 0; 
-			if (hasPet) then 
-				local petHP = GetPet():GetHealthPercentage();
-			end
-			if (hasPet and petHP > 0 and petHP <= self.healPetHealth and HasSpell("Health Funnel") and localHealth > 50) then
-				if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) then
-					script_nave:moveToTarget(localObj, GetPet():GetPosition()); 
-					self.waitTimer = GetTimeEX() + 2000;
-					return 0;
-				else
-					StopMoving();
-				end
-				CastSpellByName("Health Funnel"); 
-				return 0;
-			end
-
-			if (self.useShadowBolt) then
+			elseif (self.useShadowBolt) then
 				-- Cast: Shadow Bolt
 				if (Cast('Shadow Bolt', targetObj)) then
-					if (not targetObj:IsInLineOfSight()) then -- check line of sight
-						return 3; -- target not in line of sight
-					end -- move to target
 					return 0;
 				end
-				-- wand instead
-			elseif (self.useWand) then
-				if (localObj:HasRangedWeapon()) then
-					self.message = "Using wand...";
-					if (not IsAutoCasting("Shoot")) then
-						targetObj:FaceTarget();
-						targetObj:CastSpell("Shoot");
-						self.waitTimer = GetTimeEX() + 1250; 
-						return true;
+			elseif (self.spamWand) then
+				if (targetObj:HasDebuff("Immolate") and targetObj:HasDebuff("Corruption") and targetObj:HasDebuff("Curse of Agony")) then
+					if (localObj:HasRangedWeapon()) then
+						self.message = "Using wand...";
+						if (not IsAutoCasting("Shoot")) then
+							targetObj:FaceTarget();
+							targetObj:CastSpell("Shoot");
+							self.waitTimer = GetTimeEX() + 1250; 
+							return true;
+						end
 					end
 				end
 			end	
@@ -786,7 +719,6 @@ end
 
 function script_warlock:menu()
 	if (CollapsingHeader("Warlock Combat Options")) then
-
 		local wasClicked = false;
 
 		wasClicked, self.useImp = Checkbox("Use Imp", self.useImp);
@@ -794,7 +726,6 @@ function script_warlock:menu()
 		wasClicked, self.useVoid = Checkbox("Use Voidwalker over Imp", self.useVoid);
 		SameLine();
 		wasClicked, self.enableGatherShards = Checkbox("Gather Soul Shards", self.enableGatherShards);
-
 		Text('Drink below mana percentage');
 		self.drinkMana = SliderFloat("M%", 1, 100, self.drinkMana);
 		Text('Eat below health percentage');
@@ -804,39 +735,39 @@ function script_warlock:menu()
 		Text('Use mana potions below percentage');
 		self.potionMana = SliderFloat("MP%", 1, 99, self.potionMana);
 		Separator();
-
 		Text('Skills options:');
 
 		wasClicked, self.fearAdds = Checkbox("Fear Adds", self.fearAdds);
 		SameLine();
-		wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);
+		wasClicked, self.useDrainLife = Checkbox("Drain Life On/Off", self.useDrainLife);
 		SameLine();
-		wasClicked, self.useShadowBolt = Checkbox("Shadowbolt instead of wand", self.useShadowBolt);
-		Separator();
-		Text("Use Drain Life below self health percent");
-		self.drainLifeHealth = SliderInt("DLH", 0, 80, self.drainLifeHealth);
-		Separator();
-		Text("Heal Pet below pet health percent");
-		self.healPetHealth = SliderInt("HPH", 0, 80, self.healPetHealth);
-
-		if (CollapsingHeader("-- DoT Options")) then
-			Text("Corruption cast time - 14 is 1.4 seconds");	
-			self.corruptionCastTime = SliderInt("CCT (ms)", 0, 20, self.corruptionCastTime);
-			Separator();
-			wasClicked, self.enableSiphonLife = Checkbox("Siphon Life On/Off", self.enableSiphonLife);
-			SameLine();
-			wasClicked, self.enableImmolate = Checkbox("Immolate On/Off",self.enableImmolate);
-			
-			wasClicked, self.enableCurseOfAgony = Checkbox("Curse of Agony On/Off", self.enableCurseOfAgony);
-			SameLine();
-			wasClicked, self.enableCorruption = Checkbox("Corruption On/Off", self.enableCorruption);
-		end		
-
-		if (CollapsingHeader("-- Curse Options")) then
-			Text("TODO! ?? maybe.. is it worth it?");
+		wasClicked, self.useShadowBolt = Checkbox("Shadowbolt On/Off", self.useShadowBolt);
+		wasClicked, self.spamWand = Checkbox("Use Wand with all DoT's", self.spamWand)
+		
+		if (self.useDrainLife) then
+			self.useShadowBolt = false;
+			self.spamWand = false;
+			self.drainLife = true;
 		end
+		if (self.useShadowBolt) then
+			self.spamWand = false;
+			self.useDrainLife = false;
+			self.useShadowBolt = true;
+		end
+		if (self.spamWand) then
+			self.useShadowBolt = false;
+			self.useDrainLife = false;
+			self.spamWand = true;
+		end
+		Text("Corruption cast time - 14 is 1.4 seconds");	
+		self.corruptionCastTime = SliderInt("CCT (ms)", 0, 20, self.corruptionCastTime);
 
-		if (CollapsingHeader("-- Wand Options")) then
+		Separator();
+
+		if (CollapsingHeader("Wand Options")) then
+			Text("Focus wand attack only");
+			Text("Use on targets with very low HP");
+			wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);
 			Text("Use Wand below target health percent");
 			self.useWandHealth = SliderInt("WH", 1, 100, self.useWandHealth);
 			Text("Use Wand below self mana percent");
@@ -845,7 +776,7 @@ function script_warlock:menu()
 
 		Separator();
 
-		if (CollapsingHeader("-- Life Tap Options")) then
+		if (CollapsingHeader("Life Tap Options")) then
 			Text("Use Life Tap above this percent health");
 			self.lifeTapHealth = SliderInt("LTH", 50, 90, self.lifeTapHealth);
 			Text("Use Life Tap below this percent mana");

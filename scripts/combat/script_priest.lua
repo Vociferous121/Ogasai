@@ -355,7 +355,6 @@ function script_priest:run(targetGUID)
 
 		-- Opener - not in combat pulling target
 		if (not IsInCombat()) then
-
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 			
 			-- Opener check range of ALL SPELLS
@@ -365,7 +364,9 @@ function script_priest:run(targetGUID)
 			end
 
 			-- Dismount
-			if (IsMounted()) then DisMount(); end
+			if (IsMounted()) then
+				DisMount();
+			end
 
 			-- Devouring Plague to pull
 			if (HasSpell("Devouring Plague")) and (localMana >= 25) and (not IsSpellOnCD("Devouring Plague")) then
@@ -436,6 +437,8 @@ function script_priest:run(targetGUID)
 			if (not targetObj:IsInLineOfSight()) then -- check line of sight
 				return 3;
 			end
+
+		-- IN COMBAT
 
 		-- Combat
 		else	
@@ -592,7 +595,7 @@ function script_priest:run(targetGUID)
 			-- Mind flay 
 			if (self.shadowForm and self.useMindFlay ) or (self.useMindFlay) and (IsSpellOnCD("Mind Blast") or localMana <= self.mindBlastMana) then
 				if (HasSpell("Mind Flay")) and (not IsSpellOnCD("Mind Flay")) and (localMana >= self.mindFlayMana) and (targetHealth >= self.mindFlayHealth) and
-				 (not localObj:IsChanneling() and targetObj:GetDistance() <= 20) then
+					(not localObj:IsChanneling() and targetObj:GetDistance() <= 20) then
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 					end -- move to target
