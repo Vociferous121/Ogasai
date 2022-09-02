@@ -17,7 +17,7 @@ script_warlock = {
 	isChecked = true,
 	useVoid = false,
 	useImp = false,
-	useSuccubus = true;
+	useSuccubus = false;
 	corruptionCastTime = 0, -- 0-2000 ms = 2000 with no improved corruption talent
 	lifeTapHealth = 75,
 	lifeTapMana = 80,
@@ -149,10 +149,10 @@ function script_warlock:setup()
 		self.useImp = false;
 		self.useVoid = true;
 		self.useSuccubus = false;
-	elseif (HasSpell("Summon Succubus")) then
-		self.useSuccubus = true;
-		self.useImp = false;
-		self.useVoid = false;
+	-- elseif (HasSpell("Summon Succubus")) then
+	-- 	self.useSuccubus = true;
+	-- 	self.useImp = false;
+	-- 	self.useVoid = false;
 	end
 
 	if (GetLocalPlayer():GetLevel() < 10) then
@@ -331,7 +331,7 @@ function script_warlock:run(targetGUID)
 					self.waitTimer = GetTimeEX() + 1600;
 					return 0;
 				end
-			elseif (HasSpell("Immolate")) and (self.enableImmolate) then
+			elseif (HasSpell("Immolate")) and (self.enableImmolate) and (not targetObj:HasDebuff("Immolate")) then
 				self.message = "Stacking DoT's";
 				if (hasPet) then
 					PetAttack();
@@ -339,9 +339,11 @@ function script_warlock:run(targetGUID)
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 					return 3; -- target not in line of sight
 				end -- move to target
-				if (Cast('Immolate', targetObj)) then 
-					self.waitTimer = GetTimeEX() + 2200;
-					return 0;
+				if (not targetObj:HasDebuff("Immolate")) then
+					if (Cast('Immolate', targetObj)) then 
+						self.waitTimer = GetTimeEX() + 2500;
+						return 0;
+					end
 				end
 			else
 				if (Cast('Shadow Bolt', targetObj)) then
@@ -428,7 +430,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Fear single Target
-			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 10) then
+			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 					return 3; -- target not in line of sight
 				end -- move to target
@@ -535,10 +537,12 @@ function script_warlock:run(targetGUID)
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 					end -- move to target
-					if (Cast('Immolate', targetObj)) then
-						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 2500;
-						return 0;
+					if (not targetObj:HasDebuff("Immolate")) then
+						if (Cast('Immolate', targetObj)) then
+							targetObj:FaceTarget();
+							self.waitTimer = GetTimeEX() + 2600;
+							return 0;
+						end
 					end
 				end
 			end
@@ -727,20 +731,22 @@ function script_warlock:rest()
 				StopMoving();
 			end
 			if (localMana > 75) and (GetPet() == 0) then
-				CastSpellByName("Summon Succubus");
-				self.waitTimer = GetTimeEX() + 14000;
-				self.message = "Summoning Succubus";
-				return true; 
+				if (CastSpellByName("Summon Succubus")) then
+					self.waitTimer = GetTimeEX() + 14000;
+					self.message = "Summoning Succubus";
+					return true; 
+				end
 			end
 		elseif ((not hasPet or petIsImp) and HasSpell("Summon Voidwalker") and HasItem('Soul Shard') and self.useVoid) then
 			if (not IsStanding() or IsMoving()) then 
 				StopMoving();
 			end
 			if (localMana > 75) and (GetPet() == 0) then
-				CastSpellByName("Summon Voidwalker");
-				self.waitTimer = GetTimeEX() + 14000;
-				self.message = "Summoning Void Walker";
-				return true; 
+				if (CastSpellByName("Summon Voidwalker")) then
+					self.waitTimer = GetTimeEX() + 14000;
+					self.message = "Summoning Void Walker";
+					return true; 
+				end
 			end
 		elseif (not hasPet and HasSpell("Summon Imp") and self.useImp) then
 			if (not IsStanding() or IsMoving()) then
@@ -753,6 +759,7 @@ function script_warlock:rest()
 				return true;
 			end
 		end
+		self.waitTimer = GetTimeEX() + 12000;
 	end
 
 	--Create Healthstone
