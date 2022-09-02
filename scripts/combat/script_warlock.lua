@@ -334,7 +334,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Set the pet to attack
-			if (hasPet) and (targetObj:GetDistance() < 35) then
+			if (hasPet) and (targetObj:GetDistance() < 35) and (targetHealth < 99 or targetObj:HasDebuff("Curse of Agony") or targetObj:HasDebuff("Corruption")) then
 				PetAttack();
 			end
 
@@ -358,7 +358,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- sacrifice voidwalker low health
-			if (hasPet) and (self.sacrificeVoid) and (localHealth > self.sacrificeVoidHealth) then
+			if (hasPet) and (self.sacrificeVoid) and (localHealth <= self.sacrificeVoidHealth) then
 				hasPet = false;
 				CastSpellByName("Sacrifice");
 				return 0;
@@ -498,11 +498,13 @@ function script_warlock:run(targetGUID)
 
 			-- gather shards enabled
 			if (self.enableGatherShards) then
-				if (targetHealth < 30) and (HasSpell("Drain Soul")) then
-					if (targetObj:GetDistance() <=20) then
-						if (not targetObj:IsInLineOfSight()) then -- check line of sight
-							return 3; -- target not in line of sight
-						end -- move to target
+				if (targetHealth < 35) and (HasSpell("Drain Soul")) then
+					if (targetObj:GetDistance() <= 20) then
+						if (IsAutoCasting("Shoot")) then
+							script_nav:moveToTarget(localObj, _x + 1, _y + 1, _z); 
+							self.waitTimer = GetTimeEX() + 500;
+							return 0;
+						end
 						if (Cast('Drain Soul', targetObj)) then
 							return 0;
 						end
@@ -565,7 +567,7 @@ function script_warlock:run(targetGUID)
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
 						self.waitTimer = GetTimeEX() + 1250; 
-						return true;
+						return false;
 					end
 				end
 			end	
@@ -652,6 +654,12 @@ function script_warlock:rest()
 		return true;
 	end
 
+	if (hasPet) and (self.useVoid) and (GetPet():GetHealthPercentage() < 75) then
+		CastSpellByName("Consmue Shadows");
+		self.waitTimer = GetTimeEX() + 7500;
+		return true;
+	end
+
 	-- Check: If the pet is an Imp, require Firebolt to be in slot 4
 	local petIsImp = false;
 	if (hasPet) then
@@ -663,6 +671,7 @@ function script_warlock:rest()
 	if (not IsEating() and not IsDrinking()) then	
 		if ((not hasPet or petIsImp) and HasSpell("Summon Voidwalker") and HasItem('Soul Shard') and self.useVoid) then
 			if (not IsStanding() or IsMoving()) then 
+				hasPet = true;
 				StopMoving();
 			end
 			if (localMana > 40) then
@@ -673,6 +682,7 @@ function script_warlock:rest()
 			end
 		elseif (not hasPet and HasSpell("Summon Imp") and self.useImp) then
 			if (not IsStanding() or IsMoving()) then
+				hasPet = true;
 				StopMoving();
 			end
 			if (localMana > 30) then
