@@ -832,6 +832,8 @@ function script_priest:menu()
 			
 			-- if mind flay is being used then hide wand menu
 			if (not self.useMindFlay) then
+				localObj = GetLocalPlayer();
+
 
 				-- hide wand menu if no ranged weapon equipped
 				if (localObj:HasRangedWeapon()) then
