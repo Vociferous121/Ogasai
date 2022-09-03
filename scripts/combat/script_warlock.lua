@@ -128,17 +128,17 @@ function script_warlock:runBackwards(targetObj, range)
 	return false;
 end
 
-function script_warlock:addHealthStone(name)
-	self.healthStone[self.numStone] = name;
-	self.numStone = self.numStone + 1;
-end
+--function script_warlock:addHealthStone(name)
+--	self.healthStone[self.numStone] = name;
+--	self.numStone = self.numStone + 1;
+--end
 
 function script_warlock:setup()
-	script_warlock:addHealthStone('Major Healthstone');
-	script_warlock:addHealthStone('Greater Healthstone');
-	script_warlock:addHealthStone('Healthstone');
-	script_warlock:addHealthStone('Lesser Healthstone');
-	script_warlock:addHealthStone('Minor Healthstone');
+	--script_warlock:addHealthStone('Major Healthstone');
+	--script_warlock:addHealthStone('Greater Healthstone');
+	--script_warlock:addHealthStone('Healthstone');
+	--script_warlock:addHealthStone('Lesser Healthstone');
+	--script_warlock:addHealthStone('Minor Healthstone');
 
 	self.waitTimer = GetTimeEX();
 	self.fearTimer = GetTimeEX();
@@ -455,15 +455,15 @@ function script_warlock:run(targetGUID)
 			end	
 
 			-- Use Healthstone
-			if (localHealth < self.stoneHealth) then
-				for i=0,self.numStone do
-					if(HasItem(self.healthStone[i])) then
-						if (UseItem(self.healthStone[i])) then
-							return 0;
-						end
-					end
-				end
-			end
+			--if (localHealth < self.stoneHealth) then
+			--	for i=0,self.numStone do
+			--		if(HasItem(self.healthStone[i])) then
+			--			if (UseItem(self.healthStone[i])) then
+			--				return 0;
+			--			end
+			--		end
+			--	end
+			--end
 
 			-- Fear single Target
 			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) then
@@ -840,29 +840,29 @@ function script_warlock:rest()
 	end
 
 	--Create Healthstone
-	local stoneIndex = -1;
-	for i=0,self.numStone do
-		if (HasItem(self.healthStone[i])) then
-			stoneIndex= i;
-			break;
-		end
-	end
+	--local stoneIndex = -1;
+	--for i=0,self.numStone do
+	--	if (HasItem(self.healthStone[i])) then
+	--		stoneIndex= i;
+	--		break;
+	--	end
+	--end
 
-	if (HasSpell('Create Healthstone')) then
-		if (stoneIndex == -1 and HasItem("Soul Shard")) then 
-			if (localMana > 10 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
-				self.message = "Creating a healthstone...";
-				if (HasSpell('Create Healthstone') and IsMoving()) then
-					StopMoving();
-					return true;
-				end
-				if (HasSpell('Create Healthstone')) then
-				CastSpellByName('Create Healthstone');
-					return true;
-				end
-			end
-		end
-	end
+	--if (HasSpell('Create Healthstone')) then
+	--	if (stoneIndex == -1 and HasItem("Soul Shard")) then 
+	--		if (localMana > 10 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
+	--			self.message = "Creating a healthstone...";
+	--			if (HasSpell('Create Healthstone') and IsMoving()) then
+	--				StopMoving();
+	--				return true;
+	--			end
+	--			if (HasSpell('Create Healthstone')) then
+	--			CastSpellByName('Create Healthstone');
+	--				return true;
+	--			end
+	--		end
+	--	end
+	--end
 
 	-- Do buffs if we got some mana 
 	if (localMana > 30) then
