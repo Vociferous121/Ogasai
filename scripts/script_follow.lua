@@ -415,9 +415,9 @@ function script_follow:healAndBuff()
 						self.waitTimer = GetTimeEX() + 1700;
 						return true;
 					end
-				end
-                
-                -- natures swiftness
+				end                
+
+			-- natures swiftness
                 if (HasSpell("Nature's Swiftness")) and (not localObj:HasBuff("Nature's Swiftness")) and (leaderObj:GetHealthPercentage() < 30) then
                     if (not IsSpellOnCD("Nature's Swiftness")) and (localMana > 10) then
                         if (script_follow:moveInLineOfSight(partyMember)) then

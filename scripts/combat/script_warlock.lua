@@ -308,7 +308,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- if pet goes too far then recall
-			if (hasPet) and (self.useVoid or self.useImp or self.useSuccubus) and (not IsInCombat()) and (GetPet():GetDistance() > 40) then
+			if (hasPet) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetDistance() > 40) then
 				PetFollow();
 			end
 
@@ -493,7 +493,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Check: If we don't have a soul shard, try to make one
-			if (targetHealth < 30 and HasSpell("Drain Soul") and not HasItem('Soul Shard')) then
+			if (targetHealth < 30 and targetHealth > 3 and HasSpell("Drain Soul") and not HasItem('Soul Shard')) then
 				if (Cast('Drain Soul', targetObj)) then
 					return 0;
 				end
@@ -511,6 +511,11 @@ function script_warlock:run(targetGUID)
 				end
 				CastSpellByName("Health Funnel"); 
 				return 0;
+			end
+
+			-- if pet goes too far then recall
+			if (hasPet) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetDistance() > 40) then
+				PetFollow();
 			end
 
 			-- Wand if low mana
@@ -590,7 +595,7 @@ function script_warlock:run(targetGUID)
 			-- gather shards enabled
 			if (self.enableGatherShards) then
 				self.message = "Gathering Soulshards - bot will NOT stop";
-				if (targetHealth <= 30) and (HasSpell("Drain Soul")) then
+				if (targetHealth <= 30 and targetHealth >= 6) and (HasSpell("Drain Soul")) then
 					if (IsAutoCasting("Shoot")) then
 						script_nav:moveToTarget(localObj, targetObj:GetPosition()); 
 						self.waitTimer = GetTimeEX() + 500;
@@ -766,6 +771,13 @@ function script_warlock:rest()
 		return true;
 	end
 
+	if (GetPet() == 0) then
+		hasPet = false;
+	else
+		if (GetPet() ~= 0) then
+			hasPet = true;
+		end
+	end
 	
 	-- Check: Summon our Demon if we are not in combat
 	if (not IsEating()) and (not IsDrinking()) and (not hasPet) and (GetPet() == 0) and (HasSpell("Summon Imp")) and (self.useVoid or self.useImp or self.useSuccubus) then
