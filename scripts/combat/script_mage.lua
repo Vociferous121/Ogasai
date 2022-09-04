@@ -258,10 +258,12 @@ function script_mage:run(targetGUID)
 		end
 
 		-- Don't attack if we should rest first
-		if ((localHealth < self.eatHealth or localMana < self.drinkMana) and not script_grind:isTargetingMe(targetObj)
-			and not targetObj:IsFleeing() and not targetObj:IsStunned() and not script_mage:isAddPolymorphed()) then
-			self.message = "Need rest...";
-			return 4;
+		if (GetNumPartyMembers() == 0) then
+			if ((localHealth < self.eatHealth or localMana < self.drinkMana) and not script_grind:isTargetingMe(targetObj)
+				and not targetObj:IsFleeing() and not targetObj:IsStunned() and not script_mage:isAddPolymorphed()) then
+				self.message = "Need rest...";
+				return 4;
+			end
 		end
 
 		targetHealth = targetObj:GetHealthPercentage();
@@ -364,6 +366,15 @@ function script_mage:run(targetGUID)
 				end 
 			end	
 
+			-- frost nova if target is running away
+			if (targetObj:IsFleeing()) and (HasSpell("Frost Nova")) and (not IsSpellOnCD("Frost Nova")) and (localMana > 10) then
+				if (targetObj:GetDistance() < 12) and (not targetObj:HasDebuff("Frostbite")) then
+					if (CastSpellByName("Frost Nova")) then
+						return 0;
+					end
+				end
+			end
+
 			-- Use Mana Gem when low on mana
 			if (localMana < self.manaGemMana and GetTimeEX() > self.gemTimer) then
 				for i=0,self.numGem do
@@ -445,12 +456,20 @@ function script_mage:run(targetGUID)
 				self.message = "Frost nova the target(s)...";
 				CastSpellByName("Frost Nova");
 				return 0;
-			end
+			end			
 
 			if (HasSpell('Ice Block') and not IsSpellOnCD('Ice Block') and localHealth < self.iceBlockHealth and localMana < self.iceBlockMana) then
 				self.message = "Using Ice Block...";
 				CastSpellByName('Ice Block');
 				return 0;
+			end
+
+			if (GetPartyMembers ~= 0) then
+				if (HasSpell("Arcane Explosion")) and (targetObj:GetDistance() < 6) and (localMana > 25) and (script_grind:enemiesAttackingUs() >= 2) then
+					if (CastSpellByName("Arcane Explosion")) then
+						return 0;
+					end
+				end
 			end
 
 			-- Wand if low mana or target is low

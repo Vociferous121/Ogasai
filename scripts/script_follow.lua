@@ -59,7 +59,7 @@ script_follow = {
 	acceptTimer = GetTimeEX(),
 	followLeaderDistance = 26,
 	followTimer = GetTimeEX(),
-	assistInCombat = false,
+	assistInCombat = true,
 	isChecked = true,
 	pause = false,
 	enableHeals = true,
@@ -689,7 +689,7 @@ function script_follow:run()
         
 		if (GetTarget() ~= 0 and GetTarget() ~= nil) and (script_follow:GetPartyLeaderObject():GetDistance() < self.followLeaderDistance) then
             	local target = GetTarget();
-				if (target:CanAttack() and self.assistInCombat and targetObj:GetHealthPercentage() < 99) then
+				if (target:CanAttack() and self.assistInCombat) then
 					self.enemyObj = target;
 				else
 					self.enemyObj = nil;
