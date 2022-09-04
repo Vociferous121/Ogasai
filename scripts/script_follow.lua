@@ -48,6 +48,7 @@ script_follow = {
 	lootCheck = {},
 	ressDistance = 25,
 	combatError = 0,
+	dpsHP = 95,
 	myX = 0,
 	myY = 0,
 	myZ = 0,
@@ -698,7 +699,7 @@ function script_follow:run()
 
 		if (script_follow:GetPartyLeaderObject() ~= 0) then
 			if (script_follow:GetPartyLeaderObject():GetUnitsTarget() ~= 0 and not script_follow:GetPartyLeaderObject():IsDead()) and (script_follow:GetPartyLeaderObject():GetDistance() < self.followLeaderDistance) then
-				if (self.assistInCombat) then
+				if (script_follow:GetPartyLeaderObject():GetUnitsTarget():GetHealthPercentage() <= self.dpsHP) then
 					self.enemyObj = script_follow:GetPartyLeaderObject():GetUnitsTarget();
 					script_follow:moveInLineOfSight(partyMember);
 				else
@@ -948,7 +949,5 @@ function script_follow:getDistanceDif()
 end
 
 function script_follow:draw()
-	script_followEX:drawStatus();
-	script_nav:drawPath();
-			
+	script_followEX:drawStatus();	
 end

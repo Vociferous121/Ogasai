@@ -134,6 +134,12 @@ function script_followEX:menu()
 			
 			wasClicked, script_follow.assistInCombat = Checkbox("Assist Party Leader - best under 30 (yd)", script_follow.assistInCombat);
 			
+			if (script_follow.assistInCombat) then
+				
+				Text("Target Health to begin attacking");
+				script_follow.dpsHP = SliderInt("Health", 0, 100, script_follow.dpsHP);
+			end
+			
 			Separator();
 			Text("Distance to follow Party Leader  ");
 			script_follow.followLeaderDistance = SliderInt("Follow Leader Distance (yd)", 6, 40, script_follow.followLeaderDistance);
