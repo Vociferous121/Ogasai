@@ -246,6 +246,17 @@ function script_follow:healAndBuff()
 				end
 			end
 
+			-- druid swiftmend
+			if (HasSpell("Swiftmend")) and (not IsSpellOnCD("Swiftmend")) then
+				if (partyMember:HasBuff("Regrowth")) or (partyMember:HasBuff("Rejuvenation")) then
+					if (partyMembersHP < 30) then
+						if (CastHeal("Swiftmend", partyMember)) then
+							return true;
+						end
+					end
+				end
+			end
+
             -- enable / disble heals for follower
 			if (self.enableHeals) or (partyMembersHP < 35 and not self.enableHeals) then
 
@@ -418,17 +429,17 @@ function script_follow:healAndBuff()
 				end                
 
 			-- natures swiftness
-                if (HasSpell("Nature's Swiftness")) and (not localObj:HasBuff("Nature's Swiftness")) and (leaderObj:GetHealthPercentage() < 30) then
-                    if (not IsSpellOnCD("Nature's Swiftness")) and (localMana > 10) then
-                        if (script_follow:moveInLineOfSight(partyMember)) then
-                            return true;
-                        end -- move to member
-                        if (CastSpellByName("Nature's Swiftness")) then
-                            self.waitTimer = GetTimeEX() + 1500;
-                            return true;
-                        end
-                    end
-                end
+			if (HasSpell("Nature's Swiftness")) and (not localObj:HasBuff("Nature's Swiftness")) and (leaderObj:GetHealthPercentage() < 30) then
+				if (not IsSpellOnCD("Nature's Swiftness")) and (localMana > 10) then
+					if (script_follow:moveInLineOfSight(partyMember)) then
+						return true;
+					end -- move to member
+					if (CastSpellByName("Nature's Swiftness")) then
+						self.waitTimer = GetTimeEX() + 1500;
+						return true;
+					end
+				end
+			end
                 
                 -- regrowth
                 if (self.clickRegrowth) then
@@ -443,16 +454,16 @@ function script_follow:healAndBuff()
                     end
                 end
 
-                -- rejuvenation
-                if (HasSpell("Rejuvenation")) and (not targetObj:HasBuff("Rejuvenation")) and (partyMembersHP < self.rejuvenationHealth) and (localMana > self.rejuvenationMana) then
-                    if (script_follow:moveInLineOfSight(partyMember)) then
-                        return true;
-                    end -- move to member
-                    if (CastSpellByName("Rejuvenation")) then
-                        self.waitTimer = GetTimeEX() + 1500;
-                        return true;
-                    end
-                end
+			-- rejuvenation
+			if (HasSpell("Rejuvenation")) and (not targetObj:HasBuff("Rejuvenation")) and (partyMembersHP < self.rejuvenationHealth) and (localMana > self.rejuvenationMana) then
+				if (script_follow:moveInLineOfSight(partyMember)) then
+                     	   return true;
+				end -- move to member
+				if (CastSpellByName("Rejuvenation")) then
+					self.waitTimer = GetTimeEX() + 1500;
+				return true;
+				end
+			end
 
                 -- healing touch if has regrowth
                 if (self.clickHealingTouch) then
@@ -677,13 +688,11 @@ function script_follow:run()
         
 		if (GetTarget() ~= 0 and GetTarget() ~= nil) and (script_follow:GetPartyLeaderObject():GetDistance() < self.followLeaderDistance) then
             	local target = GetTarget();
-			if (self.assistInCombat) then
-				if (target:CanAttack()) then
+				if (target:CanAttack() and self.assistInCombat and targetObj:GetHealthPercentage() < 99) then
 					self.enemyObj = target;
 				else
 					self.enemyObj = nil;
 				end 
-			end
 
 		else
 

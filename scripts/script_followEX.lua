@@ -273,6 +273,11 @@ function script_followEX:menu()
 		script_follow.rejuvenationMana = SliderInt("Rejuvenation Mana%", 1, 99, script_follow.rejuvenationMana);
 		script_follow.rejuvenationHealth = SliderInt("Rejuvenation Health%", 1, 99, script_follow.rejuvenationHealth);
 		Separator();	
+
+		-- Swiftmend
+		--Text("Swiftmend Options");
+		--script_follow.swiftMendHealth = SliderInt("Swiftmend Health", 1, 80, script_follow.swiftMendHealth);
+		--Separator();
 	end
 
 	if (class == 'Shaman') and (CollapsingHeader("Shaman Group Heals Follower Script")) then
