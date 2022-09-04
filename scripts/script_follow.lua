@@ -837,14 +837,17 @@ function script_follow:assignTarget()
         return closestTarget;
  end
 
-function script_follow:isTargetingPet(i) 
-	local pet = GetPet();
-	if (pet ~= nil and pet ~= 0 and not pet:IsDead()) then
-		if (i:GetUnitsTarget() ~= nil and i:GetUnitsTarget() ~= 0) then
-			return i:GetUnitsTarget():GetGUID() == pet:GetGUID();
+function script_follow:isTargetingPet(i)
+	local class = UnitClass("player");
+	if (not class == 'Warlock') then
+		local pet = GetPet();
+		if (pet ~= nil and pet ~= 0 and not pet:IsDead()) then
+			if (i:GetUnitsTarget() ~= nil and i:GetUnitsTarget() ~= 0) then
+				return i:GetUnitsTarget():GetGUID() == pet:GetGUID();
+			end
 		end
+		return false;
 	end
-	return false;
 end
 
 function script_follow:isTargetingMe(i) 
