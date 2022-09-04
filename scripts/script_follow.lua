@@ -937,7 +937,6 @@ end
 
 function script_follow:draw()
 	script_followEX:drawStatus();
-	if (IsMoving()) then 
-		script_nav:drawPath();
-	end
+	script_nav:drawPath();
+			
 end

@@ -5,6 +5,7 @@
 		drawAggroRange = 100,
 }
 
+
 function script_followEX:drawStatus()
 	if (script_follow.drawPath) then
 		script_nav:drawPath(); 
