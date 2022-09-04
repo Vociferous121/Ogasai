@@ -443,7 +443,7 @@ function script_priest:run(targetGUID)
 		-- Combat
 		else	
 
-			self.message = "Killing.. now in combat" .. targetObj:GetUnitName() .. "...";
+			self.message = "Killing.. now in combat " .. targetObj:GetUnitName() .. "...";
 
 			-- Dismount
 			if (IsMounted()) then DisMount(); end

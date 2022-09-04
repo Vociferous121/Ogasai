@@ -18,10 +18,10 @@ script_follow = {
 	partyFlashOfLightHealth = 83,
 	layOnHandsHealth = 6,
 	bopHealth = 10,
-    healingTouchMana = 35,
-    regrowthMana = 25,
+   	healingTouchMana = 35,
+    	regrowthMana = 25,
    	rejuvenationMana = 15,
-    healingTouchHealth = 35,
+    	healingTouchHealth = 35,
    	regrowthHealth = 60,
    	rejuvenationHealth = 75,
 	clickRenew = true,
@@ -31,8 +31,8 @@ script_follow = {
 	clickHeal = true,
 	clickHealingTouch = true,
 	clickRegrowth = true,
-	clickFlashOfLight = true;
-	clickHolyLight = true;
+	clickFlashOfLight = true,
+	clickHolyLight = true,
 	useMount = false,
 	disMountRange = 32,
 	mountTimer = 0,
@@ -82,7 +82,7 @@ end
 function script_follow:moveInLineOfSight(partyMember)
 	leaderObj = GetPartyMember(GetPartyLeaderIndex());
 	if (not leaderObj:IsInLineOfSight() or leaderObj:GetDistance() > self.followLeaderDistance) then
-			local x, y, z = leaderObj:GetPosition();
+			local x, y, z = partyMember:GetPosition();
 			script_nav:moveToTarget(GetLocalPlayer(), x , y, z);
 			self.timer = GetTimeEX() + 200;
             self.message = "Moving to party member LoS";
@@ -94,9 +94,9 @@ function script_follow:moveInLineOfSight(partyMember)
 			script_nav:moveToTarget(GetLocalPlayer(), x , y, z);
 			self.timer = GetTimeEX() + 200;
 			self.message = "Moving to party member LoS";
-		return true;
+			return true;
+		end
 	end
-end
 return false;
 end
 
@@ -615,13 +615,13 @@ function script_follow:run()
 		end
 
 		-- Clear dead/tapped targets
-		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
-			if ((self.enemyObj:IsTapped() and not self.enemyObj:IsTappedByMe()) 
-				or self.enemyObj:IsDead()) then
-				self.enemyObj = nil;
-				ClearTarget();
-			end
-		end
+	--	if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
+	--		if ((self.enemyObj:IsTapped() and not self.enemyObj:IsTappedByMe()) 
+	--			or self.enemyObj:IsDead()) then
+	--			self.enemyObj = nil;
+	--			ClearTarget();
+	--		end
+	--	end
 
 		-- Accept group invite
 		if (GetNumPartyMembers() < 1 and self.acceptTimer < GetTimeEX()) then 
@@ -630,7 +630,7 @@ function script_follow:run()
 		end
 
 		-- Healer check: heal/buff the party
-		if (script_follow:healAndBuff()) and (HasSpell('Smite') or HasSpell("Rejuvenation") or HasSpell("Healing Wave") or HasSpell("Holy Light")) then
+		if (script_follow:healAndBuff()) and (HasSpell("Smite") or HasSpell("Rejuvenation") or HasSpell("Healing Wave") or HasSpell("Holy Light")) then
 			self.message = "Healing/buffing the party...";
 			return;
 		end
@@ -657,20 +657,10 @@ function script_follow:run()
 		end
 
 		-- Randomize the follow range
-		if (self.followTimer < GetTimeEX()) then 
-			self.followTimer = GetTimeEX() + 20000;
-		end
+		--if (self.followTimer < GetTimeEX()) then 
+		--	self.followTimer = GetTimeEX() + 20000;
+		--end
 
-		-- Follow our master
-		if (script_follow:GetPartyLeaderObject() ~= 0) then
-			if(script_follow:GetPartyLeaderObject():GetDistance() > self.followLeaderDistance and not script_follow:GetPartyLeaderObject():IsDead()) then
-				local x, y, z = script_follow:GetPartyLeaderObject():GetPosition();
-				self.message = "Following our master...";
-				script_nav:moveToTarget(GetLocalPlayer(), x, y, z);
-				return;
-			end
-		end
-			
 		-- Assign the next valid target to be killed
 		-- Check if anything is attacking us Priest
 		if (script_follow:enemiesAttackingUs() >= 1) then
@@ -690,40 +680,41 @@ function script_follow:run()
 			end
 		end
         
-        if (GetTarget() ~= 0 and GetTarget() ~= nil) then
+        if (GetTarget() ~= 0 and GetTarget() ~= nil) and (script_follow:GetPartyLeaderObject():GetDistance() < self.followLeaderDistance) then
             local target = GetTarget();
 			if (self.assistInCombat) then
 				if (target:CanAttack()) then
 					self.enemyObj = target;
 				else
 					self.enemyObj = nil;
-				end
+				end 
 			end
-        else
+
+		  else
             if (script_follow:GetPartyLeaderObject() ~= 0) then
-                if (script_follow:GetPartyLeaderObject():GetUnitsTarget() ~= 0 and not script_follow:GetPartyLeaderObject():IsDead()) then
-                    if (self.assistInCombat) then
-                        self.enemyObj = script_follow:GetPartyLeaderObject():GetUnitsTarget();
-                    else
-                        self.enemyObj = nil;
-                    end
-                end
+                if (script_follow:GetPartyLeaderObject():GetUnitsTarget() ~= 0 and not script_follow:GetPartyLeaderObject():IsDead()) and (script_follow:GetPartyLeaderObject():GetDistance() < self.followLeaderDistance) then
+				if (self.assistInCombat) then
+                      	  self.enemyObj = script_follow:GetPartyLeaderObject():GetUnitsTarget();
+					script_follow:moveInLineOfSight(partyMember);
+                   	 else
+                      	  self.enemyObj = nil;
+                   	 end
+				end
             end
         end	
 
 		-- Finish loot before we engage new targets or navigate
-		if (self.lootObj ~= nil and not IsInCombat()) then 
+		if (self.lootObj ~= nil and not IsInCombat()) and (script_follow:GetPartyLeaderObject():GetDistance() < self.followLeaderDistance) then
 			return; 
 		else
 			-- reset the combat status
 			self.combatError = nil; 
 			-- Run the combat script and retrieve combat script status if we have a valid target
-		    if (self.enemyObj ~= nil and self.enemyObj ~= 0) then
+			if (self.enemyObj ~= nil and self.enemyObj ~= 0) then
 				self.combatError = RunCombatScript(self.enemyObj:GetGUID());
 			end
 		end
 
-		if (self.assistInCombat) then
 			if(self.enemyObj ~= nil or IsInCombat()) then
 				self.message = "Running the combat script...";
 				-- In range: attack the target, combat script returns 0
@@ -770,7 +761,7 @@ function script_follow:run()
 					return;
 				end
 			end
-		end
+		
 
 		-- Pre checks before navigating
 		if(IsLooting() or IsCasting() or IsChanneling() or IsDrinking() or IsEating() or IsInCombat()) then 
