@@ -1,4 +1,4 @@
-script_followEX = {
+ script_followEX = {
 	
 		drawUnits = false,
 		drawAggro = false,
