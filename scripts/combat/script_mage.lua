@@ -623,7 +623,7 @@ function script_mage:rest()
 			StopMoving();
 		end
 
-		if (localMana > 20 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
+		if (localMana > 30 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
 			if (HasSpell('Conjure Mana Ruby')) then
 				CastSpellByName('Conjure Mana Ruby')
 				return true;

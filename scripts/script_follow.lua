@@ -699,7 +699,7 @@ function script_follow:run()
 
 		if (script_follow:GetPartyLeaderObject() ~= 0) then
 			if (script_follow:GetPartyLeaderObject():GetUnitsTarget() ~= 0 and not script_follow:GetPartyLeaderObject():IsDead()) and (script_follow:GetPartyLeaderObject():GetDistance() < self.followLeaderDistance) then
-				if (script_follow:GetPartyLeaderObject():GetUnitsTarget():GetHealthPercentage() <= self.dpsHP) then
+				if (script_follow:GetPartyLeaderObject():GetUnitsTarget():GetHealthPercentage() <= self.dpsHP and self.assistInCombat) then
 					self.enemyObj = script_follow:GetPartyLeaderObject():GetUnitsTarget();
 					script_follow:moveInLineOfSight(partyMember);
 				else
