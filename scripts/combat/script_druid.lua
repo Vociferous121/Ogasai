@@ -20,6 +20,7 @@ script_druid = {
 	isChecked = true,
 	pullWithWrath = true,
 	pullWithMoonfire = false,
+	useEntanglingRoots = true,
 
 }
 
@@ -32,6 +33,10 @@ function script_druid:setup()
 	elseif (not HasSpell("Cat Form") and not HasSpell("Bear Form")) then
 		self.cat = false;
 		self.bear = false;
+	end
+
+	if (not HasSpell("Entangling Roots")) then
+		self.useEntanglingRoots = false;
 	end
 	
 	self.waitTimer = GetTimeEX();	
@@ -188,6 +193,14 @@ function script_druid:run(targetGUID)
 					self.message = "Casting Wrath!";
 					return 0; -- keep trying until cast
 				end
+				-- Entangling roots when target is far enough away and we have enough mana
+				if (self.useEntanglingRoots) then
+					if (HasSpell("Entangling Roots")) and (not targetObj:HasDebuff("Enatangle Roots")) and (localMana > 45) and (targetObj:GetDistance() > 12) then
+						if (Cast("Entangling Roots", targetObj)) then
+							return 0;
+						end
+					end
+				end
 				-- Moonfire to pull
 			elseif (self.pullWithMoonfire) and (HasSpell("Moonfire")) and (localMana >= 25) and (not IsSpellOnCD("Moonfire")) and (not targetObj:HasDebuff("Moonfire")) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
@@ -197,6 +210,14 @@ function script_druid:run(targetGUID)
 					self.waitTimer = GetTimeEX() + 200;
 					self.message = "Casting Moonfire!";
 					return 0; -- keep trying until cast
+				end
+				-- Entangling roots when target is far enough away and we have enough mana
+				if (self.useEntanglingRoots) then
+					if (HasSpell("Entangling Roots")) and (not targetObj:HasDebuff("Enatangle Roots")) and (localMana > 45) and (targetObj:GetDistance() > 12) then
+						if (Cast("Entangling Roots", targetObj)) then
+							return 0;
+						end
+					end
 				end
 			end
 
@@ -232,7 +253,7 @@ function script_druid:run(targetGUID)
 
 				-- run backwards if target affected by Entangling roots and low health
 				if (localHealth < 50) and (targetObj:HasDebuff("Entangling Roots")) and (targetObj ~= 0) and (IsInCombat()) then
-					if (script_druid:runBackwards(targetObj, 7)) then -- Moves if the target is closer than 7 yards
+					if (script_druid:runBackwards(targetObj, 13)) then -- Moves if the target is closer than 7 yards
 						self.message = "Moving away from target...";
 						return 4; 
 					end 
@@ -332,7 +353,7 @@ function script_druid:run(targetGUID)
 					targetObj:AutoAttack();
 				else
 					script_nav:moveToTarget(localObj, targetObj:GetPosition());
-					self.waitTimer = GetTimeEX() + 1500;
+					self.waitTimer = GetTimeEX() + 2500;
 					return 0;
 				end
 			end
@@ -474,6 +495,10 @@ function script_druid:menu()
 			end
 		end
 
+		if (HasSpell("Entangling Roots")) then
+			wasClicked, self.useEntanglingRoots = Checkbox("Attemp to root after pull On/Off", self.useEntanglingRoots);
+		end
+		
 		wasClicked, self.stopIfMHBroken = Checkbox("Stop bot if main hand is broken (red)...", self.stopIfMHBroken);
 		self.meeleDistance = SliderFloat("Meele range", 1, 6, self.meeleDistance);
 	end
