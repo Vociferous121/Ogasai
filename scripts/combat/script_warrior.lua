@@ -870,7 +870,7 @@ function script_warrior:menu()
 			end
 		end
 
-		if (CollapsingHeader("Warrior Grind Options")) then -- grind menu plans to hide this menu once rotation is complete
+		if (CollapsingHeader("Warrior Combat Options")) then -- grind menu plans to hide this menu once rotation is complete
 			Text('Eat below health percentage');
 			self.eatHealth = SliderInt("EHP %", 1, 100, self.eatHealth);	-- use food health
 			Text('Potion below health percentage');
