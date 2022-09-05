@@ -37,6 +37,7 @@ script_warlock = {
 	useUnendingBreath = false,
 	alwaysFear = false,
 	useDrainMana = false,
+	hasPet = false,
 }
 
 function script_warlock:cast(spellName, target)
@@ -150,10 +151,12 @@ function script_warlock:setup()
 		self.useImp = true;
 		self.useVoid = false;
 		self.useSuccubus = false;
+		hasPet = false;
 	elseif (HasSpell("Summon Voidwalker")) then
 		self.useImp = false;
 		self.useVoid = true;
 		self.useSuccubus = false;
+		hasPet = false;
 	elseif (not HasSpell("Summon Imp") and not HasSpell("Summon Voidwalker") and not HasSpell("Summon Succubus")) then
 		self.useImp = false;
 		self.useVoid = false;
@@ -165,6 +168,7 @@ function script_warlock:setup()
 	-- 	self.useVoid = false;
 	end
 
+	-- set corruption based on talent points assuming affliction spec
 	if (GetLocalPlayer():GetLevel() < 10) then
 		self.corruptionCastTime = 20;
 	elseif (GetLocalPlayer():GetLevel() == 10) then
@@ -211,18 +215,14 @@ function script_warlock:run(targetGUID)
 	local localLevel = localObj:GetLevel();
 
 	local hasPet = false;
-	
-	if (hasPet) then
-		if (GetPet():GetHealthPercentage() <= 0) then
+
+	if (GetPet() ~= 0) then
+		hasPet = true;
+	else
+		if (GetPet() == 0) then
 			hasPet = false;
 		end
 	end
-
-	-- try to set below using pet spells
-	-- if has pet then set variable
-	--if(GetPet() ~= 0) then
-	--	hasPet = true;
-	--end
 	
 	-- don't attack dead targets
 	if (localObj:IsDead()) then
@@ -317,6 +317,15 @@ function script_warlock:run(targetGUID)
 				DisMount(); 
 			end
 
+			-- check pet
+			if(GetPet() ~= 0) then 
+				hasPet = true; 
+			else
+				if (GetPet() == 0) then
+					hasPet = false;
+				end
+			end
+
 			-- spells to pull
 
 			-- Amplify Curse on CD
@@ -401,6 +410,15 @@ function script_warlock:run(targetGUID)
 				targetObj:HasDebuff("Corruption")) or (script_grind:isTargetingMe(targetObj)) then
 				self.message = "Sending pet to attack";
 				PetAttack();
+			end
+
+			-- check pet
+			if(GetPet() ~= 0) then 
+				hasPet = true; 
+			else
+				if (GetPet() == 0) then
+					hasPet = false;
+				end
 			end
 
 			-- Dismount
@@ -647,6 +665,15 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
+			-- check pet
+			if(GetPet() ~= 0) then 
+				hasPet = true; 
+			else
+				if (GetPet() == 0) then
+					hasPet = false;
+				end
+			end
+
 			-- Check: Heal the pet if it's below 50% and we are above 50%
 			if (hasPet) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) then
 				self.message = "Healing pet with Health Funnel";
@@ -708,10 +735,16 @@ function script_warlock:rest()
 	local localHealth = localObj:GetHealthPercentage();
 	local hasPet = false;
 
+	-- check pet
 	if(GetPet() ~= 0) then 
 		hasPet = true; 
+	else
+		if (GetPet() == 0) then
+			hasPet = false;
+		end
 	end
 
+	-- drink or eat 
 	if(localMana < self.drinkMana or localHealth < self.eatHealth) then
 		if (IsMoving()) then
 			StopMoving();

@@ -672,15 +672,15 @@ function script_priest:rest()
 		return true;
 	end
 
-	buff="Power Word: Fortitude(Rank " Sp={1,2,14,26,38,50};
-	if (UnitLevel("target") ~= nil and UnitIsFriend("player","target")) then
-		for i=6, 1, -1 do 
-			if (UnitLevel("target") >= Sp) then
-				CastSpellByName(buff..i..")");
-				return;
-			end
-		end
-	end 
+	--buff="Power Word: Fortitude(Rank " Sp={1,2,14,26,38,50};
+	--if (UnitLevel("target") ~= nil and UnitIsFriend("player","target")) then
+	--	for i=6, 1, -1 do 
+	--		if (UnitLevel("target") >= Sp) then
+	--			CastSpellByName(buff..i..")");
+	--			return;
+	--		end
+	--	end
+	--end 
 
 	-- Check: Drink
 	if (not IsDrinking()) and (localMana <= self.drinkMana) then

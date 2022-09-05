@@ -2,16 +2,16 @@ script_follow = {
 
 	renewMana = 25,
 	partyRenewHealth = 85,
-	shieldMana = 35,
-	partyShieldHealth = 55,
+	shieldMana = 55,
+	partyShieldHealth = 39,
 	lesserHealMana = 5,
 	partyLesserHealHealth = 75,
-	healMana = 35,
+	healMana = 10,
 	partyHealHealth = 50,
 	greaterHealMana = 20,
-	partyGreaterHealHealth = 30,
+	partyGreaterHealHealth = 28,
 	flashHealMana = 7,
-	partyFlashHealHealth = 70,
+	partyFlashHealHealth = 48,
    	holyLightMana = 25,
 	partyHolyLightHealth = 60,
 	flashOfLightMana = 3,
@@ -131,9 +131,10 @@ function script_follow:healAndBuff()
 			end
 
 			-- Dispel Magic
-			if (HasSpell("Dispel Magic")) and (localMana > 10) then 
-				if (partyMember:HasDebuff("Druid's Slumber")) or (partyMember:HasDebuff("Terrify")) or (partyMember:HasDebuff("Frost Nova")) or 
-				(partyMember:HasBuff("Screams of the Past")) or (partyMember:HasDebuff("Wavering Will")) then
+			if (HasSpell("Dispel Magic")) and (localMana > 20) then 
+				if (partyMember:HasDebuff("Druid's Slumber")) or (partyMember:HasDebuff("Terrify")) or (leaderObj:HasDebuff("Frost Nova")) or 
+				(partyMember:HasDebuff("Screams of the Past")) or (partyMember:HasDebuff("Wavering Will")) or (partyMember:HasDebuff("Slow")) or
+				(leaderObj:HasDebuff("Frostbolt")) or (partyMember:HasDebuff("Dominate Mind")) then
 					if (CastHeal("Dispel Magic", partyMember)) then
 						self.waitTimer = GetTimeEX() + 1500;
 						return true;
