@@ -279,7 +279,7 @@ function script_warlock:run(targetGUID)
 		end 
 
 		-- move to cancel Health Funnel when payer has low HP
-		if (hasPet) and (self.useVoid or self.useImp or self.useSuccubus) then
+		if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus) then
 			if (GetPet():HasBuff("Health Funnel") and localHealth < 40) then
 				local _x, _y, _z = localObj:GetPosition();
 				script_nav:moveToTarget(localObj, _x + 1, _y + 1, _z); 
@@ -308,7 +308,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- if pet goes too far then recall
-			if (hasPet) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetDistance() > 40) then
+			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetDistance() > 40) then
 				PetFollow();
 			end
 
@@ -399,14 +399,14 @@ function script_warlock:run(targetGUID)
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
 			-- recall pet if too far > 30
-			if (hasPet) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetDistance() > 30) then
+			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetDistance() > 30) then
 				self.message = "Recalling Pet - too far!";
 				PetFollow();
 				return 0;
 			end
 
 			-- Set the pet to attack
-			if (hasPet) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetHealthPercentage() >= 1) and (targetObj:GetDistance() < 35) and (targetHealth < 99 or targetObj:HasDebuff("Curse of Agony") or 
+			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetHealthPercentage() >= 1) and (targetObj:GetDistance() < 35) and (targetHealth < 99 or targetObj:HasDebuff("Curse of Agony") or 
 				targetObj:HasDebuff("Corruption")) or (script_grind:isTargetingMe(targetObj)) then
 				self.message = "Sending pet to attack";
 				PetAttack();
@@ -441,24 +441,24 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- voidwalker taunt
-			if (hasPet) and (self.useVoid) and (HasSpell("Suffering")) and (not IsSpellOnCD("Suffering")) and (GetPet():GetHealthPercentage() > 25) and (script_grind:enemiesAttackingUs(10) >= 1) then
+			if (GetPet() ~= 0) and (self.useVoid) and (HasSpell("Suffering")) and (not IsSpellOnCD("Suffering")) and (GetPet():GetHealthPercentage() > 25) and (script_grind:enemiesAttackingUs(10) >= 1) then
 				CastSpellByName("Suffering");
 				return 0;
 			end
 
 			-- sacrifice voidwalker low health
-			if (hasPet) and (self.useVoid) and (HasSpell("Sacrifice")) and (self.sacrificeVoid) and (localHealth <= self.sacrificeVoidHealth or GetPet():GetHealthPercentage() < self.sacrificeVoidHealth) then
+			if (GetPet() ~= 0) and (self.useVoid) and (HasSpell("Sacrifice")) and (self.sacrificeVoid) and (localHealth <= self.sacrificeVoidHealth or GetPet():GetHealthPercentage() < self.sacrificeVoidHealth) then
 				hasPet = false;
 				CastSpellByName("Sacrifice");
 				return 0;
 			end
 
 			-- resummon when sacrifice is active
-			if (self.useVoid) and (self.sacrificeVoid) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (localObj:HasBuff("Sacrifice")) then
+			if (self.useVoid) and (self.sacrificeVoid) and (GetPet == 0) and (localObj:HasBuff("Sacrifice")) then
 				if (CastSpellByName("Summon Voidwalker")) then
-				return 0;
+					hasPet = true;
+					return 0;
 				end
-				hasPet = true;
 			end
 
 			-- Check: If we get Nightfall buff then cast Shadow Bolt
@@ -518,7 +518,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Check: Heal the pet if it's below 50% and we are above 50%
-			if (hasPet) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) then
+			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) then
 				if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) then
 					self.message = "Healing pet!";
 					script_nav:moveToTarget(localObj, GetPet():GetPosition()); 
@@ -532,7 +532,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- if pet goes too far then recall
-			if (hasPet) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetDistance() > 40) then
+			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetDistance() > 40) then
 				PetFollow();
 			end
 
@@ -675,7 +675,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Check: Heal the pet if it's below 50% and we are above 50%
-			if (hasPet) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) then
+			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) then
 				self.message = "Healing pet with Health Funnel";
 				if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) then
 					script_nav:moveToTarget(localObj, GetPet():GetPosition()); 
@@ -797,7 +797,7 @@ function script_warlock:rest()
 		return true;
 	end
 
-	if (hasPet) and (self.useVoid) and (GetPet():GetHealthPercentage() < 75) and (HasSpell("Consume Shadows")) then
+	if (GetPet() ~= 0) and (self.useVoid) and (GetPet():GetHealthPercentage() < 75) and (HasSpell("Consume Shadows")) then
 		CastSpellByName("Consume Shadows");
 		self.waitTimer = GetTimeEX() + 7500;
 		self.message = "Using Voidwalker Consume Shadows";
@@ -813,14 +813,14 @@ function script_warlock:rest()
 	end
 	
 	-- Check: Summon our Demon if we are not in combat
-	if (not IsEating()) and (not IsDrinking()) and (not hasPet) and (GetPet() == 0) and (HasSpell("Summon Imp")) and (self.useVoid or self.useImp or self.useSuccubus) then
+	if (not IsEating()) and (not IsDrinking()) and (GetPet() == 0) and (HasSpell("Summon Imp")) and (self.useVoid or self.useImp or self.useSuccubus) then
 		-- succubus	
-		if (not hasPet) and (not self.useVoid or not self.useImp) and (self.useSuccubus) and (HasSpell("Summon Succubus")) and HasItem('Soul Shard') then
+		if (GetPet() == 0) and (not self.useVoid or not self.useImp) and (self.useSuccubus) and (HasSpell("Summon Succubus")) and HasItem('Soul Shard') then
 			if (not IsStanding() or IsMoving()) then 
 				StopMoving();
 			end
 			-- summon succubus
-			if (localMana > 75) and (GetPet() == 0 or not hasPet) then
+			if (localMana > 75) and (GetPet() == 0) then
 				if (CastSpellByName("Summon Succubus")) then
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Succubus";
@@ -828,12 +828,12 @@ function script_warlock:rest()
 					return true; 
 				end
 			end
-		elseif (not hasPet) and (self.useVoid) and (HasSpell("Summon Voidwalker")) and (HasItem('Soul Shard')) then
+		elseif (GetPet() == 0) and (self.useVoid) and (HasSpell("Summon Voidwalker")) and (HasItem('Soul Shard')) then
 			if (not IsStanding() or IsMoving()) then 
 				StopMoving();
 			end
 			-- summon voidwalker
-			if (localMana > 75) and (GetPet() == 0 or not hasPet) then
+			if (localMana > 75) and (GetPet() == 0) then
 				if (CastSpellByName("Summon Voidwalker")) then
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Void Walker";
@@ -841,7 +841,7 @@ function script_warlock:rest()
 					return true; 
 				end
 			end
-		elseif (not hasPet) and (HasSpell("Summon Imp")) and (self.useImp) then
+		elseif (GetPet() == 0) and (HasSpell("Summon Imp")) and (self.useImp) then
 			if (not IsStanding() or IsMoving()) then
 				StopMoving();
 			end
@@ -914,7 +914,7 @@ function script_warlock:rest()
 	end
 
 	-- Check: Health funnel on the pet or wait for it to regen if lower than 70%
-	if (hasPet and GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus) then
+	if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus) then
 		if (GetPet():GetHealthPercentage() < 70) and (localHealth > 60) then
 			if (GetPet():GetDistance() > 8) then
 				PetFollow();
@@ -922,7 +922,7 @@ function script_warlock:rest()
 				return true;
 			end
 			if (GetPet():GetDistance() < 20 and localMana > 10) then
-				if (hasPet and GetPet():GetHealthPercentage() < 70 and GetPet():GetHealthPercentage() > 0) then
+				if (GetPet() ~= 0 and GetPet():GetHealthPercentage() < 70 and GetPet():GetHealthPercentage() > 0) then
 					self.message = "Pet has lower than 70% HP, using health funnel...";
 					if (IsMoving() or not IsStanding()) then StopMoving(); return true; end
 					if (HasSpell('Health Funnel')) then CastSpellByName('Health Funnel'); end

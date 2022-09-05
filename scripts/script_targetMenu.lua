@@ -9,7 +9,7 @@ function script_targetMenu:menu()
 		wasCLicked, script_grind.skipHardPull = Checkbox("Blacklist target with more than 1 add", script_grind.skipHardPull);
 		wasClicked, script_grindEX.avoidBlacklisted = Checkbox("Avoid blacklisted targets (buggy)", script_grindEX.avoidBlacklisted);
 		
-		if (Button("BLACKLIST BY GUID")) then
+		if (Button("BlackList By GUID")) then
 			if UnitExists("target") then
 				DEFAULT_CHAT_FRAME:AddMessage('Blacklisted "'..GetTarget():GetUnitName()..'" GUID: "'..GetTarget():GetGUID()..'"');
 				script_grind:addTargetToBlacklist(GetTarget():GetGUID());
@@ -18,7 +18,7 @@ function script_targetMenu:menu()
 
 		SameLine();
 
-		if (Button("BLACKLIST BY NAME")) then
+		if (Button("BlacList By Name")) then
 			if UnitExists("target") then
 				DEFAULT_CHAT_FRAME:AddMessage('Blacklisted "'..GetTarget():GetUnitName()..'" by NAME');
 				script_grind:addTargetToNameBlacklist(GetTarget():GetUnitName());

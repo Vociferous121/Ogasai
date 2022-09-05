@@ -308,6 +308,11 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end
 			end
 
+			-- enable/disable facing target automatically
+			if (self.enableFaceTarget) then
+				targetObj:FaceTarget();
+			end
+
 			-- Combat
 		else	
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
@@ -318,7 +323,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 
 			-- Run backwards if we are too close to the target
 			if (targetObj:GetDistance() <= 1) then 
-				if (script_warrior:runBackwards(targetObj,2)) then 
+				if (script_warrior:runBackwards(targetObj,3)) then 
 					return 4; 
 				end 
 			end
