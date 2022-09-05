@@ -3,8 +3,8 @@ script_targetMenu = {
 
 function script_targetMenu:menu()
 	if (CollapsingHeader("Target options")) then
-		Text("Blacklisting resets when script is reloaded");
-		Text(""); -- empty space
+		Text("**Blacklisting resets when script is reloaded**");
+		Text("--------------------------------------------"); -- empty space
 		local wasClicked = false;
 		wasCLicked, script_grind.skipHardPull = Checkbox("Blacklist target with more than 1 add", script_grind.skipHardPull);
 		wasClicked, script_grindEX.avoidBlacklisted = Checkbox("Avoid blacklisted targets (buggy)", script_grindEX.avoidBlacklisted);
@@ -50,7 +50,7 @@ function script_targetMenu:menu()
 		
 		Separator();
 		
-		if (CollapsingHeader("-- Skip Creater By Type")) then
+		if (CollapsingHeader("-- Skip Creature By Type")) then
 			wasClicked, script_grind.skipElites = Checkbox("Skip elites", script_grind.skipElites);
 			SameLine(); wasClicked, script_grind.skipHumanoid = Checkbox("Skip humanoids", script_grind.skipHumanoid);
 			wasClicked, script_grind.skipElemental = Checkbox("Skip elementals", script_grind.skipElemental);

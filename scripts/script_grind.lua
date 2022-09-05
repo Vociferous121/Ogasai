@@ -298,9 +298,9 @@ function script_grind:run()
 			if (script_grind:mountUp() and self.useMount) then return; 
 			end
 			-- Druid cat form is faster if you specc talents
-			if (self.currentLevel < 40 and HasSpell('Cat Form') and not localObj:HasBuff('Cat Form')) then
-				CastSpellByName('Cat Form');
-			end
+			--if (self.currentLevel < 40 and HasSpell('Cat Form') and not localObj:HasBuff('Cat Form')) then
+			--	CastSpellByName('Cat Form');
+			--end
 			-- Shaman Ghost Wolf 
 			if (self.currentLevel < 40 and HasSpell('Ghost Wolf') and not localObj:HasBuff('Ghost Wolf')) then
 				CastSpellByName('Ghost Wolf');
