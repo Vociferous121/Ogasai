@@ -310,20 +310,22 @@ function script_druid:run(targetGUID)
 				---
 				---
 
-				-- Entangling roots on low health
-				if (HasSpell("Entangling Roots")) and (not targetObj:HasDebuff("Enatangle Roots")) and (localMana > 45) and (localHealth < 45) then
-					if (Cast("Entangling Roots", targetObj)) then
-						return 0;
+				-- entangling root in combat
+				if (self.useEntanglingRoots) then
+					-- Entangling roots on low health
+					if (HasSpell("Entangling Roots")) and (not targetObj:HasDebuff("Enatangle Roots")) and (localMana > 45) and (localHealth < 45) then
+						if (Cast("Entangling Roots", targetObj)) then
+							return 0;
+						end
+					end
+
+					-- Entangling roots when target is far enough away and we have enough mana
+					if (HasSpell("Entangling Roots")) and (not targetObj:HasDebuff("Enatangle Roots")) and (localMana > 45) and (targetObj:GetDistance() > 20) then
+						if (Cast("Entangling Roots", targetObj)) then
+							return 0;
+						end
 					end
 				end
-
-				-- Entangling roots when target is far enough away and we have enough mana
-				if (HasSpell("Entangling Roots")) and (not targetObj:HasDebuff("Enatangle Roots")) and (localMana > 45) and (targetObj:GetDistance() > 20) then
-					if (Cast("Entangling Roots", targetObj)) then
-						return 0;
-					end
-				end
-
 
 				-- keep moonfire up
 				if (localMana > 30) and (targetHealth > 5) and (not targetObj:HasDebuff("Moonfire")) then
@@ -496,7 +498,7 @@ function script_druid:menu()
 		end
 
 		if (HasSpell("Entangling Roots")) then
-			wasClicked, self.useEntanglingRoots = Checkbox("Attemp to root after pull On/Off", self.useEntanglingRoots);
+			wasClicked, self.useEntanglingRoots = Checkbox("Attempt to root after pull On/Off", self.useEntanglingRoots);
 		end
 		
 		wasClicked, self.stopIfMHBroken = Checkbox("Stop bot if main hand is broken (red)...", self.stopIfMHBroken);
