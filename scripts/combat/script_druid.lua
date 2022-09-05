@@ -198,9 +198,6 @@ function script_druid:run(targetGUID)
 					self.message = "Casting Moonfire!";
 					return 0; -- keep trying until cast
 				end
-			elseif (localMana <= 25) then
-				targetObj:AutoAttack();
-				return 3;
 			end
 
 			-- move into line of sight
@@ -208,6 +205,7 @@ function script_druid:run(targetGUID)
 				return 3;
 			end
 
+			targetObj:FaceTarget();
 		-- Combat
 		else	
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
@@ -232,6 +230,14 @@ function script_druid:run(targetGUID)
 					end 
 				end
 
+				-- run backwards if target affected by Entangling roots and low health
+				if (localHealth < 50) and (targetObj:HasDebuff("Entangling Roots")) and (targetObj ~= 0) and (IsInCombat()) then
+					if (script_druid:runBackwards(targetObj, 7)) then -- Moves if the target is closer than 7 yards
+						self.message = "Moving away from target...";
+						return 4; 
+					end 
+				end	
+
 				-- Check: Use Healing Potion 
 				if (localHealth < self.potionHealth) then 
 					if (script_helper:useHealthPotion()) then 
@@ -246,9 +252,11 @@ function script_druid:run(targetGUID)
 					end 
 				end
 
+				---
+				---
 				-- heals before trying to attack!
 					-- better to do this in each form instead of a function but can be changed.
-					-- this was just quicker and easier in my opinion and more direct
+						-- this was just quicker and easier in my opinion and more direct
 
 				-- Regrowth
 				if (HasSpell("Regrowth")) then
@@ -278,9 +286,32 @@ function script_druid:run(targetGUID)
 				end
 
 				-- end of heals!
+				---
+				---
+
+				-- Entangling roots on low health
+				if (HasSpell("Entangling Roots")) and (not targetObj:HasDebuff("Enatangle Roots")) and (localMana > 45) and (localHealth < 45) then
+					if (Cast("Entangling Roots", targetObj)) then
+						return 0;
+					end
+				end
+
+				-- Entangling roots when target is far enough away and we have enough mana
+				if (HasSpell("Entangling Roots")) and (not targetObj:HasDebuff("Enatangle Roots")) and (localMana > 45) and (targetObj:GetDistance() > 20) then
+					if (Cast("Entangling Roots", targetObj)) then
+						return 0;
+					end
+				end
+
 
 				-- keep moonfire up
 				if (localMana > 30) and (targetHealth > 5) and (not targetObj:HasDebuff("Moonfire")) then
+					if (Cast("Moonfire", targetObj)) then
+						return 0;
+					end
+
+					-- spam moonfire until target is killed
+				elseif (localMana > 30) and (targetHealth < 8) and (not IsSpellOnCD("Moonfire")) then
 					if (Cast("Moonfire", targetObj)) then
 						return 0;
 					end
@@ -296,7 +327,7 @@ function script_druid:run(targetGUID)
 
 			-- auto attack condition for low level druids needing to use spells at range
 			if (localMana <= 35 or self.bear or self.cat) then
-				if targetObj:GetDistance() < self.meeleDistance then
+				if targetObj:GetDistance() <= self.meeleDistance then
 					targetObj:FaceTarget();
 					targetObj:AutoAttack();
 				else
