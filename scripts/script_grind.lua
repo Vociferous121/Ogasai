@@ -40,6 +40,7 @@ script_grind = {
 	skipGiant = false,
 	skipMechanical = false,
 	skipElites = true,
+	skipNotspecified = false,
 	paranoidOn = true,
 	paranoidOnTargeted = true,
 	paranoidRange = 150,
@@ -84,6 +85,7 @@ script_grind = {
 	skipHardPull = true,
 	useUnstuck = true,
 	blacklistAdds = 1,
+	blacklistedNameNum = 0,
 	sitParanoid = true,
 }
 
@@ -141,6 +143,24 @@ function script_grind:isTargetBlacklisted(targetGUID)
 		end
 	end
 	return false;
+end
+
+--IS TARGET BLACKLISTED BY NAME - thank you Coin
+function script_grind:isTargetNameBlacklisted(name) 
+	for i=0,self.blacklistedNameNum do
+		if (name == self.blacklistedNameTargets[i]) then
+			return true;
+		end
+	end
+	return false;
+end
+
+--ADD BLACKLIST BY NAME - thank you Coin
+function script_grind:addTargetToNameBlacklist(name) 
+	if (name ~= nil and name ~= 0 and name ~= '') then	
+		self.blacklistedNameTargets[self.blacklistedNameNum] = name;
+		self.blacklistedNameNum = self.blacklistedNameNum + 1;
+	end
 end
 
 function script_grind:run()
@@ -551,6 +571,7 @@ function script_grind:enemyIsValid(i)
 			and not (skipDragonkin and i:GetCreatureType() == 'Dragonkin') 
 			and not (skipGiant and i:GetCreatureType() == 'Giant') 
 			and not (skipMechanical and i:GetCreatureType() == 'Mechanical') 
+			and not (self.skipNotspecified and i:GetCreatureType() == 'Not specified')
 			and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
 			) then
 			return true;
