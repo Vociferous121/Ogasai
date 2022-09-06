@@ -363,7 +363,7 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 			
 	-- If we have a new destination, generate a new path to it
 	if(self.navPathPosition['x'] ~= _x or self.navPathPosition['y'] ~= _y or self.navPathPosition['z'] ~= _z
-		or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
+		or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 20) then
 		self.navPathPosition['x'] = _x;
 		self.navPathPosition['y'] = _y;
 		self.navPathPosition['z'] = _z;
@@ -388,10 +388,10 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 		end
 	else
 		-- If we are close to the next path node, increase our nav node index
-		if(GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) < self.nextNavNodeDistance) then
+		if(GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) < self.nextNavNodeDistance + 1) then
 			self.lastpathnavIndex = self.lastpathnavIndex + 1;	
 			if (GetPathSize(5) <= self.lastpathnavIndex) then
-				self.lastpathnavIndex = GetPathSize(5)-1;
+				self.lastpathnavIndex = GetPathSize(7)-1;
 			end
 		end
 	end

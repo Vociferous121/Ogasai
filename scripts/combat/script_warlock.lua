@@ -38,6 +38,7 @@ script_warlock = {
 	useVoid = false,
 	useImp = false,
 	useSuccubus = false,
+	useFelhunter = false,
 	wandHealthPreset = 10, -- preset to attack target with 10% HP using wand, reset in Setup function for dungeon to cast shadowbolt
 	drainSoulHealthPreset = 30,
 }
@@ -177,21 +178,29 @@ function script_warlock:setup()
 			self.useImp = true;
 			self.useVoid = false;
 			self.useSuccubus = false;
+			self.useFelhunter = false;
 			hasPet = false;
 		elseif (HasSpell("Summon Voidwalker")) then
 			self.useImp = false;
 			self.useVoid = true;
 			self.useSuccubus = false;
+			self.useFelhunter = false;
 			hasPet = false;
 		elseif (not HasSpell("Summon Imp")) then
 			self.useImp = false;
 			self.useVoid = false;
 			self.useSuccubus = false;
+			self.useFelhunter = false;
 			hasPet = false;
 		-- elseif (HasSpell("Summon Succubus")) then
 		-- 	self.useSuccubus = true;
 		-- 	self.useImp = false;
 		-- 	self.useVoid = false;
+		-- elseif ("HasSpell("Summon Felhunter")) then
+		-- 	self.useSuccubus = false;
+		-- 	self.useImp = false;
+		-- 	self.useVoid = false;
+		--	self.useFelhunter = true;
 		end
 	end
 
@@ -385,7 +394,7 @@ function script_warlock:run(targetGUID)
 					self.waitTimer = GetTimeEX() + 1600;
 					return 0;
 				end
-			elseif (HasSpell("Immolate")) and (self.enableImmolate) and (not targetObj:HasDebuff("Immolate")) and (targetHealth > 20) then
+			elseif (HasSpell("Immolate")) and (self.enableImmolate) and (not targetObj:HasDebuff("Immolate")) and (targetHealth > 20) and (not IsSpellOnCD("Immolate")) then
 				self.message = "Stacking DoT's";
 				if (self.useVoid or self.useImp or self.useSuccubus) then
 					PetAttack();
@@ -612,7 +621,7 @@ function script_warlock:run(targetGUID)
 	
 			-- Check: Keep the Immolate DoT up (15 s duration)
 			if (self.enableImmolate) then
-				if (not targetObj:HasDebuff("Immolate") and targetHealth > 20) then
+				if (not targetObj:HasDebuff("Immolate") and targetHealth > 20) and (not IsSpellOnCD("Immolate")) then
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 					end -- move to target
@@ -998,6 +1007,13 @@ function script_warlock:menu()
 		if (HasSpell("Summon Imp")) then
 			wasClicked, self.useImp = Checkbox("Use Imp", self.useImp);
 			SameLine();
+
+			if (self.useImp) then
+				self.useVoid = false;
+				self.useSuccubus = false;
+				self.useFelhunter = false;
+			end
+			
 		end
 		
 		if (HasSpell("Summon Voidwalker")) then
@@ -1007,6 +1023,7 @@ function script_warlock:menu()
 			if (self.useVoid) then
 				self.useImp = false;
 				self.useSuccubus = false;
+				self.useFelhunter = false;
 			end
 		end
 
@@ -1015,6 +1032,18 @@ function script_warlock:menu()
 
 			if (self.useSuccubus) then
 				self.useImp = false;
+				self.useVoid = false;
+				self.useFelhunter = false;
+			end
+		end
+
+		if (HasSpell("Summon Felhunter")) then
+			wasClicked, self.useFelhunter = Checkbox("Use Felhunter", self.useFelhunter);
+			SameLine();
+
+			if (self.useFelhunter) then
+				self.useImp = false;
+				self.useSuccubus = false;
 				self.useVoid = false;
 			end
 		end
