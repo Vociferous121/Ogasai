@@ -21,8 +21,8 @@ script_priest = {
 	wandSpeed = 16,	-- wand attack speed
 	useScream = true,	-- use fear yes/no
 	shadowForm = false,	-- shadowform on/off (auto set on/off based on HP slider)
-	mindFlayHealth = 25,	-- mind flay blow target health %
-	mindFlayMana = 30,	-- mind flay above self mana %
+	mindFlayHealth = 18,	-- mind flay blow target health %
+	mindFlayMana = 18,	-- mind flay above self mana %
 	shadowFormHealth = 50,	-- shadowform change health
 	useMindFlay = false,	-- use mind flay yes/no
 	swpMana = 20, -- Use shadow word: pain above this mana %
@@ -229,9 +229,11 @@ function script_priest:setup()
 	self.isSetup = true; -- setup variable run once
 	if (HasSpell("Mind Flay")) then -- if has mind flay
 		self.drinkMana = 35; -- set drinkMana variable
-		self.shieldHP = 95;	-- set shieldHP variable
-		self.renewHP = 88;	-- set renewHP variable
+		self.shieldHP = 90;	-- set shieldHP variable
+		self.renewHP = 80;	-- set renewHP variable
 	end
+	
+	script_grind.tickRate = 125;
 end
 
 function script_priest:draw()
@@ -393,10 +395,9 @@ function script_priest:run(targetGUID)
 					self.message = "Casting Mind Blast!";
 					return 0; -- keep trying until cast
 				end
-			end
 
-			-- vampiric embrace
-			if (HasSpell("Vampiric Embrace")) and (not IsSpellOnCD("Vampiric Embrace")) and (not targetObj:HasDebuff("Vampiric Embrace")) then
+				-- vampiric embrace
+			elseif (HasSpell("Vampiric Embrace")) and (not IsSpellOnCD("Vampiric Embrace")) and (not targetObj:HasDebuff("Vampiric Embrace")) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 					return 3; -- target not in line of sight
 				end -- move to target
@@ -405,10 +406,8 @@ function script_priest:run(targetGUID)
 					self.message = "Casting Vampiric Embrace!";
 					return 0; -- keep trying until cast
 				end
-			end
-
-			-- shadow word pain if mindblast is on CD to pull if no wand
-			if (HasSpell("Shadow Word: Pain")) and (not targetObj:HasDebuff("Shadow Word: Pain")) and (IsSpellOnCD("Mind Blast")) then
+				--shadow word pain if mindblast is on CD to pull if no wand
+			elseif (HasSpell("Shadow Word: Pain")) and (not targetObj:HasDebuff("Shadow Word: Pain")) and (IsSpellOnCD("Mind Blast")) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 					return 3; -- target not in line of sight
 				end -- move to target
@@ -416,10 +415,9 @@ function script_priest:run(targetGUID)
 					self.waitTimer = GetTimeEX() + 750;
 					return 0; -- keep trying until cast
 				end
-			end
 
 			-- Use Smite if we have it
-			if (self.useSmite) and (localMana >= 7) then
+			elseif (self.useSmite) and (localMana >= 7) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 					return 3; -- target not in line of sight
 				end -- move to target
@@ -515,7 +513,7 @@ function script_priest:run(targetGUID)
 			end
 
 			-- Check: keep vampiric embrace up
-			if (HasSpell("Vampiric Embrace")) and (not IsSpellOnCD("Vampiric Embrace")) and (not targetObj:HasDebuff("Vampiric Embrace")) and (localMana >= 5) then
+			if (HasSpell("Vampiric Embrace")) and (not IsSpellOnCD("Vampiric Embrace")) and (not targetObj:HasDebuff("Vampiric Embrace")) and (localMana >= 3) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 					return 3; -- target not in line of sight
 				end -- move to target
@@ -593,7 +591,7 @@ function script_priest:run(targetGUID)
 			end
 
 			-- Mind flay 
-			if (self.shadowForm and self.useMindFlay ) or (self.useMindFlay) and (IsSpellOnCD("Mind Blast") or localMana <= self.mindBlastMana) then
+			if (self.shadowForm or self.useMindFlay) and (IsSpellOnCD("Mind Blast") or localMana <= self.mindBlastMana) then
 				if (HasSpell("Mind Flay")) and (not IsSpellOnCD("Mind Flay")) and (localMana >= self.mindFlayMana) and (targetHealth >= self.mindFlayHealth) and
 					(not localObj:IsChanneling() and targetObj:GetDistance() <= 20) then
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
@@ -611,7 +609,7 @@ function script_priest:run(targetGUID)
 
 			--mind flay and then wand when set
 			if (self.useMindFlay) and (not localObj:IsCasting() or not localObj:IsChanneling()) and
-				(localMana <= self.mindFlayMana or targetHealth <= self.mindFlayHealth) or (targetObj:GetDistance() >= 21) then
+				(localMana <= self.mindFlayMana or targetHealth <= self.mindFlayHealth) or (targetObj:GetDistance() >= 25) then
 				if (localObj:HasRangedWeapon()) then
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
@@ -621,13 +619,13 @@ function script_priest:run(targetGUID)
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
 						self.waitTimer = GetTimeEX() + ((self.wandSpeed / 10) + 150); 
-						return false; -- return if not AutoCasting then false
+						return true; -- return if not AutoCasting then false
 					end
 				end
 			end
 
 			--Wand if set to use wand
-			if (self.useWand) and (not self.useMindFlay) and (not localObj:IsCasting()) and (IsSpellOnCD("Mind Blast") or localMana <= self.mindBlastMana) then
+			if (self.useWand and not self.useMindFlay) and (not localObj:IsCasting()) and (IsSpellOnCD("Mind Blast") or localMana <= self.mindBlastMana) then
 				if (localMana <= self.useWandMana) and (targetHealth <= self.useWandHealth) and (localObj:HasRangedWeapon()) then
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
@@ -637,7 +635,7 @@ function script_priest:run(targetGUID)
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
 						self.waitTimer = GetTimeEX() + ((self.wandSpeed / 10) + 150); 
-						return true; -- return if not AutoCasting then false
+						return true; -- return true - if not AutoCasting then false
 						end
 				end
 			end
