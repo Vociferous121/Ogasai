@@ -64,7 +64,8 @@ script_follow = {
 	pause = false,
 	enableHeals = true,
 	autoGhost = false,
-	message = 'Starting the follower...',
+	healingWaveHealth = 50,
+	message = "Starting the follower...",
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
 	helperLoaded = include("scripts\\script_helper.lua"),
 	extraFunctions = include("scripts\\script_followEX.lua"),
@@ -262,7 +263,6 @@ function script_follow:healAndBuff()
 
             -- enable / disble heals for follower
 			if (self.enableHeals) or (partyMembersHP < 35 and not self.enableHeals) then
-
 				-- flash heal 
 				if (self.clickFlashHeal) then
 					if (localMana > self.flashHealMana) and (partyMembersHP < self.partyFlashHealHealth) then
@@ -374,15 +374,13 @@ function script_follow:healAndBuff()
 							self.waitTimer = GetTimeEX() + 1550;
 							return true; 
 						end
-					elseif (self.clickRenew) then
-						if (localMana > self.renewMana) and (partyMembersHP < self.partyShieldHealth) and (not partyMember:HasBuff("Renew")) and (HasSpell("Renew")) then
-							if (script_follow:moveInLineOfSight(partyMember)) then
-								return true;
-				 			end -- move to member
-							if (CastHeal("Renew", partyMember)) then
-								self.waitTimer = GetTimeEX() + 1550;
-								return true;
-							end
+					elseif (localMana > self.renewMana) and (partyMembersHP < self.partyShieldHealth) and (not partyMember:HasBuff("Renew")) and (HasSpell("Renew")) then
+						if (script_follow:moveInLineOfSight(partyMember)) then
+							return true;
+				 		end -- move to member
+						if (CastHeal("Renew", partyMember)) then
+							self.waitTimer = GetTimeEX() + 1550;
+							return true;
 						end
 					end
 				end
@@ -426,64 +424,71 @@ function script_follow:healAndBuff()
 						return true;
 				 	end -- move to member
 					if (CastHeal("Flash of Light", partyMember)) then
-						self.waitTimer = GetTimeEX() + 1700;
 						return true;
 					end
 				end                
 
-			-- natures swiftness
-			if (HasSpell("Nature's Swiftness")) and (not localObj:HasBuff("Nature's Swiftness")) and (leaderObj:GetHealthPercentage() < 30) then
-				if (not IsSpellOnCD("Nature's Swiftness")) and (localMana > 10) then
+			
+				-- natures swiftness
+				if (HasSpell("Nature's Swiftness")) and (not localObj:HasBuff("Nature's Swiftness")) and (leaderObj:GetHealthPercentage() < 30) then
+					if (not IsSpellOnCD("Nature's Swiftness")) and (localMana > 10) then
+						if (script_follow:moveInLineOfSight(partyMember)) then
+							return true;
+						end -- move to member
+						if (CastSpellByName("Nature's Swiftness")) then
+							self.waitTimer = GetTimeEX() + 1500;
+							return true;
+						end
+					end
+				end
+                
+				-- regrowth
+                		if (self.clickRegrowth) then
+                    		if (HasSpell("Regrowth")) and (not targetObj:HasBuff("Regrowth")) and (partyMembersHP < self.regrowthHealth) and (localMana > self.regrowthMana) then
+                        		if (script_follow:moveInLineOfSight(partyMember)) then
+                            			return true;
+                        		end -- move to member
+                        		if (CastSpellByName("Regrowth")) then
+                            			self.waitTimer = GetTimeEX() + 1500;
+                            			return true;
+                        		end
+                    		end
+                		end
+
+				-- rejuvenation
+				if (HasSpell("Rejuvenation")) and (not targetObj:HasBuff("Rejuvenation")) and (partyMembersHP < self.rejuvenationHealth) and (localMana > self.rejuvenationMana) then
 					if (script_follow:moveInLineOfSight(partyMember)) then
-						return true;
+                     	 		  return true;
 					end -- move to member
-					if (CastSpellByName("Nature's Swiftness")) then
+					if (CastSpellByName("Rejuvenation")) then
 						self.waitTimer = GetTimeEX() + 1500;
 						return true;
 					end
 				end
-			end
-                
-                -- regrowth
-                if (self.clickRegrowth) then
-                    if (HasSpell("Regrowth")) and (not targetObj:HasBuff("Regrowth")) and (partyMembersHP < self.regrowthHealth) and (localMana > self.regrowthMana) then
-                        if (script_follow:moveInLineOfSight(partyMember)) then
-                            return true;
-                        end -- move to member
-                        if (CastSpellByName("Regrowth")) then
-                            self.waitTimer = GetTimeEX() + 1500;
-                            return true;
-                        end
-                    end
-                end
 
-			-- rejuvenation
-			if (HasSpell("Rejuvenation")) and (not targetObj:HasBuff("Rejuvenation")) and (partyMembersHP < self.rejuvenationHealth) and (localMana > self.rejuvenationMana) then
-				if (script_follow:moveInLineOfSight(partyMember)) then
-                     	   return true;
-				end -- move to member
-				if (CastSpellByName("Rejuvenation")) then
-					self.waitTimer = GetTimeEX() + 1500;
-				return true;
+				-- healing touch if has regrowth
+				if (self.clickHealingTouch) then
+					if (HasSpell("Healing Touch")) and (targetObj:HasBuff("Regrowth")) and (partyMembersHP < self.healingTouchHealth) and (localMana > self.healingTouchMana) then
+                       			if (script_follow:moveInLineOfSight(partyMember)) then
+                         			return true;
+                  			end -- move to member
+						if (CastSpellByName("Healing Touch")) then
+							self.waitTimer = GetTimeEX() + 1500;
+							return true;
+						end
+					end
 				end
+				
+				-- healing wave
+			--	if (HasSpell("Healing Wave") anthen
+			--		if (CastHeal("Healing Wave")) then
+			--			return true;
+			--		end
+			--	end
 			end
-
-                -- healing touch if has regrowth
-                if (self.clickHealingTouch) then
-                    if (HasSpell("Healing Touch")) and (targetObj:HasBuff("Regrowth")) and (partyMembersHP < self.healingTouchHealth) and (localMana > self.healingTouchMana) then
-                        if (script_follow:moveInLineOfSight(partyMember)) then
-                            return true;
-                        end -- move to member
-                        if (CastSpellByName("Healing Touch")) then
-                            self.waitTimer = GetTimeEX() + 1500;
-                            return true;
-                        end
-                    end
-                end
-            end
 		end
-    end
-    return false;
+	end
+	return false;
 end
 
 function script_follow:setup()
@@ -777,7 +782,9 @@ function script_follow:run()
 		end
 
 		-- Mount before we follow our master
-		--if (script_follow:mountUp()) then return; end		
+		--if (script_follow:mountUp()) then
+		--	 return;
+		--end		
 		
 		-- Follow our master
 		if (script_follow:GetPartyLeaderObject() ~= 0) then

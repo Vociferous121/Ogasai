@@ -44,8 +44,13 @@ function script_grindMenu:menu()
 	end	
 	if (CollapsingHeader("Talents, Paranoia & Misc options")) then
 		wasClicked, script_grind.jump = Checkbox("Jump On/Off", script_grind.jump);
-		script_grind.jumpRandom = SliderInt("Jump Rate", 50, 100, script_grind.jumpRandom);
-		Text("Jump Rate 100 = No Jumping!");
+
+	
+		if (script_grind.jump) then
+			Text("Jump Rate 100 = No Jumping!");
+			script_grind.jumpRandomFloat = SliderInt("Jump Rate", 80, 100, script_grind.jumpRandomFloat);
+		end
+
 		--wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount); Text('Dismount range');
 		--script_grind.disMountRange = SliderInt("DR (yd)", 1, 100, script_grind.disMountRange); Separator();
 		wasClicked, script_grind.autoTalent = Checkbox("Spend talent points", script_grind.autoTalent);

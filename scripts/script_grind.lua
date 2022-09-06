@@ -1,6 +1,6 @@
 script_grind = {
 	jump = false,
-	jumpRandom = 99, 
+	jumpRandomFloat = 99,
 	useVendor = false,
 	repairWhenYellow = false,
 	stopWhenFull = false,
@@ -278,7 +278,7 @@ function script_grind:run()
 		-- Jump
 		if (self.jump) then
 			local jumpRandom = random(1, 100);
-			if (jumpRandom > 91 and IsMoving() and not IsInCombat()) then
+			if (jumpRandom > self.jumpRandomFloat and IsMoving() and not IsInCombat()) then
 				JumpOrAscendStart();
 			end
 		end

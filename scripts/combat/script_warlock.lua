@@ -315,7 +315,7 @@ function script_warlock:run(targetGUID)
 		end 
 
 		-- move to cancel Health Funnel when payer has low HP
-		if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus) then
+		if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
 			if (GetPet():HasBuff("Health Funnel") and localHealth < 40) then
 				local _x, _y, _z = localObj:GetPosition();
 				script_nav:moveToTarget(localObj, _x + 1, _y + 1, _z); 
@@ -339,12 +339,16 @@ function script_warlock:run(targetGUID)
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 			
 			-- Opener check range of ALL SPELLS
-			if(not targetObj:IsSpellInRange('Shadow Bolt') or not targetObj:IsInLineOfSight()) then
+			if (HasSpell("Corruption")) then
+				if(not targetObj:IsSpellInRange("Corruption")) or (not targetObj:IsInLineOfSight()) then
+				return 3;
+				end
+			elseif(not targetObj:IsSpellInRange("Shadowbolt")) or (not targetObj:IsInLineOfSight()) then
 				return 3;
 			end
 
 			-- if pet goes too far then recall
-			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetDistance() > 40) then
+			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetDistance() > 40) then
 				PetFollow();
 			end
 
@@ -372,7 +376,7 @@ function script_warlock:run(targetGUID)
 
 			if (HasSpell("Siphon Life")) and (self.enableSiphonLife) and (targetHealth > 20) then
 					self.message = "Stacking DoT's";
-					 if (self.useVoid or self.useImp or self.useSuccubus) then
+					 if (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
 						PetAttack();
 					end
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
@@ -384,7 +388,7 @@ function script_warlock:run(targetGUID)
 					end
 			elseif (HasSpell("Curse of Agony")) and (self.enableCurseOfAgony) and (targetHealth > 20) then
 				self.message = "Stacking DoT's";
-				if (self.useVoid or self.useImp or self.useSuccubus) then
+				if (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
 					PetAttack();
 				end
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
@@ -396,7 +400,7 @@ function script_warlock:run(targetGUID)
 				end
 			elseif (HasSpell("Immolate")) and (self.enableImmolate) and (not targetObj:HasDebuff("Immolate")) and (targetHealth > 20) and (not IsSpellOnCD("Immolate")) then
 				self.message = "Stacking DoT's";
-				if (self.useVoid or self.useImp or self.useSuccubus) then
+				if (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
 					PetAttack();
 				end
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
@@ -411,7 +415,7 @@ function script_warlock:run(targetGUID)
 			else
 				if (Cast('Shadow Bolt', targetObj)) then
 					self.message = "Pulling Target";
-					if (self.useVoid or self.useImp or self.useSuccubus) then
+					if (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
 						PetAttack();
 					end
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
@@ -432,16 +436,22 @@ function script_warlock:run(targetGUID)
 		else	
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
+			-- causes crashing after combat phase?
+			-- follow target if single target fear is active and moves out of spell range
+			--if (self.alwaysFear) and (targetObj:HasDebuff("Fear")) and (targetObj:GetDistance() > 20) then
+			--	script_nav:moveToTarget(localObj, targetObj:GetPosition());
+			--	self.waitTimer = GetTimeEX() + 500;
+			--end
+
 			-- recall pet if too far > 30
-			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetDistance() > 30) then
+			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetDistance() > 25) then
 				self.message = "Recalling Pet - too far!";
 				PetFollow();
 			end
 
 			-- Set the pet to attack
-			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetHealthPercentage() >= 1) and (targetObj:GetDistance() < 35) and (targetHealth < 99 or targetObj:HasDebuff("Curse of Agony") or 
-				targetObj:HasDebuff("Corruption")) or (script_grind:isTargetingMe(targetObj)) then
-				self.message = "Sending pet to attack";
+			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetHealthPercentage() >= 1) and (targetObj:GetDistance() < 35) and (targetHealth < 99 or targetObj:HasDebuff("Curse of Agony") or 
+				targetObj:HasDebuff("Corruption")) or (script_grind:isTargetingMe(targetObj)) and (not targetObj:HasDebuff("Fear")) then
 				PetAttack();
 			end
 
@@ -453,8 +463,6 @@ function script_warlock:run(targetGUID)
 					hasPet = false;
 				end
 			end
-
-		
 
 			-- Dismount
 			if(IsMounted()) then 
@@ -476,9 +484,10 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- voidwalker taunt
-			if (GetPet() ~= 0) and (self.useVoid) and (HasSpell("Suffering")) and (not IsSpellOnCD("Suffering")) and (GetPet():GetHealthPercentage() > 25) and (script_grind:enemiesAttackingUs(6) >= 1) then
-				CastSpellByName("Suffering");
-				return 0;
+			if (GetPet() ~= 0) and (self.useVoid) and (HasSpell("Suffering")) and (not IsSpellOnCD("Suffering")) and (script_grind:enemiesAttackingUs(6) >= 1) then
+				if (Cast("Suffering", targetObj)) then
+					return 0;
+				end
 			end
 
 			-- sacrifice voidwalker low health
@@ -516,11 +525,8 @@ function script_warlock:run(targetGUID)
 
 			-- Fear single Target
 			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) then
-				if (not targetObj:IsInLineOfSight()) then -- check line of sight
-					return 3; -- target not in line of sight
-				end -- move to target
 				if (Cast("Fear", targetObj)) then
-					self.waitTimer = GetTimeEX() + 2300;
+					self.waitTimer = GetTimeEX() + 1900;
 					return 0;
 				end
 			end
@@ -553,7 +559,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Check: Heal the pet if it's below 50% and we are above 50%
-			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) then
+			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) then
 				if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) then
 					self.message = "Healing pet!";
 					script_nav:moveToTarget(localObj, GetPet():GetPosition()); 
@@ -567,7 +573,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- if pet goes too far then recall
-			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetDistance() > 40) then
+			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetDistance() > 40) then
 				PetFollow();
 			end
 
@@ -589,6 +595,7 @@ function script_warlock:run(targetGUID)
 						return 3; -- target not in line of sight
 					end -- move to target
 					if (Cast('Siphon Life', targetObj)) then
+						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 1600;
 						return 0;
 					end
@@ -602,6 +609,7 @@ function script_warlock:run(targetGUID)
 						return 3; -- target not in line of sight
 					end -- move to target
 					if (Cast('Curse of Agony', targetObj)) then
+						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 1600;
 						return 0;
 					end
@@ -615,6 +623,7 @@ function script_warlock:run(targetGUID)
 						return 3; -- target not in line of sight
 					end -- move to target
 					if (Cast('Corruption', targetObj)) then
+						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 1600 + (self.corruptionCastTime / 10); 
 						return 0; 
 					end
@@ -666,7 +675,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Drain Life on low health
-			if (HasSpell("Drain Life")) and (targetObj:GetCreatureType() ~= "Mechanic") and (localHealth <= self.drainLifeHealth) and (localMana > 5) and (not IsChanneling()) then
+			if (HasSpell("Drain Life")) and (targetObj:GetCreatureType() ~= "Mechanic") and (localHealth <= self.drainLifeHealth) and (localMana > 5) and (not IsChanneling()) and (not self.useDrainMana) then
 				self.message = "Casting Drain Life";
 				if (targetObj:GetDistance() < 20) then
 					if (IsMoving()) then StopMoving(); 
@@ -683,7 +692,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Drain Mana on low mana
-			if (HasSpell("Drain Mana")) and(self.useDrainMana) and (targetObj:GetCreatureType() ~= "Mechanic") and (targetObj:GetManaPercentage() >= 25) and (localMana <= 35) then
+			if (HasSpell("Drain Mana")) and (self.useDrainMana) and (targetObj:GetCreatureType() ~= "Mechanic") and (targetObj:GetManaPercentage() >= 25) and (localMana <= 65) then
 				self.message = "Casting Drain Mana";
 				if (targetObj:GetDistance() < 20) then
 					if (IsMoving()) then StopMoving(); 
@@ -709,7 +718,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Check: Heal the pet if it's below 50% and we are above 50%
-			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) then
+			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) then
 				self.message = "Healing pet with Health Funnel";
 				if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) then
 					script_nav:moveToTarget(localObj, GetPet():GetPosition()); 
@@ -725,6 +734,7 @@ function script_warlock:run(targetGUID)
 			if (self.useShadowBolt) then
 				-- Cast: Shadow Bolt
 				if (Cast('Shadow Bolt', targetObj)) then
+					targetObj:FaceTarget();
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 					end -- move to target
@@ -742,6 +752,7 @@ function script_warlock:run(targetGUID)
 					end
 				end
 			end	
+		targetObj:FaceTarget();
 		end
 	end
 end
@@ -838,9 +849,9 @@ function script_warlock:rest()
 	end
 	
 	-- Check: Summon our Demon if we are not in combat
-	if (not IsEating()) and (not IsDrinking()) and (GetPet() == 0) and (HasSpell("Summon Imp")) and (self.useVoid or self.useImp or self.useSuccubus) then
+	if (not IsEating()) and (not IsDrinking()) and (GetPet() == 0) and (HasSpell("Summon Imp")) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
 		-- succubus	
-		if (GetPet() == 0) and (not self.useVoid or not self.useImp) and (self.useSuccubus) and (HasSpell("Summon Succubus")) and HasItem('Soul Shard') then
+		if (GetPet() == 0) and (self.useSuccubus) and (HasSpell("Summon Succubus")) and HasItem('Soul Shard') then
 			if (not IsStanding() or IsMoving()) then 
 				StopMoving();
 			end
@@ -868,6 +879,22 @@ function script_warlock:rest()
 				if (CastSpellByName("Summon Voidwalker")) then
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Void Walker";
+					hasPet = true;
+					return true; 
+				end
+			end
+		elseif (GetPet() == 0) and (self.useFelhunter) and (HasSpell("Summon Felhunter")) and (HasItem('Soul Shard')) then
+			if (not IsStanding() or IsMoving()) then 
+				StopMoving();
+			end
+			-- summon Felhunter
+			if (localMana > 75) and (GetPet() == 0) then
+				if (not IsStanding() or IsMoving()) then
+					StopMoving();
+				end
+				if (CastSpellByName("Summon Felhunter")) then
+					self.waitTimer = GetTimeEX() + 14000;
+					self.message = "Summoning Felhunter";
 					hasPet = true;
 					return true; 
 				end
@@ -948,8 +975,8 @@ function script_warlock:rest()
 	end
 
 	-- Check: Health funnel on the pet or wait for it to regen if lower than 70%
-	if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus) then
-		if (GetPet():GetHealthPercentage() < 70) and (localHealth > 60) then
+	if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
+		if (GetPet():GetHealthPercentage() < 50) and (localHealth > 60) then
 			if (GetPet():GetDistance() > 8) then
 				PetFollow();
 				self.waitTimer = GetTimeEX() + 1850; 
