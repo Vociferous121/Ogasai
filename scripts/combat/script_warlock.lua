@@ -368,8 +368,7 @@ function script_warlock:run(targetGUID)
 				return 0;
 			end
 
-			if (HasSpell("Siphon Life")) then
-				if (self.enableSiphonLife) and (targetHealth > 20) then
+			if (HasSpell("Siphon Life")) and (self.enableSiphonLife) and (targetHealth > 20) then
 					self.message = "Stacking DoT's";
 					 if (self.useVoid or self.useImp or self.useSuccubus) then
 						PetAttack();
@@ -381,7 +380,6 @@ function script_warlock:run(targetGUID)
 						self.waitTimer = GetTimeEX() + 1600; 
 						return 0;
 					end
-				end
 			elseif (HasSpell("Curse of Agony")) and (self.enableCurseOfAgony) and (targetHealth > 20) then
 				self.message = "Stacking DoT's";
 				if (self.useVoid or self.useImp or self.useSuccubus) then
