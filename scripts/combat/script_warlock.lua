@@ -219,7 +219,7 @@ function script_warlock:setup()
 		self.corruptionCastTime = 0;
 	end
 
-	script_grind.tickRate = 400;
+	script_grind.tickRate = 260;
 
 	self.isSetup = true;
 end
