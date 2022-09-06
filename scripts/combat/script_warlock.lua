@@ -219,6 +219,8 @@ function script_warlock:setup()
 		self.corruptionCastTime = 0;
 	end
 
+	script_grind.tickRate = 400;
+
 	self.isSetup = true;
 end
 
@@ -451,6 +453,8 @@ function script_warlock:run(targetGUID)
 					hasPet = false;
 				end
 			end
+
+		
 
 			-- Dismount
 			if(IsMounted()) then 

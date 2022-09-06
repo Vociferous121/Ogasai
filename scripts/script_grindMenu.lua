@@ -44,7 +44,7 @@ function script_grindMenu:menu()
 	end	
 	if (CollapsingHeader("Talents, Paranoia & Misc options")) then
 		wasClicked, script_grind.jump = Checkbox("Jump On/Off", script_grind.jump);
-		script_grind.jumpRandom = SliderInt("Jump Rate", 89, 100, script_grind.jumpRandom);
+		script_grind.jumpRandom = SliderInt("Jump Rate", 50, 100, script_grind.jumpRandom);
 		Text("Jump Rate 100 = No Jumping!");
 		--wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount); Text('Dismount range');
 		--script_grind.disMountRange = SliderInt("DR (yd)", 1, 100, script_grind.disMountRange); Separator();
@@ -92,7 +92,6 @@ function script_grindMenu:menu()
 		Separator()
 		wasClicked, script_grind.safeRess = Checkbox("Try to ress on a safe spot", script_grind.safeRess);
 		Text('Ress corpse distance'); script_grind.ressDistance = SliderFloat("RD (yd)", 1, 35, script_grind.ressDistance); Separator();
-		Text("Script tick rate"); script_grind.tickRate = SliderFloat("TR (ms)", 0, 2000, script_grind.tickRate);		
 	end
 
 	script_targetMenu:menu();
@@ -113,4 +112,6 @@ function script_grindMenu:menu()
 		wasClicked, script_grind.drawUnits = Checkbox("Show unit info on screen", script_grind.drawUnits);
 		wasClicked, script_grind.drawAggro = Checkbox('Show aggro range', script_grind.drawAggro);
 	end
+	Text("Script tick rate - how fast the bot runs the scripts"); script_grind.tickRate = SliderFloat("TR (ms)", 0, 2000, script_grind.tickRate);		
+
 end

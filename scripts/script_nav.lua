@@ -152,7 +152,7 @@ function script_nav:moveToSavedLocation(localObj, minLevel, maxLevel, useStaticH
 	-- Check: Move to the next location index
 	local _lx, _ly, _lz = localObj:GetPosition();
 	local currentDist = math.sqrt((_lx-self.savedLocations[self.currentGoToLocation]['x'])^2+(_ly-self.savedLocations[self.currentGoToLocation]['y'])^2);
-	if (currentDist < 5 
+	if (currentDist < 10
 		or self.savedLocations[self.currentGoToLocation]['level'] < minLevel
 		or self.savedLocations[self.currentGoToLocation]['level'] > maxLevel) then
 		self.currentGoToLocation = self.currentGoToLocation + 1;
@@ -331,7 +331,7 @@ function script_nav:moveToTarget(localObj, _x, _y, _z) -- use when moving to mov
 	if(GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) < self.nextNavNodeDistance) then
 		self.lastnavIndex = 1 + self.lastnavIndex;		
 		if (GetPathSize(5) <= self.lastnavIndex) then
-			self.lastnavIndex = GetPathSize(5)-1;
+			self.lastnavIndex = GetPathSize(7)-1;
 		end
 	end
 
@@ -359,7 +359,7 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 	-- Fetch our current position
 	local _lx, _ly, _lz = localObj:GetPosition();
 
-	local _ix, _iy, _iz = GetPathPositionAtIndex(5, self.lastpathnavIndex);
+	local _ix, _iy, _iz = GetPathPositionAtIndex(7, self.lastpathnavIndex);
 			
 	-- If we have a new destination, generate a new path to it
 	if(self.navPathPosition['x'] ~= _x or self.navPathPosition['y'] ~= _y or self.navPathPosition['z'] ~= _z
@@ -391,7 +391,7 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 		if(GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) < self.nextNavNodeDistance + 1) then
 			self.lastpathnavIndex = self.lastpathnavIndex + 1;	
 			if (GetPathSize(5) <= self.lastpathnavIndex) then
-				self.lastpathnavIndex = GetPathSize(7)-1;
+				self.lastpathnavIndex = GetPathSize(5)-1;
 			end
 		end
 	end
