@@ -110,6 +110,11 @@ function script_helper:setup()
 	script_helper:addWater('Melon Juice');
 	script_helper:addWater('Ice Cold Milk');
 	script_helper:addWater('Refreshing Spring Water');
+   	script_helper:addWater('Fizzy faire Drink');
+    	script_helper:addWater('Freshly-Squeezed Lemonade');
+    	script_helper:addWater('Hyjal Nectar');
+    	script_helper:addWater('Green Garden Tea');
+    	script_helper:addWater('Bottle Winterspring Water');
 
 	-- Mage water
 	script_helper:addWater('Conjured Crystal Water');

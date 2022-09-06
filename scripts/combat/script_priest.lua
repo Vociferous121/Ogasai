@@ -668,7 +668,7 @@ function script_priest:rest()
 	end
 
 	-- check heals and buffs
-	if (script_druid:healAndBuff(localObj, localMana)) then 
+	if (script_priest:healAndBuff(localObj, localMana)) then 
 		return true;
 	end
 

@@ -48,7 +48,7 @@ function script_grindMenu:menu()
 	
 		if (script_grind.jump) then
 			Text("Jump Rate 100 = No Jumping!");
-			script_grind.jumpRandomFloat = SliderInt("Jump Rate", 80, 100, script_grind.jumpRandomFloat);
+			script_grind.jumpRandomFloat = SliderInt("Jump Rate", 86, 100, script_grind.jumpRandomFloat);
 		end
 
 		--wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount); Text('Dismount range');
