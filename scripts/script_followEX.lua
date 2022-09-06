@@ -144,7 +144,11 @@ function script_followEX:menu()
 			Text("Distance to follow Party Leader  ");
 			script_follow.followLeaderDistance = SliderInt("Follow Leader Distance (yd)", 6, 40, script_follow.followLeaderDistance);
 
-			wasClicked, script_follow.followMember = Checkbox("Follow Party Member", script_follow.followMember);			
+			wasClicked, self.autoGhost = Checkbox("Auto Release on Death", self.autoGhost);
+
+			SameLine();
+
+			wasClicked, script_follow.followMember = Checkbox("Follow Party Member", script_follow.followMember);
 			
 			Separator();
 			

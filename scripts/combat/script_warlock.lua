@@ -15,9 +15,6 @@ script_warlock = {
 	waitTimer = 0,
 	useWand = true,
 	isChecked = true,
-	useVoid = false,
-	useImp = false,
-	useSuccubus = false,
 	corruptionCastTime = 0, -- 0-2000 ms = 2000 with no improved corruption talent
 	lifeTapHealth = 75,
 	lifeTapMana = 80,
@@ -38,6 +35,11 @@ script_warlock = {
 	alwaysFear = false,
 	useDrainMana = false,
 	hasPet = false,
+	useVoid = false,
+	useImp = false,
+	useSuccubus = false,
+	wandHealthPreset = 10, -- preset to attack target with 10% HP using wand, reset in Setup function for dungeon to cast shadowbolt
+	drainSoulHealthPreset = 30,
 }
 
 function script_warlock:cast(spellName, target)
@@ -127,6 +129,19 @@ function script_warlock:runBackwards(targetObj, range)
 	return false;
 end
 
+function script_warlock:isTargetingGroup(y) 
+	for i = 1, GetNumPartyMembers() do
+		local partyMember = GetPartyMember(i);
+		if (partyMember ~= nil and partyMember ~= 0 and not partyMember:IsDead()) then
+			if (y:GetUnitsTarget() ~= nil and y:GetUnitsTarget() ~= 0 and not script_follow:isTargetingPet(y)) then
+				return y:GetUnitsTarget():GetGUID() == partyMember:GetGUID();
+			end
+		end
+	end
+	return false;
+end
+
+
 --function script_warlock:addHealthStone(name)
 --	self.healthStone[self.numStone] = name;
 --	self.numStone = self.numStone + 1;
@@ -146,26 +161,38 @@ function script_warlock:setup()
 
 -- issue with hasPet and not having pet low level causing the bot to stop
 -- may be a combat command. learning a pet spell and summoning pet continues the script
-
-	if (not HasSpell("Summon Voidwalker")) and (HasSpell("Summon Imp")) then
+	if (GetNumPartyMembers() >= 1) then
+		self.fearAdds = false;
+		self.useWand = false;
+		self.useShadowBolt = true;
 		self.useImp = true;
-		self.useVoid = false;
-		self.useSuccubus = false;
-		hasPet = false;
-	elseif (HasSpell("Summon Voidwalker")) then
-		self.useImp = false;
-		self.useVoid = true;
-		self.useSuccubus = false;
-		hasPet = false;
-	elseif (not HasSpell("Summon Imp") and not HasSpell("Summon Voidwalker") and not HasSpell("Summon Succubus")) then
-		self.useImp = false;
-		self.useVoid = false;
-		self.useSuccubus = false;
-		hasPet = false;
-	-- elseif (HasSpell("Summon Succubus")) then
-	-- 	self.useSuccubus = true;
-	-- 	self.useImp = false;
-	-- 	self.useVoid = false;
+		self.healPetHealth = 20;
+		self.drainLifeHealth = 50;
+		self.wandHealthPreset = 5;
+		self.drainSoulHealthPreset = 10;
+	end
+
+	if (GetNumPartyMembers() < 1) then
+		if (not HasSpell("Summon Voidwalker")) and (HasSpell("Summon Imp")) then
+			self.useImp = true;
+			self.useVoid = false;
+			self.useSuccubus = false;
+			hasPet = false;
+		elseif (HasSpell("Summon Voidwalker")) then
+			self.useImp = false;
+			self.useVoid = true;
+			self.useSuccubus = false;
+			hasPet = false;
+		elseif (not HasSpell("Summon Imp")) then
+			self.useImp = false;
+			self.useVoid = false;
+			self.useSuccubus = false;
+			hasPet = false;
+		-- elseif (HasSpell("Summon Succubus")) then
+		-- 	self.useSuccubus = true;
+		-- 	self.useImp = false;
+		-- 	self.useVoid = false;
+		end
 	end
 
 	-- set corruption based on talent points assuming affliction spec
@@ -213,8 +240,6 @@ function script_warlock:run(targetGUID)
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
 	local localLevel = localObj:GetLevel();
-
-	local hasPet = false;
 
 	if (GetPet() ~= 0) then
 		hasPet = true;
@@ -335,7 +360,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			if (HasSpell("Siphon Life")) then
-				if (self.enableSiphonLife) then
+				if (self.enableSiphonLife) and (targetHealth > 20) then
 					self.message = "Stacking DoT's";
 					 if (self.useVoid or self.useImp or self.useSuccubus) then
 						PetAttack();
@@ -348,7 +373,7 @@ function script_warlock:run(targetGUID)
 						return 0;
 					end
 				end
-			elseif (HasSpell("Curse of Agony")) and (self.enableCurseOfAgony) then
+			elseif (HasSpell("Curse of Agony")) and (self.enableCurseOfAgony) and (targetHealth > 20) then
 				self.message = "Stacking DoT's";
 				if (self.useVoid or self.useImp or self.useSuccubus) then
 					PetAttack();
@@ -360,7 +385,7 @@ function script_warlock:run(targetGUID)
 					self.waitTimer = GetTimeEX() + 1600;
 					return 0;
 				end
-			elseif (HasSpell("Immolate")) and (self.enableImmolate) and (not targetObj:HasDebuff("Immolate")) then
+			elseif (HasSpell("Immolate")) and (self.enableImmolate) and (not targetObj:HasDebuff("Immolate")) and (targetHealth > 20) then
 				self.message = "Stacking DoT's";
 				if (self.useVoid or self.useImp or self.useSuccubus) then
 					PetAttack();
@@ -370,7 +395,7 @@ function script_warlock:run(targetGUID)
 				end -- move to target
 				if (not targetObj:HasDebuff("Immolate")) then
 					if (Cast('Immolate', targetObj)) then 
-						self.waitTimer = GetTimeEX() + 2500;
+						self.waitTimer = GetTimeEX() + 2000;
 						return 0;
 					end
 				end
@@ -402,7 +427,6 @@ function script_warlock:run(targetGUID)
 			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus) and (GetPet():GetDistance() > 30) then
 				self.message = "Recalling Pet - too far!";
 				PetFollow();
-				return 0;
 			end
 
 			-- Set the pet to attack
@@ -441,15 +465,15 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- voidwalker taunt
-			if (GetPet() ~= 0) and (self.useVoid) and (HasSpell("Suffering")) and (not IsSpellOnCD("Suffering")) and (GetPet():GetHealthPercentage() > 25) and (script_grind:enemiesAttackingUs(10) >= 1) then
+			if (GetPet() ~= 0) and (self.useVoid) and (HasSpell("Suffering")) and (not IsSpellOnCD("Suffering")) and (GetPet():GetHealthPercentage() > 25) and (script_grind:enemiesAttackingUs(6) >= 1) then
 				CastSpellByName("Suffering");
 				return 0;
 			end
 
 			-- sacrifice voidwalker low health
 			if (GetPet() ~= 0) and (self.useVoid) and (HasSpell("Sacrifice")) and (self.sacrificeVoid) and (localHealth <= self.sacrificeVoidHealth or GetPet():GetHealthPercentage() < self.sacrificeVoidHealth) then
-				hasPet = false;
 				CastSpellByName("Sacrifice");
+				hasPet = false;
 				return 0;
 			end
 
@@ -511,7 +535,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Check: If we don't have a soul shard, try to make one
-			if (targetHealth < 30 and targetHealth > 3 and HasSpell("Drain Soul") and not HasItem('Soul Shard')) then
+			if (targetHealth < self.drainSoulHealthPreset and targetHealth > 3 and HasSpell("Drain Soul") and not HasItem('Soul Shard')) then
 				if (Cast('Drain Soul', targetObj)) then
 					return 0;
 				end
@@ -537,7 +561,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Wand if low mana
-			if (localMana <= 5 or targetHealth <= 10) and (localObj:HasRangedWeapon()) and (not self.enableGatherShards) then
+			if (localMana <= 5 or targetHealth <= self.wandHealthPreset) and (localObj:HasRangedWeapon()) and (not self.enableGatherShards) then
 				self.message = "Using wand...";
 				if (not IsAutoCasting("Shoot")) then
 					targetObj:FaceTarget();
@@ -595,8 +619,7 @@ function script_warlock:run(targetGUID)
 					if (not targetObj:HasDebuff("Immolate")) then
 						if (Cast('Immolate', targetObj)) then
 							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 2600;
-							return 0;
+							self.waitTimer = GetTimeEX() + 2000;
 						end
 					end
 				end
@@ -712,18 +735,6 @@ function script_warlock:run(targetGUID)
 	end
 end
 
-function script_warlock:lifeTap(localHealth, localMana)
-	if (localMana < localHealth and HasSpell("Life Tap") and localHealth > self.lifeTapHealth and localMana < self.lifeTapMana and not IsMounted() and not IsInCombat()) then
-		if(IsSpellOnCD("Life Tap")) then 
-			return false; 
-		else 
-			CastSpellByName("Life Tap"); 
-			return true; 
-		end
-	end
-end
-
-
 function script_warlock:rest()
 
 	if(not self.isSetup) then
@@ -733,8 +744,6 @@ function script_warlock:rest()
 	local localObj = GetLocalPlayer();
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
-	local hasPet = false;
-
 	-- check pet
 	if(GetPet() ~= 0) then 
 		hasPet = true; 
@@ -753,9 +762,14 @@ function script_warlock:rest()
 	end
 
 	-- Cast: Life Tap if conditions are right, see the function
-	if (not IsDrinking()) and (not IsEating()) and (IsStanding()) then
-		if (script_warlock:lifeTap(localHealth, localMana)) then
-			return true; 
+	if (localMana < localHealth and HasSpell("Life Tap") and localHealth > self.lifeTapHealth 
+		and localMana < self.lifeTapMana and not IsInCombat() and (not IsEating() and not IsDrinking())) then
+		if (not IsStanding()) then
+			JumpOrAscendStart();
+		end
+		if (CastSpellByName("Life Tap")) then
+			self.waitTimer = GetTimeEX() + 1600;
+			return 0;
 		end
 	end
 
@@ -821,6 +835,9 @@ function script_warlock:rest()
 			end
 			-- summon succubus
 			if (localMana > 75) and (GetPet() == 0) then
+				if (not IsStanding() or IsMoving()) then
+					StopMoving();
+				end
 				if (CastSpellByName("Summon Succubus")) then
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Succubus";
@@ -834,6 +851,9 @@ function script_warlock:rest()
 			end
 			-- summon voidwalker
 			if (localMana > 75) and (GetPet() == 0) then
+				if (not IsStanding() or IsMoving()) then
+					StopMoving();
+				end
 				if (CastSpellByName("Summon Voidwalker")) then
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Void Walker";
@@ -841,20 +861,23 @@ function script_warlock:rest()
 					return true; 
 				end
 			end
-		elseif (GetPet() == 0) and (HasSpell("Summon Imp")) and (self.useImp) then
+		elseif (GetPet() == 0) and (HasSpell("Summon Imp")) and (self.useImp) and (not IsChanneling()) then
 			if (not IsStanding() or IsMoving()) then
 				StopMoving();
 			end
 			-- summon Imp
-			if (localMana > 75) then
-				CastSpellByName("Summon Imp");
-				self.waitTimer = GetTimeEX() + 14000;
-				self.message = "Summoning Imp";
-				hasPet = true;
-				return true;
+			if (localMana > 75) and (GetPet() == 0) then
+				if (not IsStanding() or IsMoving()) then
+					StopMoving();
+				end
+				if (CastSpellByName("Summon Imp")) then
+					self.waitTimer = GetTimeEX() + 14000;
+					self.message = "Summoning Imp";
+					hasPet = true;
+					return true;
+				end
 			end
 		end
-		self.waitTimer = GetTimeEX() + 12000;
 	end
 
 	--Create Healthstone

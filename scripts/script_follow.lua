@@ -19,9 +19,9 @@ script_follow = {
 	layOnHandsHealth = 6,
 	bopHealth = 10,
    	healingTouchMana = 35,
-    	regrowthMana = 25,
+	regrowthMana = 25, 
    	rejuvenationMana = 15,
-    	healingTouchHealth = 35,
+	healingTouchHealth = 35,
    	regrowthHealth = 60,
    	rejuvenationHealth = 75,
 	clickRenew = true,
@@ -63,6 +63,7 @@ script_follow = {
 	isChecked = true,
 	pause = false,
 	enableHeals = true,
+	autoGhost = false,
 	message = 'Starting the follower...',
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
 	helperLoaded = include("scripts\\script_helper.lua"),
@@ -570,7 +571,7 @@ function script_follow:run()
 		if(localObj:IsDead()) then
 			self.message = "Walking to corpse...";
 			-- Release body
-			if(not IsGhost()) then 
+			if(not IsGhost()) and (self.autoGhost) then 
 				RepopMe(); 
 				self.waitTimer = GetTimeEX() + 5000;
 				return; 
