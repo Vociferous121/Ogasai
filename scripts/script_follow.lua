@@ -7,11 +7,11 @@ script_follow = {
 	lesserHealMana = 5,
 	partyLesserHealHealth = 75,
 	healMana = 10,
-	partyHealHealth = 50,
+	partyHealHealth = 65,
 	greaterHealMana = 20,
 	partyGreaterHealHealth = 28,
 	flashHealMana = 7,
-	partyFlashHealHealth = 48,
+	partyFlashHealHealth = 50,
    	holyLightMana = 25,
 	partyHolyLightHealth = 60,
 	flashOfLightMana = 3,
@@ -134,7 +134,7 @@ function script_follow:healAndBuff()
 
 			-- Dispel Magic
 			if (HasSpell("Dispel Magic")) and (localMana > 20) then 
-				if (partyMember:HasDebuff("Druid's Slumber")) or (partyMember:HasDebuff("Terrify")) or (leaderObj:HasDebuff("Frost Nova")) or 
+				if (partyMember:HasDebuff("Sleep")) or (partyMember:HasDebuff("Terrify")) or (leaderObj:HasDebuff("Frost Nova")) or 
 				(partyMember:HasDebuff("Screams of the Past")) or (partyMember:HasDebuff("Wavering Will")) or (partyMember:HasDebuff("Slow")) or
 				(leaderObj:HasDebuff("Frostbolt")) or (partyMember:HasDebuff("Dominate Mind")) then
 					if (CastHeal("Dispel Magic", partyMember)) then
@@ -708,9 +708,10 @@ function script_follow:run()
 			if (script_follow:GetPartyLeaderObject():GetUnitsTarget() ~= 0 and not script_follow:GetPartyLeaderObject():IsDead()) and (script_follow:GetPartyLeaderObject():GetDistance() < self.followLeaderDistance) then
 				if (script_follow:GetPartyLeaderObject():GetUnitsTarget():GetHealthPercentage() <= self.dpsHP and self.assistInCombat) then
 					self.enemyObj = script_follow:GetPartyLeaderObject():GetUnitsTarget();
-					script_follow:moveInLineOfSight(partyMember);
+					script_follow:moveInLineOfSight(leaderObj);
 				else
 				self.enemyObj = nil;
+				ClearTarget();
 				end
 			end
             end
@@ -779,13 +780,8 @@ function script_follow:run()
 		-- Pre checks before navigating
 		if(IsLooting() or IsCasting() or IsChanneling() or IsDrinking() or IsEating() or IsInCombat()) then 
 			return;
-		end
+		end	
 
-		-- Mount before we follow our master
-		--if (script_follow:mountUp()) then
-		--	 return;
-		--end		
-		
 		-- Follow our master
 		if (script_follow:GetPartyLeaderObject() ~= 0) then
 			if(script_follow:GetPartyLeaderObject():GetDistance() > self.followLeaderDistance and not script_follow:GetPartyLeaderObject():IsDead()) then

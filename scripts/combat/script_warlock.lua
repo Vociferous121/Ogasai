@@ -860,7 +860,7 @@ function script_warlock:rest()
 				if (not IsStanding() or IsMoving()) then
 					StopMoving();
 				end
-				if (CastSpellByName("Summon Succubus")) then
+				if (CastSpellByName("Summon Succubus")) and (GetPet == 0) then
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Succubus";
 					hasPet = true;
@@ -876,7 +876,7 @@ function script_warlock:rest()
 				if (not IsStanding() or IsMoving()) then
 					StopMoving();
 				end
-				if (CastSpellByName("Summon Voidwalker")) then
+				if (CastSpellByName("Summon Voidwalker")) and (GetPet == 0) then
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Void Walker";
 					hasPet = true;
@@ -892,7 +892,7 @@ function script_warlock:rest()
 				if (not IsStanding() or IsMoving()) then
 					StopMoving();
 				end
-				if (CastSpellByName("Summon Felhunter")) then
+				if (CastSpellByName("Summon Felhunter")) and (GetPet == 0) then
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Felhunter";
 					hasPet = true;
@@ -908,7 +908,7 @@ function script_warlock:rest()
 				if (not IsStanding() or IsMoving()) then
 					StopMoving();
 				end
-				if (CastSpellByName("Summon Imp")) then
+				if (CastSpellByName("Summon Imp")) and (GetPet == 0) then
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Imp";
 					hasPet = true;
