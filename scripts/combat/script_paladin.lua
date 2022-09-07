@@ -180,7 +180,7 @@ function script_paladin:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		if (not IsMoving()) then
+		if (not IsMoving() and targetObj:GetDistance() < 10) then
 			targetObj:FaceTarget();
 		end
 
@@ -525,7 +525,7 @@ function script_paladin:run(targetGUID)
 				end
 
 				-- Always face the target
-				if (targetHealth > 99) then
+				if (targetHealth < 99) then
 					targetObj:FaceTarget(); 
 					return 0; 
 				end

@@ -207,7 +207,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			JumpOrAscendStart();
 		end
 
-		if (not IsMoving() and self.faceTarget) then
+		if (not IsMoving() and self.faceTarget and targetObj:GetDistance() < 10) then
 			targetObj:FaceTarget();
 		end
 		

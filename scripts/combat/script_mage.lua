@@ -257,7 +257,7 @@ function script_mage:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		if (not IsMoving()) then
+		if (not IsMoving() and targetObj:GetDistance() < 10) then
 			targetObj:FaceTarget();
 		end
 
