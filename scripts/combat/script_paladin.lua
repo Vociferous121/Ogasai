@@ -48,7 +48,6 @@ function script_paladin:setup()
 
 	self.aura = "Devotion Aura";
 
-	self.blessing = "Blessing of Wisdom";
 end
 
 function script_paladin:spellAttack(spellName, target)
@@ -178,7 +177,11 @@ function script_paladin:run(targetGUID)
 		end
 		
 		if (not IsStanding()) then
-			StopMoving();
+			JumpOrAscendStart();
+		end
+
+		if (not IsMoving()) then
+			targetObj:FaceTarget();
 		end
 
 		-- Auto Attack
@@ -224,7 +227,7 @@ function script_paladin:run(targetGUID)
 					end
 				end
 			end
-
+			
 			--Holy strike -- cast while moving to target
 			if (localMana > 10) and (HasSpell("Holy Strike")) and (not IsSpellOnCD("Holy Strike")) and (targetObj:GetDistance() <= self.meleeDistance) then
 				if(CastWalk("Holy Strike", targetObj)) then

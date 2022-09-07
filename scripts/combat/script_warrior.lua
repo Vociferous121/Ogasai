@@ -202,6 +202,14 @@ function script_warrior:run(targetGUID)	-- main content of script
 		if (targetObj:IsDead()) or (not targetObj:CanAttack()) then
 			return 0;
 		end
+
+		if (not IsStanding()) then
+			JumpOrAscendStart();
+		end
+
+		if (not IsMoving() and self.faceTarget) then
+			targetObj:FaceTarget();
+		end
 		
 		-- Auto Attack
 		if (targetObj:GetDistance() <= 40) then

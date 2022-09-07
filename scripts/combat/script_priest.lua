@@ -334,7 +334,11 @@ function script_priest:run(targetGUID)
 
 		-- stand if sitting
 		if (not IsStanding()) then
-			StopMoving();
+			JumpOrAscendStart();
+		end
+
+		if (not IsMoving()) then
+			targetObj:FaceTarget();
 		end
 
 		-- set target health

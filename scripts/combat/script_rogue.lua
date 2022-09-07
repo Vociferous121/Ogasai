@@ -205,9 +205,13 @@ function script_rogue:run(targetGUID)
 			end
 		
 			if (not IsStanding()) then
-				StopMoving();
+				JumpOrAscendStart();
 			end
 		
+			if (not IsMoving()) then
+				targetObj:FaceTarget();
+			end
+
 			-- Auto Attack
 			if (targetObj:GetDistance() < 40) then
 				targetObj:AutoAttack();

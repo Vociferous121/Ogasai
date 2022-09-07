@@ -196,7 +196,11 @@ function script_hunter:run(targetGUID)
 		end
 		
 		if (not IsStanding()) then
-			StopMoving();
+			JumpOrAscendStart();
+		end
+
+		if (not IsMoving()) then
+			targetObj:FaceTarget();
 		end
 
 		script_hunterEX:chooseAspect(targetObj);

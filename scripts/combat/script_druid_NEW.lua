@@ -6,7 +6,7 @@ script_druid = {
 	rejuvenationHealth = 85,	-- use rejuvenation below this health
 	regrowthHealth = 60,
 	healingTouchHealth = 38,
-	healHealthWhenShifted = 40, -- health to shapeshift out of form to heal
+	healthToShift = 40, -- health to shapeshift out of form to heal
 	potionHealth = 12,
 	potionMana = 20,
 	isSetup = false,
@@ -37,10 +37,12 @@ function script_druid:setup()
 	--	self.bear = false;
 	--end
 
+	-- set entangle roots on startup
 	if (not HasSpell("Entangling Roots")) then
 		self.useEntanglingRoots = false;
 	end
 
+	-- turn pull spells off automatically if have form spells
 	if (HasSpell("Bear Form") or HasSpell("Cat Form") or HasSpell("Dire Bear Form")) then
 		self.pullWithWrath = false;
 		self.pullWithMoonfire = false;
@@ -187,9 +189,13 @@ function script_druid:run(targetGUID)
 
 		-- stand up if sitting
 		if (not IsStanding()) then
-			StopMoving();
+			JumpOrAscendStart();
 		end
 	
+		if (not IsMoving()) then
+			targetObj:FaceTarget();
+		end
+
 		-- assign target health
 		targetHealth = targetObj:GetHealthPercentage();
 
@@ -230,18 +236,6 @@ function script_druid:run(targetGUID)
 			if (IsMounted()) and (targetObj:GetDistance() < 25) then 
 				DisMount(); 
 				return 4; 
-			end
-
-			-- sort forms redundant checkbox
-			if (localObj:HasBuff("Bear Form")) or (localObj:HasBuff("Dire Bear Form")) then
-				isBear = true;
-				isCat = false;
-			end
-
-			-- sort forms redundant checkbox
-			if localObj:HasBuff("Cat Form") then
-				isCat = true;
-				isBear = false;
 			end
 
 			----
@@ -353,6 +347,10 @@ function script_druid:run(targetGUID)
 
 				-- pull bear form
 			------
+
+			-- if not in bear form and conditions right then stay in bear form
+			if (self.bear) and (not localObj:HasBuff("Bear Form") or not localObj:HasBuff("Dire Bear Form")) and (localHealth >= self.healthToShift) then
+				if (
 
 			-- faerie fire
 			if (isBear) then
@@ -483,16 +481,31 @@ function script_druid:run(targetGUID)
 
 			-- heals in forms
 			-- Regrowth
-			if (isBear) and (localHealth < self.healHealthWhenShifted) and (localObj:HasBuff("Bear Form") or localObj:HasBuff("Dire Bear Form")) then
-				if (CastSpellByName("Dire Bear Form")) then
-					selfwaitTimer = GetTimeEX() + 1500;
+			if (HasSpell("Regrowth")) and (isBear) and (localHealth <= self.healHealthWhenShifted) and (localObj:HasBuff("Bear Form") or localObj:HasBuff("Dire Bear Form")) then
+				if (localObj:HasBuff("Dire Bear Form")) then
+					if (CastSpellByName("Dire Bear Form") and not localObj:HasBuff("Dire Bear Form")) then
+						selfwaitTimer = GetTimeEX() + 1500;
+					end
 				end
-			end
-
-			if (HasSpell("Regrowth")) then
+				if (localObj:HasBuff("Bear Form")) then
+					if (CastSpellByName("Bear Form") and not localObj:HasBuff("Bear Form")) then
+						selfwaitTimer = GetTimeEX() + 1500;
+					end
+				end
 				if (not localObj:HasBuff("Regrowth")) and (localHealth < self.regrowthHealth) and (localMana > 40) then
 					if (CastHeal("Regrowth", localObj)) then
 						return 0;
+					end
+				end
+				if (HasSpell("Dire Bear Form")) then
+					if (not localObj:HasBuff("Dire Bear Form")) then
+						if (CastSpellByName("Dire Bear Form") and not localObj:HasBuff("Dire Bear Form")) then
+							selfwaitTimer = GetTimeEX() + 1500;
+						end
+					end
+				elseif (not localObj:HasBuff("Bear Form") and not HasSpell("Dire Bear Form")) then
+					if (CastSpellByName("Bear Form") and not localObj:HasBuff("Bear Form")) then
+						selfwaitTimer = GetTimeEX() + 1500;
 					end
 				end
 			end

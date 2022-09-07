@@ -290,16 +290,15 @@ function script_warlock:run(targetGUID)
 		
 		-- stand if sitting
 		if (not IsStanding()) then
-			StopMoving();
+			JumpOrAscendStart();
+		end
+
+		if (not IsMoving()) then
+			targetObj:FaceTarget();
 		end
 
 		-- set target health
 		targetHealth = targetObj:GetHealthPercentage();
-
-		if (not targetObj:IsInLineOfSight()) then -- check line of sight
-			self.message = "Moving into Line of Sight of target";
-			return 3;
-		end
 
 		-- Auto attack
 		if (targetObj:GetDistance() < 40) then
@@ -748,7 +747,7 @@ function script_warlock:run(targetGUID)
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
 						self.waitTimer = GetTimeEX() + 1250; 
-						return false;
+						return true;
 					end
 				end
 			end	
