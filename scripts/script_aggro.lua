@@ -123,8 +123,8 @@ function script_aggro:closeToBlacklistedTargets()
 	local aggroClosest = 0;
 
 	while currentObj ~= 0 do
-		aggro = currentObj:GetLevel() - localObj:GetLevel() + 21;
-		local range = aggro + 5;
+		aggro = currentObj:GetLevel() - localObj:GetLevel() + 22;
+		local range = aggro + 6;
 		if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range then	
 			if (closestEnemy == 0) then
 				closestEnemy = currentObj;
@@ -199,7 +199,7 @@ function script_aggro:avoid(pointX,pointY,pointZ, radius, safeDist)
 			-- Calculate the point closest to our destination
 			if (IsPathLoaded(5)) then
 				local lastNodeIndex = GetPathSize(5)-1;
-				local destX, destY, destZ = GetPathPositionAtIndex(5, lastNodeIndex); 
+				local destX, destY, destZ = GetPathPositionAtIndex(4, lastNodeIndex); 
 				local destDist = math.sqrt((points[secondPoint].x-destX)^2 + (points[secondPoint].y-destY)^2);
 				if (destDist < bestDestDist) then
 					bestDestDist = destDist;

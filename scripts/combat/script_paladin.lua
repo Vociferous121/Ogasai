@@ -237,7 +237,7 @@ function script_paladin:run(targetGUID)
 
 			-- Check: Seal of the Crusader until we use judgement
 			if (not targetObj:HasDebuff("Judgement of the Crusader")) and (targetObj:GetDistance() < 15)
-				and (not localObj:HasBuff("Seal of the Crusader")) then
+				and (not localObj:HasBuff("Seal of the Crusader")) and localMana > 15 then
 				--targetObj:FaceTarget();
 				if (Cast("Seal of the Crusader", targetObj)) then
 						return 3;
@@ -282,9 +282,9 @@ function script_paladin:run(targetGUID)
 
 			else
 
-				if (IsMoving()) then
-					StopMoving();
-				end
+				--if (IsMoving()) then
+				--	StopMoving();
+				--end
 			end
 
 			targetObj:FaceTarget();
@@ -434,7 +434,7 @@ function script_paladin:run(targetGUID)
 			end
 
 			-- Check: Exorcism
-			if (targetObj:GetCreatureType() == "Demon" or targetObj:GetCreatureType() == "Undead") then
+			if (targetObj:GetCreatureType() == "Demon" or targetObj:GetCreatureType() == "Undead") and localMana > 35 then
 				if (targetObj:GetDistance() < 30 and HasSpell("Exorcism") and not IsSpellOnCD("Exorcism")) then
 					if (Cast("Exorcism", targetObj)) then 
 						return 0;
@@ -445,7 +445,7 @@ function script_paladin:run(targetGUID)
 			-- Check: If we are in melee range, do melee attacks RETURN 0   ONLY USE IN MELEE RANGE
 			if (targetObj:GetDistance() < self.meleeDistance) then
 
-				if (targetObj:IsCasting() and targetObj:IsFleeing() and HasSpell("Hammer of Justice") and not IsSpellOnCD("Hammer of Justice")) then
+				if (targetObj:IsCasting() and targetObj:IsFleeing() and HasSpell("Hammer of Justice") and not IsSpellOnCD("Hammer of Justice")) and localMana > 8 then
 					if (Cast("Hammer of Justice", targetObj)) then self.waitTimer = GetTimeEX() + 2000; return 0; end
 				end
 
