@@ -280,11 +280,8 @@ function script_paladin:run(targetGUID)
 				--targetObj:FaceTarget();
 				return 3;
 
-			else
-
-				--if (IsMoving()) then
-				--	StopMoving();
-				--end
+			elseif (IsMoving()) then
+				StopMoving();
 			end
 
 			targetObj:FaceTarget();
@@ -292,9 +289,10 @@ function script_paladin:run(targetGUID)
 			targetObj:AutoAttack();
 
 			--Holy strike
-			if (localMana > 10) and (HasSpell("Holy Strike")) and (not IsSpellOnCD("Holy Strike")) and (targetObj:GetDistance() <= self.meleeDistance) then
-				if(Cast("Holy Strike", targetObj)) then
-						return 0;
+			if (HasSpell("Holy Strike")) and (localMana > 10) and (not IsSpellOnCD("Holy Strike")) then
+				if (targetObj:GetDistance() <= self.meleeDistance) then
+					Cast("Holy Strike", targetObj);
+					return 0;
 				end
 			end
 
@@ -324,9 +322,9 @@ function script_paladin:run(targetGUID)
 			end
 
 			-- Flash of Light
-			if (self.useFlashOfLightCombat) and (IsInCombat()) then
-				if (localHealth < 60) and (localMana > 10) and (HasSpell("Flash of Light")) then
-					if (Buff("Flash of Light", localObj)) then
+			if (self.useFlashOfLightCombat) and (IsInCombat()) and (HasSpell("Flash of Light")) then
+				if (localHealth < 60) and (localMana > 10) then
+					if (CastHeal("Flash of Light", localObj)) then
 						self.waitTimer = GetTimeEX() + 1500;
 						self.message = "Flash of Light enabled - Healing!";
 						return 0;
@@ -335,9 +333,10 @@ function script_paladin:run(targetGUID)
 			end
 
 			-- Check: Heal ourselves if below heal health or we are immune to physical damage
-			if (localHealth < self.holyLightHealth) or ((localObj:HasBuff("Blessing of Protection") or 
-					localObj:HasBuff("Divine Protection"))) and (localHealth < 90) then 
+			if (localHealth < self.holyLightHealth) or (localObj:HasBuff("Blessing of Protection")) or (localObj:HasBuff("Divine Protection")) then 
+
 				-- Check: If we have multiple targets attacking us, use BoP before healing
+
 				if (script_paladin:enemiesAttackingUs(5) > 2) and (HasSpell("Blessing of Protection")) and
 					(not IsSpellOnCD("Blessing of Protection")) and (not localObj:HasDebuff("Forbearance")) then
 					if (Buff("Blessing of Protection", localObj)) then 
@@ -355,7 +354,7 @@ function script_paladin:run(targetGUID)
 				end
 
 				-- Check: If we have multiple targets attacking us, use Divine Protection before healing
-				if(script_paladin:enemiesAttackingUs(5) > 2) and (localHealth < 40) and (HasSpell("Divine Protection")) and
+				if (script_paladin:enemiesAttackingUs(5) > 2) and (localHealth < 40) and (HasSpell("Divine Protection")) and
 					(not localObj:HasDebuff("Forbearance")) and (not IsSpellOnCD("Divine Protection")) then
 					CastSpellByName("Divine Protection");
 					self.message = "Cast Divine Protection...";
@@ -370,7 +369,7 @@ function script_paladin:run(targetGUID)
 					end
 				end
 				
-				--use holy light	
+				--use holy light at the end of all the checks above
 				if (Buff("Holy Light", localObj)) then 
 					self.waitTimer = GetTimeEX() + 5000;
 					self.message = "Healing: Holy Light...";
@@ -398,6 +397,9 @@ function script_paladin:run(targetGUID)
 					or (localObj:HasDebuff("Dark Sludge")) or (localObj:HasDebuff("Corrosive Poison")) or (localObj:HasDebuff("Slowing Poison"))
 						or (localObj:HasDebuff("Infected Bite")) or (localObj:HasDebuff("Poison")) or (localObj:HasDebuff("Wandering Plague"))
 							or (localObj:HasDebuff("Plague Mind")) then
+
+							-- add some randomness to how quick the bot casts cleanse
+
 						local cleanseRandom = random(1, 100);
 					if (cleanseRandom > 98) then
 						if (Buff("Cleanse", localObj)) then 
@@ -415,6 +417,9 @@ function script_paladin:run(targetGUID)
 					or (localObj:HasDebuff("Dark Sludge")) or (localObj:HasDebuff("Corrosive Poison")) or (localObj:HasDebuff("Slowing Poison"))
 						or (localObj:HasDebuff("Infected Bite")) or (localObj:HasDebuff("Poison")) or (localObj:HasDebuff("Wandering Plague"))
 							or (localObj:HasDebuff("Plague Mind")) then
+
+							-- add some randomness to how quick the bot casts cleanse
+
 						local cleanseRandom = random(1, 100);
 					if (cleanseRandom > 98) then
 						if (Buff("Purify", localObj)) then 
@@ -434,23 +439,28 @@ function script_paladin:run(targetGUID)
 			end
 
 			-- Check: Exorcism
-			if (targetObj:GetCreatureType() == "Demon" or targetObj:GetCreatureType() == "Undead") and localMana > 35 then
-				if (targetObj:GetDistance() < 30 and HasSpell("Exorcism") and not IsSpellOnCD("Exorcism")) then
+			if (targetObj:GetCreatureType() == "Demon") or (targetObj:GetCreatureType() == "Undead") then
+				if (targetObj:GetDistance() < 30) and (HasSpell("Exorcism")) and (not IsSpellOnCD("Exorcism")) and (localMana > 30) then
 					if (Cast("Exorcism", targetObj)) then 
 						return 0;
 					end
 				end
 			end
 
-			-- Check: If we are in melee range, do melee attacks RETURN 0   ONLY USE IN MELEE RANGE
+			-- Check: If we are in melee range, do melee attacks ----- RETURN 0   ONLY USE IN MELEE RANGE
 			if (targetObj:GetDistance() < self.meleeDistance) then
 
-				if (targetObj:IsCasting() and targetObj:IsFleeing() and HasSpell("Hammer of Justice") and not IsSpellOnCD("Hammer of Justice")) and localMana > 8 then
-					if (Cast("Hammer of Justice", targetObj)) then self.waitTimer = GetTimeEX() + 2000; return 0; end
+				if (targetObj:IsCasting()) or (targetObj:IsFleeing()) then
+					if (HasSpell("Hammer of Justice")) and (not IsSpellOnCD("Hammer of Justice")) and (localMana > 8) then
+						if (Cast("Hammer of Justice", targetObj)) then
+							self.waitTimer = GetTimeEX() + 2000;
+							return 0;
+						end
+					end
 				end
 
 				-- Stack Crusader Strike
-				if (HasSpell("Crusader Strike")) and ((localObj:HasBuff("Seal of Righteousness")) or (localObj:HasBuff("Seal of Command"))) and (targetObj:HasDebuff("Judgement of the Crusader")) and (localMana > 25) then
+				if (HasSpell("Crusader Strike")) and ((localObj:HasBuff("Seal of Righteousness")) or (localObj:HasBuff("Seal of Command"))) and (targetObj:HasDebuff("Judgement of the Crusader")) then
 					if (targetObj:GetDebuffStacks("Crusader Strike") < self.crusaderStacks) and (targetHealth > 35) and (localMana > self.crusaderStacksMana) then
 						if (Cast("Crusader Strike", targetObj)) then
 							self.waitTimer = GetTimeEX() + 1750;
@@ -469,7 +479,7 @@ function script_paladin:run(targetGUID)
 				end
 
 				-- on low mana do seal of wisdom if selfMana < 25 and targetHP > 50
-				if (HasSpell("Seal of Wisdom")) and (not localObj:HasBuff("Seal of Light") or not localObj:HasBuff("Seal of Wisdom")) then
+				if (HasSpell("Seal of Wisdom")) and (not localObj:HasBuff("Seal of Light")) or (not localObj:HasBuff("Seal of Wisdom")) then
 					if (localMana < 25) and (targetHealth > 50) then
 						if (Cast("Seal of Wisdom", targetObj)) then
 							self.waitTimer = GetTimeEX() + 1000;
@@ -477,75 +487,89 @@ function script_paladin:run(targetGUID)
 					end
 				end
 
-				-- Combo Check 1: Stun the target if we have HoJ and SoC
-				if (HasSpell("Hammer of Justice") and not IsSpellOnCD("Hammer of Justice") and targetHealth > 50 and targetObj:HasDebuff("Judgement of the Crusader")
-					and localObj:HasBuff("Seal of Command") and localMana > 50 and not IsSpellOnCD("Judgement")) then
-					if (Cast("Hammer of Justice", targetObj)) then
-						self.waitTimer = GetTimeEX() + 1750; 
+				-- Stun the target if target has seal of crusader debuff
+				if (not IsSpellOnCD("Judgement")) and (localMana > 50) and (HasSpell("Hammer of Justice")) and (not IsSpellOnCD("Hammer of Justice")) then
+					if (targetHealth > 50) and (targetObj:HasDebuff("Judgement of the Crusader")) and (localObj:HasBuff("Seal of Command") or localObj:HasBuff("Seal of Righteousness")) then
+						if (Cast("Hammer of Justice", targetObj)) then
+							self.waitTimer = GetTimeEX() + 1750; 
 							return 0;
+						end
 					end
 				end
 		
-				-- Combo Check 2: Use Judgement on the stunned target
-				if (targetObj:HasDebuff("Hammer of Justice") and localObj:HasBuff("Seal of Command") and targetObj:GetDistance() < 10) and (localMana > 15) then
-					if (Cast("Judgement", targetObj)) then self.waitTimer = GetTimeEX() + 750;
-						return 0;
+				-- Use Judgement on the stunned target
+				if (targetObj:HasDebuff("Hammer of Justice")) and (localObj:HasBuff("Seal of Command") or localObj:HasBuff("Seal of Righteousness")) then
+					if (targetObj:GetDistance() < 10) and (localMana > 15) then
+						if (Cast("Judgement", targetObj)) then
+							self.waitTimer = GetTimeEX() + 750;
+							return 0;
+						end
 					end
 				end
 
-				-- Check: Seal of the Crusader until we used judgement
-				if (not targetObj:HasDebuff("Judgement of the Crusader") and targetHealth > 45 and not localObj:HasBuff("Seal of the Crusader")) and 
-					(not localObj:HasBuff("Seal of Light")) and (localMana > 15) then
-					if (Buff("Seal of the Crusader", localObj)) then
-						self.waitTimer = GetTimeEX() + 1500; 
-						return 0;
-					 end
-				end 
+				-- Seal of the Crusader until we used judgement
+				if (HasSpell("Seal of the Crusader")) and (localMana > 15) and (targetHealth > 45) then
+					if (not targetObj:HasDebuff("Judgement of the Crusader")) and (not localObj:HasBuff("Seal of the Crusader")) and (not localObj:HasBuff("Seal of Light")) then
+						if (Buff("Seal of the Crusader", localObj)) then
+							self.waitTimer = GetTimeEX() + 1500; 
+							return 0;
+						 end
+					end 
+				end
 
-				-- Check: Judgement when we have crusader
-				if (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Judgement of the Crusader")) and (not IsSpellOnCD("Judgement")) and (HasSpell("Judgement")) and 
-						(localObj:HasBuff("Seal of the Crusader")) and (localMana > 15) then
-						if (Cast("Judgement", targetObj)) then self.waitTimer = GetTimeEX() + 1500; 
+				-- use Judgement when we have crusader buffed
+				if (HasSpell("Judgement")) and (not IsSpellOnCD("Judgement")) and (localObj:HasBuff("Seal of the Crusader")) and (localMana > 15) then
+					if (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Judgement of the Crusader")) and (localObj:HasBuff("Seal of the Crusader")) then
+						if (Cast("Judgement", targetObj)) then
+							self.waitTimer = GetTimeEX() + 1500; 
 							return 0;
 						end 
+					end
 				end
 
 				-- Check: Seal of Righteousness (before we have SoC)
 				if (not localObj:HasBuff("Seal of Righteousness")) and (not localObj:HasBuff("Seal of the Crusader")) and (not HasSpell("Seal of Command")) and
 					(not localObj:HasBuff("Seal of Light")) and (localMana > 15) then 
-					if (Buff("Seal of Righteousness", localObj)) then self.waitTimer = GetTimeEX() + 1500;
+					if (Buff("Seal of Righteousness", localObj)) then
+						self.waitTimer = GetTimeEX() + 1500;
 						return 0;
 					end
 				end
 
 				-- Check: Judgement with Righteousness or Command if we have a lot of mana
-				if ((localObj:HasBuff("Seal of Righteousness") or localObj:HasBuff("Seal of Command"))
-					 and not IsSpellOnCD("Judgement") and localMana > 65) then 
-					if (Cast("Judgement", targetObj)) then self.waitTimer = GetTimeEX() + 750;
- 						return 0;
-					end 
+				if (localMana > 50) and (not IsSpellOnCD("Judgement")) then
+					if (localObj:HasBuff("Seal of Righteousness") or localObj:HasBuff("Seal of Command")) then 
+						if (Cast("Judgement", targetObj)) then self.waitTimer = GetTimeEX() + 750;
+ 							return 0;
+						end 
+					end
 				end
 
 				-- Check: Use judgement if we are buffed with Righteousness or Command and the target is low
-				if ((localObj:HasBuff("Seal of Righteousness") or localObj:HasBuff("Seal of Command"))
-					and targetObj:GetDistance() < 10 and targetHealth < 10) and (localMana > 15) then
-					if (Cast("Judgement", targetObj)) then self.waitTimer = GetTimeEX() + 1500;
- 						return 0;
+				if (targetHealth < 10) and (HasSpell("Seal of Command") or HasSpell("Seal of Righteousness")) and (localMana > 15) then
+					if (localObj:HasBuff("Seal of Righteousness") or localObj:HasBuff("Seal of Command")) and (targetObj:GetDistance() < 10) then
+						if (Cast("Judgement", targetObj)) then self.waitTimer = GetTimeEX() + 1500;
+ 							return 0;
+						end
 					end
 				end
 
 				-- Check: Seal of Command
-				if (not localObj:HasBuff("Seal of Command")) and (not localObj:HasBuff("Seal of the Crusader")) and (not localObj:HasBuff("Seal of Light")) and (localMana > 15) then 
-					if (Buff("Seal of Command", localObj)) then self.waitTimer = GetTimeEX() + 1500;
- 						return 0;
+				if (HasSpell("Seal of Command")) and (not localObj:HasBuff("Seal of Command")) and (localMana > 15) then
+					if (not localObj:HasBuff("Seal of the Crusader")) and (not localObj:HasBuff("Seal of Light")) then 
+						if (Buff("Seal of Command", localObj)) then
+							self.waitTimer = GetTimeEX() + 1500;
+ 							return 0;
+						end
 					end
 				end
 
 				-- Consecration when we have adds
-				if (script_grind:enemiesAttackingUs(4) >= 1 and localMana > self.consecrationMana and targetHealth > 15 and HasSpell("Consecration")
-					and not IsSpellOnCD("Consecration")) then
-					CastSpellByName("Consecration"); self.waitTimer = GetTimeEX() + 1500;
- 					return 0;	
+				if (HasSpell("Consecration")) and (not IsSpellOnCD("Consecration")) and (localMana > self.consecrationMana) then
+					if (script_grind:enemiesAttackingUs(4) >= 1) then
+						CastSpellByName("Consecration"); self.waitTimer = GetTimeEX() + 1500;
+ 						return 0;	
+					end
 				end
 
 				-- Always face the target
@@ -568,6 +592,15 @@ function script_paladin:rest()
 	local localLevel = localObj:GetLevel();
 	local localHealth = localObj:GetHealthPercentage();
 	local localMana = localObj:GetManaPercentage();
+
+	-- heal before eating
+	if (localHealth < self.holyLightHealth) or (localHealth < self.eatHealth) then
+		if (HasSpell("Holy Light")) and (not IsSpellOnCD("Holy Light")) then
+			if (CastSpellByName("Holy Light")) and (localHealth < self.holyLightHealth or localHealth < self.eatHealth) then
+				return true;
+			end
+		end
+	end
 
 	-- Buff with Blessing
 	if (self.blessing ~= 0 and HasSpell(self.blessing) and not IsMounted()) then

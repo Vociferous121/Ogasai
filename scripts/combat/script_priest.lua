@@ -233,6 +233,10 @@ function script_priest:setup()
 		self.renewHP = 80;	-- set renewHP variable
 	end
 	
+	if (GetNumPartyMembers() > 1) then
+		self.useScream = false;
+	end
+
 	script_grind.tickRate = 125;
 end
 

@@ -444,7 +444,7 @@ function script_follow:healAndBuff()
                 
 				-- regrowth
                 		if (self.clickRegrowth) then
-                    		if (HasSpell("Regrowth")) and (not targetObj:HasBuff("Regrowth")) and (partyMembersHP < self.regrowthHealth) and (localMana > self.regrowthMana) then
+                    		if (HasSpell("Regrowth")) and (not partyMember:HasBuff("Regrowth")) and (partyMembersHP < self.regrowthHealth) and (localMana > self.regrowthMana) then
                         		if (script_follow:moveInLineOfSight(partyMember)) then
                             			return true;
                         		end -- move to member
@@ -456,7 +456,7 @@ function script_follow:healAndBuff()
                 		end
 
 				-- rejuvenation
-				if (HasSpell("Rejuvenation")) and (not targetObj:HasBuff("Rejuvenation")) and (partyMembersHP < self.rejuvenationHealth) and (localMana > self.rejuvenationMana) then
+				if (HasSpell("Rejuvenation")) and (not partyMember:HasBuff("Rejuvenation")) and (partyMembersHP < self.rejuvenationHealth) and (localMana > self.rejuvenationMana) then
 					if (script_follow:moveInLineOfSight(partyMember)) then
                      	 		  return true;
 					end -- move to member
@@ -465,10 +465,9 @@ function script_follow:healAndBuff()
 						return true;
 					end
 				end
-
 				-- healing touch if has regrowth
 				if (self.clickHealingTouch) then
-					if (HasSpell("Healing Touch")) and (targetObj:HasBuff("Regrowth")) and (partyMembersHP < self.healingTouchHealth) and (localMana > self.healingTouchMana) then
+					if (HasSpell("Healing Touch")) and (partyMember:HasBuff("Regrowth")) and (partyMembersHP < self.healingTouchHealth) and (localMana > self.healingTouchMana) then
                        			if (script_follow:moveInLineOfSight(partyMember)) then
                          			return true;
                   			end -- move to member
@@ -478,13 +477,6 @@ function script_follow:healAndBuff()
 						end
 					end
 				end
-				
-				-- healing wave
-			--	if (HasSpell("Healing Wave") anthen
-			--		if (CastHeal("Healing Wave")) then
-			--			return true;
-			--		end
-			--	end
 			end
 		end
 	end
@@ -496,6 +488,7 @@ function script_follow:setup()
 	self.lootCheck['target'] = 0;
 	script_helper:setup();
 	self.isSetup = true;
+	ClearTarget();
 end
 
 function script_follow:setWaitTimer(ms)
