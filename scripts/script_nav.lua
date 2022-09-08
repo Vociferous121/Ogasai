@@ -311,7 +311,7 @@ function script_nav:moveToTarget(localObj, _x, _y, _z) -- use when moving to mov
 
 	-- If the target moves more than 2 yard then make a new path
 	if(GetDistance3D(_x, _y, _z, self.navPosition['x'], self.navPosition['y'], self.navPosition['z']) > 2
-		or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
+		or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 20) then
 		self.navPosition['x'] = _x;
 		self.navPosition['y'] = _y;
 		self.navPosition['z'] = _z;
@@ -331,13 +331,13 @@ function script_nav:moveToTarget(localObj, _x, _y, _z) -- use when moving to mov
 	if(GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) < self.nextNavNodeDistance) then
 		self.lastnavIndex = 1 + self.lastnavIndex;		
 		if (GetPathSize(5) <= self.lastnavIndex) then
-			self.lastnavIndex = GetPathSize(7)-1;
+			self.lastnavIndex = GetPathSize(5)-1;
 		end
 	end
 
 	-- Check: If move to coords are too far away, something wrong, dont move... BUT WHY ?!
 	if (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
-		GeneratePath(_lx, _ly, _lz, _lx+25, _ly+10, _lz);
+		GeneratePath(_lx, _ly, _lz, _lx+1, _ly+1, _lz);
 		return "Generating a new path...";
 	end
 
@@ -359,7 +359,7 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 	-- Fetch our current position
 	local _lx, _ly, _lz = localObj:GetPosition();
 
-	local _ix, _iy, _iz = GetPathPositionAtIndex(7, self.lastpathnavIndex);
+	local _ix, _iy, _iz = GetPathPositionAtIndex(5, self.lastpathnavIndex);
 			
 	-- If we have a new destination, generate a new path to it
 	if(self.navPathPosition['x'] ~= _x or self.navPathPosition['y'] ~= _y or self.navPathPosition['z'] ~= _z
@@ -454,8 +454,8 @@ function script_nav:navigate(localObj)
 		local _lx, _ly, _lz = localObj:GetPosition();
 
 		-- At start get the closest walk path node
-		if(self.lastPathIndex == -1) then
-			self.lastPathIndex = script_nav:findClosestPathNode(localObj, -1, 0, 5);
+		if(self.lastPathIndex == 0) then
+			self.lastPathIndex = script_nav:findClosestPathNode(localObj, -5, 0, 5);
 		end
 
 		local _x, _y, _z = GetPathPositionAtIndex(0, self.lastPathIndex);
@@ -466,7 +466,7 @@ function script_nav:navigate(localObj)
 		end
 			
 		-- Check: If we reached the end node, start over at node 1
-		if(self.lastPathIndex >= pathSize) then
+		if(self.lastPathIndex - 2 >= pathSize) then
 			self.lastPathIndex = 0;
 		end
 			

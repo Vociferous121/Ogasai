@@ -17,7 +17,10 @@ script_gather = {
 	gatherAllPossible = true,
 	waitTimer = GetTimeEX(),
 	toNodeDistance = 3.4,
-
+	blacklistNodeTimer = 30,
+	blacklistedNodes = {},
+	blacklistedNum = 0,
+	newNodeTimer = GetTimeEX(),
 }
 
 function script_gather:addHerb(name, id, use, req)
@@ -210,6 +213,13 @@ function script_gather:currentGatherName()
 	end
 
 	return name;
+end
+
+function script_grind:addNodeToBlacklist(targetGUID)
+	if (targetGUID ~= nil and targetGUID ~= 0 and targetGUID ~= '') then	
+		self.blacklistedNode[self.blackistedNum] = targetGUID;
+		self.blacklistedNum = self.blacklistedNum + 1;
+	end
 end
 
 function script_gather:gather()

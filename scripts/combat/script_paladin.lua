@@ -16,7 +16,7 @@ script_paladin = {
 	potionHealth = 12,
 	potionMana = 20,
 	consecrationMana = 50,
-	meleeDistance = 3.5,
+	meleeDistance = 3.15,
 	crusaderStacks = 3,
 	crusaderStacksMana = 40,
 }

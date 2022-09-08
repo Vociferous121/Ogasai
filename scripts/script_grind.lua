@@ -71,7 +71,7 @@ script_grind = {
 	gather = false,
 	lastTarget = 0,
 	newTargetTime = GetTimeEX(),
-	blacklistTime = 30,
+	blacklistTime = 45,
 	drawEnabled = true,
 	showClassOptions = true,
 	pause = true,
@@ -146,22 +146,22 @@ function script_grind:isTargetBlacklisted(targetGUID)
 end
 
 --IS TARGET BLACKLISTED BY NAME - thank you Coin
-function script_grind:isTargetNameBlacklisted(name) 
-	for i=0,self.blacklistedNameNum do
-		if (name == self.blacklistedNameTargets[i]) then
-			return true;
-		end
-	end
-	return false;
-end
+--function script_grind:isTargetNameBlacklisted(name) 
+--	for i=0,self.blacklistedNameNum do
+--		if (name == self.blacklistedNameTargets[i]) then
+--			return true;
+--		end
+--	end
+--	return false;
+--end
 
 --ADD BLACKLIST BY NAME - thank you Coin
-function script_grind:addTargetToNameBlacklist(name) 
-	if (name ~= nil and name ~= 0 and name ~= '') then	
-		self.blacklistedNameTargets[self.blacklistedNameNum] = name;
-		self.blacklistedNameNum = self.blacklistedNameNum + 1;
-	end
-end
+--function script_grind:addTargetToNameBlacklist(name) 
+--	if (name ~= nil and name ~= 0 and name ~= '') then	
+--		self.blacklistedNameTargets[self.blacklistedNameNum] = name;
+--		self.blacklistedNameNum = self.blacklistedNameNum + 1;
+--	end
+--end
 
 function script_grind:run()
 	script_grind:window();
@@ -387,13 +387,20 @@ function script_grind:run()
 
 			-- Do nothing, return : combat script return 4
 			if(self.combatError == 4) then return; end
+			
 			-- Target player pet/totem: pause for 5 seconds, combat script should add target to blacklist
 			if(self.combatError == 5) then
 				self.message = "Targeted a player pet pausing 5s...";
 				ClearTarget(); self.waitTimer = GetTimeEX()+5000; return;
 			end
+			
 			-- Stop bot, request from a combat script
-			if(self.combatError == 6) then self.message = "Combat script request stop bot..."; Logout(); StopBot(); return; end
+			if(self.combatError == 6) then 
+				self.message = "Combat script request stop bot...";
+		 		Logout();
+				StopBot();
+				return;
+			end
 		end
 
 		-- Pre checks before navigating
