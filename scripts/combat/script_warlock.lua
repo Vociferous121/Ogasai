@@ -41,6 +41,7 @@ script_warlock = {
 	useFelhunter = false,
 	wandHealthPreset = 10, -- preset to attack target with 10% HP using wand, reset in Setup function for dungeon to cast shadowbolt
 	drainSoulHealthPreset = 30,
+	hasSufferingSpell = false,
 }
 
 function script_warlock:cast(spellName, target)
@@ -257,6 +258,14 @@ function script_warlock:run(targetGUID)
 			hasPet = false;
 		end
 	end
+
+	-- Check: If the pet is void and has spell suffering
+	if (hasPet) and (self.useVoid) and (GetPet() ~= 0) then
+		name, __, __, __, __, __, __ = GetPetActionInfo(7);
+		if (name == "Suffering") then 
+			self.hasSufferingSpell = true;
+		end
+	end
 	
 	-- don't attack dead targets
 	if (localObj:IsDead()) then
@@ -395,20 +404,6 @@ function script_warlock:run(targetGUID)
 					self.waitTimer = GetTimeEX() + 1600;
 					return 0;
 				end
-			elseif (HasSpell("Immolate")) and (self.enableImmolate) and (not targetObj:HasDebuff("Immolate")) and (targetHealth > 20) and (not IsSpellOnCD("Immolate")) then
-				self.message = "Stacking DoT's";
-				if (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
-					PetAttack();
-				end
-				if (not targetObj:IsInLineOfSight()) then -- check line of sight
-					return 3; -- target not in line of sight
-				end -- move to target
-				if (not targetObj:HasDebuff("Immolate")) then
-					if (Cast('Immolate', targetObj)) and (not targetObj:HasDebuff("Immolate")) then 
-						self.waitTimer = GetTimeEX() + 2250;
-						return 0;
-					end
-				end
 			else
 				if (Cast('Shadow Bolt', targetObj)) then
 					self.message = "Pulling Target";
@@ -481,9 +476,8 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- voidwalker taunt
-			if (GetPet() ~= 0) and (self.useVoid) and (HasSpell("Suffering")) and (not IsSpellOnCD("Suffering")) and (script_grind:enemiesAttackingUs(5) >= 1) then
+			if (GetPet() ~= 0) and (self.useVoid) and (not IsSpellOnCD("Suffering")) and (script_grind:enemiesAttackingUs(5) >= 1) and (self.hasSufferingSpell) then
 				if (CastSpellByName("Suffering")) then
-					return 0;
 				end
 			end
 
@@ -636,7 +630,7 @@ function script_warlock:run(targetGUID)
 					if (not targetObj:HasDebuff("Immolate")) then
 						if (Cast('Immolate', targetObj)) and (not targetObj:HasDebuff("Immolate")) then
 							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 2250;
+							self.waitTimer = GetTimeEX() + 2550;
 						end
 					end
 				end

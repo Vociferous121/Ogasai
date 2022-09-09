@@ -40,7 +40,6 @@ script_grind = {
 	skipGiant = false,
 	skipMechanical = false,
 	skipElites = true,
-	skipNotspecified = false,
 	paranoidOn = true,
 	paranoidOnTargeted = true,
 	paranoidRange = 150,
@@ -579,7 +578,6 @@ function script_grind:enemyIsValid(i)
 			and not (skipDragonkin and i:GetCreatureType() == 'Dragonkin') 
 			and not (skipGiant and i:GetCreatureType() == 'Giant') 
 			and not (skipMechanical and i:GetCreatureType() == 'Mechanical') 
-			and not (self.skipNotspecified and i:GetCreatureType() == 'Not specified')
 			and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
 			) then
 			return true;

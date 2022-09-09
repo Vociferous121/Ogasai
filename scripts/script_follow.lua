@@ -477,6 +477,14 @@ function script_follow:healAndBuff()
 						end
 					end
 				end
+			
+				-- healing wave
+				if (HasSpell("Healing Wave")) and (partyMembersHP < 75) and (localMana > 15) then
+					if (CastSpellByName("Healing Touch")) then
+						self.waitTimer = GetTimeEX() + 1500;
+						return true;
+					end
+				end
 			end
 		end
 	end

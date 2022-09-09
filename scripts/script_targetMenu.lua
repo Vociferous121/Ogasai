@@ -16,17 +16,6 @@ function script_targetMenu:menu()
 			end
 		end
 
-		SameLine();
-
-		if (Button("BlackList By Name")) then
-			if UnitExists("target") then
-				DEFAULT_CHAT_FRAME:AddMessage('Blacklisted "'..GetTarget():GetUnitName()..'" by NAME');
-				script_grind:addTargetToNameBlacklist(GetTarget():GetUnitName());
-			end
-		end
-			SameLine();
-			Text(" - by name not functional");
-
 		
 		Text('Blacklist time'); 
 		script_grind.blacklistTime = SliderInt("BT (s)", 1, 120, script_grind.blacklistTime);
