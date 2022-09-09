@@ -767,7 +767,7 @@ function script_warlock:rest()
 	end
 
 	-- drink or eat 
-	if(localMana < self.drinkMana or localHealth < self.eatHealth) then
+	if(localMana < self.drinkMana or localHealth < self.eatHealth) and (not IsSwimming()) then
 		if (IsMoving()) then
 			StopMoving();
 			return true;
@@ -787,7 +787,7 @@ function script_warlock:rest()
 	end
 
 	-- Eat and Drink
-	if (not IsDrinking() and localMana < self.drinkMana) then
+	if (not IsDrinking() and localMana < self.drinkMana) and (not IsSwimming()) then
 		self.message = "Need to drink...";
 		self.waitTimer = GetTimeEX() + 1200;
 		if (IsMoving()) then
@@ -803,7 +803,7 @@ function script_warlock:rest()
 			return true; 
 		end
 	end
-	if (not IsEating() and localHealth < self.eatHealth) then
+	if (not IsEating() and localHealth < self.eatHealth) and (not IsSwimming()) then
 		self.message = "Need to eat...";	
 		if (IsMoving()) then
 			StopMoving();
