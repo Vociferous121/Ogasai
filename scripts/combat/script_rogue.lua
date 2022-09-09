@@ -208,9 +208,9 @@ function script_rogue:run(targetGUID)
 				JumpOrAscendStart();
 			end
 		
-			if (not IsMoving() and targetObj:GetDistance() < 10) then
-				targetObj:FaceTarget();
-			end
+			--if (not IsMoving() and targetObj:GetDistance() < 10) then
+			--	targetObj:FaceTarget();
+			--end
 
 			-- Auto Attack
 			if (targetObj:GetDistance() < 40) then
@@ -867,14 +867,13 @@ function script_rogue:rest()
 end
 
 function script_rogue:menu()
-SameLine();
+	Separator();
 	if (not self.enableRotation) then -- if not showing rotation button
 		wasClicked, self.enableGrind = Checkbox("Grinder", self.enableGrind); -- then show grind button
 	end
 		SameLine();
 	if (not self.enableGrind) then -- if not showing grind button
 		wasClicked, self.enableRotation = Checkbox("Rotation", self.enableRotation); -- then show rotation button
-		SameLine();
 	end	
 	Separator();
 	if (self.enableGrind) then
