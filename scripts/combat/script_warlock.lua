@@ -476,7 +476,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- voidwalker taunt
-			if (GetPet() ~= 0) and (self.useVoid) and (not IsSpellOnCD("Suffering")) and (script_grind:enemiesAttackingUs(5) >= 1) and (self.hasSufferingSpell) then
+			if (GetPet() ~= 0) and (self.useVoid) and (not IsSpellOnCD("Suffering")) and (script_grind:enemiesAttackingUs(5) >= 2) and (self.hasSufferingSpell) then
 				if (CastSpellByName("Suffering")) then
 				end
 			end
@@ -628,10 +628,10 @@ function script_warlock:run(targetGUID)
 						return 3; -- target not in line of sight
 					end -- move to target
 					if (not targetObj:HasDebuff("Immolate")) then
-						if (CastSpell('Immolate', targetObj)) and (not targetObj:HasDebuff("Immolate")) then
-							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 2650;
-						end
+						CastSpellByName("Immolate", targetObj);
+						targetObj:FaceTarget();
+						self.waitTimer = GetTimeEX() + 2650;
+						return 0;
 					end
 				end
 			end
@@ -855,7 +855,7 @@ function script_warlock:rest()
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Succubus";
 					hasPet = true;
-					return true; 
+					return 0; 
 				end
 			end
 		elseif (GetPet() == 0) and (self.useVoid) and (HasSpell("Summon Voidwalker")) and (HasItem('Soul Shard')) then
@@ -871,7 +871,7 @@ function script_warlock:rest()
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Void Walker";
 					hasPet = true;
-					return true; 
+					return 0; 
 				end
 			end
 		elseif (GetPet() == 0) and (self.useFelhunter) and (HasSpell("Summon Felhunter")) and (HasItem('Soul Shard')) then
@@ -887,7 +887,7 @@ function script_warlock:rest()
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Felhunter";
 					hasPet = true;
-					return true; 
+					return 0; 
 				end
 			end
 		elseif (GetPet() == 0) and (HasSpell("Summon Imp")) and (self.useImp) and (not IsChanneling()) then
@@ -903,7 +903,7 @@ function script_warlock:rest()
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Imp";
 					hasPet = true;
-					return true;
+					return 0;
 				end
 			end
 		end
