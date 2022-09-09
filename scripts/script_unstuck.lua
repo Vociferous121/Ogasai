@@ -112,14 +112,14 @@ function script_unstuck:getSlope(yardsInfront)
 	-- our pos plus 5 yards
 	_lx, _ly, _lz = GetLocalPlayer():GetPosition();
 	_angle = GetLocalPlayer():GetAngle();	
-	_lx, _ly = _lx+5*math.cos(_angle), _ly+5*math.sin(_angle);
+	_lx, _ly = _lx+3*math.cos(_angle), _ly+3*math.sin(_angle);
 	
 	for i = 1, 100 do	
 
 		-- pos 1 - yardsInfront 
 		for y = 1, yardsInfront do
-			local _xpu, _ypu, _zpu = _lx+((5+y)*math.cos(_angle-i*0.01)), _ly+((5+y)*math.sin(_angle-i*0.01)), _lz;
-			local _xpd, _ypd, _zpd = _lx+((5+y)*math.cos(_angle+i*0.01)), _ly+((5+y)*math.sin(_angle+i*0.01)), _lz;
+			local _xpu, _ypu, _zpu = _lx+((3+y)*math.cos(_angle-i*0.01)), _ly+((3+y)*math.sin(_angle-i*0.01)), _lz;
+			local _xpd, _ypd, _zpd = _lx+((3+y)*math.cos(_angle+i*0.01)), _ly+((3+y)*math.sin(_angle+i*0.01)), _lz;
 		
 			local hitDown, _, _, _ = Raycast(_lx, _ly, _lz + (i*0.2),  _xpd, _ypd, _zpd - (i*0.2));
 
@@ -135,8 +135,8 @@ end
 
 function script_unstuck:jumpObstacles()
 
-	if ( (script_unstuck:getObsMin(1) >= 0.3 and script_unstuck:getObsMax(1) < 2.2 and script_unstuck:getObsMax(1) > 1) or 
-		(script_unstuck:getObsMin(2) >= 0.3 and  script_unstuck:getObsMax(2) < 2.2 and script_unstuck:getObsMax(2) > 1) ) then
+	if ( (script_unstuck:getObsMin(1) >= 0.2 and script_unstuck:getObsMax(1) < 2. and script_unstuck:getObsMax(1) > 1) or 
+		(script_unstuck:getObsMin(2) >= 0.3 and  script_unstuck:getObsMax(2) < 2. and script_unstuck:getObsMax(2) > 1) ) then
 		self.message = "Jumping over obstacle";
 		JumpOrAscendStart();
 	end

@@ -215,7 +215,7 @@ function script_gather:currentGatherName()
 	return name;
 end
 
-function script_grind:addNodeToBlacklist(targetGUID)
+function script_gather:addNodeToBlacklist(targetGUID)
 	if (targetGUID ~= nil and targetGUID ~= 0 and targetGUID ~= '') then	
 		self.blacklistedNode[self.blackistedNum] = targetGUID;
 		self.blacklistedNum = self.blacklistedNum + 1;

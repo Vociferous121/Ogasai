@@ -164,8 +164,6 @@ function script_warlock:setup()
 -- may be a combat command. learning a pet spell and summoning pet continues the script
 	if (GetNumPartyMembers() >= 1) then
 		self.fearAdds = false;
-		self.useWand = false;
-		self.useShadowBolt = true;
 		self.useImp = true;
 		self.healPetHealth = 20;
 		self.drainLifeHealth = 50;
@@ -406,8 +404,8 @@ function script_warlock:run(targetGUID)
 					return 3; -- target not in line of sight
 				end -- move to target
 				if (not targetObj:HasDebuff("Immolate")) then
-					if (Cast('Immolate', targetObj)) then 
-						self.waitTimer = GetTimeEX() + 2000;
+					if (Cast('Immolate', targetObj)) and (not targetObj:HasDebuff("Immolate")) then 
+						self.waitTimer = GetTimeEX() + 2250;
 						return 0;
 					end
 				end
@@ -483,8 +481,8 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- voidwalker taunt
-			if (GetPet() ~= 0) and (self.useVoid) and (HasSpell("Suffering")) and (not IsSpellOnCD("Suffering")) and (script_grind:enemiesAttackingUs(6) >= 1) then
-				if (Cast("Suffering", targetObj)) then
+			if (GetPet() ~= 0) and (self.useVoid) and (HasSpell("Suffering")) and (not IsSpellOnCD("Suffering")) and (script_grind:enemiesAttackingUs(5) >= 1) then
+				if (CastSpellByName("Suffering")) then
 					return 0;
 				end
 			end
@@ -636,9 +634,9 @@ function script_warlock:run(targetGUID)
 						return 3; -- target not in line of sight
 					end -- move to target
 					if (not targetObj:HasDebuff("Immolate")) then
-						if (Cast('Immolate', targetObj)) then
+						if (Cast('Immolate', targetObj)) and (not targetObj:HasDebuff("Immolate")) then
 							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 2000;
+							self.waitTimer = GetTimeEX() + 2250;
 						end
 					end
 				end
