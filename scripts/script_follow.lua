@@ -230,14 +230,6 @@ function script_follow:healAndBuff()
 				end
 			end
 
-			-- night elf Elune's Grace racial
-			if (IsInCombat()) and (HasSpell("Elune's Grace")) and (not IsSpellOnCD("Elune's Grace")) and (not localObj:HasBuff("Elune's Grace")) and (localHealth < 75) then
-				if (Buff("Elune's Grace", localObj)) then
-					self.waitTimer = GetTimeEX() + 1500;
-					return true;
-				end
-			end
-
 			-- Quel'dorei Meditation on low mana
 			if (HasSpell("Quel'dorei Meditation")) and (not IsSpellOnCD("Quel'dorei Meditation")) and (localMana < 20) then
 				CastSpellByName("Quel'dorei Meditation");
@@ -477,14 +469,6 @@ function script_follow:healAndBuff()
 						end
 					end
 				end
-			
-				-- healing wave
-				if (HasSpell("Healing Wave")) and (partyMembersHP < 75) and (localMana > 15) then
-					if (CastSpellByName("Healing Touch")) then
-						self.waitTimer = GetTimeEX() + 1500;
-						return true;
-					end
-				end
 			end
 		end
 	end
@@ -625,6 +609,7 @@ function script_follow:run()
 				if ((self.waitTimer - GetTimeEX()) < 2500) then
 					self.waitTimer = GetTimeEX()+2500;
 				end
+			ClearTarget();
 			return;	
 			end
 		end
@@ -652,6 +637,7 @@ function script_follow:run()
 		-- Healer check: heal/buff the party
 		if (script_follow:healAndBuff()) and (HasSpell("Smite") or HasSpell("Rejuvenation") or HasSpell("Healing Wave") or HasSpell("Holy Light")) then
 			self.message = "Healing/buffing the party...";
+			ClearTarget();
 			return;
 		end
 
@@ -704,6 +690,13 @@ function script_follow:run()
 				end 
 
 		else
+
+		-- Healer check: heal/buff the party
+		if (script_follow:healAndBuff()) and (HasSpell("Smite") or HasSpell("Rejuvenation") or HasSpell("Healing Wave") or HasSpell("Holy Light")) then
+			self.message = "Healing/buffing the party...";
+			ClearTarget();
+			return;
+		end
 
 		if (script_follow:GetPartyLeaderObject() ~= 0) then
 			if (script_follow:GetPartyLeaderObject():GetUnitsTarget() ~= 0 and not script_follow:GetPartyLeaderObject():IsDead()) and (script_follow:GetPartyLeaderObject():GetDistance() < self.followLeaderDistance) then
