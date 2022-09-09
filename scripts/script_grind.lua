@@ -746,7 +746,7 @@ function script_grind:doLoot(localObj)
 
 	-- Blacklist loot target if swimming or we are close to aggro blacklisted targets and not close to loot target
 	if (self.lootObj ~= nil) then
-		if (IsSwimming() or (script_aggro:closeToBlacklistedTargets() and self.lootObj:GetDistance() > 5)) then
+		if (script_aggro:closeToBlacklistedTargets() and self.lootObj:GetDistance() > 5) then
 			script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
 			DEFAULT_CHAT_FRAME:AddMessage('script_grind: Blacklisting loot target to avoid aggro/swimming...');
 			return;
@@ -788,7 +788,7 @@ function script_grind:lootAndSkin()
 	end
 	if (self.lootObj == 0) then self.lootObj = nil; end
 	if (self.lootObj ~= nil) then
-		if (IsSwimming() or (script_grind:isTargetBlacklisted(self.lootObj:GetGUID()) and self.lootObj:GetDistance() > 5)) then
+		if (script_grind:isTargetBlacklisted(self.lootObj:GetGUID()) and self.lootObj:GetDistance() > 5) then
 			self.lootObj = nil; -- don't loot blacklisted targets	
 		end
 	end

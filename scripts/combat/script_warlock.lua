@@ -622,15 +622,15 @@ function script_warlock:run(targetGUID)
 			end
 	
 			-- Check: Keep the Immolate DoT up (15 s duration)
-			if (self.enableImmolate) then
-				if (not targetObj:HasDebuff("Immolate") and targetHealth > 20) and (not IsSpellOnCD("Immolate")) then
+			if (self.enableImmolate) and (not targetObj:HasDebuff("Immolate")) and (not IsSpellOnCD("Immolate")) then
+				if (not targetObj:HasDebuff("Immolate")) and (targetHealth > 20) then
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 					end -- move to target
 					if (not targetObj:HasDebuff("Immolate")) then
-						if (Cast('Immolate', targetObj)) and (not targetObj:HasDebuff("Immolate")) then
+						if (CastSpell('Immolate', targetObj)) and (not targetObj:HasDebuff("Immolate")) then
 							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 2550;
+							self.waitTimer = GetTimeEX() + 2650;
 						end
 					end
 				end
