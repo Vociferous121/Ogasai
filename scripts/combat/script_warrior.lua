@@ -355,6 +355,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			-- Check: Use Healing Potion 
 			if (localHealth <= self.potionHealth) then 
 				if (script_helper:useHealthPotion()) then 
+					UseItem("Arena Grand Master");
 					return 0; 
 				end 
 			end
