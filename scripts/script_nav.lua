@@ -325,6 +325,12 @@ function script_nav:moveToTarget(localObj, _x, _y, _z) -- use when moving to mov
 		end
 	end
 
+	if (GetNumPartyMembers() > 1) then
+		if (not IsPathLoaded(5)) then
+			LoadNavmesh();
+			return "Reloading NavMesh Error 1..";
+		end
+	end
 	-- Get the current path node's coordinates
 	_ix, _iy, _iz = GetPathPositionAtIndex(5, self.lastnavIndex);
 
@@ -377,6 +383,14 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 			return "Generating path...";
 		end
 	end
+
+	if (GetNumPartyMembers() > 1) then
+		if (not IsPathLoaded(5)) then
+			LoadNavmesh()
+			return "Loading Navmesh Error 2...";
+		end
+	end
+
 	
 	-- Get the current path node's coordinates
 	_ix, _iy, _iz = GetPathPositionAtIndex(5, self.lastpathnavIndex);
