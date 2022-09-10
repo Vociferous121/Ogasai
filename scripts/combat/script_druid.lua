@@ -249,7 +249,7 @@ function script_druid:run(targetGUID)
 			end
 			
 			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() < 0.5) then 
+			if (targetObj:GetDistance() < 3) then 
 				if (script_druid:runBackwards(targetObj,3)) then 
 					return 4; 
 				end 

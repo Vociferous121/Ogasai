@@ -9,7 +9,7 @@ script_warrior = {
 	throwName = "Heavy Throwing Dagger", -- opener throw item name
 	waitTimer = 0, -- set wait time for script
 	stopIfMHBroken = true, -- stop if main hand is broken
-	overpowerActionBarSlot = 72+5, -- Default: Overpower in slot 5 on the default Battle Stance Bar
+	overpowerActionBarSlot = 72+6, -- Default: Overpower in slot 5 on the default Battle Stance Bar
 	revengeActionBarSlot = 82+8,  -- default at action bar 1 (82) slot 8 (82+8)
 	enableRotation = false, -- enable/disable rotation settings
 	enableGrind = true, -- enable/disable grind settings
@@ -30,6 +30,8 @@ script_warrior = {
 	demoShoutRage = 15, -- set higher than sunder armor due to needed threat gain -- rage to use demo shout
 	enableSunder = true, -- enable/disable sunder armor in battle stance
 	challengingShoutAdds = 5, -- how many adds to use challenging shout. depends on dungeon/raid
+	mockingBlowActionBarSlot = 72+4,
+	useMockingBlow = true,
 
 	-- note. the checkbox in the menu controls battle, defensive, berserker stance. all spells have arguments for which
 	-- stance they apply to and can be used in. if the palyer does not click defensive stance in-game then the bot
@@ -115,6 +117,13 @@ function script_warrior:canRevenge()	-- use revenge function
 	return false;
 end
 
+function script_warrior:canMockingBlow()	-- use Mocking Blow function
+	local isUsable, _ = IsUsableAction(self.mockingBlowActionBarSlot); 
+	if (isUsable == 1 and not IsSpellOnCD("Mocking Blow")) then 
+		return true; 
+	end 
+	return false;
+end
 
 -- Run backwards if the target is within range
 function script_warrior:runBackwards(targetObj, range) 
@@ -330,7 +339,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 
 			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() <= 1) then 
+			if (targetObj:GetDistance() <= 3) then 
 				if (script_warrior:runBackwards(targetObj,3)) then 
 					return 4; 
 				end 
@@ -388,7 +397,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 
 			-- Sunder if possible as main threat source! this is most logical and easiest solution for the bot to handle
-			if (self.defensiveStance) or (self.battleStance) then 
+			if (self.defensiveStance) then 
 				if (HasSpell("Sunder Armor")) and (localRage >= 15) then
 					if (not targetObj:GetCreatureType() ~= 'Mechanical') and (not targetObj:GetCreatureType() ~= 'Elemental') then
 						if (targetObj:GetDebuffStacks("Sunder Armor") < self.sunderStacks) then
@@ -471,7 +480,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end
 			end
 			
-			-- shield bash						first thing in combat!
+			-- shield bash	first thing in combat!
 			-- TODO add if has shield
 			if (self.defensiveStance) then
 				if (HasSpell("Shield Bash")) and (not IsSpellOnCD("Shield Bash")) and (localRage >= 10)
@@ -480,6 +489,18 @@ function script_warrior:run(targetGUID)	-- main content of script
 					self.waitTimer = GetTimeEX() + 700;
 				end
 			end
+
+			-- taunt is on CD revenge is on CD, use sunder armor to gain aggro
+			if (self.defensiveStance) and (not targetObj:IsTargetingMe()) and (HasSpell("Sunder Armor")) then
+				if (HasSpell("Sunder Armor")) and (not IsSpellOnCD("Revenge") or not script_warrior:canRevenge()) then
+					if (not targetObj:IsStunned()) and (localRage >= self.sunderArmorRage) then
+						if (Cast("Sunder Armor", targetObj)) then
+							return 0;
+						end
+					end
+				end
+			end
+						
 
 			-- Disarm below selfHP and plent of rage to waste
 			if (self.defensiveStance) then
@@ -498,7 +519,6 @@ function script_warrior:run(targetGUID)	-- main content of script
 					if CastSpellByName("Demoralizing Shout") then
 						return 0;
 					end
-				return 0;
 				end
 			end
 
@@ -517,11 +537,11 @@ function script_warrior:run(targetGUID)	-- main content of script
 			-- sunder armor defensive stance
 			if (self.defensiveStance) then
 				if (not targetObj:GetCreatureType() ~= 'Mechanical') and (not targetObj:GetCreatureType() ~= 'Elemental') then
-					if (HasSpell("Sunder Armor")) and (localRage >= 15) then
+					if (HasSpell("Sunder Armor")) and (localRage >= self.sunderArmorRage) then
 						if (targetObj:GetDebuffStacks("Sunder Armor") < self.sunderStacks) then
 							if (Cast("Sunder Armor", targetObj)) then
+								return 0;
 							end
-						return 0;
 						end
 					end
 				end
@@ -610,11 +630,9 @@ function script_warrior:run(targetGUID)	-- main content of script
 				-- main rage user use only if target has at least 1 sunder for threat gain
 				if (self.defensiveStance) and (self.enableShieldBlock) then
 					if (HasSpell("Shield Block")) and (not IsSpellOnCD("Shield Block")) and (localRage >= self.shieldBlockRage) and (localHealth <= self.shieldBlockHealth) then
-					--	if (targetObj:GetDebuffStacks("Sunder Armor") >= 1) then
-							if (CastSpellByName("Shield Block")) then
-								return 0;
-							end
-					--	end
+						if (CastSpellByName("Shield Block")) then
+							return 0;
+						end
 					end
 				end
 
@@ -637,6 +655,15 @@ function script_warrior:run(targetGUID)	-- main content of script
 					if (script_warrior:canOverpower() and localRage >= 5 and not IsSpellOnCD('Overpower')) then 
 						CastSpellByName('Overpower'); 
 					end  
+				end
+
+				-- check Mocking Blow
+				if (self.useMockingBlow) and (script_warrior:canMockingBlow()) and (self.battleStance) then
+					if (localRage >= 10) and (not IsSpellOnCD("Mocking Blow")) then
+						if (Cast("Mocking Blow", targetObj)) then
+							return 0;
+						end
+					end
 				end
 
 				-- melee skill Execute the target if possible battle or berserker stance
@@ -671,7 +698,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end
 
 				-- melee Skill: Rend if we got more than 10 rage battle or bersker stance
-				if (self.battleStance) or (self.defensiveStance and self.enableRend) or (self.berserkerStance) then
+				if (self.battleStance or self.defensiveStance or self.berserkerStance) and (self.enableRend) then
 					if (targetObj:GetCreatureType() ~= 'Mechanical' and targetObj:GetCreatureType() ~= 'Elemental' and HasSpell('Rend') and not targetObj:HasDebuff("Rend") 
 						and targetHealth >= 30 and localRage >= 10) then 
 						if (Cast('Rend', targetObj)) then 
@@ -834,7 +861,14 @@ function script_warrior:menu()
 					if (CollapsingHeader("--Overpower Options")) then	-- overpower
 						Text("Overpower action bar slot");
 						self.overpowerActionBarSlot = InputText("OPS", self.overpowerActionBarSlot);
-						Text('72 is your action bar number.. slot 1 would be 73');
+						Text("72 is your action bar number.. slot 1 would be 73");
+					end
+					
+					if (CollapsingHeader("-- Mocking Blow Options")) then
+						Text("Mocking Blow action bar slot");
+						wasClicked, self.useMockingBlow = Checkbox("Use Mocking Blow", self.useMockingBlow);
+						self.mockingBlowActionBarSlot = InputText("MBS", self.mockingBlowActionBarSlot);
+						Text("72 is your action bar number.. slot 1 would be 73");
 					end
 				end
 			end

@@ -242,7 +242,7 @@ function script_shaman:run(targetGUID)
 			if (IsMounted()) then DisMount(); end
 			
 			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() < 0.50) then 
+			if (targetObj:GetDistance() < 3) then 
 				if (script_shaman:runBackwards(targetObj,3)) then 
 					return 4; 
 				end 
