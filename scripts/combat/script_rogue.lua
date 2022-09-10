@@ -320,8 +320,8 @@ function script_rogue:run(targetGUID)
 				local localCP = GetComboPoints("player", "target");
 
 				-- Run backwards if we are too close to the target
-				if (targetObj:GetDistance() < 3) then 
-					if (script_rogue:runBackwards(targetObj,3)) then 
+				if (targetObj:GetDistance() < 2) then 
+					if (script_rogue:runBackwards(targetObj,4)) then 
 						return 4; 
 					end 
 				end

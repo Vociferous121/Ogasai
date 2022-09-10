@@ -326,7 +326,7 @@ function script_nav:moveToTarget(localObj, _x, _y, _z) -- use when moving to mov
 	end
 
 	if (GetNumPartyMembers() > 1) then
-		if (not IsPathLoaded(5)) then
+		if (not IsPathLoaded(2)) then
 			LoadNavmesh();
 			return "Reloading NavMesh Error 1..";
 		end
@@ -343,8 +343,8 @@ function script_nav:moveToTarget(localObj, _x, _y, _z) -- use when moving to mov
 	end
 
 	-- Check: If move to coords are too far away, something wrong, dont move... BUT WHY ?!
-	if (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
-		GeneratePath(_lx, _ly, _lz, _lx+1, _ly+1, _lz);
+	if (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 100) then
+		GeneratePath(_lx, _ly+1, _lz, _lx+10, _ly, _lz);
 		return "Generating a new path...";
 	end
 
@@ -385,7 +385,7 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 	end
 
 	if (GetNumPartyMembers() > 1) then
-		if (not IsPathLoaded(5)) then
+		if (not IsPathLoaded(3)) then
 			LoadNavmesh()
 			return "Loading Navmesh Error 2...";
 		end

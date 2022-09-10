@@ -269,8 +269,8 @@ function script_paladin:run(targetGUID)
 			end
 			
 			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() < 3) then 
-				if (script_paladin:runBackwards(targetObj,3)) then 
+			if (targetObj:GetDistance() < 2) then 
+				if (script_paladin:runBackwards(targetObj,4)) then 
 					return 4; 
 				end 
 			end
