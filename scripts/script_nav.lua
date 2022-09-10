@@ -319,9 +319,10 @@ function script_nav:moveToTarget(localObj, _x, _y, _z) -- use when moving to mov
 		self.lastnavIndex = 1; -- start at index 1, index 0 is our position
 	end	
 
-	if (not IsPathLoaded(5)) then
-		return "Generating path...";
-		
+	if (GetNumPartyMembers() < 1) then
+		if (not IsPathLoaded(5)) then
+			return "Generating path...";
+		end
 	end
 
 	-- Get the current path node's coordinates
@@ -371,8 +372,10 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 		self.lastpathnavIndex = 1; 
 	end	
 
-	if (not IsPathLoaded(5)) then
-		return "Generating path...";
+	if (GetNumPartyMembers() < 1) then
+		if (not IsPathLoaded(5)) then
+			return "Generating path...";
+		end
 	end
 	
 	-- Get the current path node's coordinates

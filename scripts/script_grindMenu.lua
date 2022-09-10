@@ -1,6 +1,6 @@
 script_grindMenu = {
-	selectedHotspotID = 0;
-	targetMenu = include("//scripts//script_targetMenu.lua");
+	selectedHotspotID = 0,
+	targetMenu = include("//scripts//script_targetMenu.lua"),
 }
 
 function script_grindMenu:printHotspot()
@@ -53,12 +53,18 @@ function script_grindMenu:menu()
 
 		--wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount); Text('Dismount range');
 		--script_grind.disMountRange = SliderInt("DR (yd)", 1, 100, script_grind.disMountRange); Separator();
-		wasClicked, script_grind.autoTalent = Checkbox("Spend talent points", script_grind.autoTalent);
+		wasClicked, script_grind.autoTalent = Checkbox("Spend talent points  ", script_grind.autoTalent);
+		SameLine();
 		Text("Change talents in script_talent.lua");
 		if (script_grind.autoTalent) then
 			Text("Spending next talent point in: " .. (script_talent:getNextTalentName() or " "));
+			Separator();
 		end
-		Separator();
+		if (GetNumPartyMembers() > 1) then
+			WasClicked, script_grindEX.waitForMember = Checkbox("Wait for party members", script_grindEX.waitForMember);
+			Separator();
+		end
+
 		wasClicked, script_grind.paranoidOn = Checkbox("Enable Paranoia", script_grind.paranoidOn);
 		SameLine();
 		wasClicked, script_grind.sitParanoid = Checkbox("Sit when Paranoid", script_grind.sitParanoid);

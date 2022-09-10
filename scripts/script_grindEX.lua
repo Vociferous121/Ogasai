@@ -1,7 +1,7 @@
 script_grindEX = {
 	currMapID = GetMapID(), 
 	avoidBlacklisted = false,
-	unstuckTime = GetTimeEX();
+	unstuckTime = GetTimeEX(),
 }
 
 function script_grindEX:doChecks() 
@@ -67,6 +67,7 @@ function script_grindEX:doChecks()
 			end
 			local groupMana = 0;
 			local manaUsers = 0;
+
 			for i = 1, GetNumPartyMembers() do
 				local partyMember = GetPartyMember(i);
 				if (partyMember:GetManaPercentage() > 0) then

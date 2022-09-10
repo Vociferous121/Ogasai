@@ -427,8 +427,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			-- TAUNT !
 			if (self.defensiveStance) then
 				if (HasSpell("Taunt")) and (not IsSpellOnCD("Taunt")) and (not targetObj:IsStunned()) then
-					if (targetHealth <= 96 and targetHealth >= 10) and (targetObj:GetDebuffStacks("Sunder Armor") >= 1) 
-						and (not script_warrior:canRevenge()) then
+					if (targetHealth <= 96 and targetHealth >= 10) and (targetObj:GetDebuffStacks("Sunder Armor") >= 1) then
 						if (not targetObj:IsTargetingMe()) and (localObj:GetDistance() <= 10) then
 							if (CastSpellByName("Taunt")) then
 								targetObj:FaceTarget();

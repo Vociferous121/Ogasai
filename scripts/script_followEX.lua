@@ -1,4 +1,4 @@
- script_followEX = {
+script_followEX = {
 	
 		drawUnits = false,
 		drawAggro = false,
@@ -164,7 +164,7 @@ function script_followEX:menu()
 				wasClicked, script_follow.skipLooting = Checkbox("Skip Looting", script_follow.skipLooting);
 				SameLine();
 				wasClicked, script_follow.useUnStuck = Checkbox("Turn On/Off Buggy unStuck Script", script_follow.useUnStuck);
-				script_follow.findLootDistance = SliderInt("Find Loot Distance (yd)", 1, 100, script_follow.findLootDistance);	
+				script_follow.findLootDistance = SliderInt("Find Loot Distance (yd)", 5, 40, script_follow.findLootDistance);	
 				script_follow.lootDistance = SliderInt("Loot Distance (yd)", 1, 6, script_follow.lootDistance);
 			end
 	

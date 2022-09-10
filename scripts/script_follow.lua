@@ -42,8 +42,8 @@ script_follow = {
 	tickRate = 150,
 	waitTimer = GetTimeEX(),
 	pullDistance = 150,
-	findLootDistance = 60,
-	lootDistance = 2.5,
+	findLootDistance = 40,
+	lootDistance = 6,
 	skipLooting = true,
 	lootCheck = {},
 	ressDistance = 25,
@@ -644,7 +644,7 @@ function script_follow:run()
 		-- Loot
 		if (not IsInCombat() and script_follow:enemiesAttackingUs() == 0 and not localObj:HasBuff('Feign Death')) then
 			-- Loot if there is anything lootable and we are not in combat and if our bags aren't full
-			if (not self.skipLooting and not AreBagsFull()) then 
+			if (not self.skipLooting and not AreBagsFull() and leaderObj:GetDistance() <= self.followLeaderDistance) then 
 				self.lootObj = script_nav:getLootTarget(self.findLootDistance);
 			else
 				self.lootObj = nil;
