@@ -29,7 +29,7 @@ script_mage = {
 	useQuelDoreiMeditation = true,
 	QuelDoreiMeditationMana = 22,
 	useWandMana = 10,
-	useWandHealth = 5,
+	useWandHealth = 10,
 	manaShieldHealth = 80,
 	manaShieldMana = 20,
 	useFrostWard = false,
@@ -38,7 +38,12 @@ script_mage = {
 	waitTimer = 0,
 	useWand = true,
 	gemTimer = 0,
-	isChecked = true
+	useBlink = true,	
+	isChecked = true,
+	useDampenMagic = true,
+
+
+
 }
 
 function script_mage:window()
@@ -202,6 +207,12 @@ function script_mage:setup()
 
 	if (not HasSpell("Frost Nova")) then
 		self.useFrostNova = false;
+	end
+
+	if (GetNumPartyMembers() > 1) then
+		self.useBlink = false;
+		self.useFrostNova = false;
+		self.polymorphAdds = false;
 	end
 
 	localObj = GetLocalPlayer();
@@ -399,6 +410,30 @@ function script_mage:run(targetGUID)
 				DisMount();
 			end
 
+			-- blink on movement stop debuffs
+			if (self.useBlink) then
+				if (HasSpell("Blink")) and (not IsSpellOnCD("Blink")) and (localObj:HasDebuff("Web")) then
+					if (CastSpellByName("Blink")) then
+						targetObj:FaceTarget();
+						self.waitTimer = GetTimeEX() + 1000;
+						return 0;
+					end
+				end
+			end
+
+			-- blink frost nova on CD
+			if (self.useBlink) then
+				if (HasSpell("Blink")) and (not IsSpellOnCD("Blink")) and (IsSpellOnCD("Frost Nova")) and (targetObj:GetDistance() < 10) then
+					if (not targetObj:HasDebuff("Frostbite")) and (not targetObj:HasDebuff("Frost Nova")) and (targetHealth > 10) then
+						if (CastSpellByName("Blink")) then
+							targetObj:FaceTarget();
+							self.waitTimer = GetTimeEX() + 1000;
+							return 0;
+						end
+					end
+				end
+			end
+
 			-- Check: Use Healing Potion 
 			if (localHealth < self.potionHealth) then 
 				if (script_helper:useHealthPotion()) then 
@@ -589,6 +624,10 @@ function script_mage:run(targetGUID)
 			-- Main damage source if all above conditions cannot be run
 			if (HasSpell("Frostbolt")) then
 				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
+				
+					if (targetObj:IsInLineOfSight()) then
+						targetObj:FaceTarget();
+					end
 			
 					-- check range
 					if(not targetObj:IsSpellInRange("Frostbolt")) then
@@ -829,19 +868,30 @@ function script_mage:rest()
 		return true;
 	end
 
-	-- Do buffs if we got some mana 
-	if (localMana > 30 and not IsMounted()) then
-		if (not Buff('Arcane Intellect', localObj)) then
-			if (not Buff('Dampen Magic', localObj)) then
-				if (HasSpell("Ice Armor")) then
-					if (not Buff('Ice Armor', localObj)) then
-						return false;
-					end
-				else	
-					if (not Buff('Frost Armor', localObj)) then
-						return false;
-					end
-				end
+	-- buffs
+	if (HasSpell("Arcane Intellect")) and (not localObj:HasBuff("Arcane Intellect")) and (localMana > 25) then
+		if (CastSpellByName("Arcane Intellect", localObj)) then
+			self.waitTimer = GetTimeEX() + 1500;
+			return true;
+		end
+	end
+	
+	if (HasSpell("Ice Armor")) and (not localObj:HasBuff("Ice Armor")) and (localMana > 20) then
+		if (CastSpellByName("Ice Armor", localObj)) then
+			self.waitTimer = GetTimeEX() + 1500;
+			return true;
+		end
+	elseif (not HasSpell("Ice Armor")) and (HasSpell("Frost Armor")) and (not localObj:HasBuff("Frost Armor")) and (localMana > 20) then
+		if (CastSpellByName("Frost Armor", localObj)) then
+			self.waitTimer = GetTimeEX() + 1500;
+		end
+	end
+
+	if (self.useDampenMagic) then
+		if (HasSpell("Dampen Magic")) and (not localObj:HasBuff("Dampen Magic")) and (localMana > 15) then
+			if (CastSpellByName("Dampen Magic", localObj)) then
+				self.waitTimer = GetTimeEX() + 1500;
+				return true;
 			end
 		end
 	end
@@ -897,6 +947,15 @@ function script_mage:menu()
 		if (HasSpell("Quel'Dorei Meditation")) then
 		SameLine();
 		wasClicked, self.useQuelDoreiMeditation = Checkbox("Use QuelDoreiMeditation", self.useQuelDoreiMeditation);
+		end
+
+		if (HasSpell("Blink")) then
+			wasClicked, self.useBlink = Checkbox("Use Blink", self.useBlink);
+			SameLine();
+		end
+
+		if (HasSpell("Dampen Magic")) then
+			wasClicked, self.useDampenMagic = Checkbox("Use Dampen Magic", self.useDampenMagic);
 		end
 
 		if (HasSpell("Frost Ward")) then
