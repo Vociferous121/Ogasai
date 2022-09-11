@@ -208,9 +208,11 @@ function script_rogue:run(targetGUID)
 				JumpOrAscendStart();
 			end
 		
-			--if (not IsMoving() and targetObj:GetDistance() < 10) then
-			--	targetObj:FaceTarget();
-			--end
+			if (not IsMoving() and targetObj:GetDistance() < 10) then
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+				end
+			end
 
 			-- Auto Attack
 			if (targetObj:GetDistance() < 40) then
@@ -277,15 +279,15 @@ function script_rogue:run(targetGUID)
 					end
 				end
 
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+				end
+			
 				-- Check if we are in meele range
 				if (targetObj:GetDistance() > self.meeleDistance or not targetObj:IsInLineOfSight()) then
 					return 3;
 				end
 
-				if (targetObj:GetDistance() < self.meeleDistance) and (not targetObj:FaceTarget()) then
-					targetObj:FaceTarget();
-				end
-			
 				-- Use CP generator attack 
 				if ((localEnergy >= self.cpGeneratorCost) and HasSpell(self.cpGenerator)) then
 					if(script_rogue:spellAttack(self.cpGenerator, targetObj)) then
@@ -312,6 +314,10 @@ function script_rogue:run(targetGUID)
 					DisMount();
 				end
 
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+				end
+
 				-- Check: Do we have the right target (in UI) ??
 				if (GetTarget() ~= 0 and GetTarget() ~= nil) then
 					if (GetTarget():GetGUID() ~= targetObj:GetGUID()) then
@@ -324,7 +330,7 @@ function script_rogue:run(targetGUID)
 				local localCP = GetComboPoints("player", "target");
 
 				-- Run backwards if we are too close to the target
-				if (targetObj:GetDistance() < .5) then 
+				if (targetObj:GetDistance() < .3) then 
 					if (script_rogue:runBackwards(targetObj,4)) then 
 						return 4; 
 					end 
@@ -333,10 +339,6 @@ function script_rogue:run(targetGUID)
 				-- Check if we are in meele range
 				if (targetObj:GetDistance() > self.meeleDistance or not targetObj:IsInLineOfSight()) then
 					return 3;
-				else
-					if (IsMoving()) then
-						StopMoving();
-					end
 				end
 
 				-- auto face target

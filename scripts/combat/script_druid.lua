@@ -144,11 +144,9 @@ function script_druid:run(targetGUID)
 		end
 
 		if (not IsMoving() and targetObj:GetDistance() < 10) then
-
 			if (not targetObj:FaceTarget()) then
 				targetObj:FaceTarget();
 			end
-			
 		end
 
 		-- Auto Attack
@@ -235,8 +233,12 @@ function script_druid:run(targetGUID)
 				end
 			end
 
-			-- Check move into meele range
-			if (targetObj:GetDistance() > self.meeleDistance or not targetObj:IsInLineOfSight()) then
+			if (not targetObj:FaceTarget()) then
+				targetObj:FaceTarget();
+			end
+
+			-- Check move into melee range
+			if (targetObj:GetDistance() >= self.meeleDistance or not targetObj:IsInLineOfSight()) then
 				return 3;
 			end
 
@@ -253,7 +255,7 @@ function script_druid:run(targetGUID)
 			end
 			
 			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() < .5) then 
+			if (targetObj:GetDistance() < .2) then 
 				if (script_druid:runBackwards(targetObj,4)) then 
 					return 4; 
 				end 

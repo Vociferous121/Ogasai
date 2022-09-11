@@ -318,31 +318,33 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end
 			end	
 
-			-- Check move into melee range
-			if (targetObj:GetDistance() >= self.meleeDistance or not targetObj:IsInLineOfSight()) then
-				return 3;
-			else
-				if (IsMoving()) and (self.faceTarget) then
-					StopMoving();
-					targetObj:FaceTarget();
-				end
-			end
-
 			-- enable/disable facing target automatically
-			if (self.enableFaceTarget) then
+			if (self.enableFaceTarget) and (not targetObj:FaceTarget()) then
 				targetObj:FaceTarget();
 			end
 
+			-- Check move into melee range
+			if (targetObj:GetDistance() >= self.meleeDistance or not targetObj:IsInLineOfSight()) then
+				return 3;
+			end
+
 			-- Combat
+
 		else	
+
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
+			
 			-- Dismount
 			if (IsMounted()) then 
 				DisMount();
 			end
 
+			if (not targetObj:FaceTarget()) and (self.faceTarget) then
+				targetObj:FaceTarget();
+			end
+
 			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() <= .5) then 
+			if (targetObj:GetDistance() <= .3) then 
 				if (script_warrior:runBackwards(targetObj,4)) then 
 					return 4; 
 				end 
@@ -351,10 +353,6 @@ function script_warrior:run(targetGUID)	-- main content of script
 			-- Check if we are in melee range
 			if (targetObj:GetDistance() >= self.meleeDistance or not targetObj:IsInLineOfSight()) then
 				return 3;
-			else
-				if (IsMoving()) and (self.faceTarget) then
-					StopMoving();
-				end
 			end
 
 			-- enable/disable facing target automatically
@@ -401,7 +399,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 
 			-- Sunder if possible as main threat source! this is most logical and easiest solution for the bot to handle
 			if (self.defensiveStance) then 
-				if (HasSpell("Sunder Armor")) and (localRage >= 15) then
+				if (HasSpell("Sunder Armor")) and (localRage >= self.sunderArmorRage) then
 					if (not targetObj:GetCreatureType() ~= 'Mechanical') and (not targetObj:GetCreatureType() ~= 'Elemental') then
 						if (targetObj:GetDebuffStacks("Sunder Armor") < self.sunderStacks) then
 							if (Cast("Sunder Armor", targetObj)) then
@@ -419,7 +417,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 					end
 				
 					-- else get sunder out!
-				elseif (localRage > 15) and (targetObj:GetDebuffStacks("Sunder Armor") < self.sunderStacks) then
+				elseif (localRage > self.sunderArmorRage) and (targetObj:GetDebuffStacks("Sunder Armor") < self.sunderStacks) then
 					if (not targetObj:GetCreatureType() ~= 'Mechanical') and (not targetObj:GetCreatureType() ~= 'Elemental') then
 						self.waitTimer = GetTimeEX() + 500
 					end
@@ -494,7 +492,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 
 			-- taunt is on CD revenge is on CD, use sunder armor to gain aggro
-			if (self.defensiveStance) and (not targetObj:IsTargetingMe()) and (HasSpell("Sunder Armor")) then
+			if (self.defensiveStance) and (not targetObj:IsTargetingMe()) and (HasSpell("Sunder Armor")) and (localRage >= self.sunderArmorRage) then
 				if (HasSpell("Sunder Armor")) and (not IsSpellOnCD("Revenge") or not script_warrior:canRevenge()) then
 					if (not targetObj:IsStunned()) and (localRage >= self.sunderArmorRage) then
 						if (Cast("Sunder Armor", targetObj)) then
@@ -900,7 +898,7 @@ function script_warrior:menu()
 						self.demoShoutRage = SliderInt("Demo shout above % rage", 10, 50, self.demoShoutRage);
 						self.challengingShoutAdds = SliderInt("Challenging Shout Add Count", 3, 10, self.challengingShoutAdds);
 
-					if (CollapsingHeader("--Revenge Skill Options")) then
+					if (CollapsingHeader("-- Revenge Skill Options")) then
 						self.revengeActionBarSlot = InputText("RS", self.revengeActionBarSlot);	-- revenge
 						Text("82 is spell bar number.. slot 1 would be 83");
 					end
@@ -929,7 +927,7 @@ function script_warrior:menu()
 			Text("Melee Range Distance");
 			self.meleeDistance = SliderFloat("MR (yd)", 1, 8, self.meleeDistance);	-- melee distance range
 
-			if (CollapsingHeader("--Throwing Weapon Options")) then -- throwing weapon menu
+			if (CollapsingHeader("-- Throwing Weapon Options")) then -- throwing weapon menu
 				wasClicked, self.throwOpener = Checkbox("Pull with throw", self.throwOpener);
 				Text("Throwing weapon");
 				self.throwName = InputText("TW", self.throwName);

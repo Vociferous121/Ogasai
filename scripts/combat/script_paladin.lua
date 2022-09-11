@@ -214,6 +214,10 @@ function script_paladin:run(targetGUID)
 				return 0;
 			 end
 
+			if (not targetObj:FaceTarget()) then
+				targetObj:FaceTarget();
+			end
+
 			-- Check move into melee range
 			-- keep doing this return 3 until target is in melee range
 			if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
@@ -229,13 +233,6 @@ function script_paladin:run(targetGUID)
 					end
 				end
 			end
-			
-			--Holy strike -- cast while moving to target
-			if (localMana > 10) and (HasSpell("Holy Strike")) and (not IsSpellOnCD("Holy Strike")) and (targetObj:GetDistance() <= self.meleeDistance) then
-				if(CastWalk("Holy Strike", targetObj)) then
-					return 0;
-				end
-			end
 
 			-- Check: Seal of the Crusader until we use judgement
 			if (not targetObj:HasDebuff("Judgement of the Crusader")) and (targetObj:GetDistance() < 15)
@@ -249,17 +246,19 @@ function script_paladin:run(targetGUID)
 			-- Check move into melee range
 			-- keep doing this if target is not in melee range
 			if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
+				if (IsMoving()) then
+					StopMoving();
+				end
 				return 3;
+			end
+
+			if (not targetObj:FaceTarget()) then
+				targetObj:FaceTarget();
 			end
 
 			-- check if we are in combat?
 			if (IsInCombat()) and (targetObj:GetDistance() < self.meleeDistance) and (targetHealth > 99) then
-				targetObj:AutoAttack();
-				
-				if (not targetObj:FaceTarget()) then
-					targetObj:FaceTarget();
-				end
-		
+				targetObj:AutoAttack();	
 			end
 				
 		-- Combat WE ARE NOW IN COMBAT
@@ -272,27 +271,28 @@ function script_paladin:run(targetGUID)
 				DisMount();
 			end
 
+			if (not targetObj:FaceTarget()) then
+				targetObj:FaceTarget();
+			end
+
 			if (not IsMoving() and targetObj:GetDistance() < 10) then
 				targetObj:FaceTarget();
 			end
 			
 			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() < .5) then 
+			if (targetObj:GetDistance() < .3) then 
 				if (script_paladin:runBackwards(targetObj,4)) then 
 					return 4; 
 				end 
 			end
 
+			if (not targetObj:FaceTarget()) then
+				targetObj:FaceTarget();
+			end
+
 			-- Check if we are in melee range
 			if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
 				return 3;
-
-			elseif (IsMoving()) then
-				StopMoving();
-			end
-
-			if (not targetObj:FaceTarget()) then
-				targetObj:FaceTarget();
 			end
 
 			targetObj:AutoAttack();
@@ -300,6 +300,7 @@ function script_paladin:run(targetGUID)
 			-- Holy strike
 			if (HasSpell("Holy Strike")) and (localMana > 10) and (not IsSpellOnCD("Holy Strike")) then
 				if (targetObj:GetDistance() <= self.meleeDistance) then
+					targetObj:FaceTarget();
 					Cast("Holy Strike", targetObj);
 					return 0;
 				end
@@ -405,7 +406,7 @@ function script_paladin:run(targetGUID)
 				if (localObj:HasDebuff("Rabies")) or (localObj:HasDebuff("Corrosive Poison")) or (localObj:HasDebuff("Poison")) or (localObj:HasDebuff("Fevered Fatigue"))
 					or (localObj:HasDebuff("Dark Sludge")) or (localObj:HasDebuff("Corrosive Poison")) or (localObj:HasDebuff("Slowing Poison"))
 						or (localObj:HasDebuff("Infected Bite")) or (localObj:HasDebuff("Poison")) or (localObj:HasDebuff("Wandering Plague"))
-							or (localObj:HasDebuff("Plague Mind")) then
+							or (localObj:HasDebuff("Plague Mind")) or (localObj:HasDebuff("Fevered Fatigue")) then
 
 							-- add some randomness to how quick the bot casts cleanse
 
@@ -425,7 +426,7 @@ function script_paladin:run(targetGUID)
 				if (localObj:HasDebuff("Rabies")) or (localObj:HasDebuff("Corrosive Poison")) or (localObj:HasDebuff("Poison")) or (localObj:HasDebuff("Fevered Fatigue"))
 					or (localObj:HasDebuff("Dark Sludge")) or (localObj:HasDebuff("Corrosive Poison")) or (localObj:HasDebuff("Slowing Poison"))
 						or (localObj:HasDebuff("Infected Bite")) or (localObj:HasDebuff("Poison")) or (localObj:HasDebuff("Wandering Plague"))
-							or (localObj:HasDebuff("Plague Mind")) then
+							or (localObj:HasDebuff("Plague Mind")) or (localObj:HasDebuff("Fevered Fatigue")) then
 
 							-- add some randomness to how quick the bot casts cleanse
 
@@ -458,6 +459,11 @@ function script_paladin:run(targetGUID)
 
 			-- Check: If we are in melee range, do melee attacks ----- RETURN 0   ONLY USE IN MELEE RANGE
 			if (targetObj:GetDistance() < self.meleeDistance) then
+
+
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+				end
 
 				if (targetObj:IsCasting()) or (targetObj:IsFleeing()) then
 					if (HasSpell("Hammer of Justice")) and (not IsSpellOnCD("Hammer of Justice")) and (localMana > 8) then

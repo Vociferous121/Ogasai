@@ -240,9 +240,13 @@ function script_shaman:run(targetGUID)
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 			-- Dismount
 			if (IsMounted()) then DisMount(); end
+
+			if (not targetObj:FaceTarget()) then
+				targetObj:FaceTarget();
+			end
 			
 			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() < 3) then 
+			if (targetObj:GetDistance() < .2) then 
 				if (script_shaman:runBackwards(targetObj,3)) then 
 					return 4; 
 				end 
