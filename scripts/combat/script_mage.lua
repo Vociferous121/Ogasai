@@ -647,6 +647,10 @@ function script_mage:run(targetGUID)
 					if (not targetObj:IsInLineOfSight()) then
 						return 3;
 					end	
+
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+					end
 				
 					-- cast frostbolt
 					if (CastSpellByName("Frostbolt", targetObj)) then
@@ -670,6 +674,10 @@ function script_mage:run(targetGUID)
 				if (not targetObj:IsInLineOfSight()) then
 					return 3;
 				end	
+
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+				end
 				
 				-- cast fireball
 				if (CastSpellByName("Fireball", targetObj)) then
