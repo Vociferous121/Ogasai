@@ -28,8 +28,8 @@ script_mage = {
 	coneOfColdHealth = 15,
 	useQuelDoreiMeditation = true,
 	QuelDoreiMeditationMana = 22,
-	useWandMana = 20,
-	useWandHealth = 20,
+	useWandMana = 10,
+	useWandHealth = 5,
 	manaShieldHealth = 80,
 	manaShieldMana = 20,
 	useFrostWard = false,
@@ -196,6 +196,20 @@ function script_mage:setup()
 	self.cooldownTimer = GetTimeEX();
 	self.polyTimer = GetTimeEX();
 
+	if (not HasSpell("Cone of Cold")) then
+		self.useConeOfCold = false;
+	end
+
+	if (not HasSpell("Frost Nova")) then
+		self.useFrostNova = false;
+	end
+
+	localObj = GetLocalPlayer();
+
+	if (not localObj:HasRangedWeapon()) then
+		self.useWand = false;
+	end
+
 	self.isSetup = true;
 end
 
@@ -287,44 +301,80 @@ function script_mage:run(targetGUID)
 		
 		-- Opener
 		if (not IsInCombat()) then
+
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 
-			-- Opener spell
+			-- Opener spell if has frostbolt.... else....
+
 			if (HasSpell("Frostbolt")) then
-				if(not targetObj:IsSpellInRange('Frostbolt') or not targetObj:IsInLineOfSight())  then
+	
+				-- check range of all spells
+				if(not targetObj:IsSpellInRange("Frostbolt")) or (not targetObj:IsInLineOfSight())  then
 					self.message = "Pulling with Frostbolt!";
 					return 3;
 				end
 
-				-- Check: If in range and in line of sight stop moving
-				if (targetObj:IsInLineOfSight()) then
-					if(IsMoving()) then StopMoving(); end
+				-- we are in spell range to pull with frostbolt then stop moving
+				if (targetObj:IsSpellInRange("Frostbolt")) and (targetObj:IsInLineOfSight()) then
+					if (IsMoving()) then
+						StopMoving();
+					end
 				end
 
 				-- Dismount
-				if (IsMounted()) then DisMount(); end
-
-				if (script_mage:cast('Frostbolt', targetObj)) then
-					self.waitTimer = GetTimeEX() + 200;
-					return 0;
+				if (IsMounted()) then
+					DisMount();
 				end
 
+				-- cast frostbolt
+				if (HasSpell("Frostbolt")) then
+					if (not targetObj:IsInLineOfSight()) then
+						return 3;
+					end
+					if (CastSpellByName("Frostbolt", targetObj)) then
+						targetObj:FaceTarget();
+						self.waitTimer = GetTimeEX() + 200;
+						return 0;
+					end
+				end
+
+				-- recheck line of sight on target
 				if (not targetObj:IsInLineOfSight()) then
 					return 3;
 				end
+				
+				-- return until cast
 				return 0;
 				
 			else
-				if(not targetObj:IsSpellInRange('Fireball'))  then
+				
+				-- else if has fireball and in spell range RANGE CHECK
+				if(not targetObj:IsSpellInRange("Fireball"))  then
 					return 3;
 				end
-
-				if (script_mage:cast('Fireball', targetObj)) then
-					self.message = "Pulling with Fireball!";
-					self.waitTimer = GetTimeEX() + 200;
-					return 0;
+				
+				-- we are in spell range to pull with fireball then stop moving
+				if (targetObj:IsSpellInRange("Fireball")) and (targetObj:IsInLineOfSight()) then
+					if (IsMoving()) then
+						StopMoving();
+					end
 				end
 
+			
+				-- cast fireball to pull
+				if (HasSpell("Fireball")) then
+					if (not targetObj:IsInLineOfSight()) then
+						return 3;
+					end
+					if (CastSpellByName("Fireball", targetObj)) then
+						targetObj:FaceTarget();
+						self.message = "Pulling with Fireball!";
+						self.waitTimer = GetTimeEX() + 200;
+						return 0;
+					end
+				end
+
+				-- recheck line of sight
 				if (not targetObj:IsInLineOfSight()) then
 					return 3;
 				end
@@ -332,10 +382,15 @@ function script_mage:run(targetGUID)
 			end
 			
 		-- Combat
+
 		else	
+
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
+			
 			-- Dismount
-			if (IsMounted()) then DisMount(); end
+			if (IsMounted()) then
+				DisMount();
+			end
 
 			-- Check: Use Healing Potion 
 			if (localHealth < self.potionHealth) then 
@@ -352,21 +407,27 @@ function script_mage:run(targetGUID)
 			end
 
 			-- Check: Keep Ice Barrier up if possible
-			if (HasSpell("Ice Barrier") and not IsSpellOnCD("Ice Barrier") and not localObj:HasBuff("Ice Barrier")) then
-					CastSpellByName('Ice Barrier');
-					return 0;
-			-- Check: If we have Cold Snap use it to clear the Ice Barrier CD
-			elseif (HasSpell("Ice Barrier") and IsSpellOnCD("Ice Barrier") and HasSpell('Cold Snap') and not IsSpellOnCD("Cold Snap") and not localObj:HasBuff('Ice Barrier')) then
-					CastSpellByName('Cold Snap');
-					return 0;
+			if (HasSpell("Ice Barrier")) and (not IsSpellOnCD("Ice Barrier")) and (not localObj:HasBuff("Ice Barrier")) then
+				CastSpellByName('Ice Barrier');
+				return 0;
+
+				-- Check: If we have Cold Snap use it to clear the Ice Barrier CD
+			elseif (HasSpell("Ice Barrier")) and (IsSpellOnCD("Ice Barrier")) and (HasSpell("Cold Snap")) and (not IsSpellOnCD("Cold Snap")) and
+				(not localObj:HasBuff("Ice Barrier")) then
+				CastSpellByName('Cold Snap');
+				return 0;
 			end
 			
 			-- Check: Move backwards if the target is affected by Frost Nova or Frost Bite
-			if (targetHealth > 10 and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and not localObj:HasBuff('Evocation') and targetObj ~= 0 and IsInCombat()) and self.useFrostNova then
-				if (script_mage:runBackwards(targetObj, 7)) then -- Moves if the target is closer than 7 yards
+			if (targetHealth > 10) and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (not localObj:HasBuff('Evocation')) and 
+				(targetObj ~= 0 and IsInCombat()) and (self.useFrostNova) and (not localObj:HasDebuff("Web")) then
+				if (script_mage:runBackwards(targetObj, 9)) then -- Moves if the target is closer than 7 yards
 					self.message = "Moving away from target...";
-					CastSpellByName("Frost Nova");
-					return 4; 
+					if (not IsSpellOnCD("Frost Nova")) then
+						CastSpellByName("Frost Nova");
+						return 0;
+					end
+				return 4; 
 				end 
 			end	
 
@@ -396,11 +457,14 @@ function script_mage:run(targetGUID)
 				CastSpellByName("Evocation"); 
 				return 0;
 			end
+
 			-- Use Quel'dorei Meditation if we have low Mana but targetHealth > 20%
-			if (localMana < self.QuelDoreiMeditationMana and HasSpell("Quel'dorei Meditation") and not IsSpellOnCD("Quel'dorei Meditation") and targetHealth > 20) then		
-				self.message = "Using Quel'dorei Meditation...";
-				CastSpellByName("Quel'dorei Meditation"); 
-				return 0;
+			if (HasSpell("Quel'Dorei Meditation")) then
+				if (localMana < self.QuelDoreiMeditationMana and HasSpell("Quel'dorei Meditation") and not IsSpellOnCD("Quel'dorei Meditation") and targetHealth > 20) then		
+					self.message = "Using Quel'dorei Meditation...";
+					CastSpellByName("Quel'dorei Meditation"); 
+					return 0;
+				end
 			end
 
 			-- Use Mana Shield if we more than 35 procent mana and no active Ice Barrier
@@ -456,43 +520,36 @@ function script_mage:run(targetGUID)
 			end
 
 			-- Check: Frostnova when the target is close, but not when we polymorhped one enemy or the target is affected by Frostbite
-			if (not self.addPolymorphed and targetObj:GetDistance() < 5 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova then
+			if (not self.addPolymorphed) and (targetObj:GetDistance() < 5 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova then
 				self.message = "Frost nova the target(s)...";
 				CastSpellByName("Frost Nova");
 				return 0;
 			end			
 
-			if (HasSpell('Ice Block') and not IsSpellOnCD('Ice Block') and localHealth < self.iceBlockHealth and localMana < self.iceBlockMana) then
-				self.message = "Using Ice Block...";
-				CastSpellByName('Ice Block');
-				return 0;
+			-- ice block
+			if (HasSpell("Ice Block")) and (not IsSpellOnCD("Ice Block")) then
+				if (localHealth < self.iceBlockHealth) and (localMana < self.iceBlockMana) then
+					self.message = "Using Ice Block...";
+					CastSpellByName('Ice Block');
+					return 0;
+				end
 			end
 
-			if (GetPartyMembers ~= 0) then
-				if (HasSpell("Arcane Explosion")) and (targetObj:GetDistance() < 6) and (localMana > 25) and (script_grind:enemiesAttackingUs() >= 2) then
+			-- arcane explosion in group 
+			if (GetNumPartyMembers() > 1) then
+				if (HasSpell("Arcane Explosion")) and (targetObj:GetDistance() < 6) and (localMana > 25) and (script_grind:enemiesAttackingUs(5) >= 2) then
 					if (CastSpellByName("Arcane Explosion")) then
 						return 0;
 					end
 				end
 			end
 
-			-- Wand if low mana or target is low
-			if (self.useWand) and (IsInCombat()) then
-				wandSpeed = self.wandSpeed;
-				if (localMana <= self.useWandMana) or (targetHealth <= self.useWandHealth) then
-					self.message = "Using wand...";
-					if (not IsAutoCasting("Shoot")) then
-						targetObj:FaceTarget();
-						targetObj:CastSpell("Shoot");
-						self.waitTimer = GetTimeEX() + (wandSpeed + 100); 
-						return true;
-					end
-				end
-			end
-
 			--Cone of Cold
-			if (self.useConeofCold and HasSpell('Cone of Cold')) and IsInCombat() and localMana <= self.coneOfColdMana and targetHealth >= self.coneOfColdHealth then
-				if (not self.addPolymorphed and targetObj:GetDistance() < 10) and not (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) then
+			if (self.useConeofCold) and (HasSpell("Cone of Cold")) and (targetHealth > self.useWandHealth) and (localMana <= self.coneOfColdMana) and (targetHealth >= self.coneOfColdHealth) then
+				if (not self.addPolymorphed) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) then
+					if (not targetObj:IsInLineOfSight()) then
+						return 3;
+					end	
 					if (script_mage:ConeofCold('Cone of Cold')) then
 						return 0;
 					end
@@ -500,31 +557,72 @@ function script_mage:run(targetGUID)
 			end
 
 			-- Fire blast
-			if (self.useFireBlast and targetObj:GetDistance() < 20 and HasSpell('Fire Blast')) then
-				if (script_mage:cast('Fire Blast', targetObj)) then
-					return 0;
+			if (self.useFireBlast) and (targetObj:GetDistance() < 20) and (HasSpell("Fire Blast")) and (not IsSpellOnCD("Fire Blast")) then
+				if (localMana > 8) and (targetHealth >= self.useWandHealth) then
+					if (not targetObj:IsInLineOfSight()) then
+						return 3;
+					end	
+					if (CastSpellByName("Fire Blast", targetObj)) then
+						return 0;
+					end
+				end
+			end
+
+			-- Wand if low mana or target is low
+			if (self.useWand) and (localMana <= self.useWandMana or targetHealth <= self.useWandHealth) then
+				self.message = "Using wand...";
+				if (not IsAutoCasting("Shoot")) then
+					targetObj:FaceTarget();
+					targetObj:CastSpell("Shoot");
+					self.waitTimer = GetTimeEX() + (self.wandSpeed + 100); 
+					return true;
 				end
 			end
 			
-			-- Main damage source
+			-- Main damage source if all above conditions cannot be run
 			if (HasSpell("Frostbolt")) then
-				if(not targetObj:IsSpellInRange('Frostbolt')) then
-					self.message = "Frostbolt Main Damage Source!";
+				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
+			
+					-- check range
+					if(not targetObj:IsSpellInRange("Frostbolt")) then
+						self.message = "Frostbolt Main Damage Source!";
+						return 3;
+					end
+				
+					-- check line of sight
+					if (not targetObj:IsInLineOfSight()) then
+						return 3;
+					end	
+				
+					-- cast frostbolt
+					if (CastSpellByName("Frostbolt", targetObj)) then
+						return 0;
+					end
+			
+					-- recheck line of sight
+					if (not targetObj:IsInLineOfSight()) then
+						return 3;
+					end
+				end	
+
+			else
+				
+				-- else if not has frostbolt then use fireball as range check
+				if(not targetObj:IsSpellInRange("Fireball")) then
 					return 3;
 				end
-				if (script_mage:cast('Frostbolt', targetObj)) then
-					return 0;
-				end
+
+				-- check line of sight
 				if (not targetObj:IsInLineOfSight()) then
 					return 3;
 				end	
-			else
-				if(not targetObj:IsSpellInRange('Fireball')) then
-					return 3;
-				end
-				if (script_mage:cast('Fireball', targetObj)) then
+				
+				-- cast fireball
+				if (CastSpellByName("Fireball", targetObj)) then
 					return 0;
 				end
+
+				-- recheck line of sight
 				if (not targetObj:IsInLineOfSight()) then
 					return 3;
 				end	
@@ -611,34 +709,46 @@ function script_mage:rest()
 			break;
 		end
 	end
+
 	if (gemIndex == -1 and (HasSpell('Conjure Mana Ruby') 
 				or HasSpell('Conjure Mana Citrine') 
 				or HasSpell('Conjure Mana Jade')
-				or HasSpell('Conjure Mana Agate'))) then 
+				or HasSpell('Conjure Mana Agate')))
+				and (not IsEating() and not IsDrinking()) then 
 		self.message = "Conjuring mana gem...";
 		if(IsMounted()) then 
 			DisMount(); 
 		end
+
 		if (IsMoving()) then
 			StopMoving();
 			return true;
 		end
+
 		if (not IsStanding()) then
+			JumpOrAscendStart();
+		end
+
+		if (IsStanding()) then
 			StopMoving();
 		end
 
 		if (localMana > 30 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
 			if (HasSpell('Conjure Mana Ruby')) then
 				CastSpellByName('Conjure Mana Ruby')
+				self.waitTimer = GetTimeEX() + 1800;
 				return true;
 			elseif (HasSpell('Conjure Mana Citrine')) then
 				CastSpellByName('Conjure Mana Citrine')
+				self.waitTimer = GetTimeEX() + 1800;
 				return true;
 			elseif (HasSpell('Conjure Mana Jade')) then
 				CastSpellByName('Conjure Mana Jade')
+				self.waitTimer = GetTimeEX() + 1800;
 				return true;
 			elseif (HasSpell('Conjure Mana Agate')) then
 				CastSpellByName('Conjure Mana Agate')
+				self.waitTimer = GetTimeEX() + 1800;
 				return true;
 			end
 		end
@@ -733,6 +843,7 @@ function script_mage:rest()
 end
 
 function script_mage:menu()
+	localObj = GetLocalPlayer();
 	if (CollapsingHeader("Mage - Frost")) then
 		local wasClicked = false;
 		Text('Drink below mana percentage');
@@ -745,57 +856,101 @@ function script_mage:menu()
 		self.potionMana = SliderFloat("MP%", 1, 99, self.potionMana);
 		Separator();
 		Text('Skills options:');
-		wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);
-		Text('Wand Attack Speed (1.1 = 1100)');
-		self.wandSpeed = InputText("WS", self.wandSpeed);
-		wasClicked, self.useFireBlast = Checkbox("Use Fire Blast", self.useFireBlast);
-		SameLine();
-		wasClicked, self.useConeofCold = Checkbox("Use Cone of Cold", self.useConeofCold);
-		SameLine();
-		wasClicked, self.useManaShield = Checkbox("Use Mana Shield", self.useManaShield);
-		wasClicked, self.polymorphAdds = Checkbox("Polymorph Adds", self.polymorphAdds);
-		SameLine();
-		wasClicked, self.useFrostNova = Checkbox("Use Frost Nova", self.useFrostNova);
+
+		if (localObj:HasRangedWeapon()) then
+			wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);
+			Text('Wand Attack Speed (1.1 = 1100)');
+			self.wandSpeed = InputText("WS", self.wandSpeed);
+		end
+		
+		if (HasSpell("Fireblast")) then
+			wasClicked, self.useFireBlast = Checkbox("Use Fire Blast", self.useFireBlast);
+			SameLine();
+		end
+
+		if (HasSpell("Cone of Cold")) then
+			wasClicked, self.useConeofCold = Checkbox("Use Cone of Cold", self.useConeofCold);
+			SameLine();
+		end
+
+		if (HasSpell("Mana Shield")) then
+			wasClicked, self.useManaShield = Checkbox("Use Mana Shield", self.useManaShield);
+		end
+
+		if (HasSpell("Polymorph")) then
+			wasClicked, self.polymorphAdds = Checkbox("Polymorph Adds", self.polymorphAdds);
+			SameLine();
+		end
+		
+		if (HasSpell("Frost Nova")) then
+			wasClicked, self.useFrostNova = Checkbox("Use Frost Nova", self.useFrostNova);
+		end
+
+		if (HasSpell("Quel'Dorei Meditation")) then
 		SameLine();
 		wasClicked, self.useQuelDoreiMeditation = Checkbox("Use QuelDoreiMeditation", self.useQuelDoreiMeditation);
+		end
 
-		wasClicked, self.useFrostWard = Checkbox("Use Frost Ward", self.useFrostWard);
-		SameLine();
-		wasClicked, self.useFireWard = Checkbox("Use Fire Ward", self.useFireWard);
-		if (CollapsingHeader("Wand Options")) then
-			Text('Wand below self mana percent');
-			self.useWandMana = SliderFloat("WM%", 1, 75, self.useWandMana);
-			Text('Wand below target HP percent');
-			self.useWandHealth = SliderFloat("WH%", 1, 75, self.useWandHealth);
+		if (HasSpell("Frost Ward")) then
+			wasClicked, self.useFrostWard = Checkbox("Use Frost Ward", self.useFrostWard);
+			SameLine();
 		end
-		if (CollapsingHeader("Cone of Cold Options")) then
-			Text('Cone of Cold above self mana percent');
-			self.coneOfColdMana = SliderFloat("CCM", 20, 75, self.coneOfColdMana);
-			Text('Cone of Cold above target health percent');
-			self.coneOfColdHealth = SliderFloat("CCH", 5, 50, self.coneOfColdHealth);
+		
+		if (HasSpell("Fire Ward")) then
+			wasClicked, self.useFireWard = Checkbox("Use Fire Ward", self.useFireWard);
 		end
-		if (CollapsingHeader("Evocation Options")) then
-			Text('Evocation above health percent');
-			self.evocationHealth = SliderFloat("EH%", 1, 90, self.evocationHealth);
-			Text('Evocation below mana percent');
-			self.evocationMana = SliderFloat("EM%", 1, 90, self.evocationMana);
-			Text('Queldorei Meditation below mana percent');
-			self.QuelDoreiMeditationMana = SliderFloat("QM%", 1, 90, self.QuelDoreiMeditationMana);
+
+		if (localObj:HasRangedWeapon()) then
+			if (CollapsingHeader("Wand Options")) then
+				Text('Wand below self mana percent');
+				self.useWandMana = SliderFloat("WM%", 1, 75, self.useWandMana);
+				Text('Wand below target HP percent');
+				self.useWandHealth = SliderFloat("WH%", 1, 75, self.useWandHealth);
+			end
 		end
-		if (CollapsingHeader("Ice Block Options")) then
-			Text('Ice Block below health percent');
-			self.iceBlockHealth = SliderFloat("IBH%", 5, 90, self.iceBlockHealth);
-			Text('Ice Block below mana percent');
-			self.iceBlockMana = SliderFloat("IBM%", 5, 90, self.iceBlockMana);
+
+		if (HasSpell("Cone of Cold")) then
+			if (CollapsingHeader("Cone of Cold Options")) then
+				Text('Cone of Cold above self mana percent');
+				self.coneOfColdMana = SliderFloat("CCM", 20, 75, self.coneOfColdMana);
+				Text('Cone of Cold above target health percent');
+				self.coneOfColdHealth = SliderFloat("CCH", 5, 50, self.coneOfColdHealth);
+			end
 		end
-		if (CollapsingHeader("Mana Shield Options")) then
-			Text('Mana Shield below self health percent');
-			self.manaShieldHealth = SliderFloat("MS%", 5, 99, self.manaShieldHealth);
-			Text('Mana Shield above self mana percent');
-			self.manaShieldMana = SliderFloat("MM%", 10, 65, self.manaShieldMana);
+		
+		if (HasSpell("Evocation")) then	
+			if (CollapsingHeader("Evocation Options")) then
+				Text('Evocation above health percent');
+				self.evocationHealth = SliderFloat("EH%", 1, 90, self.evocationHealth);
+				Text('Evocation below mana percent');
+				self.evocationMana = SliderFloat("EM%", 1, 90, self.evocationMana);
+				Text('Queldorei Meditation below mana percent');
+				self.QuelDoreiMeditationMana = SliderFloat("QM%", 1, 90, self.QuelDoreiMeditationMana);
+			end
 		end
-		if (CollapsingHeader("Mana Gem Options")) then
-			self.manaGemMana = SliderFloat("MG%", 1, 90, self.manaGemMana);		
+
+		if (HasSpell("Ice Block")) then
+			if (CollapsingHeader("Ice Block Options")) then
+				Text('Ice Block below health percent');
+				self.iceBlockHealth = SliderFloat("IBH%", 5, 90, self.iceBlockHealth);
+				Text('Ice Block below mana percent');
+				self.iceBlockMana = SliderFloat("IBM%", 5, 90, self.iceBlockMana);
+			end
+		end
+
+		if (HasSpell("Mana Shield")) then
+			if (CollapsingHeader("Mana Shield Options")) then
+				Text('Mana Shield below self health percent');
+				self.manaShieldHealth = SliderFloat("MS%", 5, 99, self.manaShieldHealth);
+				Text('Mana Shield above self mana percent');
+				self.manaShieldMana = SliderFloat("MM%", 10, 65, self.manaShieldMana);
+			end
+		end
+
+		if (HasSpell("Conjure Mana Gem")) then
+			if (CollapsingHeader("Mana Gem Options")) then
+				self.manaGemMana = SliderFloat("MG%", 1, 90, self.manaGemMana);		
+			end
 		end
 	end
 end
