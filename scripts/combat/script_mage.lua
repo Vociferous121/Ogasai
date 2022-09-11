@@ -389,7 +389,7 @@ function script_mage:run(targetGUID)
 				end
 			
 				-- cast fireball to pull
-				if (HasSpell("Fireball")) then
+				if (HasSpell("Fireball")) and (not HasSpell("Pyroblast")) then
 					if (not targetObj:IsInLineOfSight()) then
 						return 3;
 					end
@@ -404,6 +404,21 @@ function script_mage:run(targetGUID)
 						end
 					end
 
+				-- pyroblast if have it
+				elseif (HasSpell("Pyroblast") and not IsSpellOnCD("Pyroblast")) then
+					if (not targetObj:IsInLineOfSight()) then
+						return 3;
+					end
+		
+					-- cast the spell - pyroblast
+					if (localMana > 8) then
+						if (CastSpellByName("Pyroblast", targetObj)) then
+							targetObj:FaceTarget();
+							self.message = "Pulling with Fireball!";
+							self.waitTimer = GetTimeEX() + 200;
+							return 0;
+						end
+					end
 				end
 
 				-- recheck line of sight
@@ -626,13 +641,15 @@ function script_mage:run(targetGUID)
 			end
 
 			--Cone of Cold
-			if (self.useConeofCold) and (HasSpell("Cone of Cold")) and (targetHealth > self.useWandHealth) and (localMana <= self.coneOfColdMana) and (targetHealth >= self.coneOfColdHealth) then
-				if (not self.addPolymorphed) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) then
-					if (not targetObj:IsInLineOfSight()) then
-						return 3;
-					end	
-					if (script_mage:ConeofCold('Cone of Cold')) then
-						return 0;
+			if (self.frostMage) then
+				if (self.useConeofCold) and (HasSpell("Cone of Cold")) and (targetHealth > self.useWandHealth) and (localMana <= self.coneOfColdMana) and (targetHealth >= self.coneOfColdHealth) then
+					if (not self.addPolymorphed) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) then
+						if (not targetObj:IsInLineOfSight()) then
+							return 3;
+						end	
+						if (script_mage:ConeofCold('Cone of Cold')) then
+							return 0;
+						end
 					end
 				end
 			end
@@ -644,6 +661,30 @@ function script_mage:run(targetGUID)
 						return 3;
 					end	
 					if (CastSpellByName("Fire Blast", targetObj)) then
+						return 0;
+					end
+				end
+			end
+
+			-- blast wave
+			if (self.fireMage) then
+				if (HasSpell("Blast Wave")) and (localMana > 30) and (targetObj:GetDistance() < 10) and (not IsSpellOnCD("Blast Wave")) and (targetHealth > 15 or localHealth < 20) then
+					if (script_mage:runBackwards(targetObj, 7)) then -- Moves if the target is closer than 7 yards
+						self.message = "Moving away from target...";
+						if (not IsSpellOnCD("Blast Wave")) then
+							CastSpellByName("Blast Wave");
+							return 0;
+						end
+					return 4; 
+					end 
+				end	
+			end
+
+			-- scorch
+			if (self.fireMage) and (HasSpell("Scorch")) then
+				if (targetObj:GetDebuffStacks("Scorch") < self.scorchStacks) and (localMana > 25) and (targetHealth > 25) then
+					if (CastSpellByName("Scorch", targetObj)) then
+						self.waitTimer = GetTimeEX() + 1500;
 						return 0;
 					end
 				end
@@ -769,7 +810,7 @@ function script_mage:rest()
 		end
 	end
 	
-	if (waterIndex == -1 and HasSpell('Conjure Water')) then 
+	if (waterIndex == -1 and HasSpell('Conjure Water') and not IsEating() and not IsDrinking()) then 
 		self.message = "Conjuring water...";
 		if (IsMoving()) then
 			StopMoving();
@@ -941,7 +982,7 @@ function script_mage:rest()
 		return true;
 	end
 
-	-- buffs
+	-- arcane intellect
 	if (HasSpell("Arcane Intellect")) and (not localObj:HasBuff("Arcane Intellect")) and (localMana > 25) then
 		if (CastSpellByName("Arcane Intellect", localObj)) then
 			self.waitTimer = GetTimeEX() + 1500;
@@ -949,6 +990,7 @@ function script_mage:rest()
 		end
 	end
 	
+	-- ice armor / frost armor
 	if (HasSpell("Ice Armor")) and (not localObj:HasBuff("Ice Armor")) and (localMana > 20) then
 		if (CastSpellByName("Ice Armor", localObj)) then
 			self.waitTimer = GetTimeEX() + 1500;
@@ -960,12 +1002,20 @@ function script_mage:rest()
 		end
 	end
 
+	-- dampen magic
 	if (self.useDampenMagic) then
 		if (HasSpell("Dampen Magic")) and (not localObj:HasBuff("Dampen Magic")) and (localMana > 15) then
 			if (CastSpellByName("Dampen Magic", localObj)) then
 				self.waitTimer = GetTimeEX() + 1500;
 				return true;
 			end
+		end
+	end
+
+	-- combustion
+	if (HasSpell("Combustion")) and (not IsSpellOnCD("Combustion")) and not (localObj:HasBuff("Combustion")) and (self.fireMage) then
+		if (CastSpellByName("Combustion")) then
+			self.waitTimer = GetTimeEX() + 1500;
 		end
 	end
 
@@ -976,6 +1026,10 @@ end
 function script_mage:menu()
 	localObj = GetLocalPlayer();
 	local wasClicked = false;
+
+	if (not self.fireMage) and (not self.frostMage) then
+		self.message = "Select a talent Spec in options!";
+	end
 
 	if (CollapsingHeader("Choose Talent Spec")) then
 
@@ -1092,7 +1146,7 @@ function script_mage:menu()
 			end
 		end
 
-		if (HasSpell("Ice Block")) then
+		if (self.frostMage) and (HasSpell("Ice Block")) then
 			if (CollapsingHeader("-- Ice Block Options")) then
 				Text('Ice Block below health percent');
 				self.iceBlockHealth = SliderFloat("IBH%", 5, 90, self.iceBlockHealth);

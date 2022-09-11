@@ -400,7 +400,7 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 		if (math.sqrt((_lx - _ix)^2 + (_ly - _iy)^2) < self.nextNavNodeDistance) then
 			self.lastpathnavIndex = self.lastpathnavIndex + 1;	
 			if (GetPathSize(5) <= self.lastpathnavIndex) then
-				self.lastpathnavIndex = GetPathSize(5)-1;
+				self.lastpathnavIndex = GetPathSize(5)+1;
 			end
 		end
 	else
@@ -408,7 +408,7 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 		if(GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) < self.nextNavNodeDistance + 1) then
 			self.lastpathnavIndex = self.lastpathnavIndex + 1;	
 			if (GetPathSize(5) <= self.lastpathnavIndex) then
-				self.lastpathnavIndex = GetPathSize(5)-1;
+				self.lastpathnavIndex = GetPathSize(5)-2;
 			end
 		end
 	end

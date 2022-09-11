@@ -819,6 +819,12 @@ end
 
 function script_warrior:menu()
 
+	local wasClicked = false;
+
+	if (not self.battleStance) or (not self.defensiveStance) or (not self.berserkerStance) then
+		self.message = "Select a Warrior Stance!";
+	end
+
 	if (CollapsingHeader("Choose Stance - Experimental")) then -- stance menu
 		Text("Choose Stance - ");
 		SameLine();
