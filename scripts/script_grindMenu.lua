@@ -42,6 +42,9 @@ function script_grindMenu:menu()
 	elseif (class == 'Shaman') then
 		script_shaman:menu();
 	end	
+	
+	Separator();
+
 	if (CollapsingHeader("Talents, Paranoia & Misc options")) then
 		wasClicked, script_grind.jump = Checkbox("Jump On/Off", script_grind.jump);
 

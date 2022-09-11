@@ -144,7 +144,11 @@ function script_druid:run(targetGUID)
 		end
 
 		if (not IsMoving() and targetObj:GetDistance() < 10) then
-			targetObj:FaceTarget();
+
+			if (not targetObj:FaceTarget()) then
+				targetObj:FaceTarget();
+			end
+			
 		end
 
 		-- Auto Attack
@@ -249,13 +253,16 @@ function script_druid:run(targetGUID)
 			end
 			
 			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() < 2) then 
+			if (targetObj:GetDistance() < .5) then 
 				if (script_druid:runBackwards(targetObj,4)) then 
 					return 4; 
 				end 
 			end
 
-			targetObj:FaceTarget();
+			if (not targetObj:FaceTarget()) then
+				targetObj:FaceTarget();
+			end
+
 			targetObj:AutoAttack();
 
 			-- Check: Rejuvenation

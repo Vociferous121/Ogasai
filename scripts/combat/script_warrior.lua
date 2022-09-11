@@ -217,7 +217,9 @@ function script_warrior:run(targetGUID)	-- main content of script
 		end
 
 		if (not IsMoving() and self.faceTarget and targetObj:GetDistance() < 10) then
-			targetObj:FaceTarget();
+			if (not targetObj:FaceTarget()) then
+				targetObj:FaceTarget();
+			end
 		end
 		
 		-- Auto Attack
@@ -322,6 +324,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			else
 				if (IsMoving()) and (self.faceTarget) then
 					StopMoving();
+					targetObj:FaceTarget();
 				end
 			end
 
@@ -339,7 +342,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 
 			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() <= 2) then 
+			if (targetObj:GetDistance() <= .5) then 
 				if (script_warrior:runBackwards(targetObj,4)) then 
 					return 4; 
 				end 
@@ -355,7 +358,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 
 			-- enable/disable facing target automatically
-			if (self.enableFaceTarget) then
+			if (self.enableFaceTarget) and (not targetObj:FaceTarget()) then
 				targetObj:FaceTarget();
 			end
 
@@ -858,7 +861,7 @@ function script_warrior:menu()
 					wasClicked, self.enableCleave = Checkbox("Cleave On/Off TODO", self.enableCleave);	-- cleave
 					wasClicked, self.enableSunder = Checkbox("Use Sunder x1", self.enableSunder);	-- battle stance sunder
 					
-					if (CollapsingHeader("--Overpower Options")) then	-- overpower
+					if (CollapsingHeader("-- Overpower Options")) then	-- overpower
 						Text("Overpower action bar slot");
 						self.overpowerActionBarSlot = InputText("OPS", self.overpowerActionBarSlot);
 						Text("72 is your action bar number.. slot 1 would be 73");

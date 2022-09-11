@@ -320,23 +320,24 @@ function script_warlock:run(targetGUID)
 			end
 		end 
 
+			-- nav move to target causing crashes
 		-- move to cancel Health Funnel when payer has low HP
-		if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
-			if (GetPet():HasBuff("Health Funnel") and localHealth < 40) then
-				local _x, _y, _z = localObj:GetPosition();
-				script_nav:moveToTarget(localObj, _x + 1, _y + 1, _z); 
-				return 0;
-			end
-		end
+		--if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
+		--	if (GetPet():HasBuff("Health Funnel") and localHealth < 40) then
+		--		local _x, _y, _z = localObj:GetPosition();
+		--		script_nav:moveToTarget(localObj, _x + 1, _y + 1, _z); 
+		--		return 0;
+		--	end
+		--end
 
 		-- move to cancel Drain Life when we get Nightfall buff
-		if (GetTarget() ~= 0) and (HasSpell("Drain Life") )then	
-			if (GetTarget():HasDebuff("Drain Life") and localObj:HasBuff("Shadow Trance")) then
-				local _x, _y, _z = localObj:GetPosition();
-				script_nav:moveToTarget(localObj, _x + 1, _y, _z); 
-				return 0;
-			end
-		end
+		--if (GetTarget() ~= 0) and (HasSpell("Drain Life") )then	
+		--	if (GetTarget():HasDebuff("Drain Life") and localObj:HasBuff("Shadow Trance")) then
+		--		local _x, _y, _z = localObj:GetPosition();
+		--		script_nav:moveToTarget(localObj, _x + 1, _y, _z); 
+		--		return 0;
+		--	end
+		--end
 
 		-- START OF COMBAT PHASE
 

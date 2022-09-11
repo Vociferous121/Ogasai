@@ -281,6 +281,10 @@ function script_rogue:run(targetGUID)
 				if (targetObj:GetDistance() > self.meeleDistance or not targetObj:IsInLineOfSight()) then
 					return 3;
 				end
+
+				if (targetObj:GetDistance() < self.meeleDistance) and (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+				end
 			
 				-- Use CP generator attack 
 				if ((localEnergy >= self.cpGeneratorCost) and HasSpell(self.cpGenerator)) then
@@ -320,7 +324,7 @@ function script_rogue:run(targetGUID)
 				local localCP = GetComboPoints("player", "target");
 
 				-- Run backwards if we are too close to the target
-				if (targetObj:GetDistance() < 2) then 
+				if (targetObj:GetDistance() < .5) then 
 					if (script_rogue:runBackwards(targetObj,4)) then 
 						return 4; 
 					end 
@@ -336,7 +340,9 @@ function script_rogue:run(targetGUID)
 				end
 
 				-- auto face target
-				targetObj:FaceTarget();
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+				end
 
 				-- Check: Use Vanish 
 				if (HasSpell('Vanish') and HasItem('Flash Powder') and localHealth < self.vanishHealth and not IsSpellOnCD('Vanish')) then 

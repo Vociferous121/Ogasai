@@ -180,7 +180,7 @@ function script_paladin:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		if (not IsMoving() and targetObj:GetDistance() < 10) then
+		if (not IsMoving() and targetObj:GetDistance() < self.meleeDistance) then
 			targetObj:FaceTarget();
 		end
 
@@ -200,6 +200,7 @@ function script_paladin:run(targetGUID)
 		end 
 		
 		-- Opener
+
 		-- buffs and stuff before we are in combat NOT IN COMBAT YET
 		if (not IsInCombat()) then
 
@@ -214,6 +215,7 @@ function script_paladin:run(targetGUID)
 			 end
 
 			-- Check move into melee range
+			-- keep doing this return 3 until target is in melee range
 			if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
 				return 3;
 			end
@@ -245,6 +247,7 @@ function script_paladin:run(targetGUID)
 			end 
 
 			-- Check move into melee range
+			-- keep doing this if target is not in melee range
 			if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
 				return 3;
 			end
@@ -252,6 +255,11 @@ function script_paladin:run(targetGUID)
 			-- check if we are in combat?
 			if (IsInCombat()) and (targetObj:GetDistance() < self.meleeDistance) and (targetHealth > 99) then
 				targetObj:AutoAttack();
+				
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+				end
+		
 			end
 				
 		-- Combat WE ARE NOW IN COMBAT
@@ -269,7 +277,7 @@ function script_paladin:run(targetGUID)
 			end
 			
 			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() < 2) then 
+			if (targetObj:GetDistance() < .5) then 
 				if (script_paladin:runBackwards(targetObj,4)) then 
 					return 4; 
 				end 
@@ -277,18 +285,19 @@ function script_paladin:run(targetGUID)
 
 			-- Check if we are in melee range
 			if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
-				--targetObj:FaceTarget();
 				return 3;
 
 			elseif (IsMoving()) then
 				StopMoving();
 			end
 
-			targetObj:FaceTarget();
+			if (not targetObj:FaceTarget()) then
+				targetObj:FaceTarget();
+			end
 
 			targetObj:AutoAttack();
 
-			--Holy strike
+			-- Holy strike
 			if (HasSpell("Holy Strike")) and (localMana > 10) and (not IsSpellOnCD("Holy Strike")) then
 				if (targetObj:GetDistance() <= self.meleeDistance) then
 					Cast("Holy Strike", targetObj);

@@ -41,7 +41,10 @@ script_mage = {
 	useBlink = true,	
 	isChecked = true,
 	useDampenMagic = true,
-
+	fireMage = false,
+	frostMage = false,
+	scorchHealth = 20,
+	scorchMana = 20,
 
 
 }
@@ -319,7 +322,7 @@ function script_mage:run(targetGUID)
 
 			-- Opener spell if has frostbolt.... else....
 
-			if (HasSpell("Frostbolt")) then
+			if (self.frostMage) and (HasSpell("Frostbolt")) then
 	
 				-- check range of all spells
 				if(not targetObj:IsSpellInRange("Frostbolt")) or (not targetObj:IsInLineOfSight())  then
@@ -344,11 +347,14 @@ function script_mage:run(targetGUID)
 					if (not targetObj:IsInLineOfSight()) then
 						return 3;
 					end
-
+			
+					-- face target
 					if (not targetObj:FaceTarget()) then
+						script_nav:moveToTarget(localObj, _x - 1, _y + 1, _z);
 						targetObj:FaceTarget();
 					end
 
+					-- cast the spell - frostbolt
 					if (localMana > 8) then
 						if (CastSpellByName("Frostbolt", targetObj)) then
 							targetObj:FaceTarget();
@@ -363,12 +369,9 @@ function script_mage:run(targetGUID)
 					return 3;
 				end
 				
-				-- return until cast
-				return 0;
+			elseif (self.fireMage) then
 				
-			else
-				
-				-- else if has fireball and in spell range RANGE CHECK
+				-- else if fire spec and in spell range RANGE CHECK
 				if(not targetObj:IsSpellInRange("Fireball"))  then
 					return 3;
 				end
@@ -380,6 +383,7 @@ function script_mage:run(targetGUID)
 					end
 				end
 
+				-- face targert
 				if (not targetObj:FaceTarget()) then
 					targetObj:FaceTarget();
 				end
@@ -389,6 +393,8 @@ function script_mage:run(targetGUID)
 					if (not targetObj:IsInLineOfSight()) then
 						return 3;
 					end
+		
+					-- cast the spell - fireball
 					if (localMana > 8) then
 						if (CastSpellByName("Fireball", targetObj)) then
 							targetObj:FaceTarget();
@@ -404,7 +410,32 @@ function script_mage:run(targetGUID)
 				if (not targetObj:IsInLineOfSight()) then
 					return 3;
 				end
-				return 0;
+
+			elseif (self.frostMage) and (not HasSpell("Frostbolt")) then				
+		
+				-- else if not has frostbolt then use fireball as range check
+				if(not targetObj:IsSpellInRange("Fireball")) then
+					return 3;
+				end
+
+				-- check line of sight
+				if (not targetObj:IsInLineOfSight()) then
+					return 3;
+				end	
+
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+				end
+				
+				-- cast fireball
+				if (CastSpellByName("Fireball", targetObj)) then
+					return 0;
+				end
+
+				-- recheck line of sight
+				if (not targetObj:IsInLineOfSight()) then
+					return 3;
+				end
 			end
 			
 		-- Combat
@@ -630,7 +661,7 @@ function script_mage:run(targetGUID)
 			end
 			
 			-- Main damage source if all above conditions cannot be run
-			if (HasSpell("Frostbolt")) then
+			if (HasSpell("Frostbolt")) and (self.frostMage) then
 				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
 				
 					if (targetObj:IsInLineOfSight()) then
@@ -663,7 +694,7 @@ function script_mage:run(targetGUID)
 					end
 				end	
 
-			else
+			elseif (self.fireMage) then
 				
 				-- else if not has frostbolt then use fireball as range check
 				if(not targetObj:IsSpellInRange("Fireball")) then
@@ -688,7 +719,33 @@ function script_mage:run(targetGUID)
 				if (not targetObj:IsInLineOfSight()) then
 					return 3;
 				end	
-			end		
+			
+			elseif (self.frostMage) and (not HasSpell("Frostbolt")) then				
+		
+				-- else if not has frostbolt then use fireball as range check
+				if(not targetObj:IsSpellInRange("Fireball")) then
+					return 3;
+				end
+
+				-- check line of sight
+				if (not targetObj:IsInLineOfSight()) then
+					return 3;
+				end	
+
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+				end
+				
+				-- cast fireball
+				if (CastSpellByName("Fireball", targetObj)) then
+					return 0;
+				end
+
+				-- recheck line of sight
+				if (not targetObj:IsInLineOfSight()) then
+					return 3;
+				end
+			end	
 		end
 	end
 end
@@ -918,7 +975,23 @@ end
 
 function script_mage:menu()
 	localObj = GetLocalPlayer();
-	if (CollapsingHeader("Mage - Frost")) then
+	local wasClicked = false;
+
+	if (CollapsingHeader("Choose Talent Spec")) then
+
+		if (not self.fireMage) then
+			wasClicked, self.frostMage = Checkbox("Frost Spec", self.frostMage);
+			SameLine();
+		end
+		if (not self.frostMage) then
+			wasClicked, self.fireMage = Checkbox("Fire Spec", self.fireMage);
+			SameLine();
+		end
+	end
+
+	Separator();
+
+	if (CollapsingHeader("Mage Combat Options")) then
 		local wasClicked = false;
 		Text('Drink below mana percentage');
 		self.drinkMana = SliderFloat("DM%", 1, 100, self.drinkMana);
@@ -929,7 +1002,7 @@ function script_mage:menu()
 		Text('Use mana potions below percentage');
 		self.potionMana = SliderFloat("MP%", 1, 99, self.potionMana);
 		Separator();
-		Text('Skills options:');
+		Text('Skills Options:');
 
 		if (localObj:HasRangedWeapon()) then
 			wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);
@@ -982,9 +1055,9 @@ function script_mage:menu()
 		if (HasSpell("Fire Ward")) then
 			wasClicked, self.useFireWard = Checkbox("Use Fire Ward", self.useFireWard);
 		end
-
+		
 		if (localObj:HasRangedWeapon()) then
-			if (CollapsingHeader("Wand Options")) then
+			if (CollapsingHeader("-- Wand Options")) then
 				Text('Wand below self mana percent');
 				self.useWandMana = SliderFloat("WM%", 1, 75, self.useWandMana);
 				Text('Wand below target HP percent');
@@ -992,8 +1065,15 @@ function script_mage:menu()
 			end
 		end
 
+		if (self.fireMage) and (HasSpell("Scorch")) then
+			if (CollapsingHeader("-- Scorch Options")) then
+				self.scorchHealth = SliderInt("SH", 1, 100, self.scorchHealth);
+				self.scorchMana = SliderInt("SM", 1, 100, self.scorchMana);
+			end
+		end
+
 		if (HasSpell("Cone of Cold")) then
-			if (CollapsingHeader("Cone of Cold Options")) then
+			if (CollapsingHeader("-- Cone of Cold Options")) then
 				Text('Cone of Cold above self mana percent');
 				self.coneOfColdMana = SliderFloat("CCM", 20, 75, self.coneOfColdMana);
 				Text('Cone of Cold above target health percent');
@@ -1002,7 +1082,7 @@ function script_mage:menu()
 		end
 		
 		if (HasSpell("Evocation")) then	
-			if (CollapsingHeader("Evocation Options")) then
+			if (CollapsingHeader("-- Evocation Options")) then
 				Text('Evocation above health percent');
 				self.evocationHealth = SliderFloat("EH%", 1, 90, self.evocationHealth);
 				Text('Evocation below mana percent');
@@ -1013,7 +1093,7 @@ function script_mage:menu()
 		end
 
 		if (HasSpell("Ice Block")) then
-			if (CollapsingHeader("Ice Block Options")) then
+			if (CollapsingHeader("-- Ice Block Options")) then
 				Text('Ice Block below health percent');
 				self.iceBlockHealth = SliderFloat("IBH%", 5, 90, self.iceBlockHealth);
 				Text('Ice Block below mana percent');
@@ -1022,7 +1102,7 @@ function script_mage:menu()
 		end
 
 		if (HasSpell("Mana Shield")) then
-			if (CollapsingHeader("Mana Shield Options")) then
+			if (CollapsingHeader("-- Mana Shield Options")) then
 				Text('Mana Shield below self health percent');
 				self.manaShieldHealth = SliderFloat("MS%", 5, 99, self.manaShieldHealth);
 				Text('Mana Shield above self mana percent');
@@ -1031,7 +1111,7 @@ function script_mage:menu()
 		end
 
 		if (HasSpell("Conjure Mana Gem")) then
-			if (CollapsingHeader("Mana Gem Options")) then
+			if (CollapsingHeader("-- Mana Gem Options")) then
 				self.manaGemMana = SliderFloat("MG%", 1, 90, self.manaGemMana);		
 			end
 		end
