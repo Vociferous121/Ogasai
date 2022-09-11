@@ -42,6 +42,7 @@ function CastWalk(spellName, target)
 	if (HasSpell(spellName)) then
 		if (not IsSpellOnCD(spellName)) then
 			if (not IsAutoCasting(spellName)) then
+				targetObj:FaceTarget();
 				return target:CastSpell(spellName);
 			end
 		end
