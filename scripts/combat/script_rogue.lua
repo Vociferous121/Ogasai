@@ -240,7 +240,7 @@ function script_rogue:run(targetGUID)
 			if (not IsInCombat()) then
 				self.targetObjGUID = targetObj:GetGUID();
 				self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
-			
+
 				-- Stealth in range if enabled
 				if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) then
 					if (not localObj:HasBuff("Stealth") and not IsSpellOnCD("Stealth")) then
@@ -254,6 +254,10 @@ function script_rogue:run(targetGUID)
 					end
 				elseif (not self.useStealth and localObj:HasBuff("Stealth")) then
 					CastSpellByName("Stealth");
+				end
+
+				if (not targetObj:FaceTarget() and targetObj:GetDistance() < 10) then
+					targetObj:FaceTarget();
 				end
 
 				-- Open with stealth opener
@@ -376,6 +380,10 @@ function script_rogue:run(targetGUID)
 				hasFlurry = HasSpell('Blade Flurry');  
 				hasAdrenalineRush = HasSpell('Adrenaline Rush'); 
 
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+				end
+
 				-- Check: Use Riposte whenever we can
 				if (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) then 
 					if (localEnergy < 10) then 
@@ -480,7 +488,7 @@ function script_rogue:run(targetGUID)
 				return 0;
 			end
 			
-			-- reached our target
+			-- if sitting then stand
 			if (not IsStanding()) then
 				StopMoving();
 			end
@@ -491,7 +499,7 @@ function script_rogue:run(targetGUID)
 			end
 			
 			-- auto face target
-			if (self.enableFaceTarget) then
+			if (not targetObj:FaceTarget()) then
 				targetObj:FaceTarget();
 			end
 
@@ -851,7 +859,7 @@ function script_rogue:rest()
 	end
 
 	-- Stealth when we eat if we dont use stealth at opening
-	if (not self.useStealth and HasSpell("Stealth") and not IsSpellOnCD("Stealth") and IsEating() and not localObj:HasDebuff("Touch of Zanzil")) then
+	if (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and IsEating() and not localObj:HasDebuff("Touch of Zanzil")) then
 		if (not localObj:HasBuff("Stealth")) then
 			CastSpellByName("Stealth");
 			return true;
