@@ -241,6 +241,11 @@ function script_rogue:run(targetGUID)
 				self.targetObjGUID = targetObj:GetGUID();
 				self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 
+				-- face target
+				if (not targetObj:FaceTarget() and targetObj:GetDistance() < 10) then
+					targetObj:FaceTarget();
+				end
+
 				-- Stealth in range if enabled
 				if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) then
 					if (not localObj:HasBuff("Stealth") and not IsSpellOnCD("Stealth")) then
@@ -256,9 +261,6 @@ function script_rogue:run(targetGUID)
 					CastSpellByName("Stealth");
 				end
 
-				if (not targetObj:FaceTarget() and targetObj:GetDistance() < 10) then
-					targetObj:FaceTarget();
-				end
 
 				-- Open with stealth opener
 				if (targetObj:GetDistance() < 6 and self.useStealth and HasSpell(self.stealthOpener) and localObj:HasBuff("Stealth")) then
@@ -346,7 +348,7 @@ function script_rogue:run(targetGUID)
 				end
 
 				-- auto face target
-				if (not targetObj:FaceTarget()) then
+				if (self.autoFaceTarget and not targetObj:FaceTarget()) then
 					targetObj:FaceTarget();
 				end
 
@@ -499,7 +501,7 @@ function script_rogue:run(targetGUID)
 			end
 			
 			-- auto face target
-			if (not targetObj:FaceTarget()) then
+			if (self.enableFaceTarget and not targetObj:FaceTarget()) then
 				targetObj:FaceTarget();
 			end
 
@@ -718,7 +720,7 @@ function script_rogue:run(targetGUID)
 						end
 					end
 
-					if (self.enableFaceTarget) then
+					if (self.enableFaceTarget and not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
 					end
 
