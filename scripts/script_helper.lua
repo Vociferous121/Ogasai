@@ -115,6 +115,7 @@ function script_helper:setup()
     	script_helper:addWater('Hyjal Nectar');
     	script_helper:addWater('Green Garden Tea');
     	script_helper:addWater('Bottle Winterspring Water');
+    	script_helper:addWater("Kaja'Cola");
 
 	-- Mage water
 	script_helper:addWater('Conjured Crystal Water');

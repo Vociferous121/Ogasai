@@ -349,10 +349,12 @@ function script_mage:run(targetGUID)
 						targetObj:FaceTarget();
 					end
 
-					if (CastSpellByName("Frostbolt", targetObj)) then
-						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 200;
-						return 0;
+					if (localMana > 8) then
+						if (CastSpellByName("Frostbolt", targetObj)) then
+							targetObj:FaceTarget();
+							self.waitTimer = GetTimeEX() + 200;
+							return 0;
+						end
 					end
 				end
 
@@ -378,18 +380,24 @@ function script_mage:run(targetGUID)
 					end
 				end
 
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+				end
 			
 				-- cast fireball to pull
 				if (HasSpell("Fireball")) then
 					if (not targetObj:IsInLineOfSight()) then
 						return 3;
 					end
-					if (CastSpellByName("Fireball", targetObj)) then
-						targetObj:FaceTarget();
-						self.message = "Pulling with Fireball!";
-						self.waitTimer = GetTimeEX() + 200;
-						return 0;
+					if (localMana > 8) then
+						if (CastSpellByName("Fireball", targetObj)) then
+							targetObj:FaceTarget();
+							self.message = "Pulling with Fireball!";
+							self.waitTimer = GetTimeEX() + 200;
+							return 0;
+						end
 					end
+
 				end
 
 				-- recheck line of sight
