@@ -232,6 +232,8 @@ end
 
 function script_mage:run(targetGUID)
 	
+	-- when you click the start button all of this code runs at the script tick rate
+
 	if(not self.isSetup) then
 		script_mage:setup();
 	end
@@ -331,6 +333,11 @@ function script_mage:run(targetGUID)
 					if (not targetObj:IsInLineOfSight()) then
 						return 3;
 					end
+
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+					end
+
 					if (CastSpellByName("Frostbolt", targetObj)) then
 						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 200;
@@ -421,7 +428,7 @@ function script_mage:run(targetGUID)
 			-- Check: Move backwards if the target is affected by Frost Nova or Frost Bite
 			if (targetHealth > 10) and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (not localObj:HasBuff('Evocation')) and 
 				(targetObj ~= 0 and IsInCombat()) and (self.useFrostNova) and (not localObj:HasDebuff("Web")) then
-				if (script_mage:runBackwards(targetObj, 9)) then -- Moves if the target is closer than 7 yards
+				if (script_mage:runBackwards(targetObj, 7)) then -- Moves if the target is closer than 7 yards
 					self.message = "Moving away from target...";
 					if (not IsSpellOnCD("Frost Nova")) then
 						CastSpellByName("Frost Nova");
@@ -755,7 +762,7 @@ function script_mage:rest()
 	end
 
 	-- Stop moving before we can rest
-	if(localHealth < self.eatHealth or localMana < self.drinkMana) then
+	if(localHealth < self.eatHealth or localMana < self.drinkMana) and (not IsSwimming()) then
 		if (IsMoving()) then
 			StopMoving();
 			return true;
@@ -763,7 +770,7 @@ function script_mage:rest()
 	end
 
 	-- Eat and Drink
-	if (not IsDrinking() and localMana < self.drinkMana) then
+	if (not IsDrinking() and localMana < self.drinkMana) and (not IsSwimming()) then
 		self.message = "Need to drink...";
 		-- Dismount
 		if(IsMounted()) then 
@@ -783,7 +790,8 @@ function script_mage:rest()
 			return true; 
 		end
 	end
-	if (not IsEating() and localHealth < self.eatHealth) then
+
+	if (not IsEating() and localHealth < self.eatHealth) and (not IsSwimming()) then
 		-- Dismount
 		if(IsMounted()) then DisMount(); end
 		self.message = "Need to eat...";	
@@ -801,7 +809,7 @@ function script_mage:rest()
 		end	
 	end
 	
-	if(localMana < self.drinkMana or localHealth < self.eatHealth) then
+	if(localMana < self.drinkMana or localHealth < self.eatHealth) and (not IsSwimming()) then
 		if (IsMoving()) then
 			StopMoving();
 		end
@@ -816,7 +824,7 @@ function script_mage:rest()
 	end
 	
 	-- continue to rest if eating or drinking
-	if((localMana < 98 and IsDrinking()) or (localHealth < 98 and IsEating())) then
+	if (localMana < 98 and IsDrinking()) or (localHealth < 98 and IsEating()) and (not IsSwimming()) then
 		self.message = "Resting to full hp/mana...";
 		return true;
 	end
