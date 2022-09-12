@@ -465,7 +465,7 @@ function script_nav:navigate(localObj)
 		end
 			
 		-- Check: If we reached the end node, start over at node 1
-		if(self.lastPathIndex +1 >= pathSize) then
+		if(self.lastPathIndex >= pathSize) then
 			self.lastPathIndex = 0;
 		end
 			
