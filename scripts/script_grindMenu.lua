@@ -42,9 +42,6 @@ function script_grindMenu:menu()
 	elseif (class == 'Shaman') then
 		script_shaman:menu();
 	end	
-	
-	Separator();
-
 	if (CollapsingHeader("Talents, Paranoia & Misc options")) then
 		wasClicked, script_grind.jump = Checkbox("Jump On/Off", script_grind.jump);
 
@@ -75,6 +72,7 @@ function script_grindMenu:menu()
 	 	Text('Paranoia Range'); script_grind.paranoidRange = SliderInt("P (yd)", 1, 300, script_grind.paranoidRange);
 		Text("Script tick rate - how fast the bot runs the scripts"); script_grind.tickRate = SliderFloat("TR (ms)", 0, 2000, script_grind.tickRate);		
 	end
+
 	if (CollapsingHeader("Vendor options")) then
 		wasClicked, script_grind.useVendor = Checkbox("Vendor on/off", script_grind.useVendor);
 		if (script_grind.useVendor) then 

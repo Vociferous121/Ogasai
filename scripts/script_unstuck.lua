@@ -118,8 +118,8 @@ function script_unstuck:getSlope(yardsInfront)
 
 		-- pos 1 - yardsInfront 
 		for y = 1, yardsInfront do
-			local _xpu, _ypu, _zpu = _lx+((1+y)*math.cos(_angle-i*0.01)), _ly+((1+y)*math.sin(_angle-i*0.01)), _lz;
-			local _xpd, _ypd, _zpd = _lx+((1+y)*math.cos(_angle+i*0.01)), _ly+((1+y)*math.sin(_angle+i*0.01)), _lz;
+			local _xpu, _ypu, _zpu = _lx+((4+y)*math.cos(_angle-i*0.01)), _ly+((5+y)*math.sin(_angle-i*0.01)), _lz;
+			local _xpd, _ypd, _zpd = _lx+((4+y)*math.cos(_angle+i*0.01)), _ly+((5+y)*math.sin(_angle+i*0.01)), _lz;
 		
 			local hitDown, _, _, _ = Raycast(_lx, _ly, _lz + (i*0.2),  _xpd, _ypd, _zpd - (i*0.2));
 
@@ -135,7 +135,7 @@ end
 
 function script_unstuck:jumpObstacles()
 
-	if ( (script_unstuck:getObsMin(1) >= 0.32 and script_unstuck:getObsMax(1) < 2.2 and script_unstuck:getObsMax(1) > 1) or 
+	if ( (script_unstuck:getObsMin(1) >= 0.24 and script_unstuck:getObsMax(1) < 2.2 and script_unstuck:getObsMax(1) > 1) or 
 		(script_unstuck:getObsMin(2) >= 0.3 and  script_unstuck:getObsMax(2) < 2.2 and script_unstuck:getObsMax(2) > 1) ) then
 		self.message = "Jumping over obstacle";
 		JumpOrAscendStart();
