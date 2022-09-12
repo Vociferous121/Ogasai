@@ -166,8 +166,8 @@ function script_follow:healAndBuff()
 
 			-- blessing of might
 			if (not partyMember:HasBuff("Strength of Earth")) or (not partyMember:HasBuff("Mana Spring")) then
-				if (partyMember:GetRagePercentage() > 1) or (partyMember:HasBuff("Bear Form") or partyMember:HasBuff("Cat Form")) then
-					if (HasSpell("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Wisdom")) and (not partyMember:HasBuff("Strength of Earth")) then
+				if (partyMember:GetRagePercentage() > 1) or (partyMember:GetEnergyPercentage() > 1) or (partyMember:HasBuff("Bear Form") or partyMember:HasBuff("Cat Form")) then
+					if (HasSpell("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Might")) and (not partyMember:HasBuff("Strength of Earth")) then
 						if (script_follow:moveInLineOfSight(partyMember)) then
 							return true;
 						end -- move to member
@@ -177,7 +177,7 @@ function script_follow:healAndBuff()
 						end	
 					end
 				else
-					if (HasSpell("Blessing of Wisdom")) and (not partyMember:HasBuff("Blessing of Wisdom")) and (not partyMember:HasBuff("Mana Spring")) then
+					if (partyMember:GetManaPercentage() > 1) and (HasSpell("Blessing of Wisdom")) and (not partyMember:HasBuff("Blessing of Wisdom")) or (not partyMember:HasBuff("Blessing of Might")) and (not partyMember:HasBuff("Mana Spring")) then
 						if (script_follow:moveInLineOfSight(partyMember)) then
 							return true;
 						end -- move to member
