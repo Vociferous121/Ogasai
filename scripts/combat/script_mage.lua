@@ -45,6 +45,7 @@ script_mage = {
 	frostMage = false,
 	scorchHealth = 20,
 	scorchMana = 20,
+	scorchStacks = 2,
 
 
 }
@@ -248,15 +249,20 @@ function script_mage:run(targetGUID)
 	
 	-- when you click the start button all of this code runs at the script tick rate
 
+	-- check setup
 	if(not self.isSetup) then
 		script_mage:setup();
 	end
 	
 	local localObj = GetLocalPlayer();
+
 	local localMana = localObj:GetManaPercentage();
+
 	local localHealth = localObj:GetHealthPercentage();
+
 	local localLevel = localObj:GetLevel();
 	
+	-- check if we are dead
 	if (localObj:IsDead()) then
 		return 0;
 	end
@@ -264,6 +270,7 @@ function script_mage:run(targetGUID)
 	-- Assign the target 
 	targetObj =  GetGUIDObject(targetGUID);
 
+	-- clear dead targets
 	if(targetObj == 0 or targetObj == nil or targetObj:IsDead()) then
 		ClearTarget();
 		return 2;
@@ -283,10 +290,12 @@ function script_mage:run(targetGUID)
 			return 2;
 		end
 		
+		-- stand if sitting
 		if (not IsStanding()) then
 			JumpOrAscendStart();
 		end
 
+		-- face target if distance < 10
 		if (not IsMoving() and targetObj:GetDistance() < 10) then
 			targetObj:FaceTarget();
 		end
@@ -300,6 +309,7 @@ function script_mage:run(targetGUID)
 			end
 		end
 
+		-- set target health variable
 		targetHealth = targetObj:GetHealthPercentage();
 
 		-- Auto Attack
@@ -322,6 +332,7 @@ function script_mage:run(targetGUID)
 
 			-- Opener spell if has frostbolt.... else....
 
+			-- if frost mage and has frost bolt
 			if (self.frostMage) and (HasSpell("Frostbolt")) then
 	
 				-- check range of all spells
@@ -350,12 +361,11 @@ function script_mage:run(targetGUID)
 			
 					-- face target
 					if (not targetObj:FaceTarget()) then
-						script_nav:moveToTarget(localObj, _x - 1, _y + 1, _z);
 						targetObj:FaceTarget();
 					end
 
 					-- cast the spell - frostbolt
-					if (localMana > 8) then
+					if (localMana > 8) and (not IsMoving()) then
 						if (CastSpellByName("Frostbolt", targetObj)) then
 							targetObj:FaceTarget();
 							self.waitTimer = GetTimeEX() + 200;
@@ -388,14 +398,14 @@ function script_mage:run(targetGUID)
 					targetObj:FaceTarget();
 				end
 			
-				-- cast fireball to pull
+				-- cast fireball to pull and not has pyroblast
 				if (HasSpell("Fireball")) and (not HasSpell("Pyroblast")) then
 					if (not targetObj:IsInLineOfSight()) then
 						return 3;
 					end
 		
 					-- cast the spell - fireball
-					if (localMana > 8) then
+					if (localMana > 8) and (not IsMoving()) then
 						if (CastSpellByName("Fireball", targetObj)) then
 							targetObj:FaceTarget();
 							self.message = "Pulling with Fireball!";
@@ -404,14 +414,14 @@ function script_mage:run(targetGUID)
 						end
 					end
 
-				-- pyroblast if have it
+				-- else if has spell pyroblast then use it instead of fireball
 				elseif (HasSpell("Pyroblast") and not IsSpellOnCD("Pyroblast")) then
 					if (not targetObj:IsInLineOfSight()) then
 						return 3;
 					end
 		
 					-- cast the spell - pyroblast
-					if (localMana > 8) then
+					if (localMana > 8) and (not IsMoving()) then
 						if (CastSpellByName("Pyroblast", targetObj)) then
 							targetObj:FaceTarget();
 							self.message = "Pulling with Fireball!";
@@ -428,6 +438,8 @@ function script_mage:run(targetGUID)
 
 			elseif (self.frostMage) and (not HasSpell("Frostbolt")) then				
 		
+				-- this is here to check low level "frost mage" not having frost bolt yet
+
 				-- else if not has frostbolt then use fireball as range check
 				if(not targetObj:IsSpellInRange("Fireball")) then
 					return 3;
@@ -443,8 +455,10 @@ function script_mage:run(targetGUID)
 				end
 				
 				-- cast fireball
-				if (CastSpellByName("Fireball", targetObj)) then
-					return 0;
+				if (localMana > 15) and (not IsMoving()) then
+					if (CastSpellByName("Fireball", targetObj)) then
+						return 0;
+					end
 				end
 
 				-- recheck line of sight
@@ -663,6 +677,16 @@ function script_mage:run(targetGUID)
 				if (targetObj:GetDebuffStacks("Scorch") < self.scorchStacks) and (localMana > 25) and (targetHealth > 25) then
 					if (CastSpellByName("Scorch", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1500;
+						return 0;
+					end
+				end
+			end
+
+			-- pyroblast if target has frost nova?
+			if (self.fireMage) and (not targetObj:HasDebuff("Pyroblast")) and (not IsSpellOnCD("Pyroblast")) and (IsSpellOnCD("Frost Nova")) then
+				if (HasSpell("Pyroblast")) and (targetObj:HasDebuff("Frost Nova")) and (targetObj:GetDistance() > 6) then
+					if (CastSpellByName("Pyroblast", targetObj)) then
+						self.waitTimer = GetTimeEX() + 5000;
 						return 0;
 					end
 				end
@@ -1121,8 +1145,12 @@ function script_mage:menu()
 
 		if (self.fireMage) and (HasSpell("Scorch")) then
 			if (CollapsingHeader("-- Scorch Options")) then
+				Text("Use Scorch above target health percent");
 				self.scorchHealth = SliderInt("SH", 1, 100, self.scorchHealth);
+				Text("Use Scorch above self mana percent");
 				self.scorchMana = SliderInt("SM", 1, 100, self.scorchMana);
+				Text("How many Scorch debuff stacks on target?");
+				self.scorchStacks = SliderInt("ST", 1, 5, self.scorchStacks);
 			end
 		end
 
