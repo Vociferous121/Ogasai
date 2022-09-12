@@ -165,29 +165,30 @@ function script_follow:healAndBuff()
 			end
 
 			-- blessing of might
-			if (not partyMember:HasBuff("Strength of Earth")) or (not partyMember:HasBuff("Mana Spring")) then
+			if (not partyMember:HasBuff("Strength of Earth")) or (not partyMember:HasBuff("Mana Spring")) and (not partyMember:HasBuff("Blessing of Wisdom")) then
 				if (partyMember:GetRagePercentage() > 1) or (partyMember:GetEnergyPercentage() > 1) or (partyMember:HasBuff("Bear Form") or partyMember:HasBuff("Cat Form")) then
 					if (HasSpell("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Might")) and (not partyMember:HasBuff("Strength of Earth")) then
 						if (script_follow:moveInLineOfSight(partyMember)) then
 							return true;
 						end -- move to member
-						if (Cast("Blessing of Might", partyMember)) then
+						if (Buff("Blessing of Might", partyMember)) then
             	    	 			self.waitTimer = GetTimeEX() + 1500;
 					 		return true;
 						end	
 					end
-				else
-					if (partyMember:GetManaPercentage() > 1) and (HasSpell("Blessing of Wisdom")) and (not partyMember:HasBuff("Blessing of Wisdom")) or (not partyMember:HasBuff("Blessing of Might")) and (not partyMember:HasBuff("Mana Spring")) then
-						if (script_follow:moveInLineOfSight(partyMember)) then
-							return true;
-						end -- move to member
-						if (Cast("Blessing of Wisdom", partyMember)) then
-							self.waitTimer = GetTimeEX() + 1500;
-							return true;
-						end	
-			   		end
 				end
 			end
+		
+			if (partyMember:GetManaPercentage() > 1) and (HasSpell("Blessing of Wisdom")) and (not partyMember:HasBuff("Blessing of Wisdom")) or (not partyMember:HasBuff("Blessing of Might")) and (not partyMember:HasBuff("Mana Spring")) then
+				if (script_follow:moveInLineOfSight(partyMember)) then
+					return true;
+				end -- move to member
+				if (Buff("Blessing of Wisdom", partyMember)) then
+					self.waitTimer = GetTimeEX() + 1500;
+					return true;
+		   		end
+			end
+			
 
 			-- Power word Fortitude
 			if (HasSpell("Power Word: Fortitude")) and (localMana > 40) and (not partyMember:HasBuff("Power Word: Fortitude")) then -- buff
@@ -365,14 +366,6 @@ function script_follow:healAndBuff()
 						if (CastHeal("Power Word: Shield", partyMember)) then 
 							self.waitTimer = GetTimeEX() + 1550;
 							return true; 
-						end
-					elseif (localMana > self.renewMana) and (partyMembersHP < self.partyShieldHealth) and (not partyMember:HasBuff("Renew")) and (HasSpell("Renew")) then
-						if (script_follow:moveInLineOfSight(partyMember)) then
-							return true;
-				 		end -- move to member
-						if (CastHeal("Renew", partyMember)) then
-							self.waitTimer = GetTimeEX() + 1550;
-							return true;
 						end
 					end
 				end
