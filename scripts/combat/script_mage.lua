@@ -542,8 +542,8 @@ function script_mage:run(targetGUID)
 			end	
 
 			-- frost nova if target is running away
-			if (targetObj:IsFleeing()) and (HasSpell("Frost Nova")) and (not IsSpellOnCD("Frost Nova")) and (localMana > 10) then
-				if (targetObj:GetDistance() < 12) and (not targetObj:HasDebuff("Frostbite")) then
+			if (HasSpell("Frost Nova")) and (not IsSpellOnCD("Frost Nova")) and (targetObj:IsFleeing()) then
+				if (localMana > 10) and (targetObj:GetDistance() < 12) and (not targetObj:HasDebuff("Frostbite")) then
 					if (CastSpellByName("Frost Nova")) then
 						return 0;
 					end
@@ -568,9 +568,10 @@ function script_mage:run(targetGUID)
 				return 0;
 			end
 
+			-- turtle wow server high elf racial spell
 			-- Use Quel'dorei Meditation if we have low Mana but targetHealth > 20%
-			if (HasSpell("Quel'Dorei Meditation")) then
-				if (localMana < self.QuelDoreiMeditationMana and HasSpell("Quel'dorei Meditation") and not IsSpellOnCD("Quel'dorei Meditation") and targetHealth > 20) then		
+			if (HasSpell("Quel'Dorei Meditation")) and (not IsSpellOnCD("Quel'Dorei Meditation")) then
+				if (localMana < self.QuelDoreiMeditationMana) and (targetHealth > 20) then		
 					self.message = "Using Quel'dorei Meditation...";
 					CastSpellByName("Quel'dorei Meditation"); 
 					return 0;
@@ -633,8 +634,8 @@ function script_mage:run(targetGUID)
 			end
 
 			--Cone of Cold
-			if (self.frostMage) then
-				if (self.useConeofCold) and (HasSpell("Cone of Cold")) and (targetHealth > self.useWandHealth) and (localMana <= self.coneOfColdMana) and (targetHealth >= self.coneOfColdHealth) then
+			if (self.frostMage) and (self.useConeOfCold) and (HasSpell("Cone of Cold)) and (not IsSpellOnCD("Cone of Cold")) then
+				if (targetHealth > self.useWandHealth) and (localMana <= self.coneOfColdMana) and (targetHealth >= self.coneOfColdHealth) then
 					if (not self.addPolymorphed) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) then
 						if (not targetObj:IsInLineOfSight()) then
 							return 3;
