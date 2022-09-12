@@ -821,7 +821,7 @@ function script_warrior:menu()
 
 	local wasClicked = false;
 
-	if (not self.battleStance) or (not self.defensiveStance) or (not self.berserkerStance) then
+	if (not self.battleStance) and (not self.defensiveStance) and (not self.berserkerStance) then
 		self.message = "Select a Warrior Stance!";
 	end
 
