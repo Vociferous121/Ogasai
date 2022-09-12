@@ -1,51 +1,51 @@
 script_mage = {
 	message = 'Frostbite - Mage Combat Script',
-	drinkMana = 40,
-	eatHealth = 51,
-	potionHealth = 10,
-	potionMana = 20,
-	water = {},
-	numWater = 0,
-	food = {},
-	numfood = 0,
-	manaGem = {},
-	numGem = 0,
-	isSetup = false,
-	polyTimer = 0,
-	cooldownTimer = 0,
-	addPolymorphed = false,
-	useManaShield = true,
-	iceBlockHealth = 35,
-	iceBlockMana = 25,
-	evocationMana = 15,
-	evocationHealth = 35,
-	manaGemMana = 20,
-	polymorphAdds = true,
-	useFireBlast = true,
-	useFrostNova = true,
-	useConeofCold = true,
-	coneOfColdMana = 35,
-	coneOfColdHealth = 15,
-	useQuelDoreiMeditation = true,
-	QuelDoreiMeditationMana = 22,
-	useWandMana = 10,
-	useWandHealth = 10,
-	manaShieldHealth = 80,
-	manaShieldMana = 20,
-	useFrostWard = false,
-	useFireWard = false,
-	wandSpeed = '1600',
-	waitTimer = 0,
-	useWand = true,
-	gemTimer = 0,
-	useBlink = true,	
-	isChecked = true,
-	useDampenMagic = true,
-	fireMage = false,
-	frostMage = false,
-	scorchHealth = 20,
-	scorchMana = 20,
-	scorchStacks = 2,
+	drinkMana = 40,	-- drink at this mana %
+	eatHealth = 51,	-- eat at this health %
+	potionHealth = 10,	-- use potion at this health %
+	potionMana = 20,	-- use potioon at this mana %
+	water = {},	-- water table setup
+	numWater = 0,	-- number of conjured water
+	food = {},	-- food table setup
+	numfood = 0,	-- number of conjured food
+	manaGem = {},	-- mana gem table setup
+	numGem = 0,	-- number of conjured mana gems
+	isSetup = false,	-- setup check
+	polyTimer = 0,		-- polymorph add timer
+	cooldownTimer = 0,	-- timer for cooldowns
+	addPolymorphed = false,	-- add polymorphed yes/no
+	useManaShield = true,	-- use mana shield yes/no
+	iceBlockHealth = 35,	-- use ice block at this health %
+	iceBlockMana = 25,	-- use ice block above this mana %
+	evocationMana = 15,	-- use evocation below this mana %
+	evocationHealth = 35,	-- use evocation above this health %
+	manaGemMana = 20,	-- use mana gem below this health %
+	polymorphAdds = true,	-- polymorphs adds yes/no
+	useFireBlast = true,	-- use fireblast yes/no
+	useFrostNova = true,	-- use frost nova yes/no
+	useConeofCold = true,	-- use cone of cold yes/no
+	coneOfColdMana = 35,	-- use cone of cold above this mana %
+	coneOfColdHealth = 15,	-- use cone of cold above this health %
+	useQuelDoreiMeditation = true,	-- use turtle wow spell high elf racial yes/no
+	QuelDoreiMeditationMana = 22,	-- use high elf racial below this mana %
+	useWandMana = 10,	-- use wand below this mana %
+	useWandHealth = 10,	-- use wand below this target health %
+	manaShieldHealth = 80,	-- use mana shield below this health %
+	manaShieldMana = 20,	-- use mana shield above this mana %
+	useFrostWard = false,	-- use frost ward yes/no
+	useFireWard = false,	-- use fire ward yes/no
+	wandSpeed = '1600',		-- wand speed
+	waitTimer = 0,		-- wait timer for spells
+	useWand = true,	-- use wand yes/no
+	gemTimer = 0,		-- gem cooldown timer
+	useBlink = true,	-- use blink yes/no
+	isChecked = true,	-- set up
+	useDampenMagic = true,	-- use dampen magic yes/no
+	fireMage = false,	-- is fire spec yes/no
+	frostMage = false,	-- is frost spec yes/no
+	scorchHealth = 20,	-- use scorch above this target health %
+	scorchMana = 20,	-- use scorch above this mana %
+	scorchStacks = 2,	-- scorch debuff stacks on target
 
 
 }
@@ -368,7 +368,7 @@ function script_mage:run(targetGUID)
 					if (localMana > 8) and (not IsMoving() and targetObj:IsInLineOfSight()) then
 						if (CastSpellByName("Frostbolt", targetObj)) then
 							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 200;
+							self.waitTimer = GetTimeEX() + 1600;
 							return 0;
 						end
 					end
@@ -409,7 +409,7 @@ function script_mage:run(targetGUID)
 						if (CastSpellByName("Fireball", targetObj)) then
 							targetObj:FaceTarget();
 							self.message = "Pulling with Fireball!";
-							self.waitTimer = GetTimeEX() + 200;
+							self.waitTimer = GetTimeEX() + 1600;
 							return 0;
 						end
 					end
@@ -425,7 +425,7 @@ function script_mage:run(targetGUID)
 						if (CastSpellByName("Pyroblast", targetObj)) then
 							targetObj:FaceTarget();
 							self.message = "Pulling with Fireball!";
-							self.waitTimer = GetTimeEX() + 200;
+							self.waitTimer = GetTimeEX() + 1600;
 							return 0;
 						end
 					end
@@ -457,6 +457,7 @@ function script_mage:run(targetGUID)
 				-- cast fireball
 				if (localMana > 15) and (not IsMoving() and targetObj:IsInLineOfSight()) then
 					if (CastSpellByName("Fireball", targetObj)) then
+						self.waitTimer = GetTimeEX() + 1600;
 						return 0;
 					end
 				end
@@ -654,6 +655,7 @@ function script_mage:run(targetGUID)
 						return 3;
 					end	
 					if (CastSpellByName("Fire Blast", targetObj)) then
+						self.waitTimer = GetTimeEX() + 1500;
 						return 0;
 					end
 				end

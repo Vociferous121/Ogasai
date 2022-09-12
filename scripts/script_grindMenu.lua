@@ -47,7 +47,8 @@ function script_grindMenu:menu()
 
 	
 		if (script_grind.jump) then
-			Text("Jump Rate 100 = No Jumping!");
+			SameLine();
+			Text("- Jump Rate 100 = No Jumping!");
 			script_grind.jumpRandomFloat = SliderInt("Jump Rate", 86, 100, script_grind.jumpRandomFloat);
 		end
 
