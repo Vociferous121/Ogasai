@@ -73,6 +73,7 @@ function script_grindMenu:menu()
 		wasClicked, script_grind.sitParanoid = Checkbox("Sit when Paranoid", script_grind.sitParanoid);
 		wasClicked, script_grind.paranoidOnTargeted = Checkbox("Paranoid when targeted by players", script_grind.paranoidOnTargeted);
 	 	Text('Paranoia Range'); script_grind.paranoidRange = SliderInt("P (yd)", 1, 300, script_grind.paranoidRange);
+		Text("Script tick rate - how fast the bot runs the scripts"); script_grind.tickRate = SliderFloat("TR (ms)", 0, 2000, script_grind.tickRate);		
 	end
 	if (CollapsingHeader("Vendor options")) then
 		wasClicked, script_grind.useVendor = Checkbox("Vendor on/off", script_grind.useVendor);
@@ -126,6 +127,4 @@ function script_grindMenu:menu()
 		wasClicked, script_grind.drawUnits = Checkbox("Show unit info on screen", script_grind.drawUnits);
 		wasClicked, script_grind.drawAggro = Checkbox('Show aggro range', script_grind.drawAggro);
 	end
-	Text("Script tick rate - how fast the bot runs the scripts"); script_grind.tickRate = SliderFloat("TR (ms)", 0, 2000, script_grind.tickRate);		
-
 end
