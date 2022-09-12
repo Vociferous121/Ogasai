@@ -320,24 +320,29 @@ function script_warlock:run(targetGUID)
 			end
 		end 
 
-			-- nav move to target causing crashes
+			-- nav move to target causing crashes on follower
 		-- move to cancel Health Funnel when payer has low HP
-		--if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
-		--	if (GetPet():HasBuff("Health Funnel") and localHealth < 40) then
-		--		local _x, _y, _z = localObj:GetPosition();
-		--		script_nav:moveToTarget(localObj, _x + 1, _y + 1, _z); 
-		--		return 0;
-		--	end
-		--end
+		if (GetNumPartyMembers() < 1) then
+			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
+				if (GetPet():HasBuff("Health Funnel") and localHealth < 40) then
+					local _x, _y, _z = localObj:GetPosition();
+					script_nav:moveToTarget(localObj, _x + 1, _y + 1, _z); 
+					return 0;
+				end
+			end
+		end
 
+			-- nav move to target causing crashes on follower
 		-- move to cancel Drain Life when we get Nightfall buff
-		--if (GetTarget() ~= 0) and (HasSpell("Drain Life") )then	
-		--	if (GetTarget():HasDebuff("Drain Life") and localObj:HasBuff("Shadow Trance")) then
-		--		local _x, _y, _z = localObj:GetPosition();
-		--		script_nav:moveToTarget(localObj, _x + 1, _y, _z); 
-		--		return 0;
-		--	end
-		--end
+		if (GetNumPartyMembers() < 1) then
+			if (GetTarget() ~= 0) and (HasSpell("Drain Life") )then	
+				if (GetTarget():HasDebuff("Drain Life") and localObj:HasBuff("Shadow Trance")) then
+				local _x, _y, _z = localObj:GetPosition();
+					script_nav:moveToTarget(localObj, _x + 1, _y, _z); 
+					return 0;
+				end
+			end
+		end
 
 		-- START OF COMBAT PHASE
 
@@ -550,18 +555,21 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
+				-- nav move to target causing crashes on follower
 			-- Check: Heal the pet if it's below 50% and we are above 50%
-			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) then
-				if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) then
-					self.message = "Healing pet!";
-					script_nav:moveToTarget(localObj, GetPet():GetPosition()); 
-					self.waitTimer = GetTimeEX() + 2000;
+			if (GetNumPartyMembers() < 1) then
+				if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) then
+					if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) then
+						self.message = "Healing pet!";
+						script_nav:moveToTarget(localObj, GetPet():GetPosition()); 
+						self.waitTimer = GetTimeEX() + 2000;
+						return 0;
+					else
+						StopMoving();
+					end
+					CastSpellByName("Health Funnel"); 
 					return 0;
-				else
-					StopMoving();
 				end
-				CastSpellByName("Health Funnel"); 
-				return 0;
 			end
 
 			-- if pet goes too far then recall
@@ -709,18 +717,21 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
+				-- nav move to target causing crashes on follower
 			-- Check: Heal the pet if it's below 50% and we are above 50%
-			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) then
-				self.message = "Healing pet with Health Funnel";
-				if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) then
-					script_nav:moveToTarget(localObj, GetPet():GetPosition()); 
-					self.waitTimer = GetTimeEX() + 2000;
+			if (GetNumPartyMembers() < 1) then
+				if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) then
+					self.message = "Healing pet with Health Funnel";
+					if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) then
+						script_nav:moveToTarget(localObj, GetPet():GetPosition()); 
+						self.waitTimer = GetTimeEX() + 2000;
+						return 0;
+					else
+						StopMoving();
+					end
+					CastSpellByName("Health Funnel"); 
 					return 0;
-				else
-					StopMoving();
 				end
-				CastSpellByName("Health Funnel"); 
-				return 0;
 			end
 
 			if (self.useShadowBolt) then

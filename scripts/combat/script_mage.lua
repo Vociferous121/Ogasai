@@ -296,7 +296,7 @@ function script_mage:run(targetGUID)
 		end
 
 		-- face target if distance < 10
-		if (not IsMoving() and targetObj:GetDistance() < 10) then
+		if (not IsMoving() and targetObj:GetDistance() < 10 and targetObj:IsInLineOfSight()) then
 			targetObj:FaceTarget();
 		end
 
@@ -360,12 +360,12 @@ function script_mage:run(targetGUID)
 					end
 			
 					-- face target
-					if (not targetObj:FaceTarget()) then
+					if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
 						targetObj:FaceTarget();
 					end
 
 					-- cast the spell - frostbolt
-					if (localMana > 8) and (not IsMoving()) then
+					if (localMana > 8) and (not IsMoving() and targetObj:IsInLineOfSight()) then
 						if (CastSpellByName("Frostbolt", targetObj)) then
 							targetObj:FaceTarget();
 							self.waitTimer = GetTimeEX() + 200;
@@ -394,7 +394,7 @@ function script_mage:run(targetGUID)
 				end
 
 				-- face targert
-				if (not targetObj:FaceTarget()) then
+				if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
 					targetObj:FaceTarget();
 				end
 			
@@ -405,7 +405,7 @@ function script_mage:run(targetGUID)
 					end
 		
 					-- cast the spell - fireball
-					if (localMana > 8) and (not IsMoving()) then
+					if (localMana > 8) and (not IsMoving() and targetObj:IsInLineOfSight()) then
 						if (CastSpellByName("Fireball", targetObj)) then
 							targetObj:FaceTarget();
 							self.message = "Pulling with Fireball!";
@@ -421,7 +421,7 @@ function script_mage:run(targetGUID)
 					end
 		
 					-- cast the spell - pyroblast
-					if (localMana > 8) and (not IsMoving()) then
+					if (localMana > 8) and (not IsMoving() and targetObj:IsInLineOfSight()) then
 						if (CastSpellByName("Pyroblast", targetObj)) then
 							targetObj:FaceTarget();
 							self.message = "Pulling with Fireball!";
@@ -450,12 +450,12 @@ function script_mage:run(targetGUID)
 					return 3;
 				end	
 
-				if (not targetObj:FaceTarget()) then
+				if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
 					targetObj:FaceTarget();
 				end
 				
 				-- cast fireball
-				if (localMana > 15) and (not IsMoving()) then
+				if (localMana > 15) and (not IsMoving() and targetObj:IsInLineOfSight()) then
 					if (CastSpellByName("Fireball", targetObj)) then
 						return 0;
 					end
@@ -723,7 +723,7 @@ function script_mage:run(targetGUID)
 						return 3;
 					end	
 
-					if (not targetObj:FaceTarget()) then
+					if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
 						targetObj:FaceTarget();
 					end
 				
@@ -750,7 +750,7 @@ function script_mage:run(targetGUID)
 					return 3;
 				end	
 
-				if (not targetObj:FaceTarget()) then
+				if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
 					targetObj:FaceTarget();
 				end
 				
@@ -776,7 +776,7 @@ function script_mage:run(targetGUID)
 					return 3;
 				end	
 
-				if (not targetObj:FaceTarget()) then
+				if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
 					targetObj:FaceTarget();
 				end
 				
