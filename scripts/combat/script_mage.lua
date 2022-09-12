@@ -571,30 +571,6 @@ function script_mage:run(targetGUID)
 				end
 			end
 
-			--Frost Ward
-			if (localMana > 50 and not IsMounted() and self.useFrostWard) and IsInCombat() then
-				if (not IsSpellOnCD("Frost Ward")) or (not IsSpellOnCD("Fire Ward")) then
-					if (not Buff('Frost Ward', localObj)) or (not Buff('Fire Ward', localObj)) then
-						if (HasSpell("Frost Ward")) then
-							self.waitTimer = GetTimeEX() + 1500;
-							CastSpellByName("Frost Ward");
-						end
-					end
-				end
-			end
-
-			--Fire Ward
-			if (localMana > 50 and not IsMounted() and self.useFireWard) and IsInCombat() then
-				if (not IsSpellOnCD("Fire Ward")) or (not IsSpellOnCD("Frost Ward")) then
-					if (not Buff('Fire Ward', localObj)) or (not Buff('Frost Ward', localObj)) then
-						if (HasSpell("Fire Ward")) then
-							self.waitTimer = GetTimeEX() + 1500;
-							CastSpellByName("Fire Ward");
-						end
-					end
-				end
-			end
-
 			-- Check if add already polymorphed
 			if (not script_mage:isAddPolymorphed() and not (self.polyTimer < GetTimeEX())) then
 				self.addPolymorphed = false;
@@ -623,11 +599,13 @@ function script_mage:run(targetGUID)
 			end			
 
 			-- ice block
-			if (HasSpell("Ice Block")) and (not IsSpellOnCD("Ice Block")) then
-				if (localHealth < self.iceBlockHealth) and (localMana < self.iceBlockMana) then
-					self.message = "Using Ice Block...";
-					CastSpellByName('Ice Block');
-					return 0;
+			if (self.frostMage) then
+				if (HasSpell("Ice Block")) and (not IsSpellOnCD("Ice Block")) then
+					if (localHealth < self.iceBlockHealth) and (localMana < self.iceBlockMana) then
+						self.message = "Using Ice Block...";
+						CastSpellByName('Ice Block');
+						return 0;
+					end
 				end
 			end
 
@@ -972,7 +950,7 @@ function script_mage:rest()
 	-- night elve stealth while resting
 	if (IsDrinking() or IsEating()) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) then
 		if (CastSpellByName("Shadowmeld")) then
-			return 0;
+			return true;
 		end
 	end
 	
@@ -999,6 +977,7 @@ function script_mage:rest()
 	elseif (not HasSpell("Ice Armor")) and (HasSpell("Frost Armor")) and (not localObj:HasBuff("Frost Armor")) and (localMana > 20) then
 		if (CastSpellByName("Frost Armor", localObj)) then
 			self.waitTimer = GetTimeEX() + 1500;
+			return true;
 		end
 	end
 
@@ -1016,6 +995,27 @@ function script_mage:rest()
 	if (HasSpell("Combustion")) and (not IsSpellOnCD("Combustion")) and not (localObj:HasBuff("Combustion")) and (self.fireMage) then
 		if (CastSpellByName("Combustion")) then
 			self.waitTimer = GetTimeEX() + 1500;
+			return true;
+		end
+	end
+
+	-- frost ward
+	if (self.useFrostWard) and (HasSpell("Frost Ward")) and (not localObj:HasBuff("Frost Ward")) then
+		if (localMana > 50) and (not localObj:HasBuff("Fire Ward")) then
+			if (CastSpellByName("Frost Ward", localObj)) then
+				self.waitTimer = GetTimeEX() + 1500;
+				return true;
+			end
+		end
+	end
+	
+	-- fire ward
+	if (self.useFireWard) and (HasSpell("Fire Ward")) and (not localObj:HasBuff("Fire Ward")) then
+		if (localMana > 50) and (not localObj:HasBuff("Frost Ward")) then
+			if (CastSpellByName("Fire Ward", localObj)) then
+				self.waitTimer = GetTimeEX() + 1500;
+				return true;
+			end
 		end
 	end
 
