@@ -180,9 +180,9 @@ function script_paladin:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		if (not IsMoving() and targetObj:GetDistance() < self.meleeDistance) then
-			targetObj:FaceTarget();
-		end
+		--if (not IsMoving() and targetObj:GetDistance() < self.meleeDistance) then
+		--	targetObj:FaceTarget();
+		--end
 
 		-- Auto Attack
 		if (targetObj:GetDistance() < 40) then
@@ -214,9 +214,9 @@ function script_paladin:run(targetGUID)
 				return 0;
 			 end
 
-			if (not targetObj:FaceTarget()) then
-				targetObj:FaceTarget();
-			end
+		--	if (not targetObj:FaceTarget() and targetObj:GetDistance() < 10) then
+		--		targetObj:FaceTarget();
+		--	end
 
 			-- Check move into melee range
 			-- keep doing this return 3 until target is in melee range
@@ -245,16 +245,16 @@ function script_paladin:run(targetGUID)
 
 			-- Check move into melee range
 			-- keep doing this if target is not in melee range
-			if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
-				if (IsMoving()) then
-					StopMoving();
-				end
-				return 3;
-			end
+		--	if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
+		--		if (IsMoving()) then
+		--			StopMoving();
+		--		end
+		--		return 3;
+		--	end
 
-			if (not targetObj:FaceTarget()) then
-				targetObj:FaceTarget();
-			end
+		--	if (not targetObj:FaceTarget()) then
+		--		targetObj:FaceTarget();
+		--	end
 
 			-- check if we are in combat?
 			if (IsInCombat()) and (targetObj:GetDistance() < self.meleeDistance) and (targetHealth > 99) then
