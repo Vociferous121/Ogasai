@@ -186,7 +186,7 @@ function script_shaman:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		if (not IsMoving() and targetObj:GetDistance() < 10) then
+		if (not IsMoving() and targetObj:GetDistance() < 10 and targetObj:IsInLineOfSight()) then
 			targetObj:FaceTarget();
 		end
 
@@ -241,7 +241,7 @@ function script_shaman:run(targetGUID)
 			-- Dismount
 			if (IsMounted()) then DisMount(); end
 
-			if (not targetObj:FaceTarget()) then
+			if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
 				targetObj:FaceTarget();
 			end
 			
@@ -298,7 +298,7 @@ function script_shaman:run(targetGUID)
 			end
 
 			-- Check: If we are in meele range, do meele attacks
-			if (targetObj:GetDistance() < self.meeleDistance) then
+			if (targetObj:GetDistance() < self.meeleDistance and targetObj:IsInLineOfSight()) then
 				targetObj:FaceTarget();
 
 				-- Totem

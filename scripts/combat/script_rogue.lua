@@ -208,7 +208,7 @@ function script_rogue:run(targetGUID)
 				JumpOrAscendStart();
 			end
 		
-			if (not IsMoving() and targetObj:GetDistance() < 10) then
+			if (not IsMoving() and targetObj:GetDistance() < 10 and targetObj:IsInLineOfSight()) then
 				if (not targetObj:FaceTarget()) then
 					targetObj:FaceTarget();
 				end
@@ -242,7 +242,7 @@ function script_rogue:run(targetGUID)
 				self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 
 				-- face target
-				if (not targetObj:FaceTarget() and targetObj:GetDistance() < 10) then
+				if (not targetObj:FaceTarget() and targetObj:GetDistance() < 10 and targetObj:IsInLineOfSight()) then
 					targetObj:FaceTarget();
 				end
 
@@ -285,7 +285,7 @@ function script_rogue:run(targetGUID)
 					end
 				end
 
-				if (not targetObj:FaceTarget()) then
+				if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
 					targetObj:FaceTarget();
 				end
 			
@@ -320,7 +320,7 @@ function script_rogue:run(targetGUID)
 					DisMount();
 				end
 
-				if (not targetObj:FaceTarget()) then
+				if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
 					targetObj:FaceTarget();
 				end
 
@@ -348,7 +348,7 @@ function script_rogue:run(targetGUID)
 				end
 
 				-- auto face target
-				if (self.autoFaceTarget and not targetObj:FaceTarget()) then
+				if (self.autoFaceTarget and not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
 					targetObj:FaceTarget();
 				end
 
@@ -382,7 +382,7 @@ function script_rogue:run(targetGUID)
 				hasFlurry = HasSpell('Blade Flurry');  
 				hasAdrenalineRush = HasSpell('Adrenaline Rush'); 
 
-				if (not targetObj:FaceTarget()) then
+				if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
 					targetObj:FaceTarget();
 				end
 
@@ -501,7 +501,7 @@ function script_rogue:run(targetGUID)
 			end
 			
 			-- auto face target
-			if (self.enableFaceTarget and not targetObj:FaceTarget()) then
+			if (self.enableFaceTarget and not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
 				targetObj:FaceTarget();
 			end
 
@@ -720,7 +720,7 @@ function script_rogue:run(targetGUID)
 						end
 					end
 
-					if (self.enableFaceTarget and not targetObj:FaceTarget()) then
+					if (self.enableFaceTarget and not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
 						targetObj:FaceTarget();
 					end
 

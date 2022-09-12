@@ -143,7 +143,7 @@ function script_druid:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		if (not IsMoving() and targetObj:GetDistance() < 10) then
+		if (not IsMoving() and targetObj:GetDistance() < 10 and targetObj:IsInLineOfSight()) then
 			if (not targetObj:FaceTarget()) then
 				targetObj:FaceTarget();
 			end
@@ -233,7 +233,7 @@ function script_druid:run(targetGUID)
 				end
 			end
 
-			if (not targetObj:FaceTarget()) then
+			if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
 				targetObj:FaceTarget();
 			end
 
@@ -261,7 +261,7 @@ function script_druid:run(targetGUID)
 				end 
 			end
 
-			if (not targetObj:FaceTarget()) then
+			if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
 				targetObj:FaceTarget();
 			end
 

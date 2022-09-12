@@ -300,7 +300,7 @@ function script_warlock:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		if (not IsMoving() and targetObj:GetDistance() < 10) then
+		if (not IsMoving() and targetObj:GetDistance() < 10 and targetObj:IsInLineOfSight()) then
 			targetObj:FaceTarget();
 		end
 

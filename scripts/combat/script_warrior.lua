@@ -216,7 +216,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			JumpOrAscendStart();
 		end
 
-		if (not IsMoving() and self.faceTarget and targetObj:GetDistance() < 10) then
+		if (not IsMoving() and self.faceTarget and targetObj:GetDistance() < 10 and targetObj:IsInLineOfSight()) then
 			if (not targetObj:FaceTarget()) then
 				targetObj:FaceTarget();
 			end
@@ -319,7 +319,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end	
 
 			-- enable/disable facing target automatically
-			if (self.enableFaceTarget) and (not targetObj:FaceTarget()) then
+			if (self.enableFaceTarget) and (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
 				targetObj:FaceTarget();
 			end
 
@@ -339,7 +339,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 				DisMount();
 			end
 
-			if (not targetObj:FaceTarget()) and (self.faceTarget) then
+			if (not targetObj:FaceTarget()) and (self.faceTarget) and (targetObj:IsInLineOfSight()) then
 				targetObj:FaceTarget();
 			end
 
@@ -356,7 +356,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 
 			-- enable/disable facing target automatically
-			if (self.enableFaceTarget) and (not targetObj:FaceTarget()) then
+			if (self.enableFaceTarget) and (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
 				targetObj:FaceTarget();
 			end
 
@@ -618,7 +618,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 
 			-- Always face target
-			if (self.enableFaceTarget) then
+			if (self.enableFaceTarget) and targetObj:IsInLineOfSight() then
 				if (targetHealth <= 99) then
 					targetObj:FaceTarget();
 				end
