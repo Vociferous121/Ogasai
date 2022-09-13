@@ -24,4 +24,4 @@
      
      tank rotations
      
-     follows effectively attack and assist in combat
+     follower effectively attacks and assists in combat
