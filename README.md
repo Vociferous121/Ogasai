@@ -19,3 +19,9 @@
      follower script is 75% complete will all classes that can heal having heals available except shaman
      
      updated and added paranoia features
+     
+     gatherer updates
+     
+     tank rotations
+     
+     follows effectively attack and assist in combat
