@@ -17,10 +17,11 @@ script_gather = {
 	gatherAllPossible = true,
 	waitTimer = GetTimeEX(),
 	toNodeDistance = 3.4,
-	blacklistNodeTimer = 30,
-	blacklistedNodes = {},
+	blacklistNodeTimer = 60,
+	blacklistedNode = {},
 	blacklistedNum = 0,
 	newNodeTimer = GetTimeEX(),
+	lastNode = 0
 }
 
 function script_gather:addHerb(name, id, use, req)
@@ -153,6 +154,7 @@ function script_gather:GetNode()
 		if (targetType == 5) then --GameObject
 			if(script_gather:ShouldGather(targetObj:GetObjectDisplayID())) then
 				local dist = targetObj:GetDistance();
+				local nodeGUID = targetObj:GetGUID();
 				if(dist < self.gatherDistance and bestDist > dist) then
 					local _x, _y, _z = targetObj:GetPosition();
 					if(not IsNodeBlacklisted(_x, _y, _z, 5)) then
@@ -173,6 +175,7 @@ local targetObj, targetType = GetFirstObject();
 	while targetObj ~= 0 do
 		if (targetType == 5 and targetObj:IsGatherNode()) then 
 			local id = targetObj:GetObjectDisplayID();
+			local nodeGUID = targetObj:GetGUID();
 			local name = 'Gather Node';
 			local _x, _y, _z = targetObj:GetPosition();
 			local _tX, _tY, onScreen = WorldToScreen(_x, _y, _z);
@@ -217,9 +220,18 @@ end
 
 function script_gather:addNodeToBlacklist(targetGUID)
 	if (targetGUID ~= nil and targetGUID ~= 0 and targetGUID ~= '') then	
-		self.blacklistedNode[self.blackistedNum] = targetGUID;
+		self.blacklistedNode[self.blacklistedNum] = targetGUID;
 		self.blacklistedNum = self.blacklistedNum + 1;
 	end
+end
+
+function script_gather:isNodeBlacklisted(targetGUID) 
+	for i=0,self.blacklistedNum do
+		if (targetGUID == self.blacklistedNode[i]) then
+			return true;
+		end
+	end
+	return false;
 end
 
 function script_gather:gather()
@@ -241,16 +253,27 @@ function script_gather:gather()
 		return false;
 	end
 
-	self.nodeID = self.nodeObj:GetObjectDisplayID();
+	self.nodeID = self.nodeObj:GetGUID();
+
+	if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:HasBuff("Stealth")) then
+		CastSpellByName("Stealth");
+		return 0;
+	end
 		
 	-- found a valid node then
-	if(self.nodeObj ~= nil and self.nodeObj ~= 0) then
+	if (self.nodeObj ~= nil and self.nodeObj ~= 0) then
+		self.lastNode = self.nodeObj:GetGUID();
+
+		if (self.lastNode ~= self.nodeObj:GetGUID()) then
+			self.newNodeTimer = GetTimeEX();
+		end
+
 		local _x, _y, _z = self.nodeObj:GetPosition();
 		local dist = self.nodeObj:GetDistance();
 		local selfDist = localObj:GetDistance();
+		local nodeGUID = self.nodeObj:GetGUID();
 		
 		-- reached loot stop moving
-		--if (not self.nodeBlacklisted) then
 			if(dist <= selfDist + self.toNodeDistance) then
 				self.waitTimer = GetTimeEX() + 300;
 				if (IsMoving()) then
@@ -274,7 +297,7 @@ function script_gather:gather()
 				-- if we can loot again and not looting already then loot again
 				if (self.collectMinerals) then
 					if (not LootTarget()) and (not IsChanneling()) then
-					self.timer = GetTimeEX() + 2550;
+						self.timer = GetTimeEX() + 2550;
 						return false;
 					end
 				end
@@ -285,6 +308,13 @@ function script_gather:gather()
 					script_nav:moveToNav(GetLocalPlayer(), _x, _y, _z);
 					self.timer = GetTimeEX() + 150;
 				end
+
+				if (((GetTimeEX()-self.newNodeTimer)/1000) > self.blacklistNodeTimer) then
+					script_gather:addNodeToBlacklist(self.nodeObj:GetGUID());
+					ClearTarget();
+					return;
+				end
+
 			end
 
 		return true;

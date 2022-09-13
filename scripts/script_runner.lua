@@ -44,6 +44,58 @@ function script_runner:window()
 
 end
 
+function script_runner:setup()
+
+	-- Add Destinations
+
+	script_runner:addDestination("Tanaris Avoid Demo Start", -7288.0126953125, -3773.5656738281, 9.1952447891235, 1, 440);
+	script_runner:addDestination("Tanaris Avoid Demo Stop", -7427.31, -3759.38, 11.87, 10.79, 1, 440);
+	script_runner:addDestination("Razor Hill - Durator", 323.82, -4736.34, 9.80, 1, 14);
+	script_runner:addDestination("Orgrimmar - Durator", 1620.57, -4433.01, 11.07, 1, 1637);
+	script_runner:addDestination("The Crossroads - The Barrens", -433.57, -2651.16, 95.96, 1, 17);
+	script_runner:addDestination("Camp Taurajo - The Barrens", -2356.23, -1964.11, 96.06, 1, 17);
+	script_runner:addDestination("Brackenwall Village - Dustwallow Marsh", -3154.01, -2900.93, 33.83, 0, 0);
+	script_runner:addDestination("Splintertree Post - Ashenvale", 2324.94, -2546.02, 101.05, 1, 331);
+	script_runner:addDestination("Bloodvenom Post - Felwood", 5105.07, -353.01, 357.25, 1, 361);
+	script_runner:addDestination("Valormok - Aszhara", 3609.11, -4410.26, 114.02, 0, 0);
+	script_runner:addDestination("Bloodhoof Village - Mulgore", -2335.72, -361.89, -8.56, 1, 215);
+	script_runner:addDestination("Sun Rock Retreat - Stonetalon Mountains", 924.82, 906.05, 104.97, 0, 0);
+	script_runner:addDestination("Freewind Post - Thousand Needles", -5455.99, -2451.29, 89.41, 0, 0);
+	script_runner:addDestination("Gadgetzan - Tanaris", -7157.03, -3824.21, 8.55, 0, 0);
+	script_runner:addDestination("Marshal's Refuge - Un'Goro Crater", -6149.63, -1082.23, -199.68, 0, 0);
+	script_runner:addDestination("Cenarion Hold - Silithus", -6836.59, 745.39, 42.60, 0, 0);
+	script_runner:addDestination("Light's Hope Chapel", 2282.57, -5317.24, 88.55, 0, 0);
+	script_runner:addDestination("Brill - Tirisfal Glades", 2234.78, 251.79, 33.56, 0, 0);
+	script_runner:addDestination("The Bulwark - Tirisfal Glades", 1709.83, -737.01, 54.28, 0, 0);
+	script_runner:addDestination("The Sepulcher - Tirisfal Glades", 508.36, 1622.63, 125.54, 0, 130);
+	script_runner:addDestination("Tarren Mill - Hillsbrad Foothills", -25.29, -930.49, 54.84, 0, 267);
+	script_runner:addDestination("Southshore - Hillsbrad Foothills", -853.22, -533.52, 9.96, 0, 267);
+	script_runner:addDestination("Hammerfall - Arathi Highlands", -934.21, -3522.75, 70.93, 0, 45);
+	script_runner:addDestination("Refuge Pointe - Arathi Highlands", -1246.61, -2529.32, 20.61, 0, 45);	
+	script_runner:addDestination("Kargath - Badlands", -6673.03, -2181.01, 243.78, 0, 3);
+	script_runner:addDestination("Thorium Point - Searing Gorge", -6505.15, -1167.08, 308.81, 0, 51);
+	script_runner:addDestination("Flame Crest - Burning Steppes", -7504.19, -2182.93, 165.81, 0, 46);
+	script_runner:addDestination("Morgan's Vigil - Burning Steppes", -8361.44, -2753.10, 185.55, 0, 46);
+	script_runner:addDestination("Stonard - Swamp of Sorrows", -10459.82, -3261.91, 20.18, 0, 8);
+	script_runner:addDestination("Grom'gol - Stranglethorn Vale", -12388.52, 151.96, 2.63, 0, 33);
+	script_runner:addDestination("Booty Bay - Stranglethorn Vale", -14448.18, 473.49, 15.21, 0, 33);
+	script_runner:addDestination("Shadowprey Village - Desolace", -1616.38, 3115.15, 43.25, 1, 405);
+	script_runner:addDestination("Camp Mojache - Feralas", -4431.41, 257.74, 37.48, 1, 357);
+	script_runner:addDestination("The Forgotten Coast - Feralas", -4346.82, 2329.58, 8.33, 1, 357);
+	script_runner:addDestination("Everlook - Winterspring", 6707.71, -4670.25, 721.39, 1, 618);
+	script_runner:addDestination("Nighthaven - Moonglade", 7945.57, -2577.50, 489.92, 1, 493);
+	script_runner:addDestination("Ratchet - The Barrens", -1028.38, -3669.89, 22.95, 1, 17);
+	script_runner:addDestination("Scarlet Monastery Meeting Stone",  2663.21, -682.73, 113.44, 0, 85);
+
+
+	-- end of destinations
+
+	self.timer = GetTimeEX();
+	self.genTimer = GetTimeEX();
+	self.avoidTimer = GetTimeEX();
+	self.isSetup = true;
+end
+
 function script_runner:DrawCircles(pointX,pointY,pointZ,radius)
 	-- thx benjamin
 	local r = 255;
@@ -248,50 +300,17 @@ function script_runner:drawAggroCircles()
  	end
 end
 
-function script_runner:setup()
-	self.timer = GetTimeEX();
-	self.genTimer = GetTimeEX();
-	self.avoidTimer = GetTimeEX();
-	-- Add Destinations
-	script_runner:addDestination("Tanaris Avoid Demo Start", -7288.0126953125, -3773.5656738281, 9.1952447891235, 1, 440);
-	script_runner:addDestination("Tanaris Avoid Demo Stop", -7427.31, -3759.38, 11.87, 10.79, 1, 440);
-	script_runner:addDestination("Razor Hill - Durator", 323.82, -4736.34, 9.80, 1, 14);
-	script_runner:addDestination("Orgrimmar - Durator", 1620.57, -4433.01, 11.07, 1, 1637);
-	script_runner:addDestination("The Crossroads - The Barrens", -433.57, -2651.16, 95.96, 1, 17);
-	script_runner:addDestination("Camp Taurajo - The Barrens", -2356.23, -1964.11, 96.06, 1, 17);
-	script_runner:addDestination("Brackenwall Village - Dustwallow Marsh", -3154.01, -2900.93, 33.83, 0, 0);
-	script_runner:addDestination("Splintertree Post - Ashenvale", 2324.94, -2546.02, 101.05, 1, 331);
-	script_runner:addDestination("Bloodvenom Post - Felwood", 5105.07, -353.01, 357.25, 1, 361);
-	script_runner:addDestination("Valormok - Aszhara", 3609.11, -4410.26, 114.02, 0, 0);
-	script_runner:addDestination("Bloodhoof Village - Mulgore", -2335.72, -361.89, -8.56, 1, 215);
-	script_runner:addDestination("Sun Rock Retreat - Stonetalon Mountains", 924.82, 906.05, 104.97, 0, 0);
-	script_runner:addDestination("Freewind Post - Thousand Needles", -5455.99, -2451.29, 89.41, 0, 0);
-	script_runner:addDestination("Gadgetzan - Tanaris", -7157.03, -3824.21, 8.55, 0, 0);
-	script_runner:addDestination("Marshal's Refuge - Un'Goro Crater", -6149.63, -1082.23, -199.68, 0, 0);
-	script_runner:addDestination("Cenarion Hold - Silithus", -6836.59, 745.39, 42.60, 0, 0);
-	script_runner:addDestination("Light's Hope Chapel", 2282.57, -5317.24, 88.55, 0, 0);
-	script_runner:addDestination("Brill - Tirisfal Glades", 2234.78, 251.79, 33.56, 0, 0);
-	script_runner:addDestination("The Bulwark - Tirisfal Glades", 1709.83, -737.01, 54.28, 0, 0);
-	script_runner:addDestination("The Sepulcher - Tirisfal Glades", 508.36, 1622.63, 125.54, 0, 130);
-	script_runner:addDestination("Tarren Mill - Hillsbrad Foothills", -25.29, -930.49, 54.84, 0, 267);
-	script_runner:addDestination("Southshore - Hillsbrad Foothills", -853.22, -533.52, 9.96, 0, 267);
-	script_runner:addDestination("Hammerfall - Arathi Highlands", -934.21, -3522.75, 70.93, 0, 45);
-	script_runner:addDestination("Refuge Pointe - Arathi Highlands", -1246.61, -2529.32, 20.61, 0, 45);	
-	script_runner:addDestination("Kargath - Badlands", -6673.03, -2181.01, 243.78, 0, 3);
-	script_runner:addDestination("Thorium Point - Searing Gorge", -6505.15, -1167.08, 308.81, 0, 51);
-	script_runner:addDestination("Flame Crest - Burning Steppes", -7504.19, -2182.93, 165.81, 0, 46);
-	script_runner:addDestination("Morgan's Vigil - Burning Steppes", -8361.44, -2753.10, 185.55, 0, 46);
-	script_runner:addDestination("Stonard - Swamp of Sorrows", -10459.82, -3261.91, 20.18, 0, 8);
-	script_runner:addDestination("Grom'gol - Stranglethorn Vale", -12388.52, 151.96, 2.63, 0, 33);
-	script_runner:addDestination("Booty Bay - Stranglethorn Vale", -14448.18, 473.49, 15.21, 0, 33);
-	script_runner:addDestination("Shadowprey Village - Desolace", -1616.38, 3115.15, 43.25, 1, 405);
-	script_runner:addDestination("Camp Mojache - Feralas", -4431.41, 257.74, 37.48, 1, 357);
-	script_runner:addDestination("The Forgotten Coast - Feralas", -4346.82, 2329.58, 8.33, 1, 357);
-	script_runner:addDestination("Everlook - Winterspring", 6707.71, -4670.25, 721.39, 1, 618);
-	script_runner:addDestination("Nighthaven - Moonglade", 7945.57, -2577.50, 489.92, 1, 493);
-	script_runner:addDestination("Ratchet - The Barrens", -1028.38, -3669.89, 22.95, 1, 17);
 
-	self.isSetup = true;
+function script_runner:printNewPath()
+	DEFAULT_CHAT_FRAME:AddMessage('script_runner: Add this Path to your database by adding the following line in the setup-function in script_runner.lua:');
+	DEFAULT_CHAT_FRAME:AddMessage('You can copy the line from logs//.txt');
+	local x, y, z = GetLocalPlayer():GetPosition();
+	local hx, hy, hz = math.floor(x*100)/100, math.floor(y*100)/100, math.floor(z*100)/100;
+	local cont = GetContinentID();
+	local map = GetMapID();
+	local addString = 'script_runner:addDestination("' .. GetMinimapZoneText() .. '", ' .. hx .. ', ' .. hy .. ', ' .. hz .. ', '.. cont ..', '.. map..');'	
+	DEFAULT_CHAT_FRAME:AddMessage(addString);
+	ToFile(addString);
 end
 
 function script_runner:addDestination(name, x, y, z, continentID, mapID) 
@@ -503,6 +522,9 @@ function script_runner:menu()
 		Text("Distance to destination: " .. string.format("%.0f", self.distDestination) .. ' yards.')
 
 		Separator()
+
+		if (Button("Save current location as the new Runner Path")) then script_runner:printNewPath(); end
+
 
 		local wasClicked = false;
 		wasClicked, self.avoidAggro = Checkbox("Avoid Aggro", self.avoidAggro);

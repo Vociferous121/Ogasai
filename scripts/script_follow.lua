@@ -179,6 +179,7 @@ function script_follow:healAndBuff()
 				end
 			end
 		
+			-- blessing of wisdom
 			if (partyMember:GetManaPercentage() > 1) and (HasSpell("Blessing of Wisdom")) and (not partyMember:HasBuff("Blessing of Wisdom")) or (not partyMember:HasBuff("Blessing of Might")) and (not partyMember:HasBuff("Mana Spring")) then
 				if (script_follow:moveInLineOfSight(partyMember)) then
 					return true;
@@ -390,6 +391,14 @@ function script_follow:healAndBuff()
 						self.waitTimer = GetTimeEX() + 1500;
 						return true;
 					end
+				end
+
+				localHealth = GetLocalPlayer():GetHealthPercentage();
+				leaderHealth = GetPartyMember(GetPartyLeaderIndex()):GetHealthPercentage();
+				if localHealth < 40 or leaderHealth < 40 and HasSpell("Holy Light") then
+					CastHeal("Holy Light", localObj);
+					self.waitTimer = GetTimeEX() + 2000;
+					return true;
 				end
 
 				-- Holy Light
