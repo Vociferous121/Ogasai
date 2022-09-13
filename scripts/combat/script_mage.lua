@@ -1079,6 +1079,7 @@ function script_mage:menu()
 
 	Separator();
 
+ 	if (self.frostMage) or (self.fireMage) then
 	if (CollapsingHeader("Mage Combat Options")) then
 		local wasClicked = false;
 		Text('Drink below mana percentage');
@@ -1207,5 +1208,6 @@ function script_mage:menu()
 				self.manaGemMana = SliderFloat("MG%", 1, 90, self.manaGemMana);		
 			end
 		end
+	end
 	end
 end
