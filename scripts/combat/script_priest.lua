@@ -26,6 +26,7 @@ script_priest = {
 	shadowFormHealth = 50,	-- shadowform change health
 	useMindFlay = false,	-- use mind flay yes/no
 	swpMana = 20, -- Use shadow word: pain above this mana %
+	followTargetDistance = 40,
 }
 
 function script_priest:healAndBuff(targetObject, localMana)
@@ -341,8 +342,14 @@ function script_priest:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		if (not IsMoving() and targetObj:GetDistance() < 10 and targetObj:IsInLineOfSight()) then
-			targetObj:FaceTarget();
+		if (targetObj:IsInLineOfSight() and not IsMoving()) then
+			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+					self.message = "Face Target 1";
+					self.waitTimer = GetTimeEX() + 500;
+				end
+			end
 		end
 
 		-- set target health

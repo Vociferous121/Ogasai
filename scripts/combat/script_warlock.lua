@@ -42,7 +42,7 @@ script_warlock = {
 	wandHealthPreset = 10, -- preset to attack target with 10% HP using wand, reset in Setup function for dungeon to cast shadowbolt
 	drainSoulHealthPreset = 30,
 	hasSufferingSpell = false,
-	followTargetDistance = 10,
+	followTargetDistance = 40,
 }
 
 function script_warlock:cast(spellName, target)
@@ -306,8 +306,14 @@ function script_warlock:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		if (not IsMoving() and (targetObj:GetDistance() <= self.followTargetDistance) and targetObj:IsInLineOfSight()) then
-			targetObj:FaceTarget();
+		if (targetObj:IsInLineOfSight() and not IsMoving()) then
+			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+					self.message = "Face Target 1";
+					self.waitTimer = GetTimeEX() + 500;
+				end
+			end
 		end
 
 		-- set target health
@@ -776,8 +782,15 @@ function script_warlock:run(targetGUID)
 					end
 				end
 			end	
-			if (not targetObj:FaceTarget()) and (targetObj:IsInLineOfSight()) then
-				targetObj:FaceTarget();
+
+			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+						self.message = "Face Target 1";
+						self.waitTimer = GetTimeEX() + 500;
+					end
+				end
 			end
 		end
 	end

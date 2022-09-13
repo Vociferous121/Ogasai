@@ -32,6 +32,7 @@ script_warrior = {
 	challengingShoutAdds = 5, -- how many adds to use challenging shout. depends on dungeon/raid
 	mockingBlowActionBarSlot = 72+4,
 	useMockingBlow = true,
+	followTargetDistance = 40,
 
 	-- note. the checkbox in the menu controls battle, defensive, berserker stance. all spells have arguments for which
 	-- stance they apply to and can be used in. if the palyer does not click defensive stance in-game then the bot
@@ -216,9 +217,13 @@ function script_warrior:run(targetGUID)	-- main content of script
 			JumpOrAscendStart();
 		end
 
-		if (not IsMoving() and self.faceTarget and targetObj:GetDistance() < 10 and targetObj:IsInLineOfSight()) then
-			if (not targetObj:FaceTarget()) then
-				targetObj:FaceTarget();
+		if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget) then
+			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+					self.message = "Face Target 1";
+					self.waitTimer = GetTimeEX() + 500;
+				end
 			end
 		end
 		
@@ -318,9 +323,14 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end
 			end	
 
-			-- enable/disable facing target automatically
-			if (self.enableFaceTarget) and (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
-				targetObj:FaceTarget();
+			if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+						self.message = "Face Target 1";
+						self.waitTimer = GetTimeEX() + 500;
+					end
+				end
 			end
 
 			-- Check move into melee range
@@ -339,10 +349,16 @@ function script_warrior:run(targetGUID)	-- main content of script
 				DisMount();
 			end
 
-			if (not targetObj:FaceTarget()) and (self.faceTarget) and (targetObj:IsInLineOfSight()) then
-				targetObj:FaceTarget();
+			if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+						self.message = "Face Target 1";
+						self.waitTimer = GetTimeEX() + 500;
+					end
+				end
 			end
-
+	
 			-- Run backwards if we are too close to the target
 			if (targetObj:GetDistance() <= .3) then 
 				if (script_warrior:runBackwards(targetObj,4)) then 
@@ -355,9 +371,14 @@ function script_warrior:run(targetGUID)	-- main content of script
 				return 3;
 			end
 
-			-- enable/disable facing target automatically
-			if (self.enableFaceTarget) and (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
-				targetObj:FaceTarget();
+			if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+						self.message = "Face Target 1";
+						self.waitTimer = GetTimeEX() + 500;
+					end
+				end
 			end
 
 			targetObj:AutoAttack();
@@ -617,10 +638,13 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end 
 			end
 
-			-- Always face target
-			if (self.enableFaceTarget) and targetObj:IsInLineOfSight() then
-				if (targetHealth <= 99) then
-					targetObj:FaceTarget();
+			if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+						self.message = "Face Target 1";
+						self.waitTimer = GetTimeEX() + 500;
+					end
 				end
 			end
 

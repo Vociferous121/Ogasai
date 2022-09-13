@@ -19,6 +19,7 @@ script_paladin = {
 	meleeDistance = 3.15,
 	crusaderStacks = 3,
 	crusaderStacksMana = 40,
+	followTargetDistance = 40,
 }
 
 function script_paladin:setup()
@@ -180,9 +181,14 @@ function script_paladin:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		-- ??
-		if (not IsMoving() and targetObj:GetDistance() < self.meleeDistance and targetObj:IsInLineOfSight()) then
-			targetObj:FaceTarget();
+		if (targetObj:IsInLineOfSight() and not IsMoving()) then
+			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+					self.message = "Face Target 1";
+					self.waitTimer = GetTimeEX() + 500;
+				end
+			end
 		end
 
 		-- Auto Attack
@@ -215,8 +221,14 @@ function script_paladin:run(targetGUID)
 				return 0;
 			 end
 
-			if (not targetObj:FaceTarget() and targetObj:GetDistance() < 10 and targetObj:IsInLineOfSight()) then
-				targetObj:FaceTarget();
+			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+						self.message = "Face Target 1";
+						self.waitTimer = GetTimeEX() + 500;
+					end
+				end
 			end
 
 			-- Check move into melee range
@@ -253,8 +265,14 @@ function script_paladin:run(targetGUID)
 				return 3;
 			end
 
-			if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
-				targetObj:FaceTarget();
+			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+						self.message = "Face Target 1";
+						self.waitTimer = GetTimeEX() + 500;
+					end
+				end
 			end
 
 			-- check if we are in combat?
@@ -272,8 +290,14 @@ function script_paladin:run(targetGUID)
 				DisMount();
 			end
 
-			if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
-				targetObj:FaceTarget();
+			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+						self.message = "Face Target 1";
+						self.waitTimer = GetTimeEX() + 500;
+					end
+				end
 			end
 
 			if (not IsMoving() and targetObj:GetDistance() < 10 and targetObj:IsInLineOfSight()) then
@@ -287,8 +311,14 @@ function script_paladin:run(targetGUID)
 				end 
 			end
 
-			if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
-				targetObj:FaceTarget();
+			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+						self.message = "Face Target 1";
+						self.waitTimer = GetTimeEX() + 500;
+					end
+				end
 			end
 
 			-- Check if we are in melee range
@@ -462,8 +492,14 @@ function script_paladin:run(targetGUID)
 			if (targetObj:GetDistance() < self.meleeDistance) then
 
 
-				if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
-					targetObj:FaceTarget();
+				if (targetObj:IsInLineOfSight() and not IsMoving()) then
+					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+						if (not targetObj:FaceTarget()) then
+							targetObj:FaceTarget();
+							self.message = "Face Target 1";
+							self.waitTimer = GetTimeEX() + 500;
+						end	
+					end
 				end
 
 				if (targetObj:IsCasting()) or (targetObj:IsFleeing()) then

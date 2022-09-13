@@ -28,6 +28,7 @@ script_rogue = {
 	enableBladeFlurry = true,
 	enableAdrenRush = true,
 	rotationTwo = false,
+	followTargetDistance = 10,
 }
 
 function script_rogue:setup()
@@ -208,9 +209,13 @@ function script_rogue:run(targetGUID)
 				JumpOrAscendStart();
 			end
 		
-			if (not IsMoving() and targetObj:GetDistance() < 10 and targetObj:IsInLineOfSight()) then
-				if (not targetObj:FaceTarget()) then
-					targetObj:FaceTarget();
+			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+						self.message = "Face Target 1";
+						self.waitTimer = GetTimeEX() + 500;
+					end
 				end
 			end
 
@@ -241,10 +246,16 @@ function script_rogue:run(targetGUID)
 				self.targetObjGUID = targetObj:GetGUID();
 				self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 
-				-- face target
-				if (not targetObj:FaceTarget() and targetObj:GetDistance() < 10 and targetObj:IsInLineOfSight()) then
-					targetObj:FaceTarget();
+				if (targetObj:IsInLineOfSight() and not IsMoving()) then
+					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+						if (not targetObj:FaceTarget()) then
+							targetObj:FaceTarget();
+							self.message = "Face Target 2";
+							self.waitTimer = GetTimeEX() + 500;
+						end
+					end
 				end
+	
 
 				-- Stealth in range if enabled
 				if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) then
@@ -285,8 +296,14 @@ function script_rogue:run(targetGUID)
 					end
 				end
 
-				if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
-					targetObj:FaceTarget();
+				if (targetObj:IsInLineOfSight() and not IsMoving()) then
+					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+						if (not targetObj:FaceTarget()) then
+							targetObj:FaceTarget();
+							self.message = "Face Target 3";
+							self.waitTimer = GetTimeEX() + 500;
+						end
+					end
 				end
 			
 				-- Check if we are in meele range
@@ -320,8 +337,14 @@ function script_rogue:run(targetGUID)
 					DisMount();
 				end
 
-				if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
-					targetObj:FaceTarget();
+				if (targetObj:IsInLineOfSight() and not IsMoving()) then
+					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+						if (not targetObj:FaceTarget()) then
+							targetObj:FaceTarget();
+							self.message = "Face Target 4";
+							self.waitTimer = GetTimeEX() + 500;
+						end
+					end
 				end
 
 				-- Check: Do we have the right target (in UI) ??
@@ -347,9 +370,14 @@ function script_rogue:run(targetGUID)
 					return 3;
 				end
 
-				-- auto face target
-				if (self.autoFaceTarget and not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
-					targetObj:FaceTarget();
+				if (targetObj:IsInLineOfSight() and not IsMoving()) then
+					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+						if (not targetObj:FaceTarget()) then
+							targetObj:FaceTarget();
+							self.message = "Face Target 5";
+							self.waitTimer = GetTimeEX() + 500;
+						end
+					end
 				end
 
 				-- Check: Use Vanish 
@@ -885,15 +913,25 @@ function script_rogue:rest()
 end
 
 function script_rogue:menu()
+
+	Text("Target 'tracking' range for new nav system testing - range to target");
+	self.followTargetDistance = SliderInt("TEST", 0, 100, self.followTargetDistance);
+	Text("Bot will face target and adjust coordinates based on range");
+	Text("Target MUST be in line of sight!");
+
+	if (CollapsingHeader("Temporary Grind/Rotation Buttons")) then
+		if (not self.enableRotation) then -- if not showing rotation button
+			wasClicked, self.enableGrind = Checkbox("Grinder", self.enableGrind); -- then show grind button
+				SameLine();
+		end
+		
+		if (not self.enableGrind) then -- if not showing grind button
+			wasClicked, self.enableRotation = Checkbox("Rotation", self.enableRotation); -- then show rotation button
+				SameLine();
+		end	
 	Separator();
-	if (not self.enableRotation) then -- if not showing rotation button
-		wasClicked, self.enableGrind = Checkbox("Grinder", self.enableGrind); -- then show grind button
 	end
-		SameLine();
-	if (not self.enableGrind) then -- if not showing grind button
-		wasClicked, self.enableRotation = Checkbox("Rotation", self.enableRotation); -- then show rotation button
-	end	
-	Separator();
+
 	if (self.enableGrind) then
 		Separator();
 		if (CollapsingHeader("Rogue Grind Options")) then

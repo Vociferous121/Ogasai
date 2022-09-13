@@ -46,6 +46,7 @@ script_mage = {
 	scorchHealth = 20,	-- use scorch above this target health %
 	scorchMana = 20,	-- use scorch above this mana %
 	scorchStacks = 2,	-- scorch debuff stacks on target
+	followTargetDistance = 40,
 
 
 }
@@ -296,9 +297,14 @@ function script_mage:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		-- face target if distance < 10
-		if (not IsMoving() and targetObj:GetDistance() < 10 and targetObj:IsInLineOfSight()) then
-			targetObj:FaceTarget();
+		if (targetObj:IsInLineOfSight() and not IsMoving()) then
+			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+					self.message = "Face Target 1";
+					self.waitTimer = GetTimeEX() + 500;
+				end
+			end
 		end
 
 		-- Don't attack if we should rest first
@@ -360,10 +366,15 @@ function script_mage:run(targetGUID)
 						return 3;
 					end
 			
-					-- face target
-					if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
-						targetObj:FaceTarget();
+				if (targetObj:IsInLineOfSight() and not IsMoving()) then
+					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+						if (not targetObj:FaceTarget()) then
+							targetObj:FaceTarget();
+							self.message = "Face Target 2";
+							self.waitTimer = GetTimeEX() + 500;
+						end
 					end
+				end
 
 					-- cast the spell - frostbolt
 					if (localMana > 8) and (not IsMoving() and targetObj:IsInLineOfSight()) then
@@ -394,9 +405,14 @@ function script_mage:run(targetGUID)
 					end
 				end
 
-				-- face targert
-				if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
-					targetObj:FaceTarget();
+				if (targetObj:IsInLineOfSight() and not IsMoving()) then
+					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+						if (not targetObj:FaceTarget()) then
+							targetObj:FaceTarget();
+							self.message = "Face Target 3";
+							self.waitTimer = GetTimeEX() + 500;
+						end
+					end
 				end
 			
 				-- cast fireball to pull and not has pyroblast
@@ -451,8 +467,14 @@ function script_mage:run(targetGUID)
 					return 3;
 				end	
 
-				if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
-					targetObj:FaceTarget();
+				if (targetObj:IsInLineOfSight() and not IsMoving()) then
+					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+						if (not targetObj:FaceTarget()) then
+							targetObj:FaceTarget();
+							self.message = "Face Target 4";
+							self.waitTimer = GetTimeEX() + 500;
+						end
+					end
 				end
 				
 				-- cast fireball
@@ -671,18 +693,18 @@ function script_mage:run(targetGUID)
 			end
 
 			-- blast wave
-			if (self.fireMage) then
-				if (HasSpell("Blast Wave")) and (localMana > 30) and (targetObj:GetDistance() < 10) and (not IsSpellOnCD("Blast Wave")) and (targetHealth > 15 or localHealth < 20) then
-					if (script_mage:runBackwards(targetObj, 7)) then -- Moves if the target is closer than 7 yards
-						self.message = "Moving away from target...";
-						if (not IsSpellOnCD("Blast Wave")) then
-							CastSpellByName("Blast Wave");
-							return 0;
-						end
-					return 4; 
-					end 
-				end	
-			end
+			--if (self.fireMage) then
+			--	if (HasSpell("Blast Wave")) and (localMana > 30) and (targetObj:GetDistance() < 10) and (not IsSpellOnCD("Blast Wave")) and (targetHealth > 15 or localHealth < 20) then
+			--		if (script_mage:runBackwards(targetObj, 7)) then -- Moves if the target is closer than 7 yards
+			--			self.message = "Moving away from target...";
+			--			if (not IsSpellOnCD("Blast Wave")) then
+			--				CastSpellByName("Blast Wave");
+			--				return 0;
+			--			end
+			--		return 4; 
+			--		end 
+			--	end	
+			--end
 
 			-- scorch
 			if (self.fireMage) and (HasSpell("Scorch")) then

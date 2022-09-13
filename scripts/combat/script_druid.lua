@@ -15,7 +15,8 @@ script_druid = {
 	cat = false,
 	bear = false,
 	stayCat = false,
-	isChecked = true
+	isChecked = true,
+	followTargetDistance = 40,
 }
 
 function script_druid:setup()
@@ -143,9 +144,13 @@ function script_druid:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		if (not IsMoving() and targetObj:GetDistance() < 10 and targetObj:IsInLineOfSight()) then
-			if (not targetObj:FaceTarget()) then
-				targetObj:FaceTarget();
+		if (targetObj:IsInLineOfSight() and not IsMoving()) then
+			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+					self.message = "Face Target 1";
+					self.waitTimer = GetTimeEX() + 500;
+				end
 			end
 		end
 
@@ -233,10 +238,16 @@ function script_druid:run(targetGUID)
 				end
 			end
 
-			if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
-				targetObj:FaceTarget();
+			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+						self.message = "Face Target 1";
+						self.waitTimer = GetTimeEX() + 500;
+					end
+				end
 			end
-
+	
 			-- Check move into melee range
 			if (targetObj:GetDistance() >= self.meeleDistance or not targetObj:IsInLineOfSight()) then
 				return 3;
@@ -261,8 +272,14 @@ function script_druid:run(targetGUID)
 				end 
 			end
 
-			if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
-				targetObj:FaceTarget();
+			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+						self.message = "Face Target 1";
+						self.waitTimer = GetTimeEX() + 500;
+					end
+				end	
 			end
 
 			targetObj:AutoAttack();
