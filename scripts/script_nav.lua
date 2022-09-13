@@ -361,7 +361,7 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 	local _ix, _iy, _iz = GetPathPositionAtIndex(5, self.lastpathnavIndex);
 			
 	-- If we have a new destination, generate a new path to it
-	if (not script_grind.gather) then
+	if (not script_grind.gather) and (not localObj:IsDead()) then
 		if(self.navPathPosition['x'] ~= _x or self.navPathPosition['y'] ~= _y or self.navPathPosition['z'] ~= _z
 			or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 15) then
 			self.navPathPosition['x'] = _x;
@@ -370,9 +370,9 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 			GeneratePath(_lx, _ly, _lz, _x, _y, _z);
 			self.lastpathnavIndex = -1; 
 		end	
-	elseif (script_grind.gather) then
+	elseif (script_grind.gather) or (localObj:IsDead()) then
 		if(self.navPathPosition['x'] ~= _x or self.navPathPosition['y'] ~= _y or self.navPathPosition['z'] ~= _z
-			or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 15) then
+			or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 20) then
 			self.navPathPosition['x'] = _x;
 			self.navPathPosition['y'] = _y;
 			self.navPathPosition['z'] = _z;

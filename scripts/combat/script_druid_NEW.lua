@@ -17,8 +17,6 @@ script_druid = {
 	bear = false,	-- is bear form selected
 	isCat = false,	-- is in cat form
 	isBear = false,	-- is in bear form
-	stayCat = false,	-- stay in cat form
-	stayBear = false,	-- stay in bear form
 	isChecked = true,
 	pullWithWrath = true,
 	pullWithMoonfire = false,
@@ -27,15 +25,11 @@ script_druid = {
 }
 
 function script_druid:setup()
-	-- Sort forms
-	--if (HasSpell('Cat Form')) then
-	--	self.cat = true;
-	--elseif (HasSpell('Bear Form')) then
-	--	self.bear = true;
-	--elseif (not HasSpell("Cat Form") and not HasSpell("Bear Form")) then
-	--	self.cat = false;
-	--	self.bear = false;
-	--end
+	--Sort forms
+	if (not HasSpell("Cat Form") and not HasSpell("Bear Form")) then
+		self.cat = false;
+		self.bear = false;
+	end
 
 	-- set entangle roots on startup
 	if (not HasSpell("Entangling Roots")) then
@@ -218,8 +212,10 @@ function script_druid:run(targetGUID)
 
 		-- sort forms redundant checkbox
 		if (localObj:HasBuff("Bear Form")) or (localObj:HasBuff("Dire Bear Form")) then
-			isBear = true;
-			isCat = false;
+			self.isBear = true;
+			self.isCat = false;
+		else 
+			self.isBear = false;
 		end
 
 		-- sort forms redundant checkbox
@@ -239,118 +235,26 @@ function script_druid:run(targetGUID)
 			end
 
 			----
-			-- pull spells - switch out of form and Cast wrath or moonfire
-			----
-
-			-- logical problem. bot thinks it's still in form? won't cast back into form once it casts wrath or moonfire.
-				-- incombat issue?
-
-			-- this will cast form to remove it, cast pull spell, 
-			-- Wrath to pull if in bear or cat form
-			--if (isBear or isCat) then
-			--	if (self.pullWithWrath) and (HasSpell("Wrath")) and (localMana >= 35) and (not IsSpellOnCD("Wrath")) then
-			--		if (not targetObj:IsInLineOfSight()) then -- check line of sight
-			--			return 3; -- target not in line of sight
-			--		end -- move to target
-			--		-- switch out of form
-			--		if (IsMoving()) then
-			--			StopMoving();
-			--		end
-			--		if (localObj:HasBuff("Bear Form") or localObj:HasBuff("Dire Bear Form") or localObj:HasBuff("Cat Form")) then
-			--			if (localObj:HasBuff("Bear Form")) then
-			--				if (CastSpellByName("Bear Form")) then
-			--					self.waitTimer = GetTimeEX() + 500;
-			--					isBear = false;
-			--					return 0;
-			--				end
-			--			end
-			--			if (localObj:HasBuff("Dire Bear Form")) then
-			--				if (CastSpellByName("Dire Bear Form")) then
-			--					self.waitTimer = GetTimeEX() + 500;
-			--					isBear = false;
-			--					return 0;
-			--				end
-			--			end
-			--			if (localObj:HasBuff("Cat Form")) then
-			--				if (CastSpellByName("Cat Form")) then
-			--					self.waitTimer = GetTimeEX() + 500;
-			--					isCat = false;
-			--					return 0;
-			--				end
-			--			end
-			--		end
-			--		-- now cast wrath since we are out of form
-			--		if (Cast("Wrath", targetObj)) then
-			--			self.waitTimer = GetTimeEX() + 3000;
-			--			self.message = "Casting Wrath!";
-			--			return 0; -- keep trying until cast
-			--		end
-			--		if (not localObj:HasBuff("Bear Form") or not localObj:HasBuff("Dire Bear Form")) and (targetHealth < 99) or (IsInCombat()) then
-			--			CastSpellByName("Dire Bear Form");
-			--			self.waitTimer = GetTimeEX() + 1500;
-			--			isBear = true;
-			--			return 0;
-			--		end
-			--			-- Moonfire to pull if in bear or cat form
-			--	elseif (self.pullWithMoonfire) and (HasSpell("Moonfire")) and (localMana >= 25) and (not IsSpellOnCD("Moonfire")) and (not targetObj:HasDebuff("Moonfire")) then
-			--		if (not targetObj:IsInLineOfSight()) then -- check line of sight
-			--			return 3; -- target not in line of sight
-			--		end -- move to target
-			--		-- switch out of form
-			--		if (IsMoving()) then
-			--			StopMoving();
-			--		end
-			--		if (localObj:HasBuff("Bear Form") or localObj:HasBuff("Dire Bear Form") or localObj:HasBuff("Cat Form")) then
-			--			if (localObj:HasBuff("Bear Form")) then
-			--				if (CastSpellByName("Bear Form")) then
-			--					self.waitTimer = GetTimeEX() + 1500;
-			--					return 0;
-			--				end
-			--			end
-			--			if (localObj:HasBuff("Dire Bear Form")) then
-			--				if (CastSpellByName("Dire Bear Form")) then
-			--					self.waitTimer = GetTimeEX() + 1500;
-			--					return 0;
-			--				end
-			--			end
-			--			if (localObj:HasBuff("Cat Form")) then
-			--				if (CastSpellByName("Cat Form")) then
-			--					self.waitTimer = GetTimeEX() + 1500;
-			--					return 0;
-			--				end
-			--			end
-			--		end
-			--		if (IsMoving()) then
-			--			StopMoving();
-			--		end
-			--		-- now cast wrath since we are out of form
-			--		if (Cast("Moonfire", targetObj)) then
-			--			self.waitTimer = GetTimeEX() + 1500;
-			--			self.message = "Casting Moonfire!";
-			---			return 0; -- keep trying until cast
-			--		end
-			--		-- Entangling roots when target is far enough away and we have enough mana
-			--		if (self.useEntanglingRoots) then
-			--			if (HasSpell("Entangling Roots")) and (not targetObj:HasDebuff("Enatangle Roots")) and (localMana > 45) and (targetObj:GetDistance() > 12) then
-			--				if (Cast("Entangling Roots", targetObj)) then
-			--					return 0;
-			--				end
-			--			end
-			--		end
-			--	end
-			--end
-
-
-			----
 			-- pull in form
 			----
-
 				-- pull bear form
 			------
 
-			-- if not in bear form and conditions right then stay in bear form
-			if (self.bear) and (not localObj:HasBuff("Bear Form") or not localObj:HasBuff("Dire Bear Form")) and (localHealth >= self.healthToShift) then
-				if (
+			-- stay in form
+			-- not in bear form and conditions right then stay in bear form
+			if (self.bear) and (not isBear) and (not localObj:HasBuff("Bear Form") or not localObj:HasBuff("Dire Bear Form")) and (localHealth >= self.healthToShift) then
+				if (HasSpell("Dire Bear Form")) then
+					if (CastSpellByName("Dire Bear Form")) then
+						self.waitTimer = GetTimeEX() + 1500;
+						return 0;
+					end
+				elseif (HasSpell("Bear Form")) then
+					if (CastSpellByName("Bear Form")) then
+						self.waitTimer = GetTimeEX() + 1500;
+						return 0;
+					end
+				end
+			end
 
 			-- faerie fire
 			if (isBear) then

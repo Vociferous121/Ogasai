@@ -796,6 +796,7 @@ function script_warlock:rest()
 			self.waitTimer = GetTimeEX() + 1600;
 			return 0;
 		end
+		return 0;
 	end
 
 	-- Eat and Drink
