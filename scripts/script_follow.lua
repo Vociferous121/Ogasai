@@ -12,10 +12,10 @@ script_follow = {
 	partyGreaterHealHealth = 28,
 	flashHealMana = 7,
 	partyFlashHealHealth = 50,
-   	holyLightMana = 25,
+   	holyLightMana = 20,
 	partyHolyLightHealth = 60,
 	flashOfLightMana = 3,
-	partyFlashOfLightHealth = 83,
+	partyFlashOfLightHealth = 80,
 	layOnHandsHealth = 6,
 	bopHealth = 10,
    	healingTouchMana = 35,
@@ -88,7 +88,7 @@ function script_follow:moveInLineOfSight(partyMember)
 			local x, y, z = leaderObj:GetPosition();
 			script_nav:moveToTarget(GetLocalPlayer(), x , y, z);
 			self.timer = GetTimeEX() + 200;
-            self.message = "Moving to party member LoS";
+            self.message = "Moving to Party Leader LoS";
 		return true;
 	end
 	if (self.followMember) then
@@ -773,7 +773,7 @@ function script_follow:run()
 		if (script_follow:GetPartyLeaderObject() ~= 0) then
 			if(script_follow:GetPartyLeaderObject():GetDistance() > self.followLeaderDistance and not script_follow:GetPartyLeaderObject():IsDead()) then
 				local x, y, z = script_follow:GetPartyLeaderObject():GetPosition();
-				self.message = "Following our master...";
+				self.message = "Following Party Leader...";
 				script_nav:moveToTarget(GetLocalPlayer(), x, y, z);
 				return;
 			end

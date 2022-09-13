@@ -532,6 +532,7 @@ function script_mage:run(targetGUID)
 			end
 			
 			-- Check: Move backwards if the target is affected by Frost Nova or Frost Bite
+			if (GetNumPartyMembers() < 1) or (self.useFrostNova) then
 			if (targetHealth > 10) and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (not localObj:HasBuff('Evocation')) and 
 				(targetObj ~= 0 and IsInCombat()) and (self.useFrostNova) and (not localObj:HasDebuff("Web")) and (not localObj:HasDebuff("Encasing Webs")) then
 				if (script_mage:runBackwards(targetObj, 7)) then -- Moves if the target is closer than 7 yards
@@ -543,6 +544,7 @@ function script_mage:run(targetGUID)
 				return 4; 
 				end 
 			end	
+			end
 
 			-- frost nova if target is running away
 			if (HasSpell("Frost Nova")) and (not IsSpellOnCD("Frost Nova")) and (targetObj:IsFleeing()) then
@@ -638,12 +640,12 @@ function script_mage:run(targetGUID)
 
 			--Cone of Cold
 			if (self.frostMage) and (self.useConeOfCold) and (HasSpell("Cone of Cold")) and (not IsSpellOnCD("Cone of Cold")) then
-				if (targetHealth > self.useWandHealth) and (localMana <= self.coneOfColdMana) and (targetHealth >= self.coneOfColdHealth) then
+				if (targetHealth >= self.useWandHealth) and (localMana >= self.coneOfColdMana) and (targetHealth >= self.coneOfColdHealth) then
 					if (not self.addPolymorphed) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) then
 						if (not targetObj:IsInLineOfSight()) then
 							return 3;
 						end	
-						if (script_mage:ConeofCold('Cone of Cold')) then
+						if (script_mage:ConeofCold("Cone of Cold")) then
 							return 0;
 						end
 					end
