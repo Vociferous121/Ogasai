@@ -8,6 +8,8 @@
     
      combat scripts change depending on spells available. i.e. a priest without shadowform will not see shadowform spells.
      
+     Bot now checks for line of sight of target before casting. Bot will no longer cast through walls, hills, etc. More human-like behavior. 
+     
      
      
      warlock currently broken under level 4 ( needs a pet to work )
