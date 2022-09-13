@@ -42,6 +42,7 @@ script_warlock = {
 	wandHealthPreset = 10, -- preset to attack target with 10% HP using wand, reset in Setup function for dungeon to cast shadowbolt
 	drainSoulHealthPreset = 30,
 	hasSufferingSpell = false,
+	followTargetDistance = 10,
 }
 
 function script_warlock:cast(spellName, target)
@@ -305,7 +306,7 @@ function script_warlock:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		if (not IsMoving() and targetObj:GetDistance() < 10 and targetObj:IsInLineOfSight()) then
+		if (not IsMoving() and (targetObj:GetDistance() <= self.followTargetDistance) and targetObj:IsInLineOfSight()) then
 			targetObj:FaceTarget();
 		end
 
@@ -1055,6 +1056,10 @@ end
 
 function script_warlock:menu()
 	localObj = GetLocalPlayer();
+
+	Text("Target 'tracking' range for new nav system testing - range to target");
+	self.followTargetDistance = SliderInt("TEST", 0, 100, self.followTargetDistance);
+	Text("Bot will face target and adjust coordinates based on range");
 	if (CollapsingHeader("Warlock Combat Options")) then
 
 		local wasClicked = false;
