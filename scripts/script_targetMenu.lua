@@ -23,7 +23,7 @@ function script_targetMenu:menu()
 		Separator();
 
 		Text("Search for target distance");
-		script_grind.pullDistance = SliderFloat("PD (yd)", 1, 150, script_grind.pullDistance); 
+		script_grind.pullDistance = SliderFloat("PD (yd)", 1, 300, script_grind.pullDistance); 
 		
 		Separator();
 		
