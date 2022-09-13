@@ -801,6 +801,17 @@ function script_warlock:rest()
 		end
 	end
 
+	-- Dark Pact instead of drink
+	if (HasSpell("Dark Pact")) and (localMana < 75) and (GetPet ~= 0 or hasPet) and (self.useImp or self.useVoid or self.useSuccubus or self.useFelhunter) then
+		if (not IsSpellOnCD("Dark Pact")) and (GetPet():GetManaPercentage() > 20) then
+			if (CastSpellByName("Dark Pact")) then
+				self.waitTimer = GetTimeEX() + 1500;
+				return 0;
+			end
+		end
+		return true;
+	end
+
 	-- drink or eat 
 	if(localMana < self.drinkMana or localHealth < self.eatHealth) and (not IsSwimming()) then
 		if (IsMoving()) then
@@ -1058,8 +1069,9 @@ function script_warlock:menu()
 	localObj = GetLocalPlayer();
 
 	Text("Target 'tracking' range for new nav system testing - range to target");
-	self.followTargetDistance = SliderInt("TEST", 0, 100, self.followTargetDistance);
+	self.followTargetDistance = SliderInt("TEST", 0, 40, self.followTargetDistance);
 	Text("Bot will face target and adjust coordinates based on range");
+	Text("Target MUST be in line of sight!");
 	if (CollapsingHeader("Warlock Combat Options")) then
 
 		local wasClicked = false;
