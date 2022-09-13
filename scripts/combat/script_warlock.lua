@@ -218,6 +218,11 @@ function script_warlock:setup()
 		self.corruptionCastTime = 0;
 	end
 
+		
+	if (not localObj:HasRangedWeapon()) then
+		self.useShadowBolt = true;
+	end
+
 	script_grind.tickRate = 260;
 
 	self.isSetup = true;
@@ -312,6 +317,14 @@ function script_warlock:run(targetGUID)
 			targetObj:AutoAttack();
 		end
 
+
+		-- level 1 - 4
+		if (not HasSpell("Summon Imp")) and (not IsInCombat()) and (localMana > 25) then
+			if (Cast('Shadow Bolt', targetObj)) then
+				self.waitTimer = GetTimeEX() + 1650;
+				return 0;
+			end
+		end
 		-- Check: if we target player pets/totems
 		if (GetTarget() ~= nil and targetObj ~= nil) then
 			if (UnitPlayerControlled("target") and GetTarget() ~= localObj) then 
@@ -320,7 +333,7 @@ function script_warlock:run(targetGUID)
 			end
 		end 
 
-			-- nav move to target causing crashes on follower
+		-- nav move to target causing crashes on follower
 		-- move to cancel Health Funnel when payer has low HP
 		if (GetNumPartyMembers() < 1) then
 			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
@@ -357,6 +370,13 @@ function script_warlock:run(targetGUID)
 				end
 			elseif(not targetObj:IsSpellInRange("Shadowbolt")) or (not targetObj:IsInLineOfSight()) then
 				return 3;
+			end
+
+			-- level 1 - 4
+			if (not HasSpell("Summon Imp")) and (localMana > 25) then
+				if (Cast('Shadow Bolt', targetObj)) then
+					return 0;
+				end
 			end
 
 			-- if pet goes too far then recall
@@ -755,7 +775,9 @@ function script_warlock:run(targetGUID)
 					end
 				end
 			end	
-		targetObj:FaceTarget();
+			if (not targetObj:FaceTarget()) and (targetObj:IsInLineOfSight()) then
+				targetObj:FaceTarget();
+			end
 		end
 	end
 end
