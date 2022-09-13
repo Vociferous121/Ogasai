@@ -114,17 +114,11 @@ function script_grind:setup()
 	vendorDB:loadDBVendors();
 	script_nav:setup();
 
-	if (HasSpell("Cold Snap")) then
-		self.frostMage = true;
-		self.fireMage = false;
-	end
-	
-	if (HasSpell("Pyroblast")) then
-		self.fireMage = true;
-		self.frostMage = false;
-	end
-
 	self.isSetup = true;
+
+	if (GetLocalPlayer():GetLevel() < 20) then
+		script_grind.minLevel = GetLocalPlayer():GetLevel() - 3;
+	end
 	
 end
 

@@ -227,6 +227,16 @@ function script_mage:setup()
 		self.useWand = false;
 	end
 
+	if (HasSpell("Cold Snap")) then
+		self.frostMage = true;
+		self.fireMage = false;
+	end
+	
+	if (HasSpell("Pyroblast")) then
+		self.fireMage = true;
+		self.frostMage = false;
+	end
+
 	self.isSetup = true;
 end
 
@@ -929,7 +939,7 @@ function script_mage:rest()
 			StopMoving();
 		end
 
-		if (localMana > 30 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
+		if (localMana > 30 and not IsDrinking() and not IsEating() and not AreBagsFull() and not IsInCombat()) then
 			if (HasSpell('Conjure Mana Ruby')) then
 				CastSpellByName('Conjure Mana Ruby')
 				self.waitTimer = GetTimeEX() + 1800;
@@ -959,7 +969,7 @@ function script_mage:rest()
 	end
 
 	-- Eat and Drink
-	if (not IsDrinking() and localMana < self.drinkMana) and (not IsSwimming()) then
+	if (not IsDrinking() and localMana < self.drinkMana) and (not IsSwimming() and not IsInCombat()) then
 		self.message = "Need to drink...";
 		-- Dismount
 		if(IsMounted()) then 
@@ -980,7 +990,7 @@ function script_mage:rest()
 		end
 	end
 
-	if (not IsEating() and localHealth < self.eatHealth) and (not IsSwimming()) then
+	if (not IsEating() and localHealth < self.eatHealth) and (not IsSwimming() and not IsInCombat()) then
 		-- Dismount
 		if(IsMounted()) then DisMount(); end
 		self.message = "Need to eat...";	
@@ -998,7 +1008,7 @@ function script_mage:rest()
 		end	
 	end
 	
-	if(localMana < self.drinkMana or localHealth < self.eatHealth) and (not IsSwimming()) then
+	if (localMana < self.drinkMana or localHealth < self.eatHealth) and (not IsSwimming() and not IsInCombat()) then
 		if (IsMoving()) then
 			StopMoving();
 		end
