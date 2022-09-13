@@ -639,15 +639,11 @@ function script_mage:run(targetGUID)
 			end
 
 			--Cone of Cold
-			if (self.frostMage) and (self.useConeOfCold) and (HasSpell("Cone of Cold")) and (not IsSpellOnCD("Cone of Cold")) then
-				if (targetHealth >= self.useWandHealth) and (localMana >= self.coneOfColdMana) and (targetHealth >= self.coneOfColdHealth) then
-					if (not self.addPolymorphed) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) then
-						if (not targetObj:IsInLineOfSight()) then
-							return 3;
-						end	
-						if (script_mage:ConeofCold("Cone of Cold")) then
-							return 0;
-						end
+			if (self.useConeofCold) and (self.frostMage) and (HasSpell('Cone of Cold')) and (localMana >= self.coneOfColdMana) and (targetHealth >= self.coneOfColdHealth) then
+				if (not self.addPolymorphed) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frostbite")) and (not targetObj:HasDebuff("Frost Nova")) then
+					if (script_mage:ConeofCold('Cone of Cold')) then
+						targetObj:FaceTarget();
+						return 0;
 					end
 				end
 			end
