@@ -165,22 +165,20 @@ function script_follow:healAndBuff()
 			end
 
 			-- blessing of might
-			if (not partyMember:HasBuff("Strength of Earth")) or (not partyMember:HasBuff("Mana Spring")) and (not partyMember:HasBuff("Blessing of Wisdom")) then
-				if (partyMember:GetRagePercentage() > 1) or (partyMember:GetEnergyPercentage() > 1) or (partyMember:HasBuff("Bear Form") or partyMember:HasBuff("Cat Form")) then
-					if (HasSpell("Blessing of Might")) and (not partyMember:HasBuff("Blessing of Might")) and (not partyMember:HasBuff("Strength of Earth")) then
-						if (script_follow:moveInLineOfSight(partyMember)) then
-							return true;
-						end -- move to member
-						if (Buff("Blessing of Might", partyMember)) then
-            	    	 			self.waitTimer = GetTimeEX() + 1500;
-					 		return true;
-						end	
+			if (not partyMember:HasBuff("Strength of Earth")) and (not partyMember:HasBuff("Mana Spring")) and (not partyMember:HasBuff("Blessing of Wisdom")) and (not partyMember:HasBuff("Blessing of Might")) then
+				if (partyMember:GetRagePercentage() > 1) or (partyMember:GetEnergyPercentage() > 1) or (partyMember:HasBuff("Bear Form") or partyMember:HasBuff("Cat Form")) and (not partyMember:GetManaPercentage() > 1) then
+					if (script_follow:moveInLineOfSight(partyMember)) then
+						return true;
+					end -- move to member
+					if (Buff("Blessing of Might", partyMember)) then
+            	    			self.waitTimer = GetTimeEX() + 1500;
+				 		return true;	
 					end
 				end
-			end
+			
 		
-			-- blessing of wisdom
-			if (partyMember:GetManaPercentage() > 1) and (HasSpell("Blessing of Wisdom")) and (not partyMember:HasBuff("Blessing of Wisdom")) or (not partyMember:HasBuff("Blessing of Might")) and (not partyMember:HasBuff("Mana Spring")) then
+				-- blessing of wisdom
+			elseif (partyMember:GetManaPercentage() > 1) and (HasSpell("Blessing of Wisdom")) and (not partyMember:HasBuff("Blessing of Wisdom")) and (not partyMember:HasBuff("Blessing of Might")) and (not partyMember:HasBuff("Mana Spring")) then
 				if (script_follow:moveInLineOfSight(partyMember)) then
 					return true;
 				end -- move to member
@@ -393,10 +391,9 @@ function script_follow:healAndBuff()
 					end
 				end
 
-				localHealth = GetLocalPlayer():GetHealthPercentage();
 				leaderHealth = GetPartyMember(GetPartyLeaderIndex()):GetHealthPercentage();
-				if localHealth < 40 or leaderHealth < 40 and HasSpell("Holy Light") then
-					CastHeal("Holy Light", localObj);
+				if leaderHealth < 40 and HasSpell("Holy Light") then
+					CastHeal("Holy Light", leaderObj);
 					self.waitTimer = GetTimeEX() + 2000;
 					return true;
 				end
