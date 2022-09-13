@@ -113,6 +113,17 @@ function script_grind:setup()
 	hotspotDB:setup();
 	vendorDB:loadDBVendors();
 	script_nav:setup();
+
+	if (HasSpell("Cone of Cold")) then
+		self.frostMage = true;
+		self.fireMage = false;
+	end
+	
+	if (HasSpell("Pyroblast")) then
+		self.fireMage = true;
+		self.frostMage = false;
+	end
+
 	self.isSetup = true;
 	
 end
@@ -209,8 +220,10 @@ function script_grind:run()
 		end
 		if (script_grind:playersWithinRange(self.paranoidRange)) then
 			self.message = "Player(s) within paranoid range, pausing...";
+			self.waitTimer = GetTimeEX() + 4200;
 			ClearTarget();
 			if IsMoving() then
+				self.waitTimer = GetTimeEX() + 8523
 				StopMoving();
 			end
 
