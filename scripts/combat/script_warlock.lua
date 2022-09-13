@@ -859,7 +859,7 @@ function script_warlock:rest()
 				StopMoving();
 			end
 			-- summon succubus
-			if (localMana > 75) and (GetPet() == 0) then
+			if (localMana > 35) and (GetPet() == 0) then
 				if (not IsStanding() or IsMoving()) then
 					StopMoving();
 				end
@@ -875,7 +875,7 @@ function script_warlock:rest()
 				StopMoving();
 			end
 			-- summon voidwalker
-			if (localMana > 75) and (GetPet() == 0) then
+			if (localMana > 35) and (GetPet() == 0) then
 				if (not IsStanding() or IsMoving()) then
 					StopMoving();
 				end
@@ -891,7 +891,7 @@ function script_warlock:rest()
 				StopMoving();
 			end
 			-- summon Felhunter
-			if (localMana > 75) and (GetPet() == 0) then
+			if (localMana > 35) and (GetPet() == 0) then
 				if (not IsStanding() or IsMoving()) then
 					StopMoving();
 				end
@@ -907,7 +907,7 @@ function script_warlock:rest()
 				StopMoving();
 			end
 			-- summon Imp
-			if (localMana > 75) and (GetPet() == 0) then
+			if (localMana > 35) and (GetPet() == 0) then
 				if (not IsStanding() or IsMoving()) then
 					StopMoving();
 				end
