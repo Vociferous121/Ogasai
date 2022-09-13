@@ -16,7 +16,7 @@
      
      bot checks for line of sight before targeting, this includes an updates nav system which "tracks" and follows the targets movement and adjusts accordingly.
      
-     follower script is 75% complete will all classes that can heal having heals available except shaman
+     follower script is 75% complete with all classes that can heal having heals available except shaman
      
      updated and added paranoia features
      
@@ -25,3 +25,5 @@
      tank rotations
      
      follower effectively attacks and assists in combat
+     
+     current scripts are optimized for Twow
