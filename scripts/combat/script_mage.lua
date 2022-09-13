@@ -481,15 +481,16 @@ function script_mage:run(targetGUID)
 
 			-- blink on movement stop debuffs
 			if (self.useBlink) then
-				if (HasSpell("Blink")) and (not IsSpellOnCD("Blink")) and (localObj:HasDebuff("Web")) then
-					if (CastSpellByName("Blink")) then
-						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 1000;
-						return 0;
+				if (HasSpell("Blink")) and (not IsSpellOnCD("Blink")) then
+					if (localObj:HasDebuff("Web")) or (localObj:HasDebuff("Encasing Web")) then
+						if (CastSpellByName("Blink")) then
+							targetObj:FaceTarget();
+							self.waitTimer = GetTimeEX() + 1000;
+							return 0;
+						end
 					end
 				end
 			end
-
 			-- blink frost nova on CD
 			if (self.useBlink) then
 				if (HasSpell("Blink")) and (not IsSpellOnCD("Blink")) and (IsSpellOnCD("Frost Nova")) and (targetObj:GetDistance() < 10) then
@@ -531,7 +532,7 @@ function script_mage:run(targetGUID)
 			
 			-- Check: Move backwards if the target is affected by Frost Nova or Frost Bite
 			if (targetHealth > 10) and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (not localObj:HasBuff('Evocation')) and 
-				(targetObj ~= 0 and IsInCombat()) and (self.useFrostNova) and (not localObj:HasDebuff("Web")) then
+				(targetObj ~= 0 and IsInCombat()) and (self.useFrostNova) and (not localObj:HasDebuff("Web")) and (not localObj:HasDebuff("Encasing Web")) then
 				if (script_mage:runBackwards(targetObj, 7)) then -- Moves if the target is closer than 7 yards
 					self.message = "Moving away from target...";
 					if (not IsSpellOnCD("Frost Nova")) then
