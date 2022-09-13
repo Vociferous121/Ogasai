@@ -114,7 +114,7 @@ function script_grind:setup()
 	vendorDB:loadDBVendors();
 	script_nav:setup();
 
-	if (HasSpell("Cone of Cold")) then
+	if (HasSpell("Cold Snap")) then
 		self.frostMage = true;
 		self.fireMage = false;
 	end
@@ -205,8 +205,17 @@ function script_grind:run()
 		end
 	end
 	
-	localObj = GetLocalPlayer();
+
 	-- Check: Paranoid feature
+
+	localObj = GetLocalPlayer();
+
+	if (self.paranoidRange <= 100) then
+		self.sitParanoid = false;
+	elseif (self.paranoidRange > 100) then
+		self.sitParanoid = true;
+	end
+
 	if (not localObj:IsDead() and self.paranoidOn and not IsInCombat()) then 
 		if (self.paranoidOnTargeted and script_grind:playersTargetingUs() > 0) then
 			self.message = "Player(s) targeting us, pausing...";
@@ -218,6 +227,7 @@ function script_grind:run()
 			end
 		return;
 		end
+
 		if (script_grind:playersWithinRange(self.paranoidRange)) then
 			self.message = "Player(s) within paranoid range, pausing...";
 			self.waitTimer = GetTimeEX() + 4200;
@@ -258,7 +268,7 @@ function script_grind:run()
 				end
 			end
 
-			-- wait and sit if enabled
+			-- wait and sit when paranoid if enabled
 			self.waitTimer = GetTimeEX() + 10000;
 			if (self.sitParanoid) then
 				if (IsStanding()) and (not IsInCombat()) then
@@ -269,7 +279,7 @@ function script_grind:run()
 		end
 	end
 
-	if(GetTimeEX() > self.timer) then
+	if (GetTimeEX() > self.timer) then
 		self.timer = GetTimeEX() + self.tickRate;
 
 		-- Do all checks

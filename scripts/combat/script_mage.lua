@@ -40,7 +40,7 @@ script_mage = {
 	gemTimer = 0,		-- gem cooldown timer
 	useBlink = true,	-- use blink yes/no
 	isChecked = true,	-- set up
-	useDampenMagic = true,	-- use dampen magic yes/no
+	useDampenMagic = false,	-- use dampen magic yes/no
 	fireMage = false,	-- is fire spec yes/no
 	frostMage = false,	-- is frost spec yes/no
 	scorchHealth = 20,	-- use scorch above this target health %
@@ -308,7 +308,7 @@ function script_mage:run(targetGUID)
 		end
 
 		-- Don't attack if we should rest first
-		if (GetNumPartyMembers() == 0) then
+		if (GetNumPartyMembers() < 1) then
 			if ((localHealth < self.eatHealth or localMana < self.drinkMana) and not script_grind:isTargetingMe(targetObj)
 				and not targetObj:IsFleeing() and not targetObj:IsStunned() and not script_mage:isAddPolymorphed()) then
 				self.message = "Need rest...";
