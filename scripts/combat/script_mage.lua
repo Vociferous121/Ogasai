@@ -583,6 +583,14 @@ function script_mage:run(targetGUID)
 				end
 			end
 
+			-- counterspell if target is casting
+			if (HasSpell("Counterspell")) and (not IsSpellOnCD("Counterspell")) and (localMana > 15) and (targetObj:IsCasting()) then
+				if (CastSpellByName("Counterspell", targetObj)) then
+					self.waitTimer = GetTimeEX() + 1500;
+					return 0;
+				end
+			end
+
 			-- Use Mana Shield if we have more than 35 percent mana and no active Ice Barrier
 			if (not localObj:HasBuff("Ice Barrier")) and (HasSpell("Mana Shield")) and (localMana >= self.manaShieldMana) and (localHealth <= self.manaShieldHealth) and (not localObj:HasBuff("Mana Shield")) and (IsInCombat()) then
 				if (not targetObj:HasDebuff("Frost Nova") and not targetObj:HasDebuff("Frostbite")) then
@@ -643,6 +651,7 @@ function script_mage:run(targetGUID)
 				if (not self.addPolymorphed) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frostbite")) and (not targetObj:HasDebuff("Frost Nova")) then
 					if (script_mage:ConeofCold('Cone of Cold')) then
 						targetObj:FaceTarget();
+						self.waitTimer = GetTimeEX() + 1500;
 						return 0;
 					end
 				end
