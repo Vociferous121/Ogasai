@@ -32,7 +32,7 @@ script_warrior = {
 	challengingShoutAdds = 5, -- how many adds to use challenging shout. depends on dungeon/raid
 	mockingBlowActionBarSlot = 72+4,
 	useMockingBlow = true,
-	followTargetDistance = 40,
+	followTargetDistance = 100,
 
 	-- note. the checkbox in the menu controls battle, defensive, berserker stance. all spells have arguments for which
 	-- stance they apply to and can be used in. if the palyer does not click defensive stance in-game then the bot

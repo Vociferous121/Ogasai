@@ -46,7 +46,7 @@ script_mage = {
 	scorchHealth = 20,	-- use scorch above this target health %
 	scorchMana = 20,	-- use scorch above this mana %
 	scorchStacks = 2,	-- scorch debuff stacks on target
-	followTargetDistance = 40,
+	followTargetDistance = 100,
 
 
 }

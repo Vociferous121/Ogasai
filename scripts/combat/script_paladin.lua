@@ -19,7 +19,7 @@ script_paladin = {
 	meleeDistance = 3.15,
 	crusaderStacks = 3,
 	crusaderStacksMana = 40,
-	followTargetDistance = 40,
+	followTargetDistance = 100,
 }
 
 function script_paladin:setup()

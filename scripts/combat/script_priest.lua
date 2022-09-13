@@ -26,7 +26,7 @@ script_priest = {
 	shadowFormHealth = 50,	-- shadowform change health
 	useMindFlay = false,	-- use mind flay yes/no
 	swpMana = 20, -- Use shadow word: pain above this mana %
-	followTargetDistance = 40,
+	followTargetDistance = 100,
 }
 
 function script_priest:healAndBuff(targetObject, localMana)

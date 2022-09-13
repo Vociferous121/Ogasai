@@ -28,7 +28,7 @@ script_rogue = {
 	enableBladeFlurry = true,
 	enableAdrenRush = true,
 	rotationTwo = false,
-	followTargetDistance = 10,
+	followTargetDistance = 100,
 }
 
 function script_rogue:setup()
@@ -913,12 +913,7 @@ function script_rogue:rest()
 end
 
 function script_rogue:menu()
-
-	Text("Target 'tracking' range for new nav system testing - range to target");
-	self.followTargetDistance = SliderInt("TEST", 0, 100, self.followTargetDistance);
-	Text("Bot will face target and adjust coordinates based on range");
-	Text("Target MUST be in line of sight!");
-
+	Separator();
 	if (CollapsingHeader("Temporary Grind/Rotation Buttons")) then
 		if (not self.enableRotation) then -- if not showing rotation button
 			wasClicked, self.enableGrind = Checkbox("Grinder", self.enableGrind); -- then show grind button
