@@ -213,10 +213,10 @@ function script_grind:run()
 	if (not localObj:IsDead() and self.paranoidOn and not IsInCombat()) then 
 		if (self.paranoidOnTargeted and script_grind:playersTargetingUs() > 0) then
 			self.message = "Player(s) targeting us, pausing...";
-			self.waitTimer = GetTimeEX() + 3200;
+			self.waitTimer = GetTimeEX() + 12236;
 			ClearTarget();
 			if IsMoving() then
-				self.waitTimer = GetTimeEX() + 10000;
+				self.waitTimer = GetTimeEX() + 11234;
 				StopMoving();
 			end
 		return;
@@ -224,7 +224,7 @@ function script_grind:run()
 
 		if (script_grind:playersWithinRange(self.paranoidRange)) then
 			self.message = "Player(s) within paranoid range, pausing...";
-			self.waitTimer = GetTimeEX() + 4200;
+			self.waitTimer = GetTimeEX() + 4123;
 			ClearTarget();
 			if IsMoving() then
 				self.waitTimer = GetTimeEX() + 8523
@@ -298,6 +298,12 @@ function script_grind:run()
 			if (jumpRandom > self.jumpRandomFloat and IsMoving() and not IsInCombat()) then
 				JumpOrAscendStart();
 			end
+		end
+
+		-- Jump swimming
+		local jumpSwimRandom = random(1, 100);
+		if (jumpSwimRandom > 90 and IsSwimming() and not IsInCombat() and not localObj:IsCasting()) then
+			JumpOrAscendStart();
 		end
 
 		-- Gather

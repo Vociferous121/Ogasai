@@ -3,7 +3,7 @@ script_mage = {
 	drinkMana = 40,	-- drink at this mana %
 	eatHealth = 51,	-- eat at this health %
 	potionHealth = 10,	-- use potion at this health %
-	potionMana = 20,	-- use potioon at this mana %
+	potionMana = 10,	-- use potioon at this mana %
 	water = {},	-- water table setup
 	numWater = 0,	-- number of conjured water
 	food = {},	-- food table setup
@@ -448,13 +448,28 @@ function script_mage:run(targetGUID)
 					end
 		
 					-- cast the spell - pyroblast
-					if (localMana > 8) and (not IsMoving() and targetObj:IsInLineOfSight()) then
-						if (CastSpellByName("Pyroblast", targetObj)) then
+					if (localMana > 8) and (not IsMoving()) and (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() > 25 or not script_grind:isTargetingMe(targetObj)) then
+						if (not targetObj:HasDebuff("Pyroblast")) and (targetObj:GetHealthPercentage() > 75) then
+							if (not script_grind:isTargetingMe(targetObj)) and (not IsMoving()) and (targetObj:GetHealthPercentage() > 75) then
+								CastSpellByName("Pyroblast", targetObj);
+								targetObj:FaceTarget();
+								self.message = "Pulling with Pyroblast!";
+								self.waitTimer = GetTimeEX() + 7000;
+							end
+						end
+						-- cast fireball instead if target is too close or attacking us
+					elseif (targetObj:GetDistance() < 25) and (targetObj:IsInLineOfSight()) and (script_grind:isTargetingMe(targetObj)) then
+						if (CastSpellByName("Fireball", targetObj)) then
 							targetObj:FaceTarget();
 							self.message = "Pulling with Fireball!";
 							self.waitTimer = GetTimeEX() + 1600;
 							return 0;
 						end
+						-- lol elseif... cast pyroblast if target is close and not attacking us
+					elseif (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetDistance() < 25) and (targetObj:IsInLineOfSight()) then
+						CastSpellByName("Pyroblast", targetObj);
+							targetObj:FaceTarget();
+							self.message = "Pulling with Pyroblast!";
 					end
 				end
 
@@ -585,6 +600,17 @@ function script_mage:run(targetGUID)
 						return 0;
 					end
 				end
+			end
+
+			-- frost nova fireMage redundancy
+			if (self.fireMage and self.useFrostNova) then
+			if (HasSpell("Frost Nova")) and (not IsSpellOnCD("Frost Nova")) then
+				if (localMana > 10) and (targetObj:GetDistance() < 12) and (not targetObj:HasDebuff("Frost Nova")) then
+					if (CastSpellByName("Frost Nova")) then
+						return 0;
+					end
+				end
+			end
 			end
 
 			-- Use Mana Gem when low on mana
