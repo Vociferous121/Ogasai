@@ -235,6 +235,7 @@ function script_mage:setup()
 	if (HasSpell("Pyroblast")) then
 		self.fireMage = true;
 		self.frostMage = false;
+		self.manaShieldHealth = 95;
 	end
 
 	self.isSetup = true;
@@ -454,7 +455,7 @@ function script_mage:run(targetGUID)
 								CastSpellByName("Pyroblast", targetObj);
 								targetObj:FaceTarget();
 								self.message = "Pulling with Pyroblast!";
-								self.waitTimer = GetTimeEX() + 7200;
+								self.waitTimer = GetTimeEX() + 7600;
 								return 0;
 							end
 						end
@@ -471,6 +472,7 @@ function script_mage:run(targetGUID)
 						CastSpellByName("Pyroblast", targetObj);
 							targetObj:FaceTarget();
 							self.message = "Pulling with Pyroblast!";
+							return 0;
 					end
 				end
 
@@ -1246,8 +1248,11 @@ function script_mage:menu()
 				self.evocationHealth = SliderFloat("EH%", 1, 90, self.evocationHealth);
 				Text('Evocation below mana percent');
 				self.evocationMana = SliderFloat("EM%", 1, 90, self.evocationMana);
-				Text('Queldorei Meditation below mana percent');
-				self.QuelDoreiMeditationMana = SliderFloat("QM%", 1, 90, self.QuelDoreiMeditationMana);
+
+				if (HasSpell("Quel'Dorei Meditation")) then
+					Text('Queldorei Meditation below mana percent');
+					self.QuelDoreiMeditationMana = SliderFloat("QM%", 1, 90, self.QuelDoreiMeditationMana);
+				end
 			end
 		end
 
