@@ -352,6 +352,15 @@ function script_priest:run(targetGUID)
 			end
 		end
 
+		-- Don't attack if we should rest first
+		if (GetNumPartyMembers() < 1) then
+			if ((localHealth < self.eatHealth or localMana < self.drinkMana) and not script_grind:isTargetingMe(targetObj)
+				and not targetObj:IsFleeing() and not targetObj:IsStunned() and not script_mage:isAddPolymorphed()) then
+				self.message = "Need rest...";
+				return 4;
+			end
+		end
+
 		-- set target health
 		targetHealth = targetObj:GetHealthPercentage();
 
@@ -372,17 +381,41 @@ function script_priest:run(targetGUID)
 
 		-- Opener - not in combat pulling target
 		if (not IsInCombat()) then
+
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 			
 			-- Opener check range of ALL SPELLS
-			if(not targetObj:IsSpellInRange('Smite'))  then
-				self.message = "Use Smite as range check!";
+			if (not targetObj:IsSpellInRange('Smite'))  then
+				self.message = "Using Smite to check range!";
 				return 3;
+			end
+
+			-- stand if sitting
+			if (not IsStanding()) then
+				JumpOrAscendStart();
+			end
+
+			-- we are in spell range to pull then stop moving
+			if (targetObj:IsSpellInRange("Smite")) and (targetObj:IsInLineOfSight()) then
+				if (IsMoving()) then
+					StopMoving();
+				end
 			end
 
 			-- Dismount
 			if (IsMounted()) then
 				DisMount();
+			end
+
+			-- new follow target
+			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+						self.message = "Face Target 1";
+						self.waitTimer = GetTimeEX() + 500;
+					end
+				end
 			end
 
 			-- Devouring Plague to pull
@@ -391,6 +424,7 @@ function script_priest:run(targetGUID)
 					return 3; -- target not in line of sight
 				end -- move to target
 				if (Cast("Devouring Plague", targetObj)) then
+					targetObj:FaceTarget();
 					self.waitTimer = GetTimeEX() + 200;
 					self.message = "Casting Devouring Plague!";
 					return 0; -- keep trying until cast
@@ -406,6 +440,7 @@ function script_priest:run(targetGUID)
 					StopMoving();
 				end
 				if (Cast("Mind Blast", targetObj)) then	
+					targetObj:FaceTarget();
 					self.waitTimer = GetTimeEX() + 750;
 					self.message = "Casting Mind Blast!";
 					return 0; -- keep trying until cast
@@ -417,6 +452,7 @@ function script_priest:run(targetGUID)
 					return 3; -- target not in line of sight
 				end -- move to target
 				if (Cast("Vampiric Embrace", targetObj)) then	
+					targetObj:FaceTarget();
 					self.waitTimer = GetTimeEX() + 750;
 					self.message = "Casting Vampiric Embrace!";
 					return 0; -- keep trying until cast
@@ -427,6 +463,7 @@ function script_priest:run(targetGUID)
 					return 3; -- target not in line of sight
 				end -- move to target
 				if (Cast("Shadow Word: Pain", targetObj)) then
+					targetObj:FaceTarget();
 					self.waitTimer = GetTimeEX() + 750;
 					return 0; -- keep trying until cast
 				end
@@ -440,14 +477,15 @@ function script_priest:run(targetGUID)
 					StopMoving();
 				end
 				if (Cast("Smite", targetObj)) then
+					targetObj:FaceTarget();
 					self.waitTimer = GetTimeEX() + 750;
-					self.message = "Smite was checked, we are using it!";
+					self.message = "Smite is checked!";
 					return 0; -- keep trying until cast
 				end
 			end
 
-			
-			if (not targetObj:IsInLineOfSight()) then -- check line of sight
+			-- recheck line of sight on target
+			if (not targetObj:IsInLineOfSight()) then
 				return 3;
 			end
 
@@ -456,7 +494,7 @@ function script_priest:run(targetGUID)
 		-- Combat
 		else	
 
-			self.message = "Killing.. now in combat " .. targetObj:GetUnitName() .. "...";
+			self.message = "Killing.. " .. targetObj:GetUnitName() .. "...";
 
 			-- Dismount
 			if (IsMounted()) then DisMount(); end
