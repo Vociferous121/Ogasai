@@ -455,7 +455,7 @@ function script_mage:run(targetGUID)
 								CastSpellByName("Pyroblast", targetObj);
 								targetObj:FaceTarget();
 								self.message = "Pulling with Pyroblast!";
-								self.waitTimer = GetTimeEX() + 7600;
+								self.waitTimer = GetTimeEX() + 7200;
 								return 0;
 							end
 						end
@@ -720,7 +720,7 @@ function script_mage:run(targetGUID)
 
 			-- Fire blast
 			if (self.useFireBlast) and (targetObj:GetDistance() < 20) and (HasSpell("Fire Blast")) and (not IsSpellOnCD("Fire Blast")) then
-				if (localMana > 8) and (targetHealth >= self.useWandHealth) then
+				if (localMana > 8) and (targetHealth >= self.useWandHealth) and (not IsSpellOnCD("Fire Blast")) then
 					if (not targetObj:IsInLineOfSight()) then
 						return 3;
 					end	
@@ -811,6 +811,8 @@ function script_mage:run(targetGUID)
 				end	
 
 			elseif (self.fireMage) then
+
+				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
 				
 				-- else if not has frostbolt then use fireball as range check
 				if(not targetObj:IsSpellInRange("Fireball")) then
@@ -834,6 +836,7 @@ function script_mage:run(targetGUID)
 				-- recheck line of sight
 				if (not targetObj:IsInLineOfSight()) then
 					return 3;
+				end
 				end	
 			
 			elseif (self.frostMage) and (not HasSpell("Frostbolt")) then				
