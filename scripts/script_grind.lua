@@ -302,7 +302,7 @@ function script_grind:run()
 
 		-- Jump swimming
 		local jumpSwimRandom = random(1, 100);
-		if (jumpSwimRandom > 90 and IsSwimming() and not IsInCombat() and not localObj:IsCasting()) then
+		if (jumpSwimRandom > 94 and IsSwimming() and not IsInCombat() and not localObj:IsCasting()) then
 			JumpOrAscendStart();
 		end
 
