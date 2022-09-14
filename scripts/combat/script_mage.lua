@@ -454,7 +454,8 @@ function script_mage:run(targetGUID)
 								CastSpellByName("Pyroblast", targetObj);
 								targetObj:FaceTarget();
 								self.message = "Pulling with Pyroblast!";
-								self.waitTimer = GetTimeEX() + 7000;
+								self.waitTimer = GetTimeEX() + 7200;
+								return 0;
 							end
 						end
 						-- cast fireball instead if target is too close or attacking us
