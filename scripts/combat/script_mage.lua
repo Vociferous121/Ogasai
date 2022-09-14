@@ -359,6 +359,11 @@ function script_mage:run(targetGUID)
 					return 3;
 				end
 
+				-- stand if sitting
+				if (not IsStanding()) then
+					JumpOrAscendStart();
+				end
+
 				-- we are in spell range to pull with frostbolt then stop moving
 				if (targetObj:IsSpellInRange("Frostbolt")) and (targetObj:IsInLineOfSight()) then
 					if (IsMoving()) then
@@ -414,6 +419,11 @@ function script_mage:run(targetGUID)
 					if (IsMoving()) then
 						StopMoving();
 					end
+				end
+
+				-- stand if sitting
+				if (not IsStanding()) then
+					JumpOrAscendStart();
 				end
 
 				if (targetObj:IsInLineOfSight() and not IsMoving()) then
@@ -494,6 +504,11 @@ function script_mage:run(targetGUID)
 				if (not targetObj:IsInLineOfSight()) then
 					return 3;
 				end	
+
+				-- stand if sitting
+				if (not IsStanding()) then
+					JumpOrAscendStart();
+				end
 
 				if (targetObj:IsInLineOfSight() and not IsMoving()) then
 					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
@@ -827,6 +842,15 @@ function script_mage:run(targetGUID)
 				if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
 					targetObj:FaceTarget();
 				end
+
+				if (targetObj:GetDistance() > 20) and (targetObj:GetManaPercentage() > 1) and (targetHealth > 50) then
+					if (HasSpell("Pyroblast")) then
+						if (CastSpellByName("Pyroblast", targetObj)) then
+							return 0;
+						end
+					end
+				end
+				
 				
 				-- cast fireball
 				if (CastSpellByName("Fireball", targetObj)) then
