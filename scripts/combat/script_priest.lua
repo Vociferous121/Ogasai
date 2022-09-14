@@ -419,7 +419,7 @@ function script_priest:run(targetGUID)
 			end
 
 			-- Devouring Plague to pull
-			if (HasSpell("Devouring Plague")) and (localMana >= 25) and (not IsSpellOnCD("Devouring Plague")) then
+			if (HasSpell("Devouring Plague")) and (localMana >= 25) and (not IsSpellOnCD("Devouring Plague")) and (not IsMoving()) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 					return 3; -- target not in line of sight
 				end -- move to target
@@ -432,7 +432,7 @@ function script_priest:run(targetGUID)
 			end
 
 			-- Mind Blast to pull
-			if (HasSpell("Mind Blast")) and (localMana >= self.mindBlastMana) and (not IsSpellOnCD("Mind Blast")) then
+			if (HasSpell("Mind Blast")) and (localMana >= self.mindBlastMana) and (not IsSpellOnCD("Mind Blast")) and (not IsMoving()) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 					return 3; -- target not in line of sight
 				end -- move to target
@@ -447,7 +447,7 @@ function script_priest:run(targetGUID)
 				end
 
 				-- vampiric embrace
-			elseif (HasSpell("Vampiric Embrace")) and (not IsSpellOnCD("Vampiric Embrace")) and (not targetObj:HasDebuff("Vampiric Embrace")) then
+			elseif (HasSpell("Vampiric Embrace")) and (not IsSpellOnCD("Vampiric Embrace")) and (not targetObj:HasDebuff("Vampiric Embrace")) and (not IsMoving()) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 					return 3; -- target not in line of sight
 				end -- move to target
@@ -518,6 +518,17 @@ function script_priest:run(targetGUID)
 					self.waitTimer = GetTimeEX() + 1000; -- timer to stop spam drinking
 					return 0; -- keep trying until cast
 				end 
+			end
+
+			-- new follow target
+			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+						self.message = "Face Target 1";
+						self.waitTimer = GetTimeEX() + 500;
+					end
+				end
 			end
 
 			-- Silence if talent obtained
@@ -601,6 +612,17 @@ function script_priest:run(targetGUID)
 				end
 			end
 
+			-- new follow target
+			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+						self.message = "Face Target 1";
+						self.waitTimer = GetTimeEX() + 500;
+					end
+				end
+			end
+
 			-- inner focus
 			if (not localObj:HasBuff("Inner Focus")) and (HasSpell("Inner Focus")) then
 				if (not IsSpellOnCD("Inner Focus")) then
@@ -641,6 +663,17 @@ function script_priest:run(targetGUID)
 			-- check heal and buffs
 			if (script_priest:healAndBuff(localObj, localMana)) then
 				return 0; -- keep trying until cast
+			end
+
+			-- new follow target
+			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+						self.message = "Face Target 1";
+						self.waitTimer = GetTimeEX() + 500;
+					end
+				end
 			end
 
 			-- Mind flay 
