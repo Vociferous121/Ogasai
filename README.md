@@ -10,12 +10,13 @@
 
     some of the updates inlcuded are...
     
-     combat scripts change depending on spells available. i.e. a priest without shadowform will not see shadowform spells.
+     combat scripts change depending on spells available. i.e. a priest without shadowform will not see shadowform spells
      
-     combat scripts updates for all talent specs/ added new spells/ added many many features. combat scripts are no longer the same
+     combat scripts updates for all talent specs/ added new spells/ added many many features
+            combat scripts are no longer the same
      
-     bot checks for line of sight before targeting, this includes an updated nav system which "tracks" and follows the targets movement 
-        and adjusts accordingly.
+     bot checks for line of sight before targeting
+        this includes an updated nav system which "tracks" and follows the targets movement and adjusts accordingly
      
      follower script is 75% complete with all classes that can heal having heals available except shaman
      
