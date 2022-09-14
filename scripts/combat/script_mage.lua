@@ -559,7 +559,7 @@ function script_mage:run(targetGUID)
 			end
 			-- blink frost nova on CD
 			if (self.useBlink) then
-				if (HasSpell("Blink")) and (not IsSpellOnCD("Blink")) and (IsSpellOnCD("Frost Nova")) and (targetObj:GetDistance() < 10) then
+				if (HasSpell("Blink")) and (not IsSpellOnCD("Blink")) and (IsSpellOnCD("Frost Nova")) and (targetObj:GetDistance() < 10) and (targetHealth > self.useWandHealth) then
 					if (not targetObj:HasDebuff("Frostbite")) and (not targetObj:HasDebuff("Frost Nova")) and (targetHealth > 10) then
 						if (CastSpellByName("Blink")) then
 							targetObj:FaceTarget();
