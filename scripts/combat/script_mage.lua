@@ -236,6 +236,8 @@ function script_mage:setup()
 		self.fireMage = true;
 		self.frostMage = false;
 		self.manaShieldHealth = 95;
+		self.eatHealth = 65;
+		self.useWandHealth = 15;
 	end
 
 	self.isSetup = true;
@@ -459,13 +461,13 @@ function script_mage:run(targetGUID)
 					end
 		
 					-- cast the spell - pyroblast
-					if (localMana > 8) and (not IsMoving()) and (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() > 25 or not script_grind:isTargetingMe(targetObj)) then
+					if (localMana > 8) and (not IsMoving()) and (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() > 25 and not script_grind:isTargetingMe(targetObj)) then
 						if (not targetObj:HasDebuff("Pyroblast")) and (targetObj:GetHealthPercentage() > 75) then
 							if (not script_grind:isTargetingMe(targetObj)) and (not IsMoving()) and (targetObj:GetHealthPercentage() > 75) then
 								CastSpellByName("Pyroblast", targetObj);
 								targetObj:FaceTarget();
 								self.message = "Pulling with Pyroblast!";
-								self.waitTimer = GetTimeEX() + 7200;
+								self.waitTimer = GetTimeEX() + 7600;
 								return 0;
 							end
 						end
@@ -613,7 +615,7 @@ function script_mage:run(targetGUID)
 
 			-- frost nova if target is running away
 			if (HasSpell("Frost Nova")) and (not IsSpellOnCD("Frost Nova")) and (targetObj:IsFleeing()) then
-				if (localMana > 10) and (targetObj:GetDistance() < 12) and (not targetObj:HasDebuff("Frostbite")) then
+				if (localMana > 10) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frostbite")) then
 					if (CastSpellByName("Frost Nova")) then
 						return 0;
 					end
@@ -623,7 +625,7 @@ function script_mage:run(targetGUID)
 			-- frost nova fireMage redundancy
 			if (self.fireMage and self.useFrostNova) then
 			if (HasSpell("Frost Nova")) and (not IsSpellOnCD("Frost Nova")) then
-				if (localMana > 10) and (targetObj:GetDistance() < 12) and (not targetObj:HasDebuff("Frost Nova")) then
+				if (localMana > 10) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frost Nova")) then
 					if (CastSpellByName("Frost Nova")) then
 						return 0;
 					end

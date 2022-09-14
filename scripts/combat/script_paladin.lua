@@ -436,13 +436,13 @@ function script_paladin:run(targetGUID)
 			if (HasSpell("Cleanse")) then
 				if (localObj:HasDebuff("Rabies")) or (localObj:HasDebuff("Corrosive Poison")) or (localObj:HasDebuff("Poison")) or (localObj:HasDebuff("Fevered Fatigue"))
 					or (localObj:HasDebuff("Dark Sludge")) or (localObj:HasDebuff("Corrosive Poison")) or (localObj:HasDebuff("Slowing Poison"))
-						or (localObj:HasDebuff("Infected Bite")) or (localObj:HasDebuff("Poison")) or (localObj:HasDebuff("Wandering Plague"))
+						or (localObj:HasDebuff("Infected Bite")) or (localObj:HasDebuff("Wandering Plague"))
 							or (localObj:HasDebuff("Plague Mind")) or (localObj:HasDebuff("Fevered Fatigue")) then
 
 							-- add some randomness to how quick the bot casts cleanse
 
 						local cleanseRandom = random(1, 100);
-					if (cleanseRandom > 98) then
+					if (cleanseRandom > 90) then
 						if (Buff("Cleanse", localObj)) then 
 							self.message = "Cleansing..."; 
 							self.waitTimer = GetTimeEX() + 1750; 
@@ -456,13 +456,13 @@ function script_paladin:run(targetGUID)
 			if (HasSpell("Purify")) then
 				if (localObj:HasDebuff("Rabies")) or (localObj:HasDebuff("Corrosive Poison")) or (localObj:HasDebuff("Poison")) or (localObj:HasDebuff("Fevered Fatigue"))
 					or (localObj:HasDebuff("Dark Sludge")) or (localObj:HasDebuff("Corrosive Poison")) or (localObj:HasDebuff("Slowing Poison"))
-						or (localObj:HasDebuff("Infected Bite")) or (localObj:HasDebuff("Poison")) or (localObj:HasDebuff("Wandering Plague"))
+						or (localObj:HasDebuff("Infected Bite")) or (localObj:HasDebuff("Wandering Plague"))
 							or (localObj:HasDebuff("Plague Mind")) or (localObj:HasDebuff("Fevered Fatigue")) then
 
 							-- add some randomness to how quick the bot casts cleanse
 
 						local cleanseRandom = random(1, 100);
-					if (cleanseRandom > 98) then
+					if (cleanseRandom > 90) then
 						if (Buff("Purify", localObj)) then 
 							self.message = "Cleansing..."; 
 							self.waitTimer = GetTimeEX() + 1750; 
