@@ -347,7 +347,7 @@ function script_priest:run(targetGUID)
 				if (not targetObj:FaceTarget()) then
 					targetObj:FaceTarget();
 					self.message = "Face Target 1";
-					self.waitTimer = GetTimeEX() + 500;
+					self.waitTimer = GetTimeEX() + 0;
 				end
 			end
 		end
@@ -412,8 +412,8 @@ function script_priest:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.message = "Face Target 1";
-						self.waitTimer = GetTimeEX() + 500;
+						self.message = "Face Target 2";
+						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
@@ -525,8 +525,8 @@ function script_priest:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.message = "Face Target 1";
-						self.waitTimer = GetTimeEX() + 500;
+						self.message = "Face Target 3";
+						self.waitTimer = GetTimeEX() + 00;
 					end
 				end
 			end
@@ -612,17 +612,6 @@ function script_priest:run(targetGUID)
 				end
 			end
 
-			-- new follow target
-			if (targetObj:IsInLineOfSight() and not IsMoving()) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-						self.message = "Face Target 1";
-						self.waitTimer = GetTimeEX() + 500;
-					end
-				end
-			end
-
 			-- inner focus
 			if (not localObj:HasBuff("Inner Focus")) and (HasSpell("Inner Focus")) then
 				if (not IsSpellOnCD("Inner Focus")) then
@@ -670,8 +659,8 @@ function script_priest:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.message = "Face Target 1";
-						self.waitTimer = GetTimeEX() + 500;
+						self.message = "Face Target 4";
+						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
