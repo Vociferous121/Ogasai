@@ -224,7 +224,7 @@ function script_warlock:setup()
 		self.useShadowBolt = true;
 	end
 
-	script_grind.tickRate = 260;
+	script_grind.tickRate = 200;
 
 	self.isSetup = true;
 end
@@ -396,6 +396,17 @@ function script_warlock:run(targetGUID)
 				DisMount(); 
 			end
 
+			-- new follow target
+			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+						self.message = "Face Target 2";
+						self.waitTimer = GetTimeEX() + 0;
+					end
+				end
+			end
+
 			-- check pet
 			if(GetPet() ~= 0) then 
 				hasPet = true; 
@@ -411,17 +422,6 @@ function script_warlock:run(targetGUID)
 			if (HasSpell("Amplify Curse")) and (not IsSpellOnCD("Amplify Curse")) and (targetObj:GetDistance() <= 50) then
 				CastSpellByName("Amplify Curse");
 				return 0;
-			end
-
-			-- new follow target
-			if (targetObj:IsInLineOfSight() and not IsMoving()) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-						self.message = "Face Target 2";
-						self.waitTimer = GetTimeEX() + 0;
-					end
-				end
 			end
 
 			if (HasSpell("Siphon Life")) and (self.enableSiphonLife) and (targetHealth > 20) then
@@ -863,11 +863,11 @@ function script_warlock:rest()
 				return 0;
 			end
 		end
-		return true;
 	end
 
 	-- drink or eat 
 	if(localMana < self.drinkMana or localHealth < self.eatHealth) and (not IsSwimming()) then
+		self.waitTimer = GetTimeEX() + 2000;
 		if (IsMoving()) then
 			StopMoving();
 			return true;
@@ -890,7 +890,7 @@ function script_warlock:rest()
 	-- Eat and Drink
 	if (not IsDrinking() and localMana < self.drinkMana) and (not IsSwimming()) then
 		self.message = "Need to drink...";
-		self.waitTimer = GetTimeEX() + 1200;
+		self.waitTimer = GetTimeEX() + 2000;
 		if (IsMoving()) then
 			StopMoving();
 			return true;
@@ -905,6 +905,7 @@ function script_warlock:rest()
 		end
 	end
 	if (not IsEating() and localHealth < self.eatHealth) and (not IsSwimming()) then
+		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to eat...";	
 		if (IsMoving()) then
 			StopMoving();

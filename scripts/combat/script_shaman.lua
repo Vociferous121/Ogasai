@@ -348,6 +348,7 @@ function script_shaman:rest()
 
 	-- Eat something
 	if (not IsEating() and localHealth < self.eatHealth) then
+		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to eat...";
 		if (IsInCombat()) then
 			return true;
@@ -369,6 +370,7 @@ function script_shaman:rest()
 
 	-- Drink something
 	if (not IsDrinking() and localMana < self.drinkMana) then
+		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to drink...";
 		if (IsMoving()) then
 			StopMoving();

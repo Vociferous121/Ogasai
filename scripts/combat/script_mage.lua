@@ -1043,6 +1043,7 @@ function script_mage:rest()
 
 	-- Eat and Drink
 	if (not IsDrinking() and localMana < self.drinkMana) and (not IsSwimming() and not IsInCombat()) then
+		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to drink...";
 		-- Dismount
 		if(IsMounted()) then 
@@ -1064,6 +1065,7 @@ function script_mage:rest()
 	end
 
 	if (not IsEating() and localHealth < self.eatHealth) and (not IsSwimming() and not IsInCombat()) then
+		self.waitTimer = GetTimeEX() + 2000;
 		-- Dismount
 		if(IsMounted()) then DisMount(); end
 		self.message = "Need to eat...";	

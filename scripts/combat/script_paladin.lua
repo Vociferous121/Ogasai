@@ -691,6 +691,7 @@ function script_paladin:rest()
 
 	-- Drink something
 	if (not IsDrinking() and localMana < self.drinkMana) then
+		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to drink...";
 		if (IsMoving()) then
 			StopMoving();
@@ -698,6 +699,7 @@ function script_paladin:rest()
 		end
 
 		if (script_helper:drinkWater()) then 
+			self.waitTimer = GetTimeEX() + 2000;
 			self.message = "Drinking..."; 
 			return true; 
 		else 

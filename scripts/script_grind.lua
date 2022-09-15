@@ -204,9 +204,9 @@ function script_grind:run()
 
 	localObj = GetLocalPlayer();
 
-	if (self.paranoidRange <= 100) then
+	if (self.paranoidRange <= 149) then
 		self.sitParanoid = false;
-	elseif (self.paranoidRange > 100) then
+	elseif (self.paranoidRange >= 150) then
 		self.sitParanoid = true;
 	end
 

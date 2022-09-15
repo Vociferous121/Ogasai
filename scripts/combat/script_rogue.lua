@@ -872,6 +872,7 @@ function script_rogue:rest()
 
 	-- Eat something
 	if (not IsEating() and localHealth < self.eatHealth) then
+		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to eat...";
 		if (IsInCombat()) then
 			return true;
