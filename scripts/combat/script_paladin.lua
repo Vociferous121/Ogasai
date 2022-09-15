@@ -19,6 +19,7 @@ script_paladin = {
 	meleeDistance = 3.15,
 	crusaderStacks = 3,
 	crusaderStacksMana = 40,
+	crusaderStacksHealth = 35,
 	followTargetDistance = 100,
 }
 
@@ -513,7 +514,7 @@ function script_paladin:run(targetGUID)
 
 				-- Stack Crusader Strike
 				if (HasSpell("Crusader Strike")) and ((localObj:HasBuff("Seal of Righteousness")) or (localObj:HasBuff("Seal of Command"))) and (targetObj:HasDebuff("Judgement of the Crusader")) then
-					if (targetObj:GetDebuffStacks("Crusader Strike") < self.crusaderStacks) and (targetHealth > 35) and (localMana > self.crusaderStacksMana) then
+					if (targetObj:GetDebuffStacks("Crusader Strike") < self.crusaderStacks) and (targetHealth > self.crusaderStacksHealth) and (localMana > self.crusaderStacksMana) then
 						if (Cast("Crusader Strike", targetObj)) then
 							self.waitTimer = GetTimeEX() + 1750;
 								return 0;
@@ -786,9 +787,10 @@ function script_paladin:menu()
 
 		Separator();
 
-		Text("Consecrate Mana when 2 or more adds");
-		self.consecrationMana = SliderFloat("Consecration above Mana %", 1, 99, self.consecrationMana);
-
+		if (HasSpell("Consecration")) then
+			Text("Consecrate Mana when 2 or more adds");
+			self.consecrationMana = SliderFloat("Consecration above Mana %", 1, 99, self.consecrationMana);
+		end
 
 		if (CollapsingHeader("-- Auras and Blessings")) then
 
@@ -798,14 +800,17 @@ function script_paladin:menu()
 
 		end
 		
-		if (CollapsingHeader("-- Crusader Strike Options")) then
+		if (HasSpell("Crusader Strike")) then
+			if (CollapsingHeader("-- Crusader Strike Options")) then
 
 				Text("How many Crusader Strike Stacks on target?");
 				self.crusaderStacks = SliderInt("Stacks", 0, 5, self.crusaderStacks);
 				self.crusaderStacksMana = SliderInt("Use above mana %", 10, 99, self.crusaderStacksMana);
-
+				self.crusaderStacksHealth = SliderInt("Use above target health %", self.crusaderStacksHealth);
+			
+			end
 		end
-		
+
 		if (CollapsingHeader("-- Heal Options")) then
 
 			Text("Heal Options:")
