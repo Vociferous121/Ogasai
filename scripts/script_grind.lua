@@ -231,10 +231,15 @@ function script_grind:run()
 				StopMoving();
 			end
 
-			if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) then
-				if (not IsSpellOnCD("Bright Campfire")) then
-					CastSpellByName("Bright Campfire");
-					return 0;
+			if (GetXPExhaustion() ~= nil) then
+				if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) and (not IsSpellOnCD("Bright Campfire")) then
+					if (not IsStanding()) then
+						JumpOrAscendStart();
+					end
+					if (not IsSpellOnCD("Bright Campfire")) then
+						CastSpellByName("Bright Campfire");
+						return 0;
+					end
 				end
 			end
 
