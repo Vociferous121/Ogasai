@@ -238,6 +238,11 @@ function script_grind:run()
 					end
 					if (not IsSpellOnCD("Bright Campfire")) then
 						CastSpellByName("Bright Campfire");
+						if (IsStanding()) then
+							SitOrStand();
+						end
+						-- wait 2+ mins
+						self.waitTimer = GetTimeEX() + 123241;
 						return 0;
 					end
 				end
