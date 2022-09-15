@@ -118,6 +118,19 @@ function script_fish:run()
 		end
 	end
 
+	if (script_grind.paranoidOn) then
+		if (script_grind:playersWithinRange(script_grind.paranoidRange)) then
+			self.message = "Player(s) within paranoid range, pausing...";
+			self.waitTimer = GetTimeEX() + 4123;
+			ClearTarget();
+			if IsMoving() then
+				self.waitTimer = GetTimeEX() + 8523
+				StopMoving();
+			end
+		return;
+		end
+	end
+
 	if(self.timer > GetTime()) then
 		return;
 	end
@@ -177,7 +190,7 @@ function script_fish:run()
 			return;
 		end		
 
-		self.message = "Cast Fishing Rod!";
+		self.message = "Casting Fishing!";
 		
 		UseItem(self.PoleName);
 
@@ -197,10 +210,10 @@ function script_fish:run()
 			
 			if (not IsLooting()) then		
 				bobberobj:GameObjectInteract();
-				self.timer = GetTime() + 0.5;
+				self.timer = GetTime() + 5;
 			else
 				LootTarget();
-				self.timer = GetTime() + 0.2;
+				self.timer = GetTime() + 5;
 				self.bobberInfo.looted = true;
 			end
 		else
@@ -282,6 +295,11 @@ function script_fish:menu()
 			end
 		end
 	--end
+
+		if (CollapsingHeader("Paranoia Options")) then
+			wasClicked, script_grind.paranoidOn = Checkbox("Enable Paranoia", script_grind.paranoidOn);
+	 		Text('Paranoia Range'); script_grind.paranoidRange = SliderInt("P (yd)", 50, 300, script_grind.paranoidRange);
+		end
 end
 
 function script_fish:checkLure(lureName)
