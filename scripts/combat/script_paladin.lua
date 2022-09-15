@@ -783,6 +783,9 @@ function script_paladin:menu()
 		Separator();
 
 		wasClicked, self.stopIfMHBroken = Checkbox("Stop bot if main hand is broken (red)...", self.stopIfMHBroken);
+		
+		Separator();
+
 		self.meleeDistance = SliderFloat("Melee range", 1, 6, self.meleeDistance);
 
 		Separator();
@@ -814,15 +817,26 @@ function script_paladin:menu()
 		if (CollapsingHeader("-- Heal Options")) then
 
 			Text("Heal Options:")
-			wasClicked, self.useFlashOfLightCombat = Checkbox("Flash of Light in Combat On/Off", self.useFlashOfLightCombat);
+
+			if (HasSpell("Flash of Light")) then
+				wasClicked, self.useFlashOfLightCombat = Checkbox("Flash of Light in Combat On/Off", self.useFlashOfLightCombat);
+			end
 
 			Separator();
 
 			self.holyLightHealth = SliderInt("Holy Light when below HP % (in combat)", 1, 99, self.holyLightHealth);
-			self.flashOfLightHP = SliderInt("Flash of Light when below HP %", 1, 99, self.flashOfLightHP);
-			self.lohHealth = SliderInt("Lay on Hands below HP %", 5, 50, self.lohHealth);
-			self.bopHealth = SliderInt("Shield below HP %", 1, 99, self.bopHealth);
+			
+			if (HasSpell("Flash of Light")) then
+				self.flashOfLightHP = SliderInt("Flash of Light when below HP %", 1, 99, self.flashOfLightHP);
+			end
 
+			if (HasSpell("Lay on Hands")) then
+				self.lohHealth = SliderInt("Lay on Hands below HP %", 5, 50, self.lohHealth);
+			end
+
+			if (HasSpell("Blessing of Protection")) then
+				self.bopHealth = SliderInt("Shield below HP %", 1, 99, self.bopHealth);
+			end
 		end
 	end
 end
