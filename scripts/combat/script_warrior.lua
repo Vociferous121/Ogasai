@@ -349,7 +349,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 				DisMount();
 			end
 
-			if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget) then
+			if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget and targetHealth < 99) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
@@ -371,7 +371,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 				return 3;
 			end
 
-			if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget) then
+			if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget and targetHealth < 99) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
@@ -638,7 +638,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end 
 			end
 
-			if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget) then
+			if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget and targetHealth < 99) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();

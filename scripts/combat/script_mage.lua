@@ -430,6 +430,7 @@ function script_mage:run(targetGUID)
 				-- stand if sitting
 				if (not IsStanding()) then
 					JumpOrAscendStart();
+					self.waitTimer = GetTimeEX() + 1000;
 				end
 
 				if (targetObj:IsInLineOfSight() and not IsMoving()) then
@@ -472,7 +473,7 @@ function script_mage:run(targetGUID)
 								CastSpellByName("Pyroblast", targetObj);
 								targetObj:FaceTarget();
 								self.message = "Pulling with Pyroblast!";
-								self.waitTimer = GetTimeEX() + 7600;
+								self.waitTimer = GetTimeEX() + 7800;
 								return 0;
 							end
 						end
@@ -698,14 +699,14 @@ function script_mage:run(targetGUID)
 			end
 
 			-- Check: Polymorph add
-			if (targetObj ~= nil and self.polymorphAdds and script_grind:enemiesAttackingUs() > 1 and HasSpell('Polymorph') and not self.addPolymorphed and self.polyTimer < GetTimeEX()) then
+			if (targetObj ~= nil and self.polymorphAdds and script_grind:enemiesAttackingUs(5) > 1 and HasSpell('Polymorph') and not self.addPolymorphed and self.polyTimer < GetTimeEX()) then
 				self.message = "Polymorphing add...";
 				script_mage:polymorphAdd(targetObj:GetGUID());
 			end 
 
 			-- Check: Sort target selection if add is polymorphed
 			if (self.addPolymorphed) then
-				if(script_grind:enemiesAttackingUs() >= 1 and targetObj:HasDebuff('Polymorph')) then
+				if(script_grind:enemiesAttackingUs(5) >= 1 and targetObj:HasDebuff('Polymorph')) then
 					ClearTarget();
 					targetObj = script_mage:getTargetNotPolymorphed();
 					targetObj:AutoAttack();
@@ -1037,6 +1038,7 @@ function script_mage:rest()
 	if(localHealth < self.eatHealth or localMana < self.drinkMana) and (not IsSwimming()) then
 		if (IsMoving()) then
 			StopMoving();
+			self.waitTimer = GetTimeEX() + 2000;
 			return true;
 		end
 	end
@@ -1054,6 +1056,8 @@ function script_mage:rest()
 			StopMoving();
 			return true;
 		end
+
+		self.waitTimer = GetTimeEX() + 2000;
 
 		if (script_helper:drinkWater()) then 
 			self.message = "Drinking..."; 
@@ -1074,7 +1078,10 @@ function script_mage:rest()
 			return true;
 		end
 		
+		self.waitTimer = GetTimeEX() + 2000;
+		
 		if (script_helper:eat()) then 
+			self.waitTimer = GetTimeEX() + 2000;
 			self.message = "Eating..."; 
 			return true; 
 		else 
@@ -1084,6 +1091,7 @@ function script_mage:rest()
 	end
 	
 	if (localMana < self.drinkMana or localHealth < self.eatHealth) and (not IsSwimming() and not IsInCombat()) then
+		self.waitTimer = GetTimeEX() + 2000;
 		if (IsMoving()) then
 			StopMoving();
 		end

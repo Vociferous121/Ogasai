@@ -586,7 +586,7 @@ function script_warlock:run(targetGUID)
 				end
 			end
 			
-			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+			if (targetObj:IsInLineOfSight() and not IsMoving() and targetHealth < 99) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
@@ -616,6 +616,15 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
+			-- Howling Terror Fear
+			if (HasSpell("Howling Terror")) and (not IsSpellOnCD("Howling Terror")) and (script_grind:enemiesAttackingUs(5) >= 3) then
+				if (localHealth > 25) then
+					CastSpellByName("Howling Terror");
+					self.waitTimer = GetTimeEX() + 1500;
+					return 0;
+				end
+			end
+			
 			-- Check: If we don't have a soul shard, try to make one
 			if (targetHealth < self.drainSoulHealthPreset and targetHealth > 3 and HasSpell("Drain Soul") and not HasItem('Soul Shard')) then
 				if (Cast('Drain Soul', targetObj)) then
@@ -860,6 +869,7 @@ function script_warlock:rest()
 		if (not IsSpellOnCD("Dark Pact")) and (GetPet():GetManaPercentage() > 20) then
 			if (CastSpellByName("Dark Pact")) then
 				self.waitTimer = GetTimeEX() + 1500;
+				self.message = "Casting Dark Pact instead of drinking!";
 				return 0;
 			end
 		end

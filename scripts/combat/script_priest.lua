@@ -521,7 +521,7 @@ function script_priest:run(targetGUID)
 			end
 
 			-- new follow target
-			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+			if (targetObj:IsInLineOfSight() and not IsMoving() and targetHealth <= 99) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
@@ -655,7 +655,7 @@ function script_priest:run(targetGUID)
 			end
 
 			-- new follow target
-			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+			if (targetObj:IsInLineOfSight() and not IsMoving() and targetHealth <= 99) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
