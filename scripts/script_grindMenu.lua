@@ -70,7 +70,7 @@ function script_grindMenu:menu()
 		SameLine();
 		wasClicked, script_grind.sitParanoid = Checkbox("Sit when Paranoid", script_grind.sitParanoid);
 		wasClicked, script_grind.paranoidOnTargeted = Checkbox("Paranoid when targeted by players", script_grind.paranoidOnTargeted);
-	 	Text('Paranoia Range'); script_grind.paranoidRange = SliderInt("P (yd)", 1, 300, script_grind.paranoidRange);
+	 	Text('Paranoia Range'); script_grind.paranoidRange = SliderInt("P (yd)", 50, 300, script_grind.paranoidRange);
 		Text("Script tick rate - how fast the bot runs the scripts"); script_grind.tickRate = SliderFloat("TR (ms)", 0, 2000, script_grind.tickRate);		
 	end
 

@@ -231,6 +231,13 @@ function script_grind:run()
 				StopMoving();
 			end
 
+			if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) then
+				if (not IsSpellOnCD("Bright Campfire")) then
+					CastSpellByName("Bright Campfire");
+					return 0;
+				end
+			end
+
 			if (HasSpell("Shadowmeld")) then
 				if (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) and (not localObj:HasBuff("Bear Form")) and
 					(not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Cat Form")) then
