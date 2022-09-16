@@ -46,6 +46,7 @@ script_mage = {
 	scorchHealth = 20,	-- use scorch above this target health %
 	scorchMana = 20,	-- use scorch above this mana %
 	scorchStacks = 2,	-- scorch debuff stacks on target
+	useScorch = true,
 	followTargetDistance = 100,
 	waitTimer = GetTimeEX(),
 
@@ -239,6 +240,10 @@ function script_mage:setup()
 		self.manaShieldHealth = 95;
 		self.eatHealth = 65;
 		self.useWandHealth = 15;
+	end
+
+	if (GetLocalPlayer():GetLevel() < 28) then
+		self.useScorch = false;
 	end
 
 	self.isSetup = true;
@@ -792,7 +797,7 @@ function script_mage:run(targetGUID)
 			end
 
 			-- scorch
-			if (self.fireMage) and (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 28) then
+			if (self.fireMage) and (self.useScorch) and (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 28) then
 				if (targetObj:GetDebuffStacks("Scorch") < self.scorchStacks) and (localMana > 25) and (targetHealth > 25) then
 					if (CastSpellByName("Scorch", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1500;
@@ -1251,7 +1256,7 @@ function script_mage:menu()
 			self.wandSpeed = InputText("WS", self.wandSpeed);
 		end
 		
-		if (HasSpell("Fireblast")) then
+		if (HasSpell("Fire Blast")) then
 			wasClicked, self.useFireBlast = Checkbox("Use Fire Blast", self.useFireBlast);
 			SameLine();
 		end
@@ -1282,6 +1287,10 @@ function script_mage:menu()
 		if (HasSpell("Blink")) then
 			wasClicked, self.useBlink = Checkbox("Use Blink", self.useBlink);
 			SameLine();
+		end
+
+		if (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 28) then
+			wasClicked, self.useScorch = Checkbox("Use Scorch", self.useScorch);
 		end
 
 		if (HasSpell("Dampen Magic")) then
