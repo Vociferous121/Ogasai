@@ -227,18 +227,18 @@ function script_grind:run()
 			self.waitTimer = GetTimeEX() + 4123;
 			ClearTarget();
 			if IsMoving() then
-				self.waitTimer = GetTimeEX() + 8523
 				StopMoving();
+				self.waitTimer = GetTimeEX() + 8523
 			end
 
 			if (GetXPExhaustion() ~= nil) then
-				if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) and (not IsSpellOnCD("Bright Campfire")) then
+				if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) and (HasItem("Flint and Tinder")) and (not IsSpellOnCD("Bright Campfire")) then
 					if (not IsStanding()) then
 						JumpOrAscendStart();
 					end
 					if (not IsSpellOnCD("Bright Campfire")) then
 						CastSpellByName("Bright Campfire");
-						if (IsStanding()) then
+						if (IsStanding()) and (self.sitParanoid) then
 							SitOrStand();
 						end
 						-- wait 2+ mins
@@ -284,6 +284,7 @@ function script_grind:run()
 			if (self.sitParanoid) then
 				if (IsStanding()) and (not IsInCombat()) then
 					SitOrStand();
+					self.waitTimer = GetTimeEX() + 3523
 				end
 			end
 		return;
