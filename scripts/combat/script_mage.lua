@@ -508,7 +508,7 @@ function script_mage:run(targetGUID)
 							if (CastSpellByName("Pyroblast", targetObj)) then
 								targetObj:FaceTarget();
 								self.message = "Pulling with Pyroblast!";
-								self.waitTimer = GetTimeEX() + 1700;
+								self.waitTimer = GetTimeEX() + 2000;
 								return 0;
 							end
 						end
@@ -604,7 +604,7 @@ function script_mage:run(targetGUID)
 					if (localObj:HasDebuff("Web")) or (localObj:HasDebuff("Encasing Webs")) then
 						if (CastSpellByName("Blink")) then
 							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 1000;
+							self.waitTimer = GetTimeEX() + 500;
 							return 0;
 						end
 					end
@@ -617,7 +617,7 @@ function script_mage:run(targetGUID)
 					if (not targetObj:HasDebuff("Frostbite")) and (not targetObj:HasDebuff("Frost Nova")) and (not targetObj:HasDebuff("Blast Wave")) and (targetHealth > 10) then
 						if (CastSpellByName("Blink")) then
 							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 1800;
+							self.waitTimer = GetTimeEX() + 500;
 							return 0;
 						end
 					end
@@ -674,7 +674,7 @@ function script_mage:run(targetGUID)
 
 			-- frost nova if target is running away
 			if (HasSpell("Frost Nova")) and (not IsSpellOnCD("Frost Nova")) and (targetObj:IsFleeing()) and (targetHealth > 3) then
-				if (localMana > 7) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frostbite")) then
+				if (localMana > 5) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frostbite")) then
 					if (CastSpellByName("Frost Nova")) then
 						return 0;
 					end
@@ -684,7 +684,7 @@ function script_mage:run(targetGUID)
 			-- frost nova fireMage redundancy
 			if (self.fireMage and self.useFrostNova) then
 				if (HasSpell("Frost Nova")) and (not IsSpellOnCD("Frost Nova")) then
-					if (localMana > 7) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frost Nova")) then
+					if (localMana > 5) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frost Nova")) then
 						if (CastSpellByName("Frost Nova")) then
 							return 0;
 						end
@@ -1253,7 +1253,7 @@ end
 function script_mage:menu()
 
 	localObj = GetLocalPlayer();
-	
+
 	local wasClicked = false;
 
 	if (not self.fireMage) and (not self.frostMage) then
