@@ -38,13 +38,13 @@ script_mage = {
 	waitTimer = 0,		-- wait timer for spells
 	useWand = true,	-- use wand yes/no
 	gemTimer = 0,		-- gem cooldown timer
-	useBlink = true,	-- use blink yes/no
+	useBlink = false,	-- use blink yes/no
 	isChecked = true,	-- set up
 	useDampenMagic = false,	-- use dampen magic yes/no
 	fireMage = false,	-- is fire spec yes/no
 	frostMage = false,	-- is frost spec yes/no
 	scorchStacks = 2,	-- scorch debuff stacks on target
-	useScorch = true,	-- use scorch yes/no
+	useScorch = true,	-- use  yes/no
 	followTargetDistance = 100,	-- new follow/face target distance here to debug melee
 	waitTimer = GetTimeEX(),	-- set wait timer variable. probably not needed?
 
@@ -249,7 +249,7 @@ function script_mage:setup()
 	end
 
 	-- hide scorch until high enough level for talent obtained debuffs
-	if (GetLocalPlayer():GetLevel() < 27) then
+	if (GetLocalPlayer():GetLevel() < 27) or (self.frostMage) then
 		self.useScorch = false;
 	end
 
@@ -827,7 +827,7 @@ function script_mage:run(targetGUID)
 				if (targetObj:GetDebuffStacks("Fire Vulnerability") < self.scorchStacks) then
 					if (localMana > self.useWandMana) and (targetHealth > self.useWandHealth) then
 						if (CastSpellByName("Scorch", targetObj)) then
-							self.waitTimer = GetTimeEX() + 1500;
+							self.waitTimer = GetTimeEX() + 1800;
 							return 0;
 						end
 					end
@@ -1369,7 +1369,7 @@ function script_mage:menu()
 
 			end
 
-			if (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 27) then
+			if (HasSpell("Scorch")) and (self.fireMage) and (GetLocalPlayer():GetLevel() >= 27) then
 
 				wasClicked, self.useScorch = Checkbox("Use Scorch", self.useScorch);
 
@@ -1408,7 +1408,7 @@ function script_mage:menu()
 				end
 			end
 
-			if (self.useScorch) then
+			if (self.useScorch) and (self.fireMage) then
 
 				if (self.fireMage) and (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 27) then
 
