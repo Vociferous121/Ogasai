@@ -316,6 +316,7 @@ function script_mage:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
+		-- new follow target / facetarget
 		if (targetObj:IsInLineOfSight() and not IsMoving()) then
 			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 				if (not targetObj:FaceTarget()) then
@@ -356,6 +357,7 @@ function script_mage:run(targetGUID)
 		-- Opener - not in combat pulling target
 		if (not IsInCombat()) then
 
+			-- display message in ogasai message box
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 
 			-- Opener spell if has frostbolt.... else....
@@ -419,11 +421,13 @@ function script_mage:run(targetGUID)
 					return 3;
 				end
 				
+				-- fire mage selected use these spells instead
 			elseif (self.fireMage) then
 				
+				-- check range using pyroblast if has spell
 				if (HasSpell("Pyroblast")) and (not targetObj:IsSpellInRange("Pyroblast")) then
 					return 3;
-					-- else if fire spec and in spell range RANGE CHECK
+					-- else check range using fireball
 				elseif (not HasSpell("Pyroblast")) and (not targetObj:IsSpellInRange("Fireball")) then
 					return 3;
 				end
@@ -441,6 +445,7 @@ function script_mage:run(targetGUID)
 					self.waitTimer = GetTimeEX() + 1000;
 				end
 
+				-- new follow target / face target
 				if (targetObj:IsInLineOfSight() and not IsMoving()) then
 					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 						if (not targetObj:FaceTarget()) then
@@ -508,9 +513,8 @@ function script_mage:run(targetGUID)
 					return 3;
 				end
 
+				-- frost mage slected use frost mage spells
 			elseif (self.frostMage) and (not HasSpell("Frostbolt")) then				
-		
-				-- this is here to check low level "frost mage" not having frost bolt yet
 
 				-- else if not has frostbolt then use fireball as range check
 				if (not targetObj:IsSpellInRange("Fireball")) then
@@ -527,6 +531,7 @@ function script_mage:run(targetGUID)
 					JumpOrAscendStart();
 				end
 
+				-- new follow target / face target
 				if (targetObj:IsInLineOfSight() and not IsMoving()) then
 					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 						if (not targetObj:FaceTarget()) then
@@ -555,6 +560,7 @@ function script_mage:run(targetGUID)
 
 		else	
 
+			-- display message in ogasai message box
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 			
 			-- Dismount
@@ -562,6 +568,7 @@ function script_mage:run(targetGUID)
 				DisMount();
 			end
 
+			-- new follow target / face target
 			if (targetObj:IsInLineOfSight() and not IsMoving()) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
@@ -829,9 +836,11 @@ function script_mage:run(targetGUID)
 			end
 			
 			-- Main damage source if all above conditions cannot be run
+			-- frost mage spells
 			if (HasSpell("Frostbolt")) and (self.frostMage) and (not IsChanneling()) then
 				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
 				
+					-- face target if in line of sight
 					if (targetObj:IsInLineOfSight()) then
 						targetObj:FaceTarget();
 					end
@@ -847,6 +856,7 @@ function script_mage:run(targetGUID)
 						return 3;
 					end	
 
+					-- face target if in line of sight
 					if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
 						targetObj:FaceTarget();
 					end
@@ -862,41 +872,45 @@ function script_mage:run(targetGUID)
 					end
 				end	
 
+				-- fire mage spells
 			elseif (self.fireMage) and (not IsChanneling()) then
 
+				-- use these spells if not using wand
 				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
 				
-				-- else if not has frostbolt then use fireball as range check
-				if(not targetObj:IsSpellInRange("Fireball")) then
-					return 3;
-				end
+					-- else if not has frostbolt then use fireball as range check
+					if(not targetObj:IsSpellInRange("Fireball")) then
+						return 3;
+					end
 
-				-- check line of sight
-				if (not targetObj:IsInLineOfSight()) then
-					return 3;
-				end	
+					-- check line of sight
+					if (not targetObj:IsInLineOfSight()) then
+						return 3;
+					end	
 
-				if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
-					targetObj:FaceTarget();
-				end
+					-- face target
+					if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
+						targetObj:FaceTarget();
+					end
 
-				if (targetObj:GetDistance() > 30) and (targetObj:GetManaPercentage() > 1) and (targetHealth > 50) then
-					if (HasSpell("Pyroblast")) then
-						if (CastSpellByName("Pyroblast", targetObj)) then
-							return 0;
+					-- cast pyroblast
+					if (targetObj:GetDistance() > 30) and (targetObj:GetManaPercentage() > 1) and (targetHealth > 50) then
+						if (HasSpell("Pyroblast")) then
+							if (CastSpellByName("Pyroblast", targetObj)) then
+								return 0;
+							end
 						end
 					end
-				end
-				
-				-- cast fireball
-				if (CastSpellByName("Fireball", targetObj)) then
-					return 0;
-				end
+					
+					-- cast fireball
+					if (CastSpellByName("Fireball", targetObj)) then
+						return 0;
+					end
 
-				-- recheck line of sight
-				if (not targetObj:IsInLineOfSight()) then
-					return 3;
-				end
+					-- recheck line of sight
+					if (not targetObj:IsInLineOfSight()) then
+						return 3;
+					end
 				end	
 			
 				-- this is here to check for low level "frost Mage" not having frostbolt yet
@@ -912,6 +926,7 @@ function script_mage:run(targetGUID)
 					return 3;
 				end	
 
+				-- face target
 				if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
 					targetObj:FaceTarget();
 				end
