@@ -674,7 +674,7 @@ function script_mage:run(targetGUID)
 
 			-- frost nova if target is running away
 			if (HasSpell("Frost Nova")) and (not IsSpellOnCD("Frost Nova")) and (targetObj:IsFleeing()) and (targetHealth > 3) then
-				if (localMana > 10) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frostbite")) then
+				if (localMana > 7) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frostbite")) then
 					if (CastSpellByName("Frost Nova")) then
 						return 0;
 					end
@@ -683,13 +683,13 @@ function script_mage:run(targetGUID)
 
 			-- frost nova fireMage redundancy
 			if (self.fireMage and self.useFrostNova) then
-			if (HasSpell("Frost Nova")) and (not IsSpellOnCD("Frost Nova")) then
-				if (localMana > 10) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frost Nova")) then
-					if (CastSpellByName("Frost Nova")) then
-						return 0;
+				if (HasSpell("Frost Nova")) and (not IsSpellOnCD("Frost Nova")) then
+					if (localMana > 7) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frost Nova")) then
+						if (CastSpellByName("Frost Nova")) then
+							return 0;
+						end
 					end
 				end
-			end
 			end
 
 			-- Use Mana Gem when low on mana
@@ -1251,165 +1251,245 @@ function script_mage:rest()
 end
 
 function script_mage:menu()
+
 	localObj = GetLocalPlayer();
+	
 	local wasClicked = false;
 
 	if (not self.fireMage) and (not self.frostMage) then
+
 		self.message = "Select a talent Spec in options!";
+
 	end
 
 	if (CollapsingHeader("Choose Talent Spec")) then
 
 		if (not self.fireMage) then
+
 			wasClicked, self.frostMage = Checkbox("Frost Spec", self.frostMage);
+			
 			SameLine();
+
 		end
+
 		if (not self.frostMage) then
+
 			wasClicked, self.fireMage = Checkbox("Fire Spec", self.fireMage);
+			
 			SameLine();
+
 		end
 	end
 
 	Separator();
 
  	if (self.frostMage) or (self.fireMage) then
-	if (CollapsingHeader("Mage Combat Options")) then
-		local wasClicked = false;
-		Text('Drink below mana percentage');
-		self.drinkMana = SliderFloat("DM%", 1, 100, self.drinkMana);
-		Text('Eat below health percentage');
-		self.eatHealth = SliderFloat("EH%", 1, 100, self.eatHealth);
-		Text('Use health potions below percentage');
-		self.potionHealth = SliderFloat("HP%", 1, 99, self.potionHealth);
-		Text('Use mana potions below percentage');
-		self.potionMana = SliderFloat("MP%", 1, 99, self.potionMana);
-		Separator();
-		Text('Skills Options:');
 
-		if (localObj:HasRangedWeapon()) then
-			wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);
-			Text('Wand Attack Speed (1.1 = 1100)');
-			self.wandSpeed = InputText("WS", self.wandSpeed);
-		end
-		
-		if (HasSpell("Fire Blast")) then
-			wasClicked, self.useFireBlast = Checkbox("Use Fire Blast", self.useFireBlast);
-			SameLine();
-		end
+		if (CollapsingHeader("Mage Combat Options")) then
 
-		if (HasSpell("Cone of Cold")) then
-			wasClicked, self.useConeOfCold = Checkbox("Use Cone of Cold", self.useConeOfCold);
-			SameLine();
-		end
+			local wasClicked = false;
 
-		if (HasSpell("Mana Shield")) then
-			wasClicked, self.useManaShield = Checkbox("Use Mana Shield", self.useManaShield);
-		end
+			Text('Drink below mana percentage');
+			self.drinkMana = SliderFloat("DM%", 1, 100, self.drinkMana);
 
-		if (HasSpell("Polymorph")) then
-			wasClicked, self.polymorphAdds = Checkbox("Polymorph Adds", self.polymorphAdds);
-			SameLine();
-		end
-		
-		if (HasSpell("Frost Nova")) then
-			wasClicked, self.useFrostNova = Checkbox("Use Frost Nova", self.useFrostNova);
-		end
+			Text('Eat below health percentage');
+			self.eatHealth = SliderFloat("EH%", 1, 100, self.eatHealth);
 
-		if (HasSpell("Quel'Dorei Meditation")) then
-		SameLine();
-		wasClicked, self.useQuelDoreiMeditation = Checkbox("Use QuelDoreiMeditation", self.useQuelDoreiMeditation);
-		end
+			Text('Use health potions below percentage');
+			self.potionHealth = SliderFloat("HP%", 1, 99, self.potionHealth);
 
-		if (HasSpell("Blink")) then
-			wasClicked, self.useBlink = Checkbox("Use Blink", self.useBlink);
-			SameLine();
-		end
+			Text('Use mana potions below percentage');
+			self.potionMana = SliderFloat("MP%", 1, 99, self.potionMana);
 
-		if (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 27) then
-			wasClicked, self.useScorch = Checkbox("Use Scorch", self.useScorch);
-		end
+			Separator();
 
-		if (HasSpell("Dampen Magic")) then
-			wasClicked, self.useDampenMagic = Checkbox("Use Dampen Magic", self.useDampenMagic);
-		end
+			Text('Skills Options:');
 
-		if (HasSpell("Frost Ward")) then
-			wasClicked, self.useFrostWard = Checkbox("Use Frost Ward", self.useFrostWard);
-			SameLine();
-		end
-		
-		if (HasSpell("Fire Ward")) then
-			wasClicked, self.useFireWard = Checkbox("Use Fire Ward", self.useFireWard);
-		end
-		
-		if (localObj:HasRangedWeapon()) then
-			if (CollapsingHeader("-- Wand Options")) then
-				Text('Wand below self mana percent');
-				self.useWandMana = SliderFloat("WM%", 1, 75, self.useWandMana);
-				Text('Wand below target HP percent');
-				self.useWandHealth = SliderFloat("WH%", 1, 75, self.useWandHealth);
+			if (localObj:HasRangedWeapon()) then
+
+				wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);
+
+				Text('Wand Attack Speed (1.1 = 1100)');
+				self.wandSpeed = InputText("WS", self.wandSpeed);
+
 			end
-		end
+			
+			if (HasSpell("Fire Blast")) then
 
-		if (self.useScorch) then
-			if (self.fireMage) and (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 27) then
-				if (CollapsingHeader("-- Scorch Options")) then
-					Text("How many Scorch debuff stacks on target?");
-					self.scorchStacks = SliderInt("ST", 1, 5, self.scorchStacks);
-				end
+				wasClicked, self.useFireBlast = Checkbox("Use Fire Blast", self.useFireBlast);
+
+				SameLine();
+
 			end
-		end
 
-		if (self.useConeOfCold) then
 			if (HasSpell("Cone of Cold")) then
-				if (CollapsingHeader("-- Cone of Cold Options")) then
-					Text('Cone of Cold above self mana percent');
-					self.coneOfColdMana = SliderFloat("CCM", 20, 75, self.coneOfColdMana);
-					Text('Cone of Cold above target health percent');
-					self.coneOfColdHealth = SliderFloat("CCH", 5, 50, self.coneOfColdHealth);
-				end
-			end
-		end
-		
-		if (HasSpell("Evocation")) then	
-			if (CollapsingHeader("-- Evocation Options")) then
-				Text('Evocation above health percent');
-				self.evocationHealth = SliderFloat("EH%", 1, 90, self.evocationHealth);
-				Text('Evocation below mana percent');
-				self.evocationMana = SliderFloat("EM%", 1, 90, self.evocationMana);
 
-				if (HasSpell("Quel'Dorei Meditation")) then
-					Text('Queldorei Meditation below mana percent');
-					self.QuelDoreiMeditationMana = SliderFloat("QM%", 1, 90, self.QuelDoreiMeditationMana);
-				end
-			end
-		end
+				wasClicked, self.useConeOfCold = Checkbox("Use Cone of Cold", self.useConeOfCold);
 
-		if (self.frostMage) and (HasSpell("Ice Block")) then
-			if (CollapsingHeader("-- Ice Block Options")) then
-				Text('Ice Block below health percent');
-				self.iceBlockHealth = SliderFloat("IBH%", 5, 90, self.iceBlockHealth);
-				Text('Ice Block below mana percent');
-				self.iceBlockMana = SliderFloat("IBM%", 5, 90, self.iceBlockMana);
-			end
-		end
+				SameLine();
 
-		if (self.useManaShield) then
+			end
+
 			if (HasSpell("Mana Shield")) then
-				if (CollapsingHeader("-- Mana Shield Options")) then
-					Text('Mana Shield below self health percent');
-					self.manaShieldHealth = SliderFloat("MS%", 5, 99, self.manaShieldHealth);
-					Text('Mana Shield above self mana percent');
-					self.manaShieldMana = SliderFloat("MM%", 10, 65, self.manaShieldMana);
+
+				wasClicked, self.useManaShield = Checkbox("Use Mana Shield", self.useManaShield);
+
+			end
+
+			if (HasSpell("Polymorph")) then
+
+				wasClicked, self.polymorphAdds = Checkbox("Polymorph Adds", self.polymorphAdds);
+
+				SameLine();
+
+			end
+			
+			if (HasSpell("Frost Nova")) then
+
+				wasClicked, self.useFrostNova = Checkbox("Use Frost Nova", self.useFrostNova);
+
+			end
+
+			if (HasSpell("Quel'Dorei Meditation")) then
+
+			SameLine();
+
+			wasClicked, self.useQuelDoreiMeditation = Checkbox("Use QuelDoreiMeditation", self.useQuelDoreiMeditation);
+
+			end
+
+			if (HasSpell("Blink")) then
+
+				wasClicked, self.useBlink = Checkbox("Use Blink", self.useBlink);
+
+				SameLine();
+
+			end
+
+			if (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 27) then
+
+				wasClicked, self.useScorch = Checkbox("Use Scorch", self.useScorch);
+
+			end
+
+			if (HasSpell("Dampen Magic")) then
+
+				wasClicked, self.useDampenMagic = Checkbox("Use Dampen Magic", self.useDampenMagic);
+
+			end
+
+			if (HasSpell("Frost Ward")) then
+
+				wasClicked, self.useFrostWard = Checkbox("Use Frost Ward", self.useFrostWard);
+
+				SameLine();
+
+			end
+			
+			if (HasSpell("Fire Ward")) then
+
+				wasClicked, self.useFireWard = Checkbox("Use Fire Ward", self.useFireWard);
+
+			end
+			
+			if (localObj:HasRangedWeapon()) then
+				
+				if (CollapsingHeader("-- Wand Options")) then
+
+					Text('Wand below self mana percent');
+					self.useWandMana = SliderFloat("WM%", 1, 75, self.useWandMana);
+
+					Text('Wand below target HP percent');
+					self.useWandHealth = SliderFloat("WH%", 1, 75, self.useWandHealth);
+
+				end
+			end
+
+			if (self.useScorch) then
+
+				if (self.fireMage) and (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 27) then
+
+					if (CollapsingHeader("-- Scorch Options")) then
+
+						Text("How many Scorch debuff stacks on target?");
+						self.scorchStacks = SliderInt("ST", 1, 5, self.scorchStacks);
+
+					end
+				end
+			end
+
+			if (self.useConeOfCold) then
+
+				if (HasSpell("Cone of Cold")) then
+
+					if (CollapsingHeader("-- Cone of Cold Options")) then
+
+						Text('Cone of Cold above self mana percent');
+						self.coneOfColdMana = SliderFloat("CCM", 20, 75, self.coneOfColdMana);
+
+						Text('Cone of Cold above target health percent');
+						self.coneOfColdHealth = SliderFloat("CCH", 5, 50, self.coneOfColdHealth);
+
+					end
+				end
+			end
+			
+			if (HasSpell("Evocation")) then	
+
+				if (CollapsingHeader("-- Evocation Options")) then
+
+					Text('Evocation above health percent');
+					self.evocationHealth = SliderFloat("EH%", 1, 90, self.evocationHealth);
+
+					Text('Evocation below mana percent');
+					self.evocationMana = SliderFloat("EM%", 1, 90, self.evocationMana);
+
+					if (HasSpell("Quel'Dorei Meditation")) then
+
+						Text('Queldorei Meditation below mana percent');
+						self.QuelDoreiMeditationMana = SliderFloat("QM%", 1, 90, self.QuelDoreiMeditationMana);
+
+					end
+				end
+			end
+
+			if (self.frostMage) and (HasSpell("Ice Block")) then
+
+				if (CollapsingHeader("-- Ice Block Options")) then
+
+					Text('Ice Block below health percent');
+					self.iceBlockHealth = SliderFloat("IBH%", 5, 90, self.iceBlockHealth);
+
+					Text('Ice Block below mana percent');
+					self.iceBlockMana = SliderFloat("IBM%", 5, 90, self.iceBlockMana);
+
+				end
+			end
+
+			if (self.useManaShield) then
+
+				if (HasSpell("Mana Shield")) then
+
+					if (CollapsingHeader("-- Mana Shield Options")) then
+
+						Text('Mana Shield below self health percent');
+						self.manaShieldHealth = SliderFloat("MS%", 5, 99, self.manaShieldHealth);
+
+						Text('Mana Shield above self mana percent');
+						self.manaShieldMana = SliderFloat("MM%", 10, 65, self.manaShieldMana);
+
+					end
+				end
+			end
+
+			if (HasSpell("Conjure Mana Gem")) then
+
+				if (CollapsingHeader("-- Mana Gem Options")) then
+
+					self.manaGemMana = SliderFloat("MG%", 1, 90, self.manaGemMana);		
+
 				end
 			end
 		end
-
-		if (HasSpell("Conjure Mana Gem")) then
-			if (CollapsingHeader("-- Mana Gem Options")) then
-				self.manaGemMana = SliderFloat("MG%", 1, 90, self.manaGemMana);		
-			end
-		end
-	end
 	end
 end
