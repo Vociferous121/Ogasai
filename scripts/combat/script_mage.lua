@@ -505,15 +505,13 @@ function script_mage:run(targetGUID)
 					end
 		
 					-- cast the spell - pyroblast
-					if (localMana > 8) and (not IsMoving()) and (IsStanding()) and (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() > 25 and not script_grind:isTargetingMe(targetObj)) then
-						if (not targetObj:HasDebuff("Pyroblast")) then
-							if (not script_grind:isTargetingMe(targetObj)) and (not IsMoving()) and (targetObj:GetHealthPercentage() > 75) then
-								if (CastSpellByName("Pyroblast", targetObj)) then
-									targetObj:FaceTarget();
-									self.message = "Pulling with Pyroblast!";
-									self.waitTimer = GetTimeEX() + 1700;
-									return 0;
-								end
+					if (localMana > 8) and (not IsMoving()) and (IsStanding()) and (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() > 25) and (not script_grind:isTargetingMe(targetObj)) then
+						if (not targetObj:HasDebuff("Pyroblast")) and (not script_grind:isTargetingMe(targetObj)) and (not IsMoving()) then
+							if (CastSpellByName("Pyroblast", targetObj)) then
+								targetObj:FaceTarget();
+								self.message = "Pulling with Pyroblast!";
+								self.waitTimer = GetTimeEX() + 1700;
+								return 0;
 							end
 						end
 					
@@ -680,7 +678,6 @@ function script_mage:run(targetGUID)
 						self.message = "Moving away from target...";
 						if (not IsSpellOnCD("Frost Nova")) then
 							CastSpellByName("Frost Nova");
-							self.waitTimer = GetTimeEX() + 1800;
 							return 0;
 						end
 					return 4; 
@@ -692,7 +689,6 @@ function script_mage:run(targetGUID)
 			if (HasSpell("Frost Nova")) and (not IsSpellOnCD("Frost Nova")) and (targetObj:IsFleeing()) and (targetHealth > 3) then
 				if (localMana > 10) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frostbite")) then
 					if (CastSpellByName("Frost Nova")) then
-						self.waitTimer = GetTimeEX() + 1800;
 						return 0;
 					end
 				end
@@ -703,7 +699,6 @@ function script_mage:run(targetGUID)
 			if (HasSpell("Frost Nova")) and (not IsSpellOnCD("Frost Nova")) then
 				if (localMana > 10) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frost Nova")) then
 					if (CastSpellByName("Frost Nova")) then
-						self.waitTimer = GetTimeEX() + 1800;
 						return 0;
 					end
 				end
@@ -762,11 +757,9 @@ function script_mage:run(targetGUID)
 
 			-- Check: Polymorph add
 			if (targetObj ~= nil and self.polymorphAdds and script_grind:enemiesAttackingUs(5) > 1 and HasSpell('Polymorph') and not self.addPolymorphed and self.polyTimer < GetTimeEX()) then
-				if (not targetObj:HasDebuff("Fireball")) or (not targetObj:HasDebuff("Pyroblast")) then
-					self.message = "Polymorphing add...";
-					script_mage:polymorphAdd(targetObj:GetGUID());
-				end 
-			end
+				self.message = "Polymorphing add...";
+				script_mage:polymorphAdd(targetObj:GetGUID());
+			end 
 
 			-- Check: Sort target selection if add is polymorphed
 			if (self.addPolymorphed) then
