@@ -310,7 +310,6 @@ function script_warlock:run(targetGUID)
 			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 				if (not targetObj:FaceTarget()) then
 					targetObj:FaceTarget();
-					self.message = "Face Target 1";
 					self.waitTimer = GetTimeEX() + 0;
 				end
 			end
@@ -401,7 +400,6 @@ function script_warlock:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.message = "Face Target 2";
 						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
@@ -470,7 +468,6 @@ function script_warlock:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.message = "Face Target 3";
 						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
@@ -516,10 +513,9 @@ function script_warlock:run(targetGUID)
 			end
 
 			if (targetObj:IsInLineOfSight() and not IsMoving()) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) and (targetHealth < 99) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.message = "Face Target 3";
 						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
@@ -590,7 +586,6 @@ function script_warlock:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.message = "Face Target 4";
 						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
@@ -834,10 +829,9 @@ function script_warlock:run(targetGUID)
 			end	
 
 			if (targetObj:IsInLineOfSight() and not IsMoving()) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) and (targetHealth < 99) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.message = "Face Target 4";
 						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
@@ -865,10 +859,9 @@ function script_warlock:rest()
 	end
 
 	-- Dark Pact instead of drink
-	if (HasSpell("Dark Pact")) and (localMana < 75) and (GetPet ~= 0 or hasPet) and (self.useImp or self.useVoid or self.useSuccubus or self.useFelhunter) then
-		if (not IsSpellOnCD("Dark Pact")) and (GetPet():GetManaPercentage() > 20) then
+	if (HasSpell("Dark Pact")) and (IsStanding()) and (localMana < 75) and (GetPet() ~= 0 or hasPet) and (self.useImp or self.useVoid or self.useSuccubus or self.useFelhunter) then
+		if (not IsSpellOnCD("Dark Pact")) and (GetPet():GetManaPercentage() > 20) and (IsStanding()) then
 			if (CastSpellByName("Dark Pact")) then
-				self.waitTimer = GetTimeEX() + 1500;
 				self.message = "Casting Dark Pact instead of drinking!";
 				return 0;
 			end
@@ -1047,7 +1040,7 @@ function script_warlock:rest()
 	--end
 
 	-- Do buffs if we got some mana 
-	if (localMana > 30) then
+	if (localMana > 30) and (IsStanding()) then
 		if(HasSpell("Demon Armor")) then
 			if (not localObj:HasBuff("Demon Armor")) then
 				if (not Buff("Demon Armor", localObj)) then
@@ -1057,7 +1050,7 @@ function script_warlock:rest()
 					return true;
 				end
 			end
-		elseif (not localObj:HasBuff('Demon Skin') and HasSpell('Demon Skin')) then
+		elseif (not localObj:HasBuff('Demon Skin') and HasSpell('Demon Skin')) and (IsStanding()) then
 			if (not Buff('Demon Skin', localObj)) then
 				return false;
 			else
@@ -1065,7 +1058,7 @@ function script_warlock:rest()
 				return true;
 			end
 		end
-		if (HasSpell("Unending Breath")) and (self.useUnendingBreath) then
+		if (HasSpell("Unending Breath")) and (self.useUnendingBreath) and (IsStanding())then
 			if (not localObj:HasBuff('Unending Breath')) then
 				if (not Buff('Unending Breath', localObj)) then
 					return false;

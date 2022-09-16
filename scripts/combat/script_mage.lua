@@ -823,13 +823,14 @@ function script_mage:run(targetGUID)
 			end
 
 			-- scorch
-			if (self.fireMage) and (self.useScorch) and (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 27) then
-				if (targetObj:GetDebuffStacks("Scorch") < self.scorchStacks) and (localMana > self.useWandMana) and (targetHealth > self.useWandHealth) then
-					if (CastSpellByName("Scorch", targetObj)) then
-						self.waitTimer = GetTimeEX() + 1500;
-						return 0;
+			if (self.fireMage) and (self.useScorch) and (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 27) and (localMana > self.useWandMana or targetHealth > self.useWandHealth) then
+				if (targetObj:GetDebuffStacks("Fire Vulnerability") < self.scorchStacks) then
+					if (localMana > self.useWandMana) and (targetHealth > self.useWandHealth) then
+						if (CastSpellByName("Scorch", targetObj)) then
+							self.waitTimer = GetTimeEX() + 1500;
+							return 0;
+						end
 					end
-					return;
 				end
 			end
 			
@@ -857,7 +858,7 @@ function script_mage:run(targetGUID)
 			-- Main damage source if all above conditions cannot be run
 			-- frost mage spells
 			if (HasSpell("Frostbolt")) and (self.frostMage) and (not IsChanneling()) then
-				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
+				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth - 5) then
 				
 					-- face target if in line of sight
 					if (targetObj:IsInLineOfSight()) then
@@ -895,7 +896,7 @@ function script_mage:run(targetGUID)
 			elseif (self.fireMage) and (not IsChanneling()) then
 
 				-- use these spells if not using wand
-				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
+				if (localMana >= self.useWandMana or targetHealth >= self.useWandHealth) then
 				
 					-- else if not has frostbolt then use fireball as range check
 					if(not targetObj:IsSpellInRange("Fireball")) then
@@ -919,11 +920,13 @@ function script_mage:run(targetGUID)
 								return 0;
 							end
 						end
-					end
-					
-					-- cast fireball
-					if (CastSpellByName("Fireball", targetObj)) then
-						return 0;
+				
+					else
+				
+						-- cast fireball
+						if (CastSpellByName("Fireball", targetObj)) then
+							return 0;
+						end
 					end
 
 					-- recheck line of sight
