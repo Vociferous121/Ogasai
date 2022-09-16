@@ -823,7 +823,7 @@ function script_mage:run(targetGUID)
 			end
 
 			-- scorch
-			if (self.fireMage) and (self.useScorch) and (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 27) and (localMana > self.useWandMana or targetHealth > self.useWandHealth) then
+			if (self.fireMage) and (self.useScorch) and (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 27) and (localMana > self.useWandMana and targetHealth > self.useWandHealth) then
 				if (targetObj:GetDebuffStacks("Fire Vulnerability") < self.scorchStacks) then
 					if (localMana > self.useWandMana) and (targetHealth > self.useWandHealth) then
 						if (CastSpellByName("Scorch", targetObj)) then
@@ -896,7 +896,7 @@ function script_mage:run(targetGUID)
 			elseif (self.fireMage) and (not IsChanneling()) then
 
 				-- use these spells if not using wand
-				if (localMana >= self.useWandMana or targetHealth >= self.useWandHealth) then
+				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
 				
 					-- else if not has frostbolt then use fireball as range check
 					if(not targetObj:IsSpellInRange("Fireball")) then
