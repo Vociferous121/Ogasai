@@ -479,7 +479,7 @@ function script_mage:run(targetGUID)
 							end
 						end
 						-- cast fireball instead if target is too close or attacking us
-					elseif (targetObj:GetDistance() <= 25) and (targetObj:IsInLineOfSight()) and (script_grind:isTargetingMe(targetObj)) then
+					elseif (not IsMoving()) and (targetObj:GetDistance() <= 25) and (targetObj:IsInLineOfSight()) and (script_grind:isTargetingMe(targetObj)) then
 						if (CastSpellByName("Fireball", targetObj)) then
 							targetObj:FaceTarget();
 							self.message = "Pulling with Fireball!";
@@ -487,11 +487,11 @@ function script_mage:run(targetGUID)
 							return 0;
 						end
 						-- lol elseif... cast pyroblast if target is close and not attacking us
-					elseif (not script_grind:isTargetingMe(targetObj)) and (targetHealth > 99) and (targetObj:GetDistance() < 25) and (targetObj:IsInLineOfSight()) then
+					elseif (not IsMoving()) and (not script_grind:isTargetingMe(targetObj)) and (targetHealth > 99) and (targetObj:GetDistance() < 25) and (targetObj:IsInLineOfSight()) then
 						CastSpellByName("Pyroblast", targetObj);
 						targetObj:FaceTarget();
 						self.message = "Pulling with Pyroblast!";
-						self.waitTimer = GetTimeEX() + 6800;
+						self.waitTimer = GetTimeEX() + 7200;
 						return 0;
 					end
 				end
@@ -767,25 +767,25 @@ function script_mage:run(targetGUID)
 			end
 
 			-- blast wave
-			--if (self.fireMage) then
-			--	if (HasSpell("Blast Wave")) and (localMana > 30) and (targetObj:GetDistance() < 10) and (not IsSpellOnCD("Blast Wave")) and (targetHealth > 15 or localHealth < 20) then
-			--		if (script_mage:runBackwards(targetObj, 7)) then -- Moves if the target is closer than 7 yards
-			--			self.message = "Moving away from target...";
-			--			if (not IsSpellOnCD("Blast Wave")) then
-			--				CastSpellByName("Blast Wave");
-			--				return 0;
-			--			end
-			--		return 4; 
-			--		end 
-			--	end	
-			--end
+			if (self.fireMage) and (HasSpell("Blast Wave")) then
+				if (localMana > 30) and (targetObj:GetDistance() < 10) and (not IsSpellOnCD("Blast Wave")) and (targetHealth > 15 or localHealth < 20) then
+					if (script_mage:runBackwards(targetObj, 7)) then -- Moves if the target is closer than 7 yards
+						self.message = "Moving away from target...";
+						if (not IsSpellOnCD("Blast Wave")) then
+							CastSpellByName("Blast Wave");
+							return 0;
+						end
+					return 4; 
+					end 
+				end	
+			end
 
 			-- scorch
-			if (self.fireMage) and (HasSpell("Scorch")) then
+			if (self.fireMage) and (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 28) then
 				if (targetObj:GetDebuffStacks("Scorch") < self.scorchStacks) and (localMana > 25) and (targetHealth > 25) then
 					if (CastSpellByName("Scorch", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1500;
-						return 0;
+						return;
 					end
 				end
 			end
@@ -1278,7 +1278,7 @@ function script_mage:menu()
 			end
 		end
 
-		if (self.fireMage) and (HasSpell("Scorch")) then
+		if (self.fireMage) and (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 28) then
 			if (CollapsingHeader("-- Scorch Options")) then
 				Text("Use Scorch above target health percent");
 				self.scorchHealth = SliderInt("SH", 1, 100, self.scorchHealth);
