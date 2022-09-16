@@ -23,7 +23,7 @@ script_mage = {
 	polymorphAdds = true,	-- polymorphs adds yes/no
 	useFireBlast = true,	-- use fireblast yes/no
 	useFrostNova = true,	-- use frost nova yes/no
-	useConeofCold = true,	-- use cone of cold yes/no
+	useConeOfCold = true,	-- use cone of cold yes/no
 	coneOfColdMana = 35,	-- use cone of cold above this mana %
 	coneOfColdHealth = 15,	-- use cone of cold above this health %
 	useQuelDoreiMeditation = true,	-- use turtle wow spell high elf racial yes/no
@@ -81,7 +81,7 @@ function script_mage:cast(spellName, target)
 	return false;
 end
 
-function script_mage:ConeofCold(spellName)
+function script_mage:coneOfCold(spellName)
 	if (HasSpell(spellName)) then
 		if (not IsSpellOnCD(spellName)) then
 			if (not IsAutoCasting(spellName)) then
@@ -584,10 +584,11 @@ function script_mage:run(targetGUID)
 					end
 				end
 			end
+
 			-- blink frost nova on CD
 			if (self.useBlink) then
-				if (HasSpell("Blink")) and (not IsSpellOnCD("Blink")) and (IsSpellOnCD("Frost Nova")) and (targetObj:GetDistance() < 10) and (targetHealth > self.useWandHealth) then
-					if (not targetObj:HasDebuff("Frostbite")) and (not targetObj:HasDebuff("Frost Nova")) and (targetHealth > 10) then
+				if (HasSpell("Blink")) and (not IsSpellOnCD("Blink")) and (IsSpellOnCD("Frost Nova") or IsSpellOnCD("Cone of Cold")) and (targetObj:GetDistance() < 10) and (targetHealth > self.useWandHealth + 10) then
+					if (not targetObj:HasDebuff("Frostbite")) and (not targetObj:HasDebuff("Frost Nova")) and (not targetObj:HasDebuff("Blast Wave")) and (targetHealth > 10) then
 						if (CastSpellByName("Blink")) then
 							targetObj:FaceTarget();
 							self.waitTimer = GetTimeEX() + 1000;
@@ -759,9 +760,9 @@ function script_mage:run(targetGUID)
 			end
 
 			--Cone of Cold
-			if (self.useConeofCold) and (self.frostMage) and (HasSpell('Cone of Cold')) and (localMana >= self.coneOfColdMana) and (targetHealth >= self.coneOfColdHealth) then
+			if (self.useConeOfCold) and (HasSpell('Cone of Cold')) and (localMana >= self.coneOfColdMana) and (targetHealth >= self.coneOfColdHealth) then
 				if (not self.addPolymorphed) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frostbite")) and (not targetObj:HasDebuff("Frost Nova")) then
-					if (script_mage:ConeofCold('Cone of Cold')) then
+					if (script_mage:coneOfCold('Cone of Cold')) then
 						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 1500;
 						return 0;
@@ -817,7 +818,7 @@ function script_mage:run(targetGUID)
 			end
 
 			-- Wand if low mana or target is low
-			if (self.useWand) and (localMana <= self.useWandMana or targetHealth <= self.useWandHealth) then
+			if (self.useWand) and (localMana <= self.useWandMana or targetHealth <= self.useWandHealth) and (not IsChanneling()) then
 				self.message = "Using wand...";
 				if (not IsAutoCasting("Shoot")) then
 					targetObj:FaceTarget();
@@ -828,7 +829,7 @@ function script_mage:run(targetGUID)
 			end
 			
 			-- Main damage source if all above conditions cannot be run
-			if (HasSpell("Frostbolt")) and (self.frostMage) then
+			if (HasSpell("Frostbolt")) and (self.frostMage) and (not IsChanneling()) then
 				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
 				
 					if (targetObj:IsInLineOfSight()) then
@@ -861,7 +862,7 @@ function script_mage:run(targetGUID)
 					end
 				end	
 
-			elseif (self.fireMage) then
+			elseif (self.fireMage) and (not IsChanneling()) then
 
 				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
 				
@@ -898,6 +899,7 @@ function script_mage:run(targetGUID)
 				end
 				end	
 			
+				-- this is here to check for low level "frost Mage" not having frostbolt yet
 			elseif (self.frostMage) and (not HasSpell("Frostbolt")) then				
 		
 				-- else if not has frostbolt then use fireball as range check
@@ -1262,7 +1264,7 @@ function script_mage:menu()
 		end
 
 		if (HasSpell("Cone of Cold")) then
-			wasClicked, self.useConeofCold = Checkbox("Use Cone of Cold", self.useConeofCold);
+			wasClicked, self.useConeOfCold = Checkbox("Use Cone of Cold", self.useConeOfCold);
 			SameLine();
 		end
 
@@ -1315,23 +1317,27 @@ function script_mage:menu()
 			end
 		end
 
-		if (self.fireMage) and (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 27) then
-			if (CollapsingHeader("-- Scorch Options")) then
-				Text("Use Scorch above target health percent");
-				self.scorchHealth = SliderInt("SH", 1, 100, self.scorchHealth);
-				Text("Use Scorch above self mana percent");
-				self.scorchMana = SliderInt("SM", 1, 100, self.scorchMana);
-				Text("How many Scorch debuff stacks on target?");
-				self.scorchStacks = SliderInt("ST", 1, 5, self.scorchStacks);
+		if (self.useScorch) then
+			if (self.fireMage) and (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 27) then
+				if (CollapsingHeader("-- Scorch Options")) then
+					Text("Use Scorch above target health percent");
+					self.scorchHealth = SliderInt("SH", 1, 100, self.scorchHealth);
+					Text("Use Scorch above self mana percent");
+					self.scorchMana = SliderInt("SM", 1, 100, self.scorchMana);
+					Text("How many Scorch debuff stacks on target?");
+					self.scorchStacks = SliderInt("ST", 1, 5, self.scorchStacks);
+				end
 			end
 		end
 
-		if (HasSpell("Cone of Cold")) then
-			if (CollapsingHeader("-- Cone of Cold Options")) then
-				Text('Cone of Cold above self mana percent');
-				self.coneOfColdMana = SliderFloat("CCM", 20, 75, self.coneOfColdMana);
-				Text('Cone of Cold above target health percent');
-				self.coneOfColdHealth = SliderFloat("CCH", 5, 50, self.coneOfColdHealth);
+		if (self.useConeOfCold) then
+			if (HasSpell("Cone of Cold")) then
+				if (CollapsingHeader("-- Cone of Cold Options")) then
+					Text('Cone of Cold above self mana percent');
+					self.coneOfColdMana = SliderFloat("CCM", 20, 75, self.coneOfColdMana);
+					Text('Cone of Cold above target health percent');
+					self.coneOfColdHealth = SliderFloat("CCH", 5, 50, self.coneOfColdHealth);
+				end
 			end
 		end
 		
@@ -1358,12 +1364,14 @@ function script_mage:menu()
 			end
 		end
 
-		if (HasSpell("Mana Shield")) then
-			if (CollapsingHeader("-- Mana Shield Options")) then
-				Text('Mana Shield below self health percent');
-				self.manaShieldHealth = SliderFloat("MS%", 5, 99, self.manaShieldHealth);
-				Text('Mana Shield above self mana percent');
-				self.manaShieldMana = SliderFloat("MM%", 10, 65, self.manaShieldMana);
+		if (self.useManaShield) then
+			if (HasSpell("Mana Shield")) then
+				if (CollapsingHeader("-- Mana Shield Options")) then
+					Text('Mana Shield below self health percent');
+					self.manaShieldHealth = SliderFloat("MS%", 5, 99, self.manaShieldHealth);
+					Text('Mana Shield above self mana percent');
+					self.manaShieldMana = SliderFloat("MM%", 10, 65, self.manaShieldMana);
+				end
 			end
 		end
 
