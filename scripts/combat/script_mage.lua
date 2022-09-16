@@ -242,7 +242,7 @@ function script_mage:setup()
 		self.useWandHealth = 15;
 	end
 
-	if (GetLocalPlayer():GetLevel() < 28) then
+	if (GetLocalPlayer():GetLevel() < 27) then
 		self.useScorch = false;
 	end
 
@@ -797,7 +797,7 @@ function script_mage:run(targetGUID)
 			end
 
 			-- scorch
-			if (self.fireMage) and (self.useScorch) and (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 28) then
+			if (self.fireMage) and (self.useScorch) and (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 27) then
 				if (targetObj:GetDebuffStacks("Scorch") < self.scorchStacks) and (localMana > 25) and (targetHealth > 25) then
 					if (CastSpellByName("Scorch", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1500;
@@ -1289,7 +1289,7 @@ function script_mage:menu()
 			SameLine();
 		end
 
-		if (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 28) then
+		if (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 27) then
 			wasClicked, self.useScorch = Checkbox("Use Scorch", self.useScorch);
 		end
 
@@ -1315,7 +1315,7 @@ function script_mage:menu()
 			end
 		end
 
-		if (self.fireMage) and (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 28) then
+		if (self.fireMage) and (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 27) then
 			if (CollapsingHeader("-- Scorch Options")) then
 				Text("Use Scorch above target health percent");
 				self.scorchHealth = SliderInt("SH", 1, 100, self.scorchHealth);
