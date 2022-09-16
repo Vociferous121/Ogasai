@@ -43,8 +43,6 @@ script_mage = {
 	useDampenMagic = false,	-- use dampen magic yes/no
 	fireMage = false,	-- is fire spec yes/no
 	frostMage = false,	-- is frost spec yes/no
-	scorchHealth = 20,	-- use scorch above this target health %
-	scorchMana = 20,	-- use scorch above this mana %
 	scorchStacks = 2,	-- scorch debuff stacks on target
 	useScorch = true,	-- use scorch yes/no
 	followTargetDistance = 100,	-- new follow/face target distance here to debug melee
@@ -505,7 +503,7 @@ function script_mage:run(targetGUID)
 					end
 		
 					-- cast the spell - pyroblast
-					if (localMana > 8) and (not IsMoving()) and (IsStanding()) and (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() > 25) and (not script_grind:isTargetingMe(targetObj)) then
+					if (localMana > 8) and (not IsMoving()) and (IsStanding()) and (targetObj:IsInLineOfSight()) and (not script_grind:isTargetingMe(targetObj)) then
 						if (not targetObj:HasDebuff("Pyroblast")) and (not script_grind:isTargetingMe(targetObj)) and (not IsMoving()) then
 							if (CastSpellByName("Pyroblast", targetObj)) then
 								targetObj:FaceTarget();
@@ -516,24 +514,13 @@ function script_mage:run(targetGUID)
 						end
 					
 						-- cast fireball instead if target is too close or attacking us
-					elseif (not IsMoving()) and (IsStanding()) and (targetObj:GetDistance() <= 25) and (targetObj:IsInLineOfSight()) and (script_grind:isTargetingMe(targetObj)) then
+					elseif (not IsMoving()) and (IsStanding()) and (targetObj:IsInLineOfSight()) and (script_grind:isTargetingMe(targetObj)) then
 					
 						-- cast the spell - fireball
 						if (CastSpellByName("Fireball", targetObj)) then
 							targetObj:FaceTarget();
 							self.message = "Pulling with Fireball!";
 							self.waitTimer = GetTimeEX() + 1600;
-							return 0;
-						end
-					
-						-- lol elseif... cast pyroblast if target is close and not attacking us
-					elseif (not IsMoving()) and (IsStanding()) and (not IsInCombat()) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetDistance() < 25) and (targetObj:IsInLineOfSight()) then
-					
-						-- cast the spell - pyroblast
-						if (CastSpellByName("Pyroblast", targetObj)) then
-							targetObj:FaceTarget();
-							self.message = "Pulling with Pyroblast!";
-							self.waitTimer = GetTimeEX() + 1700;
 							return 0;
 						end
 					end
@@ -837,11 +824,12 @@ function script_mage:run(targetGUID)
 
 			-- scorch
 			if (self.fireMage) and (self.useScorch) and (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 27) then
-				if (targetObj:GetDebuffStacks("Scorch") < self.scorchStacks) and (localMana > 25) and (targetHealth > 25) then
+				if (targetObj:GetDebuffStacks("Scorch") < self.scorchStacks) and (localMana > self.useWandMana) and (targetHealth > self.useWandHealth) then
 					if (CastSpellByName("Scorch", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1500;
-						return;
+						return 0;
 					end
+					return;
 				end
 			end
 			
@@ -1366,10 +1354,6 @@ function script_mage:menu()
 		if (self.useScorch) then
 			if (self.fireMage) and (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 27) then
 				if (CollapsingHeader("-- Scorch Options")) then
-					Text("Use Scorch above target health percent");
-					self.scorchHealth = SliderInt("SH", 1, 100, self.scorchHealth);
-					Text("Use Scorch above self mana percent");
-					self.scorchMana = SliderInt("SM", 1, 100, self.scorchMana);
 					Text("How many Scorch debuff stacks on target?");
 					self.scorchStacks = SliderInt("ST", 1, 5, self.scorchStacks);
 				end
