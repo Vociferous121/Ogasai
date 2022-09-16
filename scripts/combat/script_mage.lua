@@ -483,11 +483,12 @@ function script_mage:run(targetGUID)
 					if (localMana > 8) and (not IsMoving() and IsStanding()) and (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() > 25 and not script_grind:isTargetingMe(targetObj)) then
 						if (not targetObj:HasDebuff("Pyroblast")) and (targetObj:GetHealthPercentage() > 75) then
 							if (not script_grind:isTargetingMe(targetObj)) and (not IsMoving()) and (targetObj:GetHealthPercentage() > 75) then
-								CastSpellByName("Pyroblast", targetObj);
-								targetObj:FaceTarget();
-								self.message = "Pulling with Pyroblast!";
-								self.waitTimer = GetTimeEX() + 8200;
-								return 0;
+								if (CastSpellByName("Pyroblast", targetObj)) then
+									targetObj:FaceTarget();
+									self.message = "Pulling with Pyroblast!";
+									self.waitTimer = GetTimeEX() + 1700;
+									return 0;
+								end
 							end
 						end
 						-- cast fireball instead if target is too close or attacking us
@@ -500,11 +501,12 @@ function script_mage:run(targetGUID)
 						end
 						-- lol elseif... cast pyroblast if target is close and not attacking us
 					elseif (not IsMoving() and IsStanding()) and (not IsInCombat()) and (not script_grind:isTargetingMe(targetObj)) and (targetHealth > 99) and (targetObj:GetDistance() < 25) and (targetObj:IsInLineOfSight()) then
-						CastSpellByName("Pyroblast", targetObj);
-						targetObj:FaceTarget();
-						self.message = "Pulling with Pyroblast!";
-						self.waitTimer = GetTimeEX() + 7200;
-						return 0;
+						if (CastSpellByName("Pyroblast", targetObj)) then
+							targetObj:FaceTarget();
+							self.message = "Pulling with Pyroblast!";
+							self.waitTimer = GetTimeEX() + 1700;
+							return 0;
+						end
 					end
 				end
 
@@ -640,7 +642,7 @@ function script_mage:run(targetGUID)
 			
 			-- Check: Move backwards if the target is affected by Frost Nova or Frost Bite
 			if (GetNumPartyMembers() < 1) or (self.useFrostNova) then
-				if (targetHealth > 10) and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (not localObj:HasBuff('Evocation')) and 
+				if (targetHealth > 20) and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (not localObj:HasBuff('Evocation')) and 
 					(targetObj ~= 0 and IsInCombat()) and (self.useFrostNova) and (not localObj:HasDebuff("Web")) and (not localObj:HasDebuff("Encasing Webs")) then
 					if (script_mage:runBackwards(targetObj, 7)) then -- Moves if the target is closer than 7 yards
 						self.message = "Moving away from target...";
@@ -685,7 +687,7 @@ function script_mage:run(targetGUID)
 			end
 
 			-- Use Evocation if we have low Mana but still a lot of HP left
-			if (localMana < self.evocationMana and localHealth > self.evocationHealth and HasSpell("Evocation") and not IsSpellOnCD("Evocation")) then		
+			if (localMana < self.evocationMana and localHealth > self.evocationHealth and HasSpell("Evocation") and not IsSpellOnCD("Evocation")) and (targetHealth > 20) then		
 				self.message = "Using Evocation...";
 				CastSpellByName("Evocation"); 
 				return 0;
@@ -1219,7 +1221,7 @@ function script_mage:rest()
 	-- remove curse
 	if (HasSpell("Remove Lesser Curse")) and (localMana > 10) then
 		if (localObj:HasDebuff("Curse of the Shadowhorn")) then
-			if (CastSpellByName("", localObj)) then
+			if (CastSpellByName("Remove Lesser Curse", localObj)) then
 				self.waitTimer = GetTimeEX() + 1800;
 				return;
 			end
