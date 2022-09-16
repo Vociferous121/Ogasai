@@ -42,6 +42,8 @@ script_warlock = {
 	wandHealthPreset = 10, -- preset to attack target with 10% HP using wand, reset in Setup function for dungeon to cast shadowbolt
 	drainSoulHealthPreset = 30,
 	hasSufferingSpell = false,
+	hasConsumeShadowsSpell = false,
+	hasSacrificeSpell = false,
 	followTargetDistance = 100,
 }
 
@@ -265,6 +267,14 @@ function script_warlock:run(targetGUID)
 		end
 	end
 
+	-- Check: If the pet is void and has spell Consume Shadows
+	if (hasPet) and (self.useVoid) and (GetPet() ~= 0) then
+		name, __, __, __, __, __, __ = GetPetActionInfo(6);
+		if (name == "Consume Shadows") then 
+			self.hasConsumeShadowsSpell = true;
+		end
+	end
+	
 	-- Check: If the pet is void and has spell suffering
 	if (hasPet) and (self.useVoid) and (GetPet() ~= 0) then
 		name, __, __, __, __, __, __ = GetPetActionInfo(7);
@@ -272,7 +282,15 @@ function script_warlock:run(targetGUID)
 			self.hasSufferingSpell = true;
 		end
 	end
-	
+
+	-- Check: If the pet is void and has spell sacrifice
+	if (hasPet) and (self.useVoid) and (GetPet() ~= 0) then
+		name, __, __, __, __, __, __ = GetPetActionInfo(5);
+		if (name == "Sacrifice") then 
+			self.hasSacrificeSpell = true;
+		end
+	end
+
 	-- don't attack dead targets
 	if (localObj:IsDead()) then
 		return 0;
@@ -542,7 +560,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- sacrifice voidwalker low health
-			if (GetPet() ~= 0) and (self.useVoid) and (HasSpell("Sacrifice")) and (self.sacrificeVoid) and (localHealth <= self.sacrificeVoidHealth or GetPet():GetHealthPercentage() < self.sacrificeVoidHealth) then
+			if (GetPet() ~= 0) and (self.useVoid) and (self.hasSacrificeSpell) and (self.sacrificeVoid) and (localHealth <= self.sacrificeVoidHealth or GetPet():GetHealthPercentage() <= self.sacrificeVoidHealth) then
 				CastSpellByName("Sacrifice");
 				hasPet = false;
 				return 0;
@@ -938,10 +956,10 @@ function script_warlock:rest()
 		return true;
 	end
 
-	if (GetPet() ~= 0) and (self.useVoid) and (GetPet():GetHealthPercentage() < 75) and (HasSpell("Consume Shadows")) then
+	if (GetPet() ~= 0) and (self.useVoid) and (GetPet():GetHealthPercentage() < 75) and (self.hasConsumeShadowsSpell) and (not IsSpellOnCD("Consume Shadows")) then
 		CastSpellByName("Consume Shadows");
 		self.waitTimer = GetTimeEX() + 7500;
-		self.message = "Using Voidwalker Consume Shadows";
+		self.message = "Using Voidwalker spell Consume Shadows";
 		return true;
 	end
 
@@ -1264,7 +1282,7 @@ function script_warlock:menu()
 			self.healPetHealth = SliderInt("HPH", 1, 80, self.healPetHealth);
 		end
 
-		if (self.useVoid) and (HasSpell("Sacrifice")) then
+		if (self.useVoid) and (self.hasSacrificeSpell) then
 			wasClicked, self.sacrificeVoid = Checkbox("Sacrifice Voidwalker when low self health", self.sacrificeVoid);
 			if (self.sacrificeVoid) then
 				Text("Self Health OR Pet Health percent to Sacrifice Voidwalker")
