@@ -556,6 +556,15 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
+			-- Dark Pact instead of lifetap in combat
+			if (HasSpell("Dark Pact")) and (localMana < 40) and (GetPet() ~= 0 or hasPet) and (self.useImp or self.useVoid or self.useSuccubus or self.useFelhunter) then
+				if (not IsSpellOnCD("Dark Pact")) and (GetPet():GetManaPercentage() > 20) then
+					if (CastSpellByName("Dark Pact")) then
+						self.message = "Casting Dark Pact instead of drinking!";
+						return 0;
+					end
+				end
+			end
 			-- Check: If we get Nightfall buff then cast Shadow Bolt
 			if (localObj:HasBuff("Shadow Trance")) then
 				if (Cast('Shadow Bolt', targetObj)) then
