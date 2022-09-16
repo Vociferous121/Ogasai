@@ -181,19 +181,19 @@ function script_warlock:setup()
 			self.useVoid = false;
 			self.useSuccubus = false;
 			self.useFelhunter = false;
-			hasPet = false;
+			self.hasPet = false;
 		elseif (HasSpell("Summon Voidwalker")) then
 			self.useImp = false;
 			self.useVoid = true;
 			self.useSuccubus = false;
 			self.useFelhunter = false;
-			hasPet = false;
+			self.hasPet = false;
 		elseif (not HasSpell("Summon Imp")) then
 			self.useImp = false;
 			self.useVoid = false;
 			self.useSuccubus = false;
 			self.useFelhunter = false;
-			hasPet = false;
+			self.hasPet = false;
 		-- elseif (HasSpell("Summon Succubus")) then
 		-- 	self.useSuccubus = true;
 		-- 	self.useImp = false;
@@ -260,15 +260,15 @@ function script_warlock:run(targetGUID)
 	local localLevel = localObj:GetLevel();
 
 	if (GetPet() ~= 0) then
-		hasPet = true;
+		self.hasPet = true;
 	else
-		if (GetPet() == 0) then
-			hasPet = false;
+		if (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) then
+			self.hasPet = false;
 		end
 	end
 
 	-- Check: If the pet is void and has spell Consume Shadows
-	if (hasPet) and (self.useVoid) and (GetPet() ~= 0) then
+	if (self.hasPet) and (self.useVoid) and (GetPet() ~= 0) then
 		name, __, __, __, __, __, __ = GetPetActionInfo(6);
 		if (name == "Consume Shadows") then 
 			self.hasConsumeShadowsSpell = true;
@@ -276,7 +276,7 @@ function script_warlock:run(targetGUID)
 	end
 	
 	-- Check: If the pet is void and has spell suffering
-	if (hasPet) and (self.useVoid) and (GetPet() ~= 0) then
+	if (self.hasPet) and (self.useVoid) and (GetPet() ~= 0) then
 		name, __, __, __, __, __, __ = GetPetActionInfo(7);
 		if (name == "Suffering") then 
 			self.hasSufferingSpell = true;
@@ -284,7 +284,7 @@ function script_warlock:run(targetGUID)
 	end
 
 	-- Check: If the pet is void and has spell sacrifice
-	if (hasPet) and (self.useVoid) and (GetPet() ~= 0) then
+	if (self.hasPet) and (self.useVoid) and (GetPet() ~= 0) then
 		name, __, __, __, __, __, __ = GetPetActionInfo(5);
 		if (name == "Sacrifice") then 
 			self.hasSacrificeSpell = true;
@@ -425,10 +425,10 @@ function script_warlock:run(targetGUID)
 
 			-- check pet
 			if(GetPet() ~= 0) then 
-				hasPet = true; 
+				self.hasPet = true; 
 			else
-				if (GetPet() == 0) then
-					hasPet = false;
+				if (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) then
+					self.hasPet = false;
 				end
 			end
 
@@ -477,6 +477,16 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
+			-- resummon when sacrifice is active
+			if (self.useVoid) and (self.sacrificeVoid) and (localObj:HasBuff("Sacrifice")) and (not self.hasPet) and (localMana > 35) then
+				if (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
+					if (CastSpellByName("Summon Voidwalker")) then
+						self.hasPet = true;
+						return 0;
+					end
+				end
+			end
+
 			if (not targetObj:IsInLineOfSight()) then -- check line of sight
 				self.message = "Moving into Line of Sight of target";
 				return 3;
@@ -518,10 +528,10 @@ function script_warlock:run(targetGUID)
 
 			-- check pet
 			if(GetPet() ~= 0) then 
-				hasPet = true; 
+				self.hasPet = true; 
 			else
-				if (GetPet() == 0) then
-					hasPet = false;
+				if (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) then
+					self.hasPet = false;
 				end
 			end
 
@@ -530,6 +540,7 @@ function script_warlock:run(targetGUID)
 				DisMount();
 			end
 
+			-- new follow / face target
 			if (targetObj:IsInLineOfSight() and not IsMoving()) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) and (targetHealth < 99) then
 					if (not targetObj:FaceTarget()) then
@@ -559,23 +570,45 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
+			-- check pet
+			if(GetPet() ~= 0) then 
+				self.hasPet = true; 
+			else
+				if (GetPet() == 0) or (GetPet():GetHealthPercentage() < 1) then
+					self.hasPet = false;
+				end
+			end
+
 			-- sacrifice voidwalker low health
 			if (GetPet() ~= 0) and (self.useVoid) and (self.hasSacrificeSpell) and (self.sacrificeVoid) and (localHealth <= self.sacrificeVoidHealth or GetPet():GetHealthPercentage() <= self.sacrificeVoidHealth) then
 				CastSpellByName("Sacrifice");
-				hasPet = false;
+				self.waitTimer = GetTimeEX() + 1500;
+				self.hasPet = false;
 				return 0;
 			end
 
+			-- check pet
+			if(GetPet() ~= 0) then 
+				self.hasPet = true; 
+			else
+				if (GetPet() == 0) or (GetPet():GetHealthPercentage() < 1) then
+					self.hasPet = false;
+				end
+			end
+
+
 			-- resummon when sacrifice is active
-			if (self.useVoid) and (self.sacrificeVoid) and (GetPet == 0) and (localObj:HasBuff("Sacrifice")) then
-				if (CastSpellByName("Summon Voidwalker")) then
-					hasPet = true;
-					return 0;
+			if (self.useVoid) and (self.sacrificeVoid) and (localObj:HasBuff("Sacrifice")) and (not self.hasPet) and (localMana > 35) then
+				if (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
+					if (CastSpellByName("Summon Voidwalker")) then
+						self.hasPet = true;
+						return 0;
+					end
 				end
 			end
 
 			-- Dark Pact instead of lifetap in combat
-			if (HasSpell("Dark Pact")) and (localMana < 40) and (GetPet() ~= 0 or hasPet) and (self.useImp or self.useVoid or self.useSuccubus or self.useFelhunter) then
+			if (HasSpell("Dark Pact")) and (localMana < 40) and (GetPet() ~= 0 or self.hasPet) and (self.useImp or self.useVoid or self.useSuccubus or self.useFelhunter) then
 				if (not IsSpellOnCD("Dark Pact")) and (GetPet():GetManaPercentage() > 20) then
 					if (CastSpellByName("Dark Pact")) then
 						self.message = "Casting Dark Pact instead of drinking!";
@@ -657,8 +690,8 @@ function script_warlock:run(targetGUID)
 				-- nav move to target causing crashes on follower
 			-- Check: Heal the pet if it's below 50% and we are above 50%
 			if (GetNumPartyMembers() < 1) then
-				if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) then
-					if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) then
+				if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetHealthPercentage() > 1 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) then
+					if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) and (self.hasPet) then
 						self.message = "Healing pet!";
 						script_nav:moveToTarget(localObj, GetPet():GetPosition()); 
 						self.waitTimer = GetTimeEX() + 2000;
@@ -809,10 +842,10 @@ function script_warlock:run(targetGUID)
 
 			-- check pet
 			if(GetPet() ~= 0) then 
-				hasPet = true; 
+				self.hasPet = true; 
 			else
-				if (GetPet() == 0) then
-					hasPet = false;
+				if (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) then
+					self.hasPet = false;
 				end
 			end
 
@@ -874,19 +907,22 @@ function script_warlock:rest()
 	end
 
 	local localObj = GetLocalPlayer();
+
 	local localMana = localObj:GetManaPercentage();
+
 	local localHealth = localObj:GetHealthPercentage();
+
 	-- check pet
 	if(GetPet() ~= 0) then 
-		hasPet = true; 
+		self.hasPet = true; 
 	else
-		if (GetPet() == 0) then
-			hasPet = false;
+		if (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) then
+			self.hasPet = false;
 		end
 	end
 
 	-- Dark Pact instead of drink
-	if (HasSpell("Dark Pact")) and (IsStanding()) and (localMana < 75) and (GetPet() ~= 0 or hasPet) and (self.useImp or self.useVoid or self.useSuccubus or self.useFelhunter) then
+	if (HasSpell("Dark Pact")) and (IsStanding()) and (localMana < 75) and (GetPet() ~= 0 or self.hasPet) and (self.useImp or self.useVoid or self.useSuccubus or self.useFelhunter) then
 		if (not IsSpellOnCD("Dark Pact")) and (GetPet():GetManaPercentage() > 20) and (IsStanding()) then
 			if (CastSpellByName("Dark Pact")) then
 				self.message = "Casting Dark Pact instead of drinking!";
@@ -956,62 +992,62 @@ function script_warlock:rest()
 		return true;
 	end
 
-	if (GetPet() ~= 0) and (self.useVoid) and (GetPet():GetHealthPercentage() < 75) and (self.hasConsumeShadowsSpell) and (not IsSpellOnCD("Consume Shadows")) then
+	if (GetPet() ~= 0) and (self.useVoid) and (GetPet():GetHealthPercentage() < 75 and GetPet():GetHealthPercentage() > 1) and (self.hasConsumeShadowsSpell) and (not IsSpellOnCD("Consume Shadows")) then
 		CastSpellByName("Consume Shadows");
 		self.waitTimer = GetTimeEX() + 7500;
 		self.message = "Using Voidwalker spell Consume Shadows";
 		return true;
 	end
 
-	if (GetPet() == 0) then
-		hasPet = false;
+	if (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) then
+		self.hasPet = false;
 	else
 		if (GetPet() ~= 0) then
-			hasPet = true;
+			self.hasPet = true;
 		end
 	end
 	
 	-- Check: Summon our Demon if we are not in combat
-	if (not IsEating()) and (not IsDrinking()) and (GetPet() == 0) and (HasSpell("Summon Imp")) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
+	if (not IsEating()) and (not IsDrinking()) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (HasSpell("Summon Imp")) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
 		-- succubus	
-		if (GetPet() == 0) and (self.useSuccubus) and (HasSpell("Summon Succubus")) and HasItem('Soul Shard') then
+		if (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (self.useSuccubus) and (HasSpell("Summon Succubus")) and HasItem('Soul Shard') then
 			if (not IsStanding() or IsMoving()) then 
 				StopMoving();
 			end
 			-- summon succubus
-			if (localMana > 35) and (GetPet() == 0) then
+			if (localMana > 35) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) then
 				if (not IsStanding() or IsMoving()) then
 					StopMoving();
 				end
-				if (CastSpellByName("Summon Succubus")) and (GetPet == 0) then
+				if (CastSpellByName("Summon Succubus")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) then
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Succubus";
-					hasPet = true;
+					self.hasPet = true;
 					return 0; 
 				end
 			end
-		elseif (GetPet() == 0) and (self.useVoid) and (HasSpell("Summon Voidwalker")) and (HasItem('Soul Shard')) then
+		elseif (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (self.useVoid) and (HasSpell("Summon Voidwalker")) and (HasItem('Soul Shard')) then
 			if (not IsStanding() or IsMoving()) then 
 				StopMoving();
 			end
 			-- summon voidwalker
-			if (localMana > 35) and (GetPet() == 0) then
+			if (localMana > 35) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) then
 				if (not IsStanding() or IsMoving()) then
 					StopMoving();
 				end
-				if (CastSpellByName("Summon Voidwalker")) and (GetPet == 0) then
+				if (CastSpellByName("Summon Voidwalker")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) then
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Void Walker";
-					hasPet = true;
+					self.hasPet = true;
 					return 0; 
 				end
 			end
-		elseif (GetPet() == 0) and (self.useFelhunter) and (HasSpell("Summon Felhunter")) and (HasItem('Soul Shard')) then
+		elseif (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (self.useFelhunter) and (HasSpell("Summon Felhunter")) and (HasItem('Soul Shard')) then
 			if (not IsStanding() or IsMoving()) then 
 				StopMoving();
 			end
 			-- summon Felhunter
-			if (localMana > 35) and (GetPet() == 0) then
+			if (localMana > 35) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) then
 				if (not IsStanding() or IsMoving()) then
 					StopMoving();
 				end
@@ -1022,19 +1058,19 @@ function script_warlock:rest()
 					return 0; 
 				end
 			end
-		elseif (GetPet() == 0) and (HasSpell("Summon Imp")) and (self.useImp) and (not IsChanneling()) then
+		elseif (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (HasSpell("Summon Imp")) and (self.useImp) and (not IsChanneling()) then
 			if (not IsStanding() or IsMoving()) then
 				StopMoving();
 			end
 			-- summon Imp
-			if (localMana > 35) and (GetPet() == 0) then
+			if (localMana > 35) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) then
 				if (not IsStanding() or IsMoving()) then
 					StopMoving();
 				end
-				if (CastSpellByName("Summon Imp")) and (GetPet == 0) then
+				if (CastSpellByName("Summon Imp")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) then
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Imp";
-					hasPet = true;
+					self.hasPet = true;
 					return 0;
 				end
 			end
