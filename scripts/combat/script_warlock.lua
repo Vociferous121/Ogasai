@@ -360,7 +360,7 @@ function script_warlock:run(targetGUID)
 		-- nav move to target causing crashes on follower
 		-- move to cancel Health Funnel when payer has low HP
 		if (GetNumPartyMembers() < 1) then
-			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
+			if (GetPet() ~= 0 and self.hasPet) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
 				if (GetPet():HasBuff("Health Funnel") and localHealth < 40) then
 					local _x, _y, _z = localObj:GetPosition();
 					script_nav:moveToTarget(localObj, _x + 1, _y + 1, _z); 
@@ -372,7 +372,7 @@ function script_warlock:run(targetGUID)
 			-- nav move to target causing crashes on follower
 		-- move to cancel Drain Life when we get Nightfall buff
 		if (GetNumPartyMembers() < 1) then
-			if (GetTarget() ~= 0) and (HasSpell("Drain Life") )then	
+			if (GetTarget() ~= 0 and self.hasPet) and (HasSpell("Drain Life") )then	
 				if (GetTarget():HasDebuff("Drain Life") and localObj:HasBuff("Shadow Trance")) then
 				local _x, _y, _z = localObj:GetPosition();
 					script_nav:moveToTarget(localObj, _x + 1, _y, _z); 
@@ -404,7 +404,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- if pet goes too far then recall
-			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetDistance() > 40) then
+			if (GetPet() ~= 0 and self.hasPet) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetDistance() > 40) then
 				PetFollow();
 			end
 
@@ -440,9 +440,19 @@ function script_warlock:run(targetGUID)
 				return 0;
 			end
 
+			-- resummon when sacrifice is active
+			if (self.useVoid) and (self.sacrificeVoid) and (localObj:HasBuff("Sacrifice")) and (not self.hasPet) and (localMana > 35) then
+				if (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
+					if (CastSpellByName("Summon Voidwalker")) then
+						self.hasPet = true;
+						return 0;
+					end
+				end
+			end
+
 			if (HasSpell("Siphon Life")) and (self.enableSiphonLife) and (targetHealth > 20) then
 					self.message = "Stacking DoT's";
-					 if (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
+					 if (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (self.hasPet) then
 						PetAttack();
 					end
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
@@ -454,7 +464,7 @@ function script_warlock:run(targetGUID)
 					end
 			elseif (HasSpell("Curse of Agony")) and (self.enableCurseOfAgony) and (targetHealth > 20) then
 				self.message = "Stacking DoT's";
-				if (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
+				if (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (self.hasPet) then
 					PetAttack();
 				end
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
@@ -465,23 +475,16 @@ function script_warlock:run(targetGUID)
 					return 0;
 				end
 			else
-				if (Cast('Shadow Bolt', targetObj)) then
+				if (HasSpell("Shadow Bolt")) then
 					self.message = "Pulling Target";
-					if (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
+					if (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (self.hasPet) then
 						PetAttack();
 					end
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 					end -- move to target
-					return 0;
-				end
-			end
-
-			-- resummon when sacrifice is active
-			if (self.useVoid) and (self.sacrificeVoid) and (localObj:HasBuff("Sacrifice")) and (not self.hasPet) and (localMana > 35) then
-				if (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
-					if (CastSpellByName("Summon Voidwalker")) then
-						self.hasPet = true;
+					if (CastSpellByName("Shadow Bolt", targetObj)) then
+						self.waitTimer = GetTimeEX() + 1800;
 						return 0;
 					end
 				end
@@ -599,7 +602,7 @@ function script_warlock:run(targetGUID)
 
 			-- resummon when sacrifice is active
 			if (self.useVoid) and (self.sacrificeVoid) and (localObj:HasBuff("Sacrifice")) and (not self.hasPet) and (localMana > 35) then
-				if (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
+				if (not self.hasPet) then
 					if (CastSpellByName("Summon Voidwalker")) then
 						self.hasPet = true;
 						return 0;
