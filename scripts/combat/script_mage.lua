@@ -470,7 +470,7 @@ function script_mage:run(targetGUID)
 					end
 		
 					-- cast the spell - pyroblast
-					if (localMana > 8) and (not IsMoving()) and (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() > 25 and not script_grind:isTargetingMe(targetObj)) then
+					if (localMana > 8) and (not IsMoving() and IsStanding()) and (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() > 25 and not script_grind:isTargetingMe(targetObj)) then
 						if (not targetObj:HasDebuff("Pyroblast")) and (targetObj:GetHealthPercentage() > 75) then
 							if (not script_grind:isTargetingMe(targetObj)) and (not IsMoving()) and (targetObj:GetHealthPercentage() > 75) then
 								CastSpellByName("Pyroblast", targetObj);
@@ -481,7 +481,7 @@ function script_mage:run(targetGUID)
 							end
 						end
 						-- cast fireball instead if target is too close or attacking us
-					elseif (not IsMoving()) and (targetObj:GetDistance() <= 25) and (targetObj:IsInLineOfSight()) and (script_grind:isTargetingMe(targetObj)) then
+					elseif (not IsMoving() and IsStanding()) and (targetObj:GetDistance() <= 25) and (targetObj:IsInLineOfSight()) and (script_grind:isTargetingMe(targetObj)) then
 						if (CastSpellByName("Fireball", targetObj)) then
 							targetObj:FaceTarget();
 							self.message = "Pulling with Fireball!";
@@ -489,7 +489,7 @@ function script_mage:run(targetGUID)
 							return 0;
 						end
 						-- lol elseif... cast pyroblast if target is close and not attacking us
-					elseif (not IsMoving()) and (not IsInCombat()) and (not script_grind:isTargetingMe(targetObj)) and (targetHealth > 99) and (targetObj:GetDistance() < 25) and (targetObj:IsInLineOfSight()) then
+					elseif (not IsMoving() and IsStanding()) and (not IsInCombat()) and (not script_grind:isTargetingMe(targetObj)) and (targetHealth > 99) and (targetObj:GetDistance() < 25) and (targetObj:IsInLineOfSight()) then
 						CastSpellByName("Pyroblast", targetObj);
 						targetObj:FaceTarget();
 						self.message = "Pulling with Pyroblast!";
@@ -716,7 +716,7 @@ function script_mage:run(targetGUID)
 					script_mage:polymorphAdd(targetObj:GetGUID());
 				end 
 			end
-			
+
 			-- Check: Sort target selection if add is polymorphed
 			if (self.addPolymorphed) then
 				if(script_grind:enemiesAttackingUs(5) >= 1 and targetObj:HasDebuff('Polymorph')) then
@@ -958,6 +958,7 @@ function script_mage:rest()
 		if (localMana > 10 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
 			if (HasSpell('Conjure Water')) then
 				CastSpellByName('Conjure Water')
+				self.waitTimer = GetTimeEX() + 1700;
 				return true;
 			end
 		end
@@ -988,6 +989,7 @@ function script_mage:rest()
 		if (localMana > 10 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
 			if (HasSpell('Conjure Food')) then
 				CastSpellByName('Conjure Food')
+				self.waitTimer = GetTimeEX() + 1700;
 				return true;
 			end
 		end
@@ -1062,10 +1064,12 @@ function script_mage:rest()
 		-- Dismount
 		if(IsMounted()) then 
 			DisMount(); 
+			self.waitTimer = GetTimeEX() + 2000;
 			return true; 
 		end
 		if (IsMoving()) then
 			StopMoving();
+			self.waitTimer = GetTimeEX() + 2000;
 			return true;
 		end
 
@@ -1073,6 +1077,7 @@ function script_mage:rest()
 
 		if (script_helper:drinkWater()) then 
 			self.message = "Drinking..."; 
+			self.waitTimer = GetTimeEX() + 2000;
 			return true; 
 		else 
 			self.message = "No drinks! (or drink not included in script_helper)";
@@ -1087,6 +1092,7 @@ function script_mage:rest()
 		self.message = "Need to eat...";	
 		if (IsMoving()) then
 			StopMoving();
+			self.waitTimer = GetTimeEX() + 2000;
 			return true;
 		end
 		
@@ -1105,6 +1111,7 @@ function script_mage:rest()
 	if (localMana < self.drinkMana or localHealth < self.eatHealth) and (not IsSwimming() and not IsInCombat()) then
 		self.waitTimer = GetTimeEX() + 2000;
 		if (IsMoving()) then
+			self.waitTimer = GetTimeEX() + 2000;
 			StopMoving();
 		end
 		return true;
@@ -1186,6 +1193,17 @@ function script_mage:rest()
 			end
 		end
 	end
+
+	-- remove curse
+	if (HasSpell("Remove Lesser Curse")) and (localMana > 10) then
+		if (localObj:HasDebuff("Curse of the Shadowhorn")) then
+			if (CastSpellByName("", localObj)) then
+				self.waitTimer = GetTimeEX() + 1800;
+				return;
+			end
+		end
+	end
+
 
 	-- No rest / buff needed
 	return false;
