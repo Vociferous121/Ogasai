@@ -231,7 +231,7 @@ function script_grind:run()
 				self.waitTimer = GetTimeEX() + 8523
 			end
 
-			if (GetXPExhaustion() ~= nil) then
+			if (GetXPExhaustion() == nil) then
 				if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) and (HasItem("Flint and Tinder")) and (not IsSpellOnCD("Bright Campfire")) then
 					if (not IsStanding()) then
 						JumpOrAscendStart();
@@ -689,32 +689,72 @@ function script_grind:drawStatus()
 	if (not self.drawEnabled) then return; end
 
 	-- color
-	local r, g, b = 255, 255, 0;
+	local r, g, b = 0, 0, 0;
+
 	-- position
 	local y, x, width = 120, 25, 370;
 	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
 	if (onScreen) then
 		y, x = tY-25, tX+75;
 	end
+
+	-- get rested exp info
+	local restR = GetXPExhaustion();
+	local restP = "player";
+	local restX = UnitXP(p);
+	local restM = UnitXPMax(p);
+	local localLevel = GetLocalPlayer():GetLevel();
+	local targetLevel = targetObj:GetLevel();
+
+	-- get rested exp bubbles
+	local rest = math.floor(20*restR/restM+0.5);
+
+	-- exp per kill - same level -- base exp at same level is 247 exp a kill
+	local baseXP = GetLocalPlayer():GetLevel() * 5 + 102;
+	
+	-- exp needed to level
+	local neededXP = restM - restX;
+
+	-- total kills needed killing same level targets
+	killsNeeded = math.floor(neededXP / baseXP);
+
+	-- total kills with rested exp
+	restedKillsNeeded = math.floor(neededXP / baseXP) / 2;
+
+	-- draw kills to level
+	if (GetXPExhaustion() ~= nil) then
+
+		DrawText('Rested kills needed '..restedKillsNeeded, x-5, y-60, r+255, g+255, b+255);
+		DrawText('Kills to level killing level '..localLevel.. ' targets', x-5, y-40, r+255, g+255, b+255);
+
+	elseif (GetXPExhaustion == nil) then
+
+		DrawText('Kills needed '..killsNeeded, x-5, y-60, r+250, g, b);
+		DrawText('Kills to level killing level '..localLevel.. ' targets', x-5, y-40, r+255, g+255, b+255);
+	end
+
+	-- draw rested exp
+	DrawText('Rested Exp: '..rest.. ' bubbles - '..restR..' Exp', x-5, y-20, r+255, g+255, b+255);
+
 	-- info
 	if (not self.pause) then
-	DrawRect(x - 10, y - 5, x + width, y + 140, 255, 255, 0,  1, 1, 1);
-	DrawRectFilled(x - 10, y - 5, x + width, y + 140, 0, 0, 0, 100, 0, 0);
+	DrawRect(x - 10, y - 65, x + width, y + 140, 255, 255, 0, 10, 77, 0);
+	DrawRectFilled(x - 10, y - 65, x + width, y + 140, 0, 0, 0, 80, 10, 77);
 	DrawText('Grinder - Pull range: ' .. math.floor(self.pullDistance) .. ' yd. ' .. 
-			 	'Level range: ' .. self.minLevel .. '-' .. self.maxLevel, x-5, y-4, r, g, b) y = y + 15;
+			 	'Level range: ' .. self.minLevel .. '-' .. self.maxLevel, x-5, y-4, r+255, g+255, b) y = y + 15;
 	
-	DrawText('Grinder status: ', x, y, r, g, b); y = y + 15;
+	DrawText('Grinder status: ', x, y, r+255, g+255, b); y = y + 15;
 	DrawText(self.message or "error", x, y, 0, 255, 255);
-	y = y + 20; DrawText('Combat script status: ', x, y, r, g, b); y = y + 15;
+	y = y + 20; DrawText('Combat script status: ', x, y, r+255, g+255, b); y = y + 15;
 	if (self.showClassOptions) then RunCombatDraw(); end
 	 y = y + 20;
 	if (self.autoPath) then 
-		DrawText('Auto path: ON! Hotspot: ' .. script_nav:getHotSpotName(), x, y, r, g, b); y = y + 20;
+		DrawText('Auto path: ON! Hotspot: ' .. script_nav:getHotSpotName(), x, y, r+255, g+255, b); y = y + 20;
 	else
-		DrawText('Auto path: OFF!', x, y, r, g, b); y = y + 20;
+		DrawText('Auto path: OFF!', x, y, r+255, g+255, b); y = y + 20;
 	end
-	DrawText('Vendor - ' .. script_vendorMenu:getInfo(), x, y, r, g, b); y = y + 15;
-	DrawText('Status: ', x, y, r, g, b);
+	DrawText('Vendor - ' .. script_vendorMenu:getInfo(), x, y, r+255, g+255, b); y = y + 15;
+	DrawText('Status: ', x, y, r+255, g+255, b);
 	DrawText(script_vendor:getMessage(), x+52, y, 0, 255, 255); 
 	local time = ((GetTimeEX()-self.newTargetTime)/1000); 
 	if (self.enemyObj ~= 0 and self.enemyObj ~= nil and not self.enemyObj:IsDead()) then
@@ -724,7 +764,7 @@ function script_grind:drawStatus()
 		DrawText('Blacklisting target after ' .. self.blacklistTime .. " s. (If above 80% HP.)", x, y+30, 255, 255, 0);
 	end
 	else
-		DrawText('Grinder paused by user...', x-5, y-4, r, g, b);
+		DrawText('Grinder paused by user...', x-5, y-4, r+255, g+255, b);
 	end
 end
 

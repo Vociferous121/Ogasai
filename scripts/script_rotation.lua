@@ -22,6 +22,8 @@ script_rotation = {
 	meleeDistance = 4,
 	nextToNodeDist = 8, -- (Set to about half your nav smoothness)
 	aggroRangeTank = 50,
+	useTorch = false,	-- turtle wow making surival profession
+	dimTorchNum = 0,
 
 }
 
@@ -76,6 +78,26 @@ function script_rotation:run()
 
 	self.timer = GetTimeEX() + self.tickRate;
 
+	local name;
+	for i=1,GetNumTradeSkills() do
+   		name, _, _, _, _ = GetTradeSkillInfo(i);
+   		if (name == "Dim Torch") then
+
+
+			if (HasItem("Dim Torch")) then
+				DeleteItem("Dim Torch");
+				self.waitTimer = GetTimeEX() + 1500;
+				return 0;
+			end
+
+			if (self.useTorch) then
+				if (HasItem("Unlit Poor Torch")) then	
+					DoTradeSkill(i, 1);
+				end
+			end
+		end
+	end
+	
 	if (GetTarget() ~= 0 and GetTarget() ~= nil) then
 		local target = GetTarget();
 		if (target:CanAttack()) then
@@ -382,4 +404,12 @@ function script_rotation:menu()
 			self.aggroRangeTank = SliderInt("AR", 30, 300, self.aggroRangeTank);
 
 		end
+	
+		if (HasItem("Unlit Poor Torch")) then
+			Separator();
+			wasClicked, self.useTorch = Checkbox("Use Torches to level Survival", self.useTorch);
+			if (self.useTorch) then
+				Text("Please open the trade skill window");
+			end
+		end	
 end
