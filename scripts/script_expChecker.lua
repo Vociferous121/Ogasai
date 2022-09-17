@@ -10,6 +10,7 @@
 
         -- get rested exp info
     
+		-- used to check rested exp, a little redundancy
 		if (GetXPExhaustion() ~= nil) then
        		local restR = GetXPExhaustion();
 		elseif (GetXPExhaustion() == nil) then
@@ -17,10 +18,13 @@
 		end
 
         local restP = "player";
+
         local restX = UnitXP("player");
+
         local restM = UnitXPMax("player");
 
         local localLevel = GetLocalPlayer():GetLevel();
+
         -- exp per kill - same level -- base exp at same level is 247 exp a kill - turtle wow server
         local baseXP = GetLocalPlayer():GetLevel() * 5 + 102;
         
@@ -183,6 +187,8 @@
                     end
                 end
         
+				-- higher level mobs no rested exp
+
                 if (GetLocalPlayer():GetLevel() - targetObj:GetLevel() == -1) then
                     local XP = math.floor(baseXP) * (1 + 0.05 * (targetObj:GetLevel() - GetLocalPlayer():GetLevel()));
                     if (XP > 1) then
