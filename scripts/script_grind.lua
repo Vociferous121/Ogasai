@@ -724,24 +724,24 @@ function script_grind:drawStatus()
 	-- draw kills to level
 	if (GetXPExhaustion() ~= nil) then
 
-		DrawText('Rested kills needed '..restedKillsNeeded, x-5, y-60, r+255, g+255, b+255);
-		DrawText('Kills to level killing level '..localLevel.. ' targets', x-5, y-40, r+255, g+255, b+255);
+		DrawText('Rested kills needed '..restedKillsNeeded, x-850, y-300, r+255, g+255, b+255);
+		DrawText('Kills to level killing level '..localLevel.. ' targets', x-850, y-280, r+255, g+255, b+255);
 
 	elseif (GetXPExhaustion == nil) then
 
-		DrawText('Kills needed '..killsNeeded, x-5, y-60, r+250, g, b);
-		DrawText('Kills to level killing level '..localLevel.. ' targets', x-5, y-40, r+255, g+255, b+255);
+		DrawText('Kills needed '..killsNeeded, x-850, y-300, r+250, g, b);
+		DrawText('Kills to level killing level '..localLevel.. ' targets', x-850, y-280, r+255, g+255, b+255);
 	end
 
 	-- draw rested exp
-	DrawText('Rested Exp: '..rest.. ' bubbles - '..restR..' Exp', x-5, y-20, r+255, g+255, b+255);
+	DrawText('Rested Exp: '..rest.. ' bubbles - '..restR..' Exp', x-850, y-260, r+255, g+255, b+255);
 
 	-- info
-	if (not self.pause) then
-	DrawRect(x - 10, y - 65, x + width, y + 140, 255, 255, 0, 10, 77, 0);
-	DrawRectFilled(x - 10, y - 65, x + width, y + 140, 0, 0, 0, 80, 10, 77);
+	if (self.pause) then
+	DrawRect(x - 10, y - 7, x + width, y + 140, 255, 255, 0, 10, 77, 0);
+	DrawRectFilled(x - 10, y - 7, x + width, y + 140, 0, 0, 0, 80, 10, 77);
 	DrawText('Grinder - Pull range: ' .. math.floor(self.pullDistance) .. ' yd. ' .. 
-			 	'Level range: ' .. self.minLevel .. '-' .. self.maxLevel, x-5, y-4, r+255, g+255, b) y = y + 15;
+			 	'Level range: ' .. self.minLevel .. '-' .. self.maxLevel, x, y-4, r+255, g+255, b) y = y + 15;
 	
 	DrawText('Grinder status: ', x, y, r+255, g+255, b); y = y + 15;
 	DrawText(self.message or "error", x, y, 0, 255, 255);
