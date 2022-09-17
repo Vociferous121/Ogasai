@@ -167,6 +167,204 @@ end
 --	end
 --end
 
+-- check exp function top left of screen
+function script_grind:targetLevels()
+
+	-- get rested exp info
+
+	local restR = GetXPExhaustion();
+	local restP = "player";
+	local restX = UnitXP(p);
+	local restM = UnitXPMax(p);
+	local localLevel = GetLocalPlayer():GetLevel();
+	local targetLevel = targetObj:GetLevel();
+
+	-- exp per kill - same level -- base exp at same level is 247 exp a kill - turtle wow server
+	local baseXP = GetLocalPlayer():GetLevel() * 5 + 102;
+	
+	-- exp needed to level
+	local neededXP = restM - restX;
+
+	-- total kills needed killing same level targets
+	killsNeeded = math.floor(neededXP / baseXP);
+
+	-- total kills with rested exp
+	restedKillsNeeded = math.floor(neededXP / baseXP) / 2;
+
+		-- rested exp calculation per mob targeted
+	if (GetXPExhaustion ~= nil) then
+
+		-- same level mob
+		if (localLevel == targetLevel) then
+			local XP = baseXP;
+			if (XP > 1) then
+				local lowXP = math.floor(neededXP / XP);
+				self.messageRest = ""..lowXP.." needed kills at target level "..targetLevel;
+			end
+		end
+		
+			-- lower level mobs
+		if (localLevel - targetLevel == 1) then
+			local XP = math.floor(baseXP * (1 - 1/11));
+			if (XP > 1) then
+				local lowXP = math.floor(neededXP / XP) / 2;
+				self.messageRest = ""..lowXP.." needed rested kills at target level "..targetLevel;
+			end
+		end
+	
+		if (localLevel - targetLevel == 2) then
+			local XP = math.floor(baseXP * (1 - 2/11));
+			if (XP > 1) then
+				local lowXP = math.floor(neededXP / XP) / 2;
+				self.messageRest = ""..lowXP.." needed rested kills at target level "..targetLevel;
+			end
+		end
+
+		if (localLevel - targetLevel == 3) then
+			local XP = math.floor(baseXP * (1 - 3/11));
+			if (XP > 1) then
+				local lowXP = math.floor(neededXP / XP) / 2;
+				self.messageRest = ""..lowXP.." needed rested kills at target level "..targetLevel;
+			end
+		end
+
+		if (localLevel - targetLevel == 4) then
+			local XP = math.floor(baseXP * (1 - 4/11));
+			if (XP > 1) then
+				local lowXP = math.floor(neededXP / XP) / 2;
+				self.messageRest = ""..lowXP.." needed rested kills at target level "..targetLevel;
+			end
+		end
+	
+		if (localLevel - targetLevel == 5) then
+			local XP = math.floor(baseXP * (1 - 5/11));
+			if (XP > 1) then
+				local lowXP = math.floor(neededXP / XP) / 2;
+				self.messageRest = ""..lowXP.." needed rested kills at target level "..targetLevel;
+			end
+		end
+
+		-- higher level mobs
+
+		if (localLevel - targetLevel == -1) then
+			local XPHigh = math.floor(baseXP) * (1 + 0.05 * (targetLevel - localLevel));
+			local highXP = math.floor(neededXP / XP) / 2;
+			self.messageRest = ""..highXP.." needed rested kills at target level "..targetLevel;
+		end
+	
+		if (localLevel - targetLevel == -2) then
+			local XPHigh = math.floor(baseXP) * (1 + 0.05 * (targetLevel - localLevel));
+			local highXP = math.floor(neededXP / XP) / 2;
+			self.messageRest = ""..highXP.." needed rested kills at target level "..targetLevel;
+		end
+	
+		if (localLevel - targetLevel == -3) then
+			local XPHigh = math.floor(baseXP) * (1 + 0.05 * (targetLevel - localLevel));
+			local highXP = math.floor(neededXP / XP) / 2;
+			self.messageRest = ""..highXP.." needed rested kills at target level "..targetLevel;
+		end
+
+		if (localLevel - targetLevel == -4) then
+			local XPHigh = math.floor(baseXP) * (1 + 0.05 * (targetLevel - localLevel));
+			local highXP = math.floor(neededXP / XP) / 2;
+			self.messageRest = ""..highXP.." needed rested kills at target level "..targetLevel;
+		end	
+	
+		if (localLevel - targetLevel == -5) then
+			local XPHigh = math.floor(baseXP) * (1 + 0.05 * (targetLevel - localLevel));
+			local highXP = math.floor(neededXP / XP) / 2;
+			self.messageRest = ""..highXP.." needed rested kills at target level "..targetLevel;
+		end
+	end
+
+	-- not rested exp calculation per mob
+	if (GetXPExhaustion == nil) then
+
+			-- same level mob
+		if (localLevel == targetLevel) then
+			local XP = baseXP;
+			if (XP > 1) then
+				local lowXP = math.floor(neededXP / XP);
+				self.messageRest = ""..lowXP.." needed kills at target level "..targetLevel;
+			end
+		end
+		
+			-- lower level mobs
+		if (localLevel - targetLevel == 1) then
+			local XP = math.floor(baseXP * (1 - 1/11));
+			if (XP > 1) then
+				local lowXP = math.floor(neededXP / XP);
+				self.messageRest = ""..lowXP.." needed kills at target level "..targetLevel;
+			end
+		end
+	
+		if (localLevel - targetLevel == 2) then
+			local XP = math.floor(baseXP * (1 - 2/11));
+			if (XP > 1) then
+				local lowXP = math.floor(neededXP / XP);
+				self.messageRest = ""..lowXP.." needed kills at target level "..targetLevel;
+			end
+		end
+
+		if (localLevel - targetLevel == 3) then
+			local XP = math.floor(baseXP * (1 - 3/11));
+			if (XP > 1) then
+				local lowXP = math.floor(neededXP / XP);
+				self.messageRest = ""..lowXP.." needed kills at target level "..targetLevel;
+			end
+		end
+
+		if (localLevel - targetLevel == 4) then
+			local XP = math.floor(baseXP * (1 - 4/11));
+			if (XP > 1) then
+				local lowXP = math.floor(neededXP / XP);
+				self.messageRest = ""..lowXP.." needed kills at target level "..targetLevel;
+			end
+		end
+	
+		if (localLevel - targetLevel == 5) then
+			local XP = math.floor(baseXP * (1 - 5/11));
+			if (XP > 1) then
+				local lowXP = math.floor(neededXP / XP);
+				self.messageRest = ""..lowXP.." needed kills at target level "..targetLevel;
+			end
+		end
+
+		-- higher level mobs
+
+		if (localLevel - targetLevel == -1) then
+			local XPHigh = math.floor(baseXP) * (1 + 0.05 * (targetLevel - localLevel));
+			local highXP = math.floor(neededXP / XP);
+			self.messageRest = ""..highXP.." needed kills at target level "..targetLevel;
+		end
+	
+		if (localLevel - targetLevel == -2) then
+			local XPHigh = math.floor(baseXP) * (1 + 0.05 * (targetLevel - localLevel));
+			local highXP = math.floor(neededXP / XP);
+			self.messageRest = ""..highXP.." needed kills at target level "..targetLevel;
+		end
+	
+		if (localLevel - targetLevel == -3) then
+			local XPHigh = math.floor(baseXP) * (1 + 0.05 * (targetLevel - localLevel));
+			local highXP = math.floor(neededXP / XP);
+			self.messageRest = ""..highXP.." needed kills at target level "..targetLevel;
+		end
+
+		if (localLevel - targetLevel == -4) then
+			local XPHigh = math.floor(baseXP) * (1 + 0.05 * (targetLevel - localLevel));
+			local highXP = math.floor(neededXP / XP);
+			self.messageRest = ""..highXP.." needed kills at target level "..targetLevel;
+		end	
+	
+		if (localLevel - targetLevel == -5) then
+			local XPHigh = math.floor(baseXP) * (1 + 0.05 * (targetLevel - localLevel));
+			local highXP = math.floor(neededXP / XP);
+			self.messageRest = ""..highXP.." needed kills at target level "..targetLevel;
+		end
+	end
+
+end
+
 function script_grind:run()
 	script_grind:window();
 
@@ -198,8 +396,7 @@ function script_grind:run()
 			return;
 		end
 	end
-	
-
+		
 	-- Check: Paranoid feature
 
 	localObj = GetLocalPlayer();
@@ -353,6 +550,7 @@ function script_grind:run()
 		
 		-- Assign the next valid target to be killed within the pull range
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
+			script_grind:targetLevels();
 			self.lastTarget = self.enemyObj:GetGUID();
 		end
 		self.enemyObj = script_grind:assignTarget();
@@ -660,17 +858,17 @@ end
 function script_grind:playersWithinRange(range)
 	local currentObj, typeObj = GetFirstObject(); 
 	while currentObj ~= 0 do 
-    	if (typeObj == 4 and not currentObj:IsDead()) then
-		if (currentObj:GetDistance() < range) then 
-			local localObj = GetLocalPlayer();
-			if (localObj:GetGUID() ~= currentObj:GetGUID()) then
-                		return true;
-			end
-                end 
-       	end
-        currentObj, typeObj = GetNextObject(currentObj); 
-    end
-    return false;
+		if (typeObj == 4 and not currentObj:IsDead()) then
+			if (currentObj:GetDistance() < range) then 
+				local localObj = GetLocalPlayer();
+				if (localObj:GetGUID() ~= currentObj:GetGUID()) then
+					return true;
+				end
+			end 
+		end
+		currentObj, typeObj = GetNextObject(currentObj); 
+	end
+	return false;
 end
 
 function script_grind:getDistanceDif()
@@ -725,19 +923,23 @@ function script_grind:drawStatus()
 	if (GetXPExhaustion() ~= nil) then
 
 		DrawText('Rested kills needed '..restedKillsNeeded, x-850, y-300, r+255, g+255, b+255);
-		DrawText('Kills to level killing level '..localLevel.. ' targets', x-850, y-280, r+255, g+255, b+255);
+		DrawText('To level killing level '..localLevel.. ' targets', x-850, y-280, r+255, g+255, b+255);
 
 	elseif (GetXPExhaustion == nil) then
 
 		DrawText('Kills needed '..killsNeeded, x-850, y-300, r+250, g, b);
-		DrawText('Kills to level killing level '..localLevel.. ' targets', x-850, y-280, r+255, g+255, b+255);
+		DrawText('To level killing level '..localLevel.. ' targets', x-850, y-280, r+255, g+255, b+255);
 	end
 
 	-- draw rested exp
 	DrawText('Rested Exp: '..rest.. ' bubbles - '..restR..' Exp', x-850, y-260, r+255, g+255, b+255);
 
+	-- rest per kill messages
+	DrawText(self.messageRest or '', x-850, y-240, r+255, g+255, b+255);
+
+
 	-- info
-	if (self.pause) then
+	if (not self.pause) then
 	DrawRect(x - 10, y - 7, x + width, y + 140, 255, 255, 0, 10, 77, 0);
 	DrawRectFilled(x - 10, y - 7, x + width, y + 140, 0, 0, 0, 80, 10, 77);
 	DrawText('Grinder - Pull range: ' .. math.floor(self.pullDistance) .. ' yd. ' .. 
