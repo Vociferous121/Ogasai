@@ -12,6 +12,7 @@ script_rotation = {
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
 	helperLoaded = include("scripts\\script_helper.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
+	survivalprof = include("scripts\\script_survivalProf.lua"),
 	drawEnabled = false,
 	drawAggro = false,
 	drawGather = false,
@@ -22,8 +23,6 @@ script_rotation = {
 	meleeDistance = 4,
 	nextToNodeDist = 8, -- (Set to about half your nav smoothness)
 	aggroRangeTank = 50,
-	useTorch = false,	-- turtle wow making surival profession
-	dimTorchNum = 0,
 
 }
 
@@ -77,27 +76,10 @@ function script_rotation:run()
 	end
 
 	self.timer = GetTimeEX() + self.tickRate;
-
-	local name;
-	for i=1,GetNumTradeSkills() do
-   		name, _, _, _, _ = GetTradeSkillInfo(i);
-   		if (name == "Dim Torch") then
-
-
-			if (HasItem("Dim Torch")) then
-				DeleteItem("Dim Torch");
-				self.waitTimer = GetTimeEX() + 1500;
-				return 0;
-			end
-
-			if (self.useTorch) then
-				if (HasItem("Unlit Poor Torch")) then	
-					DoTradeSkill(i, 1);
-				end
-			end
-		end
-	end
 	
+	if (HasItem("Unlit Poor Torch")) then
+		script_survivalProf:craftDimTorch();
+	end
 	if (GetTarget() ~= 0 and GetTarget() ~= nil) then
 		local target = GetTarget();
 		if (target:CanAttack()) then

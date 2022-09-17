@@ -727,12 +727,12 @@ function script_grind:drawStatus()
 	-- draw kills to level
 	if (GetXPExhaustion() ~= nil) then
 
-		DrawText('Rested kills needed '..restedKillsNeeded, x-850, y-300, r+255, g+255, b+255);
+		DrawText('Rested kills needed - '..restedKillsNeeded, x-850, y-300, r+255, g+255, b+255);
 		DrawText('To level killing level '..localLevel.. ' targets', x-850, y-280, r+255, g+255, b+255);
 
 	elseif (GetXPExhaustion == nil) then
 
-		DrawText('Kills needed '..killsNeeded, x-850, y-300, r+250, g, b);
+		DrawText('Kills needed - '..killsNeeded, x-850, y-300, r+250, g, b);
 		DrawText('To level killing level '..localLevel.. ' targets', x-850, y-280, r+255, g+255, b+255);
 	end
 
