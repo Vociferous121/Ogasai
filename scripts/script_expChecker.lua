@@ -184,7 +184,7 @@
                 end
         
                 if (GetLocalPlayer():GetLevel() - targetObj:GetLevel() == -1) then
-                    local XP = math.floor(baseXP) * (1 + 0.05 * (targetLevel - localLevel));
+                    local XP = math.floor(baseXP) * (1 + 0.05 * (targetObj:GetLevel() - GetLocalPlayer():GetLevel()));
                     if (XP > 1) then
                         local highXP = math.floor(neededXP / XP);
                         self.messageRest = ""..highXP.." needed kills at target level "..targetObj:GetLevel();
@@ -192,7 +192,7 @@
                 end
 
                 if (GetLocalPlayer():GetLevel() - targetObj:GetLevel() == -2) then
-                    local XP = math.floor(baseXP) * (1 + 0.05 * (targetLevel - localLevel));
+                    local XP = math.floor(baseXP) * (1 + 0.05 * (targetObj:GetLevel() - GetLocalPlayer():GetLevel()));
                     if (XP > 1) then
                         local highXP = math.floor(neededXP / XP);
                         self.messageRest = ""..highXP.." needed kills at target level "..targetObj:GetLevel();
@@ -200,7 +200,7 @@
                 end
 
                 if (GetLocalPlayer():GetLevel() - targetObj:GetLevel() == -3) then
-                    local XP = math.floor(baseXP) * (1 + 0.05 * (targetLevel - localLevel));
+                    local XP = math.floor(baseXP) * (1 + 0.05 * (targetObj:GetLevel() - GetLocalPlayer():GetLevel()));
                     if (XP > 1) then
                         local highXP = math.floor(neededXP / XP);
                         self.messageRest = ""..highXP.." needed kills at target level "..targetObj:GetLevel();
@@ -208,7 +208,7 @@
                 end
 
                 if (GetLocalPlayer():GetLevel() - targetObj:GetLevel() == -4) then
-                    local XP = math.floor(baseXP) * (1 + 0.05 * (targetLevel - localLevel));
+                    local XP = math.floor(baseXP) * (1 + 0.05 * (targetObj:GetLevel() - GetLocalPlayer():GetLevel()));
                     if (XP > 1) then
                         local highXP = math.floor(neededXP / XP);
                         self.messageRest = ""..highXP.." needed kills at target level "..targetObj:GetLevel();
@@ -216,7 +216,7 @@
                 end
 
                 if (GetLocalPlayer():GetLevel() - targetObj:GetLevel() == -5) then
-                    local XP = math.floor(baseXP) * (1 + 0.05 * (targetLevel - localLevel));
+                    local XP = math.floor(baseXP) * (1 + 0.05 * (targetObj:GetLevel() - GetLocalPlayer():GetLevel()));
                     if (XP > 1) then
                         local highXP = math.floor(neededXP / XP);
                         self.messageRest = ""..highXP.." needed kills at target level "..targetObj:GetLevel();
