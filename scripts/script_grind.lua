@@ -704,13 +704,12 @@ function script_grind:drawStatus()
 	-- get rested exp info
 	local restR = GetXPExhaustion();
 	local restP = "player";
-	local restX = UnitXP(p);
-	local restM = UnitXPMax(p);
+	local restX = UnitXP("player");
+	local restM = UnitXPMax("player");
 	local localLevel = GetLocalPlayer():GetLevel();
-	local targetLevel = targetObj:GetLevel();
 
 	-- get rested exp bubbles
-	local rest = math.floor(20*restR/restM+0.5);
+	local rest = math.floor(20*GetXPExhaustion/UnitXP(Max("player"))+0.5);
 
 	-- exp per kill - same level -- base exp at same level is 247 exp a kill
 	local baseXP = GetLocalPlayer():GetLevel() * 5 + 102;

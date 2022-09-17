@@ -10,8 +10,8 @@
     
         local restR = GetXPExhaustion();
         local restP = "player";
-        local restX = UnitXP(p);
-        local restM = UnitXPMax(p);
+        local restX = UnitXP("player");
+        local restM = UnitXPMax("player");
         local localLevel = GetLocalPlayer():GetLevel();
         local targetLevel = targetObj:GetLevel();
     
