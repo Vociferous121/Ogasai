@@ -234,7 +234,7 @@ function script_grind:run()
 				self.waitTimer = GetTimeEX() + 8523
 			end
 
-			if (HasSpell("Bright Campfire")) and (not InCombat()) and (self.useCampfire) then
+			if (HasSpell("Bright Campfire")) and (not IsInCombat()) and (self.useCampfire) then
 				if (GetXPExhaustion() == nil) and (not IsInCombat()) and (not localObj:HasBuff("Stealth")) and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Cat Form")) then
 					if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) and (HasItem("Flint and Tinder")) and (not IsSpellOnCD("Bright Campfire")) then
 						if (not IsStanding()) then
