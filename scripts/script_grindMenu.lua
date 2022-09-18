@@ -42,7 +42,7 @@ function script_grindMenu:menu()
 	elseif (class == 'Shaman') then
 		script_shaman:menu();
 	end	
-	if (CollapsingHeader("Talents, Paranoia & Misc options")) then
+	if (CollapsingHeader("Talents, Paranoia & Misc Options")) then
 		wasClicked, script_grind.jump = Checkbox("Jump On/Off", script_grind.jump);
 
 	
@@ -54,81 +54,85 @@ function script_grindMenu:menu()
 
 		--wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount); Text('Dismount range');
 		--script_grind.disMountRange = SliderInt("DR (yd)", 1, 100, script_grind.disMountRange); Separator();
-		wasClicked, script_grind.autoTalent = Checkbox("Spend talent points  ", script_grind.autoTalent);
+		wasClicked, script_grind.autoTalent = Checkbox("Spend Talent Points  ", script_grind.autoTalent);
 		SameLine();
-		Text("Change talents in script_talent.lua");
+		Text("Change Talents In script_talent.lua");
 		if (script_grind.autoTalent) then
-			Text("Spending next talent point in: " .. (script_talent:getNextTalentName() or " "));
+			Text("Spending Next Talent Point In: " .. (script_talent:getNextTalentName() or " "));
 			Separator();
 		end
-		if (GetNumPartyMembers() > 1) then
-			WasClicked, script_grindEX.waitForMember = Checkbox("Wait for party members", script_grindEX.waitForMember);
-			Separator();
-		end
-
 		wasClicked, script_grind.paranoidOn = Checkbox("Enable Paranoia", script_grind.paranoidOn);
 		SameLine();
-		wasClicked, script_grind.sitParanoid = Checkbox("Sit when Paranoid", script_grind.sitParanoid);
-		wasClicked, script_grind.paranoidOnTargeted = Checkbox("Paranoid when targeted by players", script_grind.paranoidOnTargeted);
-	 	Text('Paranoia Range'); script_grind.paranoidRange = SliderInt("P (yd)", 50, 300, script_grind.paranoidRange);
-
+		wasClicked, script_grind.sitParanoid = Checkbox("Sit When Paranoid", script_grind.sitParanoid);
+		wasClicked, script_grind.paranoidOnTargeted = Checkbox("Paranoid When Targeted By Player", script_grind.paranoidOnTargeted);
+	 		
 		if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) then
-			wasClicked, script_grind.useCampfire = Checkbox("Use Bright Campfire on paranoia", script_grind.useCampfire);
+			wasClicked, script_grind.useCampfire = Checkbox("Use Bright Campfire When Paranoid", script_grind.useCampfire);
 		end
 
-		Text("Script tick rate - how fast the bot runs the scripts"); script_grind.tickRate = SliderFloat("TR (ms)", 0, 2000, script_grind.tickRate);		
+		Text('Paranoia Range'); script_grind.paranoidRange = SliderInt("P (yd)", 50, 300, script_grind.paranoidRange);
+		
+		Separator();
+
+		Text("Script Tick Rate - How Fast The Scripts Run"); script_grind.tickRate = SliderFloat("TR (ms)", 0, 2000, script_grind.tickRate);		
 	end
 
-	if (CollapsingHeader("Vendor options")) then
-		wasClicked, script_grind.useVendor = Checkbox("Vendor on/off", script_grind.useVendor);
+	if (CollapsingHeader("Vendor Options")) then
+		wasClicked, script_grind.useVendor = Checkbox("Vendoring On/Off", script_grind.useVendor);
 		if (script_grind.useVendor) then 
 			script_vendorMenu:menu(); Separator();
 		else
-			Separator(); Text("When bags are full");
+			Separator(); Text("If Inventory Is Full - ");
 			wasClicked, script_grind.hsWhenFull = Checkbox("Use Hearthstone", script_grind.hsWhenFull); SameLine();
-			wasClicked, script_grind.stopWhenFull = Checkbox("Stop the bot", script_grind.stopWhenFull); Separator();
+			wasClicked, script_grind.stopWhenFull = Checkbox("Stop The Bot", script_grind.stopWhenFull); Separator();
 		end
 	end
-	if (CollapsingHeader("Path options")) then
+	if (CollapsingHeader("Path Options")) then
 		local wasClicked = false;
-		wasClicked, script_grind.autoPath = Checkbox("Auto pathing (disable to use walk paths)", script_grind.autoPath);
+		wasClicked, script_grind.autoPath = Checkbox("Auto Pathing (Disable To Use Walk Paths)", script_grind.autoPath);
 		if (script_grind.autoPath) then
-			wasClicked, script_grind.staticHotSpot = Checkbox("Auto load hotspots from //db//hotspotDB.lua", script_grind.staticHotSpot);
-			Text("Select a hotspot from database:");
+			wasClicked, script_grind.staticHotSpot = Checkbox("Auto Load Hotspots From - HotspotDB.lua", script_grind.staticHotSpot);
+
+			Text("Select A Hotspot From Database:");
+
 			wasClicked, self.selectedHotspotID = 
 				ComboBox("", self.selectedHotspotID, unpack(hotspotDB.selectionList));
 			SameLine();
+
 			if Button("Load") then script_grind.staticHotSpot = false; script_nav:loadHotspotDB(self.selectedHotspotID+1); end
-			if (Button("Save current location as the new Hotspot")) then script_nav:newHotspot(GetMinimapZoneText() .. ' ' .. GetLocalPlayer():GetLevel() .. ' - ' .. GetLocalPlayer():GetLevel()+2); script_grind.staticHotSpot = false; script_grindMenu:printHotspot(); end
-			Text('Distance to hotspot');
+			if (Button("Save Current Location As Hotspot")) then script_nav:newHotspot(GetMinimapZoneText() .. ' ' .. GetLocalPlayer():GetLevel() .. ' - ' .. GetLocalPlayer():GetLevel()+2); script_grind.staticHotSpot = false; script_grindMenu:printHotspot(); end
+			Text('Distance To Hotspot');
 			script_grind.distToHotSpot = SliderInt("DHS (yd)", 1, 1000, script_grind.distToHotSpot); Separator();
 		else
 			Separator();
-			Text("Current walk path"); Text("E.g. paths\\1-5 Durotar.xml"); script_grind.pathName = InputText(' ', script_grind.pathName); Separator();
-			Text('Next node distance'); script_grind.nextToNodeDist = SliderFloat("ND (yd)", 1, 10, script_grind.nextToNodeDist); Separator();
+			Text("Current Walk Path"); Text("E.g. paths\\1-5 Durotar.xml"); script_grind.pathName = InputText(' ', script_grind.pathName); Separator();
+			Text('Next Node Distance'); script_grind.nextToNodeDist = SliderFloat("ND (yd)", 1, 10, script_grind.nextToNodeDist); Separator();
 		end
 		wasClicked, script_grind.useUnstuck = Checkbox("Use Unstuck Feature (script_unstuck)", script_grind.useUnstuck);
 		Separator()
-		wasClicked, script_grind.safeRess = Checkbox("Try to ress on a safe spot", script_grind.safeRess);
-		Text('Ress corpse distance'); script_grind.ressDistance = SliderFloat("RD (yd)", 1, 35, script_grind.ressDistance); Separator();
+		wasClicked, script_grind.safeRess = Checkbox("Ressurect In Safe Area", script_grind.safeRess);
+		Text('Ressurect To Corpse Distance'); script_grind.ressDistance = SliderFloat("RD (yd)", 1, 35, script_grind.ressDistance); Separator();
 	end
 
 	script_targetMenu:menu();
 
-	if (CollapsingHeader("Loot options")) then
+	if (CollapsingHeader("Loot Options")) then
 		local wasClicked = false;
 		wasClicked, script_grind.skipLooting = Checkbox("Skip Looting", script_grind.skipLooting);
 		wasClicked, script_grind.skinning = Checkbox("Use Skinning", script_grind.skinning);
-		Text('Search for Loot Distance'); script_grind.findLootDistance = SliderFloat("SFL (yd)", 1, 100, script_grind.findLootDistance); Text('Loot Corpse Distance');	 script_grind.lootDistance = SliderFloat("LCD (yd)", 1, 5, script_grind.lootDistance);
+		Text('Search For Loot Distance'); script_grind.findLootDistance = SliderFloat("SFL (yd)", 1, 100, script_grind.findLootDistance); Text('Loot Corpse Distance');	 script_grind.lootDistance = SliderFloat("LCD (yd)", 1, 5, script_grind.lootDistance);
 	end
+
 	script_gather:menu();
-	if (CollapsingHeader('Display options')) then
+
+	if (CollapsingHeader('Display Options')) then
 		local wasClicked = false;
-		wasClicked, script_grind.drawEnabled = Checkbox('Show status window', script_grind.drawEnabled);
-		wasClicked, script_grind.drawGather = Checkbox('Show gather nodes', script_grind.drawGather);
-		wasClicked, script_grind.drawAutoPath = Checkbox('Show auto path nodes', script_grind.drawAutoPath);
-		wasClicked, script_grind.drawPath = Checkbox('Show move path', script_grind.drawPath);
-		wasClicked, script_grind.drawUnits = Checkbox("Show unit info on screen", script_grind.drawUnits);
-		wasClicked, script_grind.drawAggro = Checkbox('Show aggro range', script_grind.drawAggro);
-	end
+		wasClicked, script_grind.drawEnabled = Checkbox('Display Status Window', script_grind.drawEnabled);
+		wasClicked, script_grind.useExpChecker = Checkbox("Display Exp Tracker", script_grind.useExpChecker);
+		wasClicked, script_grind.drawUnits = Checkbox("Display Unit Info On Screen", script_grind.drawUnits);
+		wasClicked, script_grind.drawAutoPath = Checkbox('Display Auto-Path Nodes', script_grind.drawAutoPath);
+		wasClicked, script_grind.drawPath = Checkbox('Display Move Path', script_grind.drawPath);
+		wasClicked, script_grind.drawGather = Checkbox('Display Gather Nodes', script_grind.drawGather);
+		wasClicked, script_grind.drawAggro = Checkbox('Display Aggro Range', script_grind.drawAggro);
+		end
 end

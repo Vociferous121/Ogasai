@@ -88,6 +88,7 @@ script_grind = {
 	blacklistedNameNum = 0,
 	sitParanoid = true,
 	useCampfire = true,
+	useExpChecker = true,
 }
 
 function script_grind:setup()
@@ -358,11 +359,14 @@ function script_grind:run()
 		
 		-- Assign the next valid target to be killed within the pull range
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
-			script_expChecker:targetLevels();
 			self.lastTarget = self.enemyObj:GetGUID();
 		end
 		self.enemyObj = script_grind:assignTarget();
-		
+
+		if (self.useExpChecker) then
+			script_expChecker:targetLevels();
+		end
+
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
 			-- Fix bug, when not targeting correctly
 			if (self.lastTarget ~= self.enemyObj:GetGUID()) then
@@ -735,24 +739,30 @@ function script_grind:drawStatus()
 	restedKillsNeeded = math.floor(neededXP / baseXP) / 2;
 
 	-- draw kills to level
-	if (GetXPExhaustion() ~= nil) then
+	if (GetXPExhaustion() ~= nil) and (self.useExpChecker) then
 
 		DrawText('Rested kills needed - '..restedKillsNeeded, x-850, y-300, r+255, g+255, b+255);
 		DrawText('To level killing level '..localLevel.. ' targets', x-850, y-280, r+255, g+255, b+255);
 
-	elseif (GetXPExhaustion() == nil or restR == 0) then
+	elseif (GetXPExhaustion() == nil or restR == 0) and (self.useExpChecker) then
 
 		DrawText('Kills needed - '..killsNeeded, x-850, y-300, r+255, g+255, b+255);
 		DrawText('To level killing level '..localLevel.. ' targets', x-850, y-280, r+255, g+255, b+255);
 	end
 
 	-- draw rested exp
-	if (GetXPExhaustion() ~= nil) then
+	if (GetXPExhaustion() ~= nil) and (self.useExpChecker) then
 		DrawText('Rested Exp: '..math.floor(20*GetXPExhaustion()/UnitXPMax("player"))+0.5.. ' bubbles - '..GetXPExhaustion()..' Exp', x-850, y-260, r+255, g+255, b+255);
 	end
 
 	-- rest per kill messages
-	DrawText(script_expChecker.messageRest or '', x-850, y-240, r+255, g+255, b+255);
+	if (self.useExpChecker) then
+		DrawText(script_expChecker.messageRest or '', x-850, y-240, r+255, g+255, b+255);
+	end
+
+	-- end of added exp checker -- MOVE TO EXP CHECKER SCRIPT
+	---
+	---
 
 	-- info
 	if (not self.pause) then

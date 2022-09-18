@@ -15,8 +15,8 @@ function script_vendorMenu:printAddVendor(canRepair, hasFood, hasWater, hasArrow
 		y = math.floor(y*100) / 100;
 		z = math.floor(z*100) / 100;
 		local pos = ', ' .. x .. ', ' .. y .. ', ' .. z .. ");";
-		DEFAULT_CHAT_FRAME:AddMessage('Add vendor to database by adding the line below in the setup() function in VendorDB.lua');
-		DEFAULT_CHAT_FRAME:AddMessage('You can copy the line from logs//.txt');
+		DEFAULT_CHAT_FRAME:AddMessage('Add Vendor to Database by adding the line below in the setup() function in VendorDB.lua.');
+		DEFAULT_CHAT_FRAME:AddMessage('You can copy this line from logs.txt in logs folder.');
 		local addString = 'vendorDB:addVendor("' .. UnitName("target") .. '", ' .. factionID .. ', ' .. GetContinentID() .. ', ' .. GetMapID() .. ', '
 			.. tostring(canRepair) .. ', ' .. tostring(hasFood) .. ', ' .. tostring(hasWater) .. ', ' .. tostring(hasArrow) .. ', ' ..tostring(hasBullet) .. pos;
 
@@ -26,7 +26,7 @@ function script_vendorMenu:printAddVendor(canRepair, hasFood, hasWater, hasArrow
 end
 
 function script_vendorMenu:menu()
-	wasClicked, script_grind.vendorRefill = Checkbox("Refill food/drinks at vendor", script_grind.vendorRefill);
+	wasClicked, script_grind.vendorRefill = Checkbox("Refill Food/Drinks At Vendor", script_grind.vendorRefill);
 	-- Always show a cancel button to any vendor actions
 	if (script_vendor.status ~= 0) then 
 		if Button("Cancel Current Vendor Action") then 
@@ -35,16 +35,16 @@ function script_vendorMenu:menu()
 		end 
 	end
 
-	wasClicked, script_grind.repairWhenYellow = Checkbox("Repair when gear almost broken", script_grind.repairWhenYellow);
+	wasClicked, script_grind.repairWhenYellow = Checkbox("Repair When Gear Is Yellow", script_grind.repairWhenYellow);
 
-	if (CollapsingHeader("[Selling options:")) then
+	if (CollapsingHeader("Selling Options:")) then
 		local wasClicked = false;
 		local keepBox = false;
-		wasClicked, script_vendor.sellPoor = Checkbox("Sell poor items (grey)", script_vendor.sellPoor);
-		wasClicked, script_vendor.sellCommon = Checkbox("Sell common items (white)", script_vendor.sellCommon);
-		wasClicked, script_vendor.sellUncommon = Checkbox("Sell uncommon items (green)", script_vendor.sellUncommon);
-		wasClicked, script_vendor.sellRare = Checkbox("Sell rare items (blue)", script_vendor.sellRare);
-		wasClicked, script_vendor.sellEpic = Checkbox("Sell epic items (purple)", script_vendor.sellEpic);
+		wasClicked, script_vendor.sellPoor = Checkbox("Sell Poor Items (Grey)", script_vendor.sellPoor);
+		wasClicked, script_vendor.sellCommon = Checkbox("Sell Common Items (White)", script_vendor.sellCommon);
+		wasClicked, script_vendor.sellUncommon = Checkbox("Sell Uncommon Items (Green)", script_vendor.sellUncommon);
+		wasClicked, script_vendor.sellRare = Checkbox("Sell Rare Items (Blue)", script_vendor.sellRare);
+		wasClicked, script_vendor.sellEpic = Checkbox("Sell Epic Items (Purple)", script_vendor.sellEpic);
 		Separator();
 		Text("Unique Keep Items:");
 		wasClicked, script_vendor.selectedKeepItemNr = ComboBox("", script_vendor.selectedKeepItemNr, unpack(script_vendor.keepItems));
@@ -52,18 +52,18 @@ function script_vendorMenu:menu()
 			script_vendor:deleteKeepItem(script_vendor.selectedKeepItemNr+1);
 		end
 		SameLine();
-		Text(" - Removes selected item from the keep list...");
+		Text(" - Removes Selected Item From The Keep List...");
 		if Button("Add Item") then
 			script_vendor:addSaveItem(script_vendor.addItemName);
 		end
 		SameLine();
 		script_vendor.addItemName = InputText("", script_vendor.addItemName);
 		Separator();
-		Text("Tip: All items in your bag will be added to the");
+		Text("All items in your inventory will be added to the");
 		Text("keep item list when reloading scripts...");
 	end
 
-	if (CollapsingHeader("[NPC and Buy options")) then
+	if (CollapsingHeader("Vendor NPC And Buy Options")) then
 		Text("Repair Vendor:");
 		if (script_vendor.repairVendor ~= 0) then
 			SameLine();
@@ -71,7 +71,7 @@ function script_vendorMenu:menu()
 			if Button("Repair Now") then script_vendor.status = 1; end
 		end
 
-		if Button("Set current target as repair vendor") then 
+		if Button("Set Current Target As Repair Vendor") then 
 			script_vendorMenu:setRepairVendor(); 
 			script_vendorMenu:printAddVendor(true, false, false, false, false); 
 		end
@@ -83,7 +83,7 @@ function script_vendorMenu:menu()
 			Text('' .. script_vendor.sellVendor['name'] .. ' loaded.');
 			if Button("Sell Now") then script_vendor.status = 2; end
 		end
-		if Button("Set current target as sell vendor") then 
+		if Button("Set Current Target As Sell Vendor") then 
 			script_vendorMenu:setSellVendor(); 
 			script_vendorMenu:printAddVendor(false, false, false, false, false); 
 		end
@@ -106,11 +106,11 @@ function script_vendorMenu:menu()
 			if Button("Cancel Buy Food") then script_vendor.message = "Idle..."; script_vendor.status = 0; end
 		end
 				
-		Text("Input food name number of stacks:");
+		Text("Input Food Name And Number Of Stacks:");
 		script_vendor.foodName = InputText("Food", script_vendor.foodName); 
 		SameLine(); script_vendor.foodNr = InputText("FX", script_vendor.foodNr);
 		
-		if Button("Set current target as food vendor") then 
+		if Button("Set Current Target As Food Vendor") then 
 			script_vendorMenu:setFoodVendor(); 
 			script_vendorMenu:printAddVendor(false, true, false, false, false); 
 		end
@@ -132,13 +132,13 @@ function script_vendorMenu:menu()
 			if Button("Cancel Buy Drinks") then script_vendor.message = "Idle..."; script_vendor.status = 0; end
 		end
 
-		Text("Input drink name and number of stacks:");
+		Text("Input Drink Name And Number Of Stacks:");
 		
 		script_vendor.drinkName = InputText("Drink", script_vendor.drinkName); 
 		
 		SameLine(); script_vendor.drinkNr = InputText("DX", script_vendor.drinkNr);
 		
-		if Button("Set current target as drink vendor") then 
+		if Button("Set Current Target As Drink Vendor") then 
 			script_vendorMenu:setDrinkVendor(); 
 			script_vendorMenu:printAddVendor(false, false, true, false, false); 
 		end
@@ -155,7 +155,7 @@ function script_vendorMenu:menu()
 				Text('' .. script_vendor.bulletVendor['name'] .. ' loaded.'); 
 			end
 		if (script_vendor.bulletVendor ~= 0 or script_vendor.arrowVendor ~= 0) then
-			wasClicked, script_vendor.itemIsArrow = Checkbox("Ammo is arrows", script_vendor.itemIsArrow);
+			wasClicked, script_vendor.itemIsArrow = Checkbox("Ammo Is 'Arrows'", script_vendor.itemIsArrow);
 			if Button("Buy Ammo Now") then 
 				script_vendor.status = 3; 
 				script_vendor.ammoName = self.ammoName;
@@ -171,20 +171,20 @@ function script_vendorMenu:menu()
 			end
 		end
 
-		Text("Input ammo name:");
+		Text("Input Ammo Name:");
 		
 		self.ammoName = InputText("Ammo", self.ammoName); 
 		
-		Text("Input quiver bag number:");
-		self.quiverBag = InputText("BagNr 1-5", self.quiverBag);
+		Text("Input Quiver Bag Number:");
+		self.quiverBag = InputText("Bag Number 1-5", self.quiverBag);
 
-		if Button("Set current target as arrow vendor") then 
+		if Button("Set Current Target As Arrow Vendor") then 
 			script_vendorMenu:setArrowVendor();
 			script_vendor.itemIsArrow = true;
 			script_vendorMenu:printAddVendor(false, false, false, true, false); 
 		end
 		
-		if Button("Set current target as bullet vendor") then 
+		if Button("Set Current Target As Bullet Vendor") then 
 			script_vendorMenu:setBulletVendor(); 
 			script_vendor.itemIsArrow = false;
 			script_vendorMenu:printAddVendor(false, false, false, false, true); 
@@ -200,12 +200,12 @@ function script_vendorMenu:setRepairVendor()
 		script_vendor.repairVendor['name'] = name;
 		script_vendor.repairVendor['pos'] = {};
 		script_vendor.repairVendor['pos']['x'], script_vendor.repairVendor['pos']['y'], script_vendor.repairVendor['pos']['z'] = GetTarget():GetPosition();
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Repair vendor set...');
+		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Repair Vendor Set...');
 		if (script_vendor.sellVendor == 0) then
 			script_vendorMenu:setSellVendor();
 		end
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: No vendor targeted...');
+		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Target A Vendor...');
 	end
 end
 
@@ -217,9 +217,9 @@ function script_vendorMenu:setSellVendor()
 		script_vendor.sellVendor['name'] = name;
 		script_vendor.sellVendor['pos'] = {};
 		script_vendor.sellVendor['pos']['x'], script_vendor.sellVendor['pos']['y'], script_vendor.sellVendor['pos']['z'] = GetTarget():GetPosition();
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Sell vendor set...');
+		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Sell Vendor Set...');
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: No vendor targeted...');
+		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Target A Vendor...');
 	end
 end
 
@@ -231,12 +231,12 @@ function script_vendorMenu:setFoodVendor()
 		script_vendor.foodVendor['name'] = name;
 		script_vendor.foodVendor['pos'] = {};
 		script_vendor.foodVendor['pos']['x'], script_vendor.foodVendor['pos']['y'], script_vendor.foodVendor['pos']['z'] = GetTarget():GetPosition();
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Food vendor set...');
+		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Food Vendor Set...');
 		if (script_vendor.sellVendor == 0) then
 			script_vendorMenu:setSellVendor();
 		end
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: No vendor targeted...');
+		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Target A Vendor...');
 	end
 end
 
@@ -248,12 +248,12 @@ function script_vendorMenu:setDrinkVendor()
 		script_vendor.drinkVendor['name'] = name;
 		script_vendor.drinkVendor['pos'] = {};
 		script_vendor.drinkVendor['pos']['x'], script_vendor.drinkVendor['pos']['y'], script_vendor.drinkVendor['pos']['z'] = GetTarget():GetPosition();
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Drink vendor set...');
+		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Drink Vendor Set...');
 		if (script_vendor.sellVendor == 0) then
 			script_vendorMenu:setSellVendor();
 		end
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: No vendor targeted...');
+		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Target A Vendor...');
 	end
 end
 
@@ -265,12 +265,12 @@ function script_vendorMenu:setArrowVendor()
 		script_vendor.arrowVendor['name'] = name;
 		script_vendor.arrowVendor['pos'] = {};
 		script_vendor.arrowVendor['pos']['x'], script_vendor.arrowVendor['pos']['y'], script_vendor.arrowVendor['pos']['z'] = GetTarget():GetPosition();
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Arrow vendor set...');
+		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Arrow Vendor Set...');
 		if (script_vendor.sellVendor == 0) then
 			script_vendorMenu:setSellVendor();
 		end
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: No vendor targeted...');
+		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Target A Vendor...');
 	end
 end
 

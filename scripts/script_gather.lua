@@ -285,31 +285,37 @@ end
 
 function script_gather:menu()
 
-	if(not self.isSetup) then
+	if (not self.isSetup) then
 		script_gather:setup();
 	end
 
 	local wasClicked = false;
 	
-	if (CollapsingHeader("Gather options")) then
-		wasClicked, script_grind.gather = Checkbox("Gather on/off", script_grind.gather);
+	if (CollapsingHeader("Gather Options")) then
+
+		wasClicked, script_grind.gather = Checkbox("Gather On/Off", script_grind.gather);
 		
 		wasClicked, self.collectMinerals = Checkbox("Mining", self.collectMinerals);
+
 		SameLine();
+
 		wasClicked, self.collectHerbs = Checkbox("Herbalism", self.collectHerbs);
 
-		Text('Gather Search Distance');
-		self.gatherDistance = SliderInt("GSD", 1, 500, self.gatherDistance);
-		Text("Distance to stand from node");
-		self.toNodeDistance = SliderInt("ND", 2, 5, self.toNodeDistance);
+		Text('Search Distance');
+		self.gatherDistance = SliderInt("GSD (yd)", 1, 500, self.gatherDistance);
+
+		Text("Distance To Loot");
+		self.toNodeDistance = SliderInt("ND (yd)", 2, 5, self.toNodeDistance);
 		
 		if (script_gather.collectMinerals or script_gather.collectHerbs) then
-			wasClicked, script_gather.gatherAllPossible = Checkbox("Gather everything we can", script_gather.gatherAllPossible);
+		
+			wasClicked, script_gather.gatherAllPossible = Checkbox("Gather Everything Within Skill Range", script_gather.gatherAllPossible);
 		end
 
 		if(self.collectMinerals and not script_gather.gatherAllPossible) then
 			Separator();
-			Text('Minerals');
+
+			Text('Minerals - (Skill Level Required)');
 			
 			for i=0,self.numMinerals - 1 do
 				wasClicked, self.minerals[i][2] = Checkbox(self.minerals[i][0], self.minerals[i][2]);
@@ -319,7 +325,8 @@ function script_gather:menu()
 		
 		if(self.collectHerbs and not script_gather.gatherAllPossible) then
 			Separator();
-			Text('Herbs');
+
+			Text('Herbs - (Skill Level Required)');
 			
 			for i=0,self.numHerbs - 1 do
 				wasClicked, self.herbs[i][2] = Checkbox(self.herbs[i][0], self.herbs[i][2]);

@@ -508,7 +508,7 @@ function script_mage:run(targetGUID)
 							if (CastSpellByName("Pyroblast", targetObj)) then
 								targetObj:FaceTarget();
 								self.message = "Pulling with Pyroblast!";
-								self.waitTimer = GetTimeEX() + 2500;
+								self.waitTimer = GetTimeEX() + 5500;
 								return 0;
 							end
 						end
@@ -811,7 +811,7 @@ function script_mage:run(targetGUID)
 			-- blast wave
 			if (self.fireMage) and (HasSpell("Blast Wave")) then
 				if (localMana > 30) and (targetObj:GetDistance() < 10) and (not IsSpellOnCD("Blast Wave")) and (targetHealth > 15 or localHealth < 20) then
-					if (script_mage:runBackwards(targetObj, 7)) then -- Moves if the target is closer than 7 yards
+					if (script_mage:runBackwards(targetObj, 9)) then -- Moves if the target is closer than 7 yards
 						self.message = "Moving away from target...";
 						if (not IsSpellOnCD("Blast Wave")) then
 							CastSpellByName("Blast Wave");
@@ -1292,16 +1292,16 @@ function script_mage:menu()
 
 			local wasClicked = false;
 
-			Text('Drink below mana percentage');
+			Text('Drink Below Mana Percentage');
 			self.drinkMana = SliderFloat("DM%", 1, 100, self.drinkMana);
 
-			Text('Eat below health percentage');
+			Text('Eat Below Health Percentage');
 			self.eatHealth = SliderFloat("EH%", 1, 100, self.eatHealth);
 
-			Text('Use health potions below percentage');
+			Text('Use Health Potion Below Percentage');
 			self.potionHealth = SliderFloat("HP%", 1, 99, self.potionHealth);
 
-			Text('Use mana potions below percentage');
+			Text('Use Mana Potion Below Percentage');
 			self.potionMana = SliderFloat("MP%", 1, 99, self.potionMana);
 
 			Separator();
