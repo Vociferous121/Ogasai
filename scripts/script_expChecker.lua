@@ -3,8 +3,11 @@ script_expChecker = {
 messageRest = "Checking Exp...",
 
 }
+
 -- check exp function top left of screen
+
 function script_expChecker:targetLevels()
+
     -- get rested exp info
 
 	-- used to check rested exp, a little redundancy
@@ -257,7 +260,9 @@ function script_expChecker:targetLevels()
 end
 
 function script_expChecker:menu()
+
 if (script_grind.useExpChecker) then
+
     -- color
 	local r, g, b = 0, 0, 0;
 
@@ -306,7 +311,7 @@ if (script_grind.useExpChecker) then
 
 	elseif (GetXPExhaustion() == nil or restR == 0) and (script_grind.useExpChecker) then
 
-		DrawText('Kills needed - '..killsNeeded, x-850, y-300, r+255, g+255, b+255);
+		DrawText('Kills needed - '..killsNeeded, x-740, y, r+255, g+255, b+255);
 		DrawText('To level killing level '..localLevel.. ' targets', x-740, y+20, r+255, g+255, b+255);
 
 	end

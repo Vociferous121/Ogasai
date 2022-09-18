@@ -46,89 +46,88 @@ function script_paranoia:checkParanoia()
         self.sitParanoid = true;
     end
 
-        -- if targeted by player
-        if (not localObj:IsDead() and self.paranoidOn and not IsInCombat()) then 
-            if (self.paranoidOnTargeted and script_grind:playersTargetingUs() > 0) then
-                script_grind.message = "Player(s) targeting us, pausing...";
-                self.waitTimer = GetTimeEX() + 12236;
-                ClearTarget();
-                if IsMoving() then
-                    self.waitTimer = GetTimeEX() + 11234;
-                    StopMoving();
-                end
-            end
-        end
+    if (not localObj:IsDead() and self.paranoidOnTargeted and not IsInCombat()) then 
+		if (self.paranoidOnTargeted and script_grind:playersTargetingUs() > 0) then
+			self.message = "Player(s) targeting us, pausing...";
+			self.waitTimer = GetTimeEX() + 12236;
+			ClearTarget();
+			if IsMoving() then
+				self.waitTimer = GetTimeEX() + 11234;
+				StopMoving();
+			end
+		return;
+		end
 
-        -- if players in range then
-        if (script_grind:playersWithinRange(script_grind.paranoidRange)) then
-            script_grind.message = "Player(s) within paranoid range, pausing...";
-            self.waitTimer = GetTimeEX() + 4123;
-            ClearTarget();
-            if IsMoving() then
-                StopMoving();
-                self.waitTimer = GetTimeEX() + 8523
-            end
+		if (script_grind:playersWithinRange(script_grind.paranoidRange)) then
+			self.message = "Player(s) within paranoid range, pausing...";
+			self.waitTimer = GetTimeEX() + 4123;
+			ClearTarget();
+			if IsMoving() then
+				StopMoving();
+				self.waitTimer = GetTimeEX() + 8523
+			end
 
-            -- twow bright campfire
-            if (HasSpell("Bright Campfire")) and (not IsInCombat()) and (self.useCampfire) then
-                if (GetXPExhaustion() == nil) and (not IsInCombat()) and (not localObj:HasBuff("Stealth")) and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Cat Form")) then
-                    if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) and (HasItem("Flint and Tinder")) and (not IsSpellOnCD("Bright Campfire")) then
-                        if (not IsStanding()) then
-                            JumpOrAscendStart();
-                        end
-                        if (not IsSpellOnCD("Bright Campfire")) then
-                            CastSpellByName("Bright Campfire");
-                            if (IsStanding()) and (self.sitParanoid) then
-                                SitOrStand();
-                            end
-                            -- wait 2+ mins
-                            self.waitTimer = GetTimeEX() + 123241;
-                            return 0;
-                        end
-                    end
-                end
-            end
+			if (HasSpell("Bright Campfire")) and (not IsInCombat()) and (self.useCampfire) then
+				if (GetXPExhaustion() == nil) and (not IsInCombat()) and (not localObj:HasBuff("Stealth")) and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:HasBuff("Shadowmeld")) then
+					if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) and (HasItem("Flint and Tinder")) and (not IsSpellOnCD("Bright Campfire")) then
+						if (not IsStanding()) then
+							JumpOrAscendStart();
+						end
+						if (not IsSpellOnCD("Bright Campfire")) then
+							CastSpellByName("Bright Campfire");
+							if (IsStanding()) and (self.sitParanoid) then
+								SitOrStand();
+							end
+							-- wait 2+ mins
+							self.waitTimer = GetTimeEX() + 123241;
+							return 0;
+						end
+					end
+				end
+			end
 
-            -- night elf shadowmeld
-            if (HasSpell("Shadowmeld")) and (not HasSpell("Stealth")) then
-                if (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) and (not localObj:HasBuff("Bear Form")) and
-                    (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Cat Form")) then
-                    if (CastSpellByName("Shadowmeld")) then
-                        return 0;
-                    end
-                elseif (localObj:HasBuff("Bear Form")) then
-                    if (CastSpellByName("Bear Form")) then
-                        return 0;
-                    end
-                    if (CastSpellByName("Shadowmeld")) then
-                        return 0;
-                    end
-                end
-            end
+			if (HasSpell("Shadowmeld")) then
+				if (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) and (not localObj:HasBuff("Bear Form")) and
+					(not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Cat Form")) then
+					if (CastSpellByName("Shadowmeld")) then
+						return 0;
+					end
+				elseif (localObj:HasBuff("Bear Form")) then
+					if (CastSpellByName("Bear Form")) then
+						return 0;
+					end
+					if (CastSpellByName("Shadowmeld")) then
+						return 0;
+					end
+				end
+			end
+	
 
-            -- rogue stealth while paranoid
-            if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:HasBuff("Stealth")) then
-                if (CastSpellByName("Stealth")) then
-                    return 0;
-                end
-            end
+			-- rogue stealth while paranoid
+			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:HasBuff("Stealth")) then
+				if (CastSpellByName("Stealth")) then
+					return 0;
+				end
+			end
 
-            -- druid stealth while paranoid
-            if (localObj:HasBuff("Cat Form")) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) then
-                if (CastSpellByName("Prowl")) then
-                    return 0;
-                end
-            end
+			-- druid stealth while paranoid
+			if (localObj:HasBuff("Cat Form")) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) then
+				if (CastSpellByName("Prowl")) then
+					return 0;
+				end
+			end
 
-            -- wait and sit when paranoid if enabled
-            self.waitTimer = GetTimeEX() + 10000;
-            if (self.sitParanoid) then
-                if (IsStanding()) and (not IsInCombat())then
-                        SitOrStand();
-                end
-            end
-        return true;
-        end
+			-- wait and sit when paranoid if enabled
+			self.waitTimer = GetTimeEX() + 10000;
+			if (self.sitParanoid) then
+				if (IsStanding()) and (not IsInCombat()) then
+					SitOrStand();
+					self.waitTimer = GetTimeEX() + 3523
+				end
+			end
+		return;
+		end
+	end
 end
 
 function script_paranoia:menu()
