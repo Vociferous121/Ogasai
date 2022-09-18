@@ -72,11 +72,11 @@ function script_grindMenu:menu()
 			wasClicked, script_grind.useCampfire = Checkbox("Use Bright Campfire When Paranoid", script_grind.useCampfire);
 		end
 
-		wasClicked, script_grind.stopOnLevel = Checkbox("Stop When Next Level Reached", script_grind.stopOnLevel);
+		wasClicked, script_grind.stopOnLevel = Checkbox("Stop Bot When Next Level Reached", script_grind.stopOnLevel);
 		
 		if (script_grind.stopOnLevel) then
 			SameLine();
-			wasClicked, script_grind.exitBot = Checkbox("Exit Bot On Level", script_grind.exitBot);
+			wasClicked, script_grind.exitBot = Checkbox("Exit Bot On Level Up", script_grind.exitBot);
 		end
 		Text('Paranoia Range'); script_grind.paranoidRange = SliderInt("P (yd)", 50, 300, script_grind.paranoidRange);
 		
