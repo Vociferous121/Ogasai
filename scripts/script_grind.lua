@@ -87,6 +87,7 @@ script_grind = {
 	blacklistAdds = 1,
 	blacklistedNameNum = 0,
 	sitParanoid = true,
+	useCampfire = true,
 }
 
 function script_grind:setup()
@@ -233,19 +234,21 @@ function script_grind:run()
 				self.waitTimer = GetTimeEX() + 8523
 			end
 
-			if (GetXPExhaustion() == nil) then
-				if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) and (HasItem("Flint and Tinder")) and (not IsSpellOnCD("Bright Campfire")) then
-					if (not IsStanding()) then
-						JumpOrAscendStart();
-					end
-					if (not IsSpellOnCD("Bright Campfire")) then
-						CastSpellByName("Bright Campfire");
-						if (IsStanding()) and (self.sitParanoid) then
-							SitOrStand();
+			if (HasSpell("Bright Campfire")) and (not InCombat()) and (self.useCampfire) then
+				if (GetXPExhaustion() == nil) and (not IsInCombat()) and (not localObj:HasBuff("Stealth")) and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Cat Form")) then
+					if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) and (HasItem("Flint and Tinder")) and (not IsSpellOnCD("Bright Campfire")) then
+						if (not IsStanding()) then
+							JumpOrAscendStart();
 						end
-						-- wait 2+ mins
-						self.waitTimer = GetTimeEX() + 123241;
-						return 0;
+						if (not IsSpellOnCD("Bright Campfire")) then
+							CastSpellByName("Bright Campfire");
+							if (IsStanding()) and (self.sitParanoid) then
+								SitOrStand();
+							end
+							-- wait 2+ mins
+							self.waitTimer = GetTimeEX() + 123241;
+							return 0;
+						end
 					end
 				end
 			end
