@@ -3,6 +3,7 @@ script_survivalProf = {
 useTorch = false,	-- turtle wow making surival profession
 dimTorchNum = 0,
 survivalBookOpen = false,
+useCampfire = false,
 }
 
 function script_survivalProf:openMenu()
@@ -43,4 +44,15 @@ function script_survivalProf:craftDimTorch()
         end
     end
     return;
+end
+
+function script_survivalProf:craftBrightCampfire()
+	if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) and
+		(HasItem("Flint and Tinder")) and (not IsSpellOnCD("Bright Campfire")) and
+		(not IsInCombat()) then
+		if (CastSpellByName("Bright Campfire")) then
+			self.waitTimer = GetTimeEX() + 2000;
+			return 0;
+		end
+	end
 end

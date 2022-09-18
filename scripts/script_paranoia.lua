@@ -56,7 +56,6 @@ function script_paranoia:checkParanoia()
                     self.waitTimer = GetTimeEX() + 11234;
                     StopMoving();
                 end
-            return;
             end
         end
 

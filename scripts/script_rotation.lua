@@ -13,6 +13,7 @@ script_rotation = {
 	helperLoaded = include("scripts\\script_helper.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
 	survivalprof = include("scripts\\script_survivalProf.lua"),
+	firstAid = include("scripts\\script_firstAid.lua"),
 	drawEnabled = false,
 	drawAggro = false,
 	drawGather = false,
@@ -77,6 +78,7 @@ function script_rotation:run()
 
 	self.timer = GetTimeEX() + self.tickRate;
 	
+	-- temporary use torches
 	if (HasItem("Unlit Poor Torch")) and (HasSpell("Survival")) then
 		script_survivalProf:craftDimTorch();
 	else
@@ -85,6 +87,20 @@ function script_rotation:run()
 			DeleteItem("Dim Torch");
 		end
 	end
+
+	-- temporary use campfire
+	if (script_survivalProf.useCampfire) then
+		script_survivalProf:craftBrightCampfire();
+	end
+
+	-- temporary use first aid
+	--if (HasItem("Linen Cloth")) and (HasSpell("First Aid")) then
+	--	if (script_firstAid:craftBandages()) then
+	--		return;
+	--	end
+	--else
+	--	script_firstAid:closeMenu();
+	--end
 
 	if (GetTarget() ~= 0 and GetTarget() ~= nil) then
 		local target = GetTarget();
@@ -401,4 +417,15 @@ function script_rotation:menu()
 				script_survivalProf:openMenu();
 			end
 		end	
+
+		if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) and (HasItem("Flint and Tinder")) then
+			wasClicked, script_survivalProf.useCampfire = Checkbox("Use Campfires", script_survivalProf.useCampfire);
+		end
+
+		if (HasSpell("First Aid")) then
+			wasClicked, script_firstAid.showFirstAid = Checkbox("Show First Aid Skill", script_firstAid.showFirstAid);
+		end
+		if (script_firstAid.showFirstAid) then
+			script_firstAid:Menu();
+		end
 end
