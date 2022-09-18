@@ -85,6 +85,7 @@ script_grind = {
 	blacklistAdds = 1,
 	blacklistedNameNum = 0,
 	paranoidRange = 150,
+	useExpChecker = true,
 
 }
 
@@ -188,6 +189,7 @@ function script_grind:run()
 	if (not self.navFunctionsLoaded) then self.message = "Error script_nav not loaded..."; return; end
 	if (not self.helperLoaded) then self.message = "Error script_helper not loaded..."; return; end
 
+	-- use unstuck script
 	if (self.useUnstuck and IsMoving()) then
 		if (not script_unstuck:pathClearAuto(2)) then
 			script_unstuck:unstuck();
@@ -198,9 +200,11 @@ function script_grind:run()
 	if (self.pause) then self.message = "Paused by user..."; return; end
 
 	--check paranoia
-	if (script_paranoia:checkParanoia()) then
-		self.waitTimer = GetTimeEX() + 3700;
-		return true;
+	if (script_paranoia.paranoidOn) then
+		if (script_paranoia:checkParanoia()) then
+			self.waitTimer = GetTimeEX() + 3700;
+			return;
+		end
 	end
 
 	-- Check: Spend talent points
@@ -623,7 +627,9 @@ function script_grind:drawStatus()
 		y, x = tY-25, tX+75;
 	end
 
-	script_expChecker:menu();
+	if (self.useExpChecker) then
+		script_expChecker:menu();
+	end
 
 	-- info
 	if (not self.pause) then

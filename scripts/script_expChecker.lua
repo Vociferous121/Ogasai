@@ -1,7 +1,6 @@
 script_expChecker = {
 
 messageRest = "Checking Exp...",
-useExpChecker = true,
 
 }
 -- check exp function top left of screen
@@ -262,7 +261,7 @@ function script_expChecker:targetLevels()
 end
 
 function script_expChecker:menu()
-
+if (script_grind.useExpChecker) then
     -- color
 	local r, g, b = 0, 0, 0;
 
@@ -304,25 +303,26 @@ function script_expChecker:menu()
 	restedKillsNeeded = math.ceil(neededXP / baseXP) / 2;
 
 	-- draw kills to level
-	if (GetXPExhaustion() ~= nil) and (self.useExpChecker) then
+	if (GetXPExhaustion() ~= nil) and (script_grind.useExpChecker) then
 
-		DrawText('Rested kills needed - '..restedKillsNeeded, x-850, y-300, r+255, g+255, b+255);
-		DrawText('To level killing level '..localLevel.. ' targets', x-850, y-280, r+255, g+255, b+255);
+		DrawText('Rested kills needed - '..restedKillsNeeded, x-740, y, r+255, g+255, b+255);
+		DrawText('To level killing level '..localLevel.. ' targets', x-740, y+20, r+255, g+255, b+255);
 
-	elseif (GetXPExhaustion() == nil or restR == 0) and (self.useExpChecker) then
+	elseif (GetXPExhaustion() == nil or restR == 0) and (script_grind.useExpChecker) then
 
 		DrawText('Kills needed - '..killsNeeded, x-850, y-300, r+255, g+255, b+255);
-		DrawText('To level killing level '..localLevel.. ' targets', x-850, y-280, r+255, g+255, b+255);
+		DrawText('To level killing level '..localLevel.. ' targets', x-740, y+20, r+255, g+255, b+255);
 
 	end
 
 	-- draw rested exp
-	if (GetXPExhaustion() ~= nil) and (self.useExpChecker) then
-		DrawText('Rested Exp: '..math.floor(20*GetXPExhaustion()/UnitXPMax("player"))+0.5.. ' bubbles - '..GetXPExhaustion()..' Exp', x-850, y-260, r+255, g+255, b+255);
+	if (GetXPExhaustion() ~= nil) and (script_grind.useExpChecker) then
+		DrawText('Rested Exp: '..math.floor(20*GetXPExhaustion()/UnitXPMax("player"))+0.5.. ' bubbles - '..GetXPExhaustion()..' Exp', x-740, y+40, r+255, g+255, b+255);
 	end
 
 	-- rest per kill messages
-	if (self.useExpChecker) then
-		DrawText(script_expChecker.messageRest or '', x-850, y-240, r+255, g+255, b+255);
+	if (script_grind.useExpChecker) then
+		DrawText(script_expChecker.messageRest or '', x-740, y+60, r+255, g+255, b+255);
 	end
+end
 end
