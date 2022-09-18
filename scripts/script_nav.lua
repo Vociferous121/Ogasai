@@ -62,7 +62,7 @@ function script_nav:updateHotSpot(currentLevel, factionNr, useStaticHotSpot)
 		local localObj = GetLocalPlayer();
 		local x, y, z = localObj:GetPosition();
 		self.currentHotSpotX , self.currentHotSpotY, self.currentHotSpotZ, self.currentHotSpotName =
-		x, y, z, 'Change in path options';
+		x+1, y+1, z, 'Change in path options';
 		return true;
 	end
 end
