@@ -738,61 +738,7 @@ function script_grind:drawStatus()
 		y, x = tY-25, tX+75;
 	end
 
-	-- get rested exp info
-	if (GetXPExhaustion() ~= nil) then
-		local restR = GetXPExhaustion();
-	end
-	if (GetXPExhaustion() == nil) then
-		local restR = 0;
-	end
-
-	local restP = "player";
-	local restX = UnitXP("player");
-	local restM = UnitXPMax("player");
-	local localLevel = GetLocalPlayer():GetLevel();
-
-	-- get rested exp bubbles
-	if (GetXPExhaustion() ~= nil) then
-		local rest = math.floor(20*GetXPExhaustion()/UnitXPMax("player"))+0.5;
-	end
-
-	-- exp per kill - same level -- base exp at same level is 247 exp a kill
-	local baseXP = GetLocalPlayer():GetLevel() * 5 + 102;
-	
-	-- exp needed to level
-	local neededXP = restM - restX;
-
-	-- total kills needed killing same level targets
-	killsNeeded = math.floor(neededXP / baseXP);
-
-	-- total kills with rested exp
-	restedKillsNeeded = math.floor(neededXP / baseXP) / 2;
-
-	-- draw kills to level
-	if (GetXPExhaustion() ~= nil) and (self.useExpChecker) then
-
-		DrawText('Rested kills needed - '..restedKillsNeeded, x-850, y-300, r+255, g+255, b+255);
-		DrawText('To level killing level '..localLevel.. ' targets', x-850, y-280, r+255, g+255, b+255);
-
-	elseif (GetXPExhaustion() == nil or restR == 0) and (self.useExpChecker) then
-
-		DrawText('Kills needed - '..killsNeeded, x-850, y-300, r+255, g+255, b+255);
-		DrawText('To level killing level '..localLevel.. ' targets', x-850, y-280, r+255, g+255, b+255);
-	end
-
-	-- draw rested exp
-	if (GetXPExhaustion() ~= nil) and (self.useExpChecker) then
-		DrawText('Rested Exp: '..math.floor(20*GetXPExhaustion()/UnitXPMax("player"))+0.5.. ' bubbles - '..GetXPExhaustion()..' Exp', x-850, y-260, r+255, g+255, b+255);
-	end
-
-	-- rest per kill messages
-	if (self.useExpChecker) then
-		DrawText(script_expChecker.messageRest or '', x-850, y-240, r+255, g+255, b+255);
-	end
-
-	-- end of added exp checker -- MOVE TO EXP CHECKER SCRIPT
-	---
-	---
+	script_expChecker:menu();
 
 	-- info
 	if (not self.pause) then

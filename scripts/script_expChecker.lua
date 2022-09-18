@@ -1,6 +1,8 @@
 script_expChecker = {
 
 messageRest = "Checking Exp...",
+useExpChecker = true,
+
 }
 -- check exp function top left of screen
 function script_expChecker:targetLevels()
@@ -26,16 +28,16 @@ function script_expChecker:targetLevels()
     local localLevel = GetLocalPlayer():GetLevel();
     
     -- exp per kill - same level -- base exp at same level is 102 exp a kill - turtle wow server (normal exp rate is 57 per kill)
-    local baseXP = GetLocalPlayer():GetLevel() * 5 + 57;
+    local baseXP = GetLocalPlayer():GetLevel() * 5 + 45;
     
     -- exp needed to level
     local neededXP = restM - restX;
 
     -- total kills needed killing same level targets
-    killsNeeded = math.floor(neededXP / baseXP);
+    killsNeeded = math.ceil(neededXP / baseXP);
 
     -- total kills with rested exp
-    restedKillsNeeded = math.floor(neededXP / baseXP) / 2;
+    restedKillsNeeded = math.ceil(neededXP / baseXP) / 2;
 
         -- rested exp calculation per mob targeted
     if (script_grind.enemyObj ~= 0) and (script_grind.enemyObj ~= nil) then
@@ -50,7 +52,7 @@ function script_expChecker:targetLevels()
             if (GetLocalPlayer():GetLevel() == targetObj:GetLevel()) then
                 local XP = baseXP;
                 if (XP > 1) then
-                    local lowXP = math.floor(neededXP / XP) / 2;
+                    local lowXP = math.ceil(neededXP / XP) / 2;
                     self.messageRest = ""..lowXP.." needed kills at target level "..targetObj:GetLevel();
                 end
             end
@@ -257,4 +259,70 @@ function script_expChecker:targetLevels()
             end
         end
     end
+end
+
+function script_expChecker:menu()
+
+    -- color
+	local r, g, b = 0, 0, 0;
+
+	-- position
+	local y, x, width = 120, 25, 370;
+	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
+	if (onScreen) then
+		y, x = tY-25, tX+75;
+	end
+
+	-- get rested exp info
+	if (GetXPExhaustion() ~= nil) then
+		local restR = GetXPExhaustion();
+	end
+	if (GetXPExhaustion() == nil) then
+		local restR = 0;
+	end
+
+	local restP = "player";
+	local restX = UnitXP("player");
+	local restM = UnitXPMax("player");
+	local localLevel = GetLocalPlayer():GetLevel();
+
+	-- get rested exp bubbles
+	if (GetXPExhaustion() ~= nil) then
+		local rest = math.floor(20*GetXPExhaustion()/UnitXPMax("player"))+0.5;
+	end
+
+	-- exp per kill - same level -- base exp at same level is 247 exp a kill
+	local baseXP = GetLocalPlayer():GetLevel() * 5 + 102;
+	
+	-- exp needed to level
+	local neededXP = restM - restX;
+
+	-- total kills needed killing same level targets
+	killsNeeded = math.ceil(neededXP / baseXP) * 2;
+
+	-- total kills with rested exp
+	restedKillsNeeded = math.ceil(neededXP / baseXP) / 2;
+
+	-- draw kills to level
+	if (GetXPExhaustion() ~= nil) and (self.useExpChecker) then
+
+		DrawText('Rested kills needed - '..restedKillsNeeded, x-850, y-300, r+255, g+255, b+255);
+		DrawText('To level killing level '..localLevel.. ' targets', x-850, y-280, r+255, g+255, b+255);
+
+	elseif (GetXPExhaustion() == nil or restR == 0) and (self.useExpChecker) then
+
+		DrawText('Kills needed - '..killsNeeded, x-850, y-300, r+255, g+255, b+255);
+		DrawText('To level killing level '..localLevel.. ' targets', x-850, y-280, r+255, g+255, b+255);
+
+	end
+
+	-- draw rested exp
+	if (GetXPExhaustion() ~= nil) and (self.useExpChecker) then
+		DrawText('Rested Exp: '..math.floor(20*GetXPExhaustion()/UnitXPMax("player"))+0.5.. ' bubbles - '..GetXPExhaustion()..' Exp', x-850, y-260, r+255, g+255, b+255);
+	end
+
+	-- rest per kill messages
+	if (self.useExpChecker) then
+		DrawText(script_expChecker.messageRest or '', x-850, y-240, r+255, g+255, b+255);
+	end
 end
