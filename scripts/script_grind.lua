@@ -88,7 +88,6 @@ script_grind = {
 	blacklistedNameNum = 0,
 	sitParanoid = true,
 	useCampfire = true,
-	useExpChecker = true,
 	stopOnLevel = true,		-- stop bot on level up on/off
 	exitBot = false,
 	targetedLevel = GetLocalPlayer():GetLevel() + 1,	-- target level to stop bot when we level up.
@@ -318,9 +317,8 @@ function script_grind:run()
 			-- wait and sit when paranoid if enabled
 			self.waitTimer = GetTimeEX() + 10000;
 			if (self.sitParanoid) then
-				if (IsStanding()) and (not IsInCombat()) then
-					SitOrStand();
-					self.waitTimer = GetTimeEX() + 3523
+				if (IsStanding()) and (not IsInCombat())then
+						SitOrStand();
 				end
 			end
 		return;

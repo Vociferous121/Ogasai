@@ -196,6 +196,8 @@ function script_warrior:run(targetGUID)	-- main content of script
 	-- Assign the target 
 	targetObj =  GetGUIDObject(targetGUID);
 	
+	ToggleSpellBook(BOOKTYPE_PROFESSION);
+	
 	if(targetObj == 0 or targetObj == nil) then
 		return 2;
 	end
