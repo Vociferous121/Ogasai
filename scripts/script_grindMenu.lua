@@ -78,6 +78,11 @@ function script_grindMenu:menu()
 			SameLine();
 			wasClicked, script_grind.exitBot = Checkbox("Exit Bot On Level Up", script_grind.exitBot);
 		end
+		
+		Text("Stop Bot On "..script_grind.deathCounterLogout.. " Deaths    "); 
+		SameLine(); 
+		wasClicked, script_grind.deathCounterExit = Checkbox("Exit Bot On "..script_grind.deathCounterLogout.." Deaths", script_grind.deathCounterExit);
+		script_grind.deathCounterLogout = SliderInt("Deaths", 1, 5, script_grind.deathCounterLogout);
 		Text('Paranoia Range'); script_grind.paranoidRange = SliderInt("P (yd)", 50, 300, script_grind.paranoidRange);
 		
 		Separator();

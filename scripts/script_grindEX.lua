@@ -2,6 +2,7 @@ script_grindEX = {
 	currMapID = GetMapID(), 
 	avoidBlacklisted = false,
 	unstuckTime = GetTimeEX(),
+	deathCounter = 0,
 }
 
 function script_grindEX:doChecks() 
@@ -28,8 +29,15 @@ function script_grindEX:doChecks()
 		if(localObj:IsDead()) then
 			script_grind.waitTimer = GetTimeEX() + 150;
 			script_grind.message = "Walking to corpse...";
+
 			-- Release body
-			if(not IsGhost()) then RepopMe(); script_grind.waitTimer = GetTimeEX() + 5000; return true; end
+			if (not IsGhost()) then
+				RepopMe();
+				script_grindEX.deathCounter = script_grindEX.deathCounter + 1;
+				script_grind.waitTimer = GetTimeEX() + 5000; 
+					return true;
+			end
+
 			-- Ressurrect within the ress distance to our corpse
 			local _lx, _ly, _lz = localObj:GetPosition();
 			if(GetDistance3D(_lx, _ly, _lz, GetCorpsePosition()) > script_grind.ressDistance) then

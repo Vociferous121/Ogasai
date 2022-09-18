@@ -91,7 +91,9 @@ script_grind = {
 	useExpChecker = true,
 	stopOnLevel = true,		-- stop bot on level up on/off
 	exitBot = false,
-	targetedLevel = GetLocalPlayer():GetLevel() + 1,
+	targetedLevel = GetLocalPlayer():GetLevel() + 1,	-- target level to stop bot when we level up.
+	deathCounterLogout = 3,
+	deathCounterExit = true,
 }
 
 function script_grind:setup()
@@ -211,17 +213,28 @@ function script_grind:run()
 		end
 	end
 		
-	-- Check: Paranoid feature
+	-- logout if death counter reached
+	if (script_grindEX.deathCounter >= 1) and (script_grindEX.deathCounter >= script_grind.deathCounterLogout) then
+		StopBot();
+		script_grindEX.deathCounter = 0;
+		if (script_grind.deathCounterExit) then
+			Exit();
+		end
+	end
 
+	-- logout if level reached
 	if (self.stopOnLevel) then
 			selfLevel = GetLocalPlayer():GetLevel();
 		if (selfLevel >= self.targetedLevel) then
 			StopBot();
+			self.targetedLevel = self.targetedLevel + 1;
 			if (self.exitBot) then
 				Exit();
 			end
 		end
 	end
+
+	-- Check: Paranoid feature
 
 	localObj = GetLocalPlayer();
 
