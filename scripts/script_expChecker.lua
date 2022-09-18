@@ -14,7 +14,7 @@ function script_expChecker:targetLevels()
 	elseif (GetXPExhaustion() == nil) then
 
 		local restR = 0;
-        
+
 	end
 
     local restP = "player";
@@ -25,8 +25,8 @@ function script_expChecker:targetLevels()
     
     local localLevel = GetLocalPlayer():GetLevel();
     
-    -- exp per kill - same level -- base exp at same level is 247 exp a kill - turtle wow server (normal exp rate is 57 per kill)
-    local baseXP = GetLocalPlayer():GetLevel() * 5 + 102;
+    -- exp per kill - same level -- base exp at same level is 102 exp a kill - turtle wow server (normal exp rate is 57 per kill)
+    local baseXP = GetLocalPlayer():GetLevel() * 5 + 57;
     
     -- exp needed to level
     local neededXP = restM - restX;
@@ -40,11 +40,11 @@ function script_expChecker:targetLevels()
         -- rested exp calculation per mob targeted
     if (script_grind.enemyObj ~= 0) and (script_grind.enemyObj ~= nil) then
 
-        -- if we have rested exp do the following.... else...
-        if (GetXPExhaustion() ~= nil) then
-
          -- bug in script trying to get targetObj when not having one "error can't find targetObj"
-		    targetObj = script_grind.enemyObj;
+        targetObj = script_grind.enemyObj;
+
+        -- if we have rested exp do the following.... else...
+        if (GetXPExhaustion() ~= nil) then		   
 
             -- same level mob rested EXP
             if (GetLocalPlayer():GetLevel() == targetObj:GetLevel()) then

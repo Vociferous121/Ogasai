@@ -284,7 +284,7 @@ function script_grind:run()
 				end
 			end
 
-			if (HasSpell("Shadowmeld")) then
+			if (HasSpell("Shadowmeld")) and (not HasSpell("Stealth")) then
 				if (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) and (not localObj:HasBuff("Bear Form")) and
 					(not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Cat Form")) then
 					if (CastSpellByName("Shadowmeld")) then
