@@ -63,12 +63,16 @@ function script_grindMenu:menu()
 		end
 		wasClicked, script_grind.paranoidOn = Checkbox("Enable Paranoia", script_grind.paranoidOn);
 		SameLine();
-		wasClicked, script_grind.sitParanoid = Checkbox("Sit When Paranoid", script_grind.sitParanoid);
+		if (script_grind.paranoidRange > 149) then
+			wasClicked, script_grind.sitParanoid = Checkbox("Sit When Paranoid", script_grind.sitParanoid);
+		end
 		wasClicked, script_grind.paranoidOnTargeted = Checkbox("Paranoid When Targeted By Player", script_grind.paranoidOnTargeted);
 	 		
 		if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) then
 			wasClicked, script_grind.useCampfire = Checkbox("Use Bright Campfire When Paranoid", script_grind.useCampfire);
 		end
+
+		wasClicked, script_grind.stopOnLevel = Checkbox("Stop When Next Level Reached", script_grind.stopOnLevel);
 
 		Text('Paranoia Range'); script_grind.paranoidRange = SliderInt("P (yd)", 50, 300, script_grind.paranoidRange);
 		

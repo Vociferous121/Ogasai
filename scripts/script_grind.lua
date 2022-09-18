@@ -89,6 +89,7 @@ script_grind = {
 	sitParanoid = true,
 	useCampfire = true,
 	useExpChecker = true,
+	stopOnLevel = true,
 }
 
 function script_grind:setup()
@@ -205,6 +206,14 @@ function script_grind:run()
 	end
 		
 	-- Check: Paranoid feature
+
+	if (self.stopOnLevel) then
+	myLevel = GetLocalPlayer():GetLevel();
+	targetedLevel = GetLocalPlayer():GetLevel() + 1;
+		if (myLevel == targetedLevel) then
+			StopBot();
+		end
+	end
 
 	localObj = GetLocalPlayer();
 
