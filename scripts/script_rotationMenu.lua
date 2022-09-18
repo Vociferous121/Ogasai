@@ -172,6 +172,4 @@ function script_rotationMenu:menu()
 			end
 		end
 	end
-
-
 end

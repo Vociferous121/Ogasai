@@ -2,8 +2,24 @@ script_survivalProf = {
 
 useTorch = false,	-- turtle wow making surival profession
 dimTorchNum = 0,
-
+survivalBookOpen = false,
 }
+
+function script_survivalProf:openMenu()
+    if (not self.survivalBookOpen) then
+        if (HasItem("Unlit Poor Torch")) then
+            CastSpellByName("Survival");
+            self.survivalBookOpen = true;
+        end
+    end
+end
+
+function script_survivalProf:closeMenu()
+    if (not HasItem("Unlit Poor Torch")) and (self.survivalBookOpen) then  
+        CloseTradeSkill();
+        self.survivalBookOpen = false;
+    end
+end
 
 function script_survivalProf:craftDimTorch()
     local name;

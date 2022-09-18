@@ -77,9 +77,15 @@ function script_rotation:run()
 
 	self.timer = GetTimeEX() + self.tickRate;
 	
-	if (HasItem("Unlit Poor Torch")) then
+	if (HasItem("Unlit Poor Torch")) and (HasSpell("Survival")) then
 		script_survivalProf:craftDimTorch();
+	else
+		script_survivalProf:closeMenu();
+		if (HasItem("Dim Torch")) then
+			DeleteItem("Dim Torch");
+		end
 	end
+
 	if (GetTarget() ~= 0 and GetTarget() ~= nil) then
 		local target = GetTarget();
 		if (target:CanAttack()) then
@@ -389,9 +395,10 @@ function script_rotation:menu()
 	
 		if (HasItem("Unlit Poor Torch")) then
 			Separator();
-			wasClicked, self.useTorch = Checkbox("Use Torches to level Survival", self.useTorch);
-			if (self.useTorch) then
+			wasClicked, script_survivalProf.useTorch = Checkbox("Use Torches to level Survival", script_survivalProf.useTorch);
+			if (script_survivalProf.useTorch) then
 				Text("Please open the trade skill window");
+				script_survivalProf:openMenu();
 			end
 		end	
 end
