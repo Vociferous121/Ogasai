@@ -40,6 +40,7 @@
             -- rested exp calculation per mob targeted
         if (script_grind.enemyObj ~= 0) and (script_grind.enemyObj ~= nil) then
             if (GetXPExhaustion() ~= nil) then
+			targetObj = script_grind.enemyObj;
         
                 -- same level mob
                 if (GetLocalPlayer():GetLevel() == targetObj:GetLevel()) then

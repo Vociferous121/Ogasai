@@ -73,7 +73,11 @@ function script_grindMenu:menu()
 		end
 
 		wasClicked, script_grind.stopOnLevel = Checkbox("Stop When Next Level Reached", script_grind.stopOnLevel);
-
+		
+		if (script_grind.stopOnLevel) then
+			SameLine();
+			wasClicked, script_grind.exitBot = Checkbox("Exit Bot On Level", script_grind.exitBot);
+		end
 		Text('Paranoia Range'); script_grind.paranoidRange = SliderInt("P (yd)", 50, 300, script_grind.paranoidRange);
 		
 		Separator();
