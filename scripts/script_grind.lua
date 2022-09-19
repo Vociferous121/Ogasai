@@ -40,8 +40,6 @@ script_grind = {
 	skipGiant = false,
 	skipMechanical = false,
 	skipElites = true,
-	paranoidOn = true,
-	paranoidOnTargeted = true,
 	paranoidRange = 150,
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
 	helperLoaded = include("scripts\\script_helper.lua"),
@@ -53,6 +51,7 @@ script_grind = {
 	aggroLoaded = include("scripts\\script_aggro.lua"),
 	expExtra = include("scripts\\script_expChecker.lua"),
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
+	paranoiaLoaded = include("scripts\\script_unstuck.lua"),
 	nextToNodeDist = 3.5, -- (Set to about half your nav smoothness)
 	blacklistedTargets = {},
 	blacklistedNum = 0,
@@ -86,14 +85,7 @@ script_grind = {
 	useUnstuck = true,
 	blacklistAdds = 1,
 	blacklistedNameNum = 0,
-	sitParanoid = true,
-	useCampfire = true,
 	useExpChecker = true,
-	stopOnLevel = true,		-- stop bot on level up on/off
-	exitBot = false,
-	targetedLevel = GetLocalPlayer():GetLevel() + 1,	-- target level to stop bot when we level up.
-	deathCounterLogout = 3,
-	deathCounterExit = true,
 }
 
 function script_grind:setup()
@@ -213,118 +205,9 @@ function script_grind:run()
 		end
 	end
 		
-	-- logout if death counter reached
-	if (script_grindEX.deathCounter >= 1) and (script_grindEX.deathCounter >= script_grind.deathCounterLogout) then
-		StopBot();
-		script_grindEX.deathCounter = 0;
-		if (script_grind.deathCounterExit) then
-			Exit();
-		end
-	end
-
-	-- logout if level reached
-	if (self.stopOnLevel) then
-			selfLevel = GetLocalPlayer():GetLevel();
-		if (selfLevel >= self.targetedLevel) then
-			StopBot();
-			self.targetedLevel = self.targetedLevel + 1;
-			if (self.exitBot) then
-				Exit();
-			end
-		end
-	end
-
-	-- Check: Paranoid feature
-
-	localObj = GetLocalPlayer();
-
-	if (self.paranoidRange <= 149) then
-		self.sitParanoid = false;
-	elseif (self.paranoidRange >= 150) then
-		self.sitParanoid = true;
-	end
-
-	if (not localObj:IsDead() and self.paranoidOn and not IsInCombat()) then 
-		if (self.paranoidOnTargeted and script_grind:playersTargetingUs() > 0) then
-			self.message = "Player(s) targeting us, pausing...";
-			self.waitTimer = GetTimeEX() + 12236;
-			ClearTarget();
-			if IsMoving() then
-				self.waitTimer = GetTimeEX() + 11234;
-				StopMoving();
-			end
+	if (script_paranoia:checkParanoia()) then
+		self.waitTimer = GetTimeEX() + 12000;
 		return;
-		end
-
-		if (script_grind:playersWithinRange(self.paranoidRange)) then
-			self.message = "Player(s) within paranoid range, pausing...";
-			self.waitTimer = GetTimeEX() + 4123;
-			ClearTarget();
-			if IsMoving() then
-				StopMoving();
-				self.waitTimer = GetTimeEX() + 8523
-			end
-
-			if (HasSpell("Bright Campfire")) and (not IsInCombat()) and (self.useCampfire) then
-				if (GetXPExhaustion() == nil) and (not IsInCombat()) and (not localObj:HasBuff("Stealth")) and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Cat Form")) then
-					if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) and (HasItem("Flint and Tinder")) and (not IsSpellOnCD("Bright Campfire")) then
-						if (not IsStanding()) then
-							JumpOrAscendStart();
-						end
-						if (not IsSpellOnCD("Bright Campfire")) then
-							CastSpellByName("Bright Campfire");
-							if (IsStanding()) and (self.sitParanoid) then
-								SitOrStand();
-							end
-							-- wait 2+ mins
-							self.waitTimer = GetTimeEX() + 123241;
-							return 0;
-						end
-					end
-				end
-			end
-
-			if (HasSpell("Shadowmeld")) then
-				if (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) and (not localObj:HasBuff("Bear Form")) and
-					(not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Cat Form")) then
-					if (CastSpellByName("Shadowmeld")) then
-						return 0;
-					end
-				elseif (localObj:HasBuff("Bear Form")) then
-					if (CastSpellByName("Bear Form")) then
-						return 0;
-					end
-					if (CastSpellByName("Shadowmeld")) then
-						return 0;
-					end
-				end
-			end
-	
-
-			-- rogue stealth while paranoid
-			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:HasBuff("Stealth")) then
-				if (CastSpellByName("Stealth")) then
-					return 0;
-				end
-			end
-
-			-- druid stealth while paranoid
-			if (localObj:HasBuff("Cat Form")) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) then
-				if (CastSpellByName("Prowl")) then
-					return 0;
-				end
-			end
-
-			-- wait and sit when paranoid if enabled
-			self.waitTimer = GetTimeEX() + 10000;
-			if (self.sitParanoid) then
-				if (IsStanding()) and (not IsInCombat()) then
-					SitOrStand();
-					self.waitTimer = GetTimeEX() + 3523
-				end
-			end
-		return;
-		end
 	end
 
 	if (GetTimeEX() > self.timer) then

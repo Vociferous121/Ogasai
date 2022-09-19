@@ -1,12 +1,12 @@
 script_paranoia = {
 
-    stopOnLevel = true,		-- stop bot on level up on/off
+	stopOnLevel = true,		-- stop bot on level up on/off
 	exitBot = false,
 	targetedLevel = GetLocalPlayer():GetLevel() + 1,	-- target level to stop bot when we level up.
 	deathCounterLogout = 3,
 	deathCounterExit = true,
-    sitParanoid = true,	
-    paranoidOn = true,
+	sitParanoid = true,	
+	paranoidOn = true,
 	paranoidOnTargeted = true,
 	useCampfire = true,
 
@@ -46,25 +46,21 @@ function script_paranoia:checkParanoia()
         self.sitParanoid = true;
     end
 
-    if (not localObj:IsDead() and self.paranoidOnTargeted and not IsInCombat()) then 
+    if (not localObj:IsDead() and self.paranoidOn and not IsInCombat()) then 
 		if (self.paranoidOnTargeted and script_grind:playersTargetingUs() > 0) then
-			self.message = "Player(s) targeting us, pausing...";
-			self.waitTimer = GetTimeEX() + 12236;
+			script_grind.message = "Player(s) targeting us, pausing...";
 			ClearTarget();
 			if IsMoving() then
-				self.waitTimer = GetTimeEX() + 11234;
 				StopMoving();
 			end
 		return;
 		end
 
 		if (script_grind:playersWithinRange(script_grind.paranoidRange)) then
-			self.message = "Player(s) within paranoid range, pausing...";
-			self.waitTimer = GetTimeEX() + 4123;
+			script_grind.message = "Player(s) within paranoid range, pausing...";
 			ClearTarget();
 			if IsMoving() then
 				StopMoving();
-				self.waitTimer = GetTimeEX() + 8523
 			end
 
 			if (HasSpell("Bright Campfire")) and (not IsInCombat()) and (self.useCampfire) then
@@ -117,72 +113,55 @@ function script_paranoia:checkParanoia()
 				end
 			end
 
-			-- wait and sit when paranoid if enabled
-			self.waitTimer = GetTimeEX() + 10000;
-			if (self.sitParanoid) then
-				if (IsStanding()) and (not IsInCombat()) then
-					SitOrStand();
-					self.waitTimer = GetTimeEX() + 3523
-				end
+			-- sit when paranoid if enabled
+			if (self.sitParanoid) and (IsStanding()) and (not IsInCombat()) then
+				SitOrStand();
+				self.waitTimer = GetTimeEX() + 1500;
 			end
-		return;
+		return true;
 		end
 	end
 end
 
 function script_paranoia:menu()
-
-    if (CollapsingHeader("Talents, Paranoia & Misc Options")) then
-		wasClicked, script_grind.jump = Checkbox("Jump On/Off", script_grind.jump);
-
-		if (script_grind.jump) then
-			SameLine();
-			Text("- Jump Rate 100 = No Jumping!");
-			script_grind.jumpRandomFloat = SliderInt("Jump Rate", 86, 100, script_grind.jumpRandomFloat);
-		end
-
-		--wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount); Text('Dismount range');
-		--script_grind.disMountRange = SliderInt("DR (yd)", 1, 100, script_grind.disMountRange); Separator();
 		
-        wasClicked, script_grind.autoTalent = Checkbox("Spend Talent Points  ", script_grind.autoTalent);
+	wasClicked, script_paranoia.paranoidOn = Checkbox("Enable Paranoia", script_paranoia.paranoidOn);
+	
+	SameLine();
 		
-        SameLine();
-		
-        Text("Change Talents In script_talent.lua");
-		if (script_grind.autoTalent) then
-			Text("Spending Next Talent Point In: " .. (script_talent:getNextTalentName() or " "));
-			Separator();
-		end
-
-		wasClicked, script_paranoia.paranoidOn = Checkbox("Enable Paranoia", script_paranoia.paranoidOn);
-		SameLine();
-		
-        if (script_grind.paranoidRange > 149) then
-			wasClicked, script_paranoia.sitParanoid = Checkbox("Sit When Paranoid", script_paranoia.sitParanoid);
-		end
-
-		wasClicked, script_paranoia.paranoidOnTargeted = Checkbox("Paranoid When Targeted By Player", script_paranoia.paranoidOnTargeted);
-	 		
-		if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) then
-			wasClicked, script_paranoia.useCampfire = Checkbox("Use Bright Campfire When Paranoid", script_paranoia.useCampfire);
-		end
-
-		wasClicked, script_paranoia.stopOnLevel = Checkbox("Stop Bot When Next Level Reached", script_paranoia.stopOnLevel);
-		
-		if (script_paranoia.stopOnLevel) then
-			SameLine();
-			wasClicked, script_paranoia.exitBot = Checkbox("Exit Bot On Level Up", script_paranoia.exitBot);
-		end
-		
-		Text("Stop Bot On "..script_paranoia.deathCounterLogout.. " Deaths    "); 
-		SameLine(); 
-		wasClicked, script_paranoia.deathCounterExit = Checkbox("Exit Bot On "..script_paranoia.deathCounterLogout.." Deaths", script_paranoia.deathCounterExit);
-		script_paranoia.deathCounterLogout = SliderInt("Deaths", 1, 5, script_paranoia.deathCounterLogout);
-		
-        Text('Paranoia Range'); script_grind.paranoidRange = SliderInt("P (yd)", 50, 300, script_grind.paranoidRange);
-		
-		Separator();
-
-		Text("Script Tick Rate - How Fast The Scripts Run"); script_grind.tickRate = SliderFloat("TR (ms)", 0, 2000, script_grind.tickRate);		
+	if (script_grind.paranoidRange > 149) then
+		wasClicked, script_paranoia.sitParanoid = Checkbox("Sit When Paranoid", script_paranoia.sitParanoid);
 	end
+
+	wasClicked, script_paranoia.paranoidOnTargeted = Checkbox("Paranoid When Targeted By Player", script_paranoia.paranoidOnTargeted);
+
+	if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) then
+		wasClicked, script_paranoia.useCampfire = Checkbox("Use Bright Campfire When Paranoid", script_paranoia.useCampfire);
+	end
+
+	wasClicked, script_paranoia.stopOnLevel = Checkbox("Stop Bot When Next Level Reached", script_paranoia.stopOnLevel);
+		
+	if (script_paranoia.stopOnLevel) then
+	
+		SameLine();
+	
+		wasClicked, script_paranoia.exitBot = Checkbox("Exit Bot On Level Up", script_paranoia.exitBot);
+	
+	end
+	
+	Text("Stop Bot On "..script_paranoia.deathCounterLogout.. " Deaths    "); 
+
+	SameLine(); 
+
+	wasClicked, script_paranoia.deathCounterExit = Checkbox("Exit Bot On "..script_paranoia.deathCounterLogout.." Deaths", script_paranoia.deathCounterExit);
+
+	script_paranoia.deathCounterLogout = SliderInt("Deaths", 1, 5, script_paranoia.deathCounterLogout);
+		
+	Separator();
+
+	Text('Paranoia Range');
+	
+	script_grind.paranoidRange = SliderInt("P (yd)", 50, 300, script_grind.paranoidRange);
+	
+	Separator();	
 end

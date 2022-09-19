@@ -1,6 +1,7 @@
 script_grindMenu = {
 	selectedHotspotID = 0,
 	targetMenu = include("//scripts//script_targetMenu.lua"),
+	paranoiaMenu = include("scripts//script_paranoia.lua"),
 }
 
 function script_grindMenu:printHotspot()
@@ -61,31 +62,8 @@ function script_grindMenu:menu()
 			Text("Spending Next Talent Point In: " .. (script_talent:getNextTalentName() or " "));
 			Separator();
 		end
-		wasClicked, script_grind.paranoidOn = Checkbox("Enable Paranoia", script_grind.paranoidOn);
-		SameLine();
-		if (script_grind.paranoidRange > 149) then
-			wasClicked, script_grind.sitParanoid = Checkbox("Sit When Paranoid", script_grind.sitParanoid);
-		end
-		wasClicked, script_grind.paranoidOnTargeted = Checkbox("Paranoid When Targeted By Player", script_grind.paranoidOnTargeted);
-	 		
-		if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) then
-			wasClicked, script_grind.useCampfire = Checkbox("Use Bright Campfire When Paranoid", script_grind.useCampfire);
-		end
-
-		wasClicked, script_grind.stopOnLevel = Checkbox("Stop Bot When Next Level Reached", script_grind.stopOnLevel);
 		
-		if (script_grind.stopOnLevel) then
-			SameLine();
-			wasClicked, script_grind.exitBot = Checkbox("Exit Bot On Level Up", script_grind.exitBot);
-		end
-		
-		Text("Stop Bot On "..script_grind.deathCounterLogout.. " Deaths    "); 
-		SameLine(); 
-		wasClicked, script_grind.deathCounterExit = Checkbox("Exit Bot On "..script_grind.deathCounterLogout.." Deaths", script_grind.deathCounterExit);
-		script_grind.deathCounterLogout = SliderInt("Deaths", 1, 5, script_grind.deathCounterLogout);
-		Text('Paranoia Range'); script_grind.paranoidRange = SliderInt("P (yd)", 50, 300, script_grind.paranoidRange);
-		
-		Separator();
+		script_paranoia:menu();
 
 		Text("Script Tick Rate - How Fast The Scripts Run"); script_grind.tickRate = SliderFloat("TR (ms)", 0, 2000, script_grind.tickRate);		
 	end
