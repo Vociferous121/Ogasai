@@ -1,5 +1,6 @@
 script_warrior = {
 	message = 'Warrior Combat Script',
+	warriorMenu = include("scripts\\combat\\script_warriorEX.lua"),
 	eatHealth = 55, -- health to use food
 	bloodRageHealth = 50, -- health to use bloodrage
 	potionHealth = 10, -- health to use potion
@@ -45,7 +46,7 @@ function script_warrior:window()
 	EndWindow();
 	--open class combat options window
 	if(NewWindow("Class Combat Options", 200, 200)) then
-		script_warrior:menu();
+		script_warriorEX:menu();
 	end
 end
 
@@ -852,128 +853,4 @@ function script_warrior:rest()
 	
 	-- Don't need to eat
 	return false;
-end
-
-function script_warrior:menu()
-
-	local wasClicked = false;
-
-	if (not self.battleStance) and (not self.defensiveStance) and (not self.berserkerStance) then
-		self.message = "Select a Warrior Stance!";
-	end
-
-	if (CollapsingHeader("Choose Stance - Experimental")) then -- stance menu
-		Text("Choose Stance - ");
-		SameLine();
-		Text("You must enable stance in-game!");
-		
-		if (not self.defensiveStance) and (not self.berserkerStance) then	-- hide all but battle stance
-			wasClicked, self.battleStance = Checkbox("Battle (DPS)", self.battleStance);
-			SameLine();
-		end
-
-			if (not self.battleStance) and (not self.berserkerStance) then	-- hide all but defensive stance
-				wasClicked, self.defensiveStance = Checkbox("Defensive (Tank)", self.defensiveStance);
-
-				SameLine();
-
-			end
-			if (not self.battleStance) and (not self.defensiveStance) then	-- hide all but berserker stance
-				wasClicked, self.berserkerStance = Checkbox("Berserker (DPS)", self.berserkerStance);
-
-				SameLine();
-
-			end
-
-			Separator();
-
-			if (self.battleStance) then -- batle stance menu
-
-				if (CollapsingHeader("Battle Stance Options")) then
-					wasClicked, self.enableCharge = Checkbox("Charge On/Off", self.enableCharge);	-- charge
-
-					SameLine();
-
-					wasClicked, self.chargeWalk = Checkbox("Pull Back After Charge - Experimental", self.chargeWalk);
-					wasClicked, self.enableRend = Checkbox("Rend On/Off", self.enableRend);	-- rend
-
-					SameLine();
-
-					wasClicked, self.enableCleave = Checkbox("Cleave On/Off TODO", self.enableCleave);	-- cleave
-					wasClicked, self.enableSunder = Checkbox("Use Sunder x1", self.enableSunder);	-- battle stance sunder
-					
-					if (CollapsingHeader("-- Overpower Options")) then	-- overpower
-						Text("Overpower action bar slot");
-						self.overpowerActionBarSlot = InputText("OPS", self.overpowerActionBarSlot);
-						Text("72 is your action bar number.. slot 1 would be 73");
-					end
-					
-					if (CollapsingHeader("-- Mocking Blow Options")) then
-						Text("Mocking Blow action bar slot");
-						wasClicked, self.useMockingBlow = Checkbox("Use Mocking Blow", self.useMockingBlow);
-						self.mockingBlowActionBarSlot = InputText("MBS", self.mockingBlowActionBarSlot);
-						Text("72 is your action bar number.. slot 1 would be 73");
-					end
-				end
-			end
-
-			if (self.defensiveStance) then -- defensive stance menu
-
-				if (CollapsingHeader("Defensive Stance Options")) then	-- defensive stance
-					Text("Face Target off for easier manual control");
-					wasClicked, self.enableFaceTarget = Checkbox("Face Target On/Off", self.enableFaceTarget);	-- facing target
-
-						SameLine();
-
-						wasClicked, self.enableShieldBlock = Checkbox("Shield Block On/Off", self.enableShieldBlock);	-- shield block
-
-					if (self.enableShieldBlock) then
-						Text("Shield Block Options");
-						self.shieldBlockHealth = SliderInt("Below % health", 50, 95, self.shieldBlockHealth);
-						self.shieldBlockRage = SliderInt("Above % rage", 10, 30, self.shieldBlockRage);
-					end
-
-						Separator();
-
-						Text("How many Sunder Armor Stacks?");
-						self.sunderStacks = SliderInt("Sunder Stacks", 1, 5, self.sunderStacks);	-- sunder armor
-						self.sunderArmorRage = SliderInt("Sunder rage cost", 12, 15, self.sunderArmorRage);
-						self.demoShoutRage = SliderInt("Demo shout above % rage", 10, 50, self.demoShoutRage);
-						self.challengingShoutAdds = SliderInt("Challenging Shout Add Count", 3, 10, self.challengingShoutAdds);
-
-					if (CollapsingHeader("-- Revenge Skill Options")) then
-						self.revengeActionBarSlot = InputText("RS", self.revengeActionBarSlot);	-- revenge
-						Text("82 is spell bar number.. slot 1 would be 83");
-					end
-				end
-			end
-
-			if (self.berserkerStance) then -- berserker stance menu
-
-				if (CollapsingHeader("Berserker Stance Options")) then
-							Text("TODO!");	
-				end
-			end
-		end
-
-		if (CollapsingHeader("Warrior Combat Options")) then -- grind menu plans to hide this menu once rotation is complete
-			Text('Eat below health percentage');
-			self.eatHealth = SliderInt("EHP %", 1, 100, self.eatHealth);	-- use food health
-			Text('Potion below health percentage');
-			self.potionHealth = SliderInt("PHP %", 1, 99, self.potionHealth);	-- use potion health
-
-			Separator();
-
-			wasClicked, self.stopIfMHBroken = Checkbox("Stop bot if main hand is broken.", self.stopIfMHBroken);
-			Text("Use Bloodrage above health percentage");
-			self.bloodRageHealth = SliderInt("BR%", 1, 99, self.bloodRageHealth);	-- bloodrage health
-			Text("Melee Range Distance");
-			self.meleeDistance = SliderFloat("MR (yd)", 1, 8, self.meleeDistance);	-- melee distance range
-
-			if (CollapsingHeader("-- Throwing Weapon Options")) then -- throwing weapon menu
-				wasClicked, self.throwOpener = Checkbox("Pull with throw", self.throwOpener);
-				Text("Throwing weapon");
-				self.throwName = InputText("TW", self.throwName);
-			end
-		end
 end

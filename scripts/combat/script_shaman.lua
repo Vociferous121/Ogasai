@@ -1,5 +1,6 @@
 script_shaman = {
 	message = 'Shaman Combat Script',
+	shamanMenu = include("scripts\\combat\\script_shamanEX.lua"),
 	eatHealth = 70,
 	drinkMana = 50,
 	healHealth = 70,
@@ -424,24 +425,7 @@ function script_shaman:window()
 		EndWindow();
 
 		if(NewWindow("Class Combat Options", 200, 200)) then
-			script_shaman:menu();
+			script_shamanEX:menu();
 		end
-	end
-end
-
-function script_shaman:menu()
-	if (CollapsingHeader("Shaman Combat Options")) then
-		local wasClicked = false;
-		Text('Rest options:');
-		self.eatHealth = SliderFloat("Eat below HP%", 1, 100, self.eatHealth);
-		self.drinkMana = SliderFloat("Drink below Mana%", 1, 100, self.drinkMana);
-		Text('You can add more food/drinks in script_helper.lua');
-		Separator();
-		Text('Combat options:');
-		wasClicked, self.stopIfMHBroken = Checkbox("Stop bot if main hand is broken (red)...", self.stopIfMHBroken);
-		self.potionHealth = SliderFloat("Potion below HP%", 1, 99, self.potionHealth);
-		self.potionMana = SliderFloat("Potion below Mana%", 1, 99, self.potionMana);
-		self.healHealth = SliderFloat("Heal when below HP% (in combat)", 1, 99, self.healHealth);
-		self.meeleDistance = SliderFloat("Meele range", 1, 6, self.meeleDistance);
 	end
 end

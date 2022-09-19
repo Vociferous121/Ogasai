@@ -1,5 +1,6 @@
 script_paladin = {
 	message = "Paladin Combat Script",
+	paladinMenu = include("scripts\\combat\\script_paladinEX.lua"),
 	isSetup = false,
 	isChecked = true,
 	stopIfMHBroken = true,
@@ -764,81 +765,7 @@ function script_paladin:window()
 		EndWindow();
 
 		if(NewWindow("Class Combat Options", 200, 200)) then
-			script_paladin:menu();
-		end
-	end
-end
-
-function script_paladin:menu()
-
-	if (CollapsingHeader("Paladin Combat Options")) then
-
-		local wasClicked = false;
-
-		Text("Rest options:");
-		Text("You can add more food/drinks in script_helper.lua");
-		self.eatHealth = SliderInt("Eat below HP%", 1, 100, self.eatHealth);
-		self.drinkMana = SliderInt("Drink below Mana%", 1, 100, self.drinkMana);
-		self.potionHealth = SliderInt("Potion below HP %", 1, 99, self.potionHealth);
-		self.potionMana = SliderInt("Potion below Mana %", 1, 99, self.potionMana);
-
-		Separator();
-
-		wasClicked, self.stopIfMHBroken = Checkbox("Stop bot if main hand is broken (red)...", self.stopIfMHBroken);
-		
-		Separator();
-
-		self.meleeDistance = SliderFloat("Melee range", 1, 6, self.meleeDistance);
-
-		Separator();
-
-		if (HasSpell("Consecration")) then
-			Text("Consecrate Mana when 2 or more adds");
-			self.consecrationMana = SliderFloat("Consecration above Mana %", 1, 99, self.consecrationMana);
-		end
-
-		if (CollapsingHeader("-- Auras and Blessings")) then
-
-			Text("Aura and Blessing options:");
-			self.aura = InputText("Aura", self.aura);
-			self.blessing = InputText("Blessing", self.blessing);
-
-		end
-		
-		if (HasSpell("Crusader Strike")) then
-			if (CollapsingHeader("-- Crusader Strike Options")) then
-
-				Text("How many Crusader Strike Stacks on target?");
-				self.crusaderStacks = SliderInt("Stacks", 0, 5, self.crusaderStacks);
-				self.crusaderStacksMana = SliderInt("Use above mana %", 10, 99, self.crusaderStacksMana);
-				self.crusaderStacksHealth = SliderInt("Use above target health %", self.crusaderStacksHealth);
-			
-			end
-		end
-
-		if (CollapsingHeader("-- Heal Options")) then
-
-			Text("Heal Options:")
-
-			if (HasSpell("Flash of Light")) then
-				wasClicked, self.useFlashOfLightCombat = Checkbox("Flash of Light in Combat On/Off", self.useFlashOfLightCombat);
-			end
-
-			Separator();
-
-			self.holyLightHealth = SliderInt("Holy Light when below HP % (in combat)", 1, 99, self.holyLightHealth);
-			
-			if (HasSpell("Flash of Light")) then
-				self.flashOfLightHP = SliderInt("Flash of Light when below HP %", 1, 99, self.flashOfLightHP);
-			end
-
-			if (HasSpell("Lay on Hands")) then
-				self.lohHealth = SliderInt("Lay on Hands below HP %", 5, 50, self.lohHealth);
-			end
-
-			if (HasSpell("Blessing of Protection")) then
-				self.bopHealth = SliderInt("Shield below HP %", 1, 99, self.bopHealth);
-			end
+			script_paladin:menuEX();
 		end
 	end
 end

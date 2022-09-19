@@ -1,5 +1,6 @@
 script_druid = {
 	message = 'Druid - Feral',
+	druidMenu = include("scripts\\combat\\script_druidEX.lua"),
 	eatHealth = 60,
 	drinkMana = 50,
 	healHealth = 40,
@@ -709,27 +710,7 @@ function script_druid:window()
 		EndWindow();
 
 		if(NewWindow("Class Combat Options", 200, 200)) then
-			script_druid:menu();
+			script_druid:menuEX();
 		end
-	end
-end
-
-function script_druid:menu()
-	if (CollapsingHeader("[Druid - Feral")) then
-		local wasClicked = false;
-		Text('Rest options:');
-		self.eatHealth = SliderFloat("Eat below HP%", 1, 100, self.eatHealth);
-		self.drinkMana = SliderFloat("Drink below Mana%", 1, 100, self.drinkMana);
-		Text('You can add more food/drinks in script_helper.lua');
-		Separator();
-		Text('Combat options:');
-		wasClicked, self.stopIfMHBroken = Checkbox("Stop bot if main hand is broken (red)...", self.stopIfMHBroken);
-		self.healHealthWhenShifted = SliderFloat("Shapeshift to heal HP%", 1, 99, self.healHealthWhenShifted);
-		self.potionHealth = SliderFloat("Potion below HP%", 1, 99, self.potionHealth);
-		self.potionMana = SliderFloat("Potion below Mana%", 1, 99, self.potionMana);
-		self.healHealth = SliderFloat("Healing Touch HP% (in combat)", 1, 99, self.healHealth);
-		self.regrowthHealth = SliderFloat("Regrowth HP% (in combat)", 1, 99, self.regrowthHealth);
-		self.rejuHealth = SliderFloat("Rejuvenation HP% (in combat)", 1, 99, self.rejuHealth);
-		self.meeleDistance = SliderFloat("Meele range", 1, 6, self.meeleDistance);
 	end
 end

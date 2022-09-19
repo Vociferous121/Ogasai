@@ -1,7 +1,18 @@
 script_grindMenu = {
+
 	selectedHotspotID = 0,
 	targetMenu = include("//scripts//script_targetMenu.lua"),
 	paranoiaMenu = include("scripts//script_paranoia.lua"),
+	mageMenu = include("scripts\\combat\\script_mageEX.lua"),
+	warlockMenu = include("scripts\\combat\\script_warlockEX.lua"),
+	priestMenu = include("scripts\\combat\\script_priestEX.lua"),
+	warriorMenu = include("scripts\\combat\\script_warriorEX.lua"),
+	rogueMenu = include("scripts\\combat\\script_rogueEX.lua"),
+	paladinMenu = include("scripts\\combat\\script_paladinEX.lua"),
+	shamanMenu = include("scripts\\combat\\script_shamanEX.lua"),
+	druidMenu = include("scripts\\combat\\script_druidEX.lua"),
+
+
 }
 
 function script_grindMenu:printHotspot()
@@ -25,23 +36,23 @@ function script_grindMenu:menu()
 	-- Load combat menu by class
 	local class = UnitClass("player");
 	if (class == 'Mage') then
-		script_mage:menu();
+		script_mageEX:menu();
 	elseif (class == 'Hunter') then
-		script_hunter:menu();
+		script_hunterEX:menu();
 	elseif (class == 'Warlock') then
-		script_warlock:menu();
+		script_warlockEX:menu();
 	elseif (class == 'Paladin') then
-		script_paladin:menu();
+		script_paladinEX:menu();
 	elseif (class == 'Druid') then
-		script_druid:menu();
+		script_druidEX:menu();
 	elseif (class == 'Priest') then
-		script_priest:menu();
+		script_priestEX:menu();
 	elseif (class == 'Warrior') then
-		script_warrior:menu();
+		script_warriorEX:menu();
 	elseif (class == 'Rogue') then
-		script_rogue:menu();
+		script_rogueEX:menu();
 	elseif (class == 'Shaman') then
-		script_shaman:menu();
+		script_shamanEX:menu();
 	end	
 	if (CollapsingHeader("Talents, Paranoia & Misc Options")) then
 		wasClicked, script_grind.jump = Checkbox("Jump On/Off", script_grind.jump);

@@ -126,15 +126,15 @@ function coremenu:draw()
 
 	-- Add Combat scripts menus
 	if (CollapsingHeader("Combat options")) then
-		script_mage:menu();
-		script_hunter:menu();
-		script_warlock:menu();
-		script_paladin:menu();
-		script_druid:menu();
-		script_priest:menu();
-		script_warrior:menu();
-		script_rogue:menu();
-		script_shaman:menu();
+		script_mageEX:menu();
+		script_hunterEX:menu();
+		script_warlockEX:menu();
+		script_paladinEX:menu();
+		script_druidEX:menu();
+		script_priestEX:menu();
+		script_warriorEX:menu();
+		script_rogueEX:menu();
+		script_shamanEX:menu();
 	end
 	
 end

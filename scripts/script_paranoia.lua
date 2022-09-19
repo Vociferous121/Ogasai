@@ -1,14 +1,14 @@
 script_paranoia = {
 
 	stopOnLevel = true,		-- stop bot on level up on/off
-	exitBot = false,
+	exitBot = false,		-- exit bot on level up
 	targetedLevel = GetLocalPlayer():GetLevel() + 1,	-- target level to stop bot when we level up.
-	deathCounterLogout = 3,
-	deathCounterExit = true,
-	sitParanoid = true,	
-	paranoidOn = true,
-	paranoidOnTargeted = true,
-	useCampfire = true,
+	deathCounterLogout = 3,	-- death counter until forced logout
+	deathCounterExit = true,	-- death counter until exit
+	sitParanoid = true,		-- sit paranoid true/false
+	paranoidOn = true,		-- paranoid on true/false
+	paranoidOnTargeted = true,	-- paranoid when targeted on/off
+	useCampfire = true,		-- use bright campfire when paranoid on/off
 
 }
 
