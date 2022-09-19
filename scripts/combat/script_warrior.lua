@@ -118,6 +118,7 @@ end
 function script_warrior:canRevenge()	-- use revenge function
 	local isUsable, _ = IsUsableAction(self.revengeActionBarSlot); 
 	if (isUsable == 1 and not IsSpellOnCD("Revenge")) then 
+		self.waitTimer = GetTimeEX() + 500;
 		return true; 
 	end 
 	return false;

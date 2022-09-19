@@ -45,7 +45,7 @@ function script_paladinEX:menu()
 				Text("How many Crusader Strike Stacks on target?");
 				script_paladin.crusaderStacks = SliderInt("Stacks", 0, 5, script_paladin.crusaderStacks);
 				script_paladin.crusaderStacksMana = SliderInt("Use above mana %", 10, 99, script_paladin.crusaderStacksMana);
-				script_paladin.crusaderStacksHealth = SliderInt("Use above target health %", script_paladin.crusaderStacksHealth);
+				script_paladin.crusaderStacksHealth = SliderInt("Use above target health %", 20, 80, script_paladin.crusaderStacksHealth);
 			
 			end
 		end

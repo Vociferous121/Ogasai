@@ -165,6 +165,9 @@ function script_paladin:run(targetGUID)
 
 	-- Buff with Blessing
 	if (self.blessing ~= 0) and (HasSpell(self.blessing)) then
+		if (not IsStanding()) then
+			JumpOrAscendStart();
+		end
 		if (localMana > 10) and (not localObj:HasBuff(self.blessing)) then
 			Buff(self.blessing, localObj);
 			return 0;
@@ -187,8 +190,7 @@ function script_paladin:run(targetGUID)
 			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 				if (not targetObj:FaceTarget()) then
 					targetObj:FaceTarget();
-					self.message = "Face Target 1";
-					self.waitTimer = GetTimeEX() + 500;
+					self.waitTimer = GetTimeEX() + 0;
 				end
 			end
 		end
@@ -227,8 +229,7 @@ function script_paladin:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.message = "Face Target 1";
-						self.waitTimer = GetTimeEX() + 500;
+						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
@@ -271,8 +272,7 @@ function script_paladin:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.message = "Face Target 1";
-						self.waitTimer = GetTimeEX() + 500;
+						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
@@ -296,8 +296,7 @@ function script_paladin:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.message = "Face Target 1";
-						self.waitTimer = GetTimeEX() + 500;
+						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
@@ -317,8 +316,7 @@ function script_paladin:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.message = "Face Target 1";
-						self.waitTimer = GetTimeEX() + 500;
+						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
@@ -498,8 +496,7 @@ function script_paladin:run(targetGUID)
 					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 						if (not targetObj:FaceTarget()) then
 							targetObj:FaceTarget();
-							self.message = "Face Target 1";
-							self.waitTimer = GetTimeEX() + 500;
+							self.waitTimer = GetTimeEX() + 0;
 						end	
 					end
 				end
