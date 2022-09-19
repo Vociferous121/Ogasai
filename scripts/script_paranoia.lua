@@ -58,7 +58,8 @@ function script_paranoia:checkParanoia()
 			if IsMoving() then
 				StopMoving();
 			end
-		return;
+			self.waitTimer = GetTimeEX() + 5000;
+			return;
 		end
 
 		-- if targeted by other players
