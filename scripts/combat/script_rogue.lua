@@ -214,8 +214,7 @@ function script_rogue:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.message = "Face Target 1";
-						self.waitTimer = GetTimeEX() + 500;
+						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
@@ -251,8 +250,7 @@ function script_rogue:run(targetGUID)
 					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 						if (not targetObj:FaceTarget()) then
 							targetObj:FaceTarget();
-							self.message = "Face Target 2";
-							self.waitTimer = GetTimeEX() + 500;
+							self.waitTimer = GetTimeEX() + 0;
 						end
 					end
 				end
@@ -301,8 +299,7 @@ function script_rogue:run(targetGUID)
 					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 						if (not targetObj:FaceTarget()) then
 							targetObj:FaceTarget();
-							self.message = "Face Target 3";
-							self.waitTimer = GetTimeEX() + 500;
+							self.waitTimer = GetTimeEX() + 0;
 						end
 					end
 				end
@@ -342,8 +339,7 @@ function script_rogue:run(targetGUID)
 					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 						if (not targetObj:FaceTarget()) then
 							targetObj:FaceTarget();
-							self.message = "Face Target 4";
-							self.waitTimer = GetTimeEX() + 500;
+							self.waitTimer = GetTimeEX() + 0;
 						end
 					end
 				end
@@ -375,8 +371,7 @@ function script_rogue:run(targetGUID)
 					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 						if (not targetObj:FaceTarget()) then
 							targetObj:FaceTarget();
-							self.message = "Face Target 5";
-							self.waitTimer = GetTimeEX() + 500;
+							self.waitTimer = GetTimeEX() + 0;
 						end
 					end
 				end

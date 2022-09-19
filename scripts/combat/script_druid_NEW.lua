@@ -44,14 +44,14 @@ function script_druid:setup()
 
 	-- sort forms redundant checkbox
 	if (localObj:HasBuff("Bear Form")) or (localObj:HasBuff("Dire Bear Form")) then
-		isBear = true;
-		isCat = false;
+		self.isBear = true;
+		self.isCat = false;
 	end
 
 	-- sort forms redundant checkbox
 	if localObj:HasBuff("Cat Form") then
-		isCat = true;
-		isBear = false;
+		self.isCat = true;
+		self.isBear = false;
 	end
 	
 	self.waitTimer = GetTimeEX();	
@@ -242,7 +242,7 @@ function script_druid:run(targetGUID)
 
 			-- stay in form
 			-- not in bear form and conditions right then stay in bear form
-			if (self.bear) and (not isBear) and (not localObj:HasBuff("Bear Form") or not localObj:HasBuff("Dire Bear Form")) and (localHealth >= self.healthToShift) then
+			if (self.bear) and (not self.isBear) and (not localObj:HasBuff("Bear Form") and not localObj:HasBuff("Dire Bear Form")) and (localHealth >= self.healthToShift) then
 				if (HasSpell("Dire Bear Form")) then
 					if (CastSpellByName("Dire Bear Form")) then
 						self.waitTimer = GetTimeEX() + 1500;
@@ -257,7 +257,7 @@ function script_druid:run(targetGUID)
 			end
 
 			-- faerie fire
-			if (isBear) then
+			if (self.isBear) then
 				if (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire")) then
 					if Cast("Faerie Fire (Feral)", targetObj) then
 						self.waitTimer = GetTimeEX() + 1500;
@@ -267,7 +267,7 @@ function script_druid:run(targetGUID)
 			end
 
 			-- Enrage
-			if (isBear) then
+			if (self.isBear) then
 				if (HasSpell("Enrage")) and (not IsSpellOnCD("Enrage")) then
 					if (CastSpellByName("Enrage")) then
 						return 0;
@@ -276,7 +276,7 @@ function script_druid:run(targetGUID)
 			end
 
 			-- Demoralizing Roar
-			if (isBear) then
+			if (self.isBear) then
 				if (HasSpell("Demoralizing Roar")) and (not targetObj:HasBuff("Demoralizing Roar")) and (localRage > 10) then
 					if (CastSpellByName("Demoralizing Roar")) then
 						return 0;
@@ -300,7 +300,7 @@ function script_druid:run(targetGUID)
 			------
 
 			-- faerie fire
-			if (isCat) then
+			if (self.isCat) then
 				if (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire")) then
 					if Cast("Faerie Fire (Feral)", targetObj) then
 						self.waitTimer = GetTimeEX() + 1500;
@@ -309,7 +309,7 @@ function script_druid:run(targetGUID)
 				end
 			end
 
-			if (isCat) then
+			if (self.isCat) then
 				if (HasSpell("Tiger's Fury")) and (not localObj:HasBuff("Tiger's Fury")) and (not IsSpellOnCD("Tiger's Fury")) and (localEnergy > 30) then
 					if (CastSpellByName("Tiger's Fury")) then
 						return 0;
@@ -362,7 +362,7 @@ function script_druid:run(targetGUID)
 			end
 
 			-- move into line of sight
-			if(targetObj:GetDistance() > 30 or not targetObj:IsInLineOfSight()) then
+			if (targetObj:GetDistance() > 30 or not targetObj:IsInLineOfSight()) then
 				return 3;
 			end
 
@@ -385,7 +385,7 @@ function script_druid:run(targetGUID)
 
 			-- heals in forms
 			-- Regrowth
-			if (HasSpell("Regrowth")) and (isBear) and (localHealth <= self.healHealthWhenShifted) and (localObj:HasBuff("Bear Form") or localObj:HasBuff("Dire Bear Form")) then
+			if (HasSpell("Regrowth")) and (self.isBear) and (localHealth <= self.healHealthWhenShifted) and (localObj:HasBuff("Bear Form") or localObj:HasBuff("Dire Bear Form")) then
 				if (localObj:HasBuff("Dire Bear Form")) then
 					if (CastSpellByName("Dire Bear Form") and not localObj:HasBuff("Dire Bear Form")) then
 						selfwaitTimer = GetTimeEX() + 1500;
@@ -758,66 +758,7 @@ function script_druid:window()
 		EndWindow();
 
 		if(NewWindow("Class Combat Options", 200, 200)) then
-			script_druid:menu();
+			script_druid:menuEX();
 		end
-	end
-end
-
-function script_druid:menu()
-
-	if (CollapsingHeader("Druid Form Options - Experimental!")) then
-		wasClicked, self.bear = Checkbox("Bear Form", self.bear);
-		SameLine();
-		wasClicked, self.cat = Checkbox("Cat Form", self.cat);
-	end
-
-	if (CollapsingHeader("Druid Combat Options")) then
-		local wasClicked = false;
-		Text('Combat options:');
-		
-		if (not self.pullWithMoonfire) then
-			wasClicked, self.pullWithWrath = Checkbox("Pull With Wrath On/Off - Bear and Cat form too!", self.pullWithWrath);
-			if (self.pullWithWrath) then
-				self.pullWithMoonfire = false;
-			end
-		end
-
-		if (not self.pullWithWrath) and (HasSpell("Moonfire")) then
-			wasClicked, self.pullWithMoonfire = Checkbox("Pull With Moonfire On/Off - Bear and Cat form too!", self.pullWithMoonfire);
-			if (self.pullWithMoonfire) then
-				self.pullWithWrath = false;
-			end
-		end
-
-		if (HasSpell("Entangling Roots")) then
-			wasClicked, self.useEntanglingRoots = Checkbox("Attempt to root after pull On/Off", self.useEntanglingRoots);
-		end
-		
-		wasClicked, self.stopIfMHBroken = Checkbox("Stop bot if main hand is broken (red)...", self.stopIfMHBroken);
-
-		Separator();
-			
-		Text("Melee Range to target");
-		self.meeleDistance = SliderFloat("Meele range", 1, 6, self.meeleDistance);
-	end
-
-	if (CollapsingHeader("Druid Self Heals - Combat Script")) then
-		Text('Rest options:');
-		self.eatHealth = SliderInt("Eat below HP%", 1, 100, self.eatHealth);
-		self.drinkMana = SliderInt("Drink below Mana%", 30, 100, self.drinkMana);
-		Text('You can add more food/drinks in script_helper.lua');
-
-		Separator();
-		if (HasSpell("Bear Form") or HasSpell("Cat Form") or HasSpell("Dire Bear Form")) then
-			self.healHealthWhenShifted = SliderInt("Shapeshift to heal HP%", 1, 99, self.healHealthWhenShifted);
-			Separator();
-		end
-
-		self.rejuvenationHealth = SliderInt("Rejuvenation below HP%", 1, 99, self.rejuvenationHealth);
-		self.rejuvenationMana = SliderInt("Rejuvenation above Mana %", 1, 99, self.rejuvenationMana);
-		self.regrowthHealth = SliderInt("Regrowth below HP%", 1, 99, self.regrowthHealth);
-		self.healingTouchHealth = SliderInt("Healing Touch HP%", 1, 99, self.healingTouchHealth);
-		self.potionHealth = SliderInt("Potion below HP%", 1, 99, self.potionHealth);
-		self.potionMana = SliderInt("Potion below Mana%", 1, 99, self.potionMana);
 	end
 end

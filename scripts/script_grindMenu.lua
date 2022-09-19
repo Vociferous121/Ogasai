@@ -130,7 +130,12 @@ function script_grindMenu:menu()
 	if (CollapsingHeader('Display Options')) then
 		local wasClicked = false;
 		wasClicked, script_grind.drawEnabled = Checkbox('Display Status Window', script_grind.drawEnabled);
-		wasClicked, script_grind.useExpChecker = Checkbox("Display Exp Tracker", script_grind.useExpChecker);
+		
+		if (GetLocalPlayer():GetLevel() < 60) then
+		
+			wasClicked, script_grind.useExpChecker = Checkbox("Display Exp Tracker", script_grind.useExpChecker);
+		end
+
 		wasClicked, script_grind.drawUnits = Checkbox("Display Unit Info On Screen", script_grind.drawUnits);
 		wasClicked, script_grind.drawAutoPath = Checkbox('Display Auto-Path Nodes', script_grind.drawAutoPath);
 		wasClicked, script_grind.drawPath = Checkbox('Display Move Path', script_grind.drawPath);

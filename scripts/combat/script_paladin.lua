@@ -186,14 +186,14 @@ function script_paladin:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		if (targetObj:IsInLineOfSight() and not IsMoving()) then
-			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-				if (not targetObj:FaceTarget()) then
-					targetObj:FaceTarget();
-					self.waitTimer = GetTimeEX() + 0;
-				end
-			end
-		end
+		--if (targetObj:IsInLineOfSight() and not IsMoving()) then
+		--	if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+		--		if (not targetObj:FaceTarget()) then
+		--			targetObj:FaceTarget();
+		--			self.waitTimer = GetTimeEX() + 0;
+		--		end
+		--	end
+		--end
 
 		-- Auto Attack
 		if (targetObj:GetDistance() < 40) then

@@ -40,7 +40,7 @@ function script_expChecker:targetLevels()
     restedKillsNeeded = math.floor(neededXP / (baseXP * 2));
 
         -- rested exp calculation per mob targeted
-    if (script_grind.enemyObj ~= 0) and (script_grind.enemyObj ~= nil) then
+    if (script_grind.enemyObj ~= 0) and (script_grind.enemyObj ~= nil) and (GetLocalPlayer():GetLevel() < 60) then
 
          -- bug in script trying to get targetObj when not having one "error can't find targetObj"
         targetObj = script_grind.enemyObj;
@@ -259,7 +259,7 @@ end
 
 function script_expChecker:menu()
 
-if (script_grind.useExpChecker) then
+if (script_grind.useExpChecker) and (GetLocalPlayer():GetLevel() < 60) then
 
     -- color
 	local r, g, b = 0, 0, 0;
