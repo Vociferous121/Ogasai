@@ -20,8 +20,6 @@ function script_expChecker:targetLevels()
 		local restR = 0;
 
 	end
-
-    local restP = "player";
     
     local restX = UnitXP("player");
     
@@ -281,9 +279,10 @@ if (script_grind.useExpChecker) then
 		local restR = 0;
 	end
 
-	local restP = "player";
 	local restX = UnitXP("player");
+
 	local restM = UnitXPMax("player");
+
 	local localLevel = GetLocalPlayer():GetLevel();
 
 	-- get rested exp bubbles
