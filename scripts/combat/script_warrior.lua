@@ -4,7 +4,7 @@ script_warrior = {
 	bloodRageHealth = 50, -- health to use bloodrage
 	potionHealth = 10, -- health to use potion
 	isSetup = false, -- setup check
-	meleeDistance = 4.2, -- melee distance
+	meleeDistance = 3.05, -- melee distance
 	throwOpener = false, -- use throw as opener
 	throwName = "Heavy Throwing Dagger", -- opener throw item name
 	waitTimer = 0, -- set wait time for script
@@ -53,6 +53,10 @@ function script_warrior:setup()
 	-- no more bugs first time we run the bot
 	self.waitTimer = GetTimeEX(); 
 	self.isSetup = true;
+	
+	if (GetLocalPlayer():GetLevel() < 10) then
+		self.battleStance = true;
+	end
 end
 
 function script_warrior:spellAttack(spellName, target) -- used in Core files to control casting
@@ -732,17 +736,25 @@ function script_warrior:run(targetGUID)	-- main content of script
 					end 
 				end
 
+				-- move heroic strike
+				if (localObj:IsCasting()) and (targetObj:GetDistance() > 6) then
+					script_nav:moveToTarget(localObj, targetObj);
+				end
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+				end
+
 				-- melee Skill: Heroic Strike if we got 15 rage battle stance
 				if (self.battleStance) then
 					if (localRage >= 15) then 
+						if (not targetObj:FaceTarget()) then
+							targetObj:FaceTarget();
+						end
 						if (targetObj:GetDistance() <= 6) then
-							if (Cast('Heroic Strike', targetObj)) then
-								if (self.faceTarget) then
-									targetObj:FaceTarget();
-								end
-							self.waitTimer = GetTimeEX() + 500;
+							CastSpellByName('Heroic Strike', targetObj);
+							targetObj:FaceTarget();
 							return 0;
-							end 
+						
 						end
 					end 
 				end
