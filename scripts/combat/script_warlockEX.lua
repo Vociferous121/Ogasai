@@ -137,7 +137,7 @@ function script_warlockEX:menu()
 		if (script_warlock.useVoid) and (script_warlock.hasSacrificeSpell) then
 			wasClicked, script_warlock.sacrificeVoid = Checkbox("Sacrifice Voidwalker when low script_warlock health", script_warlock.sacrificeVoid);
 			if (script_warlock.sacrificeVoid) then
-				Text("script_warlock Health OR Pet Health percent to Sacrifice Voidwalker")
+				Text("Self Health OR Pet Health percent to Sacrifice Voidwalker")
 				script_warlock.sacrificeVoidHealth = SliderInt("SVH", 1, 25, script_warlock.sacrificeVoidHealth);
 				Separator();
 			end
