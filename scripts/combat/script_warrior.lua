@@ -5,7 +5,7 @@ script_warrior = {
 	bloodRageHealth = 50, -- health to use bloodrage
 	potionHealth = 10, -- health to use potion
 	isSetup = false, -- setup check
-	meleeDistance = 3.05, -- melee distance
+	meleeDistance = 3.5, -- melee distance
 	throwOpener = false, -- use throw as opener
 	throwName = "Heavy Throwing Dagger", -- opener throw item name
 	waitTimer = 0, -- set wait time for script
@@ -222,15 +222,14 @@ function script_warrior:run(targetGUID)	-- main content of script
 			JumpOrAscendStart();
 		end
 
-		if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget) then
-			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-				if (not targetObj:FaceTarget()) then
-					targetObj:FaceTarget();
-					self.message = "Face Target 1";
-					self.waitTimer = GetTimeEX() + 500;
-				end
-			end
-		end
+	--	if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget) then
+	--		if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+	--			if (not targetObj:FaceTarget()) then
+	--				targetObj:FaceTarget();
+	--				self.waitTimer = GetTimeEX() + 0;
+	--			end
+	--		end
+	--	end
 		
 		-- Auto Attack
 		if (targetObj:GetDistance() <= 40) then
@@ -328,15 +327,14 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end
 			end	
 
-			if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-						self.message = "Face Target 1";
-						self.waitTimer = GetTimeEX() + 500;
-					end
-				end
-			end
+			--if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget) then
+			--	if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+			--		if (not targetObj:FaceTarget()) then
+			--			targetObj:FaceTarget();
+			--			self.waitTimer = GetTimeEX() + 0;
+			--		end
+			--	end
+			--end
 
 			-- Check move into melee range
 			if (targetObj:GetDistance() >= self.meleeDistance or not targetObj:IsInLineOfSight()) then
@@ -358,8 +356,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.message = "Face Target 1";
-						self.waitTimer = GetTimeEX() + 500;
+						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
@@ -380,8 +377,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.message = "Face Target 1";
-						self.waitTimer = GetTimeEX() + 500;
+						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
@@ -647,8 +643,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.message = "Face Target 1";
-						self.waitTimer = GetTimeEX() + 500;
+						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
