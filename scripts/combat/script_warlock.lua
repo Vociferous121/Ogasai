@@ -622,12 +622,10 @@ function script_warlock:run(targetGUID)
 
 			-- Dark Pact instead of lifetap in combat
 			if (HasSpell("Dark Pact")) and (localMana < 40) and (GetPet() ~= 0 or self.hasPet) and (self.useImp or self.useVoid or self.useSuccubus or self.useFelhunter) and (not IsLooting()) then
-				if (GetPet():GetManaPercentage() > 20) then
-					petObj = GetPet();
-					if (CastSpellByName("Dark Pact", petObj)) then
+				if (GetPet():GetManaPercentage() > 20) and (not IsSpellOnCD("Dark Pact")) then
+					if (CastAndWalk("Dark Pact", localObj)) then
 						self.message = "Casting Dark Pact instead of drinking!";
-						self.waitTimer = GetTimeEX() + 300;
-						return 0;
+						return;
 					end
 				end
 			end
@@ -939,9 +937,9 @@ function script_warlock:rest()
 	-- Dark Pact instead of drink
 	if (HasSpell("Dark Pact")) and (IsStanding()) and (localMana < 75) and (GetPet() ~= 0 or self.hasPet) and (self.useImp or self.useVoid or self.useSuccubus or self.useFelhunter) then
 		if (not IsSpellOnCD("Dark Pact")) and (GetPet():GetManaPercentage() > 20) and (IsStanding()) then
-			if (CastSpellByName("Dark Pact")) then
+			if (CastAndWalk("Dark Pact", localObj)) then
 				self.message = "Casting Dark Pact instead of drinking!";
-				return 0;
+				return;
 			end
 		end
 	end

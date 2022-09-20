@@ -123,6 +123,10 @@ function script_paranoia:checkParanoia()
 			-- sit when paranoid if enabled
 			if (self.sitParanoid) and (IsStanding()) and (not IsInCombat()) then
 				self.waitTimer = GetTimeEX() + 2500;
+				if (IsMoving()) then
+					StopMoving();
+					self.waitTimer = GetTimeEX() + 2000;
+				end
 				if (not script_grind:playersWithinRange(150)) then
 					SitOrStand();
 					self.waitTimer = GetTimeEX() + 1500;
@@ -153,7 +157,7 @@ function script_paranoia:menu()
 
 		-- turtle wow server bright campfire button on/off
 		if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) then
-			wasClicked, script_paranoia.useCampfire = Checkbox("Use Bright Campfire When Paranoid", script_paranoia.useCampfire);
+			wasClicked, script_paranoia.useCampfire = Checkbox("Use Bright Campfire No Rested EXP", script_paranoia.useCampfire);
 		end
 		
 		Separator();

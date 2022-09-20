@@ -40,40 +40,42 @@ function script_expChecker:targetLevels()
     -- total kills with rested exp
     restedKillsNeeded = math.floor(neededXP / (baseRestXP));
 
-	if (GetLocalPlayer():GetLevel() <= 7) then
+	-- get zero difference of target levels and player levels, used for exp calculation
+	local level = GetLocalPlayer():GetLevel();
+	if (level <= 7) then
 		zeroDiff =  5;
 
-	elseif (GetLocalPlayer():GetLevel() >= 8) and (GetLocalPlayer():GetLevel() <= 9) then
+	elseif (level >= 8) and (level <= 9) then
 		zeroDiff =  6;
 
-	elseif (GetLocalPlayer():GetLevel() >= 10) and (GetLocalPlayer():GetLevel() <= 11) then
+	elseif (level >= 10) and (level <= 11) then
 		zeroDiff =  7;
 
-	elseif (GetLocalPlayer():GetLevel() >= 12) and (GetLocalPlayer():GetLevel() <= 15) then
+	elseif (level >= 12) and (level <= 15) then
 		zeroDiff =  8;
 
-	elseif (GetLocalPlayer():GetLevel() >= 16) and (GetLocalPlayer():GetLevel() <= 19) then
+	elseif (level >= 16) and (level <= 19) then
 		zeroDiff =  9;
 
-	elseif (GetLocalPlayer():GetLevel() >= 20) and (GetLocalPlayer():GetLevel() <= 29) then
+	elseif (level >= 20) and (level <= 29) then
 		zeroDiff = 11;
 
-	elseif (GetLocalPlayer():GetLevel() >= 30) and (GetLocalPlayer():GetLevel() <= 39) then
+	elseif (level >= 30) and (level <= 39) then
 		zeroDiff = 12;
 
-	elseif (GetLocalPlayer():GetLevel() >= 40) and (GetLocalPlayer():GetLevel() <= 44) then
+	elseif (level >= 40) and (level <= 44) then
 		zeroDiff = 13;
 
-	elseif (GetLocalPlayer():GetLevel() >= 45) and (GetLocalPlayer():GetLevel() <= 49) then
+	elseif (level >= 45) and (level <= 49) then
 		zeroDiff = 14;
 
-	elseif (GetLocalPlayer():GetLevel() >= 50) and (GetLocalPlayer():GetLevel() <= 54) then
+	elseif (level >= 50) and (level <= 54) then
 		zeroDiff = 15;
 
-	elseif (GetLocalPlayer():GetLevel() >= 55) and (GetLocalPlayer():GetLevel() <= 59) then
+	elseif (level >= 55) and (level <= 59) then
 		zeroDiff = 16;
 
-	elseif (GetLocalPlayer():GetLevel() >= 60) then
+	elseif (level >= 60) then
 		zeroDiff = 17;
 	end
 
