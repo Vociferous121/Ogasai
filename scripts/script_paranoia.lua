@@ -5,7 +5,7 @@ script_paranoia = {
 	targetedLevel = GetLocalPlayer():GetLevel() + 1,	-- target level to stop bot when we level up.
 	deathCounterLogout = 3,	-- death counter until forced logout
 	deathCounterExit = true,	-- death counter until exit
-	sitParanoid = true,		-- sit paranoid true/false
+	sitParanoid = false,		-- sit paranoid true/false
 	paranoidOn = true,		-- paranoid on true/false
 	paranoidOnTargeted = true,	-- paranoid when targeted on/off
 	useCampfire = true,		-- use bright campfire when paranoid on/off
@@ -41,7 +41,7 @@ function script_paranoia:checkParanoia()
 	end
 
 	-- don't allow sitting when paranoia range is too low
-	if (script_grind.paranoidRange <= 149) then
+	if (script_grind.paranoidRange <= 200) then
 		self.sitParanoid = false;
 	end
 
@@ -122,6 +122,7 @@ function script_paranoia:checkParanoia()
 
 			-- sit when paranoid if enabled
 			if (self.sitParanoid) and (IsStanding()) and (not IsInCombat()) then
+				self.waitTimer = GetTimeEX() + 2500;
 				if (not script_grind:playersWithinRange(150)) then
 					SitOrStand();
 					self.waitTimer = GetTimeEX() + 1500;
@@ -143,7 +144,7 @@ function script_paranoia:menu()
 	if (script_paranoia.paranoidOn) then
 
 		-- hide and disable sit if paranoid range > x
-		if (script_grind.paranoidRange > 149) then
+		if (script_grind.paranoidRange > 199) then
 			wasClicked, script_paranoia.sitParanoid = Checkbox("Sit When Paranoid", script_paranoia.sitParanoid);
 		end
 
@@ -177,6 +178,8 @@ function script_paranoia:menu()
 		wasClicked, script_paranoia.exitBot = Checkbox("Exit Bot On Level Up", script_paranoia.exitBot);
 	
 	end
+
+	Separator();
 	
 	Text("Stop Bot On "..script_paranoia.deathCounterLogout.. " Deaths    "); 
 
