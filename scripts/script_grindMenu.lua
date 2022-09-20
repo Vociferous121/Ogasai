@@ -126,8 +126,14 @@ function script_grindMenu:menu()
 	end
 
 	script_gather:menu();
+		local wasClicked = false;
 
 	if (CollapsingHeader('Display Options')) then
+		if (CollapsingHeader("Radar - EXPERIMENTAL")) then
+		local wasClicked = false;
+				script_radar:menu()
+		end
+
 		local wasClicked = false;
 		wasClicked, script_grind.drawEnabled = Checkbox('Display Status Window', script_grind.drawEnabled);
 		
@@ -142,6 +148,4 @@ function script_grindMenu:menu()
 		wasClicked, script_grind.drawGather = Checkbox('Display Gather Nodes', script_grind.drawGather);
 		wasClicked, script_grind.drawAggro = Checkbox('Display Aggro Range', script_grind.drawAggro);
 	end
-
-	script_radar:menu()
 end

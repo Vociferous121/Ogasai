@@ -149,7 +149,7 @@ function script_radar:run()
 end
 
 function script_radar:menu()
-    if (CollapsingHeader("Radar - EXPERIMENTAL")) then
+  --  if (CollapsingHeader("Radar - EXPERIMENTAL")) then
         wasClicked, self.showRadar = Checkbox("Draw the radar", self.showRadar);
         Separator();
 
@@ -170,5 +170,5 @@ function script_radar:menu()
 	
 		Text("Size Of Radar");
         self.radarScale = SliderInt("Scaling factor", 0, 300, self.radarScale);
-    end
+   -- end
 end
