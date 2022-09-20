@@ -141,6 +141,24 @@ function script_expChecker:targetLevels()
                     self.messageRest = ""..lowXP.." needed rested kills at target level "..targetObj:GetLevel();
                 end
             end
+
+            -- lower level mobs rested EXP -6 level
+            if (GetLocalPlayer():GetLevel() - targetObj:GetLevel() == 6) then
+                local XP = math.floor((baseRestXP) * (1 - 6/zeroDiff));
+                if (XP > 1) then
+                    local lowXP = math.floor(neededXP / XP);
+                    self.messageRest = ""..lowXP.." needed rested kills at target level "..targetObj:GetLevel();
+                end
+            end
+            
+            -- lower level mobs rested EXP -7 level
+            if (GetLocalPlayer():GetLevel() - targetObj:GetLevel() == 7) then
+                local XP = math.floor((baseRestXP) * (1 - 7/zeroDiff));
+                if (XP > 1) then
+                    local lowXP = math.floor(neededXP / XP);
+                    self.messageRest = ""..lowXP.." needed rested kills at target level "..targetObj:GetLevel();
+                end
+            end
     
             -- higher level NPCs rested EXP
     
@@ -182,6 +200,24 @@ function script_expChecker:targetLevels()
 
             -- Higher level mobs rested EXP +5 Level
             if (GetLocalPlayer():GetLevel() - targetObj:GetLevel() == -5) then
+                local XP = math.floor(baseRestXP) * (1 + 0.05 * (targetObj:GetLevel() - GetLocalPlayer():GetLevel()));
+                if (XP > 1) then
+                    local highXP = math.floor(neededXP / XP);
+                    self.messageRest = ""..highXP.." needed rested kills at target level "..targetObj:GetLevel();
+                end
+            end
+
+            -- Higher level mobs rested EXP +6 Level
+            if (GetLocalPlayer():GetLevel() - targetObj:GetLevel() == -6) then
+                local XP = math.floor(baseRestXP) * (1 + 0.05 * (targetObj:GetLevel() - GetLocalPlayer():GetLevel()));
+                if (XP > 1) then
+                    local highXP = math.floor(neededXP / XP);
+                    self.messageRest = ""..highXP.." needed rested kills at target level "..targetObj:GetLevel();
+                end
+            end
+
+            -- Higher level mobs rested EXP +7 Level
+            if (GetLocalPlayer():GetLevel() - targetObj:GetLevel() == -7) then
                 local XP = math.floor(baseRestXP) * (1 + 0.05 * (targetObj:GetLevel() - GetLocalPlayer():GetLevel()));
                 if (XP > 1) then
                     local highXP = math.floor(neededXP / XP);
@@ -247,6 +283,23 @@ function script_expChecker:targetLevels()
                 end
             end
     
+             -- lower level mobs NO rested EXP -6 level
+             if (GetLocalPlayer():GetLevel() - targetObj:GetLevel() == 6) then
+                local XP = math.floor((baseXP) * (1 - 6/zeroDiff));
+                if (XP > 1) then
+                    local lowXP = math.floor(neededXP / XP);
+                    self.messageRest = ""..lowXP.." needed kills at target level "..targetObj:GetLevel();
+                end
+            end
+
+             -- lower level mobs NO rested EXP -7 level
+             if (GetLocalPlayer():GetLevel() - targetObj:GetLevel() == 7) then
+                local XP = math.floor((baseXP) * (1 - 7/zeroDiff));
+                if (XP > 1) then
+                    local lowXP = math.floor(neededXP / XP);
+                    self.messageRest = ""..lowXP.." needed kills at target level "..targetObj:GetLevel();
+                end
+            end
 			    -- higher level NPCs NO rested EXP
 
             -- Higher level mobs NO rested EXP +1 Level
@@ -287,6 +340,22 @@ function script_expChecker:targetLevels()
 
             -- Higher level mobs NO rested EXP +5 Level
             if (GetLocalPlayer():GetLevel() - targetObj:GetLevel() == -5) then
+                local XP = math.floor(baseXP) * (1 + 0.05 * (targetObj:GetLevel() - GetLocalPlayer():GetLevel()));
+                if (XP > 1) then
+                    local highXP = math.floor(neededXP / XP);
+                    self.messageRest = ""..highXP.." needed kills at target level "..targetObj:GetLevel();
+                end
+            end
+            -- Higher level mobs NO rested EXP +6 Level
+            if (GetLocalPlayer():GetLevel() - targetObj:GetLevel() == -6) then
+                local XP = math.floor(baseXP) * (1 + 0.05 * (targetObj:GetLevel() - GetLocalPlayer():GetLevel()));
+                if (XP > 1) then
+                    local highXP = math.floor(neededXP / XP);
+                    self.messageRest = ""..highXP.." needed kills at target level "..targetObj:GetLevel();
+                end
+            end
+            -- Higher level mobs NO rested EXP +7 Level
+            if (GetLocalPlayer():GetLevel() - targetObj:GetLevel() == -7) then
                 local XP = math.floor(baseXP) * (1 + 0.05 * (targetObj:GetLevel() - GetLocalPlayer():GetLevel()));
                 if (XP > 1) then
                     local highXP = math.floor(neededXP / XP);

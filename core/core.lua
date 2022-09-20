@@ -48,3 +48,13 @@ function CastWalk(spellName, target)
 		end
 	end
 end
+
+function CastAndWalk(spellName, target)
+	if (HasSpell(spellName)) then
+		if (not IsSpellOnCD(spellName)) then
+			if (not IsAutoCasting(spellName)) then
+				return target:CastSpell(spellName);
+			end
+		end
+	end
+end
