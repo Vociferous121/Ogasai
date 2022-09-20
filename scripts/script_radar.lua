@@ -5,7 +5,7 @@ script_radar = {
     radarOffsetY = 600,
     radiusOne = 60,
     radiusTwo = 150,
-    radarScale = 45,
+    radarScale = 35,
     showRadar = true,
     drawRadarFriendlyPlayer = true,
     drawRadarHostilePlayer = true,
@@ -52,7 +52,7 @@ function script_radar:drawUnitOnRadar(aUnit, unitType)
             elseif (aUnit:IsDead()) then -- dead hostile player
                 red = 64; green = 64; blue = 128;
             else -- hostile player
-                red = 192; green = 64; blue = 0;
+                red = 202; green = 120; blue = 167;
             end
             if (self.drawNavHostilePlayers) then
                 screenName = name;
@@ -135,7 +135,13 @@ function script_radar:Radar()
         local cX = self.radarOffsetX + self.radiusTwo * (self.radarScale / 100) * math.cos(i/(2*pi));
         local cY = self.radarOffsetY + self.radiusTwo * (self.radarScale / 100) * math.sin(i/(2*pi));
         DrawLine(cX, cY, cX+1, cY+1, 128, 128, 128, 1);
-		local r, g, b = 0, 0, 0;
+
+        -- max scale
+        local cX = self.radarOffsetX + 300 * (self.radarScale / 100) * math.cos(i/(2*pi));
+        local cY = self.radarOffsetY + 300 * (self.radarScale / 100) * math.sin(i/(2*pi));
+        DrawLine(cX, cY, cX+1, cY+1, 128, 128, 128, 1);
+		
+        local r, g, b = 0, 0, 0;
 		
 		DrawText('S', cx - 5 + (self.radarScale) / 100, cy - 10 + (self.radarScale), r+255, g+255, b+255);
 		
@@ -144,7 +150,6 @@ function script_radar:Radar()
 		DrawText('W', cx - (self.radarScale), cy - 5 + (self.radarScale) / 100, r+255, g+255, b+255);
 		
 		DrawText('E', cx - 10 + (self.radarScale), cy - 5 - (self.radarScale) / 100, r+255, g+255, b+255);
-
 	end
 
 end
