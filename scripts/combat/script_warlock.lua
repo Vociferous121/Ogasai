@@ -568,6 +568,14 @@ function script_warlock:run(targetGUID)
 				end 
 			end
 
+			-- death coil
+			if (HasSpell("Death Coil")) and (not IsSpellOnCD("Death Coil")) and (localHealth < 65) and (localMana > 20) then
+				if (CastSpellByName("Death Coil", targetObj)) then
+					self.waitTimer = GetTimeEC() + 1500;
+					return 0;
+				end
+			end
+
 			-- voidwalker taunt
 			if (GetPet() ~= 0) and (self.useVoid) and (not IsSpellOnCD("Suffering")) and (script_grind:enemiesAttackingUs(5) >= 2) and (self.hasSufferingSpell) then
 				if (CastSpellByName("Suffering")) then
@@ -612,7 +620,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Dark Pact instead of lifetap in combat
-			if (HasSpell("Dark Pact")) and (localMana < 40) and (GetPet() ~= 0 or self.hasPet) and (self.useImp or self.useVoid or self.useSuccubus or self.useFelhunter) then
+			if (HasSpell("Dark Pact")) and (localMana < 40) and (GetPet() ~= 0 or self.hasPet) and (self.useImp or self.useVoid or self.useSuccubus or self.useFelhunter) and (not IsLooting()) then
 				if (not IsSpellOnCD("Dark Pact")) and (GetPet():GetManaPercentage() > 20) then
 					if (CastSpellByName("Dark Pact")) then
 						self.message = "Casting Dark Pact instead of drinking!";

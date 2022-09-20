@@ -129,7 +129,7 @@ function script_grindMenu:menu()
 		local wasClicked = false;
 
 	if (CollapsingHeader('Display Options')) then
-		if (CollapsingHeader("Radar - EXPERIMENTAL")) then
+		if (CollapsingHeader("-- Radar - EXPERIMENTAL")) then
 		local wasClicked = false;
 				script_radar:menu()
 		end

@@ -706,17 +706,18 @@ function script_grind:doLoot(localObj)
 		if (IsMounted()) then DisMount(); self.waitTimer = GetTimeEX() + 450; return;  end
 
 		if(not self.lootObj:UnitInteract() and not IsLooting()) then
-			self.waitTimer = GetTimeEX() + 950;
+			self.waitTimer = GetTimeEX() + 1250;
 			return;
 		end
 		if (not LootTarget()) then
-			self.waitTimer = GetTimeEX() + 650;
+			self.waitTimer = GetTimeEX() + 950;
 			return;
 		else
 			self.lootObj = nil;
 			self.waitTimer = GetTimeEX() + 2250;
 			return;
 		end
+		self.waitTimer = GetTimeEX() + 1000;
 	end
 
 	-- Blacklist loot target if swimming or we are close to aggro blacklisted targets and not close to loot target

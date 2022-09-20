@@ -1,6 +1,6 @@
 script_expChecker = {
 
-messageRest = "Checking Exp...",
+	messageRest = "Waiting For Target...",
 
 }
 
@@ -292,7 +292,10 @@ function script_expChecker:targetLevels()
                 end
             end
         end
-    end
+	
+	else
+	self.messageRest = "Waiting For Target...";
+	end
 end
 
 function script_expChecker:menu()
@@ -325,7 +328,7 @@ if (script_grind.useExpChecker) and (GetLocalPlayer():GetLevel() < 60) then
 
 	-- get rested exp bubbles
 	if (GetXPExhaustion() ~= nil) then
-		local rest = math.floor(20*GetXPExhaustion()/UnitXPMax("player"));
+		local rest = math.ceil(20*GetXPExhaustion()/UnitXPMax("player"));
 	end
 
 	-- exp per kill - same level -- base exp at same level is 247 exp a kill
@@ -356,7 +359,7 @@ if (script_grind.useExpChecker) and (GetLocalPlayer():GetLevel() < 60) then
 
 	-- draw rested exp
 	if (GetXPExhaustion() ~= nil) and (script_grind.useExpChecker) then
-		DrawText('Rested Exp: '..math.floor(20*GetXPExhaustion()/UnitXPMax("player")).. ' bubbles - '..GetXPExhaustion()..' Exp', x-740, y+40, r+255, g+255, b+255);
+		DrawText('Rested Exp: '..math.ceil(20*GetXPExhaustion()/UnitXPMax("player")).. ' bubbles - '..GetXPExhaustion()..' Exp', x-740, y+40, r+255, g+255, b+255);
 	end
 
 	-- rest per kill messages
