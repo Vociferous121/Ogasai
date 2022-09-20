@@ -5,7 +5,7 @@ script_radar = {
     radarOffsetY = 600,
     radiusOne = 60,
     radiusTwo = 150,
-    radarScale = 40,
+    radarScale = 45,
     showRadar = true,
     drawRadarFriendlyPlayer = true,
     drawRadarHostilePlayer = true,
@@ -42,7 +42,7 @@ function script_radar:drawUnitOnRadar(aUnit, unitType)
             red = 64; green = 128; blue = 64;
         end   
     elseif (unitType == 4 and me:GetGUID() ~= aUnit:GetGUID()) then -- draw the player on radar
-        name = '' .. aUnit:GetUnitName() .. ' (' .. aUnit:GetLevel() .. ')';
+        name = ' ' .. aUnit:GetUnitName() .. ' ('.. aUnit:GetLevel() .. ')';
         unitTarget = aUnit:GetUnitsTarget();
         local unitIsHostilePlayer = false;
         if (aUnit:CanAttack()) then -- player is hostile
@@ -79,8 +79,11 @@ function script_radar:drawUnitOnRadar(aUnit, unitType)
     
     if (radarName ~= '') then -- draw the recognised unit on radar
         -- Transform the game coordinates to 2D pixel coords.
+
         local cX, cY, __ = aUnit:GetPosition();
-        local centerX, centerY, __ = me:GetPosition();     
+
+        local centerX, centerY, __ = me:GetPosition(); 
+    
         -- X and Y coordinates are swapped dunno why
         local unitOffsetX = (centerY - cY) * (self.radarScale / 100);
         local unitOffsetY = (centerX - cX) * (self.radarScale / 100);
@@ -91,7 +94,7 @@ function script_radar:drawUnitOnRadar(aUnit, unitType)
         DrawLine(uX - cross, uY + cross, uX + cross, uY - cross, red, green, blue, 1);
         local distance = math.floor(aUnit:GetDistance());
         DrawText('' .. radarName, uX + 5, uY, red, green, blue);
-        -- DrawText('  (' .. distance .. ' yd)', uX, uY + 10, red, green, blue);
+        DrawText('  (' .. distance .. ' yd)', uX, uY + 10, red, green, blue);
     end
 
     if (screenName ~= '') then -- draw the recognised unit on screen (script_nav style)
@@ -133,9 +136,14 @@ function script_radar:Radar()
         local cY = self.radarOffsetY + self.radiusTwo * (self.radarScale / 100) * math.sin(i/(2*pi));
         DrawLine(cX, cY, cX+1, cY+1, 128, 128, 128, 1);
 		local r, g, b = 0, 0, 0;
-		DrawText('S', cx + (self.radarScale) / 100, cy + (self.radarScale), r+255, g+255, b+255);
+		
+		DrawText('S', cx - 5 + (self.radarScale) / 100, cy - 10 + (self.radarScale), r+255, g+255, b+255);
+		
+		DrawText('N', cx - 2 - (self.radarScale) / 100, cy - 3 - (self.radarScale), r+255, g+255, b+255);
+
 		DrawText('W', cx - (self.radarScale), cy - 5 + (self.radarScale) / 100, r+255, g+255, b+255);
-		DrawText('E', cx - 5 + (self.radarScale), cy - (self.radarScale) / 100, r+255, g+255, b+255);
+		
+		DrawText('E', cx - 10 + (self.radarScale), cy - 5 - (self.radarScale) / 100, r+255, g+255, b+255);
 
 	end
 
