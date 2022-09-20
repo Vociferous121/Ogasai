@@ -14,6 +14,7 @@ script_rotation = {
 	radarLoaded = include("scripts\\script_radar.lua"),
 	survivalprof = include("scripts\\script_survivalProf.lua"),
 	firstAid = include("scripts\\script_firstAid.lua"),
+	radarLoaded = include("scripts\\script_radar.lua"),
 	drawEnabled = false,
 	drawAggro = false,
 	drawGather = false,
@@ -53,7 +54,7 @@ function script_rotation:run()
 	script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*2);
 
 	if (self.pause) then 
-		--self.message = "Paused by user..."; 
+		self.message = "Paused by user..."; 
 		return; 
 	end
 	
@@ -273,6 +274,10 @@ function script_rotation:draw()
 
 	script_rotation:window();
 
+	if (script_radar.showRadar) then
+		script_radar:draw()
+	end
+
 	if (self.drawAggro) then 
 		script_aggro:drawAggroCircles(self.aggroRangeTank); 
 	end
@@ -423,9 +428,11 @@ function script_rotation:menu()
 		end
 
 		if (HasSpell("First Aid")) then
+			Text("IN PROGRESS");
 			wasClicked, script_firstAid.showFirstAid = Checkbox("Show First Aid Skill", script_firstAid.showFirstAid);
 		end
 		if (script_firstAid.showFirstAid) then
 			script_firstAid:Menu();
 		end
+		script_radar:menu();
 end

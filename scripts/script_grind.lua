@@ -52,6 +52,7 @@ script_grind = {
 	expExtra = include("scripts\\script_expChecker.lua"),
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
 	paranoiaLoaded = include("scripts\\script_unstuck.lua"),
+	radarLoaded = include("scripts\\script_radar.lua"),
 	nextToNodeDist = 3.5, -- (Set to about half your nav smoothness)
 	blacklistedTargets = {},
 	blacklistedNum = 0,
@@ -175,6 +176,10 @@ end
 
 function script_grind:run()
 	script_grind:window();
+	
+	if (script_radar.showRadar) then
+		script_radar:draw()
+	end
 
 	 -- Set next to node distance and nav-mesh smoothness to double that number
 	if (self.useMount and IsMounted()) then

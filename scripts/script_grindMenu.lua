@@ -141,5 +141,7 @@ function script_grindMenu:menu()
 		wasClicked, script_grind.drawPath = Checkbox('Display Move Path', script_grind.drawPath);
 		wasClicked, script_grind.drawGather = Checkbox('Display Gather Nodes', script_grind.drawGather);
 		wasClicked, script_grind.drawAggro = Checkbox('Display Aggro Range', script_grind.drawAggro);
-		end
+	end
+
+	script_radar:menu()
 end

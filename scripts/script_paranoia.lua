@@ -43,10 +43,6 @@ function script_paranoia:checkParanoia()
 	-- don't allow sitting when paranoia range is too low
 	if (script_grind.paranoidRange <= 149) then
 		self.sitParanoid = false;
-
-	elseif (script_grind.paranoidRange >= 150) then
-
- 		self.sitParanoid = true;
 	end
 
 	-- if paranoid turned on then do....
@@ -59,7 +55,7 @@ function script_paranoia:checkParanoia()
 				StopMoving();
 			end
 			self.waitTimer = GetTimeEX() + 5000;
-			return;
+			return true;
 		end
 
 		-- if targeted by other players
@@ -160,7 +156,7 @@ function script_paranoia:menu()
 		Text('Paranoia Range');
 	
 		-- main paranoia range
-		script_grind.paranoidRange = SliderInt("P (yd)", 50, 300, script_grind.paranoidRange);
+		script_grind.paranoidRange = SliderInt("P (yd)", 1, 300, script_grind.paranoidRange);
 	end
 
 	Separator();

@@ -1,17 +1,17 @@
 script_radar = {
     timer = 0,
     tickRate = 100,
-    radarOffsetX = 230,
-    radarOffsetY = 365,
-    radiusOne = 0,
-    radiusTwo = 0,
-    radarScale = 150;
+    radarOffsetX = 800,
+    radarOffsetY = 420,
+    radiusOne = 60,
+    radiusTwo = 150,
+    radarScale = 50;
     showRadar = true,
     drawRadarFriendlyPlayer = true,
     drawRadarHostilePlayer = true,
-    drawRadarMob = true,
-    drawNavFriendlyPlayers = true,
-    drawNavHostilePlayers = true,
+    drawRadarMob = false,
+    drawNavFriendlyPlayers = false,
+    drawNavHostilePlayers = false,
     drawNavMonsters = false
 }
 
@@ -28,7 +28,7 @@ function script_radar:drawUnitOnRadar(aUnit, unitType)
     local me = GetLocalPlayer();
     local myTarget = GetTarget(); 
 
-    if (unitType == 3 and  aUnit:CanAttack() and not aUnit:IsCritter()) then -- draw the mob on radar
+    if (unitType == 3 and aUnit:CanAttack() and not aUnit:IsCritter()) then -- draw the mob on radar
         name = '' .. aUnit:GetCreatureType() .. ' (' .. aUnit:GetLevel() .. ')';
         if (self.drawNavMonsters) then 
             screenName = name;
@@ -122,6 +122,7 @@ function script_radar:Radar()
     local cx = self.radarOffsetX;
     local cy = self.radarOffsetY;
     local cross = 3;
+
     DrawLine(cx - cross, cy - cross, cx + cross, cy + cross, 192, 64, 192, 1);
     DrawLine(cx - cross, cy + cross, cx + cross, cy - cross, 192, 64, 192, 1);
     for i= 1, 360 do
@@ -131,7 +132,12 @@ function script_radar:Radar()
         local cX = self.radarOffsetX + self.radiusTwo * (self.radarScale / 100) * math.cos(i/(2*pi));
         local cY = self.radarOffsetY + self.radiusTwo * (self.radarScale / 100) * math.sin(i/(2*pi));
         DrawLine(cX, cY, cX+1, cY+1, 128, 128, 128, 1);
-    end
+		local r, g, b = 0, 0, 0;
+		DrawText('S', cx + (self.radarScale) / 100, cy + (self.radarScale), r+255, g+255, b+255);
+		DrawText('W', cx - (self.radarScale), cy - 5 + (self.radarScale) / 100, r+255, g+255, b+255);
+		DrawText('E', cx - 5 + (self.radarScale), cy - (self.radarScale) / 100, r+255, g+255, b+255);
+
+	end
 
 end
 
@@ -143,20 +149,26 @@ function script_radar:run()
 end
 
 function script_radar:menu()
-    if (CollapsingHeader("[Radar")) then
+    if (CollapsingHeader("Radar - EXPERIMENTAL")) then
         wasClicked, self.showRadar = Checkbox("Draw the radar", self.showRadar);
         Separator();
-        wasClicked, self.drawRadarFriendlyPlayer = Checkbox("Draw friendly players on radar", self.drawRadarFriendlyPlayer);
-        wasClicked, self.drawRadarHostilePlayer = Checkbox("Draw hostile players on radar", self.drawRadarHostilePlayer);
-        wasClicked, self.drawRadarMob = Checkbox("Draw mob on radar", self.drawRadarMob);
+
+        wasClicked, self.drawRadarFriendlyPlayer = Checkbox("Draw Friendly Players On Radar", self.drawRadarFriendlyPlayer);
+        wasClicked, self.drawRadarHostilePlayer = Checkbox("Draw Hostile Players On Radar", self.drawRadarHostilePlayer);
+        wasClicked, self.drawRadarMob = Checkbox("Draw Mobs On Radar", self.drawRadarMob);
         Separator();
-        wasClicked, self.drawNavFriendlyPlayers = Checkbox("Draw friendly players script_nav style", self.drawNavFriendlyPlayers);
-        wasClicked, self.drawNavHostilePlayers = Checkbox("Draw hostile players script_nav style", self.drawNavHostilePlayers);
-        wasClicked, self.drawNavMonsters = Checkbox("Draw monsters script_nav style", self.drawNavMonsters);
+       -- wasClicked, self.drawNavFriendlyPlayers = Checkbox("Draw Friendly Players Unit Info style", self.drawNavFriendlyPlayers);
+        --wasClicked, self.drawNavHostilePlayers = Checkbox("Draw hostile players script_nav style", self.drawNavHostilePlayers);
+        --wasClicked, self.drawNavMonsters = Checkbox("Draw monsters script_nav style", self.drawNavMonsters);
         self.radarOffsetX = SliderInt("radarOffsetX", 1, 1920, self.radarOffsetX);
         self.radarOffsetY = SliderInt("radarOffsetY", 1, 1080, self.radarOffsetY);
-        self.radiusOne = SliderInt("radius #1", 1, 300, self.radiusOne);
-        self.radiusTwo = SliderInt("radius #2", 1, 300, self.radiusTwo);
+		
+		Text("Use Radius One and Two to track distances easily.");
+		Text("Distance in Yards (yds)");
+		self.radiusOne = SliderInt("radius #1", 1, 300, self.radiusOne);
+		self.radiusTwo = SliderInt("radius #2", 1, 300, self.radiusTwo);
+	
+		Text("Size Of Radar");
         self.radarScale = SliderInt("Scaling factor", 0, 300, self.radarScale);
     end
 end
