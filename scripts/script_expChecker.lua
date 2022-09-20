@@ -359,7 +359,7 @@ if (script_grind.useExpChecker) and (GetLocalPlayer():GetLevel() < 60) then
 
 	-- draw rested exp
 	if (GetXPExhaustion() ~= nil) and (script_grind.useExpChecker) then
-		DrawText('Rested Exp: '..math.ceil(20*GetXPExhaustion()/UnitXPMax("player")).. ' bubbles - '..GetXPExhaustion()..' Exp', x-740, y+40, r+255, g+255, b+255);
+		DrawText('Rested Exp: '..GetXPExhaustion()..' - '..math.ceil(20*GetXPExhaustion()/UnitXPMax("player")).. ' bubbles' , x-740, y+40, r+255, g+255, b+255);
 	end
 
 	-- rest per kill messages

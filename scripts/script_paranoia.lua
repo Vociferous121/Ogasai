@@ -45,8 +45,7 @@ function script_paranoia:checkParanoia()
 		self.sitParanoid = false;
 	end
 
-	-- if paranoid turned on then do....
-		-- paranoid on
+	-- players targeting us
 	if (not localObj:IsDead() and self.paranoidOn and not IsInCombat()) then 
 		if (self.paranoidOnTargeted and script_grind:playersTargetingUs() > 0) then
 			script_grind.message = "Player(s) targeting us, pausing...";
@@ -54,11 +53,14 @@ function script_paranoia:checkParanoia()
 			if IsMoving() then
 				StopMoving();
 			end
-			self.waitTimer = GetTimeEX() + 5000;
+			self.waitTimer = GetTimeEX() + 8000;
 			return true;
 		end
 
-		-- if targeted by other players
+
+		-- if paranoid turned on then do....
+
+		-- if players in range
 		if (script_grind:playersWithinRange(script_grind.paranoidRange)) then
 			script_grind.message = "Player(s) within paranoid range, pausing...";
 			ClearTarget();
@@ -120,8 +122,10 @@ function script_paranoia:checkParanoia()
 
 			-- sit when paranoid if enabled
 			if (self.sitParanoid) and (IsStanding()) and (not IsInCombat()) then
-				SitOrStand();
-				self.waitTimer = GetTimeEX() + 1500;
+				if (not script_grind:playersWithinRange(150)) then
+					SitOrStand();
+					self.waitTimer = GetTimeEX() + 1500;
+				end
 			end
 		return true;
 		end

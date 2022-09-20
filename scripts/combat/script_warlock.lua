@@ -350,6 +350,7 @@ function script_warlock:run(targetGUID)
 				return 0;
 			end
 		end
+
 		-- Check: if we target player pets/totems
 		if (GetTarget() ~= nil and targetObj ~= nil) then
 			if (UnitPlayerControlled("target") and GetTarget() ~= localObj) then 
@@ -373,7 +374,7 @@ function script_warlock:run(targetGUID)
 			-- nav move to target causing crashes on follower
 		-- move to cancel Drain Life when we get Nightfall buff
 		if (GetNumPartyMembers() < 1) then
-			if (GetTarget() ~= 0 and self.hasPet) and (HasSpell("Drain Life") )then	
+			if (GetTarget() ~= 0 and self.hasPet) and (HasSpell("Drain Life")) then	
 				if (GetTarget():HasDebuff("Drain Life") and localObj:HasBuff("Shadow Trance")) then
 				local _x, _y, _z = localObj:GetPosition();
 					script_nav:moveToTarget(localObj, _x + 1, _y, _z); 
@@ -416,7 +417,7 @@ function script_warlock:run(targetGUID)
 
 			-- new follow target
 			if (targetObj:IsInLineOfSight() and not IsMoving()) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) and (targetObj:GetHealthPercentage() < 99) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 0;
@@ -497,7 +498,7 @@ function script_warlock:run(targetGUID)
 			end
 	
 			if (targetObj:IsInLineOfSight() and not IsMoving()) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) and (targetObj:GetHealthPercentage() < 99) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 0;
@@ -622,8 +623,9 @@ function script_warlock:run(targetGUID)
 			-- Dark Pact instead of lifetap in combat
 			if (HasSpell("Dark Pact")) and (localMana < 40) and (GetPet() ~= 0 or self.hasPet) and (self.useImp or self.useVoid or self.useSuccubus or self.useFelhunter) and (not IsLooting()) then
 				if (not IsSpellOnCD("Dark Pact")) and (GetPet():GetManaPercentage() > 20) then
-					if (CastSpellByName("Dark Pact")) then
+					if (CastSpellByName("Dark Pact", localObj)) then
 						self.message = "Casting Dark Pact instead of drinking!";
+						self.waitTimer = GetTimeEX() + 300;
 						return 0;
 					end
 				end
@@ -943,7 +945,7 @@ function script_warlock:rest()
 		end
 	end
 
-	-- drink or eat 
+	-- Stop moving before we can rest
 	if(localMana < self.drinkMana or localHealth < self.eatHealth) and (not IsSwimming()) then
 		self.waitTimer = GetTimeEX() + 2000;
 		if (IsMoving()) then
@@ -971,11 +973,13 @@ function script_warlock:rest()
 		self.waitTimer = GetTimeEX() + 2000;
 		if (IsMoving()) then
 			StopMoving();
+			self.waitTimer = GetTimeEX() + 2000;
 			return true;
 		end
 
 		if (script_helper:drinkWater()) then 
 			self.message = "Drinking..."; 
+			self.waitTimer = GetTimeEX() + 2000;
 			return true; 
 		else 
 			self.message = "No drinks! (or drink not included in script_helper)";
@@ -992,6 +996,7 @@ function script_warlock:rest()
 		
 		if (script_helper:eat()) then 
 			self.message = "Eating..."; 
+			self.waitTimer = GetTimeEX() + 2000;
 			return true; 
 		else 
 			self.message = "No food! (or food not included in script_helper)";
@@ -1001,6 +1006,7 @@ function script_warlock:rest()
 
 	if (localMana < 98 and IsDrinking()) or (localHealth < 98 and IsEating()) then
 		self.message = "Resting to full hp/mana...";
+		self.waitTimer = GetTimeEX() + 2000;
 		return true;
 	end
 
@@ -1020,66 +1026,66 @@ function script_warlock:rest()
 	end
 	
 	-- Check: Summon our Demon if we are not in combat
-	if (not IsEating()) and (not IsDrinking()) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (HasSpell("Summon Imp")) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
+	if (not IsEating()) and (not self.hasPet) and (not IsDrinking()) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (HasSpell("Summon Imp")) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
 		-- succubus	
-		if (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (self.useSuccubus) and (HasSpell("Summon Succubus")) and HasItem('Soul Shard') then
+		if (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) and (self.useSuccubus) and (HasSpell("Summon Succubus")) and HasItem('Soul Shard') then
 			if (not IsStanding() or IsMoving()) then 
 				StopMoving();
 			end
 			-- summon succubus
-			if (localMana > 35) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) then
+			if (localMana > 35) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
 				if (not IsStanding() or IsMoving()) then
 					StopMoving();
 				end
-				if (CastSpellByName("Summon Succubus")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) then
+				if (CastSpellByName("Summon Succubus")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Succubus";
 					self.hasPet = true;
 					return 0; 
 				end
 			end
-		elseif (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (self.useVoid) and (HasSpell("Summon Voidwalker")) and (HasItem('Soul Shard')) then
+		elseif (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (self.useVoid) and (HasSpell("Summon Voidwalker")) and (HasItem('Soul Shard')) and (not self.hasPet) then
 			if (not IsStanding() or IsMoving()) then 
 				StopMoving();
 			end
 			-- summon voidwalker
-			if (localMana > 35) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) then
+			if (localMana > 35) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
 				if (not IsStanding() or IsMoving()) then
 					StopMoving();
 				end
-				if (CastSpellByName("Summon Voidwalker")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) then
+				if (CastSpellByName("Summon Voidwalker")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Void Walker";
 					self.hasPet = true;
 					return 0; 
 				end
 			end
-		elseif (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (self.useFelhunter) and (HasSpell("Summon Felhunter")) and (HasItem('Soul Shard')) then
+		elseif (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (self.useFelhunter) and (HasSpell("Summon Felhunter")) and (HasItem('Soul Shard')) and (not self.hasPet) then
 			if (not IsStanding() or IsMoving()) then 
 				StopMoving();
 			end
 			-- summon Felhunter
-			if (localMana > 35) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) then
+			if (localMana > 35) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
 				if (not IsStanding() or IsMoving()) then
 					StopMoving();
 				end
-				if (CastSpellByName("Summon Felhunter")) and (GetPet == 0) then
+				if (CastSpellByName("Summon Felhunter")) and (GetPet == 0) and (not self.hasPet) then
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Felhunter";
 					hasPet = true;
 					return 0; 
 				end
 			end
-		elseif (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (HasSpell("Summon Imp")) and (self.useImp) and (not IsChanneling()) then
+		elseif (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (HasSpell("Summon Imp")) and (self.useImp) and (not IsChanneling()) and (not self.hasPet) then
 			if (not IsStanding() or IsMoving()) then
 				StopMoving();
 			end
 			-- summon Imp
-			if (localMana > 35) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) then
+			if (localMana > 35) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
 				if (not IsStanding() or IsMoving()) then
 					StopMoving();
 				end
-				if (CastSpellByName("Summon Imp")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) then
+				if (CastSpellByName("Summon Imp")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
 					self.waitTimer = GetTimeEX() + 14000;
 					self.message = "Summoning Imp";
 					self.hasPet = true;
