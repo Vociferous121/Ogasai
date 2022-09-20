@@ -361,7 +361,7 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 	local _ix, _iy, _iz = GetPathPositionAtIndex(5, self.lastpathnavIndex);
 			
 	-- If we have a new destination, generate a new path to it
-	if (not script_grind.gather) and (not localObj:IsDead()) then
+	if (not script_grind.gather) and (not localObj:IsDead()) and (not IsPathLoaded(0)) then
 		if(self.navPathPosition['x'] ~= _x or self.navPathPosition['y'] ~= _y or self.navPathPosition['z'] ~= _z
 			or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 15) then
 			self.navPathPosition['x'] = _x;
@@ -370,9 +370,9 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 			GeneratePath(_lx, _ly, _lz, _x, _y, _z);
 			self.lastpathnavIndex = -1; 
 		end	
-	elseif (script_grind.gather) or (localObj:IsDead()) then
+	elseif (script_grind.gather) or (localObj:IsDead()) or (not IsPathLoaded(0)) then
 		if(self.navPathPosition['x'] ~= _x or self.navPathPosition['y'] ~= _y or self.navPathPosition['z'] ~= _z
-			or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 20) then
+			or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
 			self.navPathPosition['x'] = _x;
 			self.navPathPosition['y'] = _y;
 			self.navPathPosition['z'] = _z;
@@ -458,14 +458,17 @@ function script_nav:navigate(localObj)
 	if (not IsUsingNavmesh() and self.useNavMesh) then
 		return "Please load the nav mesh...";
 	end
-	
+
 	if(IsPathLoaded(0)) then
 		local pathSize = GetPathSize(0); -- walkPath = 0
 		local _lx, _ly, _lz = localObj:GetPosition();
+		self.nextNavNodeDistance = 5;
+		self.nextPathNodeDistance = 5;
+		self.lastPathIndex = -1;
 
 		-- At start get the closest walk path node
-		if(self.lastPathIndex == 0) then
-			self.lastPathIndex = script_nav:findClosestPathNode(localObj, -5, 0, 5);
+		if(self.lastPathIndex == -1) then
+			self.lastPathIndex = script_nav:findClosestPathNode(localObj, -1, 0, 5);
 		end
 
 		local _x, _y, _z = GetPathPositionAtIndex(0, self.lastPathIndex);
