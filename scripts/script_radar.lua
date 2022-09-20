@@ -5,14 +5,14 @@ script_radar = {
     radarOffsetY = 420,
     radiusOne = 60,
     radiusTwo = 150,
-    radarScale = 30;
+    radarScale = 30,
     showRadar = true,
     drawRadarFriendlyPlayer = true,
     drawRadarHostilePlayer = true,
     drawRadarMob = false,
     drawNavFriendlyPlayers = false,
     drawNavHostilePlayers = false,
-    drawNavMonsters = false
+    drawNavMonsters = false,
 }
 
 function script_radar:draw()    
