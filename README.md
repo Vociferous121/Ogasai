@@ -1,6 +1,24 @@
-                                     Ogasai Scripts - Updates to Logitechs original work
+ # oGasai Scripts for WoW Classic
+
+Bot made by DarkLinux @ OwnedCore
+
+https://www.ownedcore.com/forums/world-of-warcraft/world-of-warcraft-emulator-servers/wow-emu-programs/600785-ogasai-d-j-vu-wow-1-12-1-vanilla-bot.html
+
+Scripts in this repository by Logitech2k17 @ OwnedCore
+
+Requirements
+- Nav Mesh Map Files : https://mega.nz/#!g0U2xI4a!aoJICAY34DLvMnWPqgIqygDWIy_91tuoyXz4J3rg9dM
+- Visual C++ Redistributable for Visual Studio 2015 : https://www.microsoft.com/en-us/download/details.aspx?id=48145
+- DirectX End-User Runtime : https://www.microsoft.com/en-us/download/details.aspx?id=35
+
+
+
+
+
+
+                                  Ogasai Scripts - Updates to Logitechs original work
                                      
-                                     please turn on auto-self cast in the interface menu
+                                  please turn on auto-self cast in the interface menu
 
 ## Core files have been changed! For these to work properly you must download the entire script and core folder. You can make a backup of your old ones!
 
@@ -38,22 +56,4 @@
      
      
      current scripts are optimized for Twow
-     
-     
-     
-     
-     
-     
-     
- # oGasai Scripts for WoW Classic
-
-Bot made by DarkLinux @ OwnedCore
-
-https://www.ownedcore.com/forums/world-of-warcraft/world-of-warcraft-emulator-servers/wow-emu-programs/600785-ogasai-d-j-vu-wow-1-12-1-vanilla-bot.html
-
-Scripts in this repository by Logitech2k17 @ OwnedCore
-
-Requirements
-- Nav Mesh Map Files : https://mega.nz/#!g0U2xI4a!aoJICAY34DLvMnWPqgIqygDWIy_91tuoyXz4J3rg9dM
-- Visual C++ Redistributable for Visual Studio 2015 : https://www.microsoft.com/en-us/download/details.aspx?id=48145
-- DirectX End-User Runtime : https://www.microsoft.com/en-us/download/details.aspx?id=35
+ 
