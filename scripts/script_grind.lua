@@ -632,6 +632,7 @@ function script_grind:drawStatus()
 
 	-- info
 	if (not self.pause) then
+
 	DrawRect(x - 10, y - 7, x + width, y + 140, 255, 255, 0, 10, 77, 0);
 	DrawRectFilled(x - 10, y - 7, x + width, y + 140, 0, 0, 0, 80, 10, 77);
 	DrawText('Grinder - Pull range: ' .. math.floor(self.pullDistance) .. ' yd. ' .. 

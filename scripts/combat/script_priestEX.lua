@@ -18,7 +18,7 @@ function script_priestEX:menu()
 			-- MIND BLAST
 			-- hide spell if not obtained yet
 			if (HasSpell("Mind Blast")) then
-				Text('Mind Blast above script_priest mana percent');
+				Text('Mind Blast above Self mana percent');
 				script_priest.mindBlastMana = SliderInt("MBM%", 10, 100, script_priest.mindBlastMana);
 			end
 
@@ -27,7 +27,7 @@ function script_priestEX:menu()
 			-- SHADOW WORD PAIN
 			-- hide spell if not obtained yet
 			if (HasSpell("Shadow Word: Pain")) then
-				Text("Shadow Word: Pain above script_priest mana percent");
+				Text("Shadow Word: Pain above Self mana percent");
 				script_priest.swpMana = SliderInt("SPM", 10, 100, script_priest.swpMana)
 			end
 
@@ -38,7 +38,7 @@ function script_priestEX:menu()
 			if (script_priest.useMindFlay) then
 				Text("Use Mind Flay above target health percent")
 				script_priest.mindFlayHealth = SliderInt("MFH", 1, 100, script_priest.mindFlayHealth);
-				Text("Use Mind Flay above script_priest mana percent");
+				Text("Use Mind Flay above Self mana percent");
 				script_priest.mindFlayMana = SliderInt("MFM", 1, 100, script_priest.mindFlayMana);
 			end	
 
@@ -91,7 +91,7 @@ function script_priestEX:menu()
 						Text('Wand options:');
 						wasClicked, script_priest.useWand = Checkbox("Use Wand", script_priest.useWand);
 						
-						Text('Wand below script_priest mana percent');
+						Text('Wand below Self mana percent');
 						script_priest.useWandMana = SliderInt("WM%", 10, 100, script_priest.useWandMana);
 
 						Text('Wand below target HP percent');
@@ -115,7 +115,7 @@ function script_priestEX:menu()
 
 			Separator();
 
-			Text('script_priest Heals');
+			Text('Self Heals');
 
 			-- if level >= 20 then hide lesser heal
 			if (GetLocalPlayer():GetLevel() <= 20) then

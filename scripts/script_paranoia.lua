@@ -9,7 +9,6 @@ script_paranoia = {
 	paranoidOn = true,		-- paranoid on true/false
 	paranoidOnTargeted = true,	-- paranoid when targeted on/off
 	useCampfire = true,		-- use bright campfire when paranoid on/off
-
 }
 
 
@@ -18,7 +17,7 @@ function script_paranoia:checkParanoia()
 	-- Check: Paranoid feature
 
 	localObj = GetLocalPlayer();
-    		
+
 	-- logout if death counter reached
 	if (script_grindEX.deathCounter >= 1) and (script_grindEX.deathCounter >= script_paranoia.deathCounterLogout) then
 		StopBot();
@@ -31,12 +30,13 @@ function script_paranoia:checkParanoia()
 	-- logout if level reached
 	if (script_paranoia.stopOnLevel) then
 			selfLevel = GetLocalPlayer():GetLevel();
-		if (selfLevel >= self.targetedLevel) then
+		if (selfLevel >= self.targetedLevel) and (not IsInCombat()) then
 			StopBot();
 			self.targetedLevel = self.targetedLevel + 1;
 			if (self.exitBot) then
 				Exit();
 			end
+			return;
 		end
 	end
 
@@ -196,5 +196,4 @@ function script_paranoia:menu()
 	script_paranoia.deathCounterLogout = SliderInt("Deaths", 1, 5, script_paranoia.deathCounterLogout);
 		
 	Separator();
-
 end

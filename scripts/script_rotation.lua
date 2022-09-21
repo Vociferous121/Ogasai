@@ -389,6 +389,9 @@ function script_rotation:menu()
 	Separator();
 
 	if (CollapsingHeader('Display options')) then
+		if (CollapsingHeader("-- Radar - EXPERIMENTAL")) then
+			script_radar:menu();
+		end
 
 		local wasClicked = false;
 
@@ -434,5 +437,4 @@ function script_rotation:menu()
 		if (script_firstAid.showFirstAid) then
 			script_firstAid:Menu();
 		end
-		script_radar:menu();
 end

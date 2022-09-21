@@ -1,38 +1,6 @@
 script_follow = {
 
-	renewMana = 25,
-	partyRenewHealth = 85,
-	shieldMana = 55,
-	partyShieldHealth = 39,
-	lesserHealMana = 5,
-	partyLesserHealHealth = 75,
-	healMana = 10,
-	partyHealHealth = 65,
-	greaterHealMana = 20,
-	partyGreaterHealHealth = 28,
-	flashHealMana = 7,
-	partyFlashHealHealth = 50,
-   	holyLightMana = 20,
-	partyHolyLightHealth = 60,
-	flashOfLightMana = 3,
-	partyFlashOfLightHealth = 80,
-	layOnHandsHealth = 6,
-	bopHealth = 10,
-   	healingTouchMana = 35,
-	regrowthMana = 25, 
-   	rejuvenationMana = 15,
-	healingTouchHealth = 35,
-   	regrowthHealth = 60,
-   	rejuvenationHealth = 75,
-	clickRenew = true,
-	clickShield = true,
-	clickFlashHeal = true,
-	clickGreaterHeal = true,
-	clickHeal = true,
-	clickHealingTouch = true,
-	clickRegrowth = true,
-	clickFlashOfLight = true,
-	clickHolyLight = true,
+	
 	useMount = false,
 	disMountRange = 32,
 	mountTimer = 0,
@@ -62,14 +30,13 @@ script_follow = {
 	assistInCombat = true,
 	isChecked = true,
 	pause = false,
-	enableHeals = true,
 	autoGhost = false,
-	healingWaveHealth = 50,
 	message = "Starting the follower...",
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
 	helperLoaded = include("scripts\\script_helper.lua"),
 	extraFunctions = include("scripts\\script_followEX.lua"),
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
+	healsLoaded = include("scripts\\script_followHealsAndBuffs.lua"),
 
 }
 
@@ -82,8 +49,25 @@ function script_follow:window()
 	end
 end
 
+function getPartyMembers()
+	for i = 1, GetNumPartyMembers()+1 do
+		local partyMember = GetPartyMember(i);
+		if (i == GetNumPartyMembers()+1) then
+			partyMember = GetLocalPlayer();
+		end
+		local partyMembersHP = partyMember:GetHealthPercentage();
+		if (partyMembersHP > 0 and partyMembersHP < 99 and localMana > 1) then
+			local partyMemberDistance = partyMember:GetDistance();
+			leaderObj = GetPartyMember(GetPartyLeaderIndex());
+			local localHealth = GetLocalPlayer():GetHealthPercentage()
+		end
+	end
+end
+
 function script_follow:moveInLineOfSight(partyMember)
+
 	leaderObj = GetPartyMember(GetPartyLeaderIndex());
+
 	if (not leaderObj:IsInLineOfSight() or leaderObj:GetDistance() > self.followLeaderDistance) then
 			local x, y, z = leaderObj:GetPosition();
 			script_nav:moveToTarget(GetLocalPlayer(), x , y, z);
@@ -91,6 +75,7 @@ function script_follow:moveInLineOfSight(partyMember)
             self.message = "Moving to Party Leader LoS";
 		return true;
 	end
+
 	if (self.followMember) then
 		if (not partyMember:IsInLineOfSight() and partyMember:GetDistance() < self.followLeaderDistance) then
 			local x, y, z = partyMember:GetPosition();
@@ -101,377 +86,6 @@ function script_follow:moveInLineOfSight(partyMember)
 		end
 	end
 return false;
-end
-
-function script_follow:healAndBuff()
-	local localMana = GetLocalPlayer():GetManaPercentage();
-	if (not IsStanding()) then 
-		StopMoving();
-	end
-	-- Heals and buffs
-	for i = 1, GetNumPartyMembers()+1 do
-		local partyMember = GetPartyMember(i);
-		if (i == GetNumPartyMembers()+1) then
-			partyMember = GetLocalPlayer();
-		end
-		local partyMembersHP = partyMember:GetHealthPercentage();
-		if (partyMembersHP > 0 and partyMembersHP < 99 and localMana > 1) then
-			local partyMemberDistance = partyMember:GetDistance();
-			leaderObj = GetPartyMember(GetPartyLeaderIndex());
-			local localHealth = GetLocalPlayer():GetHealthPercentage();					
-
-			-- Move in range: combat script return 3
-			if (self.combatError == 3) then
-				self.message = "Moving to target...";
-				script_follow:moveInLineOfSight(partyMember);		
-				return;
-			end
-			
-			-- Move in line of sight and in range of the party member
-			if (script_follow:moveInLineOfSight(partyMember)) then
-				return true; 
-			end
-
-			-- Dispel Magic
-			if (HasSpell("Dispel Magic")) and (localMana > 20) then 
-				if (partyMember:HasDebuff("Sleep")) or (partyMember:HasDebuff("Terrify")) or (leaderObj:HasDebuff("Frost Nova")) or 
-				(partyMember:HasDebuff("Screams of the Past")) or (partyMember:HasDebuff("Wavering Will")) or (partyMember:HasDebuff("Slow")) or
-				(leaderObj:HasDebuff("Frostbolt")) or (partyMember:HasDebuff("Dominate Mind")) then
-					if (CastHeal("Dispel Magic", partyMember)) then
-						self.waitTimer = GetTimeEX() + 1500;
-						return true;
-					end
-				end				
-			end
-			
-			-- Cure Disease
-			if (HasSpell("Cure Disease")) and (localMana > 10) then
-				if (partyMember:HasDebuff("Infected Wound")) then
-					if (CastHeal("Cure Disease", partyMember)) then
-						self.waitTimer = GetTimeEX() + 1500;
-						return true;
-					end
-				end
-			end
-
-			-- purify
-			if (HasSpell("Purify")) and (localMana > 10) then
-				if (partyMember:HasDebuff("Irradiated")) or (partyMember:HasDebuff("Infected Wound")) then
-					if (CastHeal("Purify", partyMember)) then
-						self.waitTimer = GetTimeEX() + 1500;
-						return true;
-					end
-				end
-			end
-
-			-- blessing of might
-			if (not partyMember:HasBuff("Strength of Earth")) and (not partyMember:HasBuff("Mana Spring")) and (not partyMember:HasBuff("Blessing of Wisdom")) and (not partyMember:HasBuff("Blessing of Might")) then
-				if (partyMember:GetRagePercentage() > 1) or (partyMember:GetEnergyPercentage() > 1) or (partyMember:HasBuff("Bear Form") or partyMember:HasBuff("Cat Form")) and (not partyMember:GetManaPercentage() > 1) then
-					if (script_follow:moveInLineOfSight(partyMember)) then
-						return true;
-					end -- move to member
-					if (Buff("Blessing of Might", partyMember)) then
-            	    			self.waitTimer = GetTimeEX() + 1500;
-				 		return true;	
-					end
-				end
-			
-		
-				-- blessing of wisdom
-			elseif (partyMember:GetManaPercentage() > 1) and (HasSpell("Blessing of Wisdom")) and (not partyMember:HasBuff("Blessing of Wisdom")) and (not partyMember:HasBuff("Blessing of Might")) and (not partyMember:HasBuff("Mana Spring")) then
-				if (script_follow:moveInLineOfSight(partyMember)) then
-					return true;
-				end -- move to member
-				if (Buff("Blessing of Wisdom", partyMember)) then
-					self.waitTimer = GetTimeEX() + 1500;
-					return true;
-		   		end
-			end
-			
-
-			-- Power word Fortitude
-			if (HasSpell("Power Word: Fortitude")) and (localMana > 40) and (not partyMember:HasBuff("Power Word: Fortitude")) then -- buff
-				if (script_follow:moveInLineOfSight(partyMember)) or (script_follow:isTargetingPet(i)) then
-					return true;
-				end -- move to member
-				if (Cast("Power Word: Fortitude", partyMember)) then
-                    		self.waitTimer = GetTimeEX() + 1500;
-					return true;
-				end
-			end	
-
-			-- Divine Spirit
-			if (HasSpell("Divine Spirit")) and (localMana > 30) and (not partyMember:HasBuff("Divine Spirit")) then
-				if (script_follow:moveInLineOfSight(partyMember)) then
-					return true;
-				end -- move to member
-				if (Cast("Divine Spirit", partyMember)) then
-                   		self.waitTimer = GetTimeEX() + 1500;
-					return true;
-				end	
-			end
-
-			-- Arcane Intellect
-			if (HasSpell("Arcane Intellect")) and (localMana > 40) and (not partyMember:HasBuff("Arcane Intellect")) then
-				if (script_follow:moveInLineOfSight(partyMember)) then
-					return true;
-				end
-				if (Cast("Arcane Intellect", partyMember)) then
-                    		self.waitTimer = GetTimeEX() + 1500;
-					return true;
-				end
-			end
-
-			-- Inner Fire
-			if (HasSpell("Inner Fire")) and (localMana > 30) and (not localObj:HasBuff("Inner Fire")) then
-				if (Buff("Inner Fire", localObj)) then
-					self.waitTimer = GetTimeEX() + 1500;
-					return true;
-				end
-			end
-
-			-- Quel'dorei Meditation on low mana
-			if (HasSpell("Quel'dorei Meditation")) and (not IsSpellOnCD("Quel'dorei Meditation")) and (localMana < 20) then
-				CastSpellByName("Quel'dorei Meditation");
-			end
-			
-			-- priest fear
-			if (script_follow:enemiesAttackingUs(5) > 3) and (HasSpell("Psychic Scream")) then
-				if (CastSpellByName("Psychic Scream")) then
-					return true;
-				end
-			end
-
-			-- druid swiftmend
-			if (HasSpell("Swiftmend")) and (not IsSpellOnCD("Swiftmend")) then
-				if (partyMember:HasBuff("Regrowth")) or (partyMember:HasBuff("Rejuvenation")) then
-					if (partyMembersHP < 30) then
-						if (CastHeal("Swiftmend", partyMember)) then
-							return true;
-						end
-					end
-				end
-			end
-
-            -- enable / disble heals for follower
-			if (self.enableHeals) or (partyMembersHP < 35 and not self.enableHeals) then
-				-- flash heal 
-				if (self.clickFlashHeal) then
-					if (localMana > self.flashHealMana) and (partyMembersHP < self.partyFlashHealHealth) then
-						if (script_follow:moveInLineOfSight(partyMember)) or (script_follow:isTargetingPet(i)) then
-							return true;
-				 		end -- move to member
-						if (CastHeal("Flash Heal", partyMember)) then
-							self.waitTimer = GetTimeEX() + 2000;
-							return true;
-						end
-					end
-				end
-
-				-- inner focus
-				if (HasSpell("Inner Focus")) and (not IsSpellOnCD("Inner Focus")) then
-					if (localMana < self.flashHealMana and leaderObj:GetHealthPercentage() < self.partyFlashHealHealth) then
-						if (Buff("Inner Focus", localObj)) then 
-							self.waitTimer = GetTimeEX() + 1400;
-							return true; 
-						end
-						if (CastHeal("Flash Heal", partyMember)) then
-							self.waitTimer = GetTimeEX() + 1600;
-							return true;
-						end
-					end
-				end
-
-				-- Power Infusion
-				if (HasSpell("Power Infusion")) and (not IsSpellOnCD("Power Infusion")) then
-					if (partyMembersHP< 50) or (script_priest:enemiesAttackingUs(8) > 1) then
-				   	 	if (Buff("Power Infusion")) then
-                            			self.waitTimer = GetTimeEX() + 1500;
-				    			return true;
-						end
-					end
-			    end
-
-				-- Greater Heal
-				if (self.clickGreaterHeal) then
-					if (localMana > self.greaterHealMana) and (partyMembersHP < self.partyGreaterHealHealth) and (HasSpell("Greater Heal")) then
-						if (script_follow:moveInLineOfSight(partyMember)) then
-							return true;
-				 		end -- move to member
-						if (CastHeal("Greater Heal", partyMember)) then
-							self.waitTimer = GetTimeEX() + 5500;
-							return true;
-						end
-					end
-				end
-
-				-- Heal
-				if (self.clickHeal) then
-					if (localMana > self.healMana) and (partyMembersHP < self.partyHealHealth) and (HasSpell("Heal")) then
-						if (script_follow:moveInLineOfSight(partyMember)) then
-							return true;
-				 		end -- move to member
-						if (CastHeal("Heal", partyMember)) then
-							self.waitTimer = GetTimeEX() + 2400;
-							return true;
-						end
-					end
-				end
-
-				-- Lesser Heal
-               		-- level 20+ at very low mana
-				if (localObj:GetLevel() >= 20) then
-					if (localMana < 6) and (partyMembersHP < 20) then
-						if (script_follow:moveInLineOfSight(partyMember)) then
-							return true;
-				 		end -- move to member	
-						if (CastHeal("Lesser Heal", partyMember)) then
-							self.waitTimer = GetTimeEX() + 2400;
-							return true;
-						end
-					end
-                    -- below level 20 cast lesser heal
-				elseif (localObj:GetLevel() <= 20) then
-					if (localMana > self.lesserHealMana) and (partyMembersHP < self.partyLesserHealHealth) and (HasSpell("Lesser Heal")) then
-						if (script_follow:moveInLineOfSight(partyMember)) then
-							return true;
-				 		end -- move to member
-						if (CastHeal("Lesser Heal", partyMember)) then
-							self.waitTimer = GetTimeEX() + 2400;
-							return true;
-						end
-					end
-				end
-
-				-- Renew
-				if (self.clickRenew) then
-					if (localMana > self.renewMana) and (partyMembersHP < self.partyRenewHealth) and (not partyMember:HasBuff("Renew")) and (HasSpell("Renew")) then
-						if (script_follow:moveInLineOfSight(partyMember)) then
-							return true;
-				 		end -- move to member
-						if (CastHeal("Renew", partyMember)) then
-							self.waitTimer = GetTimeEX() + 1650;
-							return true;
-						end
-					end
-				end
-
-				-- Shield
-				if (self.clickShield) then
-					if (localMana > self.shieldMana) and (partyMembersHP < self.partyShieldHealth) and (not partyMember:HasDebuff("Weakened Soul")) and (HasSpell("Power Word: Shield")) then
-						if (script_follow:moveInLineOfSight(partyMember)) then
-							return true;
-				 		end -- move to member
-						if (CastHeal("Power Word: Shield", partyMember)) then 
-							self.waitTimer = GetTimeEX() + 1550;
-							return true; 
-						end
-					end
-				end
-
-				-- Blessing of Protection
-				if (localMana > 5) and (partyMembersHP < self.bopHealth) and (HasSpell("Blessing of Protection")) then
-					if (script_follow:moveInLineOfSight(partyMember)) then
-						return true;
-				 	end -- move to member
-					if (Cast("Blessing of Protection", partyMember)) then
-						self.waitTimer = GetTimeEX() + 1500;
-						return true;
-					end
-				end
-
-				-- Lay on Hands
-				if (localMana < 25) and (partyMembersHP < self.layOnHandsHealth) and (HasSpell("Lay on Hands")) then
-					if (script_follow:moveInLineOfSight(partyMember)) then
-						return true;
-				 	end -- move to member
-					if (CastHeal("Lay on Hands", partyMember)) then
-						self.waitTimer = GetTimeEX() + 1500;
-						return true;
-					end
-				end
-
-				leaderHealth = GetPartyMember(GetPartyLeaderIndex()):GetHealthPercentage();
-				if leaderHealth < 40 and HasSpell("Holy Light") then
-					CastHeal("Holy Light", leaderObj);
-					self.waitTimer = GetTimeEX() + 2000;
-					return true;
-				end
-
-				-- Holy Light
-				if (localMana > self.holyLightMana) and (partyMembersHP < self.partyHolyLightHealth) and (HasSpell("Holy Light")) then
-					if (script_follow:moveInLineOfSight(partyMember)) then
-						return true;
-				 	end -- move to member
-					if (CastHeal("Holy Light", partyMember)) then
-						self.waitTimer = GetTimeEX() + 2700;
-						return true;
-					end
-				end
-
-				-- Flash Of Light
-				if (localMana > self.flashOfLightMana) and (partyMembersHP < self.partyFlashOfLightHealth) and (HasSpell("Flash of Light")) then
-					if (script_follow:moveInLineOfSight(partyMember)) then
-						return true;
-				 	end -- move to member
-					if (CastHeal("Flash of Light", partyMember)) then
-						return true;
-					end
-				end                
-
-			
-				-- natures swiftness
-				if (HasSpell("Nature's Swiftness")) and (not localObj:HasBuff("Nature's Swiftness")) and (leaderObj:GetHealthPercentage() < 30) then
-					if (not IsSpellOnCD("Nature's Swiftness")) and (localMana > 10) then
-						if (script_follow:moveInLineOfSight(partyMember)) then
-							return true;
-						end -- move to member
-						if (CastSpellByName("Nature's Swiftness")) then
-							self.waitTimer = GetTimeEX() + 1500;
-							return true;
-						end
-					end
-				end
-                
-				-- regrowth
-                		if (self.clickRegrowth) then
-                    		if (HasSpell("Regrowth")) and (not partyMember:HasBuff("Regrowth")) and (partyMembersHP < self.regrowthHealth) and (localMana > self.regrowthMana) then
-                        		if (script_follow:moveInLineOfSight(partyMember)) then
-                            			return true;
-                        		end -- move to member
-                        		if (CastSpellByName("Regrowth")) then
-                            			self.waitTimer = GetTimeEX() + 1500;
-                            			return true;
-                        		end
-                    		end
-                		end
-
-				-- rejuvenation
-				if (HasSpell("Rejuvenation")) and (not partyMember:HasBuff("Rejuvenation")) and (partyMembersHP < self.rejuvenationHealth) and (localMana > self.rejuvenationMana) then
-					if (script_follow:moveInLineOfSight(partyMember)) then
-                     	 		  return true;
-					end -- move to member
-					if (CastSpellByName("Rejuvenation")) then
-						self.waitTimer = GetTimeEX() + 1500;
-						return true;
-					end
-				end
-				-- healing touch if has regrowth
-				if (self.clickHealingTouch) then
-					if (HasSpell("Healing Touch")) and (partyMember:HasBuff("Regrowth")) and (partyMembersHP < self.healingTouchHealth) and (localMana > self.healingTouchMana) then
-                       			if (script_follow:moveInLineOfSight(partyMember)) then
-                         			return true;
-                  			end -- move to member
-						if (CastSpellByName("Healing Touch")) then
-							self.waitTimer = GetTimeEX() + 1500;
-							return true;
-						end
-					end
-				end
-			end
-		end
-	end
-	return false;
 end
 
 function script_follow:setup()
@@ -547,10 +161,12 @@ function script_follow:run()
 			UseNavmesh(true);
 			return; 
 		end
+
 		if (not LoadNavmesh()) then 
 			self.message = "Make sure you have mmaps-files...";
 			return;
 		end
+		
 		if (GetLoadNavmeshProgress() ~= 1) then
 			self.message = "Loading the nav mesh... ";
 			return; 
@@ -634,7 +250,7 @@ function script_follow:run()
 		end
 
 		-- Healer check: heal/buff the party
-		if (script_follow:healAndBuff()) and (HasSpell("Smite") or HasSpell("Rejuvenation") or HasSpell("Healing Wave") or HasSpell("Holy Light")) then
+		if (script_followHealsAndBuffs:healAndBuff()) and (HasSpell("Smite") or HasSpell("Rejuvenation") or HasSpell("Healing Wave") or HasSpell("Holy Light")) then
 			self.message = "Healing/buffing the party...";
 			ClearTarget();
 			return;
@@ -691,7 +307,7 @@ function script_follow:run()
 		else
 
 		-- Healer check: heal/buff the party
-		if (script_follow:healAndBuff()) and (HasSpell("Smite") or HasSpell("Rejuvenation") or HasSpell("Healing Wave") or HasSpell("Holy Light")) then
+		if (script_followHealsAndBuffs:healAndBuff()) and (HasSpell("Smite") or HasSpell("Rejuvenation") or HasSpell("Healing Wave") or HasSpell("Holy Light")) then
 			self.message = "Healing/buffing the party...";
 			ClearTarget();
 			return;
@@ -707,7 +323,7 @@ function script_follow:run()
 				ClearTarget();
 				end
 			end
-            end
+        end
 	end	
 
 		-- Finish loot before we engage new targets or navigate
