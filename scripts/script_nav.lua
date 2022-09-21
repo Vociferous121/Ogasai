@@ -320,7 +320,8 @@ function script_nav:moveToTarget(localObj, _x, _y, _z) -- use when moving to mov
 	end	
 
 	if (not IsPathLoaded(5)) then
-			return "Generating path...";
+		GeneratePath(x1, y1, x1, x2, y2, z2);
+		return "Generating path...";
 	end
 
 	-- Get the current path node's coordinates
@@ -382,6 +383,7 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 	end	
 
 	if (not IsPathLoaded(5)) then
+		GeneratePath(x1, y1, x1, x2, y2, z2);
 		return "Generating path...";
 	end
 	
