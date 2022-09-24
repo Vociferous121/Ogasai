@@ -3,12 +3,12 @@ script_paranoia = {
 	stopOnLevel = true,		-- stop bot on level up on/off
 	exitBot = false,		-- exit bot on level up
 	targetedLevel = GetLocalPlayer():GetLevel() + 1,	-- target level to stop bot when we level up.
-	deathCounterLogout = 3,	-- death counter until forced logout
 	deathCounterExit = true,	-- death counter until exit
 	sitParanoid = false,		-- sit paranoid true/false
 	paranoidOn = true,		-- paranoid on true/false
 	paranoidOnTargeted = true,	-- paranoid when targeted on/off
 	useCampfire = true,		-- use bright campfire when paranoid on/off
+	counted = 3,
 }
 
 
@@ -19,7 +19,7 @@ function script_paranoia:checkParanoia()
 	localObj = GetLocalPlayer();
 
 	-- logout if death counter reached
-	if (script_grindEX.deathCounter >= self.deathCounterLogout) and (script_grindEX.deathCounter >= script_paranoia.deathCounterLogout) then
+	if (script_grindEX.deathCounter >= self.counted) and (script_grindEX.deathCounter >= script_paranoia.counted) then
 		StopBot();
 		script_grindEX.deathCounter = 0;
 		if (script_paranoia.deathCounterExit) then
@@ -185,15 +185,15 @@ function script_paranoia:menu()
 
 	Separator();
 	
-	Text("Stop Bot On "..script_paranoia.deathCounterLogout.. " Deaths    "); 
+	Text("Stop Bot On "..script_paranoia.counted.. " Deaths    "); 
 
 	SameLine(); 
 
 	-- exit bot when death counter reached on/off
-	wasClicked, script_paranoia.deathCounterExit = Checkbox("Exit Bot On "..script_paranoia.deathCounterLogout.." Deaths", script_paranoia.deathCounterExit);
+	wasClicked, script_paranoia.deathCounterExit = Checkbox("Exit Bot On "..script_paranoia.counted.." Deaths", script_paranoia.deathCounterExit);
 
 	-- death counter 
-	script_paranoia.deathCounterLogout = SliderInt("Deaths", 1, 5, script_paranoia.deathCounterLogout);
+	script_paranoia.counted = SliderInt("Deaths", 1, 5, script_paranoia.counted);
 		
 	Separator();
 end
