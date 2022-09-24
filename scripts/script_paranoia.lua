@@ -79,9 +79,9 @@ function script_paranoia:checkParanoia()
 							if (IsStanding()) and (self.sitParanoid) then
 								SitOrStand();
 							end
-							-- wait 2+ mins
-							self.waitTimer = GetTimeEX() + 123241;
-							return 0;
+							if (HasBuff("Cozy Fire")) then
+								self.waitTimer = GetTimeEX() + 120000;
+							end
 						end
 					end
 				end
