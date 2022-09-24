@@ -20,6 +20,7 @@ Requirements
                                   Ogasai Scripts - Updates to Logitechs original work
                                      
                                   please turn on auto-self cast in the interface menu
+                                  please turn on click-to-move in the interface menu
 
 ## Core files have been changed! For these to work properly you must download the entire script and core folder. You can make a backup of your old ones!
 
