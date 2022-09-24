@@ -293,17 +293,40 @@ function script_followEX:menu()
 
 	if (class == 'Shaman') and (CollapsingHeader("Shaman Group Heals Follower Script")) then
 
+		Text("CURRENTLY BROKEN UNKNOWN ISSUE");
 		-- turn ALL heals on/off for group
 		wasClicked, script_shamanFollowerHeals.enableHeals = Checkbox("Turn On/Off all heals for the group!", script_shamanFollowerHeals.enableHeals);
-
-		Text("TODO!");
+		
+		Text("Healing Wave Health");
+		script_shamanFollowerHeals.healingWaveHealth = SliderInt("party member HP", 1, 100, script_shamanFollowerHeals.healingWaveHealth);
+		
+		Text("Healing Wave Mana");
+		script_shamanFollowerHeals.healingWaveMana = SliderInt("selfmana", 1, 100, script_shamanFollowerHeals.healingWaveMana);
+		
+		Text("Lesser Healing Wave Health");
+		script_shamanFollowerHeals.lesserHealingWaveHealth = SliderInt("Party member HP", 1, 100, script_shamanFollowerHeals.lesserHealingWaveHealth);
+		
+		Text("Lesser Healing Wave Mana");
+		script_shamanFollowerHeals.lesserHealingWaveMana = SliderInt("Self Mana", 1, 100, script_shamanFollowerHeals.lesserHealingWaveMana);
+		
+		--Text("Chain Heal Health");
+		--script_shamanFollowerHeals.chainHealHealth = SliderInt("party member HP", 1, 100, script_shamanFollowerHeals.chainHealHealth);
+		
+--		Text("Chain Heal Mana");
+--		script_shamanFollowerHeals.chainHealMana = SliderInt("self mana", 1, 100, script_shamanFollowerHeals.chainHealMana);
+		
+		Text("Totems");
+		wasClicked, script_shamanFollowerHeals.useStrengthOfEarthTotem = Checkbox("Strength of Earth", script_shamanFollowerHeals.useStrengthOfEarthTotem);
+		wasClicked, script_shamanFollowerHeals.useStoneskinTotem = Checkbox("Stoneskin", script_shamanFollowerHeals.useStoneskinTotem);
+		wasClicked, script_shamanFollowerHeals.useHealingStreamTotem = Checkbox("Healing Stream", script_shamanFollowerHeals.useHealingStreamTotem);
+		wasClicked, script_shamanFollowerHeals.useManaSpringTotem = Checkbox("Mana Spring", script_shamanFollowerHeals.useManaSpringTotem);
 	end
 
 	if (CollapsingHeader("Display Options")) then
 		
 		if (script_aggro.drawAggro) then
 			Text("Draw Aggro Range");
-			self.drawAggroRange = SliderInt("AR", 50, 300, self.drawAggroRange);
+			script_aggro.drawAggroRange = SliderInt("AR", 50, 300, self.drawAggroRange);
 		end
 		wasClicked, script_followEX.drawUnits = Checkbox("Show unit info on screen", script_followEX.drawUnits);
 		wasClicked, script_aggro.drawAggro = Checkbox('Show aggro range', script_aggro.drawAggro);

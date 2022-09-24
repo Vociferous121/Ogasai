@@ -14,6 +14,10 @@ script_followHealsAndBuffs = {
 }
 
 		-- separated these files due to a limitation of file sizes.
+	
+		-- this is just the function to call heals and buffs based on class
+
+		-- based on class to reduce CPU usage it will only cast spells if you are that class...
 
 function script_followHealsAndBuffs:healAndBuff()
 	

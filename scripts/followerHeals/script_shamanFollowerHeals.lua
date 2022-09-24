@@ -1,7 +1,18 @@
 script_shamanFollowerHeals = {
 
-    enableHeals = true,
-	healingWaveHealth = 50,
+	enableHeals = true,
+	lesserHealingWaveHealth = 30,
+	lesserHealingWaveMana = 30,
+	healingWaveHealth = 60,
+	healingWaveMana = 20,
+	chainHealHealth = 45,
+	chainHealMana = 60,
+	useStrengthOfEarthTotem = true,
+	useStoneskinTotem = false,
+	useHealingStreamTotem = false,
+	useManaSpringTotem = true,
+	useLesserHealingWave = true,
+	useChainHeal = true,
 
 }
 
@@ -93,17 +104,17 @@ function script_shamanFollowerHeals:HealsAndBuffs()
                 end
 
                 -- chain heal
-                if (self.useChainHeal) then
-                    if (HasSpell("Chain Heal")) and (partyMembersHP < self.chainHealHealth) and (localMana > self.chainHealMana) then
-                        if (script_follow:moveInLineOfSight(partyMember)) then
-                            return true;
-                        end
-                        if (CastSpellByName("Chain Heal", partyMember)) then
-                            self.waitTimer = GetTimeEX() + 1500;
-                            return true;
-                        end
-                    end
-                end
+           --     if (self.useChainHeal) then
+             --       if (HasSpell("Chain Heal")) and (partyMembersHP < self.chainHealHealth) and (localMana > self.chainHealMana) then
+               --         if (script_follow:moveInLineOfSight(partyMember)) then
+                 --           return true;
+                   --     end
+                     --   if (CastSpellByName("Chain Heal", partyMember)) then
+                       --     self.waitTimer = GetTimeEX() + 1500;
+               --             return true;
+                 --       end
+                   -- end
+               -- end
 
                 -- strength of earth totem
                 if (self.useStrengthOfEarthTotem) and (not self.useStoneskinTotem) then
