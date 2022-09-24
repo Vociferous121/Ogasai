@@ -18,7 +18,6 @@ function script_paranoia:checkParanoia()
 
 	localObj = GetLocalPlayer();
 
-	-- logout if death counter reached
 	if (script_grindEX.deathCounter >= self.counted) and (script_grindEX.deathCounter >= script_paranoia.counted) then
 		StopBot();
 		script_grindEX.deathCounter = 0;
