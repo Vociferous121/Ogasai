@@ -1,4 +1,5 @@
  # oGasai Scripts for WoW Classic
+ Ogasaism
 
 Bot made by DarkLinux @ OwnedCore
 
