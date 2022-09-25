@@ -601,7 +601,7 @@ function script_grind:playersWithinRange(range)
 					if (self.useString) then
 						if (currentObj:GetDistance() < self.paranoidRange) then
 							playerName = currentObj:GetUnitName();
-							local string = "script_grind - Player Name ("..playerName.. ") added to log file for further implementation of paranoia;"
+							local string = GetTimeStamp()" - Player Name ("..playerName.. ") added to log file for further implementation of paranoia;"
 							DEFAULT_CHAT_FRAME:AddMessage(string);
 							ToFile(string);
 							self.useString = false;
