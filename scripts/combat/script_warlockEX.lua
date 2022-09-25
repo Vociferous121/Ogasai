@@ -184,7 +184,7 @@ function script_warlockEX:menu()
 
 		if (HasSpell("Drain Life")) then
 
-			Text("Use Drain Life below script_warlock health percent");
+			Text("Use Drain Life below self health percent");
 			
 			script_warlock.drainLifeHealth = SliderInt("DLH", 1, 80, script_warlock.drainLifeHealth);
 			
@@ -200,7 +200,7 @@ function script_warlockEX:menu()
 
 		if (script_warlock.useVoid) and (script_warlock.hasSacrificeSpell) then
 			
-			wasClicked, script_warlock.sacrificeVoid = Checkbox("Sacrifice Voidwalker when low script_warlock health", script_warlock.sacrificeVoid);
+			wasClicked, script_warlock.sacrificeVoid = Checkbox("Sacrifice Voidwalker when low self health", script_warlock.sacrificeVoid);
 			
 			if (script_warlock.sacrificeVoid) then
 				

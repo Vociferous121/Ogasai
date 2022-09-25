@@ -88,6 +88,7 @@ script_grind = {
 	blacklistedNameNum = 0,
 	useExpChecker = true,
 	paranoidSetTimer = 12,
+	useString = true,
 }
 
 function script_grind:setup()
@@ -211,11 +212,11 @@ function script_grind:run()
 		end
 	end
 	
-		local randomParanoid = random(1, 200);
-	if (randomParanoid > 199) then
+		local randomParanoid = random(1, 180);
+	if (randomParanoid > 176) then
 		if (script_paranoia:checkParanoia()) then
 			ClearTarget();
-			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000);
+			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 5000;
 			return;
 		end
 	end
@@ -597,12 +598,22 @@ function script_grind:playersWithinRange(range)
 			if (currentObj:GetDistance() < range) then 
 				local localObj = GetLocalPlayer();
 				if (localObj:GetGUID() ~= currentObj:GetGUID()) then
-					return true;
+					if (self.useString) then
+						if (currentObj:GetDistance() < self.paranoidRange) then
+							playerName = currentObj:GetUnitName();
+							local string = "script_grind - Player Name ("..playerName.. ") added to log file for further implementation of paranoia;"
+							DEFAULT_CHAT_FRAME:AddMessage(string);
+							ToFile(string);
+							self.useString = false;
+						end
+					end
+				return true;
 				end
 			end 
 		end
 		currentObj, typeObj = GetNextObject(currentObj); 
 	end
+	self.useString = true;
 	return false;
 end
 
