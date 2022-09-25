@@ -212,11 +212,11 @@ function script_grind:run()
 		end
 	end
 	
-		local randomParanoid = random(1, 180);
-	if (randomParanoid > 176) then
+		local randomParanoid = random(1, 400);
+	if (randomParanoid > 396) then
 		if (script_paranoia:checkParanoia()) then
 			ClearTarget();
-			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 5000;
+			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 5282;
 			return;
 		end
 	end
