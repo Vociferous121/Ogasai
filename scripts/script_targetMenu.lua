@@ -5,7 +5,7 @@ function script_targetMenu:menu()
 
 	if (CollapsingHeader("Target Options")) then
 
-		Text("Blacklisting resets when script is reloaded");
+		Text("          Blacklisting resets when script is reloaded");
 
 		Text(" "); -- empty space
 
@@ -13,7 +13,7 @@ function script_targetMenu:menu()
 
 		wasCLicked, script_grind.skipHardPull = Checkbox("Blacklist Target With More Than 1 Add", script_grind.skipHardPull);
 
-		wasClicked, script_grindEX.avoidBlacklisted = Checkbox("Avoid Nlacklisted Targets (Buggy)", script_grindEX.avoidBlacklisted);
+		wasClicked, script_grindEX.avoidBlacklisted = Checkbox("Avoid Blacklisted Targets (Buggy)", script_grindEX.avoidBlacklisted);
 		
 		if (Button("BlackList By GUID")) then
 			if UnitExists("target") then

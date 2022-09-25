@@ -27,7 +27,7 @@ function script_rogueEX:menu()
 			script_rogue.potionHealth = SliderInt('PHP %', 1, 99, script_rogue.potionHealth);
 			Separator();
 			Text("Melee Range to target");
-			script_rogue.meeleDistance = SliderInt('MR (yd)', 1, 6, script_rogue.meeleDistance);
+			script_rogue.meeleDistance = SliderFloat('MR (yd)', 1, 6, script_rogue.meeleDistance);
 			Separator();
 			wasClicked, script_rogue.stopIfMHBroken = Checkbox("Stop bot if main hand is broken", script_rogue.stopIfMHBroken);
 			SameLine();
@@ -51,7 +51,7 @@ function script_rogueEX:menu()
 			if (CollapsingHeader("--Adrenaline Rush / Blade Flurry Options")) then
 				Text("Use Adrenaline Rush with Blade Furry health percent");
 				wasClicked, script_rogue.adrenRushCombo = Checkbox("Use Adren Blade Flurry combo", script_rogue.adrenRushCombo);
-				script_rogue.adrenRushComboHP = SliderInt("script_rogue Health below percent", 15, 75, script_rogue.adrenRushComboHP);
+				script_rogue.adrenRushComboHP = SliderInt("Health below percent", 15, 75, script_rogue.adrenRushComboHP);
 			end
 
 			if (CollapsingHeader("--Throwing Weapon Options")) then
