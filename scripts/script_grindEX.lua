@@ -27,15 +27,16 @@ function script_grindEX:doChecks()
 		if (GetLoadNavmeshProgress() ~= 1) then script_grind.message = "Loading the nav mesh... " return true; end
 
 		if(localObj:IsDead()) then
-			script_grind.waitTimer = GetTimeEX() + 150;
-			script_grind.message = "Walking to corpse...";
+			script_grind.waitTimer = GetTimeEX() + 5358;
+			script_grind.message = "Waiting to release...";
 
 			-- Release body
 			if (not IsGhost()) then
 				RepopMe();
 				script_grindEX.deathCounter = script_grindEX.deathCounter + 1;
-				script_grind.waitTimer = GetTimeEX() + 5000; 
-					return true;
+				script_grind.waitTimer = GetTimeEX() + 5000;
+				script_grind.message = "Walking to corpse...";
+				return true;
 			end
 
 			-- Ressurrect within the ress distance to our corpse

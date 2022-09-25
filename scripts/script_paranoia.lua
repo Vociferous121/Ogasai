@@ -165,6 +165,11 @@ function script_paranoia:menu()
 	
 		-- main paranoia range
 		script_grind.paranoidRange = SliderInt("P (yd)", 1, 300, script_grind.paranoidRange);
+
+		--timer to wait after paranoia
+		Text("How long to wait after paranoid target leaves range");
+		script_grind.paranoidSetTimer = SliderInt("Time in Sec", 0, 60, script_grind.paranoidSetTimer);
+
 	end
 
 	Separator();

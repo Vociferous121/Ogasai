@@ -87,6 +87,7 @@ script_grind = {
 	blacklistAdds = 1,
 	blacklistedNameNum = 0,
 	useExpChecker = true,
+	paranoidSetTimer = 12,
 }
 
 function script_grind:setup()
@@ -209,10 +210,14 @@ function script_grind:run()
 			return;
 		end
 	end
-		
-	if (script_paranoia:checkParanoia()) then
-		self.waitTimer = GetTimeEX() + 12000;
-		return;
+	
+		local randomParanoid = random(1, 200);
+	if (randomParanoid > 199) then
+		if (script_paranoia:checkParanoia()) then
+			ClearTarget();
+			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000);
+			return;
+		end
 	end
 
 	if (GetTimeEX() > self.timer) then
