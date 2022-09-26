@@ -195,7 +195,7 @@ function script_grind:run()
 		local currentTime = GetTimeEX()/ 1000;
 
 		if (currentTime >= self.logoutSetTime + self.logoutTime * 3600) then
-			StopBot();
+			Exit();
 		end
 	end
 
