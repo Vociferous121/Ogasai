@@ -204,8 +204,8 @@ function script_paranoia:menu()
 	wasClicked, script_grind.useLogoutTimer = Checkbox("Use Logout Timer", script_grind.useLogoutTimer);
 
 	SameLine();
-	
-	Text("   Timer Starts When Checked!");
+	Text("");
+	Text("        Timer Starts When Checked!");
 
 	if (script_grind.useLogoutTimer) then
 		Text("Logout Timer Set In Hours");
