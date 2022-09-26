@@ -1,5 +1,5 @@
 script_grind = {
-	jump = false,
+	jump = false,	-- jump on/off
 	jumpRandomFloat = 99,
 	useVendor = false,
 	repairWhenYellow = false,
@@ -88,10 +88,11 @@ script_grind = {
 	blacklistedNameNum = 0,
 	useExpChecker = true,
 	paranoidSetTimer = 12,
-	useString = true,
-	useLogoutTimer = false,
-	logoutSetTime = GetTimeEX() / 1000,
-	logoutTime = 2,
+	useString = true,	-- message to send to log players in range run once
+	useOtherString = true,	-- message to send to log players targeting us run once
+	useLogoutTimer = false,	-- use logout timer true/false
+	logoutSetTime = GetTimeEX() / 1000,	-- set the logout time in seconds
+	logoutTime = 2,	-- logout time in hours
 }
 
 function script_grind:setup()
@@ -228,16 +229,20 @@ function script_grind:run()
 		end
 	end
 	
-	-- check paranoia with a little randomness
+	-- check paranoia
+
+		-- with a little randomness
 		local randomParanoid = random(1, 300);
 	if (randomParanoid > 294) then
+		
 		if (script_paranoia:checkParanoia()) and (not targetObj:IsTappedByMe()) then
 			ClearTarget();
-			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 5282;
+			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 2000;
 			return;
 		end
 	end
 	
+	-- set tick rate for scripts
 	if (GetTimeEX() > self.timer) then
 		self.timer = GetTimeEX() + self.tickRate;
 
@@ -598,14 +603,23 @@ function script_grind:playersTargetingUs() -- returns number of players attackin
 	local nrPlayersTargetingUs = 0; 
 	local currentObj, typeObj = GetFirstObject(); 
 	while currentObj ~= 0 do 
-	if typeObj == 4 then
-		if (script_grind:isTargetingMe(currentObj)) then 
-                	nrPlayersTargetingUs = nrPlayersTargetingUs + 1; 
-                end 
-       	end
-        currentObj, typeObj = GetNextObject(currentObj); 
-    end
-    return nrPlayersTargetingUs;
+		if typeObj == 4 then
+			if (script_grind:isTargetingMe(currentObj)) then 
+                	nrPlayersTargetingUs = nrPlayersTargetingUs + 1;
+				if (self.useOtherString) then
+					playerName = currentObj:GetUnitName();
+					local playerTime = GetTimeStamp();
+					local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Targeted Us! - added to log file for further implementation of paranoia."
+					DEFAULT_CHAT_FRAME:AddMessage(string);
+					ToFile(string);
+					self.useOtherString = false;
+				end
+			end 
+		end
+		currentObj, typeObj = GetNextObject(currentObj); 
+	end
+	self.useOtherString = true;
+	return nrPlayersTargetingUs;
 end
 
 function script_grind:playersWithinRange(range)
