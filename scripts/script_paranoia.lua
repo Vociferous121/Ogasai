@@ -197,7 +197,7 @@ function script_paranoia:menu()
 	wasClicked, script_paranoia.deathCounterExit = Checkbox("Exit Bot On "..script_paranoia.counted.." Deaths", script_paranoia.deathCounterExit);
 
 	-- death counter 
-	script_paranoia.counted = SliderInt("Deaths", 1, 5, script_paranoia.counted);
+	script_paranoia.counted = SliderInt("Deaths", 1, 9, script_paranoia.counted);
 		
 	Separator();
 
