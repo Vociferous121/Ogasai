@@ -14,6 +14,7 @@ function script_grindEX:doChecks()
 	
 		if (script_grind.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then return true; end
 		
+		localObj = GetLocalPlayer();
 		if (script_grind.avoidElite and not localObj:IsDead()) then 
 			if (script_nav:avoidElite(script_grind.avoidRange)) then
 				script_grind.message = "Elite within " .. script_grind.avoidRange .. " yd. running away...";

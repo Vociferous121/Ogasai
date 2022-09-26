@@ -119,12 +119,14 @@ function script_grind:setup()
 
 	self.isSetup = true;
 
+	-- safer min level for low level botting
 	if (GetLocalPlayer():GetLevel() < 20) then
 		script_grind.minLevel = GetLocalPlayer():GetLevel() - 3;
 	end
 	
+	-- don't stop bot on next level if level is under 10
 	if (GetLocalPlayer():GetLevel() < 10) then
-		self.stopOnLevel = false;
+		script_paranoia.stopOnLevel = false;
 	end
 		
 end
