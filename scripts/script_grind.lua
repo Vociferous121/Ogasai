@@ -89,6 +89,9 @@ script_grind = {
 	useExpChecker = true,
 	paranoidSetTimer = 12,
 	useString = true,
+	useLogoutTimer = false,
+	logoutSetTime = GetTimeEX() / 1000,
+	logoutTime = 2,
 }
 
 function script_grind:setup()
@@ -185,6 +188,17 @@ function script_grind:run()
 		script_radar:draw()
 	end
 
+	-- logout timer
+	if (self.useLogoutTimer) then
+
+		-- set logout time
+		local currentTime = GetTimeEX()/ 1000;
+
+		if (currentTime >= self.logoutSetTime + self.logoutTime * 3600) then
+			StopBot();
+		end
+	end
+
 	 -- Set next to node distance and nav-mesh smoothness to double that number
 	if (self.useMount and IsMounted()) then
 		script_nav:setNextToNodeDist(8); NavmeshSmooth(16);
@@ -214,15 +228,16 @@ function script_grind:run()
 		end
 	end
 	
+	-- check paranoia with a little randomness
 		local randomParanoid = random(1, 300);
 	if (randomParanoid > 294) then
-		if (script_paranoia:checkParanoia()) then
+		if (script_paranoia:checkParanoia()) and (not targetObj:IsTappedByMe()) then
 			ClearTarget();
 			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 5282;
 			return;
 		end
 	end
-
+	
 	if (GetTimeEX() > self.timer) then
 		self.timer = GetTimeEX() + self.tickRate;
 

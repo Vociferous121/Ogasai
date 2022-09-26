@@ -200,4 +200,17 @@ function script_paranoia:menu()
 	script_paranoia.counted = SliderInt("Deaths", 1, 5, script_paranoia.counted);
 		
 	Separator();
+
+	wasClicked, script_grind.useLogoutTimer = Checkbox("Use Logout Timer", script_grind.useLogoutTimer);
+
+	SameLine();
+	
+	Text("   Timer Starts When Checked!");
+
+	if (script_grind.useLogoutTimer) then
+		Text("Logout Timer Set In Hours");
+		script_grind.logoutTime = SliderInt("Logout Time - Hours", 1, 5, script_grind.logoutTime);
+	end
+
+	Separator();
 end
