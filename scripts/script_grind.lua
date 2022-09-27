@@ -200,6 +200,10 @@ function script_grind:run()
 		end
 	end
 
+	if (AreBagsFull()) then
+		self.bagsFull = true;
+	end
+
 	 -- Set next to node distance and nav-mesh smoothness to double that number
 	if (self.useMount and IsMounted()) then
 		script_nav:setNextToNodeDist(8); NavmeshSmooth(16);
@@ -230,17 +234,12 @@ function script_grind:run()
 	end
 	
 	-- check paranoia
-
-		-- with a little randomness
-		local randomParanoid = random(1, 300);
-	if (randomParanoid > 294) then
 		
 		if (script_paranoia:checkParanoia()) and (not targetObj:IsTappedByMe()) then
 			ClearTarget();
 			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 2000;
 			return;
 		end
-	end
 	
 	-- set tick rate for scripts
 	if (GetTimeEX() > self.timer) then

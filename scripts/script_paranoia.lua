@@ -52,7 +52,7 @@ function script_paranoia:checkParanoia()
 			if IsMoving() then
 				StopMoving();
 			end
-			self.waitTimer = GetTimeEX() + 8000;
+			self.waitTimer = GetTimeEX() + 19324;
 			return true;
 		end
 
@@ -80,7 +80,7 @@ function script_paranoia:checkParanoia()
 								SitOrStand();
 							end
 							if (HasBuff("Cozy Fire")) then
-								self.waitTimer = GetTimeEX() + 120000;
+								self.waitTimer = GetTimeEX() + 122167;
 							end
 						end
 					end
@@ -121,14 +121,14 @@ function script_paranoia:checkParanoia()
 
 			-- sit when paranoid if enabled
 			if (self.sitParanoid) and (IsStanding()) and (not IsInCombat()) then
-				self.waitTimer = GetTimeEX() + 2500;
+				self.waitTimer = GetTimeEX() + 2521;
 				if (IsMoving()) then
 					StopMoving();
-					self.waitTimer = GetTimeEX() + 2000;
+					self.waitTimer = GetTimeEX() + 2260;
 				end
 				if (not script_grind:playersWithinRange(150)) then
 					SitOrStand();
-					self.waitTimer = GetTimeEX() + 1500;
+					self.waitTimer = GetTimeEX() + 1820;
 				end
 			end
 		return true;
@@ -164,11 +164,17 @@ function script_paranoia:menu()
 		Text('Paranoia Range');
 	
 		-- main paranoia range
-		script_grind.paranoidRange = SliderInt("P (yd)", 1, 300, script_grind.paranoidRange);
+		script_grind.paranoidRange = SliderInt("P (yd)", 60, 300, script_grind.paranoidRange);
 
 		--timer to wait after paranoia
 		Text("How long to wait after paranoid target leaves range + 2 Sec");
 		script_grind.paranoidSetTimer = SliderInt("Time in Sec", 0, 60, script_grind.paranoidSetTimer);
+
+		Separator();
+			
+		Text("How quick the bot reacts to players before Paranoia is activated");
+		script_grind.randomParanoidSet = SliderInt("Random Stop", 100, 300, script_grind.randomParanoidSet);
+
 
 	end
 
