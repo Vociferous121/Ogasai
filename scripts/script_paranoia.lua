@@ -170,12 +170,6 @@ function script_paranoia:menu()
 		Text("How long to wait after paranoid target leaves range + 2 Sec");
 		script_grind.paranoidSetTimer = SliderInt("Time in Sec", 0, 60, script_grind.paranoidSetTimer);
 
-		Separator();
-			
-		Text("How quick the bot reacts to players before Paranoia is activated");
-		script_grind.randomParanoidSet = SliderInt("Random Stop", 100, 300, script_grind.randomParanoidSet);
-
-
 	end
 
 	Separator();
