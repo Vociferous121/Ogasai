@@ -237,7 +237,7 @@ function script_grind:run()
 		
 		if (script_paranoia:checkParanoia()) and (not targetObj:IsTappedByMe()) then
 			ClearTarget();
-			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 2000;
+			self.waitTimer = GetTimeEX() + 6900;
 			return;
 		end
 	
