@@ -79,7 +79,7 @@ function script_paranoia:checkParanoia()
 							if (IsStanding()) and (self.sitParanoid) then
 								SitOrStand();
 							end
-							if (HasBuff("Cozy Fire")) then
+							if (localObj:HasBuff("Cozy Fire")) then
 								self.waitTimer = GetTimeEX() + 122167;
 							end
 						end
