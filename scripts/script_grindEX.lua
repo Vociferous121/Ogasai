@@ -4,6 +4,7 @@ script_grindEX = {
 	unstuckTime = GetTimeEX(),
 	deathCounter = 0,
 	logoutOnHearth = true,
+
 }
 
 function script_grindEX:doChecks() 
@@ -29,14 +30,12 @@ function script_grindEX:doChecks()
 		if (GetLoadNavmeshProgress() ~= 1) then script_grind.message = "Loading the nav mesh... " return true; end
 
 		if(localObj:IsDead()) then
-			script_grind.waitTimer = GetTimeEX() + 5358;
 			script_grind.message = "Waiting to release...";
 
 			-- Release body
 			if (not IsGhost()) then
 				RepopMe();
 				script_grindEX.deathCounter = script_grindEX.deathCounter + 1;
-				script_grind.waitTimer = GetTimeEX() + 5000;
 				script_grind.message = "Walking to corpse...";
 				return true;
 			end
@@ -177,8 +176,8 @@ function script_grindEX:doChecks()
 				script_grind.message = 'Inventory is full, using Hearthstone...';
 				if (IsMounted()) then DisMount(); script_grind.waitTimer = GetTimeEX()+3000; return true; end
 				UseItem("Hearthstone");
-				self.waitTimer = GetTimeEX() + 15000;
-					if (self.logoutOnHearth) then
+					self.waitTimer = GetTimeEX() + 15000;
+				if (self.logoutOnHearth) then
 					Exit();
 				end
 				return;
