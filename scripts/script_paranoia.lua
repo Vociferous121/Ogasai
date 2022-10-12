@@ -87,6 +87,13 @@ function script_paranoia:checkParanoia()
 				end
 			end
 
+			-- rogue stealth while paranoid
+			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:HasBuff("Stealth")) then
+				if (CastSpellByName("Stealth")) then
+					return 0;
+				end
+			end
+
 			-- use shadowmeld on paranoia
 			if (HasSpell("Shadowmeld")) and (not localObj:HasBuff("Stealth")) then
 				if (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) and (not localObj:HasBuff("Bear Form")) and
@@ -101,14 +108,6 @@ function script_paranoia:checkParanoia()
 					if (CastSpellByName("Shadowmeld")) then
 						return 0;
 					end
-				end
-			end
-	
-
-			-- rogue stealth while paranoid
-			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:HasBuff("Stealth")) then
-				if (CastSpellByName("Stealth")) then
-					return 0;
 				end
 			end
 

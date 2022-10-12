@@ -86,7 +86,8 @@ function script_grindMenu:menu()
 		else
 			Separator(); Text("If Inventory Is Full - ");
 			wasClicked, script_grind.hsWhenFull = Checkbox("Use Hearthstone", script_grind.hsWhenFull); SameLine();
-			wasClicked, script_grind.stopWhenFull = Checkbox("Stop The Bot", script_grind.stopWhenFull); Separator();
+			wasClicked, script_grind.stopWhenFull = Checkbox("Stop The Bot", script_grind.stopWhenFull); SameLine();
+			wasClicked, script_grindEX.logoutOnHearthstone = Checkbox("Exit On Hearth", script_grindEX.logoutOnHearthstone); Separator();
 		end
 	end
 	if (CollapsingHeader("Path Options")) then

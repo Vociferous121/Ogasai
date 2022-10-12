@@ -3,6 +3,7 @@ script_grindEX = {
 	avoidBlacklisted = false,
 	unstuckTime = GetTimeEX(),
 	deathCounter = 0,
+	logoutOnHearth = true,
 }
 
 function script_grindEX:doChecks() 
@@ -176,6 +177,10 @@ function script_grindEX:doChecks()
 				script_grind.message = 'Inventory is full, using Hearthstone...';
 				if (IsMounted()) then DisMount(); script_grind.waitTimer = GetTimeEX()+3000; return true; end
 				UseItem("Hearthstone");
+				self.waitTimer = GetTimeEX() + 15000;
+					if (self.logoutOnHearth) then
+					Exit();
+				end
 				return;
 			elseif (script_grind.stopWhenFull) then
 				script_grind.message = 'Bags are full, stopping...';
