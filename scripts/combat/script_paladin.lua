@@ -17,7 +17,7 @@ script_paladin = {
 	potionHealth = 12,
 	potionMana = 20,
 	consecrationMana = 50,
-	meleeDistance = 3.15,
+	meleeDistance = 4.15,
 	crusaderStacks = 3,
 	crusaderStacksMana = 40,
 	crusaderStacksHealth = 35,
@@ -281,6 +281,8 @@ function script_paladin:run(targetGUID)
 			if (IsInCombat()) and (targetObj:GetDistance() < self.meleeDistance) and (targetHealth > 99) then
 				targetObj:AutoAttack();	
 			end
+
+			targetObj:FaceTarget();
 				
 		-- Combat WE ARE NOW IN COMBAT
 		else	
@@ -329,12 +331,13 @@ function script_paladin:run(targetGUID)
 			targetObj:AutoAttack();
 
 			-- Holy strike
-			if (HasSpell("Holy Strike")) and (localMana > 10) and (not IsSpellOnCD("Holy Strike")) then
+			if (HasSpell("Holy Strike")) and (localMana > 15) and (not IsSpellOnCD("Holy Strike")) then
 				if (targetObj:GetDistance() <= self.meleeDistance) then
 					targetObj:FaceTarget();
 					Cast("Holy Strike", targetObj);
 					return 0;
 				end
+			targetObj:FaceTarget();
 			end
 
 			-- Check: Use Lay of Hands
