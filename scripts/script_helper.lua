@@ -114,7 +114,7 @@ function script_helper:setup()
     	script_helper:addWater('Freshly-Squeezed Lemonade');
     	script_helper:addWater('Hyjal Nectar');
     	script_helper:addWater('Green Garden Tea');
-    	script_helper:addWater('Bottle Winterspring Water');
+    	script_helper:addWater('Bottled Winterspring Water');
 
 	-- Mage water
 	script_helper:addWater('Conjured Crystal Water');
@@ -199,7 +199,7 @@ function script_helper:setup()
 	script_helper:addMount('Horn of the Swift Timber Wolf');
 	script_helper:addMount('Red Skeletal Warhorse');
 	script_helper:addMount('Reins of the Black War Tiger');
-	script_helper:addMount('Stormspike Battle Charger');
+	script_helper:addMount('Stormpike Battle Charger');
 	script_helper:addMount('Swift Blue Raptor');
 	script_helper:addMount('Swift Brown Ram');
 	script_helper:addMount('Swift Brown Steed');
@@ -216,7 +216,7 @@ function script_helper:setup()
 	script_helper:addMount('Swift Zulian Tiger');
 	script_helper:addMount('Teal Kodo');
 	script_helper:addMount("The Phylactery of Kel'Thuzad");
-	script_helper:addMount('Warlords Deck');
+	script_helper:addMount('Warlords Deck'); --???
 	script_helper:addMount('Whistle of the Black War Raptor');
 	script_helper:addMount('Whistle of the Ivory Raptor');
 	script_helper:addMount('Whistle of the Mottled Red Raptor');
@@ -236,7 +236,7 @@ function script_helper:setup()
 	script_helper:addMount('Horn of the Brown Wolf');
 	script_helper:addMount('Horn of the Dire Wolf');
 	script_helper:addMount('Horn of the Timber Wolf');
-	script_helper:addMount('Palomino');
+	script_helper:addMount('Palomino Bridle');
 	script_helper:addMount('Pinto Bridle');
 	script_helper:addMount('Red Mechanostrider');
 	script_helper:addMount('Red Skeletal Horse');
@@ -245,7 +245,7 @@ function script_helper:setup()
 	script_helper:addMount('Whistle of the Turquoise Raptor');
 	script_helper:addMount('Whistle of the Violet Raptor');
 	script_helper:addMount('White Ram');
-	script_helper:addMount('White Stallion');
+	script_helper:addMount('White Stallion Bridle');
 	script_helper:addMount('Reins of the Spotted Frostsaber');
 	script_helper:addMount('Reins of the Striped Frostsaber');
 	script_helper:addMount('Reins of the Striped Nightsaber');
