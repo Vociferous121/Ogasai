@@ -820,7 +820,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Drain Life on low health
-			if (HasSpell("Drain Life")) and (targetObj:GetCreatureType() ~= "Mechanic") and (localHealth <= self.drainLifeHealth) and (localMana > 5) and (not IsChanneling()) and (not self.useDrainMana) then
+			if (HasSpell("Drain Life")) and (targetObj:GetCreatureType() ~= "Mechanical") and (localHealth <= self.drainLifeHealth) and (localMana > 5) and (not IsChanneling()) and (not self.useDrainMana) then
 				self.message = "Casting Drain Life";
 				if (targetObj:GetDistance() < 20) then
 					if (IsMoving()) then StopMoving(); 
