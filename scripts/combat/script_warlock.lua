@@ -195,15 +195,15 @@ function script_warlock:setup()
 			self.useSuccubus = false;
 			self.useFelhunter = false;
 			self.hasPet = false;
-		-- elseif (HasSpell("Summon Succubus")) then
-		-- 	self.useSuccubus = true;
-		-- 	self.useImp = false;
-		-- 	self.useVoid = false;
-		-- elseif ("HasSpell("Summon Felhunter")) then
-		-- 	self.useSuccubus = false;
-		-- 	self.useImp = false;
-		-- 	self.useVoid = false;
-		--	self.useFelhunter = true;
+		elseif (HasSpell("Summon Succubus")) then
+			self.useSuccubus = true;
+			self.useImp = false;
+			self.useVoid = false;
+		elseif (HasSpell("Summon Felhunter")) then
+			self.useSuccubus = false;
+			self.useImp = false;
+			self.useVoid = false;
+			self.useFelhunter = true;
 		end
 	end
 
