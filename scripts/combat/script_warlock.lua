@@ -837,7 +837,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Drain Mana on low mana
-			if (HasSpell("Drain Mana")) and (self.useDrainMana) and (targetObj:GetCreatureType() ~= "Mechanic") and (targetObj:GetManaPercentage() >= 25) and (localMana <= 65) then
+			if (HasSpell("Drain Mana")) and (self.useDrainMana) and (targetObj:GetCreatureType() ~= "Mechanical") and (targetObj:GetManaPercentage() >= 25) and (localMana <= 65) then
 				self.message = "Casting Drain Mana";
 				if (targetObj:GetDistance() < 20) then
 					if (IsMoving()) then StopMoving(); 
