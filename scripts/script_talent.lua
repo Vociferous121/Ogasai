@@ -76,11 +76,18 @@ function script_talent:setup()
 		
 		-- Priest shadow talent points in order 1-31
 		self.priestTalents = {
+			--[[ --Priest DC
 			"1;Wand Specialization", "1;Wand Specialization", "1;Wand Specialization", "1;Wand Specialization", "1;Wand Specialization", 
 			"1;Improved Power Word: Shield", "1;Improved Power Word: Shield", "1;Improved Power Word: Shield",
 			"1;Improved Power Word: Fortitude", "1;Improved Power Word: Fortitude", 
 			"1;Inner Focus",
 			"1;Meditation", "1;Meditation", "1;Meditation",
+			--]]
+			"3;Blackout", "3;Blackout", "3;Blackout", "3;Blackout", "3;Blackout", 
+			"3;Improved Shadow Word: Pain", "3;Improved Shadow Word: Pain", 
+			"3;Shadow Focus", "3;Shadow Focus", "3;Shadow Focus", 
+			"3;Mind Flay",
+			"3;Improved Mind Blast", "3;Improved Mind Blast", "3;Improved Mind Blast", "3;Improved Mind Blast", 
 			"3;Shadow Weaving", "3;Shadow Weaving", "3;Shadow Weaving", "3;Shadow Weaving", "3;Shadow Weaving", 
 			"3;Vampiric Embrace",
 			"3;Improved Vampiric Embrace", "3;Improved Vampiric Embrace", 
