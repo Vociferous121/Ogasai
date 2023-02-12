@@ -647,15 +647,6 @@ function script_paladin:rest()
 	local localHealth = localObj:GetHealthPercentage();
 	local localMana = localObj:GetManaPercentage();
 
-	-- heal before eating
-	if (localHealth < self.holyLightHealth) or (localHealth < self.eatHealth) then
-		if (HasSpell("Holy Light")) and (not IsSpellOnCD("Holy Light")) then
-			if (CastSpellByName("Holy Light")) and (localHealth < self.holyLightHealth or localHealth < self.eatHealth) then
-				return true;
-			end
-		end
-	end
-
 	-- Buff with Blessing
 	if (self.blessing ~= 0 and HasSpell(self.blessing) and not IsMounted()) then
 		if (localMana > 10 and not localObj:HasBuff(self.blessing)) then
@@ -673,12 +664,12 @@ function script_paladin:rest()
 	end
 
 	-- Heal up: Holy Light
-	if (localMana > 20 and localHealth < self.eatHealth) then
-		if (Buff("Holy Light", localObj)) then
-			script_grind:setWaitTimer(3500);
-			self.message = "Healing: Holy Light...";
+	if localMana > 20 and HasSpell("Holy Light") and not IsSpellOnCD("Holy Light") and localHealth < self.holyLightHealth or localHealth < self.eatHealth then
+		if Buff("Holy Light", localObj) then
+			script_grind:setWaitTimer(3500)
+			self.message = "Healing: Holy Light..."
 		end
-		return true;
+		return true
 	end
 
 	-- Heal up: Flash of Light
