@@ -419,12 +419,12 @@ if (script_grind.useExpChecker) and (GetLocalPlayer():GetLevel() < 60) then
 	if (GetXPExhaustion() ~= nil) and (script_grind.useExpChecker) then
 
 		DrawText('Rested kills needed - '..restedKillsNeeded, x-740, y, r+255, g+255, b+255);
-		DrawText('To level killing level '..localLevel.. ' targets', x-740, y+20, r+255, g+255, b+255);
+		DrawText(' Killing level '..localLevel.. ' targets', x-740, y+20, r+255, g+255, b+255);
 
 	elseif (GetXPExhaustion() == nil or restR == 0) and (script_grind.useExpChecker) then
 
 		DrawText('Kills needed - '..killsNeeded, x-740, y, r+255, g+255, b+255);
-		DrawText('To level killing level '..localLevel.. ' targets', x-740, y+20, r+255, g+255, b+255);
+		DrawText(' Killing level '..localLevel.. ' targets', x-740, y+20, r+255, g+255, b+255);
 
 	end
 

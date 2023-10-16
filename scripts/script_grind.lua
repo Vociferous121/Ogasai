@@ -206,7 +206,7 @@ function script_grind:run()
 
 	 -- Set next to node distance and nav-mesh smoothness to double that number
 	if (self.useMount and IsMounted()) then
-		script_nav:setNextToNodeDist(8); NavmeshSmooth(18);
+		script_nav:setNextToNodeDist(8); NavmeshSmooth(16);
 	else
 		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*4);
 	end
@@ -235,7 +235,7 @@ function script_grind:run()
 	
 	-- check paranoia
 		
-		if (script_paranoia:checkParanoia()) and (not targetObj:IsTappedByMe()) then
+		if (script_paranoia:checkParanoia()) and (not targetObj:IsTappedByMe()) and (not IsInCombat()) then
 			ClearTarget();
 			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 2000;
 			return;
@@ -303,7 +303,7 @@ function script_grind:run()
 		end
 		
 		-- Assign the next valid target to be killed within the pull range
-		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
+		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) and self.lootobj == nil then
 			self.waitTimer = GetTimeEX() + 500;
 			self.lastTarget = self.enemyObj:GetGUID();
 		end

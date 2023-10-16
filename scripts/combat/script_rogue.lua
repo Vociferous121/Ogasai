@@ -9,7 +9,7 @@ script_rogue = {
 	eatHealth = 40,
 	potionHealth = 15,
 	cpGeneratorCost = 40,
-	meeleDistance = 4.3,
+	meeleDistance = 3.6,
 	stealthRange = 100,
 	waitTimer = 0,
 	vanishHealth = 8,
@@ -200,6 +200,11 @@ function script_rogue:run(targetGUID)
 	if (self.enableGrind) then
 		--Valid Enemy
 		if (targetObj ~= 0) then
+
+		-- Set Slice and Dice level 10 or greater
+			if not (HasSpell("Slice And Dice")) then
+				useSliceAndDice = false;
+			end
 		
 			-- Cant Attack dead targets
 			if (targetObj:IsDead() or not targetObj:CanAttack()) then
@@ -210,7 +215,7 @@ function script_rogue:run(targetGUID)
 				JumpOrAscendStart();
 			end
 		
-			if (targetObj:IsInLineOfSight() and IsMoving()) then
+			if (targetObj:IsInLineOfSight() and not IsMoving()) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
@@ -228,7 +233,7 @@ function script_rogue:run(targetGUID)
 
 			-- Don't attack if we should rest first
 			if (localHealth < self.eatHealth and not script_grind:isTargetingMe(targetObj)
-				and targetHealth > 99 and not targetObj:IsStunned()) then
+				and targetHealth > 99 and not targetObj:IsStunned() and script_grind.lootobj == nil) then
 				self.message = "Need rest...";
 				return 4;
 			end
@@ -471,15 +476,16 @@ function script_rogue:run(targetGUID)
 				end
 			
 				-- Keep Slice and Dice up
-				if (self.useSliceAndDice and not localObj:HasBuff('Slice and Dice') and targetHealth > 50 and localCP > 1) then
-					if (localEnergy < 25) then 
-						return 0;
-					end -- return until we have energy
-					if (not script_rogue:spellAttack('Slice and Dice', targetObj) or localEnergy <= 25) then
-						return 0;
+				if (HasSpell("Slice And Dice")) then
+					if (self.useSliceAndDice and not localObj:HasBuff('Slice and Dice') and targetHealth > 50 and localCP > 1) then
+						if (localEnergy < 25) then 
+							return 0;
+						end -- return until we have energy
+						if (not script_rogue:spellAttack('Slice and Dice', targetObj) or localEnergy <= 25) then
+							return 0;
+						end
 					end
-				end
-			
+				end			
 				-- Dynamic health check when using Eviscerate between 1 and 4 CP
 				if (targetHealth < (10*localCP)) then
 					if (localEnergy < 35) then
@@ -534,7 +540,7 @@ function script_rogue:run(targetGUID)
 
 			-- Don't attack if we should rest first
 			if (localHealth < self.eatHealth and not script_grind:isTargetingMe(targetObj)
-				and targetHealth > 99 and not targetObj:IsStunned()) then
+				and targetHealth > 99 and not targetObj:IsStunned() and script_grind.lootobj == nil) then
 				self.message = "Need rest...";
 				return 4;
 			end
@@ -671,7 +677,7 @@ function script_rogue:run(targetGUID)
 					end
 
 					-- Slice and Dice at 2 combo points
-					if (localCP > 2) then
+					if (localCP > 2) and (HasSpell("Slice And Dice")) then
 						if (not localObj:HasBuff('Slice and Dice')) and (targetHealth > 25) then
 							if (localEnergy < 25) then 
 								self.message = "waiting for 25 energy for Slice and Dice Combat Rotation 2";
@@ -828,15 +834,17 @@ function script_rogue:run(targetGUID)
 					end
 			
 					-- Keep Slice and Dice up
-					if (self.useSliceAndDice and not localObj:HasBuff('Slice and Dice') and targetHealth > 50 and localCP > 0) then
-						if (localEnergy < 25) then 
-							return 0;
-						end -- return until we have energy
-						if (not script_rogue:spellAttack('Slice and Dice', targetObj) or localEnergy <= 25) then
-							return 0;
+					if (HasSpell("Slice And Dice")) then
+						if (self.useSliceAndDice and not localObj:HasBuff('Slice and Dice') and targetHealth > 50 and localCP > 0) then
+							if (localEnergy < 25) then 
+								return 0;
+							end -- return until we have energy
+							if (not script_rogue:spellAttack('Slice and Dice', targetObj) or localEnergy <= 25) then
+								return 0;
+							end
 						end
 					end
-				
+
 					-- Dynamic health check when using Eviscerate between 1 and 4 CP
 					if (targetHealth < (10*localCP)) then
 						if (localEnergy < 35) then
@@ -865,9 +873,10 @@ function script_rogue:rest()
 
 	local localObj = GetLocalPlayer();
 	local localHealth = localObj:GetHealthPercentage();
+	
 
 	-- Eat something
-	if (not IsEating() and localHealth < self.eatHealth) then
+	if (not IsEating() and localHealth < self.eatHealth) and (script_grind.lootobj == nil) then
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to eat...";
 		if (IsInCombat()) then
@@ -876,12 +885,19 @@ function script_rogue:rest()
 			
 		if (IsMoving()) then StopMoving(); return true; end
 
-		if (script_helper:eat()) then 
+		if (script_helper:eat()) and script_grind.lootobj == nil then 
 			self.message = "Eating..."; 
 			return true; 
 		else 
 			self.message = "No food! (or food not included in script_helper)";
-			return true; 
+				if (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and not localObj:HasDebuff("Touch of Zanzil")) then
+					if (not localObj:HasBuff("Stealth")) then
+						CastSpellByName("Stealth");
+						return true;
+					end
+				end
+				self.waitTimer = GetTimeEX() + 7000;
+				return true; 
 		end		
 	end
 
