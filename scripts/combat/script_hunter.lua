@@ -1,7 +1,7 @@
 script_hunter = {
 	message = 'Hunter Combat Script',
 	hunterExtra = include("scripts\\combat\\script_hunterEX.lua"),
-	drinkMana = 50,
+	drinkMana = 30,
 	eatHealth = 50,
 	potionHealth = 10,
 	potionMana = 20,
@@ -558,6 +558,11 @@ function script_hunter:rest()
 		self.message = "We need to eat...";
 		if (IsMoving()) then
 			StopMoving();
+			return true;
+		end
+
+		if (localMana < self.drinkMana) or (localHealth < self.eatHealth) then
+			self.waitTimer = GetTimeEX() + 1422;
 			return true;
 		end
 		

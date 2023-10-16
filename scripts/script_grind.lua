@@ -11,7 +11,7 @@ script_grind = {
 	enemyObj = nil,
 	lootObj = nil,
 	timer = GetTimeEX(),
-	tickRate = 200,
+	tickRate = 350,
 	waitTimer = GetTimeEX(),
 	pullDistance = 225,
 	avoidElite = true,
@@ -53,7 +53,7 @@ script_grind = {
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
 	paranoiaLoaded = include("scripts\\script_unstuck.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
-	nextToNodeDist = 3.5, -- (Set to about half your nav smoothness)
+	nextToNodeDist = 5.5, -- (Set to about half your nav smoothness)
 	blacklistedTargets = {},
 	blacklistedNum = 0,
 	isSetup = false,
@@ -206,7 +206,7 @@ function script_grind:run()
 
 	 -- Set next to node distance and nav-mesh smoothness to double that number
 	if (self.useMount and IsMounted()) then
-		script_nav:setNextToNodeDist(8); NavmeshSmooth(16);
+		script_nav:setNextToNodeDist(12); NavmeshSmooth(24);
 	else
 		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*4);
 	end
