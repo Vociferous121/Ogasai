@@ -206,7 +206,7 @@ function script_grind:run()
 
 	 -- Set next to node distance and nav-mesh smoothness to double that number
 	if (self.useMount and IsMounted()) then
-		script_nav:setNextToNodeDist(8); NavmeshSmooth(16);
+		script_nav:setNextToNodeDist(8); NavmeshSmooth(18);
 	else
 		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*4);
 	end
@@ -304,6 +304,7 @@ function script_grind:run()
 		
 		-- Assign the next valid target to be killed within the pull range
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
+			self.waitTimer = GetTimeEX() + 500;
 			self.lastTarget = self.enemyObj:GetGUID();
 		end
 		self.enemyObj = script_grind:assignTarget();
@@ -746,15 +747,12 @@ function script_grind:doLoot(localObj)
 			self.waitTimer = GetTimeEX() + 550;
 			return;
 		end
-		
-		-- If we reached the loot object, reset the nav path
-		script_nav:resetNavigate();
 
 		-- Dismount
 		if (IsMounted()) then DisMount(); self.waitTimer = GetTimeEX() + 450; return;  end
 
 		if(not self.lootObj:UnitInteract() and not IsLooting()) then
-			self.waitTimer = GetTimeEX() + 1250;
+			self.waitTimer = GetTimeEX() + 850;
 			return;
 		end
 		if (not LootTarget()) then
@@ -762,10 +760,15 @@ function script_grind:doLoot(localObj)
 			return;
 		else
 			self.lootObj = nil;
-			self.waitTimer = GetTimeEX() + 2250;
+			self.waitTimer = GetTimeEX() + 950;
 			return;
 		end
-		self.waitTimer = GetTimeEX() + 1000;
+		self.waitTimer = GetTimeEX() + 850;
+
+		-- If we reached the loot object, reset the nav path
+		script_nav:resetNavigate();
+		self.waitTimer = GetTimeEX() + 550;
+		
 	end
 
 	-- Blacklist loot target if swimming or we are close to aggro blacklisted targets and not close to loot target

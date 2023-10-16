@@ -210,11 +210,11 @@ function script_rogue:run(targetGUID)
 				JumpOrAscendStart();
 			end
 		
-			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+			if (targetObj:IsInLineOfSight() and IsMoving()) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 0;
+						self.waitTimer = GetTimeEX() + 200;
 					end
 				end
 			end
