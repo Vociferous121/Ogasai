@@ -248,6 +248,13 @@ function script_hunter:run(targetGUID)
 				end 
 			end
 
+			--Berserking Troll Racial
+			if (HasSpell("Berserking")) and (not IsSpellOnCD("Berserking")) then
+				CastSpellByName("Berserking");
+				self.waitTimer = GetTimeEX() + 500;
+				return 0;
+			end
+
 			if (script_hunter:mendPet(localMana, petHP)) then
 				self.waitTimer = GetTimeEX() + 1850;
 				return 0;
@@ -337,6 +344,7 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	
 	if (canDoRangeAttacks) then
 		if (script_hunter:doPullAttacks(targetObj, localMana)) then
+			targetObj:FaceTarget();
 			self.waitTimer = GetTimeEX() + 1850;
 			return true;
 		end
