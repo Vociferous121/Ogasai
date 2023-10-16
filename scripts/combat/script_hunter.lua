@@ -224,6 +224,7 @@ function script_hunter:run(targetGUID)
 		if (not IsInCombat()) then
 			self.dontRest = true;
 			if (script_hunter:doOpenerRoutine(targetGUID, pet)) then
+				targetObj:FaceTarget();
 				self.waitTimer = GetTimeEX() + 1850;
 				return 4; -- return 0 bugs turning around cause of StopMoving();
 			else
@@ -364,6 +365,7 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	end 
 	
 	if (script_hunter:doPullAttacks(targetObj)) then
+		targetObj:FaceTarget();
 		self.waitTimer = GetTimeEX() + 1850;
 		return true;
 	end
