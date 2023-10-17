@@ -225,7 +225,10 @@ function script_hunter:run(targetGUID)
 			self.dontRest = true;
 			if (script_hunter:doOpenerRoutine(targetGUID, pet)) then
 				targetObj:FaceTarget();
-				self.waitTimer = GetTimeEX() + 1850;
+				if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() < 40) then
+					StopMoving();
+				end
+				self.waitTimer = GetTimeEX() + 850;
 				return 4; -- return 0 bugs turning around cause of StopMoving();
 			else
 				return 3;
@@ -540,9 +543,15 @@ function script_hunter:rest()
 
 	-- Eat and Drink
 	if (not IsDrinking() and localMana < self.drinkMana) then
+
 		self.message = "We need to drink...";
 		if (IsMoving()) then
 			StopMoving();
+			return true;
+		end
+
+		if (localMana < self.drinkMana) or (localHealth < self.eatHealth) then
+			self.waitTimer = GetTimeEX() + 1422;
 			return true;
 		end
 
@@ -554,15 +563,11 @@ function script_hunter:rest()
 			return true; 
 		end
 	end
-	if (not IsEating() and localHealth < self.eatHealth) then	
+
+	if (not IsEating() and localHealth < self.eatHealth) and (not targetObj:IsLootable()) then	
 		self.message = "We need to eat...";
 		if (IsMoving()) then
 			StopMoving();
-			return true;
-		end
-
-		if (localMana < self.drinkMana) or (localHealth < self.eatHealth) then
-			self.waitTimer = GetTimeEX() + 1422;
 			return true;
 		end
 		
