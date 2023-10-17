@@ -355,7 +355,7 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	end
 	
 	-- Check: If we are already in meele range before pull, use Raptor Strike
-	if (targetObj:GetDistance() < 5) then
+	if (targetObj:GetDistance() < 5) and (targetObj:GetHealthPercentage() > 10) then
 		if (not script_hunter:cast('Raptor Strike', targetObj)) then
 			targetObj:FaceTarget(); 
 			return true; 
@@ -452,7 +452,7 @@ function script_hunter:doInCombatRoutine(targetObj, localMana)
 	-- Check: If we are in meele range and have no pet or rotation use meele abilities
 	if (targetObj:GetDistance() < 5) then
 		-- Meele Skill: Raptor Strike
-		if (localMana > 10 and not IsSpellOnCD('Raptor Strike')) then 
+		if (localMana > 10 and not IsSpellOnCD('Raptor Strike')) and (targetObj:GetHealthPercentage() > 10) and (not targetObj:IsFleeing()) then 
 			if (script_hunter:cast('Raptor Strike', targetObj)) then 
 				return true; 
 			end 
@@ -486,7 +486,7 @@ end
 
 function script_hunter:doRangeAttack(targetObj, localMana)
 	-- Keep up the debuff: Hunter's Mark 
-	if (not targetObj:HasDebuff("Hunter's Mark") and not IsSpellOnCD("Hunter's Mark")) and (targetObj:IsInLineOfSight()) then 
+	if (not targetObj:HasDebuff("Hunter's Mark") and not IsSpellOnCD("Hunter's Mark")) and (targetObj:IsInLineOfSight()) and (self.hasPet) then 
 		if (script_hunter:cast("Hunter's Mark", targetObj)) then return true; end end
 	-- Attack: Use Auto Shot 
 	if (not IsAutoCasting('Auto Shot')) and (targetObj:IsInLineOfSight()) then
