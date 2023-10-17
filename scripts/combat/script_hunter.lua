@@ -355,7 +355,7 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	end
 	
 	-- Check: If we are already in meele range before pull, use Raptor Strike
-	if (targetObj:GetDistance() < 5) and (targetObj:GetHealthPercentage() > 10) then
+	if (targetObj:GetDistance() < 5) and (targetObj:GetHealthPercentage() > 10) and (not targetObj:IsFleeing()) then
 		if (not script_hunter:cast('Raptor Strike', targetObj)) then
 			targetObj:FaceTarget(); 
 			return true; 
@@ -568,6 +568,7 @@ function script_hunter:rest()
 		self.message = "We need to eat...";
 		if (IsMoving()) then
 			StopMoving();
+			self.waitTimer = GetTimeEX() + 1422;
 			return true;
 		end
 		

@@ -14,10 +14,7 @@ script_gather = {
 	lootDistance = 3,
 	timer = 0,
 	nodeID = 0,
-	gatherAllPossible = true,
-	waitTimer = GetTimeEX(),
-	toNodeDistance = 3.4,
-
+	gatherAllPossible = true
 }
 
 function script_gather:addHerb(name, id, use, req)
@@ -88,6 +85,7 @@ function script_gather:setup()
 
 	
 	self.timer = GetTimeEX();
+
 	self.isSetup = true;
 end
 
@@ -233,49 +231,31 @@ function script_gather:gather()
 
 	self.nodeID = self.nodeObj:GetObjectDisplayID();
 		
-	-- found a valid node then
 	if(self.nodeObj ~= nil and self.nodeObj ~= 0) then
-		local _x, _y, _z = self.nodeObj:GetPosition();
-		local dist = self.nodeObj:GetDistance();
-		local selfDist = localObj:GetDistance();
 		
-		-- reached loot stop moving
-		--if (not self.nodeBlacklisted) then
-			if(dist <= selfDist + self.toNodeDistance) then
-				self.waitTimer = GetTimeEX() + 1500;
-				if (IsMoving()) then
-					StopMoving();
-					self.timer = GetTimeEX() + 750;
-					return true;
-				end
-
-				-- if not looting then interact with game object
-				-- now looting
-				if(not IsLooting() and not IsChanneling()) then
-					self.nodeObj:GameObjectInteract();
-					self.timer = GetTimeEX() + 6100;
-					if (IsMoving()) then
-						self.timer = GetTimeEX() + 6100;
-						StopMoving();
-						return false;
-					end
-				end
-
-				-- if we can loot again and not looting already then loot again
-				if (self.collectMinerals) then
-					if (not LootTarget()) and (not IsChanneling()) then
-					self.timer = GetTimeEX() + 2550;
-						return false;
-					end
-				end
-			else
-
-				-- keep moving to node
-				if (_x ~= 0) then
-					script_nav:moveToNav(GetLocalPlayer(), _x, _y, _z);
-					self.timer = GetTimeEX() + 150;
-				end
+		local _x, _y, _z = self.nodeObj:GetPosition();
+		local dist = self.nodeObj:GetDistance();		
+			
+		if(dist < self.lootDistance) then
+			if(IsMoving()) then
+				StopMoving();
+				self.timer = GetTimeEX() + 150;
 			end
+
+			if(not IsLooting() and not IsChanneling()) then
+				self.nodeObj:GameObjectInteract();
+				self.timer = GetTimeEX() + 1250;
+			end
+			if (not LootTarget()) then
+				self.timer = GetTimeEX() + 650;
+				return;
+			end
+		else
+			if (_x ~= 0) then
+				script_nav:moveToNav(GetLocalPlayer(), _x, _y, _z);
+				self.timer = GetTimeEX() + 150;
+			end
+		end
 
 		return true;
 	end
@@ -285,37 +265,29 @@ end
 
 function script_gather:menu()
 
-	if (not self.isSetup) then
+	if(not self.isSetup) then
 		script_gather:setup();
 	end
 
 	local wasClicked = false;
 	
-	if (CollapsingHeader("Gather Options")) then
-
-		wasClicked, script_grind.gather = Checkbox("Gather On/Off", script_grind.gather);
+	if (CollapsingHeader("Gather options")) then
+		wasClicked, script_grind.gather = Checkbox("Gather on/off", script_grind.gather);
 		
 		wasClicked, self.collectMinerals = Checkbox("Mining", self.collectMinerals);
-
 		SameLine();
-
 		wasClicked, self.collectHerbs = Checkbox("Herbalism", self.collectHerbs);
 
-		Text('Search Distance');
-		self.gatherDistance = SliderInt("GSD (yd)", 1, 500, self.gatherDistance);
-
-		Text("Distance To Loot");
-		self.toNodeDistance = SliderInt("ND (yd)", 2, 5, self.toNodeDistance);
+		Text('Gather Search Distance');
+		self.gatherDistance = SliderFloat("GSD", 1, 150, self.gatherDistance);
 		
 		if (script_gather.collectMinerals or script_gather.collectHerbs) then
-		
-			wasClicked, script_gather.gatherAllPossible = Checkbox("Gather Everything Within Skill Range", script_gather.gatherAllPossible);
+			wasClicked, script_gather.gatherAllPossible = Checkbox("Gather everything we can", script_gather.gatherAllPossible);
 		end
 
 		if(self.collectMinerals and not script_gather.gatherAllPossible) then
 			Separator();
-
-			Text('Minerals - (Skill Level Required)');
+			Text('Minerals');
 			
 			for i=0,self.numMinerals - 1 do
 				wasClicked, self.minerals[i][2] = Checkbox(self.minerals[i][0], self.minerals[i][2]);
@@ -325,8 +297,7 @@ function script_gather:menu()
 		
 		if(self.collectHerbs and not script_gather.gatherAllPossible) then
 			Separator();
-
-			Text('Herbs - (Skill Level Required)');
+			Text('Herbs');
 			
 			for i=0,self.numHerbs - 1 do
 				wasClicked, self.herbs[i][2] = Checkbox(self.herbs[i][0], self.herbs[i][2]);
