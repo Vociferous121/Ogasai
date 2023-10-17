@@ -208,7 +208,7 @@ function script_hunter:run(targetGUID)
 		targetHealth = targetObj:GetHealthPercentage();
 
 		-- Auto Attack
-		if (targetObj:GetDistance() < 40) then
+		if (targetObj:GetDistance() < 40) and (targetObj:IsInLineOfSight()) then
 			targetObj:AutoAttack();
 		end
 		
@@ -221,7 +221,7 @@ function script_hunter:run(targetGUID)
 		end 
 		
 		-- Opener
-		if (not IsInCombat()) then
+		if (not IsInCombat()) and (targetObj:IsInLineOfSight()) then
 			self.dontRest = true;
 			if (script_hunter:doOpenerRoutine(targetGUID, pet)) then
 				targetObj:FaceTarget();
@@ -486,10 +486,10 @@ end
 
 function script_hunter:doRangeAttack(targetObj, localMana)
 	-- Keep up the debuff: Hunter's Mark 
-	if (not targetObj:HasDebuff("Hunter's Mark") and not IsSpellOnCD("Hunter's Mark")) then 
+	if (not targetObj:HasDebuff("Hunter's Mark") and not IsSpellOnCD("Hunter's Mark")) and (targetObj:IsInLineOfSight()) then 
 		if (script_hunter:cast("Hunter's Mark", targetObj)) then return true; end end
 	-- Attack: Use Auto Shot 
-	if (not IsAutoCasting('Auto Shot')) then
+	if (not IsAutoCasting('Auto Shot')) and (targetObj:IsInLineOfSight()) then
 		if (script_hunter:cast('Auto Shot', targetObj)) then return true; else return false; end
 	end
 	-- Check: Let pet get aggro, dont use special attacks before the mob has less than 95% HP
@@ -498,10 +498,10 @@ function script_hunter:doRangeAttack(targetObj, localMana)
 	if (not IsSpellOnCD('Intimidation') and targetObj:GetHealthPercentage() > 50) then 
 		if (script_hunter:cast('Intimidation', targetObj)) then return true; end end		
 	-- Special attack: Serpent Sting (Keep the DOT up!)
-	if (not targetObj:HasDebuff('Serpent Sting') and not IsSpellOnCD('Serpent Sting') and targetObj:GetCreatureType() ~= 'Elemental') then 
+	if (not targetObj:HasDebuff('Serpent Sting') and not IsSpellOnCD('Serpent Sting') and targetObj:GetCreatureType() ~= 'Elemental') and (targetObj:IsInLineOfSight()) then 
 		if (script_hunter:cast('Serpent Sting', targetObj)) then return true; end end
 	-- Special attack: Arcane Shot (Only when mana above 70% mana)
-	if (not IsSpellOnCD('Arcane Shot') and localMana > 70) then 
+	if (not IsSpellOnCD('Arcane Shot') and localMana > 70) and (targetObj:IsInLineOfSight()) then 
 		if (script_hunter:cast('Arcane Shot', targetObj)) then return true; end end
 	-- Check if we are able to attack
 	if (IsAutoCasting('Auto Shot')) then
