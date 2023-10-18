@@ -218,6 +218,18 @@ function script_mage:setup()
 		self.useFrostNova = false;
 	end
 
+	localObj = GetLocalPlayer();
+
+	-- set spec below level 4
+	if (localObj:GetLevel() < 10) then
+		self.fireMage = true;
+	end
+
+	-- set spec below level 4-10
+	if (localObj:GetLevel() >= 4) and (localObj:GetLevel() < 10) then
+		self.frostMage = true;
+	end
+	
 	-- set group settings mainly used for easy follower reloads
 	if (GetNumPartyMembers() > 1) then
 		self.useBlink = false;
@@ -225,8 +237,6 @@ function script_mage:setup()
 		self.polymorphAdds = false;
 		self.useDampenMagic = false;
 	end
-
-	localObj = GetLocalPlayer();
 
 	-- if no wand then don't use wand
 	if (not localObj:HasRangedWeapon()) then
@@ -982,6 +992,9 @@ function script_mage:rest()
 	local lootObj = script_nav:getLootTarget();
 	
 	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
+		if (IsMoving()) then
+			StopMoving();
+		end
 		self.waitTimer = GetTimeEX() + 1800;
 		script_grind:doLoot();
 		script_nav:resetNavigate();
@@ -1194,10 +1207,9 @@ function script_mage:rest()
 	
 	-- arcane intellect
 	if (HasSpell("Arcane Intellect")) and (not localObj:HasBuff("Arcane Intellect")) and (localMana > 25) then
-		if (CastSpellByName("Arcane Intellect", localObj)) then
-			self.waitTimer = GetTimeEX() + 1700;
-			return true;
-		end
+		CastSpellByName("Arcane Intellect", localObj);
+		self.waitTimer = GetTimeEX() + 1700;
+		return true;
 	end
 	
 	-- ice armor / frost armor
