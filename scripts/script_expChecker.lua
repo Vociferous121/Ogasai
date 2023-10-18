@@ -77,6 +77,7 @@ function script_expChecker:targetLevels()
 
 	elseif (level >= 60) then
 		zeroDiff = 17;
+
 	end
 
         -- rested exp calculation per mob targeted

@@ -1,7 +1,7 @@
 script_nav = {
 	useNavMesh = true,
 	nextNavNodeDistance = 2, -- for mobs and loot
-	nextPathNodeDistance = 4, -- for walking paths
+	nextPathNodeDistance = 3.5, -- for walking paths
 	lastPathIndex = -1,
 	navPosition = {},
 	navPathPosition = {},
@@ -352,7 +352,7 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 	if (not IsUsingNavmesh() and self.useNavMesh) then
 		return "Please load and and enable the nav mesh...";
 	end
-	
+
 	self.drawNav = true;
 
 	-- Fetch our current position

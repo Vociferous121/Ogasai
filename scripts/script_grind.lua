@@ -194,6 +194,10 @@ function script_grind:run()
 		script_radar:draw()
 	end
 
+	if (self.useExpChecker) then
+		script_expChecker:menu();
+	end
+
 	-- logout timer
 	if (self.useLogoutTimer) then
 
@@ -677,10 +681,6 @@ function script_grind:drawStatus()
 	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
 	if (onScreen) then
 		y, x = tY-25, tX+75;
-	end
-
-	if (self.useExpChecker) then
-		script_expChecker:menu();
 	end
 
 	-- info

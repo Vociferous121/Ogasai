@@ -130,10 +130,6 @@ function script_grindMenu:menu()
 		local wasClicked = false;
 
 	if (CollapsingHeader('Display Options')) then
-		if (CollapsingHeader("-- Radar - EXPERIMENTAL")) then
-		local wasClicked = false;
-				script_radar:menu()
-		end
 
 		local wasClicked = false;
 		wasClicked, script_grind.drawEnabled = Checkbox('Display Status Window', script_grind.drawEnabled);
@@ -141,6 +137,11 @@ function script_grindMenu:menu()
 		if (GetLocalPlayer():GetLevel() < 60) then
 		
 			wasClicked, script_grind.useExpChecker = Checkbox("Display Exp Tracker", script_grind.useExpChecker);
+		end
+
+		if (CollapsingHeader("-- Radar - EXPERIMENTAL")) then
+		local wasClicked = false;
+				script_radar:menu()
 		end
 
 		wasClicked, script_grind.drawUnits = Checkbox("Display Unit Info On Screen", script_grind.drawUnits);
