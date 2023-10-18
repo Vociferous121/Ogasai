@@ -221,7 +221,7 @@ function script_mage:setup()
 	localObj = GetLocalPlayer();
 
 	-- set spec below level 4
-	if (localObj:GetLevel() < 10) then
+	if (localObj:GetLevel() < 4) then
 		self.fireMage = true;
 	end
 

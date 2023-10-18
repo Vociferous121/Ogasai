@@ -430,7 +430,7 @@ function script_paladin:run(targetGUID)
 				end
 				
 				--use holy light at the end of all the checks above
-				if (Buff("Holy Light", localObj)) and (localMana > 25) then 
+				if (Buff("Holy Light", localObj)) and (localMana > 25) and (IsStanding()) then 
 					self.waitTimer = GetTimeEX() + 5000;
 					self.message = "Healing: Holy Light...";
 					return 0;
@@ -677,7 +677,7 @@ function script_paladin:rest()
 	end
 
 	-- heal before eating
-	if (localHealth < self.holyLightHealth) or (localHealth < self.eatHealth) then
+	if (localHealth < self.holyLightHealth) or (localHealth < self.eatHealth) and (IsStanding()) then
 		if (HasSpell("Holy Light")) and (not IsSpellOnCD("Holy Light")) then
 			if (CastSpellByName("Holy Light")) and (localHealth < self.holyLightHealth or localHealth < self.eatHealth) then
 				return true;
@@ -702,7 +702,7 @@ function script_paladin:rest()
 	end
 
 	-- Heal up: Holy Light
-	if (localMana > 25 and localHealth < self.eatHealth) then
+	if (localMana > 25 and localHealth < self.eatHealth) and (IsStanding()) then
 		if (Buff("Holy Light", localObj)) then
 			script_grind:setWaitTimer(3500);
 			self.message = "Healing: Holy Light...";
@@ -711,7 +711,7 @@ function script_paladin:rest()
 	end
 
 	-- Heal up: Flash of Light
-	if (localMana > 10 and localHealth < self.flashOfLightHP and HasSpell("Flash of Light")) then
+	if (localMana > 10 and localHealth < self.flashOfLightHP and HasSpell("Flash of Light") and IsStanding()) then
 		if (Buff("Flash of Light", localObj)) then
 			script_grind:setWaitTimer(1850);
 			self.message = "Healing: Flash of Light...";
