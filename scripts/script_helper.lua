@@ -259,10 +259,12 @@ function script_helper:eat()
 	for i=0,self.numFood do
 		if (HasItem(self.food[i])) then
 			if (UseItem(self.food[i])) then
+				self.waitTimer = GetTimeEX() + 1200;
 				return true;
 			end
 		end
 	end
+	self.waitTimer = GetTimeEX() + 1200;
 	return false;
 end
 
@@ -270,10 +272,12 @@ function script_helper:drinkWater()
 	for i=0,self.numWater do
 		if (HasItem(self.water[i])) then
 			if (UseItem(self.water[i])) then
+				self.waitTimer = GetTimeEX() + 1200;
 				return true;
 			end
 		end
 	end
+	self.waitTimer = GetTimeEX() + 1200;
 	return false;
 end
 

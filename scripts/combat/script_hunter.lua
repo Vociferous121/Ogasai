@@ -199,7 +199,7 @@ function script_hunter:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		if (not IsMoving() and targetObj:GetDistance() < 10) then
+		if (not IsMoving() and targetObj:GetDistance() > 10) then
 			targetObj:FaceTarget();
 		end
 
@@ -253,10 +253,12 @@ function script_hunter:run(targetGUID)
 			end
 
 			--Berserking Troll Racial
-			if (HasSpell("Berserking")) and (not IsSpellOnCD("Berserking")) then
-				CastSpellByName("Berserking");
-				self.waitTimer = GetTimeEX() + 500;
-				return 0;
+			if (IsInCombat() or script_grind:isTargetingMe(targetObj)) then
+				if (HasSpell("Berserking")) and (not IsSpellOnCD("Berserking")) then
+					CastSpellByName("Berserking");
+					self.waitTimer = GetTimeEX() + 500;
+					return 0;
+				end
 			end
 
 			if (script_hunter:mendPet(localMana, petHP)) then
@@ -522,6 +524,16 @@ function script_hunter:rest()
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
 
+	-- looting
+
+	local lootObj = script_nav:getLootTarget();
+	
+	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
+		self.waitTimer = GetTimeEX() + 1800;
+		script_grind:doLoot();
+		return true;
+	end
+
 	-- Stop moving before we can rest
 	if(localHealth < self.eatHealth or localMana < self.drinkMana) then
 		if (IsMoving()) then
@@ -582,6 +594,7 @@ function script_hunter:rest()
 	end
 	
 	if(localMana < self.drinkMana or localHealth < self.eatHealth) then
+		self.waitTimer = GetTimeEX() + 1200;
 		if (IsMoving()) then
 			StopMoving();
 		end

@@ -239,12 +239,12 @@ function script_gather:gather()
 		if(dist < self.lootDistance) then
 			if(IsMoving()) then
 				StopMoving();
-				self.timer = GetTimeEX() + 150;
+				self.timer = GetTimeEX() + 1550;
 			end
 
 			if(not IsLooting() and not IsChanneling()) then
 				self.nodeObj:GameObjectInteract();
-				self.timer = GetTimeEX() + 1250;
+				self.timer = GetTimeEX() + 1750;
 			end
 			if (not LootTarget()) then
 				self.timer = GetTimeEX() + 650;

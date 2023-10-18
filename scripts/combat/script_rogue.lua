@@ -466,7 +466,7 @@ function script_rogue:run(targetGUID)
 				end 
 			
 				-- Eviscerate with 5 CPs
-				if (localCP == 5) then
+				if (localCP > 4) then
 					if (localEnergy < 35) then
 						return 0; 
 					end -- return until we have energy
@@ -873,10 +873,27 @@ function script_rogue:rest()
 
 	local localObj = GetLocalPlayer();
 	local localHealth = localObj:GetHealthPercentage();
+
+	-- looting
+
+	local lootObj = script_nav:getLootTarget();
 	
+	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
+		script_grind:doLoot();
+		self.waitTimer = GetTimeEX() + 1800;
+		return true;
+	end
+
+	-- skin after looting - won't stealth after skinning and bot stands still until resting is done????
+	--if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj == nil) then
+	--	local lootObj = script_grind:getSkinTarget();
+	--	script_grind:doLoot();
+	--	self.waitTimer = GetTimeEX() + 2200;
+	--	return true;
+	--end
 
 	-- Eat something
-	if (not IsEating() and localHealth < self.eatHealth) and (script_grind.lootobj == nil) then
+	if (not IsEating() and localHealth < self.eatHealth) then
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to eat...";
 		if (IsInCombat()) then
@@ -885,23 +902,23 @@ function script_rogue:rest()
 			
 		if (IsMoving()) then StopMoving(); return true; end
 
-		if (script_helper:eat()) and script_grind.lootobj == nil then 
+		if (script_helper:eat()) then 
 			self.message = "Eating..."; 
 			return true; 
 		else 
 			self.message = "No food! (or food not included in script_helper)";
-				if (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and not localObj:HasDebuff("Touch of Zanzil")) then
-					if (not localObj:HasBuff("Stealth")) then
-						CastSpellByName("Stealth");
-						return true;
-					end
+
+			if (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and not localObj:HasDebuff("Touch of Zanzil")) then
+				if (not localObj:HasBuff("Stealth")) then
+					CastSpellByName("Stealth");
 				end
-				self.waitTimer = GetTimeEX() + 7000;
-				return true; 
+			end
+			self.waitTimer = GetTimeEX() + 3000;
+			return true; 
 		end		
 	end
 
-	-- Stealth when we eat if we dont use stealth at opening
+	-- Stealth when we eat
 	if (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and IsEating() and not localObj:HasDebuff("Touch of Zanzil")) then
 		if (not localObj:HasBuff("Stealth")) then
 			CastSpellByName("Stealth");

@@ -17,7 +17,7 @@ script_paladin = {
 	potionHealth = 12,
 	potionMana = 20,
 	consecrationMana = 50,
-	meleeDistance = 4.15,
+	meleeDistance = 3.40,
 	crusaderStacks = 3,
 	crusaderStacksMana = 40,
 	crusaderStacksHealth = 35,
@@ -196,7 +196,7 @@ function script_paladin:run(targetGUID)
 		--end
 
 		-- Auto Attack
-		if (targetObj:GetDistance() < 40) then
+		if (targetObj:GetDistance() < 40) and (not IsAutoCasting("Attack")) then
 			targetObj:AutoAttack();
 		end
 	
@@ -252,7 +252,8 @@ function script_paladin:run(targetGUID)
 
 			-- Check: Seal of the Crusader until we use judgement
 			if (not targetObj:HasDebuff("Judgement of the Crusader")) and (targetObj:GetDistance() < 15)
-				and (not localObj:HasBuff("Seal of the Crusader")) and localMana > 15 then
+				and (not localObj:HasBuff("Seal of the Crusader")) and localMana > 15 and (not IsSpellOnCD("Judgement"))
+					and (targetObj:GetHealthPercentage() > 25) then
 				--targetObj:FaceTarget();
 				if (Cast("Seal of the Crusader", targetObj)) then
 						return 3;
@@ -278,11 +279,12 @@ function script_paladin:run(targetGUID)
 			end
 
 			-- check if we are in combat?
-			if (IsInCombat()) and (targetObj:GetDistance() < self.meleeDistance) and (targetHealth > 99) then
-				targetObj:AutoAttack();	
+			if (IsInCombat()) and (targetObj:GetDistance() < self.meleeDistance) and (targetHealth > 99) and (not IsAutoCasting("Attack")) then
+				targetObj:AutoAttack();
+				self.waitTimer = GetTimeEX() + 500;	
+				--targetObj:FaceTarget();
 			end
 
-			targetObj:FaceTarget();
 				
 		-- Combat WE ARE NOW IN COMBAT
 		else	
@@ -327,8 +329,10 @@ function script_paladin:run(targetGUID)
 			if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
 				return 3;
 			end
-
-			targetObj:AutoAttack();
+			
+			if (targetObj:GetDistance() <= self.meleeDistance) then
+				targetObj:AutoAttack();
+			end
 
 			-- Holy strike
 			if (HasSpell("Holy Strike")) and (localMana > 15) and (not IsSpellOnCD("Holy Strike")) then
@@ -627,10 +631,10 @@ function script_paladin:run(targetGUID)
 				end
 
 				-- Always face the target
-				if (targetHealth < 99) then
-					targetObj:FaceTarget(); 
-					return 0; 
-				end
+				--if (targetHealth < 99) then
+				--	targetObj:FaceTarget(); 
+				--	return 0; 
+				--end
 			end
 			return 0;
 		end
@@ -646,6 +650,18 @@ function script_paladin:rest()
 	local localLevel = localObj:GetLevel();
 	local localHealth = localObj:GetHealthPercentage();
 	local localMana = localObj:GetManaPercentage();
+
+	-- looting
+
+	local lootObj = script_nav:getLootTarget();
+	
+	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
+		self.waitTimer = GetTimeEX() + 1800;
+		script_grind:doLoot();
+		return true;
+	end
+	
+	ClearTarget();
 
 	-- heal before eating
 	if (localHealth < self.holyLightHealth) or (localHealth < self.eatHealth) then

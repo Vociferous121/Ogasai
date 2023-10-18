@@ -53,7 +53,7 @@ script_grind = {
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
 	paranoiaLoaded = include("scripts\\script_unstuck.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
-	nextToNodeDist = 2.5, -- (Set to about half your nav smoothness)
+	nextToNodeDist = 2.4, -- (Set to about half your nav smoothness)
 	blacklistedTargets = {},
 	blacklistedNum = 0,
 	isSetup = false,
@@ -131,6 +131,11 @@ function script_grind:setup()
 	-- don't stop bot on next level if level is under 10
 	if (GetLocalPlayer():GetLevel() < 10) then
 		script_paranoia.stopOnLevel = false;
+	end
+
+	-- turn on skinning if have
+	if (HasSpell("Skinning")) then
+		self.skinning = true;
 	end
 		
 end
@@ -752,7 +757,7 @@ function script_grind:doLoot(localObj)
 		if (IsMounted()) then DisMount(); self.waitTimer = GetTimeEX() + 450; return;  end
 
 		if(not self.lootObj:UnitInteract() and not IsLooting()) then
-			self.waitTimer = GetTimeEX() + 850;
+			self.waitTimer = GetTimeEX() + 1850;
 			return;
 		end
 		if (not LootTarget()) then

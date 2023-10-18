@@ -1,7 +1,7 @@
 script_nav = {
 	useNavMesh = true,
 	nextNavNodeDistance = 2, -- for mobs and loot
-	nextPathNodeDistance = 3, -- for walking paths
+	nextPathNodeDistance = 4, -- for walking paths
 	lastPathIndex = -1,
 	navPosition = {},
 	navPathPosition = {},
@@ -377,7 +377,7 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 			self.navPathPosition['y'] = _y;
 			self.navPathPosition['z'] = _z;
 			GeneratePath(_lx, _ly, _lz, _x, _y, _z);
-			self.lastpathnavIndex = 1; 
+			self.lastpathnavIndex = 0; 
 		end
 	end	
 
@@ -401,7 +401,7 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 		if(GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) < self.nextNavNodeDistance + 1) then
 			self.lastpathnavIndex = self.lastpathnavIndex + 1;	
 			if (GetPathSize(5) <= self.lastpathnavIndex) then
-				self.lastpathnavIndex = GetPathSize(5)-1;
+				self.lastpathnavIndex = GetPathSize(5);
 			end
 		end
 	end
@@ -474,13 +474,13 @@ function script_nav:navigate(localObj)
 		local _x, _y, _z = GetPathPositionAtIndex(0, self.lastPathIndex);
 
 		-- Check: If we are close to the next node in the walking path, hop to the next one		
-		if(GetDistance3D(_x, _y, _z, _lx, _ly, _lz) < self.nextPathNodeDistance) then
+		if(GetDistance3D(_x, _y, _z, _lx, _ly, _lz) < self.nextPathNodeDistance -2) then
 			self.lastPathIndex = self.lastPathIndex + 1;
 		end
 			
 		-- Check: If we reached the end node, start over at node 1
 		if(self.lastPathIndex >= pathSize) then
-			self.lastPathIndex = 0;
+			self.lastPathIndex = -1;
 		end
 			
 		script_nav:moveToNav(localObj, _x, _y, _z);
