@@ -1,6 +1,8 @@
  # oGasai Scripts for WoW Classic
  Ogasaism
 
+ Current issue with script_Nav error during looting. Please download Improved Error Frames addon and ignore until fixed.
+
 Bot made by DarkLinux @ OwnedCore
 
 https://www.ownedcore.com/forums/world-of-warcraft/world-of-warcraft-emulator-servers/wow-emu-programs/600785-ogasai-d-j-vu-wow-1-12-1-vanilla-bot.html
@@ -8,8 +10,6 @@ https://www.ownedcore.com/forums/world-of-warcraft/world-of-warcraft-emulator-se
 https://darkenedlinux.com/
 
 Scripts in this repository by Vociferous / GarBear121 - just a hobby
-
-Current issues include script_Nav error during looting. Please download ImprovedLUA Frames addon and ignore until fixed.
 
 Requirements
 - Nav Mesh Map Files : https://mega.nz/#!g0U2xI4a!aoJICAY34DLvMnWPqgIqygDWIy_91tuoyXz4J3rg9dM
