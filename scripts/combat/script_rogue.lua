@@ -879,8 +879,11 @@ function script_rogue:rest()
 	local lootObj = script_nav:getLootTarget();
 	
 	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
-		script_grind:doLoot();
 		self.waitTimer = GetTimeEX() + 1800;
+		script_grind:doLoot();
+		script_nav:resetNavigate();
+		script_nav:resetNavPos();
+		ClearTarget();
 		return true;
 	end
 

@@ -925,6 +925,19 @@ function script_warlock:rest()
 
 	local localHealth = localObj:GetHealthPercentage();
 
+	-- looting
+
+	local lootObj = script_nav:getLootTarget();
+	
+	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
+		self.waitTimer = GetTimeEX() + 1800;
+		script_grind:doLoot();
+		script_nav:resetNavigate();
+		script_nav:resetNavPos();
+		ClearTarget();
+		return true;
+	end
+
 	-- check pet
 	if(GetPet() ~= 0) then 
 		self.hasPet = true; 

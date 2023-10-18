@@ -17,7 +17,7 @@ script_paladin = {
 	potionHealth = 12,
 	potionMana = 20,
 	consecrationMana = 50,
-	meleeDistance = 3.40,
+	meleeDistance = 3.90,
 	crusaderStacks = 3,
 	crusaderStacksMana = 40,
 	crusaderStacksHealth = 35,
@@ -179,6 +179,7 @@ function script_paladin:run(targetGUID)
 		
 		-- Cant Attack dead targets
 		if (targetObj:IsDead()) or (not targetObj:CanAttack()) then
+			self.waitTimer = GetTimeEX() + 1200;
 			return 0;
 		end
 		
@@ -195,9 +196,15 @@ function script_paladin:run(targetGUID)
 		--	end
 		--end
 
+		if (targetObj:IsDead() or script_grind.lootObj ~= nil) then
+			self.waitTimer = GetTimeEX() + 1532;
+			ClearTarget();
+		end
+
 		-- Auto Attack
-		if (targetObj:GetDistance() < 40) and (not IsAutoCasting("Attack")) then
+		if (targetObj:GetDistance() < 40) and (not IsAutoCasting("Attack")) and (not IsInCombat()) then
 			targetObj:AutoAttack();
+			self.waitTimer = GetTimeEX() + 0;
 		end
 	
 		targetHealth = targetObj:GetHealthPercentage();
@@ -225,14 +232,14 @@ function script_paladin:run(targetGUID)
 				return 0;
 			 end
 
-			if (targetObj:IsInLineOfSight() and not IsMoving()) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 0;
-					end
-				end
-			end
+			--if (targetObj:IsInLineOfSight() and not IsMoving()) then
+			--	if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+			--		if (not targetObj:FaceTarget()) then
+			--			targetObj:FaceTarget();
+			--			self.waitTimer = GetTimeEX() + 0;
+			--		end
+			--	end
+			--end
 
 			-- Check move into melee range
 			-- keep doing this return 3 until target is in melee range
@@ -269,19 +276,19 @@ function script_paladin:run(targetGUID)
 				return 3;
 			end
 
-			if (targetObj:IsInLineOfSight() and not IsMoving()) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 0;
-					end
-				end
-			end
+			--if (targetObj:IsInLineOfSight() and not IsMoving()) then
+			--	if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+			--		if (not targetObj:FaceTarget()) then
+			--			targetObj:FaceTarget();
+			--			self.waitTimer = GetTimeEX() + 0;
+			--		end
+			--	end
+			--end
 
 			-- check if we are in combat?
 			if (IsInCombat()) and (targetObj:GetDistance() < self.meleeDistance) and (targetHealth > 99) and (not IsAutoCasting("Attack")) then
 				targetObj:AutoAttack();
-				self.waitTimer = GetTimeEX() + 500;	
+				self.waitTimer = GetTimeEX() + 200;	
 				--targetObj:FaceTarget();
 			end
 
@@ -330,8 +337,13 @@ function script_paladin:run(targetGUID)
 				return 3;
 			end
 			
-			if (targetObj:GetDistance() <= self.meleeDistance) then
+			if (targetObj:GetDistance() <= self.meleeDistance) and (not IsAutoCasting("Attack")) then
 				targetObj:AutoAttack();
+			end
+
+			if (HasSpell("Stoneform")) and (not IsSpellOnCD("Stoneform")) and (IsInCombat()) then
+				CastSpellByName("Stoneform");
+				return 0;
 			end
 
 			-- Holy strike
@@ -341,7 +353,7 @@ function script_paladin:run(targetGUID)
 					Cast("Holy Strike", targetObj);
 					return 0;
 				end
-			targetObj:FaceTarget();
+			--targetObj:FaceTarget();
 			end
 
 			-- Check: Use Lay of Hands
@@ -418,7 +430,7 @@ function script_paladin:run(targetGUID)
 				end
 				
 				--use holy light at the end of all the checks above
-				if (Buff("Holy Light", localObj)) then 
+				if (Buff("Holy Light", localObj)) and (localMana > 25) then 
 					self.waitTimer = GetTimeEX() + 5000;
 					self.message = "Healing: Holy Light...";
 					return 0;
@@ -658,10 +670,11 @@ function script_paladin:rest()
 	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
 		self.waitTimer = GetTimeEX() + 1800;
 		script_grind:doLoot();
+		script_nav:resetNavigate();
+		script_nav:resetNavPos();
+		ClearTarget();
 		return true;
 	end
-	
-	ClearTarget();
 
 	-- heal before eating
 	if (localHealth < self.holyLightHealth) or (localHealth < self.eatHealth) then
@@ -689,7 +702,7 @@ function script_paladin:rest()
 	end
 
 	-- Heal up: Holy Light
-	if (localMana > 20 and localHealth < self.eatHealth) then
+	if (localMana > 25 and localHealth < self.eatHealth) then
 		if (Buff("Holy Light", localObj)) then
 			script_grind:setWaitTimer(3500);
 			self.message = "Healing: Holy Light...";
