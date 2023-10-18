@@ -1,7 +1,7 @@
  # oGasai Scripts for WoW Classic
  Ogasaism
 
-## Current issue with script_Nav error during looting. Please download Improved Error Frames addon and ignore until fixed.
+## Current issue with displaying error during looting. Please download Improved Error Frames addon and ignore until fixed.
 
 Bot made by DarkLinux @ OwnedCore
 
