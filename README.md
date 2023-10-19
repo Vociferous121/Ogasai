@@ -1,7 +1,7 @@
  # oGasai Scripts for WoW Classic
  Ogasaism
 
-## Current issue with displaying error during looting. Please download Improved Error Frames addon and ignore until fixed. - Hunter script is also bugged. Discovered an issue affecting both my edited version and Log1teks original script. Hunter script freezes on multiple adds. It needs to be rewritten from scratch.
+## Current issue with displaying error during looting. Please download Improved Error Frames addon and ignore until fixed. - Hunter script is also bugged. Discovered an issue affecting both my edited version and Log1teks original script. Hunter script freezes on multiple adds. Use with caution!
 
 Bot made by DarkLinux @ OwnedCore
 
