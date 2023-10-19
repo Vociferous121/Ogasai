@@ -11,7 +11,7 @@ script_grind = {
 	enemyObj = nil,
 	lootObj = nil,
 	timer = GetTimeEX(),
-	tickRate = 156,
+	tickRate = 145,
 	waitTimer = GetTimeEX(),
 	pullDistance = 225,
 	avoidElite = true,
@@ -53,7 +53,7 @@ script_grind = {
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
 	paranoiaLoaded = include("scripts\\script_unstuck.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
-	nextToNodeDist = 2.4, -- (Set to about half your nav smoothness)
+	nextToNodeDist = 2.8, -- (Set to about half your nav smoothness)
 	blacklistedTargets = {},
 	blacklistedNum = 0,
 	isSetup = false,
@@ -847,7 +847,7 @@ end
 
 function script_grind:runRest()
 	if(RunRestScript()) then
-		self.message = "Resting Killing Too Fast...";
+		self.message = "Resting... -- Killing Too Fast!";
 		--self.newTargetTime = GetTimeEX();
 		-- Stop moving
 		if (IsMoving() and not localObj:IsMovementDisabed()) then StopMoving(); return true; end

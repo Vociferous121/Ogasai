@@ -30,7 +30,7 @@ function script_grindEX:doChecks()
 		if (GetLoadNavmeshProgress() ~= 1) then script_grind.message = "Loading the nav mesh... " return true; end
 
 		if(localObj:IsDead()) then
-			script_grind.message = "Waiting to release...";
+			script_grind.message = "Waiting to ressurect...";
 
 			-- Release body
 			if (not IsGhost()) then

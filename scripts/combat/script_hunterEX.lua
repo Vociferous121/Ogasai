@@ -14,7 +14,7 @@ function script_hunterEX:chooseAspect(targetObj)
 			return true; 
 		end	
 	elseif (hasMonkey and (targetObj ~= nil and not targetObj ~= 0)) then
-		if (targetObj:GetDistance() < 5 and IsInCombat()) then
+		if (targetObj:GetDistance() < 5 and IsInCombat() and localObj:GetHealthPercentage() < 50) then
 			if (not localObj:HasBuff('Aspect of the Monkey')) then  
 				CastSpellByName('Aspect of the Monkey'); 
 				return true; 
