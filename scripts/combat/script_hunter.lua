@@ -169,7 +169,6 @@ function script_hunter:run(targetGUID)
 	targetObj = GetGUIDObject(targetGUID);
 
 	if(targetObj == 0 or targetObj == nil) then
-		ClearTarget();
 		return 2;
 	end
 
@@ -202,8 +201,8 @@ function script_hunter:run(targetGUID)
 		
 		-- Cant Attack dead targets
 		if (targetObj:IsDead() or not targetObj:CanAttack()) then
-			ClearTarget();
-			return 2;
+			self.waitTimer = GetTimeEX() + 1200;
+			return 0;
 		end
 		
 		if (not IsStanding()) then
