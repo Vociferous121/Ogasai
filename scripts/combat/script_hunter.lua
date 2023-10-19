@@ -155,15 +155,15 @@ function script_hunter:run(targetGUID)
 	end
 
 	local lootObj = script_nav:getLootTarget();
-	
+
 	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
 		self.waitTimer = GetTimeEX() + 1200;
 		script_grind:doLoot();
 		script_nav:resetNavigate();
 		script_nav:resetNavPos();
-		ClearTarget();
 		return true;
 	end
+
 
 	-- Assign the target 
 	targetObj = GetGUIDObject(targetGUID);
@@ -193,8 +193,7 @@ function script_hunter:run(targetGUID)
 	end
 
 	-- Check: Do nothing if we are channeling, casting or wait timer
-	if (IsChanneling() or IsCasting() or self.waitTimer > GetTimeEX() + 2500) and (not IsInCombat()) then
-		self.message = "Do Nothing and Wait Timer Hunter Script...";
+	if (IsChanneling() or IsCasting() or self.waitTimer > GetTimeEX()) then
 		return 4;
 	end
 
@@ -208,19 +207,15 @@ function script_hunter:run(targetGUID)
 		end
 		
 		if (not IsStanding()) then
-			JumpOrAscendStart();
+			StopMoving();
 		end
-
-		--if (not IsMoving() and targetObj:GetDistance() > 10) then
-		--	targetObj:FaceTarget();
-		--end
 
 		script_hunterEX:chooseAspect(targetObj);
 
 		targetHealth = targetObj:GetHealthPercentage();
 
 		-- Auto Attack
-		if (targetObj:GetDistance() < 40) and (targetObj:IsInLineOfSight()) then
+		if (targetObj:GetDistance() < 40) then
 			targetObj:AutoAttack();
 		end
 		
@@ -233,14 +228,11 @@ function script_hunter:run(targetGUID)
 		end 
 		
 		-- Opener
-		if (not IsInCombat()) and (targetObj:IsInLineOfSight()) then
+		if (not IsInCombat()) then
 			self.dontRest = true;
 			if (script_hunter:doOpenerRoutine(targetGUID, pet)) then
 				targetObj:FaceTarget();
-				if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() < 40) then
-					StopMoving();
-				end
-				self.waitTimer = GetTimeEX() + 850;
+				self.waitTimer = GetTimeEX() + 1850;
 				return 4; -- return 0 bugs turning around cause of StopMoving();
 			else
 				return 3;
@@ -262,15 +254,6 @@ function script_hunter:run(targetGUID)
 				if (script_helper:useManaPotion()) then 
 					return 0; 
 				end 
-			end
-
-			--Berserking Troll Racial
-			if (IsInCombat() or script_grind:isTargetingMe(targetObj)) then
-				if (HasSpell("Berserking")) and (not IsSpellOnCD("Berserking")) then
-					CastSpellByName("Berserking");
-					self.waitTimer = GetTimeEX() + 500;
-					return 0;
-				end
 			end
 
 			if (script_hunter:mendPet(localMana, petHP)) then
@@ -343,7 +326,7 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 			if (pet:GetUnitsTarget():GetGUID() ~= targetObj:GetGUID()) then
 				PetFollow(); 
 			end
-		else	
+		else
 			PetAttack();
 		end
 	end	
@@ -353,7 +336,6 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 
 	-- Attack: Use Auto Shot 
 	if (not IsAutoCasting('Auto Shot') and targetObj:GetDistance() < 35 and targetObj:GetDistance() > 13) then
-		PetAttack();
 		-- Dismount
 		if (IsMounted()) then DisMount(); end
 		if (script_hunter:cast('Auto Shot', targetObj)) then canDoRangeAttacks = true; end
@@ -370,7 +352,7 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	end
 	
 	-- Check: If we are already in meele range before pull, use Raptor Strike
-	if (targetObj:GetDistance() < 5) and (targetObj:GetHealthPercentage() > 10) and (not targetObj:IsFleeing()) then
+	if (targetObj:GetDistance() < 5) then
 		if (not script_hunter:cast('Raptor Strike', targetObj)) then
 			targetObj:FaceTarget(); 
 			return true; 
@@ -384,7 +366,6 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	
 	if (script_hunter:doPullAttacks(targetObj)) then
 		targetObj:FaceTarget();
-		PetAttack();
 		self.waitTimer = GetTimeEX() + 1850;
 		return true;
 	end
@@ -468,7 +449,7 @@ function script_hunter:doInCombatRoutine(targetObj, localMana)
 	-- Check: If we are in meele range and have no pet or rotation use meele abilities
 	if (targetObj:GetDistance() < 5) then
 		-- Meele Skill: Raptor Strike
-		if (localMana > 10 and not IsSpellOnCD('Raptor Strike')) and (targetObj:GetHealthPercentage() > 10) and (not targetObj:IsFleeing()) then 
+		if (localMana > 10 and not IsSpellOnCD('Raptor Strike')) then 
 			if (script_hunter:cast('Raptor Strike', targetObj)) then 
 				return true; 
 			end 
@@ -502,10 +483,10 @@ end
 
 function script_hunter:doRangeAttack(targetObj, localMana)
 	-- Keep up the debuff: Hunter's Mark 
-	if (not targetObj:HasDebuff("Hunter's Mark") and not IsSpellOnCD("Hunter's Mark")) and (targetObj:IsInLineOfSight()) and (self.hasPet) and (not script_grind:isTargetingMe(targetObj)) then
+	if (not targetObj:HasDebuff("Hunter's Mark") and not IsSpellOnCD("Hunter's Mark")) then 
 		if (script_hunter:cast("Hunter's Mark", targetObj)) then return true; end end
 	-- Attack: Use Auto Shot 
-	if (not IsAutoCasting('Auto Shot')) and (targetObj:IsInLineOfSight()) then
+	if (not IsAutoCasting('Auto Shot')) then
 		if (script_hunter:cast('Auto Shot', targetObj)) then return true; else return false; end
 	end
 	-- Check: Let pet get aggro, dont use special attacks before the mob has less than 95% HP
@@ -514,10 +495,10 @@ function script_hunter:doRangeAttack(targetObj, localMana)
 	if (not IsSpellOnCD('Intimidation') and targetObj:GetHealthPercentage() > 50) then 
 		if (script_hunter:cast('Intimidation', targetObj)) then return true; end end		
 	-- Special attack: Serpent Sting (Keep the DOT up!)
-	if (not targetObj:HasDebuff('Serpent Sting') and not IsSpellOnCD('Serpent Sting') and targetObj:GetCreatureType() ~= 'Elemental') and (targetObj:IsInLineOfSight()) then 
+	if (not targetObj:HasDebuff('Serpent Sting') and not IsSpellOnCD('Serpent Sting') and targetObj:GetCreatureType() ~= 'Elemental') then 
 		if (script_hunter:cast('Serpent Sting', targetObj)) then return true; end end
 	-- Special attack: Arcane Shot (Only when mana above 70% mana)
-	if (not IsSpellOnCD('Arcane Shot') and localMana > 70) and (targetObj:IsInLineOfSight()) then 
+	if (not IsSpellOnCD('Arcane Shot') and localMana > 70) then 
 		if (script_hunter:cast('Arcane Shot', targetObj)) then return true; end end
 	-- Check if we are able to attack
 	if (IsAutoCasting('Auto Shot')) then
