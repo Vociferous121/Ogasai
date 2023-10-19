@@ -343,8 +343,8 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 			if (pet:GetUnitsTarget():GetGUID() ~= targetObj:GetGUID()) then
 				PetFollow(); 
 			end
-		--else	
-		--	PetAttack();
+		else	
+			PetAttack();
 		end
 	end	
 	
@@ -378,12 +378,13 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	end
 	
 	-- Move to the target if not in line of sight or not in range
-	if (not targetObj:IsInLineOfSight() or targetObj:GetDistance() > 38 or targetObj:GetDistance() < 14) then 
+	if (not targetObj:IsInLineOfSight() or targetObj:GetDistance() > 35 or targetObj:GetDistance() < 14) then 
 		return false;
 	end 
 	
 	if (script_hunter:doPullAttacks(targetObj)) then
 		targetObj:FaceTarget();
+		PetAttack();
 		self.waitTimer = GetTimeEX() + 1850;
 		return true;
 	end
@@ -392,8 +393,6 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 end
 
 function script_hunter:doPullAttacks(targetObj)
-
-	PetAttack();
 	-- Dismount
 	if (IsMounted()) then DisMount(); end
 	-- Pull with Concussive Shot to make it easier for pet to get aggro
@@ -424,8 +423,8 @@ function script_hunter:doInCombatRoutine(targetObj, localMana)
 				if (pet:GetUnitsTarget():GetGUID() ~= targetObj:GetGUID()) then
 					PetFollow(); 
 				end
-			--else
-				--PetAttack();
+			else
+				PetAttack();
 			end
 		end
 	end
