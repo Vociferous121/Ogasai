@@ -420,12 +420,12 @@ if (script_grind.useExpChecker) and (GetLocalPlayer():GetLevel() < 60) then
 	if (GetXPExhaustion() ~= nil) and (script_grind.useExpChecker) then
 
 		DrawText('Rested kills needed - '..restedKillsNeeded, x-740, y, r+255, g+255, b+255);
-		DrawText(' Killing level '..localLevel.. ' targets', x-750, y+40, r+255, g+255, b+255);
+		DrawText(' Killing level '..localLevel.. ' targets', x-750, y+20, r+255, g+255, b+255);
 
 	elseif (GetXPExhaustion() == nil or restR == 0) and (script_grind.useExpChecker) then
 
 		DrawText('Kills needed - '..killsNeeded, x-740, y, r+255, g+255, b+255);
-		DrawText(' Killing level '..localLevel.. ' targets', x-750, y+40, r+255, g+255, b+255);
+		DrawText(' Killing level '..localLevel.. ' targets', x-750, y+20, r+255, g+255, b+255);
 
 	end
 
@@ -436,9 +436,9 @@ if (script_grind.useExpChecker) and (GetLocalPlayer():GetLevel() < 60) then
 
 	-- rest per kill messages
 	if (script_grind.useExpChecker) and (GetXPExhaustion() ~= nil) then
-		DrawText(script_expChecker.messageRest or '', x-740, y+20, r+255, g+255, b+255);
+		DrawText(script_expChecker.messageRest or '', x-740, y+40, r+255, g+255, b+255);
 	elseif (script_grind.useExpChecker) and (GetXPExhaustion() == nil) then
-		DrawText(script_expChecker.messageRest or '', x-740, y+20, r+255, g+255, b+255);
+		DrawText(script_expChecker.messageRest or '', x-740, y+40, r+255, g+255, b+255);
 	end
 end
 end
