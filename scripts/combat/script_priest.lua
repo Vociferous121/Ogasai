@@ -322,12 +322,10 @@ function script_priest:run(targetGUID)
 		end
 
 		-- Don't attack if we should rest first
-		if (GetNumPartyMembers() < 1) then
-			if ((localHealth < self.eatHealth or localMana < self.drinkMana) and not script_grind:isTargetingMe(targetObj)
+		if (GetNumPartyMembers() < 1) and ((localHealth < self.eatHealth or localMana < self.drinkMana) and not script_grind:isTargetingMe(targetObj)
 				and not targetObj:IsFleeing() and not targetObj:IsStunned() and not script_mage:isAddPolymorphed()) then
 				self.message = "Need rest...";
 				return 4;
-			end
 		end
 
 		-- set target health

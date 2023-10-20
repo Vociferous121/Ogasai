@@ -28,7 +28,7 @@ script_runner = {
 	generating = false,
 	avoidTimer = 0,
 	destinationReached = false,
-	avoidAggro = true,
+	avoidAggro = false,
 	safeDistance = 5,
 	genTime = GetTimeEX()
 }
@@ -38,7 +38,7 @@ function script_runner:window()
 	--Close existing Window
 	EndWindow();
 
-	if(NewWindow("[Runner", 200, 200)) then
+	if(NewWindow("Runner", 200, 200)) then
 		script_runner:menu();
 	end
 

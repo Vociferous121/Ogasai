@@ -5,7 +5,7 @@ script_warrior = {
 	bloodRageHealth = 50, -- health to use bloodrage
 	potionHealth = 10, -- health to use potion
 	isSetup = false, -- setup check
-	meleeDistance = 3.0, -- melee distance
+	meleeDistance = 3.5, -- melee distance
 	throwOpener = false, -- use throw as opener
 	throwName = "Heavy Throwing Dagger", -- opener throw item name
 	waitTimer = 0, -- set wait time for script
@@ -362,6 +362,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 				DisMount();
 			end
 
+			-- if not in line of sight then force facing target
 			if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget and targetHealth < 99) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
@@ -592,7 +593,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 	
 			-- War Stomp Tauren Racial
 			if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp"))
-				and (targetObj:IsCasting() or script_warrior:enemiesAttackingUs(5) >= 2)
+				and (targetObj:IsCasting() or script_warrior:enemiesAttackingUs() >= 2)
 				and (targetHealth >= 50) and (not IsMoving()) then
 				CastSpellByName("War Stomp");
 				self.waitTimer = GetTimeEX() + 200;
@@ -600,7 +601,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 
 			-- Stone Form Dwarf Racial
-			if (HasSpell("Stone Form")) and (not IsSpellOnCD("Stone Form")) and (script_warrior:enemiesAttackingUs(5) >= 2) and (localHealth <= 60) then
+			if (HasSpell("Stone Form")) and (not IsSpellOnCD("Stone Form")) and (script_warrior:enemiesAttackingUs() >= 2) and (localHealth <= 60) then
 				CastSpellByName("Stone Form");
 				self.waitTimer = GetTimeEX() + 200;
 				return 0;
@@ -737,7 +738,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 					if (targetObj:GetCreatureType() ~= 'Mechanical' and targetObj:GetCreatureType() ~= 'Elemental' and HasSpell('Rend') and not targetObj:HasDebuff("Rend") 
 						and targetHealth >= 30 and localRage >= 10) then 
 						if (Cast('Rend', targetObj)) then 
-							return; 
+							return 0; 
 						end 
 					end 
 				end
@@ -756,7 +757,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 						if (not targetObj:FaceTarget()) then
 							targetObj:FaceTarget();
 						end
-						if (targetObj:GetDistance() <= 6) then
+						if (targetObj:GetDistance() <= 6) and (localRage >= 15) then
 							CastSpellByName('Heroic Strike', targetObj);
 							targetObj:FaceTarget();
 							return 0;
@@ -845,7 +846,8 @@ function script_warrior:rest()
 
 		if (script_helper:eat()) then 
 			self.message = "Eating..."; 
-			return true; 
+			self.waitTimer = GetTimeEX() + 10000;
+			return true;
 		else 
 			self.message = "No food! (or food not included in script_helper)";
 			return true; 
