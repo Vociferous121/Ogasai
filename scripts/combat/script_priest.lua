@@ -417,6 +417,27 @@ function script_priest:run(targetGUID)
 				end
 			end
 
+			-- Berserking Troll Racial
+			if (HasSpell("Berserking")) and (not IsSpellOnCD("Berserking")) and (targetObj:GetDistance() < 31) then
+				CastSpellByName("Berserking");
+				self.waitTimer = GetTimeEX() + 500;
+			end
+
+			-- No Mind Blast but wand ? fixed!
+			if (not HasSpell("Mind Blast")) and (self.useWand) then
+				if (not targetObj:IsInLineOfSight()) then -- check line of sight
+						return 3; -- target not in line of sight
+				end -- move to target
+					if (not IsAutoCasting("Shoot")) then
+						targetObj:CastSpell("Shadow Word: Pain");
+						self.message = "Using wand...";
+						targetObj:FaceTarget();
+						targetObj:CastSpell("Shoot");
+						self.waitTimer = GetTimeEX() + ((self.wandSpeed / 10) + 150); 
+						return true; -- return true - if not AutoCasting then false
+					end
+			end
+
 			-- Devouring Plague to pull
 			if (HasSpell("Devouring Plague")) and (localMana >= 25) and (not IsSpellOnCD("Devouring Plague")) and (not IsMoving()) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
@@ -708,8 +729,22 @@ function script_priest:run(targetGUID)
 						targetObj:CastSpell("Shoot");
 						self.waitTimer = GetTimeEX() + ((self.wandSpeed / 10) + 150); 
 						return true; -- return true - if not AutoCasting then false
-						end
+					end
 				end
+			end
+
+			-- No Mind Blast but wand ? fixed!
+			if (not HasSpell("Mind Blast")) and (self.useWand) then
+				if (not targetObj:IsInLineOfSight()) then -- check line of sight
+						return 3; -- target not in line of sight
+				end -- move to target
+					if (not IsAutoCasting("Shoot")) then
+						self.message = "Using wand...";
+						targetObj:FaceTarget();
+						targetObj:CastSpell("Shoot");
+						self.waitTimer = GetTimeEX() + ((self.wandSpeed / 10) + 150); 
+						return true; -- return true - if not AutoCasting then false
+					end
 			end
 		end
 	end
