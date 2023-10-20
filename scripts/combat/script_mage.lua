@@ -1148,7 +1148,7 @@ function script_mage:rest()
 
 		if (script_helper:drinkWater()) then 
 			self.message = "Drinking..."; 
-			self.waitTimer = GetTimeEX() + 2000;
+			self.waitTimer = GetTimeEX() + 10000;
 			return true; 
 		else 
 			self.message = "No drinks! (or drink not included in script_helper)";
@@ -1170,7 +1170,7 @@ function script_mage:rest()
 		self.waitTimer = GetTimeEX() + 2000;
 		
 		if (script_helper:eat()) then 
-			self.waitTimer = GetTimeEX() + 2000;
+			self.waitTimer = GetTimeEX() + 10000;
 			self.message = "Eating..."; 
 			return true; 
 		else 
@@ -1198,7 +1198,8 @@ function script_mage:rest()
 	-- continue to rest if eating or drinking
 	if (localMana < 98 and IsDrinking()) or (localHealth < 98 and IsEating()) and (not IsSwimming()) then
 		self.message = "Resting to full hp/mana...";
-		return true;
+		self.waitTimer = GetTimeEX() + 10000;
+		return;
 	end
 
 	-- stand up if sitting after drinking/eating -- used for buffs
