@@ -551,7 +551,7 @@ function script_priest:run(targetGUID)
 					end -- move to target
 					if (Cast("Mind Blast", targetObj)) then
 						self.waitTimer = GetTimeEX() + 750;
-						return -- keep trying until cast
+						return; -- keep trying until cast
 					end
 				end
 			end

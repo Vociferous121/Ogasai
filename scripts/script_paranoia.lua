@@ -49,6 +49,7 @@ function script_paranoia:checkParanoia()
 		if (self.paranoidOnTargeted and script_grind:playersTargetingUs() > 0) then
 			script_grind.message = "Player(s) targeting us, pausing...";
 			ClearTarget();
+			self.waitTimer = GetTimeEX() + 2000;
 			if IsMoving() then
 				StopMoving();
 			end
