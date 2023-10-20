@@ -12,8 +12,8 @@ https://darkenedlinux.com/
 
 Scripts in this repository by Vociferous / GarBear121 - just a hobby
 
-Improved Error Frames Download
-  https://github.com/Vociferous121/Improved-Error-Frames-WoW-Classic
+Improved Error Frames Addon Download
+---https://github.com/Vociferous121/Improved-Error-Frames-WoW-Classic
 
 Requirements
 - Nav Mesh Map Files : https://mega.nz/#!g0U2xI4a!aoJICAY34DLvMnWPqgIqygDWIy_91tuoyXz4J3rg9dM
