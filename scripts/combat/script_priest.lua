@@ -19,7 +19,6 @@ script_priest = {
 	useWandHealth = 100, -- use wand at target health %
 	useSmite = false,	-- smite on/off (force enabled level < 10)
 	mindBlastMana = 30,	-- use mind blast mana %
-	wandSpeed = 16,	-- wand attack speed
 	useScream = true,	-- use fear yes/no
 	shadowForm = false,	-- shadowform on/off (auto set on/off based on HP slider)
 	mindFlayHealth = 18,	-- mind flay blow target health %
@@ -403,7 +402,7 @@ function script_priest:run(targetGUID)
 						self.message = "Using wand...";
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
-						self.waitTimer = GetTimeEX() + ((self.wandSpeed * 100) + 250); 
+						self.waitTimer = GetTimeEX() + 250;
 						return true; -- return true - if not AutoCasting then false
 					end
 				if (script_priest:healAndBuff(localObj, localMana)) then
@@ -670,9 +669,6 @@ function script_priest:run(targetGUID)
 				end
 			end
 
-			-- new wand variable to adjust speed in UI
-			wandSpeed = self.wandSpeed;
-
 			--mind flay and then wand when set
 			if (self.useMindFlay) and (not localObj:IsCasting() or not localObj:IsChanneling()) and
 				(localMana <= self.mindFlayMana or targetHealth <= self.mindFlayHealth) or (targetObj:GetDistance() >= 25) then
@@ -684,7 +680,7 @@ function script_priest:run(targetGUID)
 						self.message = "Using wand...";
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
-						self.waitTimer = GetTimeEX() + ((self.wandSpeed * 100) + 150); 
+						self.waitTimer = GetTimeEX() + 250;
 						return true; -- return if not AutoCasting then false
 					end
 					if (script_priest:healAndBuff(localObj, localMana)) then
@@ -707,7 +703,7 @@ function script_priest:run(targetGUID)
 						self.message = "Using wand...";
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
-						self.waitTimer = GetTimeEX() + ((self.wandSpeed * 100) + 250); 
+						self.waitTimer = GetTimeEX() + 250; 
 						return true; -- return true - if not AutoCasting then false
 					end
 					if (script_priest:healAndBuff(localObj, localMana)) then
@@ -725,7 +721,7 @@ function script_priest:run(targetGUID)
 						self.message = "Using wand...";
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
-						self.waitTimer = GetTimeEX() + ((self.wandSpeed * 100) + 250); 
+						self.waitTimer = GetTimeEX() + 250; 
 						return true; -- return true - if not AutoCasting then false
 					end
 				if (script_priest:healAndBuff(localObj, localMana)) then

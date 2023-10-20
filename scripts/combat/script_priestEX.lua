@@ -97,9 +97,6 @@ function script_priestEX:menu()
 						Text('Wand below target HP percent');
 						script_priest.useWandHealth = SliderInt("WH%", 10, 100, script_priest.useWandHealth);
 
-						Text('Wand Attack Speed (15 = 1.50 Attack Speed)');
-						--script_priest.wandSpeed = InputText("WS", script_priest.wandSpeed);
-						script_priest.wandSpeed = SliderInt("WS", 5, 40, script_priest.wandSpeed);
 					end
 				end
 			end
