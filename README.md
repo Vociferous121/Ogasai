@@ -12,6 +12,9 @@ https://darkenedlinux.com/
 
 Scripts in this repository by Vociferous / GarBear121 - just a hobby
 
+Improved Error Frames Download
+  https://github.com/Vociferous121/Improved-Error-Frames-WoW-Classic
+
 Requirements
 - Nav Mesh Map Files : https://mega.nz/#!g0U2xI4a!aoJICAY34DLvMnWPqgIqygDWIy_91tuoyXz4J3rg9dM
 - Visual C++ Redistributable for Visual Studio 2015 : https://www.microsoft.com/en-us/download/details.aspx?id=48145
