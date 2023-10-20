@@ -402,9 +402,12 @@ function script_priest:run(targetGUID)
 						self.message = "Using wand...";
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
-						self.waitTimer = GetTimeEX() + ((self.wandSpeed / 10) + 150); 
+						self.waitTimer = GetTimeEX() + ((self.wandSpeed / 10) + 250); 
 						return true; -- return true - if not AutoCasting then false
 					end
+				if (script_priest:healAndBuff(localObj, localMana)) then
+					return;
+				end
 			end
 
 			-- Devouring Plague to pull
@@ -683,6 +686,9 @@ function script_priest:run(targetGUID)
 						self.waitTimer = GetTimeEX() + ((self.wandSpeed / 10) + 150); 
 						return true; -- return if not AutoCasting then false
 					end
+					if (script_priest:healAndBuff(localObj, localMana)) then
+						return;
+					end
 				end
 			end
 
@@ -696,8 +702,11 @@ function script_priest:run(targetGUID)
 						self.message = "Using wand...";
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
-						self.waitTimer = GetTimeEX() + ((self.wandSpeed / 10) + 150); 
+						self.waitTimer = GetTimeEX() + ((self.wandSpeed / 10) + 250); 
 						return true; -- return true - if not AutoCasting then false
+					end
+					if (script_priest:healAndBuff(localObj, localMana)) then
+						return;
 					end
 				end
 			end
@@ -711,9 +720,12 @@ function script_priest:run(targetGUID)
 						self.message = "Using wand...";
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
-						self.waitTimer = GetTimeEX() + ((self.wandSpeed / 10) + 150); 
+						self.waitTimer = GetTimeEX() + ((self.wandSpeed / 10) + 250); 
 						return true; -- return true - if not AutoCasting then false
 					end
+				if (script_priest:healAndBuff(localObj, localMana)) then
+					return;
+				end
 			end
 		end
 	end
@@ -756,7 +768,7 @@ function script_priest:rest()
 
 	-- check heals and buffs
 	if (script_priest:healAndBuff(localObj, localMana)) then 
-		return true;
+		return;
 	end
 
 	--buff="Power Word: Fortitude(Rank " Sp={1,2,14,26,38,50};
@@ -781,7 +793,7 @@ function script_priest:rest()
 
 		if (script_helper:drinkWater()) then 
 			self.message = "Drinking..."; 
-			self.waitTimer = GetTimeEX() + 2000;
+			self.waitTimer = GetTimeEX() + 10000;
 			return true; 
 		else 
 			self.message = "No drinks! (or drink not included in script_helper)";
@@ -801,7 +813,7 @@ function script_priest:rest()
 		
 		if (script_helper:eat()) then 
 			self.message = "Eating..."; 
-			self.waitTimer = GetTimeEX() + 2000;
+			self.waitTimer = GetTimeEX() + 10000;
 			return true; 	
 		else 
 			self.message = "No food! (or food not included in script_helper)";
