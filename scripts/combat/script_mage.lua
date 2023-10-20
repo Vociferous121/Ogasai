@@ -35,7 +35,6 @@ script_mage = {
 	manaShieldMana = 20,	-- use mana shield above this mana %
 	useFrostWard = false,	-- use frost ward yes/no
 	useFireWard = false,	-- use fire ward yes/no
-	wandSpeed = '16',		-- wand speed
 	waitTimer = 0,		-- wait timer for spells
 	useWand = true,	-- use wand yes/no
 	gemTimer = 0,		-- gem cooldown timer
@@ -307,6 +306,10 @@ function script_mage:run(targetGUID)
 	
 	-- Assign the target 
 	targetObj =  GetGUIDObject(targetGUID);
+
+	if (script_priest:healAndBuff(localObj, localMana)) then
+		return;
+	end
 
 	-- clear dead targets
 	if (targetObj == 0) or (targetObj == nil) or (targetObj:IsDead()) then
@@ -686,7 +689,7 @@ function script_mage:run(targetGUID)
 			if (HasSpell("Frost Nova")) and (not IsSpellOnCD("Frost Nova")) and (targetObj:IsFleeing()) and (targetHealth > 3) then
 				if (localMana > 5) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frostbite")) then
 					if (CastSpellByName("Frost Nova")) then
-						return 0;
+						return;
 					end
 				end
 			end
@@ -696,7 +699,7 @@ function script_mage:run(targetGUID)
 				if (HasSpell("Frost Nova")) and (not IsSpellOnCD("Frost Nova")) then
 					if (localMana > 5) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frost Nova")) then
 						if (CastSpellByName("Frost Nova")) then
-							return 0;
+							return;
 						end
 					end
 				end
@@ -813,7 +816,7 @@ function script_mage:run(targetGUID)
 					end	
 					if (CastSpellByName("Fire Blast", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1800;
-						return 0;
+						return;
 					end
 				end
 			end
@@ -860,7 +863,7 @@ function script_mage:run(targetGUID)
 				if (not IsAutoCasting("Shoot")) then
 					targetObj:FaceTarget();
 					targetObj:CastSpell("Shoot");
-					self.waitTimer = GetTimeEX() + ((self.wandSpeed * 100) + 250); 
+					self.waitTimer = GetTimeEX() + 250; 
 					return true;
 				end
 			end
