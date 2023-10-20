@@ -97,8 +97,11 @@ function script_warriorEX:menu()
 		script_warrior.potionHealth = SliderInt("PHP %", 1, 99, script_warrior.potionHealth);	-- use potion health
 		Separator();
 		wasClicked, script_warrior.stopIfMHBroken = Checkbox("Stop bot if main hand is broken.", script_warrior.stopIfMHBroken);
-		Text("Use Bloodrage above health percentage");
-		script_warrior.bloodRageHealth = SliderInt("BR%", 1, 99, script_warrior.bloodRageHealth);	-- bloodrage health
+		
+		if (HasSpell("Bloodrage")) then
+			Text("Use Bloodrage above health percentage");
+			script_warrior.bloodRageHealth = SliderInt("BR%", 1, 99, script_warrior.bloodRageHealth);	-- bloodrage health
+		end
 		Text("Melee Range Distance");
 		script_warrior.meleeDistance = SliderFloat("MR (yd)", 1, 8, script_warrior.meleeDistance);	-- melee distance range
 		if (CollapsingHeader("-- Throwing Weapon Options")) then -- throwing weapon menu
