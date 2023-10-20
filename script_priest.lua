@@ -558,14 +558,11 @@ function script_priest:run(targetGUID)
 			-- use mind blast on CD
 			if (HasSpell("Mind Blast")) and (not IsSpellOnCD("Mind Blast")) then
 				if (targetHealth >= 20) and (localMana >= self.mindBlastMana) then
-					if (not targetObj:IsInLineOfSight()) then -- check line of sight
-						return 3; -- target not in line of sight
-					end -- move to target
-					if (Cast("Mind Blast", targetObj)) then
-						self.waitTimer = GetTimeEX() + 750;
-						return; -- keep trying until cast
-					end
+					CastSpellByName("Mind Blast", targetObj);
+					self.waitTimer = GetTimeEX() + 750;
+					return;
 				end
+			
 			end
 
 			-- Check: Keep Shadow Word: Pain up
@@ -703,11 +700,22 @@ function script_priest:run(targetGUID)
 			end
 
 			--Wand if set to use wand
-			if (self.useWand and not self.useMindFlay) and (not localObj:IsCasting()) and (IsSpellOnCD("Mind Blast") or localMana <= self.mindBlastMana) then
+			if (self.useWand and not self.useMindFlay) and (not localObj:IsCasting()) and (IsSpellOnCD("Mind Blast")) or (localMana <= self.mindBlastMana) then
 				if (localMana <= self.useWandMana) and (targetHealth <= self.useWandHealth) and (localObj:HasRangedWeapon()) then
 					if (script_priest:healAndBuff(localObj, localMana)) then
 						return;
 					end
+					
+					-- use mind blast on CD
+					if (HasSpell("Mind Blast")) and (not IsSpellOnCD("Mind Blast")) then
+						if (targetHealth >= 20) and (localMana >= self.mindBlastMana) then
+							CastSpellByName("Mind Blast", targetObj);
+							self.waitTimer = GetTimeEX() + 750;
+							return;
+						end
+			
+					end
+
 
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
@@ -717,10 +725,20 @@ function script_priest:run(targetGUID)
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
 						self.waitTimer = GetTimeEX() + 250; 
-						return true; -- return true - if not AutoCasting then false
+						return 0; -- return true - if not AutoCasting then false
 					end
 					if (script_priest:healAndBuff(localObj, localMana)) then
 						return;
+					end
+					
+					-- use mind blast on CD
+					if (HasSpell("Mind Blast")) and (not IsSpellOnCD("Mind Blast")) then
+						if (targetHealth >= 20) and (localMana >= self.mindBlastMana) then
+							CastSpellByName("Mind Blast", targetObj);
+							self.waitTimer = GetTimeEX() + 750;
+							return;
+						end
+			
 					end
 				end
 			end
