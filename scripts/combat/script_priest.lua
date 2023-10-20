@@ -490,7 +490,7 @@ function script_priest:run(targetGUID)
 
 			-- check heals and buffs
 			if (script_priest:healAndBuff(localObj, localMana)) then
-				return 0;
+				return;
 			end
 
 			-- Check: Use Healing Potion 
@@ -639,7 +639,7 @@ function script_priest:run(targetGUID)
 
 			-- check heal and buffs
 			if (script_priest:healAndBuff(localObj, localMana)) then
-				return 0; -- keep trying until cast
+				return; -- keep trying until cast
 			end
 
 			-- new follow target
