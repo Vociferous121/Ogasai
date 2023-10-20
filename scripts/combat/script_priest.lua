@@ -402,7 +402,7 @@ function script_priest:run(targetGUID)
 						self.message = "Using wand...";
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
-						self.waitTimer = GetTimeEX() + ((self.wandSpeed / 10) + 250); 
+						self.waitTimer = GetTimeEX() + ((self.wandSpeed * 100) + 250); 
 						return true; -- return true - if not AutoCasting then false
 					end
 				if (script_priest:healAndBuff(localObj, localMana)) then
@@ -683,7 +683,7 @@ function script_priest:run(targetGUID)
 						self.message = "Using wand...";
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
-						self.waitTimer = GetTimeEX() + ((self.wandSpeed / 10) + 150); 
+						self.waitTimer = GetTimeEX() + ((self.wandSpeed * 100) + 150); 
 						return true; -- return if not AutoCasting then false
 					end
 					if (script_priest:healAndBuff(localObj, localMana)) then
@@ -702,7 +702,7 @@ function script_priest:run(targetGUID)
 						self.message = "Using wand...";
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
-						self.waitTimer = GetTimeEX() + ((self.wandSpeed / 10) + 250); 
+						self.waitTimer = GetTimeEX() + ((self.wandSpeed * 100) + 250); 
 						return true; -- return true - if not AutoCasting then false
 					end
 					if (script_priest:healAndBuff(localObj, localMana)) then
@@ -720,7 +720,7 @@ function script_priest:run(targetGUID)
 						self.message = "Using wand...";
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
-						self.waitTimer = GetTimeEX() + ((self.wandSpeed / 10) + 250); 
+						self.waitTimer = GetTimeEX() + ((self.wandSpeed * 100) + 250); 
 						return true; -- return true - if not AutoCasting then false
 					end
 				if (script_priest:healAndBuff(localObj, localMana)) then

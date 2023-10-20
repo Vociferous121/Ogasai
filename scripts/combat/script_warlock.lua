@@ -344,8 +344,7 @@ function script_warlock:run(targetGUID)
 
 
 		-- level 1 - 4
-		if (GetLocalPlayer():GetLevel() <= 3) then
-			if (not HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight()) then
+			if (not HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight()) and (GetLocalPlayer():GetLevel() <= 3) then
 				if (Cast('Shadow Bolt', targetObj)) then
 					targetObj:FaceTarget();
 					self.waitTimer = GetTimeEX() + 1650;
@@ -362,7 +361,6 @@ function script_warlock:run(targetGUID)
 				CastSpellByName("Immolate");
 				self.waitTimer = GetTimeEX() + 2650;
 			end
-		end
 
 		-- Check: if we target player pets/totems
 		if (GetTarget() ~= nil and targetObj ~= nil) then
@@ -794,7 +792,7 @@ function script_warlock:run(targetGUID)
 	
 			-- Check: Keep the Immolate DoT up (15 s duration)
 			if (self.enableImmolate) and (not targetObj:HasDebuff("Immolate")) and (not IsSpellOnCD("Immolate")) then
-				if (not targetObj:HasDebuff("Immolate")) and (targetHealth > 20) then
+				if (not targetObj:HasDebuff("Immolate")) and (localMana > 25) and (targetHealth > 20) then
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 					end -- move to target

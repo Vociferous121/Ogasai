@@ -35,7 +35,7 @@ script_mage = {
 	manaShieldMana = 20,	-- use mana shield above this mana %
 	useFrostWard = false,	-- use frost ward yes/no
 	useFireWard = false,	-- use fire ward yes/no
-	wandSpeed = '1600',		-- wand speed
+	wandSpeed = '16',		-- wand speed
 	waitTimer = 0,		-- wait timer for spells
 	useWand = true,	-- use wand yes/no
 	gemTimer = 0,		-- gem cooldown timer
@@ -860,7 +860,7 @@ function script_mage:run(targetGUID)
 				if (not IsAutoCasting("Shoot")) then
 					targetObj:FaceTarget();
 					targetObj:CastSpell("Shoot");
-					self.waitTimer = GetTimeEX() + (self.wandSpeed + 100); 
+					self.waitTimer = GetTimeEX() + ((self.wandSpeed * 100) + 250); 
 					return true;
 				end
 			end
