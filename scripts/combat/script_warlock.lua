@@ -344,19 +344,24 @@ function script_warlock:run(targetGUID)
 
 
 		-- level 1 - 4
-		if (not HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight()) then
-			if (Cast('Shadow Bolt', targetObj)) then
-				self.waitTimer = GetTimeEX() + 1650;
-				return;
-			end
-		elseif (HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Immolate")) then
-			if (IsMoving()) then
-				StopMoving();
+		if (GetLocalPlayer():GetLevel() <= 3) then
+			if (not HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight()) then
+				if (Cast('Shadow Bolt', targetObj)) then
+					targetObj:FaceTarget();
+					self.waitTimer = GetTimeEX() + 1650;
+					return;
+				end
+			elseif (HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Immolate")) then
+				if (IsMoving()) then
+					StopMoving();
+					targetObj:FaceTarget();
+					PetAttack();
+				end
+	
 				targetObj:FaceTarget();
+				CastSpellByName("Immolate");
+				self.waitTimer = GetTimeEX() + 2650;
 			end
-			targetObj:FaceTarget();
-			CastSpellByName("Immolate");
-			self.waitTimer = GetTimeEX() + 2650;
 		end
 
 		-- Check: if we target player pets/totems
@@ -468,7 +473,9 @@ function script_warlock:run(targetGUID)
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 					end -- move to target
-					if (Cast("Siphon Life", targetObj)) then 
+					targetObj:FaceTarget();
+
+					if (Cast("Siphon Life", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1600; 
 						return 0;
 					end
@@ -480,6 +487,7 @@ function script_warlock:run(targetGUID)
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 					return 3; -- target not in line of sight
 				end -- move to target
+				targetObj:FaceTarget();
 				if (Cast('Curse of Agony', targetObj)) then 
 					self.waitTimer = GetTimeEX() + 1600;
 					return 0;
@@ -493,6 +501,7 @@ function script_warlock:run(targetGUID)
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 					end -- move to target
+						targetObj:FaceTarget();
 					if (CastSpellByName("Shadow Bolt", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1800;
 						return 0;
