@@ -58,6 +58,14 @@ function script_warrior:setup()
 	if (GetLocalPlayer():GetLevel() < 10) then
 		self.battleStance = true;
 	end
+
+	if (HasSpell("Charge")) then
+		self.enableCharge = true;
+	end
+
+	if (HasSpell("Rend")) then
+		self.enableRend = true;
+	end
 end
 
 function script_warrior:spellAttack(spellName, target) -- used in Core files to control casting
@@ -340,6 +348,13 @@ function script_warrior:run(targetGUID)	-- main content of script
 			-- Check move into melee range
 			if (targetObj:GetDistance() >= self.meleeDistance or not targetObj:IsInLineOfSight()) then
 				return 3;
+			end
+		
+			if (targetObj:GetDistance() <= self.meleeDistance) and (not targetObj:IsFleeing()) then
+					targetObj:FaceTarget();
+				if (IsMoving()) then
+					StopMoving();
+				end
 			end
 
 			-- Combat

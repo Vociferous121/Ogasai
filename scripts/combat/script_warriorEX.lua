@@ -39,28 +39,52 @@ function script_warriorEX:menu()
 		if (script_warrior.battleStance) then -- batle stance menu
 
 			if (CollapsingHeader("Battle Stance Options")) then
-				wasClicked, script_warrior.enableCharge = Checkbox("Charge On/Off", script_warrior.enableCharge);	-- charge
-				SameLine();
-				wasClicked, script_warrior.chargeWalk = Checkbox("Pull Back After Charge - Experimental", script_warrior.chargeWalk);
-				wasClicked, script_warrior.enableRend = Checkbox("Rend On/Off", script_warrior.enableRend);	-- rend
-				SameLine();
-				wasClicked, script_warrior.enableCleave = Checkbox("Cleave On/Off TODO", script_warrior.enableCleave);	-- cleave
-				wasClicked, script_warrior.enableSunder = Checkbox("Use Sunder x1", script_warrior.enableSunder);	-- battle stance sunder
-				
-				if (CollapsingHeader("-- Overpower Options")) then	-- overpower
-					Text("Overpower action bar slot");
-					script_warrior.overpowerActionBarSlot = InputText("OPS", script_warrior.overpowerActionBarSlot);
-					Text("72 is your action bar number.. slot 1 would be 73");
+				-- charge
+				if (HasSpell("Charge")) then
+					wasClicked, script_warrior.enableCharge = Checkbox("Charge On/Off", script_warrior.enableCharge);
 				end
+
+				SameLine();
+				if (HasSpell("Charge")) then
+					wasClicked, script_warrior.chargeWalk = Checkbox("Pull Back After Charge - Experimental", script_warrior.chargeWalk);
+				end
+
+				-- rend
+				if (HasSpell("Rend")) then
+					wasClicked, script_warrior.enableRend = Checkbox("Rend On/Off", script_warrior.enableRend);
+				end
+
+				SameLine();
 				
-				if (CollapsingHeader("-- Mocking Blow Options")) then
-					Text("Mocking Blow action bar slot");
-					wasClicked, script_warrior.useMockingBlow = Checkbox("Use Mocking Blow", script_warrior.useMockingBlow);
-					script_warrior.mockingBlowActionBarSlot = InputText("MBS", script_warrior.mockingBlowActionBarSlot);
-					Text("72 is your action bar number.. slot 1 would be 73");
+				-- cleave
+				if (HasSpell("Cleave")) then
+					wasClicked, script_warrior.enableCleave = Checkbox("Cleave On/Off TODO", script_warrior.enableCleave)					end
+			
+				-- battle stance sunder	
+				if (HasSpell("Sunder Armor")) then
+					wasClicked, script_warrior.enableSunder = Checkbox("Use Sunder x1", script_warrior.enableSunder);					end
+				
+				if (HasSpell("Overpower")) then
+					if (CollapsingHeader("-- Overpower Options")) then	-- overpower
+						Text("Overpower action bar slot");
+						script_warrior.overpowerActionBarSlot = InputText("OPS", script_warrior.overpowerActionBarSlot);
+						Text("72 is your action bar number.. slot 1 would be 73");
+					end
+				end
+
+				if (HasSpell("Mocking Blow")) then
+					if (CollapsingHeader("-- Mocking Blow Options")) then
+						Text("Mocking Blow action bar slot");
+						wasClicked, script_warrior.useMockingBlow = Checkbox("Use Mocking Blow", script_warrior.useMockingBlow);
+						script_warrior.mockingBlowActionBarSlot = InputText("MBS", script_warrior.mockingBlowActionBarSlot);
+						Text("72 is your action bar number.. slot 1 would be 73");
+					end
 				end
 			end
 		end
+
+			Separator();
+
 		if (script_warrior.defensiveStance) then -- defensive stance menu
 			if (CollapsingHeader("Defensive Stance Options")) then	-- defensive stance
 				Text("Face Target off for easier manual control");
@@ -78,6 +102,7 @@ function script_warriorEX:menu()
 					script_warrior.sunderArmorRage = SliderInt("Sunder rage cost", 12, 15, script_warrior.sunderArmorRage);
 					script_warrior.demoShoutRage = SliderInt("Demo shout above % rage", 10, 50, script_warrior.demoShoutRage);
 					script_warrior.challengingShoutAdds = SliderInt("Challenging Shout Add Count", 3, 10, script_warrior.challengingShoutAdds);
+			
 				if (CollapsingHeader("-- Revenge Skill Options")) then
 					script_warrior.revengeActionBarSlot = InputText("RS", script_warrior.revengeActionBarSlot);	-- revenge
 					Text("82 is spell bar number.. slot 1 would be 83");
