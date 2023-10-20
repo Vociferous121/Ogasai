@@ -15,7 +15,6 @@ script_warrior = {
 	enableRotation = false, -- enable/disable rotation settings
 	enableGrind = true, -- enable/disable grind settings
 	enableCharge = false, -- enable/disable charge
-	chargeWalk = false, -- enable/disable walk back after charge
 	defensiveStance = false, -- enable/disable defensive stance settings
 	battleStance = false, -- enable/disable battle stance settings
 	berserkerStance = false, -- enable/disable berskerer stance settings
@@ -326,12 +325,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 						if (IsMoving()) then
 							StopMoving();
 						end
-						-- experimental walk back to same position after charging
-						if (self.chargeWalk) then
-							self.waitTimer = GetTimeEX() + 2700;
-							return 0;
-						end
-						return 0;
+					return 0;
 					end
 				end
 			end	

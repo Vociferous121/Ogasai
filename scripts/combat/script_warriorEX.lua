@@ -39,14 +39,10 @@ function script_warriorEX:menu()
 		if (script_warrior.battleStance) then -- batle stance menu
 
 			if (CollapsingHeader("Battle Stance Options")) then
+
 				-- charge
 				if (HasSpell("Charge")) then
 					wasClicked, script_warrior.enableCharge = Checkbox("Charge On/Off", script_warrior.enableCharge);
-				end
-
-				SameLine();
-				if (HasSpell("Charge")) then
-					wasClicked, script_warrior.chargeWalk = Checkbox("Pull Back After Charge - Experimental", script_warrior.chargeWalk);
 				end
 
 				-- rend
