@@ -251,7 +251,7 @@ function script_gather:gather()
 				return;
 			end
 		else
-			if (_x ~= 0) then
+			if (_x ~= 0) and (not IsDrinking() or not IsEating()) then
 				script_nav:moveToNav(GetLocalPlayer(), _x, _y, _z);
 				self.timer = GetTimeEX() + 150;
 			end

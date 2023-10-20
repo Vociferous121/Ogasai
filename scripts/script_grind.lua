@@ -11,7 +11,7 @@ script_grind = {
 	enemyObj = nil,
 	lootObj = nil,
 	timer = GetTimeEX(),
-	tickRate = 145,
+	tickRate = 100,
 	waitTimer = GetTimeEX(),
 	pullDistance = 225,
 	avoidElite = true,
@@ -53,7 +53,7 @@ script_grind = {
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
 	paranoiaLoaded = include("scripts\\script_unstuck.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
-	nextToNodeDist = 2.8, -- (Set to about half your nav smoothness)
+	nextToNodeDist = 2, -- (Set to about half your nav smoothness)
 	blacklistedTargets = {},
 	blacklistedNum = 0,
 	isSetup = false,
@@ -220,6 +220,14 @@ function script_grind:run()
 		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*4);
 	end
 
+	localObj = GetLocalPlayer();
+
+	if (localObj:HasBuff("Sprint")) or (localObj:HasBuff("Aspect of the Cheetah")) then
+		script_nav:setNextToNodeDist(6); NavmeshSmooth(18);
+	else
+		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*4);
+	end
+	
 	if (not self.isSetup) then script_grind:setup(); end
 
 	if (not self.navFunctionsLoaded) then self.message = "Error script_nav not loaded..."; return; end

@@ -208,7 +208,7 @@ function script_priest:setup()
 		self.useScream = false;
 	end
 
-	script_grind.tickRate = 125;
+	script_grind.tickRate = 100;
 end
 
 function script_priest:draw()
@@ -354,9 +354,16 @@ function script_priest:run(targetGUID)
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 			
 			-- Opener check range of ALL SPELLS
-			if (targetObj:GetDistance() > 28)  then
+			if (targetObj:GetDistance() > 27) then
 				self.message = "Walking to spell range!";
 				return 3;
+			end
+
+			if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= 30) then
+					targetObj:FaceTarget();
+				if (IsMoving()) then
+					StopMoving();
+				end
 			end
 
 			-- stand if sitting
@@ -365,11 +372,11 @@ function script_priest:run(targetGUID)
 			end
 
 			-- we are in spell range to pull then stop moving
-			if (targetObj:GetDistance() < 27) and (targetObj:IsInLineOfSight()) then
-				if (IsMoving()) then
-					StopMoving();
-				end
-			end
+			--if (targetObj:GetDistance() < 25) and (targetObj:IsInLineOfSight()) then
+				--if (IsMoving()) then
+				--	StopMoving();
+				--end
+			--end
 
 			-- Dismount
 			if (IsMounted()) then

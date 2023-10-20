@@ -61,9 +61,6 @@ function script_mageEX:menu()
 
 				wasClicked, script_mage.useWand = Checkbox("Use Wand", script_mage.useWand);
 
-				Text('Wand Attack Speed (1.1 = 1100)');
-				script_mage.wandSpeed = SliderInt("WS", 5, 40, script_mage.wandSpeed);
-
 			end
 			
 			if (HasSpell("Fire Blast")) then
