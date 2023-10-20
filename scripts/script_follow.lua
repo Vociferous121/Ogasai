@@ -57,11 +57,11 @@ function getPartyMembers()
 		end
 		local partyMembersHP = partyMember:GetHealthPercentage();
 		if (GetNumPartyMembers() >= 1) then
-		if (partyMembersHP > 0 and partyMembersHP < 99 and localMana > 1) then
-			local partyMemberDistance = partyMember:GetDistance();
-			leaderObj = GetPartyMember(GetPartyLeaderIndex());
-			local localHealth = GetLocalPlayer():GetHealthPercentage();
-		end
+			if (partyMembersHP > 0 and partyMembersHP < 99 and localMana > 1) then
+				local partyMemberDistance = partyMember:GetDistance();
+				leaderObj = GetPartyMember(GetPartyLeaderIndex());
+				local localHealth = GetLocalPlayer():GetHealthPercentage();
+			end
 		end
 	end
 end
@@ -115,7 +115,7 @@ function script_follow:GetPartyLeaderObject()
 end
 
 function script_follow:run()
-	script_follow:window();
+		script_follow:window();
 	-- Set next to node distance and nav-mesh smoothness to double that number
 	if (IsMounted()) then
 		script_nav:setNextToNodeDist(6); NavmeshSmooth(14);
@@ -132,6 +132,7 @@ function script_follow:run()
 		self.message = "Error script_nav not loaded...";
 		return;
 	end
+
 	if (not self.helperLoaded) then	
 		self.message = "Error script_helper not loaded..."; 
 		return;
@@ -178,7 +179,7 @@ function script_follow:run()
 
 		-- Corpse-walk if we are dead
 		if(localObj:IsDead()) then
-			self.message = "Walking to corpse...";
+				self.message = "Walking to corpse...";
 			-- Release body
 			if(not IsGhost()) and (self.autoGhost) then 
 				RepopMe(); 
@@ -186,7 +187,7 @@ function script_follow:run()
 				return; 
 			end
 			-- Ressurrect within the ress distance to our corpse
-			local _lx, _ly, _lz = localObj:GetPosition();
+				local _lx, _ly, _lz = localObj:GetPosition();
 
 			if(GetDistance3D(_lx, _ly, _lz, GetCorpsePosition()) > self.ressDistance) then
 				script_nav:moveToNav(localObj, GetCorpsePosition());
@@ -228,8 +229,8 @@ function script_follow:run()
 				if ((self.waitTimer - GetTimeEX()) < 2500) then
 					self.waitTimer = GetTimeEX()+2500;
 				end
-			ClearTarget();
-			return;	
+				ClearTarget();
+				return;	
 			end
 		end
 
@@ -271,7 +272,7 @@ function script_follow:run()
 			if (self.lootObj == 0) then
 				self.lootObj = nil; 
 			end
-			local isLoot = not IsInCombat() and not (self.lootObj == nil);
+				local isLoot = not IsInCombat() and not (self.lootObj == nil);
 			if (isLoot and not AreBagsFull()) then
 				script_grindEX:doLoot(localObj);
 				return;
@@ -284,7 +285,7 @@ function script_follow:run()
 		-- Assign the next valid target to be killed
 		-- Check if anything is attacking us Priest
 		if (script_follow:enemiesAttackingUs() >= 1) then
-			local localMana = GetLocalPlayer():GetManaPercentage();
+				local localMana = GetLocalPlayer():GetManaPercentage();
 			if (localMana > 6 and HasSpell('Fade') and not IsSpellOnCD('Fade')) then
 				CastSpellByName('Fade');
 				return;
@@ -293,7 +294,7 @@ function script_follow:run()
 				
 		-- Check if anything is attacking us Paladin
 		if (script_follow:enemiesAttackingUs() >= 2) then
-			local localMana = GetLocalPlayer():GetManaPercentage();
+				local localMana = GetLocalPlayer():GetManaPercentage();
 			if (localMana > 6 and HasSpell('Divine Protection') and not IsSpellOnCD('Divine Protection')) then
 				CastSpellByName('Divine Protection');
 				return;
@@ -301,20 +302,21 @@ function script_follow:run()
 		end
         
 		if (GetTarget() ~= 0 and GetTarget() ~= nil) and (script_follow:GetPartyLeaderObject():GetDistance() < self.followLeaderDistance) then
-            	local target = GetTarget();
-				if (target:CanAttack() and self.assistInCombat) then
-					self.enemyObj = target;
-				else
-					self.enemyObj = nil;
-				end 
+            			local target = GetTarget();
+			if (target:CanAttack() and self.assistInCombat) then
+				self.enemyObj = target;
+			else
+				self.enemyObj = nil;
+			end 
 
 		else
 
 		-- Healer check: heal/buff the party
-		if (script_followHealsAndBuffs:healAndBuff()) and (HasSpell("Smite") or HasSpell("Rejuvenation") or HasSpell("Healing Wave") or HasSpell("Holy Light")) then
-			self.message = "Healing/buffing the party...";
-			ClearTarget();
-			return;
+			if (script_followHealsAndBuffs:healAndBuff()) and (HasSpell("Smite") or HasSpell("Rejuvenation") or HasSpell("Healing Wave") or HasSpell("Holy Light")) then
+				self.message = "Healing/buffing the party...";
+				ClearTarget();
+				return;
+			end
 		end
 
 		if (script_follow:GetPartyLeaderObject() ~= 0) then
@@ -323,11 +325,11 @@ function script_follow:run()
 					self.enemyObj = script_follow:GetPartyLeaderObject():GetUnitsTarget();
 					script_follow:moveInLineOfSight(leaderObj);
 				else
-				self.enemyObj = nil;
-				ClearTarget();
+					self.enemyObj = nil;
+					ClearTarget();
 				end
 			end
-        end
+       		end
 	end	
 
 		-- Finish loot before we engage new targets or navigate
@@ -335,7 +337,7 @@ function script_follow:run()
 			return; 
 		else
 			-- reset the combat status
-			self.combatError = nil; 
+				self.combatError = nil; 
 			-- Run the combat script and retrieve combat script status if we have a valid target
 			if (self.enemyObj ~= nil and self.enemyObj ~= 0) then
 				self.combatError = RunCombatScript(self.enemyObj:GetGUID());
@@ -405,23 +407,22 @@ function script_follow:run()
 			end
 		end
 	end 
-end
 
 function script_follow:getTarget()
 	return self.enemyObj;
 end
 
 function script_follow:getTargetAttackingUs() 
-    local currentObj, typeObj = GetFirstObject(); 
-    while currentObj ~= 0 do 
+   	local currentObj, typeObj = GetFirstObject(); 
+   while currentObj ~= 0 do 
     	if typeObj == 3 then
 			if (currentObj:CanAttack() and not currentObj:IsDead()) then
-				local localObj = GetLocalPlayer();		
+					local localObj = GetLocalPlayer();		
 				if (currentObj:GetUnitsTarget() == localObj) then 
-                	return currentObj; 
+                			return currentObj; 
 				end 
 			end
-		end
+	end
         currentObj, typeObj = GetNextObject(currentObj); 
     end
     return nil;
@@ -466,9 +467,9 @@ function script_follow:assignTarget()
  end
 
 function script_follow:isTargetingPet(i)
-	local class = UnitClass("player");
+		local class = UnitClass("player");
 	if (not class == 'Warlock') then
-		local pet = GetPet();
+			local pet = GetPet();
 		if (pet ~= nil and pet ~= 0 and not pet:IsDead()) then
 			if (i:GetUnitsTarget() ~= nil and i:GetUnitsTarget() ~= 0) then
 				return i:GetUnitsTarget():GetGUID() == pet:GetGUID();
@@ -515,48 +516,48 @@ function script_follow:enemyIsValid(i)
 end
 
 function script_follow:enemiesAttackingUs() -- returns number of enemies attacking us
-	local unitsAttackingUs = 0; 
-	local currentObj, typeObj = GetFirstObject(); 
+		local unitsAttackingUs = 0; 
+		local currentObj, typeObj = GetFirstObject(); 
 	while currentObj ~= 0 do 
 		if typeObj == 3 then
 			if (currentObj:CanAttack() and not currentObj:IsDead()) then
 				if (script_follow:isTargetingMe(currentObj)) then 
 					unitsAttackingUs = unitsAttackingUs + 1; 
-                end 
-            end 
-       	end
-      	currentObj, typeObj = GetNextObject(currentObj); 
+                		end 
+           		 end 
+       		end
+      		currentObj, typeObj = GetNextObject(currentObj); 
 	end
-   	return unitsAttackingUs;
+   		return unitsAttackingUs;
 end
 
 function script_follow:playersTargetingUs() -- returns number of players attacking us
-	local nrPlayersTargetingUs = 0; 
-	local currentObj, typeObj = GetFirstObject(); 
+		local nrPlayersTargetingUs = 0; 
+		local currentObj, typeObj = GetFirstObject(); 
 	while currentObj ~= 0 do 
 		if typeObj == 4 then
 			if (script_follow:isTargetingMe(currentObj)) then 
-                nrPlayersTargetingUs = nrPlayersTargetingUs + 1; 
+               			nrPlayersTargetingUs = nrPlayersTargetingUs + 1; 
 			end 
 		end
-        currentObj, typeObj = GetNextObject(currentObj); 
+        	currentObj, typeObj = GetNextObject(currentObj); 
 	end
     return nrPlayersTargetingUs;
 end
 
 function script_follow:playersWithinRange(range)
-	local currentObj, typeObj = GetFirstObject(); 
+		local currentObj, typeObj = GetFirstObject(); 
 	while currentObj ~= 0 do 
-    	if (typeObj == 4 and not currentObj:IsDead()) then
+    		if (typeObj == 4 and not currentObj:IsDead()) then
 			if (currentObj:GetDistance() < range) then 
-				local localObj = GetLocalPlayer();
+					local localObj = GetLocalPlayer();
 				if (localObj:GetGUID() ~= currentObj:GetGUID()) then
-                	return true;
+                			return true;
 				end
 			end 
-       	end
-        currentObj, typeObj = GetNextObject(currentObj); 
-    end
+       		end
+        	currentObj, typeObj = GetNextObject(currentObj); 
+   	end
     return false;
 end
 
