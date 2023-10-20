@@ -696,6 +696,10 @@ function script_priest:run(targetGUID)
 			--Wand if set to use wand
 			if (self.useWand and not self.useMindFlay) and (not localObj:IsCasting()) and (IsSpellOnCD("Mind Blast") or localMana <= self.mindBlastMana) then
 				if (localMana <= self.useWandMana) and (targetHealth <= self.useWandHealth) and (localObj:HasRangedWeapon()) then
+					if (script_priest:healAndBuff(localObj, localMana)) then
+						return;
+					end
+
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 					end -- move to target
