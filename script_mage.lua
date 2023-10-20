@@ -1012,7 +1012,7 @@ function script_mage:rest()
 		end
 	end
 	
-	if (waterIndex == -1 and HasSpell('Conjure Water') and not IsEating() and not IsDrinking() and not IsSitting()) then 
+	if (waterIndex == -1 and HasSpell('Conjure Water') and not IsEating() and not IsDrinking() and IsStanding()) then 
 		self.message = "Conjuring water...";
 		if (IsMoving()) then
 			StopMoving();
@@ -1042,7 +1042,7 @@ function script_mage:rest()
 			break;
 		end
 	end
-	if (foodIndex == -1 and HasSpell('Conjure Food') and not IsEating() and not IsDrinking() and not IsSitting()) then 
+	if (foodIndex == -1 and HasSpell('Conjure Food') and not IsEating() and not IsDrinking() and not IsStanding()) then 
 		self.message = "Conjuring food...";
 		if (IsMoving()) then
 			StopMoving();

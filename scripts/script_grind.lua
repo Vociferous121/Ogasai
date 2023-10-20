@@ -855,7 +855,7 @@ function script_grind:runRest()
 		if (IsMounted()) then DisMount(); return true; end
 		-- Add 2500 ms timer to the rest script rotations (timer could be set already) -- removed 2500 timer at end
 		--if ((self.waitTimer - GetTimeEX()) < 5000) then self.waitTimer = GetTimeEX() + 0; end;
-		--self.waitTimer = GetTimeEX() + 0;
+		self.waitTimer = GetTimeEX() + 0;
 		return true;	
 	end
 

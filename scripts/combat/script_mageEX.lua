@@ -42,16 +42,16 @@ function script_mageEX:menu()
 			local wasClicked = false;
 
 			Text('Drink Below Mana Percentage');
-			script_mage.drinkMana = SliderFloat("DM%", 1, 100, script_mage.drinkMana);
+			script_mage.drinkMana = SliderInt("DM%", 1, 100, script_mage.drinkMana);
 
 			Text('Eat Below Health Percentage');
-			script_mage.eatHealth = SliderFloat("EH%", 1, 100, script_mage.eatHealth);
+			script_mage.eatHealth = SliderInt("EH%", 1, 100, script_mage.eatHealth);
 
 			Text('Use Health Potion Below Percentage');
-			script_mage.potionHealth = SliderFloat("HP%", 1, 99, script_mage.potionHealth);
+			script_mage.potionHealth = SliderInt("HP%", 1, 99, script_mage.potionHealth);
 
 			Text('Use Mana Potion Below Percentage');
-			script_mage.potionMana = SliderFloat("MP%", 1, 99, script_mage.potionMana);
+			script_mage.potionMana = SliderInt("MP%", 1, 99, script_mage.potionMana);
 
 			Separator();
 
@@ -148,11 +148,11 @@ function script_mageEX:menu()
 				
 				if (CollapsingHeader("-- Wand Options")) then
 
-					Text('Wand below script_mage mana percent');
-					script_mage.useWandMana = SliderFloat("WM%", 1, 75, script_mage.useWandMana);
+					Text('Wand below self mana percent');
+					script_mage.useWandMana = SliderInt("WM%", 1, 100, script_mage.useWandMana);
 
 					Text('Wand below target HP percent');
-					script_mage.useWandHealth = SliderFloat("WH%", 1, 75, script_mage.useWandHealth);
+					script_mage.useWandHealth = SliderInt("WH%", 1, 100, script_mage.useWandHealth);
 
 				end
 			end
@@ -177,10 +177,10 @@ function script_mageEX:menu()
 					if (CollapsingHeader("-- Cone of Cold Options")) then
 
 						Text('Cone of Cold above script_mage mana percent');
-						script_mage.coneOfColdMana = SliderFloat("CCM", 20, 75, script_mage.coneOfColdMana);
+						script_mage.coneOfColdMana = SliderInt("CCM", 20, 75, script_mage.coneOfColdMana);
 
 						Text('Cone of Cold above target health percent');
-						script_mage.coneOfColdHealth = SliderFloat("CCH", 5, 50, script_mage.coneOfColdHealth);
+						script_mage.coneOfColdHealth = SliderInt("CCH", 5, 50, script_mage.coneOfColdHealth);
 
 					end
 				end
@@ -191,15 +191,15 @@ function script_mageEX:menu()
 				if (CollapsingHeader("-- Evocation Options")) then
 
 					Text('Evocation above health percent');
-					script_mage.evocationHealth = SliderFloat("EH%", 1, 90, script_mage.evocationHealth);
+					script_mage.evocationHealth = SliderInt("EH%", 1, 90, script_mage.evocationHealth);
 
 					Text('Evocation below mana percent');
-					script_mage.evocationMana = SliderFloat("EM%", 1, 90, script_mage.evocationMana);
+					script_mage.evocationMana = SliderInt("EM%", 1, 90, script_mage.evocationMana);
 
 					if (HasSpell("Quel'Dorei Meditation")) then
 
 						Text('Queldorei Meditation below mana percent');
-						script_mage.QuelDoreiMeditationMana = SliderFloat("QM%", 1, 90, script_mage.QuelDoreiMeditationMana);
+						script_mage.QuelDoreiMeditationMana = SliderInt("QM%", 1, 90, script_mage.QuelDoreiMeditationMana);
 
 					end
 				end
@@ -210,10 +210,10 @@ function script_mageEX:menu()
 				if (CollapsingHeader("-- Ice Block Options")) then
 
 					Text('Ice Block below health percent');
-					script_mage.iceBlockHealth = SliderFloat("IBH%", 5, 90, script_mage.iceBlockHealth);
+					script_mage.iceBlockHealth = SliderInt("IBH%", 5, 90, script_mage.iceBlockHealth);
 
 					Text('Ice Block below mana percent');
-					script_mage.iceBlockMana = SliderFloat("IBM%", 5, 90, script_mage.iceBlockMana);
+					script_mage.iceBlockMana = SliderInt("IBM%", 5, 90, script_mage.iceBlockMana);
 
 				end
 			end
@@ -225,10 +225,10 @@ function script_mageEX:menu()
 					if (CollapsingHeader("-- Mana Shield Options")) then
 
 						Text('Mana Shield below script_mage health percent');
-						script_mage.manaShieldHealth = SliderFloat("MS%", 5, 99, script_mage.manaShieldHealth);
+						script_mage.manaShieldHealth = SliderInt("MS%", 5, 99, script_mage.manaShieldHealth);
 
 						Text('Mana Shield above script_mage mana percent');
-						script_mage.manaShieldMana = SliderFloat("MM%", 10, 65, script_mage.manaShieldMana);
+						script_mage.manaShieldMana = SliderInt("MM%", 10, 65, script_mage.manaShieldMana);
 
 					end
 				end
@@ -238,7 +238,7 @@ function script_mageEX:menu()
 
 				if (CollapsingHeader("-- Mana Gem Options")) then
 
-					script_mage.manaGemMana = SliderFloat("MG%", 1, 90, script_mage.manaGemMana);		
+					script_mage.manaGemMana = SliderInt("MG%", 1, 90, script_mage.manaGemMana);		
 
 				end
 			end
