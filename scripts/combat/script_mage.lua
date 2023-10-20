@@ -996,7 +996,8 @@ function script_mage:rest()
 			StopMoving();
 		end
 		self.waitTimer = GetTimeEX() + 1800;
-		script_grind:doLoot();
+		script_grind:doLoot(localObj);
+		script_grind:lootAndSkin();
 		script_nav:resetNavigate();
 		script_nav:resetNavPos();
 		ClearTarget();

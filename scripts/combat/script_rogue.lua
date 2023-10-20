@@ -45,6 +45,11 @@ function script_rogue:setup()
 	if (HasSpell("Hemorrhage")) then
 		self.cpGenerator = "Hemorrhage";
 	end
+
+	--set backstab as opener
+	if (GetLocalPlayer():GetLevel() < 10) then
+		self.stealthOpener = "Backstab";
+	end
 	
 	-- Set the energy cost for the CP builder ability (does not recognize talent e.g. imp. sinister strike)
 	_, _, _, _, self.cpGeneratorCost = GetSpellInfo(self.cpGenerator);
@@ -262,7 +267,7 @@ function script_rogue:run(targetGUID)
 	
 
 				-- Stealth in range if enabled
-				if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) then
+				if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) and (not localObj:HasDebuff("Poison")) then
 					if (not localObj:HasBuff("Stealth") and not IsSpellOnCD("Stealth")) then
 						CastSpellByName("Stealth");
 						return 3;
@@ -272,7 +277,7 @@ function script_rogue:run(targetGUID)
 						CastSpellByName("Sprint");
 						return 3;
 					end
-				elseif (not self.useStealth and localObj:HasBuff("Stealth")) then
+				elseif (not self.useStealth and localObj:HasBuff("Stealth")) and (not localObj:HasDebuff("Poison")) then
 					CastSpellByName("Stealth");
 				end
 
@@ -485,7 +490,8 @@ function script_rogue:run(targetGUID)
 							return 0;
 						end
 					end
-				end			
+				end
+			
 				-- Dynamic health check when using Eviscerate between 1 and 4 CP
 				if (targetHealth < (10*localCP)) then
 					if (localEnergy < 35) then
@@ -560,7 +566,7 @@ function script_rogue:run(targetGUID)
 				self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 			
 				-- Stealth in range if enabled
-				if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) then
+				if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) and (not localObj:HasDebuff("Poison")) then
 					if (not localObj:HasBuff("Stealth") and not IsSpellOnCD("Stealth")) then
 						CastSpellByName("Stealth");
 						return 3;
@@ -880,7 +886,8 @@ function script_rogue:rest()
 	
 	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
 		self.waitTimer = GetTimeEX() + 1800;
-		script_grind:doLoot();
+		script_grind:doLoot(localObj);
+		script_grind:lootAndSkin();
 		script_nav:resetNavigate();
 		script_nav:resetNavPos();
 		ClearTarget();
@@ -911,7 +918,7 @@ function script_rogue:rest()
 		else 
 			self.message = "No food! (or food not included in script_helper)";
 
-			if (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and not localObj:HasDebuff("Touch of Zanzil")) then
+			if (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and not localObj:HasDebuff("Touch of Zanzil")) and (not localObj:HasDebuff("Poison")) then
 				if (not localObj:HasBuff("Stealth")) then
 					CastSpellByName("Stealth");
 				end
@@ -922,7 +929,7 @@ function script_rogue:rest()
 	end
 
 	-- Stealth when we eat
-	if (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and IsEating() and not localObj:HasDebuff("Touch of Zanzil")) then
+	if (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and IsEating() and not localObj:HasDebuff("Touch of Zanzil")) and (not localObj:HasDebuff("Poison")) then
 		if (not localObj:HasBuff("Stealth")) then
 			CastSpellByName("Stealth");
 			return true;

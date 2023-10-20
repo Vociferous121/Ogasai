@@ -931,7 +931,8 @@ function script_warlock:rest()
 	
 	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
 		self.waitTimer = GetTimeEX() + 1800;
-		script_grind:doLoot();
+		script_grind:doLoot(localObj);
+		script_grind:lootAndSkin();
 		script_nav:resetNavigate();
 		script_nav:resetNavPos();
 		ClearTarget();
