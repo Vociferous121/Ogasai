@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Gasai>
+	-- change login count when adding more! will not find them if login count is not changed!
 	<Login Count="2">
 		<Login_0 UserName="asdasd" Password="asdad"/>	
 		<Login_1 UserName="asdaasdsd" Password="asasddad"/>	
