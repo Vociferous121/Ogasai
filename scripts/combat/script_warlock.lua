@@ -344,10 +344,10 @@ function script_warlock:run(targetGUID)
 
 
 		-- level 1 - 4
-		if (not HasSpell("Summon Imp")) and (not IsInCombat()) and (localMana > 25) then
+		if (not HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight()) then
 			if (Cast('Shadow Bolt', targetObj)) then
 				self.waitTimer = GetTimeEX() + 1650;
-				return 0;
+				return;
 			end
 		end
 
@@ -900,6 +900,11 @@ function script_warlock:run(targetGUID)
 					end
 				end
 			end	
+
+			if (self.useShadowBolt) then
+				CastSpellByName("Shadow Bolt");
+				self.waitTimer = GetTimeEX() + 1000;
+			end
 
 			if (targetObj:IsInLineOfSight() and not IsMoving()) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) and (targetHealth < 99) then
