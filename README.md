@@ -1,5 +1,7 @@
  # oGasai Scripts for WoW Classic
  Ogasaism
+
+# Fixed several bugs affecting low level botting!
  
 ## *Hunter script is bugged.* Discovered this issue affecting both my edited version and Log1teks original script. Hunter script freezes on multiple adds. Use with caution!
 
