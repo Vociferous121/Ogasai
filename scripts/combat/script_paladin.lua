@@ -665,7 +665,7 @@ function script_paladin:rest()
 
 	-- looting
 
-	local lootObj = script_nav:getLootTarget();
+	local lootObj = script_nav:getLootTarget(lootRadius);
 	
 	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
 		self.waitTimer = GetTimeEX() + 1800;

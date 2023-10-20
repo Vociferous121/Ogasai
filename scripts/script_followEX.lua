@@ -8,6 +8,7 @@ script_followEX = {
 }
 
 function script_followEX:drawStatus()
+
 	if (script_follow.drawPath) then
 		script_nav:drawPath(); 
 	end
@@ -20,16 +21,16 @@ function script_followEX:drawStatus()
 		script_aggro:drawAggroCircles(self.drawAggroRange); 
 	end
 	-- color
-	local r, g, b = 255, 255, 0;
+		local r, g, b = 255, 255, 0;
 	-- position
-	local y, x, width = 120, 25, 370;
-	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
+		local y, x, width = 120, 25, 370;
+		local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
 	if (onScreen) then
 		y, x = tY-25, tX+75;
 	end
-	DrawRect(x - 10, y - 5, x + width, y + 80, 255, 255, 0,  1, 1, 1);
-	DrawRectFilled(x - 10, y - 5, x + width, y + 80, 0, 0, 0, 160, 0, 0);
-	if (script_follow:GetPartyLeaderObject()) then
+		DrawRect(x - 10, y - 5, x + width, y + 80, 255, 255, 0,  1, 1, 1);
+		DrawRectFilled(x - 10, y - 5, x + width, y + 80, 0, 0, 0, 160, 0, 0);
+	if (script_follow:GetPartyLeaderObject()) and (GetNumPartyMembers() >= 1) then
 		DrawText('Follower - Range: ' .. math.floor(script_follow.followLeaderDistance) .. ' yd. ' .. 
 		'Master target: ' .. script_follow:GetPartyLeaderObject():GetUnitName(), x-5, y-4, r, g, b) y = y + 15;
 	else
@@ -37,15 +38,15 @@ function script_followEX:drawStatus()
 		'Master target: ' .. '', x-5, y-4, r, g, b) y = y + 15;
 	end 
 
-	DrawText('Status: ', x, y, r, g, b); 
-	y = y + 15; DrawText(script_follow.message or "error", x, y, 0, 255, 255);
-	y = y + 20; DrawText('Combat script status: ', x, y, r, g, b); y = y + 15;
-	RunCombatDraw();
+		DrawText('Status: ', x, y, r, g, b); 
+		y = y + 15; DrawText(script_follow.message or "error", x, y, 0, 255, 255);
+		y = y + 20; DrawText('Combat script status: ', x, y, r, g, b); y = y + 15;
+		RunCombatDraw();
 end
 
 function script_grindEX:doLoot(localObj)
-	local _x, _y, _z = script_follow.lootObj:GetPosition();
-	local dist = script_follow.lootObj:GetDistance();
+		local _x, _y, _z = script_follow.lootObj:GetPosition();
+		local dist = script_follow.lootObj:GetDistance();
 	
 	-- Loot checking/reset target
 	if (GetTimeEX() > script_follow.lootCheck['timer']) then
@@ -54,7 +55,7 @@ function script_grindEX:doLoot(localObj)
 			ClearTarget();
 			script_follow.message = 'Reseting loot target...';
 		end
-		script_follow.lootCheck['timer'] = GetTimeEX() + 10000; -- 10 sec
+			script_follow.lootCheck['timer'] = GetTimeEX() + 10000; -- 10 sec
 		if (script_follow.lootObj ~= nil) then 
 			script_follow.lootCheck['target'] = script_follow.lootObj:GetGUID();
 		else
@@ -64,12 +65,13 @@ function script_grindEX:doLoot(localObj)
 	end
 
 	if(dist <= script_follow.lootDistance) then
-		script_follow.message = "Looting...";
+			script_follow.message = "Looting...";
 		if(IsMoving() and not localObj:IsMovementDisabed()) then
 			StopMoving();
 			script_follow.waitTimer = GetTimeEX() + 450;
 			return;
 		end
+
 		if(not IsStanding()) then
 			StopMoving();
 			script_follow.waitTimer = GetTimeEX() + 450;
@@ -77,7 +79,7 @@ function script_grindEX:doLoot(localObj)
 		end
 		
 		-- If we reached the loot object, reset the nav path
-		script_nav:resetNavigate();
+			script_nav:resetNavigate();
 
 		-- Dismount
 		if (IsMounted()) then 
@@ -89,6 +91,7 @@ function script_grindEX:doLoot(localObj)
 			script_follow.waitTimer = GetTimeEX() + 950;
 			return;
 		end
+
 		if (not LootTarget()) then
 			script_follow.waitTimer = GetTimeEX() + 650;
 			return;
@@ -98,29 +101,36 @@ function script_grindEX:doLoot(localObj)
 			return;
 		end
 	end
-	script_follow.message = "Moving to loot...";		
-	script_nav:moveToTarget(localObj, _x, _y, _z);	
-	script_grind:setWaitTimer(100);
+
+		script_follow.message = "Moving to loot...";		
+		script_nav:moveToTarget(localObj, _x, _y, _z);	
+		script_grind:setWaitTimer(100);
+
 	if (script_follow.lootObj:GetDistance() < 3) then
 		script_follow.waitTimer = GetTimeEX() + 450; 
 	end
 end
 
 function script_followEX:menu()
+
 	if (not script_follow.pause) then 
 		if (Button("Pause Bot")) then
 			script_follow.pause = true; 
 		end
+
 	elseif (Button("Resume Bot")) then 
 		script_follow.pause = false; 
 		script_follow.myTime = GetTimeEX(); 
 	end
 	
 	SameLine();
+
 	if (Button("Reload Scripts")) then 
 		coremenu:reload(); 
 	end
+
 	SameLine();
+
 	if (Button("Exit Bot")) then
 		StopBot();
 	end

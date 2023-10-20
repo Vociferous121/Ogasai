@@ -1,6 +1,5 @@
 script_follow = {
 
-	
 	useMount = false,
 	disMountRange = 32,
 	mountTimer = 0,

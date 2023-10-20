@@ -174,11 +174,14 @@ function script_helper:setup()
 	script_helper:addFood('Slitherskin Mackerel');
 	script_helper:addFood('Longjaw Mud Snapper');
 
-	--Halloween food
+	--Halloween food and water
 	script_helper:addFood('Candy Corn');
-	script_helper:addFood('Lollipop');
 	script_helper:addWater('Candy Corn');
+	script_helper:addFood('Lollipop');
 	script_helper:addWater('Lollipop');
+	script_helper:addFood('Candy Bar');
+	script_helper:addWater('Candy Bar');
+
 
 	-- Mage food
 	script_helper:addFood('Conjured Cinnamon Roll');

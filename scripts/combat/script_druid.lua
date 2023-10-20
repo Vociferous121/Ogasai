@@ -569,6 +569,19 @@ function script_druid:rest()
 	local localHealth = localObj:GetHealthPercentage();
 	local localMana = localObj:GetManaPercentage();
 
+	-- looting
+
+	local lootObj = script_nav:getLootTarget(lootRadius);
+	
+	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
+		self.waitTimer = GetTimeEX() + 1800;
+		script_grind:doLoot();
+		script_nav:resetNavigate();
+		script_nav:resetNavPos();
+		ClearTarget();
+		return true;
+	end
+
 	-- Stay shapeshifted if we have hp!
 	if (localObj:HasBuff('Cat Form') or localObj:HasBuff('Bear Form')) then
 		if (localHealth > 90) then

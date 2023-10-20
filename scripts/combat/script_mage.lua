@@ -389,7 +389,7 @@ function script_mage:run(targetGUID)
 			if (self.frostMage) and (HasSpell("Frostbolt")) then
 	
 				-- check range of all spells
-				if (not targetObj:IsSpellInRange("Frostbolt")) or (not targetObj:IsInLineOfSight())  then
+				if (not targetObj:IsSpellInRange("Frostbolt")) or (not targetObj:IsInLineOfSight()) then
 					self.message = "Pulling with Frostbolt!";
 					return 3;
 				end
@@ -989,7 +989,7 @@ function script_mage:rest()
 
 	-- looting
 
-	local lootObj = script_nav:getLootTarget();
+	local lootObj = script_nav:getLootTarget(lootRadius);
 	
 	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
 		if (IsMoving()) then

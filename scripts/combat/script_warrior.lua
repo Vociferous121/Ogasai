@@ -807,6 +807,19 @@ function script_warrior:rest()
 	local localObj = GetLocalPlayer();
 	local localHealth = localObj:GetHealthPercentage();
 
+	-- looting
+
+	local lootObj = script_nav:getLootTarget(lootRadius);
+	
+	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
+		self.waitTimer = GetTimeEX() + 1800;
+		script_grind:doLoot();
+		script_nav:resetNavigate();
+		script_nav:resetNavPos();
+		ClearTarget();
+		return true;
+	end
+
 	-- Eat something
 	if (not IsEating() and localHealth <= self.eatHealth) then
 		self.waitTimer = GetTimeEX() + 2000;

@@ -723,6 +723,8 @@ end
 function script_grind:doLoot(localObj)
 	local _x, _y, _z = self.lootObj:GetPosition();
 	local dist = self.lootObj:GetDistance();
+	local localObj = GetLocalPlayer();
+
 	
 	-- Loot checking/reset target
 	if (GetTimeEX() > self.lootCheck['timer']) then

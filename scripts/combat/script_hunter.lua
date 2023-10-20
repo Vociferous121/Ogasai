@@ -154,7 +154,7 @@ function script_hunter:run(targetGUID)
 		return 0;
 	end
 
-	local lootObj = script_nav:getLootTarget();
+	local lootObj = script_nav:getLootTarget(lootRadius);
 
 	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
 		self.waitTimer = GetTimeEX() + 1200;
@@ -520,7 +520,7 @@ function script_hunter:rest()
 
 	-- looting
 
-	local lootObj = script_nav:getLootTarget();
+	local lootObj = script_nav:getLootTarget(lootRadius);
 	
 	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
 		self.waitTimer = GetTimeEX() + 1800;
