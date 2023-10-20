@@ -76,7 +76,7 @@ function script_grindMenu:menu()
 		
 		script_paranoia:menu();
 
-		Text("Script Tick Rate - How Fast The Scripts Run"); script_grind.tickRate = SliderFloat("TR (ms)", 0, 2000, script_grind.tickRate);		
+		Text("Script Tick Rate - How Fast The Scripts Run"); script_grind.tickRate = SliderInt("TR (ms)", 0, 2000, script_grind.tickRate);		
 	end
 
 	if (CollapsingHeader("Vendor Options")) then

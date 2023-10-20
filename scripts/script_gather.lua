@@ -279,7 +279,7 @@ function script_gather:menu()
 		wasClicked, self.collectHerbs = Checkbox("Herbalism", self.collectHerbs);
 
 		Text('Gather Search Distance');
-		self.gatherDistance = SliderFloat("GSD", 1, 150, self.gatherDistance);
+		self.gatherDistance = SliderInt("GSD", 1, 500, self.gatherDistance);
 		
 		if (script_gather.collectMinerals or script_gather.collectHerbs) then
 			wasClicked, script_gather.gatherAllPossible = Checkbox("Gather everything we can", script_gather.gatherAllPossible);

@@ -38,11 +38,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	-- get self player level
 	local localLevel = GetLocalPlayer():GetLevel();
 
-	-- Buff Fortitude if 
-	-- not in shadowform and
-	-- player mana >= 25 and 
-	-- not in combat and
-	-- not already buffed
+	-- Buff Fortitude
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 25) and (not IsInCombat()) and (not targetObject:HasBuff("Power Word: Fortitude")) then
 			if (Buff("Power Word: Fortitude", targetObject)) then 
@@ -51,10 +47,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 		end
 	end
 	
-	-- Buff Divine Spirit if 
-	-- not in shadowform and 
-	-- player mana >= 25 and 
-	-- not already buffed
+	-- Buff Divine Spirit
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 25) and (not IsInCombat()) and (not targetObject:HasBuff("Divine Spirit")) then
 			if (Buff("Divine Spirit", targetObject)) then
@@ -63,11 +56,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 		end
 	end
 
-	-- Cast Renew if 
-	-- not in shadowform and 
-	-- player mana >= 12 and
-	-- player hp <= than renewHP variable and
-	-- not already buffed
+	-- Cast Renew
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 12) and (targetHealth <= self.renewHP) and (not targetObject:HasBuff("Renew")) then
 			if (Buff("Renew", targetObject)) then
@@ -76,11 +65,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 		end
 	end
 
-	-- Cast Shield if
-	-- player mana >= 10 and
-	-- player health is <= shieldHP variable and
-	-- not buffed by Weakened Soul debuff and
-	-- is in combat (don't cast randomly while not in combat)
+	-- Cast Shield Power Word: Shield
 	if (localMana >= 10) and (targetHealth <= self.shieldHP) and (not targetObject:HasDebuff("Weakened Soul")) and (IsInCombat()) then
 		if (Buff("Power Word: Shield", targetObject)) then 
 			-- targetObj:FaceTarget();
@@ -88,10 +73,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 		end
 	end
 
-	-- Cast Greater Heal if
-	-- not in shadowform and
-	-- player mana >= 20
-	-- player health is <= greaterHealHealth variable
+	-- Cast Greater Heal
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 20) and (targetHealth <= self.greaterHealHP) then
 			if (CastHeal("Greater Heal", targetObject)) then
@@ -100,10 +82,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 		end
 	end
 
-	-- Cast Heal(spell) if
-	-- not in shadowform and
-	-- player mana >= 15 and
-	-- player health <= healHP variable
+	-- Cast Heal(spell)
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 15) and (targetHealth <= self.healHP) then
 			if (CastHeal("Heal", targetObject)) then
@@ -112,10 +91,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 		end
 	end
 
-	-- Cast Flash Heal if
-	-- not in shadowform and
-	-- player mana >= 8 and
-	-- player health <= flashHealHP variable
+	-- Cast Flash Heal
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 8) and (targetHealth <= self.flashHealHP) then
 			if (CastHeal("Flash Heal", targetObject)) then
@@ -124,11 +100,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 		end
 	end
 
-	-- Cast Lesser Heal if
-	-- not in shadowform and
-	-- player level < 20 and
-	-- player mana >= 10 and
-	-- player health <= lesserHealHP variable
+	-- Cast Lesser Heal
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localLevel < 20) then	-- don't use this when we get flash heal ELSE very low mana
 			if (localMana >= 10) and (targetHealth <= self.lesserHealHP) then
@@ -137,10 +109,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 				end
 			end
 
-		-- ELSE IF player level >= 20 and
-		-- player mana <= 8 and
-		-- player health <= flashHealHP variable then
-		-- cast lesser heal
+		-- ELSE IF player level >= 20
 		elseif (localLevel >= 20) then
 			if (localMana <= 8) and (targetHealth <= self.flashHealHP) then
 				if (CastHeal("Lesser Heal", targetObject)) then
