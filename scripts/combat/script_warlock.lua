@@ -349,6 +349,14 @@ function script_warlock:run(targetGUID)
 				self.waitTimer = GetTimeEX() + 1650;
 				return;
 			end
+		elseif (HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Immolate")) then
+			if (IsMoving()) then
+				StopMoving();
+				targetObj:FaceTarget();
+			end
+			targetObj:FaceTarget();
+			CastSpellByName("Immolate");
+			self.waitTimer = GetTimeEX() + 2650;
 		end
 
 		-- Check: if we target player pets/totems
