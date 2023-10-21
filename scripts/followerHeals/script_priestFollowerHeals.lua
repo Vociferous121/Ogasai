@@ -1,7 +1,7 @@
 script_priestFollowerHeals = {
 
-    enableHeals = true,
-    renewMana = 25,
+    	enableHeals = true,
+    	renewMana = 25,
 	partyRenewHealth = 85,
 	shieldMana = 55,
 	partyShieldHealth = 39,
@@ -57,7 +57,7 @@ function script_priestFollowerHeals:HealsAndBuffs()
             if (class == 'Priest') then
 
                 -- Dispel Magic
-                if (HasSpell("Dispel Magic")) and (localMana > 20) then 
+                if (HasSpell("Dispel Magic")) and (localMana > 20) and (GetNumPartyMembers() >= 1) then 
                     if (partyMember:HasDebuff("Sleep")) or (partyMember:HasDebuff("Terrify")) or (leaderObj:HasDebuff("Frost Nova")) or 
                     (partyMember:HasDebuff("Screams of the Past")) or (partyMember:HasDebuff("Wavering Will")) or (partyMember:HasDebuff("Slow")) or
                     (leaderObj:HasDebuff("Frostbolt")) or (partyMember:HasDebuff("Dominate Mind")) then

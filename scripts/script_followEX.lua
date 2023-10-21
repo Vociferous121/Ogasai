@@ -33,7 +33,7 @@ function script_followEX:drawStatus()
 	if (script_follow:GetPartyLeaderObject()) and (GetNumPartyMembers() >= 1) then
 		DrawText('Follower - Range: ' .. math.floor(script_follow.followLeaderDistance) .. ' yd. ' .. 
 		'Master target: ' .. script_follow:GetPartyLeaderObject():GetUnitName(), x-5, y-4, r, g, b) y = y + 15;
-	else
+	elseif (GetNumPartyMembers() >= 1) then
 		DrawText('Follower - Follow range: ' .. math.floor(script_follow.followDistance) .. ' yd. ' .. 
 		'Master target: ' .. '', x-5, y-4, r, g, b) y = y + 15;
 	end 
