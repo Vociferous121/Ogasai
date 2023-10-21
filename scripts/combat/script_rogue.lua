@@ -392,7 +392,8 @@ function script_rogue:run(targetGUID)
 				-- Check: Use Vanish 
 				if (HasSpell('Vanish') and HasItem('Flash Powder') and localHealth < self.vanishHealth and not IsSpellOnCD('Vanish')) then 
 					CastSpellByName('Vanish'); 
-					ClearTarget(); 
+					ClearTarget();
+					self.waitTimer = GetTimeEX() + 10000;
 					self.targetObj = 0;
 					return 4;
 				end 
@@ -924,7 +925,7 @@ function script_rogue:rest()
 					CastSpellByName("Stealth");
 				end
 			end
-			self.waitTimer = GetTimeEX() + 10000;
+			self.waitTimer = GetTimeEX() + 15000;
 			return true; 
 		end		
 	end
@@ -933,7 +934,7 @@ function script_rogue:rest()
 	if (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and IsEating() and not localObj:HasDebuff("Touch of Zanzil")) and (not localObj:HasDebuff("Poison")) then
 		if (not localObj:HasBuff("Stealth")) then
 			CastSpellByName("Stealth");
-			self.waitTimer = GetTimeEX() + 10000;
+			self.waitTimer = GetTimeEX() + 15000;
 			return true;
 		end
 	end
