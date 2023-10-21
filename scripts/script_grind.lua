@@ -101,14 +101,23 @@ function script_grind:setup()
 
 	-- Classes that don't use mana
 	local class, classFileName = UnitClass("player");
-	if (strfind("Warrior", class) or strfind("Rogue", class)) then self.useMana = false; self.restMana = 0; end
+	if (strfind("Warrior", class) or strfind("Rogue", class)) then
+		self.useMana = false;
+		self.restMana = 0;
+	end
 	
 	-- No refill as mage or at level 1
-	if (strfind("Mage", class)) then self.vendorRefill = false; end
+	if (strfind("Mage", class)) then
+		self.vendorRefill = false;
+	end
 
-	if (GetLocalPlayer():GetLevel() < 3) then self.vendorRefill = false; end
+	if (GetLocalPlayer():GetLevel() < 3) then
+		self.vendorRefill = false;
+	end
 
-	if (GetLocalPlayer():GetLevel() < 8) then self.skipHardPull = false; end
+	if (GetLocalPlayer():GetLevel() < 8) then
+		self.skipHardPull = false;
+	end
 
 	self.drawEnabled = true;
 	script_helper:setup();
@@ -228,10 +237,18 @@ function script_grind:run()
 		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*4);
 	end
 	
-	if (not self.isSetup) then script_grind:setup(); end
+	if (not self.isSetup) then
+		script_grind:setup();
+	end
 
-	if (not self.navFunctionsLoaded) then self.message = "Error script_nav not loaded..."; return; end
-	if (not self.helperLoaded) then self.message = "Error script_helper not loaded..."; return; end
+	if (not self.navFunctionsLoaded) then
+		self.message = "Error script_nav not loaded...";
+		return;
+	end
+	if (not self.helperLoaded) then
+		self.message = "Error script_helper not loaded...";
+		return;
+	end
 
 	if (self.useUnstuck and IsMoving()) then
 		if (not script_unstuck:pathClearAuto(2)) then
@@ -240,7 +257,9 @@ function script_grind:run()
 		end
 	end
 
-	if (self.pause) then self.message = "Paused by user..."; return; end
+	if (self.pause) then self.message = "Paused by user...";
+		return;
+	end
 
 	-- Check: Spend talent points
 	if (not IsInCombat() and not GetLocalPlayer():IsDead() and self.autoTalent) then
@@ -303,8 +322,11 @@ function script_grind:run()
 		-- Auto path: keep us inside the distance to the current hotspot, if mounted keep running even if in combat
 		if ((not IsInCombat() or IsMounted()) and self.autoPath and script_vendor:getStatus() == 0 and
 			(script_nav:getDistanceToHotspot() > self.distToHotSpot or self.hotSpotTimer > GetTimeEX())) then
-			if (not (self.hotSpotTimer > GetTimeEX())) then self.hotSpotTimer = GetTimeEX() + 20000; end
-			if (script_grind:mountUp() and self.useMount) then return; 
+			if (not (self.hotSpotTimer > GetTimeEX())) then
+				self.hotSpotTimer = GetTimeEX() + 20000;
+			end
+			if (script_grind:mountUp() and self.useMount) then
+				return; 
 			end
 			-- Druid cat form is faster if you specc talents
 			--if (self.currentLevel < 40 and HasSpell('Cat Form') and not localObj:HasBuff('Cat Form')) then
@@ -376,7 +398,9 @@ function script_grind:run()
 			-- In range: attack the target, combat script returns 0
 			if(self.combatError == 0) then
 				script_nav:resetNavigate();
-				if IsMoving() then StopMoving(); return; end
+				if IsMoving() then StopMoving();
+					return;
+				end
 			end
 			-- Invalid target: combat script return 2
 			if(self.combatError == 2) then
@@ -418,7 +442,9 @@ function script_grind:run()
 		end
 
 		-- Pre checks before navigating
-		if(IsLooting() or IsCasting() or IsChanneling() or IsDrinking() or IsEating() or IsInCombat()) then return; end
+		if (IsLooting() or IsCasting() or IsChanneling() or IsDrinking() or IsEating() or IsInCombat()) then
+			return;
+		end
 
 		-- Mount before we navigate through the path, error check to get around indoors
 		--if (script_grind:mountUp() and self.useMount) then return; end	
@@ -436,7 +462,10 @@ function script_grind:run()
 		else
 			-- Check: Load/Refresh the walk path
 			if (self.pathName ~= self.pathLoaded) then
-				if (not LoadPath(self.pathName, 0)) then self.message = "No walk path has been loaded..."; return; end
+				if (not LoadPath(self.pathName, 0)) then
+					self.message = "No walk path has been loaded...";
+					return;
+				end
 				self.pathLoaded = self.pathName;
 			end
 			-- Navigate
@@ -450,8 +479,13 @@ function script_grind:mountUp()
 	if (lastError ~= 75 and self.mountTimer < GetTimeEX() and self.useMount) then
 		if(GetLocalPlayer():GetLevel() >= 40 and not IsSwimming() and not IsIndoors() and not IsMounted() and self.lootObj == nil) then
 			self.message = "Mounting...";
-			if (not IsStanding()) then StopMoving(); end
-			if (script_helper:useMount() and self.useMount) then self.waitTimer = GetTimeEX() + 8000; return true; end
+			if (not IsStanding()) then
+				StopMoving();
+			end
+			if (script_helper:useMount() and self.useMount) then
+				self.waitTimer = GetTimeEX() + 8000;
+				return true;
+			end
 		end
 	else
 		ClearLastError();
@@ -673,13 +707,29 @@ function script_grind:getDistanceDif()
 end
 
 function script_grind:drawStatus()
-	if (self.drawAggro) then script_aggro:drawAggroCircles(100); end
-	if (self.autoPath and self.drawAutoPath) then script_nav:drawSavedTargetLocations(); end
-	if (self.drawGather) then script_gather:drawGatherNodes(); end
-	if (self.drawPath) then if (IsMoving()) then script_nav:drawPath(); end end
-	if (self.drawUnits) then script_nav:drawUnitsDataOnScreen(); end
-	if (not self.drawEnabled and self.showClassOptions) then RunCombatDraw() end
-	if (not self.drawEnabled) then return; end
+	if (self.drawAggro) then
+		script_aggro:drawAggroCircles(100);
+	end
+	if (self.autoPath and self.drawAutoPath) then
+		script_nav:drawSavedTargetLocations();
+	end
+	if (self.drawGather) then
+		script_gather:drawGatherNodes();
+	end
+	if (self.drawPath) then
+		if (IsMoving()) then
+			script_nav:drawPath();
+		end
+	end
+	if (self.drawUnits) then
+		script_nav:drawUnitsDataOnScreen();
+	end
+	if (not self.drawEnabled and self.showClassOptions) then
+		RunCombatDraw();
+	end
+	if (not self.drawEnabled) then
+		return;
+	end
 
 	-- color
 	local r, g, b = 0, 0, 0;
@@ -764,7 +814,11 @@ function script_grind:doLoot(localObj)
 		end
 
 		-- Dismount
-		if (IsMounted()) then DisMount(); self.waitTimer = GetTimeEX() + 450; return;  end
+		if (IsMounted()) then
+			DisMount();
+			self.waitTimer = GetTimeEX() + 450;
+			return;
+		end
 
 		if(not self.lootObj:UnitInteract() and not IsLooting()) then
 			self.waitTimer = GetTimeEX() + 1850;
@@ -797,7 +851,9 @@ function script_grind:doLoot(localObj)
 	self.message = "Moving to loot...";		
 	script_nav:moveToTarget(localObj, _x, _y, _z);	
 	script_grind:setWaitTimer(100);
-	if (self.lootObj:GetDistance() < 3) then self.waitTimer = GetTimeEX() + 450; end
+	if (self.lootObj:GetDistance() < 3) then
+		self.waitTimer = GetTimeEX() + 450;
+	end
 end
 
 function script_grind:getSkinTarget(lootRadius)
@@ -828,7 +884,9 @@ function script_grind:lootAndSkin()
 	else
 		self.lootObj = nil;
 	end
-	if (self.lootObj == 0) then self.lootObj = nil; end
+	if (self.lootObj == 0) then
+		self.lootObj = nil;
+	end
 	if (self.lootObj ~= nil) then
 		if (script_grind:isTargetBlacklisted(self.lootObj:GetGUID()) and self.lootObj:GetDistance() > 5) then
 			self.lootObj = nil; -- don't loot blacklisted targets	
@@ -860,9 +918,14 @@ function script_grind:runRest()
 		self.message = "Resting... -- Killing Too Fast!";
 		self.newTargetTime = GetTimeEX();
 		-- Stop moving
-		if (IsMoving() and not localObj:IsMovementDisabed()) then StopMoving(); return true; end
+		if (IsMoving() and not localObj:IsMovementDisabed()) then
+			StopMoving();
+			return true;
+		end
 		-- Dismount
-		if (IsMounted()) then DisMount(); return true; end
+		if (IsMounted()) then DisMount();
+			return true;
+		end
 		-- Add 2500 ms timer to the rest script rotations (timer could be set already) -- removed 2500 timer at end
 		--if ((self.waitTimer - GetTimeEX()) < 5000) then self.waitTimer = GetTimeEX() + 0; end;
 		--self.waitTimer = GetTimeEX() + 0;

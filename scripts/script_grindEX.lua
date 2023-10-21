@@ -14,7 +14,9 @@ function script_grindEX:doChecks()
 			vendorDB:loadDBVendors();
 		end
 	
-		if (script_grind.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then return true; end
+		if (script_grind.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then
+			return true;
+		end
 		
 		localObj = GetLocalPlayer();
 		if (script_grind.avoidElite and not localObj:IsDead()) then 
@@ -25,9 +27,17 @@ function script_grindEX:doChecks()
 			end 
 		end
 
-		if (not IsUsingNavmesh()) then UseNavmesh(true); return true; end
-		if (not LoadNavmesh()) then script_grind.message = "Make sure you have mmaps-files..."; return true; end
-		if (GetLoadNavmeshProgress() ~= 1) then script_grind.message = "Loading the nav mesh... " return true; end
+		if (not IsUsingNavmesh()) then UseNavmesh(true);
+			return true;
+		end
+
+		if (not LoadNavmesh()) then script_grind.message = "Make sure you have mmaps-files...";
+			return true;
+		end
+		if (GetLoadNavmeshProgress() ~= 1) then
+			script_grind.message = "Loading the nav mesh... ";
+			return true;
+		end
 
 		if(localObj:IsDead()) then
 			script_grind.message = "Waiting to ressurect...";
@@ -92,7 +102,9 @@ function script_grindEX:doChecks()
 				end
 			end
 			if (groupMana/manaUsers < 25 and GetNumPartyMembers() >= 1 and not IsInCombat()) then
-				if (IsMoving()) then StopMoving(); end
+				if (IsMoving()) then
+					StopMoving();
+				end
 				script_grind.message = 'Waiting for group to regen mana (25%+)...';
 				ClearTarget();
 				return true;
@@ -100,7 +112,10 @@ function script_grindEX:doChecks()
 		end
 
 		if (localObj:HasBuff("Vanish")) then if (script_nav:runBackwards(1, 30)) then 
-			ClearTarget(); script_grind.message = "Moving away from enemies..."; return true; end 
+			ClearTarget();
+			script_grind.message = "Moving away from enemies...";
+			return true;
+			end 
 		end
 		
 		local rest = true;
@@ -112,29 +127,42 @@ function script_grindEX:doChecks()
 
 		local vendorStatus = script_vendor:getStatus();
 		if (vendorStatus >= 1 and not IsInCombat()) then
-			if (script_grind:runRest()) then return true; end
+			if (script_grind:runRest()) then
+				return true;
+			end
 
-			if (script_grind:lootAndSkin()) then return true; end
+			if (script_grind:lootAndSkin()) then
+				return true;
+			end
 
 			if (script_grind.useMount and not IsInCombat()) then
-				if (script_grind:mountUp() and script_grind.useMount) then return true; end
+				if (script_grind:mountUp() and script_grind.useMount) then
+					return true;
+				end
 			end
 		end
 		if (not IsInCombat() or IsMounted()) then
 			if (vendorStatus == 1) then
 				script_grind.message = "Repairing at vendor...";
-				if (script_vendor:repair()) then script_grind:setWaitTimer(100); return true; end
+				if (script_vendor:repair()) then script_grind:setWaitTimer(100);
+					return true;
+				end
 			elseif (vendorStatus == 2) then
 				script_grind.message = "Selling to vendor...";
-				if (script_vendor:sell()) then script_grind:setWaitTimer(100); return true; end
+				if (script_vendor:sell()) then script_grind:setWaitTimer(100);
+					return true;
+				end
 			elseif (vendorStatus == 3) then
 				script_grind.message = "Buying ammo at vendor...";
 				if (script_vendor:continueBuyAmmo()) then 
-					script_grind:setWaitTimer(100); return true; 
+					script_grind:setWaitTimer(100);
+					return true; 
 				end
 			elseif (vendorStatus == 4) then
 				script_grind.message = "Buying food/drink at vendor...";
-				if (script_vendor:continueBuy()) then script_grind:setWaitTimer(100); return true; end
+				if (script_vendor:continueBuy()) then script_grind:setWaitTimer(100);
+					return true;
+				end
 			end
 		end
 
@@ -142,7 +170,8 @@ function script_grindEX:doChecks()
 		if (script_grind.enemyObj ~= 0 and script_grind.enemyObj ~= nil) then
 			-- Save location for auto pathing
 			if (script_grind.hotspotReached and script_grind.enemyObj:IsDead() and script_grind.enemyObj:GetLevel() >= script_grind.minLevel and script_grind.enemyObj:GetLevel() <= script_grind.maxLevel) then 
-				script_nav:saveTargetLocation(script_grind.enemyObj, script_grind.enemyObj:GetLevel()); end
+				script_nav:saveTargetLocation(script_grind.enemyObj, script_grind.enemyObj:GetLevel());
+			end
 			if ((script_grind.enemyObj:IsTapped() and not script_grind.enemyObj:IsTappedByMe()) 
 				or (script_grind:isTargetBlacklisted(script_grind.enemyObj:GetGUID()) and not IsInCombat())
 				or script_grind.enemyObj:IsDead()) then
@@ -161,10 +190,14 @@ function script_grindEX:doChecks()
 			--		script_nav:navigate(GetLocalPlayer()); return true; end
 			--	end
 			if (rest) then
-				if (script_grind:runRest()) then return true; end
+				if (script_grind:runRest()) then
+					return true;
+				end
 			end
 			
-			if (script_grind:lootAndSkin()) then return true; end
+			if (script_grind:lootAndSkin()) then
+				return true;
+			end
 		end
 
 		if ((AreBagsFull() or script_grind.bagsFull) and not IsInCombat()) then
@@ -174,7 +207,9 @@ function script_grindEX:doChecks()
 			elseif (script_grind.hsWhenFull and HasItem("Hearthstone")) then
 				script_vendor:removeShapeShift();
 				script_grind.message = 'Inventory is full, using Hearthstone...';
-				if (IsMounted()) then DisMount(); script_grind.waitTimer = GetTimeEX()+3000; return true; end
+				if (IsMounted()) then DisMount(); script_grind.waitTimer = GetTimeEX()+3000;
+					return true;
+				end
 				UseItem("Hearthstone");
 					self.waitTimer = GetTimeEX() + 15000;
 				if (self.logoutOnHearth) then
@@ -186,7 +221,9 @@ function script_grindEX:doChecks()
 				Logout(); StopBot(); return true;
 			else	
 				script_grind.message = 'Warning bags are full...';
-				if (script_grind.hsWHenFull) then script_grind.message = 'Warning bags are full, pausing...'; return true; end 
+				if (script_grind.hsWHenFull) then script_grind.message = 'Warning bags are full, pausing...';
+					return true;
+				end 
 			end
 		end
 
