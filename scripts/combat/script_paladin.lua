@@ -344,7 +344,7 @@ function script_paladin:run(targetGUID)
 				return 0;
 			end
 
-			if (localHealth < self.holyLightHealth) and (localMana > 25) Sthen
+			if (localHealth < self.holyLightHealth) and (localMana > 25) then
 			if (Buff("Holy Light", localObj)) and (IsStanding()) then 
 				self.waitTimer = GetTimeEX() + 5000;
 				self.message = "Healing: Holy Light...";
