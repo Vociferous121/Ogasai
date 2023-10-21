@@ -142,7 +142,7 @@ function script_followEX:menu()
 		-- follower script tick rates
 
 		Text("Tick Rate");
-		script_follow.tickRate = SliderInt("Tick Rate", 0, 1000, script_follow.tickRate);
+		script_follow.tickRate = SliderInt("Tick Rate", 500, 1500, script_follow.tickRate);
 		
 	Separator();
 
