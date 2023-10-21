@@ -8,7 +8,7 @@ script_paranoia = {
 	paranoidOn = true,		-- paranoid on true/false
 	paranoidOnTargeted = false,	-- paranoid when targeted on/off
 	useCampfire = true,		-- use bright campfire when paranoid on/off
-	counted = 3,
+	counted = 5,
 }
 
 function script_paranoia:checkParanoia()

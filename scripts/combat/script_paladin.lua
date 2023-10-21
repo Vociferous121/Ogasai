@@ -307,7 +307,6 @@ function script_paladin:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
@@ -327,7 +326,6 @@ function script_paladin:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
@@ -344,6 +342,14 @@ function script_paladin:run(targetGUID)
 			if (HasSpell("Stoneform")) and (not IsSpellOnCD("Stoneform")) and (IsInCombat()) then
 				CastSpellByName("Stoneform");
 				return 0;
+			end
+
+			if (localHealth < self.holyLightHealth) then
+			if (Buff("Holy Light", localObj)) and (localMana > 25) and (IsStanding()) then 
+				self.waitTimer = GetTimeEX() + 5000;
+				self.message = "Healing: Holy Light...";
+				return 0;
+			end
 			end
 
 			-- Holy strike
@@ -730,7 +736,7 @@ function script_paladin:rest()
 		end
 
 		if (script_helper:drinkWater()) then 
-			self.waitTimer = GetTimeEX() + 2000;
+			self.waitTimer = GetTimeEX() + 10000;
 			self.message = "Drinking..."; 
 			return true; 
 		else 
@@ -753,6 +759,7 @@ function script_paladin:rest()
 
 		if (script_helper:eat()) then 
 			self.message = "Eating..."; 
+			self.waitTimer = GetTimeEX() + 10000;
 			return true; 
 		else 
 			self.message = "No food! (or food not included in script_helper)";
@@ -763,6 +770,7 @@ function script_paladin:rest()
 	-- Continue resting
 	if(localHealth < 98 and IsEating() or localMana < 98 and IsDrinking()) then
 		self.message = "Resting up to full HP/Mana...";
+		self.waitTimer = GetTimeEX() + 10000;
 		return true;
 	end
 		
