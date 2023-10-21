@@ -883,9 +883,9 @@ function script_rogue:rest()
 	local localHealth = localObj:GetHealthPercentage();
 
 	-- looting
-
+	local lootRadius = 20;
 	local lootObj = script_nav:getLootTarget(lootRadius);
-	
+
 	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
 		self.waitTimer = GetTimeEX() + 1800;
 		script_grind:doLoot(localObj);

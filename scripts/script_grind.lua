@@ -681,10 +681,10 @@ function script_grind:playersWithinRange(range)
 		if (typeObj == 4 and not currentObj:IsDead()) then
 			if (currentObj:GetDistance() < range) then 
 				local localObj = GetLocalPlayer();
+				playerName = currentObj:GetUnitName();
 				if (localObj:GetGUID() ~= currentObj:GetGUID()) then
 					if (self.useString) then
 						if (currentObj:GetDistance() < self.paranoidRange) then
-							playerName = currentObj:GetUnitName();
 							local playerTime = GetTimeStamp();
 							local string ="" ..playerTime.. " - Player Name ("..playerName.. ") added to log file for further implementation of paranoia."
 							DEFAULT_CHAT_FRAME:AddMessage(string);

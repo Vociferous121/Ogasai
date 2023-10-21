@@ -154,6 +154,7 @@ function script_hunter:run(targetGUID)
 		return 0;
 	end
 
+	local lootRadius = 20;
 	local lootObj = script_nav:getLootTarget(lootRadius);
 
 	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
@@ -520,7 +521,7 @@ function script_hunter:rest()
 	local localHealth = localObj:GetHealthPercentage();
 
 	-- looting
-
+	local lootRadius = 20;
 	local lootObj = script_nav:getLootTarget(lootRadius);
 	
 	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
