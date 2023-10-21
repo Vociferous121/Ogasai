@@ -15,7 +15,7 @@ script_gather = {
 	timer = 0,
 	nodeID = 0,
 	gatherAllPossible = true,
-	collectPowerCrystals = true,
+	collectPowerCrystals = false,
 	powerCrystals = {},
 	numPowerCrystals = 0,
 	
@@ -253,10 +253,6 @@ function script_gather:gather()
 		script_gather:setup();
 	end
 
-	if (GetLocalPlayer():GetLevel() < 50) then
-		self.collectPowerCrystals = false;
-	end
-
 	if (self.timer > GetTimeEX()) then
 		return true;
 	end
@@ -292,7 +288,7 @@ function script_gather:gather()
 				return;
 			end
 		else
-			if (_x ~= 0) and (not IsDrinking() or not IsEating()) then
+			if (_x ~= 0) and (not IsDrinking() and not IsEating()) then
 				script_nav:moveToNav(GetLocalPlayer(), _x, _y, _z);
 				self.timer = GetTimeEX() + 150;
 			end
@@ -318,10 +314,13 @@ function script_gather:menu()
 		wasClicked, self.collectMinerals = Checkbox("Mining", self.collectMinerals);
 		SameLine();
 		wasClicked, self.collectHerbs = Checkbox("Herbalism", self.collectHerbs);
-		if (GetLocalPlayer():GetLevel() > 50) then
+		
+		--collect power crystals
+		if (GetLocalPlayer():GetLevel() >= 50) then
 			SameLine();
 			wasClicked, self.collectPowerCrystals = Checkbox("Power Crystals", self.collectPowerCrystals);
 		end
+		
 		Text('Gather Search Distance');
 		self.gatherDistance = SliderInt("GSD", 1, 300, self.gatherDistance);
 		

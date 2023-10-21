@@ -406,10 +406,9 @@ function script_priest:run(targetGUID)
 			end
 
 			if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= 30) then
-					targetObj:FaceTarget();
-				--if (IsMoving()) then
-				--	StopMoving();
-				--end
+				if (IsMoving()) then
+					StopMoving();
+				end
 			end
 
 			-- stand if sitting
