@@ -271,11 +271,13 @@ function script_grind:run()
 	
 	-- check paranoia
 		
-		if (script_paranoia:checkParanoia()) and (not targetObj:IsTappedByMe()) and (not IsInCombat()) then
+	if (not targetObj:IsTappedByMe()) and (not IsInCombat()) then
+		if (script_paranoia:checkParanoia()) then
 			ClearTarget();
 			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 2000;
 			return;
 		end
+	end
 	
 	-- set tick rate for scripts
 	if (GetTimeEX() > self.timer) then

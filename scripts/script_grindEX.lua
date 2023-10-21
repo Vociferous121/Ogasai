@@ -34,12 +34,15 @@ function script_grindEX:doChecks()
 		if (not LoadNavmesh()) then script_grind.message = "Make sure you have mmaps-files...";
 			return true;
 		end
+
 		if (GetLoadNavmeshProgress() ~= 1) then
 			script_grind.message = "Loading the nav mesh... ";
 			return true;
 		end
+		
 
 		if(localObj:IsDead()) then
+
 			script_grind.message = "Waiting to ressurect...";
 
 			-- Release body

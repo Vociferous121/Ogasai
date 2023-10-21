@@ -51,7 +51,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	--Buff Inner Fire
 	if (not IsInCombat()) and (not localObj:HasBuff("Inner Fire")) and (HasSpell("Inner Fire")) and (localMana >= 8) then
 		if (Buff("Inner Fire", localObj)) then
-			self.waitTimer = GetTimeEX() + 750;
+			self.waitTimer = GetTimeEX() + 1250;
 			return; -- keep trying until cast
 		end
 	end
@@ -137,6 +137,12 @@ function script_priest:healAndBuff(targetObject, localMana)
 			end
 		end
 	end
+	
+	--Check Disease Debuffs -- cure disease
+	if (localMana > 20) and (HasSpell("Cure Disease")) then
+		script_priest:dispellDebuff();
+		return;
+	end
 
 	-- use mind blast on CD
 			-- !! must be placed here to stop wand casting !!
@@ -148,6 +154,20 @@ function script_priest:healAndBuff(targetObject, localMana)
 		end
 	end
 	return;
+end
+
+function script_priest:dispellDebuff(spellName, target)
+
+	local localPlayer = GetLocalPlayer();
+	
+	if (HasSpell("Cure Disease")) then
+		if (localPlayer:HasDebuff("Tetanus")) then
+			CastSpellByName("Cure Disease", localplayer)
+			self.waitTimer = GetTimeEX() + 1200;
+		return;
+		end
+	end
+	
 end
 
 function script_priest:heal(spellName, target)
@@ -385,11 +405,11 @@ function script_priest:run(targetGUID)
 				return 3;
 			end
 
-			if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= 27) then
+			if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= 30) then
 					targetObj:FaceTarget();
-				if (IsMoving()) then
-					StopMoving();
-				end
+				--if (IsMoving()) then
+				--	StopMoving();
+				--end
 			end
 
 			-- stand if sitting
@@ -627,7 +647,7 @@ function script_priest:run(targetGUID)
 			-- Check: Keep Inner Fire up
 			if (not IsInCombat()) and (not localObj:HasBuff("Inner Fire")) and (HasSpell("Inner Fire")) and (localMana >= 8) then
 				if (Buff("Inner Fire", localObj)) then
-					self.waitTimer = GetTimeEX() + 750;
+					self.waitTimer = GetTimeEX() + 1250;
 					return; -- keep trying until cast
 				end
 				-- check inner fire in combat
