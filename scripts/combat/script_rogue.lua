@@ -9,7 +9,7 @@ script_rogue = {
 	eatHealth = 40,
 	potionHealth = 15,
 	cpGeneratorCost = 40,
-	meeleDistance = 3.6,
+	meeleDistance = 4.0,
 	stealthRange = 100,
 	waitTimer = 0,
 	vanishHealth = 8,
@@ -354,7 +354,6 @@ function script_rogue:run(targetGUID)
 					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 						if (not targetObj:FaceTarget()) then
 							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 0;
 						end
 					end
 				end
@@ -386,7 +385,6 @@ function script_rogue:run(targetGUID)
 					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 						if (not targetObj:FaceTarget()) then
 							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 0;
 						end
 					end
 				end
@@ -481,8 +479,7 @@ function script_rogue:run(targetGUID)
 						return 0; 
 					end -- return until we have energy
 					if (not script_rogue:spellAttack("Eviscerate", targetObj)) then
-						script_rogue:spellAttack("Eviscerate", targetObj);
-					return 0; -- return until we use Eviscerate
+						return 0; -- return until we use Eviscerate
 					end 
 				end
 
@@ -491,8 +488,7 @@ function script_rogue:run(targetGUID)
 					if (localEnergy < 25) then 
 						return;
 					end -- return until we have energy
-					if (not script_rogue:spellAttack("Slice and Dice", targetObj) or localEnergy <= 25) then
-						script_rogue:spellAttack("Slice and Dice", targetObj);
+					if (script_rogue:spellAttack("Slice and Dice", targetObj)) and (localEnergy <= 25) then
 					return 0;	
 					end
 				end
@@ -502,8 +498,7 @@ function script_rogue:run(targetGUID)
 					if (localEnergy < 35) then
 						return 0; 
 					end -- return until we have energy
-					if (not script_rogue:spellAttack("Eviscerate", targetObj)) then 
-						script_rogue:SpellAttack("Eviscerate", targetObj);
+					if (script_rogue:spellAttack("Eviscerate", targetObj)) then 
 						return 0; -- return until we use Eviscerate
 					end
 				end
@@ -511,7 +506,6 @@ function script_rogue:run(targetGUID)
 				-- Use CP generator attack 
 				if (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) then
 					if (script_rogue:spellAttack(self.cpGenerator, targetObj)) then
-						script_rogue:spellAttack(self.cpGenerator, targetObj);
 						return 0;
 					end
 				end
