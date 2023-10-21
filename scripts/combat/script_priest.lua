@@ -425,7 +425,7 @@ function script_priest:run(targetGUID)
 			end
 
 			-- No Mind Blast but wand ? fixed!
-			if (not HasSpell("Mind Blast")) and (self.useWand) then
+			if (not HasSpell("Mind Blast")) and (localObj:HasRangedWeapon()) and (self.useWand) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 				end -- move to target
@@ -769,7 +769,7 @@ function script_priest:run(targetGUID)
 			end
 
 			-- No Mind Blast but wand ? fixed!
-			if (not HasSpell("Mind Blast")) and (self.useWand) then
+			if (not HasSpell("Mind Blast")) and (localObj:HasRangedWeapon()) and (self.useWand) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 				end -- move to target
