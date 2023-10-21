@@ -54,13 +54,13 @@ function getPartyMembers()
 		if (i == GetNumPartyMembers()+1) then
 			partyMember = GetLocalPlayer();
 		end
-		local partyMembersHP = partyMember:GetHealthPercentage();
-		if (GetNumPartyMembers() >= 1) then
-			if (partyMembersHP > 0 and partyMembersHP < 99 and localMana > 1) then
+		local localMana = GetLocalPlayer():GetManaPercentage();
+		local localEnergy = GetLocalPlayer():GetEnergyPercentage();
+		local partyMemberHP = partyMember:GetHealthPercentage();
+		if (partyMemberHP > 0) and (localMana > 1 or localEnergy > 1) then
 				local partyMemberDistance = partyMember:GetDistance();
 				leaderObj = GetPartyMember(GetPartyLeaderIndex());
 				local localHealth = GetLocalPlayer():GetHealthPercentage();
-			end
 		end
 	end
 end
