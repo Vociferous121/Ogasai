@@ -129,10 +129,12 @@ function script_priest:healAndBuff(targetObject, localMana)
 	end
 
 	-- use mind blast on CD
+			-- !! must be placed here to stop wand casting !!
 	if (HasSpell("Mind Blast")) and (not IsSpellOnCD("Mind Blast")) and (IsInCombat()) then
 		if (targetHealth >= 20) and (localMana >= self.mindBlastMana) then
 			CastSpellByName("Mind Blast", targetObj);
 			self.waitTimer = GetTimeEX() + 750;
+			return;
 		end
 	end
 	return false; -- return false to continue loop when function is called and need healed
