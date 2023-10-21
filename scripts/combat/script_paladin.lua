@@ -344,8 +344,8 @@ function script_paladin:run(targetGUID)
 				return 0;
 			end
 
-			if (localHealth < self.holyLightHealth) then
-			if (Buff("Holy Light", localObj)) and (localMana > 25) and (IsStanding()) then 
+			if (localHealth < self.holyLightHealth) and (localMana > 25) Sthen
+			if (Buff("Holy Light", localObj)) and (IsStanding()) then 
 				self.waitTimer = GetTimeEX() + 5000;
 				self.message = "Healing: Holy Light...";
 				return 0;
@@ -436,7 +436,7 @@ function script_paladin:run(targetGUID)
 				end
 				
 				--use holy light at the end of all the checks above
-				if (Buff("Holy Light", localObj)) and (localMana > 25) and (IsStanding()) then 
+				if  (localMana > 25) and (Buff("Holy Light", localObj)) and (IsStanding()) then 
 					self.waitTimer = GetTimeEX() + 5000;
 					self.message = "Healing: Holy Light...";
 					return 0;
@@ -685,7 +685,7 @@ function script_paladin:rest()
 
 	-- heal before eating
 	if (localHealth < self.holyLightHealth) or (localHealth < self.eatHealth) and (IsStanding()) then
-		if (HasSpell("Holy Light")) and (not IsSpellOnCD("Holy Light")) then
+		if (HasSpell("Holy Light")) and (not IsSpellOnCD("Holy Light")) and (localMana > 25) then
 			if (CastSpellByName("Holy Light")) and (localHealth < self.holyLightHealth or localHealth < self.eatHealth) then
 				return true;
 			end
