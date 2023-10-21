@@ -147,7 +147,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 			return;
 		end
 	end
-	return false; -- return false to continue loop when function is called and need healed
+	return;
 end
 
 function script_priest:heal(spellName, target)
@@ -840,7 +840,7 @@ function script_priest:rest()
 	--end 
 
 	-- Check: Drink
-	if (not IsDrinking()) and (localMana <= self.drinkMana) then
+	if (not IsDrinking()) and (localMana <= self.drinkMana) and (not IsInCombat()) then
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to drink...";
 		if (IsMoving()) then
@@ -860,7 +860,7 @@ function script_priest:rest()
 	end
 
 	-- Check: Eat
-	if (not IsEating()) and (localHealth <= self.eatHealth) then
+	if (not IsEating()) and (localHealth <= self.eatHealth) and (not IsInCombat()) then
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to eat...";	
 		if (IsMoving()) then
