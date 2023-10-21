@@ -6,7 +6,7 @@ script_follow = {
 	enemyObj = nil,
 	lootObj = nil,
 	timer = GetTimeEX(),
-	tickRate = 150,
+	tickRate = 300,
 	waitTimer = GetTimeEX(),
 	pullDistance = 150,
 	findLootDistance = 40,
@@ -50,13 +50,17 @@ end
 
 function getPartyMembers()
 	for i = 1, GetNumPartyMembers()+1 do
-		local partyMember = GetPartyMember(i);
+
+			local partyMember = GetPartyMember(i);
+
 		if (i == GetNumPartyMembers()+1) then
 			partyMember = GetLocalPlayer();
 		end
-		local localMana = GetLocalPlayer():GetManaPercentage();
-		local localEnergy = GetLocalPlayer():GetEnergyPercentage();
-		local partyMemberHP = partyMember:GetHealthPercentage();
+
+			local localMana = GetLocalPlayer():GetManaPercentage();
+			local localEnergy = GetLocalPlayer():GetEnergyPercentage();
+			local partyMemberHP = partyMember:GetHealthPercentage();
+
 		if (partyMemberHP > 0) and (localMana > 1 or localEnergy > 1) then
 				local partyMemberDistance = partyMember:GetDistance();
 				leaderObj = GetPartyMember(GetPartyLeaderIndex());
@@ -300,7 +304,7 @@ function script_follow:run()
 			end
 		end
         
-		if (GetTarget() ~= 0 and GetTarget() ~= nil) and (script_follow:GetPartyLeaderObject():GetDistance() < self.followLeaderDistance) then
+		if  (GetNumPartyMembers() > 1) and (GetTarget() ~= 0 and GetTarget() ~= nil) and (script_follow:GetPartyLeaderObject():GetDistance() < self.followLeaderDistance) then
             			local target = GetTarget();
 			if (target:CanAttack() and self.assistInCombat) then
 				self.enemyObj = target;

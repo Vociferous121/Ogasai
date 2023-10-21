@@ -6,9 +6,9 @@ script_priestFollowerHeals = {
 	shieldMana = 55,
 	partyShieldHealth = 39,
 	lesserHealMana = 5,
-	partyLesserHealHealth = 75,
+	partyLesserHealHealth = 80,
 	healMana = 10,
-	partyHealHealth = 65,
+	partyHealHealth = 55,
 	greaterHealMana = 20,
 	partyGreaterHealHealth = 28,
 	flashHealMana = 7,
@@ -155,7 +155,7 @@ function script_priestFollowerHeals:HealsAndBuffs()
                         end -- move to member
                         if (CastHeal("Greater Heal", partyMember)) then
                             self.waitTimer = GetTimeEX() + 5500;
-                            return true;
+                            return;
                         end
                     end
                 end
@@ -167,8 +167,8 @@ function script_priestFollowerHeals:HealsAndBuffs()
                             return true;
                         end -- move to member
                         if (CastHeal("Heal", partyMember)) then
-                            self.waitTimer = GetTimeEX() + 2400;
-                            return true;
+                            self.waitTimer = GetTimeEX() + 3400;
+                            return;
                         end
                     end
                 end
@@ -181,8 +181,8 @@ function script_priestFollowerHeals:HealsAndBuffs()
                             return true;
                         end -- move to member	
                         if (CastHeal("Lesser Heal", partyMember)) then
-                            self.waitTimer = GetTimeEX() + 2400;
-                            return true;
+                            self.waitTimer = GetTimeEX() + 2600;
+                            return;
                         end
                     end
                     -- below level 20 cast lesser heal
@@ -192,8 +192,8 @@ function script_priestFollowerHeals:HealsAndBuffs()
                             return true;
                         end -- move to member
                         if (CastHeal("Lesser Heal", partyMember)) then
-                            self.waitTimer = GetTimeEX() + 2400;
-                            return true;
+                            self.waitTimer = GetTimeEX() + 2600;
+                            return;
                         end
                     end
                 end
@@ -206,7 +206,7 @@ function script_priestFollowerHeals:HealsAndBuffs()
                         end -- move to member
                         if (CastHeal("Renew", partyMember)) then
                             self.waitTimer = GetTimeEX() + 1650;
-                            return true;
+                            return;
                         end
                     end
                 end
@@ -219,7 +219,7 @@ function script_priestFollowerHeals:HealsAndBuffs()
                         end -- move to member
                         if (CastHeal("Power Word: Shield", partyMember)) then 
                             self.waitTimer = GetTimeEX() + 1550;
-                            return true; 
+                            return; 
                         end
                     end
                 end

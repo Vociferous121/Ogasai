@@ -139,6 +139,13 @@ function script_followEX:menu()
 	
 	if (CollapsingHeader("Group Options")) then
 
+		-- follower script tick rates
+
+		Text("Tick Rate");
+		script_follow.tickRate = SliderInt("Tick Rate", 0, 1000, script_follow.tickRate);
+		
+	Separator();
+
 			Text("Assist in combat? ")
 			
 			SameLine();
@@ -152,8 +159,9 @@ function script_followEX:menu()
 			end
 			
 			Separator();
+
 			Text("Distance to follow Party Leader  ");
-			script_follow.followLeaderDistance = SliderInt("Follow Leader Distance (yd)", 6, 40, script_follow.followLeaderDistance);
+			script_follow.followLeaderDistance = SliderInt("Follow Leader Distance (yd)", 6, 100, script_follow.followLeaderDistance);
 
 			wasClicked, self.autoGhost = Checkbox("Auto Release on Death", self.autoGhost);
 
