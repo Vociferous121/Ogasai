@@ -474,17 +474,6 @@ function script_rogue:run(targetGUID)
 						return 0;
 					end 
 				end 
-
-				-- Keep Slice and Dice up
-				if (self.useSliceAndDice) and (not localObj:HasBuff('Slice and Dice')) and (targetHealth > 50) and (localCP > 1) then
-					if (localEnergy < 25) then 
-						return;
-					end -- return until we have energy
-					if (not script_rogue:spellAttack("Slice and Dice", targetObj) or localEnergy <= 25) then
-						script_rogue:spellAttack("Slice and Dice", targetObj);
-					return;	
-					end
-				end
 			
 				-- Eviscerate with 5 CPs
 				if (localCP > 4) then
@@ -494,6 +483,17 @@ function script_rogue:run(targetGUID)
 					if (not script_rogue:spellAttack('Eviscerate', targetObj)) then 
 						return 0; -- return until we use Eviscerate
 					end 
+				end
+
+				-- Keep Slice and Dice up
+				if (self.useSliceAndDice) and (not localObj:HasBuff('Slice and Dice')) and (targetHealth > 50) and (localCP > 0) then
+					if (localEnergy < 25) then 
+						return;
+					end -- return until we have energy
+					if (not script_rogue:spellAttack("Slice and Dice", targetObj) or localEnergy <= 25) then
+						script_rogue:spellAttack("Slice and Dice", targetObj);
+					return 0;	
+					end
 				end
 			
 				-- Dynamic health check when using Eviscerate between 1 and 4 CP
@@ -927,7 +927,7 @@ function script_rogue:rest()
 					CastSpellByName("Stealth");
 				end
 			end
-			self.waitTimer = GetTimeEX() + 3000;
+			self.waitTimer = GetTimeEX() + 10000;
 			return true; 
 		end		
 	end
@@ -936,6 +936,7 @@ function script_rogue:rest()
 	if (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and IsEating() and not localObj:HasDebuff("Touch of Zanzil")) and (not localObj:HasDebuff("Poison")) then
 		if (not localObj:HasBuff("Stealth")) then
 			CastSpellByName("Stealth");
+			self.waitTimer = GetTimeEX() + 10000;
 			return true;
 		end
 	end
