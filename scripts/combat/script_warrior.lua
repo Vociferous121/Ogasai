@@ -367,13 +367,12 @@ function script_warrior:run(targetGUID)	-- main content of script
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
 	
 			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() <= .5) then 
+			if (targetObj:GetDistance() <= .3) then 
 				if (script_warrior:runBackwards(targetObj,4)) then 
 					return 4; 
 				end 
@@ -592,12 +591,11 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 	
 			-- War Stomp Tauren Racial
-			if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp"))
-				and (targetObj:IsCasting() or script_warrior:enemiesAttackingUs() >= 2)
+			if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) or (targetObj:IsCasting())
 				and (targetHealth >= 50) and (not IsMoving()) then
-				CastSpellByName("War Stomp");
-				self.waitTimer = GetTimeEX() + 200;
-				return 0;
+					CastSpellByName("War Stomp");
+					self.waitTimer = GetTimeEX() + 200;
+					return 0;
 			end
 
 			-- Stone Form Dwarf Racial
@@ -758,8 +756,8 @@ function script_warrior:run(targetGUID)	-- main content of script
 							targetObj:FaceTarget();
 						end
 						if (targetObj:GetDistance() <= 6) and (localRage >= 15) then
-							CastSpellByName('Heroic Strike', targetObj);
 							targetObj:FaceTarget();
+							CastSpellByName('Heroic Strike', targetObj);
 							return 0;
 						
 						end
