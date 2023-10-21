@@ -2,6 +2,7 @@
  Ogasaism
 
 Priest, Warlock, Warrior, Paladin, Rogue - working the best
+
 Shaman, Hunter, Druid - have issues :(
 
 # Fixed several bugs affecting low level botting! Casters - please obtain a wand ASAP. Can be used level 5+.
