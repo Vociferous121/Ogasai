@@ -480,8 +480,9 @@ function script_rogue:run(targetGUID)
 					if (localEnergy < 35) then
 						return 0; 
 					end -- return until we have energy
-					if (not script_rogue:spellAttack('Eviscerate', targetObj)) then 
-						return 0; -- return until we use Eviscerate
+					if (not script_rogue:spellAttack("Eviscerate", targetObj)) then
+						script_rogue:spellAttack("Eviscerate", targetObj);
+					return 0; -- return until we use Eviscerate
 					end 
 				end
 
@@ -501,14 +502,16 @@ function script_rogue:run(targetGUID)
 					if (localEnergy < 35) then
 						return 0; 
 					end -- return until we have energy
-					if (not script_rogue:spellAttack('Eviscerate', targetObj)) then 
+					if (not script_rogue:spellAttack("Eviscerate", targetObj)) then 
+						script_rogue:SpellAttack("Eviscerate", targetObj);
 						return 0; -- return until we use Eviscerate
 					end
 				end
 
 				-- Use CP generator attack 
-				if ((localEnergy >= self.cpGeneratorCost) and HasSpell(self.cpGenerator)) then
-					if(script_rogue:spellAttack(self.cpGenerator, targetObj)) then
+				if (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) then
+					if (script_rogue:spellAttack(self.cpGenerator, targetObj)) then
+						script_rogue:spellAttack(self.cpGenerator, targetObj);
 						return 0;
 					end
 				end
