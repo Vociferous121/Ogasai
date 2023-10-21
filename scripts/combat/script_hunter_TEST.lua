@@ -163,7 +163,7 @@ function script_hunter:run(targetGUID)
 		script_grind:lootAndSkin();
 		script_nav:resetNavigate();
 		script_nav:resetNavPos();
-		return true;
+		return;
 	end
 
 
@@ -530,7 +530,7 @@ function script_hunter:rest()
 		script_nav:resetNavigate();
 		script_nav:resetNavPos();
 		ClearTarget();
-		return true;
+		return;
 	end
 
 	-- Stop moving before we can rest

@@ -5,8 +5,8 @@ script_priest = {
 	isChecked = true,	-- setup stuff
 	drinkMana = 45,	-- drink at health %
 	eatHealth = 35,	-- eat at health %
-	renewHP = 70,	-- renew at health %
-	shieldHP = 80,	-- shield at health %
+	renewHP = 75,	-- renew at health %
+	shieldHP = 85,	-- shield at health %
 	flashHealHP = 65,	-- fleash heal at health %
 	lesserHealHP = 55,	-- lesser heal health
 	healHP = 40,	-- heal(spell) health
@@ -19,7 +19,7 @@ script_priest = {
 	useWandHealth = 100, -- use wand at target health %
 	useSmite = false,	-- smite on/off (force enabled level < 10)
 	mindBlastMana = 30,	-- use mind blast mana %
-	useScream = true,	-- use fear yes/no
+	useScream = false,	-- use fear yes/no
 	shadowForm = false,	-- shadowform on/off (auto set on/off based on HP slider)
 	mindFlayHealth = 18,	-- mind flay blow target health %
 	mindFlayMana = 18,	-- mind flay above self mana %
@@ -37,6 +37,16 @@ function script_priest:healAndBuff(targetObject, localMana)
 
 	-- get self player level
 	local localLevel = GetLocalPlayer():GetLevel();
+
+	-- use mind blast on CD
+			-- !! must be placed here to stop wand casting !!
+	if (HasSpell("Mind Blast")) and (not IsSpellOnCD("Mind Blast")) and (IsInCombat()) then
+		if (targetHealth >= 20) and (localMana >= self.mindBlastMana) then
+			CastSpellByName("Mind Blast", targetObj);
+			self.waitTimer = GetTimeEX() + 750;
+			return;
+		end
+	end
 
 	--Buff Inner Fire
 	if (not IsInCombat()) and (not localObj:HasBuff("Inner Fire")) and (HasSpell("Inner Fire")) and (localMana >= 8) then
@@ -335,7 +345,6 @@ function script_priest:run(targetGUID)
 			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 				if (not targetObj:FaceTarget()) then
 					targetObj:FaceTarget();
-					self.waitTimer = GetTimeEX() + 0;
 				end
 			end
 		end
@@ -371,12 +380,12 @@ function script_priest:run(targetGUID)
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 			
 			-- Opener check range of ALL SPELLS
-			if (targetObj:GetDistance() > 27) then
+			if (targetObj:GetDistance() > 30) then
 				self.message = "Walking to spell range!";
 				return 3;
 			end
 
-			if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= 30) then
+			if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= 27) then
 					targetObj:FaceTarget();
 				if (IsMoving()) then
 					StopMoving();
@@ -405,7 +414,6 @@ function script_priest:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
@@ -433,6 +441,15 @@ function script_priest:run(targetGUID)
 					return;
 				end
 			end
+
+			if (targetObj:IsInLineOfSight() and not IsMoving() and script_grind.lootObj == nil) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+					end
+				end
+			end
+
 
 			-- Devouring Plague to pull
 			if (HasSpell("Devouring Plague")) and (localMana >= 25) and (not IsSpellOnCD("Devouring Plague")) and (not IsMoving()) then
@@ -541,7 +558,6 @@ function script_priest:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 00;
 					end
 				end
 			end
@@ -671,7 +687,6 @@ function script_priest:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
@@ -798,7 +813,7 @@ function script_priest:rest()
 		script_nav:resetNavigate();
 		script_nav:resetNavPos();
 		ClearTarget();
-		return true;
+		return;
 	end
 
 	-- Stop moving before we can rest
@@ -836,7 +851,7 @@ function script_priest:rest()
 
 		if (script_helper:drinkWater()) then 
 			self.message = "Drinking..."; 
-			self.waitTimer = GetTimeEX() + 10000;
+			self.waitTimer = GetTimeEX() + 15000;
 			return true; 
 		else 
 			self.message = "No drinks! (or drink not included in script_helper)";
@@ -856,7 +871,7 @@ function script_priest:rest()
 		
 		if (script_helper:eat()) then 
 			self.message = "Eating..."; 
-			self.waitTimer = GetTimeEX() + 10000;
+			self.waitTimer = GetTimeEX() + 15000;
 			return true; 	
 		else 
 			self.message = "No food! (or food not included in script_helper)";

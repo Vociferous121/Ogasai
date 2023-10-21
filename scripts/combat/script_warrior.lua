@@ -828,7 +828,7 @@ function script_warrior:rest()
 		script_nav:resetNavigate();
 		script_nav:resetNavPos();
 		ClearTarget();
-		return true;
+		return;
 	end
 
 	-- Eat something

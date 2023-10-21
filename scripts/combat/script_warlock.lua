@@ -956,7 +956,7 @@ function script_warlock:rest()
 		script_nav:resetNavigate();
 		script_nav:resetNavPos();
 		ClearTarget();
-		return true;
+		return;
 	end
 
 	-- check pet

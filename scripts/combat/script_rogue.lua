@@ -898,7 +898,7 @@ function script_rogue:rest()
 		script_nav:resetNavigate();
 		script_nav:resetNavPos();
 		ClearTarget();
-		return true;
+		return;
 	end
 
 	-- skin after looting - won't stealth after skinning and bot stands still until resting is done????

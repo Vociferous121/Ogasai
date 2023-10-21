@@ -580,7 +580,7 @@ function script_druid:rest()
 		script_nav:resetNavigate();
 		script_nav:resetNavPos();
 		ClearTarget();
-		return true;
+		return;
 	end
 
 	-- Stay shapeshifted if we have hp!

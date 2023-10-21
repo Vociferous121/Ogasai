@@ -126,7 +126,7 @@ function script_priestEX:menu()
 
 			-- hide spell if not obtained yet
 			if (HasSpell("Power Word: Shield")) then
-				script_priest.shieldHP = SliderInt("Shiled HP%", 1, 99, script_priest.shieldHP);
+				script_priest.shieldHP = SliderInt("Shield HP%", 1, 99, script_priest.shieldHP);
 			end
 
 			-- hide spell if not obtained yet

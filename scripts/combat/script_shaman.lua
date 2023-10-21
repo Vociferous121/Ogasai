@@ -342,7 +342,7 @@ function script_shaman:rest()
 		script_nav:resetNavigate();
 		script_nav:resetNavPos();
 		ClearTarget();
-		return true;
+		return;
 	end
 
 	-- Stop moving before we can rest

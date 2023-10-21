@@ -125,6 +125,20 @@ end
 			5 - targeted player pet/totem
 			6 - stop bot request from combat script  ]]--
 
+function script_paladin:healAndBuff(targetObj)
+
+	-- to do!!
+
+	local localMana = GetLocalPlayer():GetManaPercentage();
+	local localHealth = GetLocalPlayer():GetHealthPercentage();
+
+	if (HasSpell("Holy Light")) and (localMana > 25) and (localHealth < self.holyLightHealth) then
+		CastSpellByName("Holy Light")
+		self.waitTimer = GetTimeEX() + 500;
+		return;
+	end
+end
+
 function script_paladin:run(targetGUID)
 	
 	if (not self.isSetup) then
@@ -345,11 +359,11 @@ function script_paladin:run(targetGUID)
 			end
 
 			if (localHealth < self.holyLightHealth) and (localMana > 25) then
-			if (Buff("Holy Light", localObj)) and (IsStanding()) then 
-				self.waitTimer = GetTimeEX() + 5000;
-				self.message = "Healing: Holy Light...";
-				return 0;
-			end
+				if (Buff("Holy Light", localObj)) and (IsStanding()) then 
+					self.waitTimer = GetTimeEX() + 5000;
+					self.message = "Healing: Holy Light...";
+					return 0;
+				end
 			end
 
 			-- Holy strike
@@ -680,7 +694,7 @@ function script_paladin:rest()
 		script_nav:resetNavigate();
 		script_nav:resetNavPos();
 		ClearTarget();
-		return true;
+		return;
 	end
 
 	-- heal before eating

@@ -1004,7 +1004,7 @@ function script_mage:rest()
 		script_nav:resetNavigate();
 		script_nav:resetNavPos();
 		ClearTarget();
-		return true;
+		return;
 	end
 
 	--Create Water
