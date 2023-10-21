@@ -47,13 +47,18 @@ function script_rogue:setup()
 	end
 
 	--set backstab as opener
-	if (GetLocalPlayer():GetLevel() < 10) then
+	if (GetLocalPlayer():GetLevel() < 20) then
 		self.stealthOpener = "Backstab";
 	end
-	
+
 	-- Set the energy cost for the CP builder ability (does not recognize talent e.g. imp. sinister strike)
 	_, _, _, _, self.cpGeneratorCost = GetSpellInfo(self.cpGenerator);
 	self.isSetup = true;
+
+	--level 10 talent
+	if (GetLocalPlayer():GetLevel() == 10) then
+		self.cpGeneratorCost = 42
+	end
 end
 
 function script_rogue:spellAttack(spellName, target)
@@ -469,6 +474,17 @@ function script_rogue:run(targetGUID)
 						return 0;
 					end 
 				end 
+
+				-- Keep Slice and Dice up
+				if (self.useSliceAndDice) and (not localObj:HasBuff('Slice and Dice')) and (targetHealth > 50) and (localCP > 1) then
+					if (localEnergy < 25) then 
+						return;
+					end -- return until we have energy
+					if (not script_rogue:spellAttack("Slice and Dice", targetObj) or localEnergy <= 25) then
+						script_rogue:spellAttack("Slice and Dice", targetObj);
+					return;	
+					end
+				end
 			
 				-- Eviscerate with 5 CPs
 				if (localCP > 4) then
@@ -478,18 +494,6 @@ function script_rogue:run(targetGUID)
 					if (not script_rogue:spellAttack('Eviscerate', targetObj)) then 
 						return 0; -- return until we use Eviscerate
 					end 
-				end
-			
-				-- Keep Slice and Dice up
-				if (HasSpell("Slice And Dice")) then
-					if (self.useSliceAndDice and not localObj:HasBuff('Slice and Dice') and targetHealth > 50 and localCP > 1) then
-						if (localEnergy < 25) then 
-							return 0;
-						end -- return until we have energy
-						if (not script_rogue:spellAttack('Slice and Dice', targetObj) or localEnergy <= 25) then
-							return 0;
-						end
-					end
 				end
 			
 				-- Dynamic health check when using Eviscerate between 1 and 4 CP

@@ -181,6 +181,8 @@ function script_helper:setup()
 	script_helper:addWater('Lollipop');
 	script_helper:addFood('Candy Bar');
 	script_helper:addWater('Candy Bar');
+	script_helper:addFood('Bobbing Apple');
+	script_helper:addWater('Bobbing Apple');
 
 
 	-- Mage food

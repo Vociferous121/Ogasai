@@ -210,10 +210,10 @@ function script_fish:run()
 			
 			if (not IsLooting()) then		
 				bobberobj:GameObjectInteract();
-				self.timer = GetTime() + 5;
+				self.timer = GetTime() + 2;
 			else
 				LootTarget();
-				self.timer = GetTime() + 5;
+				self.timer = GetTime() + 2;
 				self.bobberInfo.looted = true;
 			end
 		else

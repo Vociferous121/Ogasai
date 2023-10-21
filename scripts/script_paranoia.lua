@@ -6,7 +6,7 @@ script_paranoia = {
 	deathCounterExit = true,	-- death counter until exit
 	sitParanoid = false,		-- sit paranoid true/false
 	paranoidOn = true,		-- paranoid on true/false
-	paranoidOnTargeted = true,	-- paranoid when targeted on/off
+	paranoidOnTargeted = false,	-- paranoid when targeted on/off
 	useCampfire = true,		-- use bright campfire when paranoid on/off
 	counted = 3,
 }
