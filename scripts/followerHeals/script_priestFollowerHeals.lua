@@ -8,11 +8,11 @@ script_priestFollowerHeals = {
 	lesserHealMana = 5,
 	partyLesserHealHealth = 80,
 	healMana = 10,
-	partyHealHealth = 55,
+	partyHealHealth = 60,
 	greaterHealMana = 20,
 	partyGreaterHealHealth = 28,
 	flashHealMana = 7,
-	partyFlashHealHealth = 50,
+	partyFlashHealHealth = 54,
 	clickRenew = true,
 	clickShield = true,
 	clickFlashHeal = true,
@@ -22,6 +22,10 @@ script_priestFollowerHeals = {
 }
 
 function script_priestFollowerHeals:HealsAndBuffs()
+
+	if (IsAutoCasting("Shoot")) then
+		self.waitTimer = GetTimeEX() + 0;
+	end
 
     local localMana = GetLocalPlayer():GetManaPercentage();
 	if (not IsStanding()) then 

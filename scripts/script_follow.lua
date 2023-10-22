@@ -74,7 +74,16 @@ function script_follow:moveInLineOfSight(partyMember)
 
 	leaderObj = GetPartyMember(GetPartyLeaderIndex());
 
-	if (getPartyMembers() ~= nil) then
+	for i = 1, GetNumPartyMembers()+1 do
+
+			local partyMember = GetPartyMember(i);
+
+		if (i == GetNumPartyMembers()+1) then
+			partyMember = GetLocalPlayer();
+		end
+	end
+
+	if (GetNumPartyMembers() > 1) then
 		if (not leaderObj:IsInLineOfSight() or leaderObj:GetDistance() > self.followLeaderDistance) then
 			local x, y, z = leaderObj:GetPosition();
 			script_nav:moveToTarget(GetLocalPlayer(), x , y, z);

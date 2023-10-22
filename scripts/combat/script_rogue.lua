@@ -66,12 +66,12 @@ function script_rogue:setup()
 	end
 
 	if (not HasSpell("Adrenaline Rush")) then
-		adrenRushCombo = false;
-		enableAdrenRush = false;
+		self.adrenRushCombo = false;
+		self.enableAdrenRush = false;
 	end
 
 	if (not HasSpell("Blade Flurry")) then
-		enableBladeFlurry = false;
+		self.enableBladeFlurry = false;
 	end
 end
 
