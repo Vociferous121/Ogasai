@@ -230,8 +230,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			JumpOrAscendStart();
 		end
 		
-		if (targetObj:IsInLineOfSight()) then
-			if (targetObj:GetDistance() <= self.followTargetDistance) then
+		if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= self.followTargetDistance) and (not IsMoving()) then					if (not targetObj:FaceTarget()) then
 				targetObj:FaceTarget();
 			end
 		end
@@ -282,7 +281,9 @@ function script_warrior:run(targetGUID)	-- main content of script
 
 			if (targetObj:IsInLineOfSight() and not IsMoving()) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					targetObj:FaceTarget();
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+					end
 				end
 			end
 			
@@ -339,13 +340,13 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end
 			end	
 
-			if (targetObj:IsInLineOfSight() and not IsMoving()) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-					end
-				end
-			end
+			--if (targetObj:IsInLineOfSight() and not IsMoving()) then
+			--	if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+			--		if (not targetObj:FaceTarget()) then
+			--			targetObj:FaceTarget();
+			--		end
+			--	end
+			--end
 
 			-- Check move into melee range
 			if (targetObj:GetDistance() >= self.meleeDistance or not targetObj:IsInLineOfSight()) then
@@ -364,7 +365,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 
 			-- if in line of sight then force facing target
-			if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget and targetHealth < 99) then
+			if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget and targetHealth < 99) and (IsInCombat()) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
@@ -658,8 +659,12 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end
 			end
 
-			-- Check: If we are in melee range, do melee attacks
+	-- Check: If we are in melee range, do melee attacks
 			if (targetObj:GetDistance() <= self.meleeDistance) then
+		
+				if (localObj:IsCasting()) and (not IsAutoCasting("Attack")) then
+					targetObj:AutoAttack();
+				end
 
 				-- shield block
 				-- main rage user use only if target has at least 1 sunder for threat gain
@@ -801,7 +806,10 @@ function script_warrior:run(targetGUID)	-- main content of script
 						targetObj:FaceTarget();
 					end	
 				end
-
+				
+				if (targetHealth <= 0) then
+					self.waitTimer = GetTimeEX() + 0;
+				end
 
 			end
 			return 0; 
