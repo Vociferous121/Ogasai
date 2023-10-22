@@ -885,19 +885,26 @@ function script_rogue:rest()
 	local lootObj = script_nav:getLootTarget(lootRadius);
 
 	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
-		self.waitTimer = GetTimeEX() + 2000;
-		script_grind:doLoot(localObj);
-		self.waitTimer = GetTimeEX() + 2000;
-		script_grind:lootAndSkin();
+		if (script_grind:doLoot(localObj)) then
+			self.waitTimer = GetTimeEX() + 1500;
+		end
+
+		if (script_grind.skinning) then
+			script_grind:lootAndSkin();
+			self.waitTimer = GetTimeEX() + 1500;
+		end
+
 		script_nav:resetNavigate();
 		script_nav:resetNavPos();
 		ClearTarget();
-
+		self.waitTimer = GetTimeEX() + 1000;
 		return;
 	end
 
 	-- use scrolls
-	script_helper:useScrolls();
+	if (script_helper:useScrolls()) then
+		self.waitTimer = GetTimeEX() + 1500;
+	end
 
 	-- Eat something
 	if (not IsEating() and localHealth < self.eatHealth) and (script_grind.lootObj == nil) then

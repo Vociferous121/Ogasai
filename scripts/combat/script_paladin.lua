@@ -18,11 +18,13 @@ script_paladin = {
 	potionMana = 20,
 	consecrationMana = 50,
 	meleeDistance = 3.30,
+	followTargetDistance = 100,
+	useSealOfCrusader = false,
+
+	-- turtle wow
 	crusaderStacks = 3,
 	crusaderStacksMana = 40,
 	crusaderStacksHealth = 35,
-	followTargetDistance = 100,
-	useSealOfCrusader = false,
 }
 
 function script_paladin:setup()
@@ -214,9 +216,7 @@ function script_paladin:run(targetGUID)
 
 		if (targetObj:IsInLineOfSight()) then
 			if (targetObj:GetDistance() <= self.followTargetDistance) then
-				if (not targetObj:FaceTarget()) then
-					targetObj:FaceTarget();
-				end
+				targetObj:FaceTarget();
 			end
 		end
 
@@ -227,7 +227,7 @@ function script_paladin:run(targetGUID)
 		end
 
 		-- Auto Attack
-		if (targetObj:GetDistance() <= 40) and (not IsAutoCasting("Attack")) and (not IsInCombat()) then
+		if (targetObj:GetDistance() <= 40) then
 			targetObj:AutoAttack();
 		end
 	
@@ -316,6 +316,12 @@ function script_paladin:run(targetGUID)
 			if (IsInCombat()) and (targetObj:GetDistance() < self.meleeDistance) and (targetHealth > 99) and (not IsAutoCasting("Attack")) then
 				targetObj:AutoAttack();
 				self.waitTimer = GetTimeEX() + 200;	
+			end
+
+			if (targetObj:GetDistance() <= self.meleeDistance) then
+				if (IsMoving()) then
+					StopMoving();
+				end
 			end
 
 				
@@ -699,18 +705,26 @@ function script_paladin:rest()
 	local lootObj = script_nav:getLootTarget(lootRadius);
 	
 	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
-		self.waitTimer = GetTimeEX() + 2000;
-		script_grind:doLoot(localObj);
-		self.waitTimer = GetTimeEX() + 2000;
-		script_grind:lootAndSkin();
+		if (script_grind:doLoot(localObj)) then
+			self.waitTimer = GetTimeEX() + 1500;
+		end
+
+		if (script_grind.skinning) then
+			script_grind:lootAndSkin();
+			self.waitTimer = GetTimeEX() + 1500;
+		end
+
 		script_nav:resetNavigate();
 		script_nav:resetNavPos();
 		ClearTarget();
+		self.waitTimer = GetTimeEX() + 1000;
 		return;
 	end
 
 	-- use scrolls
-	script_helper:useScrolls();
+	if (script_helper:useScrolls()) then
+		self.waitTimer = GetTimeEX() + 1500;
+	end
 
 	-- heal before eating
 	if (localHealth < self.holyLightHealth) or (localHealth < self.eatHealth) and (IsStanding()) then

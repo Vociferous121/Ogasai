@@ -250,7 +250,7 @@ function script_grind:run()
 		return;
 	end
 
-	if (self.useUnstuck and IsMoving()) then
+	if (self.useUnstuck and IsMoving()) and (not self.pause) then
 		if (not script_unstuck:pathClearAuto(2)) then
 			script_unstuck:unstuck();
 			return true;
@@ -852,7 +852,7 @@ function script_grind:doLoot(localObj)
 	end
 	self.message = "Moving to loot...";		
 	script_nav:moveToTarget(localObj, _x, _y, _z);	
-	script_grind:setWaitTimer(100);
+	script_grind:setWaitTimer(300);
 	if (self.lootObj:GetDistance() < 3) then
 		self.waitTimer = GetTimeEX() + 450;
 	end
