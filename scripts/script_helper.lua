@@ -6,9 +6,10 @@ script_helper = {
 	myMounts = {},
 	numMounts = 0,
 	healthPotion = {},
-	manaPotion = {},
 	numHealthPotion = 0,
+	manaPotion = {},
 	numManaPotion = 0,
+	
 }
 
 function script_helper:enemiesAttackingUs(range) -- returns number of enemies attacking us within range
@@ -290,6 +291,36 @@ function script_helper:drinkWater()
 	end
 	self.waitTimer = GetTimeEX() + 1200;
 	return false;
+end
+
+function script_helper:useScrolls()
+
+	local localObj = GetLocalPlayer();
+
+	if (HasItem("Scroll of Protection")) and (not localObj:HasBuff("Armor")) then
+		UseItem("Scroll of Protection")
+		self.waitTimer = GetTimeEX() + 1500;
+	end
+
+	if (HasItem("Scroll of Stamina")) and (not localObj:HasBuff("Stamina")) then
+		UseItem("Scroll of Stamina")
+		self.waitTimer = GetTimeEX() + 1500;
+	end
+
+	if (HasItem("Scroll of Spirit")) and (not localObj:HasBuff("Spirit")) then
+		UseItem("Scroll of Spirit")
+		self.waitTimer = GetTimeEX() + 1500;
+	end
+
+	if (HasItem("Scroll of Intellect")) and (not localObj:HasBuff("Intellect")) then
+		UseItem("Scroll of Intellect")
+		self.waitTimer = GetTimeEX() + 1500;
+	end
+
+	if (HasItem("Scroll of Agility")) and (not localObj:HasBuff("Agility")) then
+		UseItem("Scroll of Agility")
+		self.waitTimer = GetTimeEX() + 1500;
+	end
 end
 
 function script_helper:useMount()

@@ -6,8 +6,8 @@ script_rogue = {
 	cpGenerator = 'Sinister Strike',
 	throwName = "Heavy Throwing Dagger",
 	stealthOpener = "Sinister Strike",
-	eatHealth = 40,
-	potionHealth = 15,
+	eatHealth = 55,
+	potionHealth = 5,
 	cpGeneratorCost = 40,
 	meeleDistance = 4.0,
 	stealthRange = 100,
@@ -57,7 +57,21 @@ function script_rogue:setup()
 
 	--level 10 talent
 	if (GetLocalPlayer():GetLevel() == 10) then
-		self.cpGeneratorCost = 42
+		self.cpGeneratorCost = 42;
+	end
+	
+	--level 11 talent
+	if (GetLocalPlayer():GetLevel() > 10) then
+		self.cpGeneratorCost = 40;
+	end
+
+	if (not HasSpell("Adrenaline Rush")) then
+		adrenRushCombo = false;
+		enableAdrenRush = false;
+	end
+
+	if (not HasSpell("Blade Flurry")) then
+		enableBladeFlurry = false;
 	end
 end
 
@@ -225,12 +239,9 @@ function script_rogue:run(targetGUID)
 				JumpOrAscendStart();
 			end
 		
-			if (targetObj:IsInLineOfSight() and not IsMoving()) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 200;
-					end
+			if (targetObj:IsInLineOfSight()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance)) then
+					targetObj:FaceTarget();
 				end
 			end
 
@@ -265,7 +276,6 @@ function script_rogue:run(targetGUID)
 					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 						if (not targetObj:FaceTarget()) then
 							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 0;
 						end
 					end
 				end
@@ -314,7 +324,6 @@ function script_rogue:run(targetGUID)
 					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 						if (not targetObj:FaceTarget()) then
 							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 0;
 						end
 					end
 				end
@@ -325,18 +334,11 @@ function script_rogue:run(targetGUID)
 				end
 
 				-- Use CP generator attack 
-				if ((localEnergy >= self.cpGeneratorCost) and HasSpell(self.cpGenerator)) then
-					if(script_rogue:spellAttack(self.cpGenerator, targetObj)) then
-						return 0;
-					end
+				if (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) then
+					script_rogue:spellAttack(self.cpGenerator, targetObj);
+					return 0;
 				end
  
-				-- Use CP generator attack (in combat)
-					if ((localEnergy >= self.cpGeneratorCost) and HasSpell(self.cpGenerator)) then
-						if(script_rogue:spellAttack(self.cpGenerator, targetObj)) then
-							return 0;
-						end
-					end
 
 				-- now in Combat
 			else	
@@ -348,13 +350,6 @@ function script_rogue:run(targetGUID)
 					DisMount();
 				end
 
-				if (targetObj:IsInLineOfSight() and not IsMoving()) then
-					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-						if (not targetObj:FaceTarget()) then
-							targetObj:FaceTarget();
-						end
-					end
-				end
 
 				-- Check: Do we have the right target (in UI) ??
 				if (GetTarget() ~= 0 and GetTarget() ~= nil) then
@@ -369,7 +364,7 @@ function script_rogue:run(targetGUID)
 
 				-- Run backwards if we are too close to the target
 				if (targetObj:GetDistance() < .3) then 
-					if (script_rogue:runBackwards(targetObj,4)) then 
+					if (script_rogue:runBackwards(targetObj,2)) then 
 						return 4; 
 					end 
 				end
@@ -431,7 +426,7 @@ function script_rogue:run(targetGUID)
 				end
 			
 				-- Check: Use Evasion if low HP or more than one enemy attack us
-				if ((localHealth < self.evasionHealth and localHealth < targetHealth) or (script_helper:enemiesAttackingUs(5) >= 2 and localHealth < self.evasionHealth)) then 
+				if ((localHealth < self.evasionHealth and localHealth < targetHealth) or (script_helper:enemiesAttackingUs(5) >= 2 and localHealth < self.evasionHealth)) and (not IsSpellOnCD("Evasion")) then 
 					if (HasSpell('Evasion') and not IsSpellOnCD('Evasion')) then
 						CastSpellByName('Evasion');
 						return 0;
@@ -893,13 +888,8 @@ function script_rogue:rest()
 		return;
 	end
 
-	-- skin after looting - won't stealth after skinning and bot stands still until resting is done????
-	--if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj == nil) then
-	--	local lootObj = script_grind:getSkinTarget();
-	--	script_grind:doLoot();
-	--	self.waitTimer = GetTimeEX() + 2200;
-	--	return true;
-	--end
+	-- use scrolls
+	script_helper:useScrolls();
 
 	-- Eat something
 	if (not IsEating() and localHealth < self.eatHealth) then
@@ -912,7 +902,7 @@ function script_rogue:rest()
 		if (IsMoving()) then StopMoving(); return true; end
 
 		if (script_helper:eat()) then 
-			self.message = "Eating..."; 
+			self.message = "Eating...";
 			return true; 
 		else 
 			self.message = "No food! (or food not included in script_helper)";

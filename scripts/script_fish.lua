@@ -268,7 +268,7 @@ function script_fish:menu()
 				script_vendorMenu:setSellVendor(); 
 			end
 
-			if (CollapsingHeader("[Selling options:")) then
+			if (CollapsingHeader("Selling options:")) then
 				local wasClicked = false;
 				local keepBox = false;
 				wasClicked, script_vendor.sellPoor = Checkbox("Sell poor items (grey)", script_vendor.sellPoor);
