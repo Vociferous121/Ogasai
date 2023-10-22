@@ -58,7 +58,7 @@ function script_priestFollowerHeals:HealsAndBuffs()
 
                 -- Dispel Magic
                 if (HasSpell("Dispel Magic")) and (localMana > 20) and (GetNumPartyMembers() >= 1) then 
-                    if (partyMember:HasDebuff("Sleep")) or (partyMember:HasDebuff("Terrify")) or (leaderObj:HasDebuff("Frost Nova")) or 
+                    if (partyMember:HasDebuff("Sleep")) or (partyMember:HasDebuff("Druid's Slumber")) or (partyMember:HasDebuff("Terrify")) or (leaderObj:HasDebuff("Frost Nova")) or 
                     (partyMember:HasDebuff("Screams of the Past")) or (partyMember:HasDebuff("Wavering Will")) or (partyMember:HasDebuff("Slow")) or
                     (leaderObj:HasDebuff("Frostbolt")) or (partyMember:HasDebuff("Dominate Mind")) then
                         if (CastHeal("Dispel Magic", partyMember)) then
@@ -177,7 +177,7 @@ function script_priestFollowerHeals:HealsAndBuffs()
                             return true;
                         end -- move to member
                         if (CastHeal("Heal", partyMember)) then
-                            self.waitTimer = GetTimeEX() + 3400;
+                            self.waitTimer = GetTimeEX() + 3200;
                             return;
                         end
                     end
@@ -186,12 +186,12 @@ function script_priestFollowerHeals:HealsAndBuffs()
                 -- Lesser Heal
                     -- level 20+ at very low mana
                 if (localObj:GetLevel() >= 20) then
-                    if (localMana < 6) and (partyMembersHP < 20) then
+                    if (localMana <= 8) and (partyMembersHP <= 20) then
                         if (script_follow:moveInLineOfSight(partyMember)) then
                             return true;
                         end -- move to member	
                         if (CastHeal("Lesser Heal", partyMember)) then
-                            self.waitTimer = GetTimeEX() + 2600;
+                            self.waitTimer = GetTimeEX() + 1500;
                             return;
                         end
                     end
@@ -202,7 +202,7 @@ function script_priestFollowerHeals:HealsAndBuffs()
                             return true;
                         end -- move to member
                         if (CastHeal("Lesser Heal", partyMember)) then
-                            self.waitTimer = GetTimeEX() + 2600;
+                            self.waitTimer = GetTimeEX() + 1500;
                             return;
                         end
                     end
