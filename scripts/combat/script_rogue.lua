@@ -9,7 +9,7 @@ script_rogue = {
 	eatHealth = 55,
 	potionHealth = 5,
 	cpGeneratorCost = 40,
-	meeleDistance = 4.0,
+	meleeDistance = 4.0,
 	stealthRange = 100,
 	waitTimer = 0,
 	vanishHealth = 8,
@@ -245,6 +245,12 @@ function script_rogue:run(targetGUID)
 				end
 			end
 
+			-- wait before looting!
+			if (targetObj:IsDead() or script_grind.lootObj ~= nil) then
+				self.waitTimer = GetTimeEX() + 1532;
+				ClearTarget();
+			end
+
 			-- Auto Attack
 			if (targetObj:GetDistance() < 40) then
 				targetObj:AutoAttack();
@@ -328,8 +334,8 @@ function script_rogue:run(targetGUID)
 					end
 				end
 			
-				-- Check if we are in meele range
-				if (targetObj:GetDistance() > self.meeleDistance or not targetObj:IsInLineOfSight()) then
+				-- Check if we are in melee range
+				if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
 					return 3;
 				end
 
@@ -369,8 +375,8 @@ function script_rogue:run(targetGUID)
 					end 
 				end
 
-				-- Check if we are in meele range
-				if (targetObj:GetDistance() > self.meeleDistance or not targetObj:IsInLineOfSight()) then
+				-- Check if we are in melee range
+				if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
 					return 3;
 				end
 
@@ -392,7 +398,7 @@ function script_rogue:run(targetGUID)
 				end 
 
 				-- Check: Use Healing Potion 
-				if (localHealth < self.potionHealth) then 
+				if (localHealth <= self.potionHealth) then 
 					if (script_helper:useHealthPotion()) then 
 						return 0; 
 					end 
@@ -582,8 +588,8 @@ function script_rogue:run(targetGUID)
 					end
 				end
 			
-				-- Check if we are in meele range
-				if (targetObj:GetDistance() > self.meeleDistance or not targetObj:IsInLineOfSight()) then
+				-- Check if we are in melee range
+				if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
 					return 3;
 				end
 
@@ -741,8 +747,8 @@ function script_rogue:run(targetGUID)
 						end
 					end
 
-					-- Check if we are in meele range
-					if (targetObj:GetDistance() > self.meeleDistance or not targetObj:IsInLineOfSight()) then
+					-- Check if we are in melee range
+					if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
 						return 3;
 					else
 						if (IsMoving()) then
@@ -879,12 +885,14 @@ function script_rogue:rest()
 	local lootObj = script_nav:getLootTarget(lootRadius);
 
 	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
-		self.waitTimer = GetTimeEX() + 1800;
+		self.waitTimer = GetTimeEX() + 2000;
 		script_grind:doLoot(localObj);
+		self.waitTimer = GetTimeEX() + 2000;
 		script_grind:lootAndSkin();
 		script_nav:resetNavigate();
 		script_nav:resetNavPos();
 		ClearTarget();
+
 		return;
 	end
 
@@ -892,7 +900,7 @@ function script_rogue:rest()
 	script_helper:useScrolls();
 
 	-- Eat something
-	if (not IsEating() and localHealth < self.eatHealth) then
+	if (not IsEating() and localHealth < self.eatHealth) and (script_grind.lootObj == nil) then
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to eat...";
 		if (IsInCombat()) then

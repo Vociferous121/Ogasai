@@ -17,11 +17,12 @@ script_paladin = {
 	potionHealth = 12,
 	potionMana = 20,
 	consecrationMana = 50,
-	meleeDistance = 3.90,
+	meleeDistance = 3.30,
 	crusaderStacks = 3,
 	crusaderStacksMana = 40,
 	crusaderStacksHealth = 35,
 	followTargetDistance = 100,
+	useSealOfCrusader = false,
 }
 
 function script_paladin:setup()
@@ -211,8 +212,8 @@ function script_paladin:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		if (targetObj:IsInLineOfSight() and IsMoving()) then
-			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+		if (targetObj:IsInLineOfSight()) then
+			if (targetObj:GetDistance() <= self.followTargetDistance) then
 				if (not targetObj:FaceTarget()) then
 					targetObj:FaceTarget();
 				end
@@ -287,6 +288,14 @@ function script_paladin:run(targetGUID)
 				end
 			end
 
+			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+					end
+				end
+			end
+
 
 			-- Check move into melee range
 			-- keep doing this if target is not in melee range
@@ -320,23 +329,27 @@ function script_paladin:run(targetGUID)
 				DisMount();
 			end
 
+			--targetObj = GetGUIDObject(targetGUID);
+
+			
+			-- Run backwards if we are too close to the target
+			if (targetObj:GetDistance() < .2) then 
+				if (script_paladin:runBackwards(targetObj,2)) then 
+					return 4; 
+				end 
+			end
+
+			-- Check if we are in melee range
+				if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
+					return 3;
+				end
+
 			if (targetObj:IsInLineOfSight() and not IsMoving()) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
 					end
 				end
-			end
-
-			--if (not IsMoving() and targetObj:GetDistance() < 10 and targetObj:IsInLineOfSight()) then
-			--	targetObj:FaceTarget();
-			--end
-			
-			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() < .3) then 
-				if (script_paladin:runBackwards(targetObj,4)) then 
-					return 4; 
-				end 
 			end
 
 			-- recheck facing target
@@ -346,11 +359,6 @@ function script_paladin:run(targetGUID)
 						targetObj:FaceTarget();
 					end
 				end
-			end
-
-			-- Check if we are in melee range
-			if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
-				return 3;
 			end
 			
 			-- recheck auto attack
@@ -558,12 +566,6 @@ function script_paladin:run(targetGUID)
 					end
 				end
 
-				-- if has seal of righteousness from last kill then use it first
-				if (localObj:HasBuff("Seal of Righteousness")) and (not IsSpellOnCD("Judgement")) and (targetObj:GetDistance() <= self.meleeDistance) then
-					CastSpellByName("Judgement", targetObj);
-					return 0;
-				end
-
 				-- Stack Crusader Strike
 				if (HasSpell("Crusader Strike")) and ((localObj:HasBuff("Seal of Righteousness")) or (localObj:HasBuff("Seal of Command"))) and (targetObj:HasDebuff("Judgement of the Crusader")) then
 					if (targetObj:GetDebuffStacks("Crusader Strike") < self.crusaderStacks) and (targetHealth > self.crusaderStacksHealth) and (localMana > self.crusaderStacksMana) then
@@ -613,7 +615,7 @@ function script_paladin:run(targetGUID)
 				end
 
 				-- Seal of the Crusader until we used judgement
-				if (HasSpell("Seal of the Crusader")) and (localMana > 15) and (targetHealth > 45) then
+				if (self.useSealOfCrusader) and (HasSpell("Seal of the Crusader")) and (localMana > 15) and (targetHealth > 45) then
 					if (not targetObj:HasDebuff("Judgement of the Crusader")) and (not localObj:HasBuff("Seal of the Crusader")) and (not localObj:HasBuff("Seal of Light")) then
 						if (Buff("Seal of the Crusader", localObj)) then
 							self.waitTimer = GetTimeEX() + 1500; 
@@ -697,14 +699,18 @@ function script_paladin:rest()
 	local lootObj = script_nav:getLootTarget(lootRadius);
 	
 	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
-		self.waitTimer = GetTimeEX() + 1800;
+		self.waitTimer = GetTimeEX() + 2000;
 		script_grind:doLoot(localObj);
+		self.waitTimer = GetTimeEX() + 2000;
 		script_grind:lootAndSkin();
 		script_nav:resetNavigate();
 		script_nav:resetNavPos();
 		ClearTarget();
 		return;
 	end
+
+	-- use scrolls
+	script_helper:useScrolls();
 
 	-- heal before eating
 	if (localHealth < self.holyLightHealth) or (localHealth < self.eatHealth) and (IsStanding()) then

@@ -26,7 +26,12 @@ function script_paladinEX:menu()
 
 		Separator();
 
+		if (HasSpell("Seal of the Crusader")) then
+			wasClicked, script_paladin.useSealOfCrusader = Checkbox("Use Crusader Seal", script_paladin.useSealOfCrusader);
+		end
+
 		if (HasSpell("Consecration")) then
+			SameLine();
 			Text("Consecrate Mana when 2 or more adds");
 			script_paladin.consecrationMana = SliderFloat("Consecration above Mana %", 1, 99, script_paladin.consecrationMana);
 		end
