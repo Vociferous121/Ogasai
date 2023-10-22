@@ -36,6 +36,7 @@ script_follow = {
 	extraFunctions = include("scripts\\script_followEX.lua"),
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
 	healsLoaded = include("scripts\\script_followHealsAndBuffs.lua"),
+	drawNav = true,
 
 }
 
@@ -119,6 +120,11 @@ end
 
 function script_follow:run()
 		script_follow:window();
+		
+		if (IsUsingNavmesh()) then
+			script_nav:drawPath();
+		end
+
 	-- Set next to node distance and nav-mesh smoothness to double that number
 	if (IsMounted()) then
 		script_nav:setNextToNodeDist(6); NavmeshSmooth(14);
@@ -182,6 +188,9 @@ function script_follow:run()
 
 		-- Corpse-walk if we are dead
 		if(localObj:IsDead()) then
+
+			script_follow.tickRate = 100;
+
 				self.message = "Walking to corpse...";
 			-- Release body
 			if(not IsGhost()) and (self.autoGhost) then 
