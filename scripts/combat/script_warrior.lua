@@ -394,7 +394,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end
 			end
 			
-			if (not IsAutoCasting("Auto Attack")) then
+			if (not IsAutoCasting("Attack")) then
 				targetObj:AutoAttack();
 			end
 
@@ -803,6 +803,8 @@ function script_warrior:run(targetGUID)	-- main content of script
 						targetObj:FaceTarget();
 					end	
 				end
+
+
 			end
 			return 0; 
 		end
