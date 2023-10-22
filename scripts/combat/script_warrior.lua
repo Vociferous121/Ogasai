@@ -229,16 +229,19 @@ function script_warrior:run(targetGUID)	-- main content of script
 		if (not IsStanding()) then
 			JumpOrAscendStart();
 		end
-
-	--	if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget) then
-	--		if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-	--			if (not targetObj:FaceTarget()) then
-	--				targetObj:FaceTarget();
-	--				self.waitTimer = GetTimeEX() + 0;
-	--			end
-	--		end
-	--	end
 		
+		if (targetObj:IsInLineOfSight()) then
+			if (targetObj:GetDistance() <= self.followTargetDistance) then
+				targetObj:FaceTarget();
+			end
+		end
+
+		-- wait before looting!
+		if (targetObj:IsDead() or script_grind.lootObj ~= nil) then
+			self.waitTimer = GetTimeEX() + 1532;
+			ClearTarget();
+		end
+
 		-- Auto Attack
 		if (targetObj:GetDistance() <= 40) then
 			targetObj:AutoAttack();
@@ -276,6 +279,14 @@ function script_warrior:run(targetGUID)	-- main content of script
 		if (not IsInCombat()) then
 			self.targetObjGUID = targetObj:GetGUID();
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
+
+			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+					end
+				end
+			end
 			
 			-- Check: Open with throw weapon
 			if (self.rangeOpener) then
@@ -330,25 +341,17 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end
 			end	
 
-			--if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget) then
-			--	if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-			--		if (not targetObj:FaceTarget()) then
-			--			targetObj:FaceTarget();
-			--			self.waitTimer = GetTimeEX() + 0;
-			--		end
-			--	end
-			--end
+			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+					end
+				end
+			end
 
 			-- Check move into melee range
 			if (targetObj:GetDistance() >= self.meleeDistance or not targetObj:IsInLineOfSight()) then
 				return 3;
-			end
-		
-			if (targetObj:GetDistance() <= self.meleeDistance) and (not targetObj:IsFleeing()) then
-					targetObj:FaceTarget();
-				if (IsMoving()) then
-					StopMoving();
-				end
 			end
 
 			-- Combat
@@ -362,7 +365,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 				DisMount();
 			end
 
-			-- if not in line of sight then force facing target
+			-- if in line of sight then force facing target
 			if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget and targetHealth < 99) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
@@ -383,16 +386,17 @@ function script_warrior:run(targetGUID)	-- main content of script
 				return 3;
 			end
 
-			if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget and targetHealth < 99) then
+			if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget and targetHealth <= 99) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
-
-			targetObj:AutoAttack();
+			
+			if (not IsAutoCasting("Auto Attack")) then
+				targetObj:AutoAttack();
+			end
 
 			-- Check: Use Healing Potion 
 			if (localHealth <= self.potionHealth) then 
@@ -652,7 +656,6 @@ function script_warrior:run(targetGUID)	-- main content of script
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
