@@ -67,6 +67,16 @@ function script_priestFollowerHeals:HealsAndBuffs()
                         end
                     end				
                 end
+
+		-- Cure Disease
+		if (HasSpell("Cure Disease")) and (localMana > 75) and (GetNumPartyMembers() >= 1) then 
+			if (partyMember:HasDebuff("Infected Wound")) then
+				if (CastHeal("Cure Disease", partyMember)) then
+					self.waitTimer = GetTimeEX() + 1500;
+					return true;
+				end
+			end
+		end
                     
                 -- Power word Fortitude
                 if (HasSpell("Power Word: Fortitude")) and (localMana > 40) and (not partyMember:HasBuff("Power Word: Fortitude")) then -- buff

@@ -72,7 +72,7 @@ end
 function script_follow:moveInLineOfSight(partyMember)
 
 	leaderObj = GetPartyMember(GetPartyLeaderIndex());
-	
+
 	if (getPartyMembers() ~= nil) then
 		if (not leaderObj:IsInLineOfSight() or leaderObj:GetDistance() > self.followLeaderDistance) then
 			local x, y, z = leaderObj:GetPosition();

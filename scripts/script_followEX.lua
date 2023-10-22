@@ -221,40 +221,44 @@ function script_followEX:menu()
 		-- Lesser Heal
 		if (GetLocalPlayer():GetLevel() < 20) then
 			Text("Lesser Heal Options -"); SameLine(); Text("Turn On/Off above");
-			script_priestFollowerHeals.lesserHealMana = SliderInt("Above Mana %", 1, 99, script_priestFollowerHeals.lesserHealMana);
-			script_priestFollowerHeals.partyLesserHealHealth = SliderInt("Below Health %", 1, 99, script_priestFollowerHeals.partyLesserHealHealth);
+			script_priestFollowerHeals.lesserHealMana = SliderInt("LH Above Mana %", 1, 99, script_priestFollowerHeals.lesserHealMana);
+			script_priestFollowerHeals.partyLesserHealHealth = SliderInt("LH Below Health %", 1, 99, script_priestFollowerHeals.partyLesserHealHealth);
 			Separator();
 		end
 
 		-- Renew
 		Text("Renew Options -"); SameLine(); 
 		wasClicked, script_priestFollowerHeals.clickRenew = Checkbox("Renew On/Off", script_priestFollowerHeals.clickRenew);
-		script_priestFollowerHeals.renewMana = SliderInt("Above Mana %", 1, 99, script_priestFollowerHeals.renewMana);
-		script_priestFollowerHeals.partyRenewHealth = SliderInt("Below Health %", 1, 99, script_priestFollowerHeals.partyRenewHealth);
+		script_priestFollowerHeals.renewMana = SliderInt("Renew Above Mana %", 1, 99, script_priestFollowerHeals.renewMana);
+		script_priestFollowerHeals.partyRenewHealth = SliderInt("Renew Below Health %", 1, 99, script_priestFollowerHeals.partyRenewHealth);
 
 		-- Shield
 		Text("Shield Options -"); SameLine(); 
 		wasClicked, script_priestFollowerHeals.clickShield = Checkbox("Shield On/Off", script_priestFollowerHeals.clickShield);
-		script_priestFollowerHeals.shieldMana = SliderInt("Above Mana %", 1, 99, script_priestFollowerHeals.shieldMana);
-		script_priestFollowerHeals.partyShieldHealth = SliderInt("Below Health %", 1, 99, script_priestFollowerHeals.partyShieldHealth);
+		script_priestFollowerHeals.shieldMana = SliderInt("Shield Above Mana %", 1, 99, script_priestFollowerHeals.shieldMana);
+		script_priestFollowerHeals.partyShieldHealth = SliderInt("Shield Below Health %", 1, 99, script_priestFollowerHeals.partyShieldHealth);
 
 		-- Flash Heal
+		if (HasSpell("Flash Heal")) then
 		Text("Flash Heal Options -"); SameLine();
 		wasClicked, script_priestFollowerHeals.clickFlashHeal = Checkbox("Flash Heal On/Off", script_priestFollowerHeals.clickFlashHeal);
-		script_priestFollowerHeals.flashHealMana = SliderInt("Above Mana %", 1, 99, script_priestFollowerHeals.flashHealMana);
-		script_priestFollowerHeals.partyFlashHealHealth = SliderInt("Below Health %", 1, 99, script_priestFollowerHeals.partyFlashHealHealth);
+		script_priestFollowerHeals.flashHealMana = SliderInt("FH Above Mana %", 1, 99, script_priestFollowerHeals.flashHealMana);
+		script_priestFollowerHeals.partyFlashHealHealth = SliderInt("FH Below Health %", 1, 99, script_priestFollowerHeals.partyFlashHealHealth);
+		end
 		
 		-- Greater Heal
+		if (HasSpell("Greater Heal")) then
 		Text("Greater Heal Options -"); SameLine();
 		wasClicked, script_priestFollowerHeals.clickGreaterHeal = Checkbox("Greater Heal On/Off", script_priestFollowerHeals.clickGreaterHeal);
-		script_priestFollowerHeals.greaterHealMana = SliderInt("Above Mana %", 1, 99, script_priestFollowerHeals.greaterHealMana);
-		script_priestFollowerHeals.partyGreaterHealHealth = SliderInt("Below Health %", 1, 99, script_priestFollowerHeals.partyGreaterHealHealth);	
+		script_priestFollowerHeals.greaterHealMana = SliderInt("GH Above Mana %", 1, 99, script_priestFollowerHeals.greaterHealMana);
+		script_priestFollowerHeals.partyGreaterHealHealth = SliderInt("GH Below Health %", 1, 99, script_priestFollowerHeals.partyGreaterHealHealth);	
+		end
 
 		-- Heal(spell)
 		Text("Heal(spell) Options -"); SameLine();
 		wasClicked, script_priestFollowerHeals.clickHeal = Checkbox("Heal(spell) On/Off", script_priestFollowerHeals.clickHeal);
-		script_priestFollowerHeals.healMana = SliderInt("Above Mana %", 1, 99, script_priestFollowerHeals.healMana);
-		script_priestFollowerHeals.partyHealHealth = SliderInt("Below Health %", 1, 99, script_priestFollowerHeals.partyHealHealth);
+		script_priestFollowerHeals.healMana = SliderInt("Heal Above Mana %", 1, 99, script_priestFollowerHeals.healMana);
+		script_priestFollowerHeals.partyHealHealth = SliderInt("Heal Below Health %", 1, 99, script_priestFollowerHeals.partyHealHealth);
 	end
 
 	if  (class == 'Paladin') and (CollapsingHeader("Paladin Group Heals Follower Script")) then
@@ -265,15 +269,15 @@ function script_followEX:menu()
 		-- Holy Light
 		Text("Holy Light Options -"); SameLine();
 		wasClicked, script_paladinFollowerHeals.clickHolyLight = Checkbox("Holy Light On/Off", script_paladinFollowerHeals.clickHolyLight);
-		script_paladinFollowerHeals.holyLightMana = SliderInt("Above Mana %", 1, 99, script_paladinFollowerHeals.holyLightMana);
+		script_paladinFollowerHeals.holyLightMana = SliderInt("HL Above Mana %", 1, 99, script_paladinFollowerHeals.holyLightMana);
 		script_paladinFollowerHeals.partyHolyLightHealth = SliderInt("Holy Light Health%", 1, 99, script_paladinFollowerHeals.partyHolyLightHealth);
 		Separator();
 
 		-- Flash of Light
 		Text("Flash of Light Options -"); SameLine();
 		wasClicked, script_paladinFollowerHeals.clickFlashOfLight = Checkbox("Flash of Light On/Off", script_paladinFollowerHeals.clickFlashOfLight);
-		script_paladinFollowerHeals.flashOfLightMana = SliderInt("Above Mana %", 1, 99, script_paladinFollowerHeals.flashOfLightMana);
-		script_paladinFollowerHeals.partyFlashOfLightHealth = SliderInt("Below Health %", 1, 99, script_paladinFollowerHeals.partyFlashOfLightHealth);
+		script_paladinFollowerHeals.flashOfLightMana = SliderInt("FoL Above Mana %", 1, 99, script_paladinFollowerHeals.flashOfLightMana);
+		script_paladinFollowerHeals.partyFlashOfLightHealth = SliderInt("FoL Below Health %", 1, 99, script_paladinFollowerHeals.partyFlashOfLightHealth);
 		script_paladinFollowerHeals.layOnHandsHealth = SliderInt("LoH Below Health %", 5, 20, script_paladinFollowerHeals.layOnHandsHealth);
 		script_paladinFollowerHeals.bopHealth = SliderInt("BoP Below Health %", 1, 25, script_paladinFollowerHeals.bopHealth);
 	end
@@ -344,7 +348,7 @@ function script_followEX:menu()
 		
 		if (script_aggro.drawAggro) then
 			Text("Draw Aggro Range");
-			script_aggro.drawAggroRange = SliderInt("AR", 50, 300, self.drawAggroRange);
+			self.drawAggroRange = SliderInt("AR", 50, 300, self.drawAggroRange);
 		end
 		wasClicked, script_followEX.drawUnits = Checkbox("Show unit info on screen", script_followEX.drawUnits);
 		wasClicked, script_aggro.drawAggro = Checkbox('Show aggro range', script_aggro.drawAggro);

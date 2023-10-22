@@ -256,8 +256,6 @@ function script_priest:setup()
 	if (GetNumPartyMembers() > 1) then
 		self.useScream = false;
 	end
-
-	script_grind.tickRate = 100;
 end
 
 function script_priest:draw()
@@ -545,6 +543,8 @@ function script_priest:run(targetGUID)
 
 		-- Combat
 		else	
+		
+			script_grind.tickRate = 200;
 
 			self.message = "Killing.. " .. targetObj:GetUnitName() .. "...";
 
