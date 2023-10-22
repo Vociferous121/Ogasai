@@ -240,7 +240,7 @@ function script_rogue:run(targetGUID)
 			end
 		
 			if (targetObj:IsInLineOfSight()) then
-				if (targetObj:GetDistance() <= self.followTargetDistance)) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) then
 					targetObj:FaceTarget();
 				end
 			end
