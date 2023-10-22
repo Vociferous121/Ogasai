@@ -27,20 +27,27 @@ script_paladin = {
 function script_paladin:setup()
 
 	-- Sort Aura  
+
+	--use Devotion Aura if nothing else
 	if (not HasSpell("Retribution Aura")) and (not HasSpell("Sanctity Aura")) and (not localObj:HasBuff("Stoneskin")) then
 		self.aura = "Devotion Aura";	
 
+	-- else use Ret aura if have it
 	elseif (not HasSpell("Sanctity Aura")) and (HasSpell("Retribution Aura")) then
 		self.aura = "Retribution Aura";
 
+	-- else use Sanctity aura if have it
 	elseif (HasSpell("Sanctity Aura")) then
 		self.aura = "Sanctity Aura";	
 	end
 
 	-- Sort Blessing  
+
+	-- Blessing of wisdom
 	if (HasSpell("Blessing of Wisdom")) then
 		self.blessing = "Blessing of Wisdom";
-
+	
+	--Blessing of might
 	elseif (HasSpell("Blessing of Might")) then
 		self.blessing = "Blessing of Might";
 	end
@@ -49,7 +56,8 @@ function script_paladin:setup()
 
 	self.isSetup = true;
 
-	self.aura = "Devotion Aura";
+	-- Force setting devotion aura
+	--self.aura = "Devotion Aura";
 
 end
 
@@ -141,10 +149,6 @@ end
 
 function script_paladin:run(targetGUID)
 	
-	if (not self.isSetup) then
-		script_paladin:setup();
-	end
-	
 	local localObj = GetLocalPlayer();
 
 	local localMana = localObj:GetManaPercentage();
@@ -153,6 +157,12 @@ function script_paladin:run(targetGUID)
 
 	local localLevel = localObj:GetLevel();
 
+	-- setup
+	if (not self.isSetup) then
+		script_paladin:setup();
+	end
+
+	-- if dead run rest of script
 	if (localObj:IsDead()) then
 		return 0; 
 	end
@@ -166,8 +176,8 @@ function script_paladin:run(targetGUID)
 	end
 
 	-- Assign the target 
-	targetObj = GetGUIDObject(targetGUID);
-	
+		targetObj = GetGUIDObject(targetGUID);
+
 	if(targetObj == 0) or (targetObj == nil) then
 		return 2;
 	end
@@ -201,24 +211,23 @@ function script_paladin:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		--if (targetObj:IsInLineOfSight() and not IsMoving()) then
-		--	if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-		--		if (not targetObj:FaceTarget()) then
-		--			targetObj:FaceTarget();
-		--			self.waitTimer = GetTimeEX() + 0;
-		--		end
-		--	end
-		--end
+		if (targetObj:IsInLineOfSight() and IsMoving()) then
+			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+				end
+			end
+		end
 
+		-- wait before looting!
 		if (targetObj:IsDead() or script_grind.lootObj ~= nil) then
 			self.waitTimer = GetTimeEX() + 1532;
 			ClearTarget();
 		end
 
 		-- Auto Attack
-		if (targetObj:GetDistance() < 40) and (not IsAutoCasting("Attack")) and (not IsInCombat()) then
+		if (targetObj:GetDistance() <= 40) and (not IsAutoCasting("Attack")) and (not IsInCombat()) then
 			targetObj:AutoAttack();
-			self.waitTimer = GetTimeEX() + 0;
 		end
 	
 		targetHealth = targetObj:GetHealthPercentage();
@@ -246,14 +255,14 @@ function script_paladin:run(targetGUID)
 				return 0;
 			 end
 
-			--if (targetObj:IsInLineOfSight() and not IsMoving()) then
-			--	if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-			--		if (not targetObj:FaceTarget()) then
-			--			targetObj:FaceTarget();
-			--			self.waitTimer = GetTimeEX() + 0;
-			--		end
-			--	end
-			--end
+			-- follow target
+			if (targetObj:IsInLineOfSight() and IsMoving()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+					end
+				end
+			end
 
 			-- Check move into melee range
 			-- keep doing this return 3 until target is in melee range
@@ -272,21 +281,16 @@ function script_paladin:run(targetGUID)
 			end
 
 			-- Check: Seal of the Crusader until we use judgement
-			if (not targetObj:HasDebuff("Judgement of the Crusader")) and (targetObj:GetDistance() < 15)
-				and (not localObj:HasBuff("Seal of the Crusader")) and localMana > 15 and (not IsSpellOnCD("Judgement"))
-					and (targetObj:GetHealthPercentage() > 25) then
-				--targetObj:FaceTarget();
+			if (self.useSealOfCrusader) and (not targetObj:HasDebuff("Judgement of the Crusader")) and (targetObj:GetDistance() < 15) and (not localObj:HasBuff("Seal of the Crusader")) and localMana > 15 and (not IsSpellOnCD("Judgement")) and (targetObj:GetHealthPercentage() > 25) then
 				if (Cast("Seal of the Crusader", targetObj)) then
 						return 3;
 				end
-			end 
+			end
+
 
 			-- Check move into melee range
 			-- keep doing this if target is not in melee range
 			if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
-				if (IsMoving()) then
-					StopMoving();
-				end
 				return 3;
 			end
 
@@ -303,7 +307,6 @@ function script_paladin:run(targetGUID)
 			if (IsInCombat()) and (targetObj:GetDistance() < self.meleeDistance) and (targetHealth > 99) and (not IsAutoCasting("Attack")) then
 				targetObj:AutoAttack();
 				self.waitTimer = GetTimeEX() + 200;	
-				--targetObj:FaceTarget();
 			end
 
 				
@@ -325,9 +328,9 @@ function script_paladin:run(targetGUID)
 				end
 			end
 
-			if (not IsMoving() and targetObj:GetDistance() < 10 and targetObj:IsInLineOfSight()) then
-				targetObj:FaceTarget();
-			end
+			--if (not IsMoving() and targetObj:GetDistance() < 10 and targetObj:IsInLineOfSight()) then
+			--	targetObj:FaceTarget();
+			--end
 			
 			-- Run backwards if we are too close to the target
 			if (targetObj:GetDistance() < .3) then 
@@ -336,6 +339,7 @@ function script_paladin:run(targetGUID)
 				end 
 			end
 
+			-- recheck facing target
 			if (targetObj:IsInLineOfSight() and not IsMoving()) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
@@ -349,18 +353,21 @@ function script_paladin:run(targetGUID)
 				return 3;
 			end
 			
+			-- recheck auto attack
 			if (targetObj:GetDistance() <= self.meleeDistance) and (not IsAutoCasting("Attack")) then
 				targetObj:AutoAttack();
 			end
 
+			-- dwarf stone form racial
 			if (HasSpell("Stoneform")) and (not IsSpellOnCD("Stoneform")) and (IsInCombat()) then
 				CastSpellByName("Stoneform");
 				return 0;
 			end
 
-			if (localHealth < self.holyLightHealth) and (localMana > 25) then
+			-- check health and heal -- holy light
+			if (localHealth <= self.holyLightHealth) and (localMana >= 25) then
 				if (Buff("Holy Light", localObj)) and (IsStanding()) then 
-					self.waitTimer = GetTimeEX() + 5000;
+					self.waitTimer = GetTimeEX() + 4000;
 					self.message = "Healing: Holy Light...";
 					return 0;
 				end
@@ -373,7 +380,6 @@ function script_paladin:run(targetGUID)
 					Cast("Holy Strike", targetObj);
 					return 0;
 				end
-			--targetObj:FaceTarget();
 			end
 
 			-- Check: Use Lay of Hands
@@ -403,7 +409,7 @@ function script_paladin:run(targetGUID)
 
 			-- Flash of Light
 			if (self.useFlashOfLightCombat) and (IsInCombat()) and (HasSpell("Flash of Light")) then
-				if (localHealth < 60) and (localMana > 10) then
+				if (localHealth <= self.flashOfLightHP) and (localMana > 10) then
 					if (CastHeal("Flash of Light", localObj)) then
 						self.waitTimer = GetTimeEX() + 1500;
 						self.message = "Flash of Light enabled - Healing!";
@@ -413,10 +419,11 @@ function script_paladin:run(targetGUID)
 			end
 
 			-- Check: Heal ourselves if below heal health or we are immune to physical damage
-			if (localHealth < self.holyLightHealth) or (localObj:HasBuff("Blessing of Protection")) or (localObj:HasBuff("Divine Protection")) then 
+			if (localHealth <= self.holyLightHealth) or (localObj:HasBuff("Blessing of Protection")) or (localObj:HasBuff("Divine Protection")) then 
 
 				-- Check: If we have multiple targets attacking us, use BoP before healing
 
+				-- use BoP on 3 or more adds
 				if (script_paladin:enemiesAttackingUs(5) > 2) and (HasSpell("Blessing of Protection")) and
 					(not IsSpellOnCD("Blessing of Protection")) and (not localObj:HasDebuff("Forbearance")) then
 					if (Buff("Blessing of Protection", localObj)) then 
@@ -425,6 +432,7 @@ function script_paladin:run(targetGUID)
 					end
 				end
 
+				-- use divine shield on 3 or more adds
 				-- Check: If we have multiple targets attacking us, use Divine Shield before healing
 				if (script_paladin:enemiesAttackingUs(5) > 2) and (localHealth < 25) and (HasSpell("Divine Shield")) and 
 					(not localObj:HasDebuff("Forbearance")) and (not IsSpellOnCD("Divine Shield")) then
@@ -433,6 +441,7 @@ function script_paladin:run(targetGUID)
 					return 0;
 				end
 
+				-- use divine protection on 3 or more adds
 				-- Check: If we have multiple targets attacking us, use Divine Protection before healing
 				if (script_paladin:enemiesAttackingUs(5) > 2) and (localHealth < 40) and (HasSpell("Divine Protection")) and
 					(not localObj:HasDebuff("Forbearance")) and (not IsSpellOnCD("Divine Protection")) then
@@ -442,7 +451,7 @@ function script_paladin:run(targetGUID)
 				end
 
 				-- Check: Stun with HoJ before healing if available
-				if (targetObj:GetDistance() < 5) and (HasSpell("Hammer of Justice")) and (not IsSpellOnCD("Hammer of Justice")) then
+				if (targetObj:GetDistance() <= self.meleeDistance) and (HasSpell("Hammer of Justice")) and (not IsSpellOnCD("Hammer of Justice")) then
 					if (Cast("Hammer of Justice", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1750;
 						return 0;
@@ -450,8 +459,8 @@ function script_paladin:run(targetGUID)
 				end
 				
 				--use holy light at the end of all the checks above
-				if  (localMana > 25) and (Buff("Holy Light", localObj)) and (IsStanding()) then 
-					self.waitTimer = GetTimeEX() + 5000;
+				if  (localMana > 25) and (localHealth <= self.holyLightHealth) and (Buff("Holy Light", localObj)) and (IsStanding()) then 
+					self.waitTimer = GetTimeEX() + 4000;
 					self.message = "Healing: Holy Light...";
 					return 0;
 				end
@@ -478,7 +487,7 @@ function script_paladin:run(targetGUID)
 						or (localObj:HasDebuff("Infected Bite")) or (localObj:HasDebuff("Wandering Plague"))
 							or (localObj:HasDebuff("Plague Mind")) or (localObj:HasDebuff("Fevered Fatigue")) then
 
-							-- add some randomness to how quick the bot casts cleanse
+				-- add some randomness to how quick the bot casts cleanse
 
 						local cleanseRandom = random(1, 100);
 					if (cleanseRandom > 90) then
@@ -498,7 +507,7 @@ function script_paladin:run(targetGUID)
 						or (localObj:HasDebuff("Infected Bite")) or (localObj:HasDebuff("Wandering Plague"))
 							or (localObj:HasDebuff("Plague Mind")) or (localObj:HasDebuff("Fevered Fatigue")) then
 
-							-- add some randomness to how quick the bot casts cleanse
+				-- add some randomness to how quick the bot casts cleanse
 
 						local cleanseRandom = random(1, 100);
 					if (cleanseRandom > 90) then
@@ -528,18 +537,18 @@ function script_paladin:run(targetGUID)
 			end
 
 			-- Check: If we are in melee range, do melee attacks ----- RETURN 0   ONLY USE IN MELEE RANGE
-			if (targetObj:GetDistance() < self.meleeDistance) then
+			if (targetObj:GetDistance() <= self.meleeDistance) then
 
 
 				if (targetObj:IsInLineOfSight() and not IsMoving()) then
 					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 						if (not targetObj:FaceTarget()) then
 							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 0;
 						end	
 					end
 				end
 
+				-- hammer of justice when fleeing
 				if (targetObj:IsCasting()) or (targetObj:IsFleeing()) then
 					if (HasSpell("Hammer of Justice")) and (not IsSpellOnCD("Hammer of Justice")) and (localMana > 8) then
 						if (Cast("Hammer of Justice", targetObj)) then
@@ -547,6 +556,12 @@ function script_paladin:run(targetGUID)
 							return 0;
 						end
 					end
+				end
+
+				-- if has seal of righteousness from last kill then use it first
+				if (localObj:HasBuff("Seal of Righteousness")) and (not IsSpellOnCD("Judgement")) and (targetObj:GetDistance() <= self.meleeDistance) then
+					CastSpellByName("Judgement", targetObj);
+					return 0;
 				end
 
 				-- Stack Crusader Strike
@@ -589,7 +604,7 @@ function script_paladin:run(targetGUID)
 		
 				-- Use Judgement on the stunned target
 				if (targetObj:HasDebuff("Hammer of Justice")) and (localObj:HasBuff("Seal of Command") or localObj:HasBuff("Seal of Righteousness")) then
-					if (targetObj:GetDistance() < 10) and (localMana > 15) then
+					if (targetObj:GetDistance() <= self.meleeDistance) and (localMana > 15) then
 						if (Cast("Judgement", targetObj)) then
 							self.waitTimer = GetTimeEX() + 750;
 							return 0;
@@ -661,12 +676,6 @@ function script_paladin:run(targetGUID)
  						return 0;	
 					end
 				end
-
-				-- Always face the target
-				--if (targetHealth < 99) then
-				--	targetObj:FaceTarget(); 
-				--	return 0; 
-				--end
 			end
 			return 0;
 		end
