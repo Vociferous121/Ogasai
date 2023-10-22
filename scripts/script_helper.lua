@@ -296,29 +296,94 @@ end
 function script_helper:useScrolls()
 
 	local localObj = GetLocalPlayer();
-
-	if (HasItem("Scroll of Protection")) and (not localObj:HasBuff("Armor")) then
-		UseItem("Scroll of Protection")
+	
+	-- scroll of protection
+	if (HasItem("Scroll of Protection IV")) and (not localObj:HasBuff("Armor")) then
+		UseItem("Scroll of Protection IV");
+		self.waitTimer = GetTimeEX() + 1500;
+	elseif (HasItem("Scroll of Protection III")) and (not localObj:HasBuff("Armor")) then
+		UseItem("Scroll of Protection III");
+		self.waitTimer = GetTimeEX() + 1500;
+	elseif (HasItem("Scroll of Protection II")) and (not localObj:HasBuff("Armor")) then
+		UseItem("Scroll of Protection II");
+		self.waitTimer = GetTimeEX() + 1500;
+	elseif (HasItem("Scroll of Protection")) and (not localObj:HasBuff("Armor")) then
+		UseItem("Scroll of Protection");
+		self.waitTimer = GetTimeEX() + 1500;
+	end
+	
+	-- scroll of stamina
+	if (HasItem("Scroll of Stamina IV")) and (not localObj:HasBuff("Stamina")) then
+		UseItem("Scroll of Stamina IV");
+		self.waitTimer = GetTimeEX() + 1500;
+	elseif (HasItem("Scroll of Stamina III")) and (not localObj:HasBuff("Stamina")) then
+		UseItem("Scroll of Stamina III");
+		self.waitTimer = GetTimeEX() + 1500;
+	elseif (HasItem("Scroll of Stamina II")) and (not localObj:HasBuff("Stamina")) then
+		UseItem("Scroll of Stamina II");
+		self.waitTimer = GetTimeEX() + 1500;
+	elseif (HasItem("Scroll of Stamina")) and (not localObj:HasBuff("Stamina")) then
+		UseItem("Scroll of Stamina");
 		self.waitTimer = GetTimeEX() + 1500;
 	end
 
-	if (HasItem("Scroll of Stamina")) and (not localObj:HasBuff("Stamina")) then
-		UseItem("Scroll of Stamina")
+	-- scroll of spirit
+	if (HasItem("Scroll of Spirit IV")) and (not localObj:HasBuff("Spirit")) then
+		UseItem("Scroll of Spirit IV");
+		self.waitTimer = GetTimeEX() + 1500;
+	elseif (HasItem("Scroll of Spirit III")) and (not localObj:HasBuff("Spirit")) then
+		UseItem("Scroll of Spirit III");
+		self.waitTimer = GetTimeEX() + 1500;
+	elseif (HasItem("Scroll of Spirit II")) and (not localObj:HasBuff("Spirit")) then
+		UseItem("Scroll of Spirit II");
+		self.waitTimer = GetTimeEX() + 1500;
+	elseif (HasItem("Scroll of Spirit")) and (not localObj:HasBuff("Spirit")) then
+		UseItem("Scroll of Spirit");
+		self.waitTimer = GetTimeEX() + 1500;
+	end
+	
+	-- scroll of intellect
+	if (HasItem("Scroll of Intellect IV")) and (not localObj:HasBuff("Intellect")) then
+		UseItem("Scroll of Intellect IV");
+		self.waitTimer = GetTimeEX() + 1500;
+	elseif (HasItem("Scroll of Intellect III")) and (not localObj:HasBuff("Intellect")) then
+		UseItem("Scroll of Intellect III");
+		self.waitTimer = GetTimeEX() + 1500;
+	elseif (HasItem("Scroll of Intellect II")) and (not localObj:HasBuff("Intellect")) then
+		UseItem("Scroll of Intellect II");
+		self.waitTimer = GetTimeEX() + 1500;
+	elseif (HasItem("Scroll of Intellect")) and (not localObj:HasBuff("Intellect")) then
+		UseItem("Scroll of Intellect");
 		self.waitTimer = GetTimeEX() + 1500;
 	end
 
-	if (HasItem("Scroll of Spirit")) and (not localObj:HasBuff("Spirit")) then
-		UseItem("Scroll of Spirit")
+	-- scroll of agility
+	if (HasItem("Scroll of Agility IV")) and (not localObj:HasBuff("Agility")) then
+		UseItem("Scroll of Agility IV");
+		self.waitTimer = GetTimeEX() + 1500;
+	elseif (HasItem("Scroll of Agility III")) and (not localObj:HasBuff("Agility")) then
+		UseItem("Scroll of Agility III");
+		self.waitTimer = GetTimeEX() + 1500;
+	elseif (HasItem("Scroll of Agility II")) and (not localObj:HasBuff("Agility")) then
+		UseItem("Scroll of Agility II");
+		self.waitTimer = GetTimeEX() + 1500;
+	elseif (HasItem("Scroll of Agility")) and (not localObj:HasBuff("Agility")) then
+		UseItem("Scroll of Agility");
 		self.waitTimer = GetTimeEX() + 1500;
 	end
-
-	if (HasItem("Scroll of Intellect")) and (not localObj:HasBuff("Intellect")) then
-		UseItem("Scroll of Intellect")
+	
+	-- scroll of strength
+	if (HasItem("Scroll of Strength IV")) and (not localObj:HasBuff("Strength")) then
+		UseItem("Scroll of Strength IV");
 		self.waitTimer = GetTimeEX() + 1500;
-	end
-
-	if (HasItem("Scroll of Agility")) and (not localObj:HasBuff("Agility")) then
-		UseItem("Scroll of Agility")
+	elseif (HasItem("Scroll of Strength III")) and (not localObj:HasBuff("Strength")) then
+		UseItem("Scroll of Strength III");
+		self.waitTimer = GetTimeEX() + 1500;
+	elseif (HasItem("Scroll of Strength II")) and (not localObj:HasBuff("Strength")) then
+		UseItem("Scroll of Strength II");
+		self.waitTimer = GetTimeEX() + 1500;
+	elseif (HasItem("Scroll of Strength")) and (not localObj:HasBuff("Strength")) then
+		UseItem("Scroll of Strength");
 		self.waitTimer = GetTimeEX() + 1500;
 	end
 end
