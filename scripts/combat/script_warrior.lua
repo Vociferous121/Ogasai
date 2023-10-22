@@ -282,9 +282,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 
 			if (targetObj:IsInLineOfSight() and not IsMoving()) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-					end
+					targetObj:FaceTarget();
 				end
 			end
 			
