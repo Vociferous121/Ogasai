@@ -331,14 +331,12 @@ function script_rogue:run(targetGUID)
 					end
 				end
  
-				-- Use CP generator attack  (in combat)
-				if (IsInCombat()) then
+				-- Use CP generator attack (in combat)
 					if ((localEnergy >= self.cpGeneratorCost) and HasSpell(self.cpGenerator)) then
 						if(script_rogue:spellAttack(self.cpGenerator, targetObj)) then
 							return 0;
 						end
 					end
-				end
 
 				-- now in Combat
 			else	
@@ -407,7 +405,9 @@ function script_rogue:run(targetGUID)
 
 				-- Check: Kick if the target is casting
 				if (HasSpell("Kick") and targetObj:IsCasting() and not IsSpellOnCD("Kick")) then
-					if (localEnergy <= 25) then return 0; end
+					if (localEnergy <= 25) then
+						return 0;
+					end
 					if (Cast("Kick", targetObj)) then
 						return 0;
 					end
@@ -420,12 +420,8 @@ function script_rogue:run(targetGUID)
 				hasFlurry = HasSpell('Blade Flurry');  
 				hasAdrenalineRush = HasSpell('Adrenaline Rush'); 
 
-				if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
-					targetObj:FaceTarget();
-				end
-
 				-- Check: Use Riposte whenever we can
-				if (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) then 
+				if (HasSpell("Riposte")) and (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) then 
 					if (localEnergy < 10) then 
 						return 0; 
 					end -- return until we have energy
@@ -475,33 +471,34 @@ function script_rogue:run(targetGUID)
 				end 
 			
 				-- Eviscerate with 5 CPs
-				if (localCP > 4) then
-					if (localEnergy < 35) then
-						return 0; 
-					end -- return until we have energy
-					if (not script_rogue:spellAttack("Eviscerate", targetObj)) then
-						return 0; -- return until we use Eviscerate
-					end 
+				if (localCP > 4) and (localEnergy >= 35) then
+					script_rogue:spellAttack("Eviscerate", targetObj);
+					return 0; -- return until we use Eviscerate
 				end
 
 				-- Keep Slice and Dice up
 				if (self.useSliceAndDice) and (not localObj:HasBuff('Slice and Dice')) and (targetHealth > 50) and (localCP > 0) then
 					if (localEnergy < 25) then 
-						return;
+						return 0;
 					end -- return until we have energy
 					if (script_rogue:spellAttack("Slice and Dice", targetObj)) and (localEnergy <= 25) then
 					return 0;	
 					end
 				end
+
+				-- Use CP generator attack 
+				if (targetHealth > (10*localCP)) and (localCP < 5) then
+					if (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) then
+						if (script_rogue:spellAttack(self.cpGenerator, targetObj)) then
+							return 0;
+						end
+					end
+				end
 			
 				-- Dynamic health check when using Eviscerate between 1 and 4 CP
-				if (targetHealth < (10*localCP)) then
-					if (localEnergy < 35) then
-						return 0; 
-					end -- return until we have energy
-					if (script_rogue:spellAttack("Eviscerate", targetObj)) then 
-						return 0; -- return until we use Eviscerate
-					end
+				if (targetHealth <= (10*localCP)) and (localEnergy >= 35) then
+					script_rogue:spellAttack("Eviscerate", targetObj);
+					return 0; -- return until we use Eviscerate
 				end
 
 				-- Use CP generator attack 

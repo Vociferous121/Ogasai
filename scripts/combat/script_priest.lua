@@ -299,6 +299,13 @@ function script_priest:run(targetGUID)
 	if (localObj:IsDead()) then
 		return 0;
 	end
+
+	-- tick rate
+	if (not IsInCombat()) then
+		script_grind.tickRate = 100;
+	else
+		script_grind.tickRate = 200;
+	end
 	
 	-- Assign the target 
 	targetObj =  GetGUIDObject(targetGUID); -- get guid of target and save it
@@ -544,7 +551,12 @@ function script_priest:run(targetGUID)
 		-- Combat
 		else	
 		
-			script_grind.tickRate = 200;
+			--set tick rate
+			if (IsInCombat()) then
+				script_grind.tickRate = 200;
+			else
+				script_grind.tickRate = 100;
+			end
 
 			self.message = "Killing.. " .. targetObj:GetUnitName() .. "...";
 
