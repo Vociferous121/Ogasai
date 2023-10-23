@@ -1,4 +1,5 @@
 script_runner = {
+	unstuckLoaded = include("scripts\\script_unstuck.lua"),
         nRcombo = 0, -- selected destination number (combo box)
         runit = false, 
         distDestination = 0,
@@ -30,7 +31,9 @@ script_runner = {
 	destinationReached = false,
 	avoidAggro = false,
 	safeDistance = 5,
-	genTime = GetTimeEX()
+	genTime = GetTimeEX(),
+	useUnstuck = true,
+	pause = false,
 }
 
 function script_runner:window()
@@ -379,6 +382,17 @@ function script_runner:run()
 		return;
 	end
 
+	if (self.pause) then self.message = "Paused by user...";
+		return;
+	end
+	
+	if (self.useUnstuck and IsMoving()) and (not self.pause) then
+		if (not script_unstuck:pathClearAuto(2)) then
+			script_unstuck:unstuck();
+			return true;
+		end
+	end
+
 	if (GetTimeEX() < self.timer) then
 		return;
 	end
@@ -476,6 +490,25 @@ end
 
 function script_runner:menu()
 	--if (CollapsingHeader("[Runner")) then
+
+	if (not self.pause) then
+		if (Button("Pause Bot")) then
+			self.pause = true;
+			StopMoving();
+		end
+	else
+		if (Button("Resume Bot")) then
+			self.pause = false;
+		end
+	end
+	SameLine();
+	if (Button("Reload Scripts"))
+		then coremenu:reload();
+	end
+	SameLine();
+	if (Button("Exit Bot")) then
+		StopBot();
+	end
 
 		-- Setup destinations
 		if (not self.isSetup) then

@@ -79,7 +79,7 @@ function script_rotation:run()
 
 	self.timer = GetTimeEX() + self.tickRate;
 	
-	-- temporary use torches
+	-- temporary use torches turtle wow
 	if (HasItem("Unlit Poor Torch")) and (HasSpell("Survival")) then
 		script_survivalProf:craftDimTorch();
 	else
@@ -152,8 +152,8 @@ function script_rotation:run()
 			return;
 		end
 	else
-		-- Auto ress?
-	end 
+	-- Auto ress?
+	end
 end
 
 function script_rotation:moveInLineOfSight(target)
@@ -410,31 +410,29 @@ function script_rotation:menu()
 		Text('Script tic rate (ms)');
 		self.tickRate = SliderInt("TR", 50, 500, self.tickRate);
 
-		if (self.drawAggro) then
-
-			Text("Aggro Circle Range");
-			self.aggroRangeTank = SliderInt("AR", 30, 300, self.aggroRangeTank);
-
-		end
+	if (self.drawAggro) then
+		Text("Aggro Circle Range");
+		self.aggroRangeTank = SliderInt("AR", 30, 300, self.aggroRangeTank);
+	end
 	
-		if (HasItem("Unlit Poor Torch")) then
+	if (HasItem("Unlit Poor Torch")) then
 			Separator();
 			wasClicked, script_survivalProf.useTorch = Checkbox("Use Torches to level Survival", script_survivalProf.useTorch);
-			if (script_survivalProf.useTorch) then
-				Text("Please open the trade skill window");
-				script_survivalProf:openMenu();
-			end
-		end	
+		if (script_survivalProf.useTorch) then
+			Text("Please open the trade skill window");
+			script_survivalProf:openMenu();
+		end
+	end	
 
-		if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) and (HasItem("Flint and Tinder")) then
-			wasClicked, script_survivalProf.useCampfire = Checkbox("Use Campfires", script_survivalProf.useCampfire);
-		end
+	if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) and (HasItem("Flint and Tinder")) then
+		wasClicked, script_survivalProf.useCampfire = Checkbox("Use Campfires", script_survivalProf.useCampfire);
+	end
 
-		if (HasSpell("First Aid")) then
-			Text("IN PROGRESS");
-			wasClicked, script_firstAid.showFirstAid = Checkbox("Show First Aid Skill", script_firstAid.showFirstAid);
-		end
-		if (script_firstAid.showFirstAid) then
-			script_firstAid:Menu();
-		end
+	if (HasSpell("First Aid")) then
+		Text("IN PROGRESS");
+		wasClicked, script_firstAid.showFirstAid = Checkbox("Show First Aid Skill", script_firstAid.showFirstAid);
+	end
+	if (script_firstAid.showFirstAid) then
+		script_firstAid:Menu();
+	end
 end

@@ -28,10 +28,27 @@ function script_grindMenu:printHotspot()
 end
 
 function script_grindMenu:menu()
-	if (not script_grind.pause) then if (Button("Pause Bot")) then script_grind.pause = true; end
-	else if (Button("Resume Bot")) then script_grind.myTime = GetTimeEX(); script_grind.pause = false; end end
-	SameLine(); if (Button("Reload Scripts")) then coremenu:reload(); end
-	SameLine(); if (Button("Exit Bot")) then StopBot(); end
+	if (not script_grind.pause) then
+		if (Button("Pause Bot")) then
+			script_grind.pause = true;
+		end
+	else
+		if (Button("Resume Bot")) then
+			script_grind.myTime = GetTimeEX();
+				script_grind.pause = false;
+		end
+	end
+
+	SameLine();
+	if (Button("Reload Scripts")) then
+		coremenu:reload();
+	end
+
+	SameLine();
+	if (Button("Exit Bot")) then
+		StopBot();
+	end
+
 	local wasClicked = false;
 	-- Load combat menu by class
 	local class = UnitClass("player");
