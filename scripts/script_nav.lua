@@ -1,6 +1,6 @@
 script_nav = {
 	useNavMesh = true,
-	nextNavNodeDistance = 2.0, -- for mobs and loot
+	nextNavNodeDistance = 2, -- for mobs and loot
 	nextPathNodeDistance = 2.7, -- for walking paths
 	lastPathIndex = -1,
 	navPosition = {},

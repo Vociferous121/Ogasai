@@ -167,8 +167,8 @@ function script_unstuck:pathClearAuto(yardsInfront)
 			_xpr, _ypr, _zpr = _lx+(y*math.cos(_angle+i*0.16)), _ly+(y*math.sin(_angle+i*0.16)), _lz;
 	
 			local hitM, _, _, _ = Raycast(_lx, _ly, _lz + (i*1.6),  _xp, _yp, _zp + (i*1.6));
-			local hitL, _, _, _ = Raycast(_lx, _ly, _lz + (i*1.6),  _xpl, _ypl, _zpl + (i*1.6));	
-			local hitR, _, _, _ = Raycast(_lx, _ly, _lz + (i*1.6),  _xpr, _ypr, _zpr + (i*1.6));
+			local hitL, _, _, _ = Raycast(_lx, _ly, _lz + (i*1.4),  _xpl, _ypl, _zpl + (i*1.4));	
+			local hitR, _, _, _ = Raycast(_lx, _ly, _lz + (i*1.4),  _xpr, _ypr, _zpr + (i*1.4));
 
 			if(not hitM and not hitL) then
 				-- Path isn't clear

@@ -53,7 +53,7 @@ script_grind = {
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
 	paranoiaLoaded = include("scripts\\script_unstuck.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
-	nextToNodeDist = 3.5, -- (Set to about half your nav smoothness)
+	nextToNodeDist = 2.2, -- (Set to about half your nav smoothness)
 	blacklistedTargets = {},
 	blacklistedNum = 0,
 	isSetup = false,
@@ -230,12 +230,21 @@ function script_grind:run()
 		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*4);
 	end
 
-	localObj = GetLocalPlayer();
+		localObj = GetLocalPlayer();
 
 	if (localObj:HasBuff("Sprint")) or (localObj:HasBuff("Aspect of the Cheetah")) then
 		script_nav:setNextToNodeDist(6); NavmeshSmooth(18);
 	else
 		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*4);
+	end
+
+		local race = UnitRace('player');
+	if (race == 'Night Elf') and (localObj:IsDead()) then
+		script_nav:setNextToNodeDist(6);
+		NavmeshSmooth(18);
+	else
+		script_nav:setNextToNodeDist(self.nextToNodeDist);
+		NavmeshSmooth(self.nextToNodeDist*4);
 	end
 	
 	if (not self.isSetup) then
@@ -251,7 +260,7 @@ function script_grind:run()
 		return;
 	end
 
-	if (self.useUnstuck and IsMoving()) and (not self.pause) then
+	if (self.useUnstuck and IsMoving()) then
 		if (not script_unstuck:pathClearAuto(2)) then
 			script_unstuck:unstuck();
 			return true;
@@ -853,7 +862,7 @@ function script_grind:doLoot(localObj)
 	end
 	self.message = "Moving to loot...";		
 	script_nav:moveToTarget(localObj, _x, _y, _z);	
-	script_grind:setWaitTimer(300);
+	--script_grind:setWaitTimer(300);
 	if (self.lootObj:GetDistance() < 3) then
 		self.waitTimer = GetTimeEX() + 450;
 	end

@@ -359,7 +359,7 @@ function script_warlock:run(targetGUID)
 		targetHealth = targetObj:GetHealthPercentage();
 
 		-- Auto attack
-		if (targetObj:GetDistance() < 40) then
+		if (targetObj:GetDistance() < 40) or (localMana < 25) then
 			targetObj:AutoAttack();
 		end
 
@@ -1019,7 +1019,7 @@ function script_warlock:rest()
 	end
 
 	-- Eat and Drink
-	if (not IsDrinking() and localMana < self.drinkMana) and (not IsSwimming()) and (script_grind.lootObj == nil) then
+	if (not IsDrinking() and localMana < self.drinkMana) and (not IsSwimming()) then
 		self.message = "Need to drink...";
 		self.waitTimer = GetTimeEX() + 2000;
 		if (IsMoving()) then
@@ -1037,7 +1037,7 @@ function script_warlock:rest()
 			return true; 
 		end
 	end
-	if (not IsEating() and localHealth < self.eatHealth) and (not IsSwimming()) and (script_grind.lootObj == nil) then
+	if (not IsEating() and localHealth < self.eatHealth) and (not IsSwimming()) then
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to eat...";	
 		if (IsMoving()) then
