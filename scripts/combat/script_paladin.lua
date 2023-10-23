@@ -35,11 +35,11 @@ function script_paladin:setup()
 	if (not HasSpell("Retribution Aura")) and (not HasSpell("Sanctity Aura")) and (not localObj:HasBuff("Stoneskin")) then
 		self.aura = "Devotion Aura";	
 
-	-- else use Ret aura if have it
+		-- else use Ret aura if have it
 	elseif (not HasSpell("Sanctity Aura")) and (HasSpell("Retribution Aura")) then
 		self.aura = "Retribution Aura";
 
-	-- else use Sanctity aura if have it
+		-- else use Sanctity aura if have it
 	elseif (HasSpell("Sanctity Aura")) then
 		self.aura = "Sanctity Aura";	
 	end
@@ -50,7 +50,7 @@ function script_paladin:setup()
 	if (HasSpell("Blessing of Wisdom")) then
 		self.blessing = "Blessing of Wisdom";
 	
-	--Blessing of might
+		--Blessing of might
 	elseif (HasSpell("Blessing of Might")) then
 		self.blessing = "Blessing of Might";
 	end
@@ -159,6 +159,14 @@ function script_paladin:run(targetGUID)
 	local localHealth = localObj:GetHealthPercentage();
 
 	local localLevel = localObj:GetLevel();
+
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
+	end
 
 	-- setup
 	if (not self.isSetup) then
@@ -302,15 +310,6 @@ function script_paladin:run(targetGUID)
 			if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
 				return 3;
 			end
-
-			--if (targetObj:IsInLineOfSight() and not IsMoving()) then
-			--	if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-			--		if (not targetObj:FaceTarget()) then
-			--			targetObj:FaceTarget();
-			--			self.waitTimer = GetTimeEX() + 0;
-			--		end
-			--	end
-			--end
 
 			-- check if we are in combat?
 			if (IsInCombat()) and (targetObj:GetDistance() < self.meleeDistance) and (targetHealth > 99) and (not IsAutoCasting("Attack")) then
@@ -700,26 +699,29 @@ function script_paladin:rest()
 	local localHealth = localObj:GetHealthPercentage();
 	local localMana = localObj:GetManaPercentage();
 
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
+	end
+
 	-- looting
 	local lootRadius = 20;
 	local lootObj = script_nav:getLootTarget(lootRadius);
 	
-	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
-		if (script_grind:doLoot(localObj)) then
-			self.waitTimer = GetTimeEX() + 1500;
+	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) and (not self.looted) then
+		
+		if (not script_grind:doLoot(localObj)) then
+		self.looted = true;
 		end
 
 		if (script_grind.skinning) then
 			script_grind:lootAndSkin();
-			self.waitTimer = GetTimeEX() + 1500;
 		end
-
-		script_nav:resetNavigate();
-		script_nav:resetNavPos();
-		ClearTarget();
-		self.waitTimer = GetTimeEX() + 1000;
-		return;
 	end
+
 
 	-- use scrolls
 	if (script_helper:useScrolls()) then
@@ -770,7 +772,7 @@ function script_paladin:rest()
 	end
 
 	-- Drink something
-	if (not IsDrinking() and localMana < self.drinkMana) then
+	if (not IsDrinking() and localMana < self.drinkMana) and (script_grind.lootObj == nil) then
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to drink...";
 		if (IsMoving()) then
@@ -789,7 +791,7 @@ function script_paladin:rest()
 	end
 
 	-- Eat something
-	if (not IsEating() and localHealth < self.eatHealth) then
+	if (not IsEating() and localHealth < self.eatHealth) and (script_grind.lootObj == nil) then
 		self.message = "Need to eat...";
 		if (IsInCombat()) then
 			return true;
@@ -833,10 +835,6 @@ function script_paladin:rest()
 		-- Don't need to rest
 	return false;
 end
-
---function script_paladin:mount()
---	return false;
---end
 
 function script_paladin:window()
 

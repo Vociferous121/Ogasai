@@ -93,6 +93,7 @@ script_grind = {
 	useLogoutTimer = false,	-- use logout timer true/false
 	logoutSetTime = GetTimeEX() / 1000,	-- set the logout time in seconds
 	logoutTime = 2,	-- logout time in hours
+	adjustTickRate = false,
 }
 
 function script_grind:setup()

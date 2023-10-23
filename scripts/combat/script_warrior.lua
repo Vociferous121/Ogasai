@@ -3,7 +3,7 @@ script_warrior = {
 	warriorMenu = include("scripts\\combat\\script_warriorEX.lua"),
 	eatHealth = 55, -- health to use food
 	bloodRageHealth = 50, -- health to use bloodrage
-	potionHealth = 10, -- health to use potion
+	potionHealth = 6, -- health to use potion
 	isSetup = false, -- setup check
 	meleeDistance = 3.6, -- melee distance
 	throwOpener = false, -- use throw as opener
@@ -185,8 +185,16 @@ function script_warrior:run(targetGUID)	-- main content of script
 	--	self.enableCharge = false;
 	--end
 	
-	if(not self.isSetup) then	-- check setup stuff
+	if (not self.isSetup) then	-- check setup stuff
 		script_warrior:setup();
+	end
+
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
 	end
 	
 	local localObj = GetLocalPlayer();
@@ -229,11 +237,6 @@ function script_warrior:run(targetGUID)	-- main content of script
 		if (not IsStanding()) then
 			JumpOrAscendStart();
 		end
-		
-		if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= self.followTargetDistance) and (not IsMoving()) then					if (not targetObj:FaceTarget()) then
-				targetObj:FaceTarget();
-			end
-		end
 
 		-- Auto Attack
 		if (targetObj:GetDistance() < 40) then
@@ -273,12 +276,10 @@ function script_warrior:run(targetGUID)	-- main content of script
 			self.targetObjGUID = targetObj:GetGUID();
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 
-			if (targetObj:IsInLineOfSight()) and (not IsMoving()) and (targetObj:GetDistance() <= self.followTargetDistance) then
-				if (not targetObj:FaceTarget()) then
-					targetObj:FaceTarget();
-				end
-			end
-			
+			--if (targetObj:IsInLineOfSight()) and (not IsMoving()) and (targetObj:GetDistance() <= self.followTargetDistance) then
+			--	targetObj:FaceTarget();
+			--end
+
 			-- Check: Open with throw weapon
 			if (self.rangeOpener) then
 				if (targetObj:GetDistance() >= 30 or not targetObj:IsInLineOfSight()) then
@@ -345,6 +346,13 @@ function script_warrior:run(targetGUID)	-- main content of script
 		else	
 
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
+
+			-- Cant Attack dead targets
+			if (targetObj:IsDead()) or (not targetObj:CanAttack()) then
+				StopMoving();
+				self.waitTimer = GetTimeEX() + 5000;
+			return 0;
+			end
 			
 			-- Dismount
 			if (IsMounted()) then 
@@ -734,14 +742,6 @@ function script_warrior:run(targetGUID)	-- main content of script
 					end 
 				end
 
-				-- move heroic strike
-				if (localObj:IsCasting()) and (targetObj:GetDistance() > 6) then
-					script_nav:moveToTarget(localObj, targetObj);
-				end
-				if (not targetObj:FaceTarget()) then
-					targetObj:FaceTarget();
-				end
-
 				-- melee Skill: Heroic Strike if we got 15 rage battle stance
 				if (self.battleStance) then
 					if (localRage >= 15) then 
@@ -749,8 +749,8 @@ function script_warrior:run(targetGUID)	-- main content of script
 							targetObj:FaceTarget();
 						end
 						if (targetObj:GetDistance() <= 6) and (localRage >= 15) then
-							targetObj:FaceTarget();
 							CastSpellByName('Heroic Strike', targetObj);
+							targetObj:FaceTarget();
 							return 0;
 						
 						end
@@ -809,25 +809,27 @@ function script_warrior:rest()
 	local localObj = GetLocalPlayer();
 	local localHealth = localObj:GetHealthPercentage();
 
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
+	end
+
 	-- looting
 	local lootRadius = 20;
 	local lootObj = script_nav:getLootTarget(lootRadius);
 	
-	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
-		if (script_grind:doLoot(localObj)) then
-			self.waitTimer = GetTimeEX() + 1500;
+	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) and (not self.looted) then
+		
+		if (not script_grind:doLoot(localObj)) then
+		self.looted = true;
 		end
 
 		if (script_grind.skinning) then
 			script_grind:lootAndSkin();
-			self.waitTimer = GetTimeEX() + 1500;
 		end
-
-		script_nav:resetNavigate();
-		script_nav:resetNavPos();
-		ClearTarget();
-		self.waitTimer = GetTimeEX() + 1000;
-		return;
 	end
 
 	-- use scrolls
@@ -836,7 +838,7 @@ function script_warrior:rest()
 	end
 
 	-- Eat something
-	if (not IsEating() and localHealth <= self.eatHealth) then
+	if (not IsEating() and localHealth <= self.eatHealth) and (script_grind.lootObj == nil) then
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to eat...";
 		if (IsInCombat()) then

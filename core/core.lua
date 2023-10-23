@@ -37,24 +37,3 @@ function CastHeal(spellName, target)
 	end
 	return false;
 end
-
-function CastWalk(spellName, target)
-	if (HasSpell(spellName)) then
-		if (not IsSpellOnCD(spellName)) then
-			if (not IsAutoCasting(spellName)) then
-				targetObj:FaceTarget();
-				return target:CastSpell(spellName);
-			end
-		end
-	end
-end
-
-function CastAndWalk(spellName, target)
-	if (HasSpell(spellName)) then
-		if (not IsSpellOnCD(spellName)) then
-			if (not IsAutoCasting(spellName)) then
-				return target:CastSpell(spellName);
-			end
-		end
-	end
-end

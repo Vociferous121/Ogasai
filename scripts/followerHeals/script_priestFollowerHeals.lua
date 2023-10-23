@@ -65,19 +65,25 @@ function script_priestFollowerHeals:HealsAndBuffs()
                     if (partyMember:HasDebuff("Sleep")) or (partyMember:HasDebuff("Druid's Slumber")) or (partyMember:HasDebuff("Terrify")) or (leaderObj:HasDebuff("Frost Nova")) or 
                     (partyMember:HasDebuff("Screams of the Past")) or (partyMember:HasDebuff("Wavering Will")) or (partyMember:HasDebuff("Slow")) or
                     (leaderObj:HasDebuff("Frostbolt")) or (partyMember:HasDebuff("Dominate Mind")) then
-                        if (CastHeal("Dispel Magic", partyMember)) then
-                            self.waitTimer = GetTimeEX() + 1500;
-                            return true;
-                        end
-                    end				
-                end
+		local dispellRandom = random(1, 100);
+				if (dispellRandom > 90) then
+                       			if (CastHeal("Dispel Magic", partyMember)) then
+                           			self.waitTimer = GetTimeEX() + 1500;
+                           			return true;
+                       			end
+                   		end				
+               		end
+		end
 
 		-- Cure Disease
 		if (HasSpell("Cure Disease")) and (localMana > 75) and (GetNumPartyMembers() >= 1) then 
 			if (partyMember:HasDebuff("Infected Wound")) then
-				if (CastHeal("Cure Disease", partyMember)) then
-					self.waitTimer = GetTimeEX() + 1500;
-					return true;
+					local cureRandom = random(1, 100);
+				if (cureRandom > 90) then
+					if (CastHeal("Cure Disease", partyMember)) then
+						self.waitTimer = GetTimeEX() + 1500;
+						return true;
+					end
 				end
 			end
 		end
@@ -156,7 +162,7 @@ function script_priestFollowerHeals:HealsAndBuffs()
                         end -- move to member
                         if (CastHeal("Flash Heal", partyMember)) then
                             self.waitTimer = GetTimeEX() + 2000;
-                            return true;
+				return true;
                         end
                     end
                 end

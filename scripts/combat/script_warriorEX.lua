@@ -115,7 +115,7 @@ function script_warriorEX:menu()
 		Text('Eat below health percentage');
 		script_warrior.eatHealth = SliderInt("EHP %", 1, 100, script_warrior.eatHealth);	-- use food health
 		Text('Potion below health percentage');
-		script_warrior.potionHealth = SliderInt("PHP %", 1, 99, script_warrior.potionHealth);	-- use potion health
+		script_warrior.potionHealth = SliderInt("PHP %", 5, 15, script_warrior.potionHealth);	-- use potion health
 		Separator();
 		wasClicked, script_warrior.stopIfMHBroken = Checkbox("Stop bot if main hand is broken.", script_warrior.stopIfMHBroken);
 		

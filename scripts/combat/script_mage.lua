@@ -298,6 +298,14 @@ function script_mage:run(targetGUID)
 	local localHealth = localObj:GetHealthPercentage();
 
 	local localLevel = localObj:GetLevel();
+
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
+	end
 	
 	-- check if we are dead
 	if (localObj:IsDead()) then
@@ -994,22 +1002,29 @@ function script_mage:rest()
 	local lootRadius = 20;
 	local lootObj = script_nav:getLootTarget(lootRadius);
 	
-	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
-		if (script_grind:doLoot(localObj)) then
-			self.waitTimer = GetTimeEX() + 1500;
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
+	end
+
+	-- looting
+	local lootRadius = 20;
+	local lootObj = script_nav:getLootTarget(lootRadius);
+	
+	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) and (not self.looted) then
+		
+		if (not script_grind:doLoot(localObj)) then
+		self.looted = true;
 		end
 
 		if (script_grind.skinning) then
 			script_grind:lootAndSkin();
-			self.waitTimer = GetTimeEX() + 1500;
 		end
-
-		script_nav:resetNavigate();
-		script_nav:resetNavPos();
-		ClearTarget();
-		self.waitTimer = GetTimeEX() + 1000;
-		return;
 	end
+
 
 	-- use scrolls
 	if (script_helper:useScrolls()) then
@@ -1141,7 +1156,7 @@ function script_mage:rest()
 	end
 
 	-- Eat and Drink
-	if (not IsDrinking() and localMana < self.drinkMana) and (not IsSwimming() and not IsInCombat()) then
+	if (not IsDrinking() and localMana < self.drinkMana) and (not IsSwimming() and not IsInCombat()) and (script_grind.lootObj == nil) then
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to drink...";
 		-- Dismount
@@ -1168,7 +1183,7 @@ function script_mage:rest()
 		end
 	end
 
-	if (not IsEating() and localHealth < self.eatHealth) and (not IsSwimming() and not IsInCombat()) then
+	if (not IsEating() and localHealth < self.eatHealth) and (not IsSwimming() and not IsInCombat()) and (script_grind.lootObj == nil) then
 		self.waitTimer = GetTimeEX() + 2000;
 		-- Dismount
 		if(IsMounted()) then DisMount(); end
@@ -1191,7 +1206,7 @@ function script_mage:rest()
 		end	
 	end
 	
-	if (localMana < self.drinkMana or localHealth < self.eatHealth) and (not IsSwimming() and not IsInCombat()) then
+	if (localMana < self.drinkMana or localHealth < self.eatHealth) and (not IsSwimming() and not IsInCombat()) and (script_grind.lootObj == nil) then
 		self.waitTimer = GetTimeEX() + 2000;
 		if (IsMoving()) then
 			self.waitTimer = GetTimeEX() + 2000;

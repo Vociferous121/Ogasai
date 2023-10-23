@@ -260,6 +260,14 @@ function script_warlock:run(targetGUID)
 	local localHealth = localObj:GetHealthPercentage();
 	local localLevel = localObj:GetLevel();
 
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
+	end
+
 	if (GetPet() ~= 0) then
 		self.hasPet = true;
 	else
@@ -329,7 +337,6 @@ function script_warlock:run(targetGUID)
 			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 				if (not targetObj:FaceTarget()) then
 					targetObj:FaceTarget();
-					self.waitTimer = GetTimeEX() + 0;
 				end
 			end
 		end
@@ -344,7 +351,7 @@ function script_warlock:run(targetGUID)
 
 
 		-- level 1 - 4
-			if (not HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight()) and (GetLocalPlayer():GetLevel() <= 3) then
+			if (not HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight()) and (GetLocalPlayer():GetLevel() <= 3) and (not IsMoving()) then
 				if (Cast('Shadow Bolt', targetObj)) then
 					targetObj:FaceTarget();
 					self.waitTimer = GetTimeEX() + 1650;
@@ -431,7 +438,6 @@ function script_warlock:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) and (targetObj:GetHealthPercentage() < 99) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
@@ -516,7 +522,6 @@ function script_warlock:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) and (targetObj:GetHealthPercentage() < 99) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
@@ -565,7 +570,6 @@ function script_warlock:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) and (targetHealth < 99) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
@@ -674,7 +678,6 @@ function script_warlock:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
@@ -778,11 +781,12 @@ function script_warlock:run(targetGUID)
 	
 			-- Check: Keep the Corruption DoT up (15 s duration)
 			if (self.enableCorruption) then
-				if (not targetObj:HasDebuff("Corruption") and targetHealth > 20) then
+				if (not targetObj:HasDebuff("Corruption") and targetHealth >= 20) then
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 					end -- move to target
-					if (Cast('Corruption', targetObj)) then
+					if (targetObj:IsInLineOfSight()) then
+						Cast('Corruption', targetObj);
 						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 1600 + (self.corruptionCastTime / 10); 
 						return 0; 
@@ -796,7 +800,7 @@ function script_warlock:run(targetGUID)
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 					end -- move to target
-					if (not targetObj:HasDebuff("Immolate")) then
+					if (targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Immolate")) then
 						CastSpellByName("Immolate", targetObj);
 						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 2650;
@@ -925,7 +929,6 @@ function script_warlock:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) and (targetHealth < 99) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end
@@ -945,25 +948,27 @@ function script_warlock:rest()
 
 	local localHealth = localObj:GetHealthPercentage();
 
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
+	end
+
 	-- looting
 	local lootRadius = 20;
 	local lootObj = script_nav:getLootTarget(lootRadius);
 	
-	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
-		if (script_grind:doLoot(localObj)) then
-			self.waitTimer = GetTimeEX() + 1500;
+	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) and (not self.looted) then
+		
+		if (not script_grind:doLoot(localObj)) then
+		self.looted = true;
 		end
 
 		if (script_grind.skinning) then
 			script_grind:lootAndSkin();
-			self.waitTimer = GetTimeEX() + 1500;
 		end
-
-		script_nav:resetNavigate();
-		script_nav:resetNavPos();
-		ClearTarget();
-		self.waitTimer = GetTimeEX() + 1000;
-		return;
 	end
 
 	-- use scrolls
@@ -1013,7 +1018,7 @@ function script_warlock:rest()
 	end
 
 	-- Eat and Drink
-	if (not IsDrinking() and localMana < self.drinkMana) and (not IsSwimming()) then
+	if (not IsDrinking() and localMana < self.drinkMana) and (not IsSwimming()) and (script_grind.lootObj == nil) then
 		self.message = "Need to drink...";
 		self.waitTimer = GetTimeEX() + 2000;
 		if (IsMoving()) then
@@ -1031,7 +1036,7 @@ function script_warlock:rest()
 			return true; 
 		end
 	end
-	if (not IsEating() and localHealth < self.eatHealth) and (not IsSwimming()) then
+	if (not IsEating() and localHealth < self.eatHealth) and (not IsSwimming()) and (script_grind.lootObj == nil) then
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to eat...";	
 		if (IsMoving()) then

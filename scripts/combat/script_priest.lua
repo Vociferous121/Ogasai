@@ -139,8 +139,8 @@ function script_priest:healAndBuff(targetObject, localMana)
 	end
 	
 	--Check Disease Debuffs -- cure disease
-	if (localMana > 20) and (HasSpell("Cure Disease")) then
-		script_priest:dispellDebuff();
+	if (localMana > 20) and (HasSpell("Cure Disease") or HasSpell("Dispel Magic")) then
+		script_priest:dispelDebuff();
 		return;
 	end
 
@@ -156,18 +156,32 @@ function script_priest:healAndBuff(targetObject, localMana)
 	return;
 end
 
-function script_priest:dispellDebuff(spellName, target)
+function script_priest:dispelDebuff(spellName, target)
 
 	local localPlayer = GetLocalPlayer();
 	
-	if (HasSpell("Cure Disease")) then
-		if (localPlayer:HasDebuff("Tetanus")) then
-			CastSpellByName("Cure Disease", localplayer)
-			self.waitTimer = GetTimeEX() + 1200;
-		return;
+	local cureRandom = random(1, 100);
+	if (cureRandom > 90) then
+		if (HasSpell("Cure Disease")) then
+			if (localPlayer:HasDebuff("Tetanus")) or (localPlayer:HasDebuff("Diseased Slime")) then
+				CastSpellByName("Cure Disease", localPlayer);
+				self.waitTimer = GetTimeEX() + 1200;
+			return;
+			end
 		end
 	end
-	
+
+	local dispelRandom = random(1,100);
+	if (dispelRandom > 90) then
+		if (HasSpell("Dispel Magic")) then
+			if (localPlayer:HasDebuff("Sleep")) then
+				CastSpellByNAme("Dispel Magic", localPlayer);
+				self.waitTimer = GetTimeEX() + 1200;
+			return;
+			end
+		end
+	end
+			
 end
 
 function script_priest:heal(spellName, target)
@@ -294,6 +308,14 @@ function script_priest:run(targetGUID)
 	local localHealth = localObj:GetHealthPercentage(); -- get player health percentage wow API
 
 	local localLevel = localObj:GetLevel(); -- get player level wow API
+
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
+	end
 	
 	-- if target is dead then don't attack
 	if (localObj:IsDead()) then
@@ -833,25 +855,27 @@ function script_priest:rest()
 
 	local localHealth = localObj:GetHealthPercentage();
 
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
+	end
+
 	-- looting
 	local lootRadius = 20;
 	local lootObj = script_nav:getLootTarget(lootRadius);
 	
-	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
-		if (script_grind:doLoot(localObj)) then
-			self.waitTimer = GetTimeEX() + 1500;
+	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) and (not self.looted) then
+		
+		if (not script_grind:doLoot(localObj)) then
+		self.looted = true;
 		end
 
 		if (script_grind.skinning) then
 			script_grind:lootAndSkin();
-			self.waitTimer = GetTimeEX() + 1500;
 		end
-
-		script_nav:resetNavigate();
-		script_nav:resetNavPos();
-		ClearTarget();
-		self.waitTimer = GetTimeEX() + 1000;
-		return;
 	end
 
 	-- use scrolls
@@ -860,7 +884,7 @@ function script_priest:rest()
 	end
 
 	-- Stop moving before we can rest
-	if (localHealth <= self.eatHealth) or (localMana <= self.drinkMana) then
+	if (localHealth <= self.eatHealth) or (localMana <= self.drinkMana) and (script_grind.lootObj == nil) then
 		if (IsMoving()) then
 			StopMoving();
 			return true;
@@ -883,7 +907,7 @@ function script_priest:rest()
 	--end 
 
 	-- Check: Drink
-	if (not IsDrinking()) and (localMana <= self.drinkMana) and (not IsInCombat()) then
+	if (not IsDrinking()) and (localMana <= self.drinkMana) and (not IsInCombat()) and (script_grind.lootObj == nil) then
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to drink...";
 		if (IsMoving()) then

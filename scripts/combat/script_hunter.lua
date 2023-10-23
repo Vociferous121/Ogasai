@@ -150,22 +150,17 @@ function script_hunter:run(targetGUID)
 	local localHealth = localObj:GetHealthPercentage();
 	local localLevel = localObj:GetLevel();
 	
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
+	end
+
 	if (localObj:IsDead()) then
 		return 0;
 	end
-
-	local lootRadius = 20;
-	local lootObj = script_nav:getLootTarget(lootRadius);
-
-	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
-		self.waitTimer = GetTimeEX() + 1800;
-		script_grind:doLoot(localObj);
-		script_grind:lootAndSkin();
-		script_nav:resetNavigate();
-		script_nav:resetNavPos();
-		return;
-	end
-
 
 	-- Assign the target 
 	targetObj = GetGUIDObject(targetGUID);
@@ -520,25 +515,27 @@ function script_hunter:rest()
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
 
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
+	end
+
 	-- looting
 	local lootRadius = 20;
 	local lootObj = script_nav:getLootTarget(lootRadius);
 	
-	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
-		if (script_grind:doLoot(localObj)) then
-			self.waitTimer = GetTimeEX() + 1500;
+	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) and (not self.looted) then
+		
+		if (not script_grind:doLoot(localObj)) then
+		self.looted = true;
 		end
 
 		if (script_grind.skinning) then
 			script_grind:lootAndSkin();
-			self.waitTimer = GetTimeEX() + 1500;
 		end
-
-		script_nav:resetNavigate();
-		script_nav:resetNavPos();
-		ClearTarget();
-		self.waitTimer = GetTimeEX() + 1000;
-		return;
 	end
 
 	-- use scrolls
@@ -566,7 +563,7 @@ function script_hunter:rest()
 	end
 
 	-- Eat and Drink
-	if (not IsDrinking() and localMana < self.drinkMana) then
+	if (not IsDrinking() and localMana < self.drinkMana) and (script_grind.lootObj == nil) then
 
 		self.message = "We need to drink...";
 		if (IsMoving()) then
@@ -588,7 +585,7 @@ function script_hunter:rest()
 		end
 	end
 
-	if (not IsEating() and localHealth < self.eatHealth) and (not targetObj:IsLootable()) then	
+	if (not IsEating() and localHealth < self.eatHealth) and (script_grind.lootObj == nil) then	
 		self.message = "We need to eat...";
 		if (IsMoving()) then
 			StopMoving();

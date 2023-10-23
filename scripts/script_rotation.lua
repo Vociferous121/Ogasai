@@ -2,7 +2,7 @@ script_rotation = {
 	useMount = false,
 	disMountRange = 25,
 	timer = GetTimeEX(),
-	tickRate = 200,
+	tickRate = 750,
 	combatError = 0,
 	message = 'Rotation',
 	enemyObj = 0,
@@ -25,6 +25,7 @@ script_rotation = {
 	meleeDistance = 4,
 	nextToNodeDist = 8, -- (Set to about half your nav smoothness)
 	aggroRangeTank = 50,
+	pause = true,
 
 }
 
@@ -408,7 +409,7 @@ function script_rotation:menu()
 	end
 
 		Text('Script tic rate (ms)');
-		self.tickRate = SliderInt("TR", 50, 500, self.tickRate);
+		self.tickRate = SliderInt("TR", 50, 1000, self.tickRate);
 
 	if (self.drawAggro) then
 		Text("Aggro Circle Range");

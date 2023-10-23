@@ -117,6 +117,14 @@ function script_druid:run(targetGUID)
 	local localMana = localObj:GetManaPercentage();
 	local localLevel = localObj:GetLevel();
 
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
+	end
+
 	if (localObj:IsDead()) then
 		return 0; 
 	end
@@ -569,26 +577,29 @@ function script_druid:rest()
 	local localHealth = localObj:GetHealthPercentage();
 	local localMana = localObj:GetManaPercentage();
 
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
+	end
+
 	-- looting
 	local lootRadius = 20;
 	local lootObj = script_nav:getLootTarget(lootRadius);
 	
-	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) then
-		if (script_grind:doLoot(localObj)) then
-			self.waitTimer = GetTimeEX() + 1500;
+	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) and (not self.looted) then
+		
+		if (not script_grind:doLoot(localObj)) then
+		self.looted = true;
 		end
 
 		if (script_grind.skinning) then
 			script_grind:lootAndSkin();
-			self.waitTimer = GetTimeEX() + 1500;
 		end
-
-		script_nav:resetNavigate();
-		script_nav:resetNavPos();
-		ClearTarget();
-		self.waitTimer = GetTimeEX() + 1000;
-		return;
 	end
+
 
 	-- use scrolls
 	if (script_helper:useScrolls()) then
@@ -654,7 +665,7 @@ function script_druid:rest()
 		end
 
 		-- Drink something
-		if (not IsDrinking() and localMana < self.drinkMana) then
+		if (not IsDrinking() and localMana < self.drinkMana) and (script_grind.lootObj == nil) then
 			self.message = "Need to drink...";
 			if (IsMoving()) then
 				StopMoving();
@@ -671,7 +682,7 @@ function script_druid:rest()
 		end
 
 		-- Eat something
-		if (not IsEating() and localHealth < self.eatHealth) then
+		if (not IsEating() and localHealth < self.eatHealth) and (script_grind.lootObj == nil) then
 			self.message = "Need to eat...";
 			if (IsInCombat()) then
 				return true;
