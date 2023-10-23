@@ -27,6 +27,7 @@ script_priest = {
 	useMindFlay = false,	-- use mind flay yes/no
 	swpMana = 20, -- Use shadow word: pain above this mana %
 	followTargetDistance = 100,
+	rangeDistance = 30,
 }
 
 function script_priest:healAndBuff(targetObject, localMana)
@@ -313,13 +314,6 @@ function script_priest:run(targetGUID)
 	if (localObj:IsDead()) then
 		return 0;
 	end
-
-	-- tick rate
-	if (not IsInCombat()) then
-		script_grind.tickRate = 100;
-	else
-		script_grind.tickRate = 200;
-	end
 	
 	-- Assign the target 
 	targetObj =  GetGUIDObject(targetGUID); -- get guid of target and save it
@@ -367,7 +361,7 @@ function script_priest:run(targetGUID)
 	end
 
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;
@@ -419,6 +413,12 @@ function script_priest:run(targetGUID)
 			end
 		end 
 		
+		-- for rotation mode stop moving
+		if (targetObj:GetDistance() > 25) then
+			if (IsMoving()) then
+				StopMoving();
+			end
+		end
 		-- START OF COMBAT PHASE
 
 		-- Opener - not in combat pulling target
@@ -572,13 +572,6 @@ function script_priest:run(targetGUID)
 
 		-- Combat
 		else	
-		
-			--set tick rate
-			if (IsInCombat()) then
-				script_grind.tickRate = 200;
-			else
-				script_grind.tickRate = 100;
-			end
 
 			self.message = "Killing.. " .. targetObj:GetUnitName() .. "...";
 

@@ -2,7 +2,7 @@ script_rotation = {
 	useMount = false,
 	disMountRange = 25,
 	timer = GetTimeEX(),
-	tickRate = 750,
+	tickRate = 350,
 	combatError = 0,
 	message = 'Rotation',
 	enemyObj = 0,
@@ -384,9 +384,6 @@ function script_rotation:menu()
 		script_shamanEX:menu();
 	end	
 
-	--Text('Dismount within range to target');
-	--self.disMountRange = SliderInt("DR", 1, 100, self.disMountRange);
-
 	Separator();
 
 	if (CollapsingHeader('Display options')) then
@@ -407,7 +404,6 @@ function script_rotation:menu()
 		Separator();
 
 	end
-
 		Text('Script tic rate (ms)');
 		self.tickRate = SliderInt("TR", 50, 1000, self.tickRate);
 

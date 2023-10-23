@@ -24,7 +24,8 @@ script_hunter = {
 	ammoName = 0,
 	isSetup = false,
 	dontRest = false,
-	isChecked = true
+	isChecked = true,
+	rangeDistance = 38,
 }	
 
 function script_hunter:setup()
@@ -187,7 +188,7 @@ function script_hunter:run(targetGUID)
 	end
 
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;

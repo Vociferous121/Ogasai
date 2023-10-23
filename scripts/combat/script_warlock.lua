@@ -48,6 +48,7 @@ script_warlock = {
 	followTargetDistance = 100,
 	targetCorruption = false,
 	targetImmolate = false,
+	rangeDistance = 35,
 }
 
 function script_warlock:cast(spellName, target)
@@ -312,7 +313,7 @@ function script_warlock:run(targetGUID)
 	end
 
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;
