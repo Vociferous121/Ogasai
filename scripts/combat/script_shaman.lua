@@ -151,14 +151,6 @@ function script_shaman:run(targetGUID)
 	local localHealth = localObj:GetHealthPercentage();
 	local localLevel = localObj:GetLevel();
 
-	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
-		end
-	end
-
 	if (localObj:IsDead()) then
 		return 0; 
 	end
@@ -181,6 +173,14 @@ function script_shaman:run(targetGUID)
 	-- Check: Do nothing if we are channeling or casting or wait timer
 	if (IsChanneling() or IsCasting() or (self.waitTimer > GetTimeEX())) then
 		return 4;
+	end
+
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
 	end
 	
 	--Valid Enemy
@@ -344,21 +344,6 @@ function script_shaman:rest()
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;
-		end
-	end
-
-	-- looting
-	local lootRadius = 20;
-	local lootObj = script_nav:getLootTarget(lootRadius);
-	
-	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) and (not self.looted) then
-		
-		if (not script_grind:doLoot(localObj)) then
-		self.looted = true;
-		end
-
-		if (script_grind.skinning) then
-			script_grind:lootAndSkin();
 		end
 	end
 

@@ -27,7 +27,7 @@ function script_rogueEX:menu()
 			script_rogue.potionHealth = SliderInt('PHP %', 2, 10, script_rogue.potionHealth);
 			Separator();
 			Text("Melee Range to target");
-			script_rogue.meeleDistance = SliderFloat('MR (yd)', 1, 6, script_rogue.meeleDistance);
+			script_rogue.meleeDistance = SliderFloat('MR (yd)', 1, 6, script_rogue.meleeDistance);
 			Separator();
 			wasClicked, script_rogue.stopIfMHBroken = Checkbox("Stop bot if main hand is broken", script_rogue.stopIfMHBroken);
 			SameLine();

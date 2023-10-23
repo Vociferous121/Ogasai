@@ -46,6 +46,8 @@ script_warlock = {
 	hasConsumeShadowsSpell = false,
 	hasSacrificeSpell = false,
 	followTargetDistance = 100,
+	targetCorruption = false,
+	targetImmolate = false,
 }
 
 function script_warlock:cast(spellName, target)
@@ -227,8 +229,6 @@ function script_warlock:setup()
 		self.useShadowBolt = true;
 	end
 
-	script_grind.tickRate = 200;
-
 	self.isSetup = true;
 end
 
@@ -259,14 +259,6 @@ function script_warlock:run(targetGUID)
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
 	local localLevel = localObj:GetLevel();
-
-	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
-		end
-	end
 
 	if (GetPet() ~= 0) then
 		self.hasPet = true;
@@ -319,9 +311,30 @@ function script_warlock:run(targetGUID)
 		return 4;
 	end
 
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
+	end
+
 	--Valid Enemy
 	if (targetObj ~= 0 and targetObj ~= nil) then
 		
+		if (targetObj:GetHealthPercentage() < 80) then
+			if (targetObj:HasDebuff("Corruption")) then
+				self.targetCorruption = true;
+			else 
+				self.targetCorruption = false;
+			end
+			if (targetObj:HasDebuff("Immolate")) then
+				self.targetImmolate = true;
+			else
+				self.targetImmolate = false;
+			end
+		end
+
 		-- Cant Attack dead targets
 		if (targetObj:IsDead() or not targetObj:CanAttack()) then
 			ClearTarget();
@@ -357,7 +370,7 @@ function script_warlock:run(targetGUID)
 					self.waitTimer = GetTimeEX() + 1650;
 					return;
 				end
-			elseif (HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Immolate")) then
+			elseif (not self.targetImmolate) and (HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Immolate")) then
 				if (IsMoving()) then
 					StopMoving();
 					targetObj:FaceTarget();
@@ -366,6 +379,7 @@ function script_warlock:run(targetGUID)
 	
 				targetObj:FaceTarget();
 				CastSpellByName("Immolate");
+				self.targetImmolate = true;
 				self.waitTimer = GetTimeEX() + 2650;
 			end
 
@@ -408,11 +422,11 @@ function script_warlock:run(targetGUID)
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 			
 			-- Opener check range of ALL SPELLS
-			if (HasSpell("Corruption")) then
-				if(not targetObj:IsSpellInRange("Corruption")) or (not targetObj:IsInLineOfSight()) then
+			if (HasSpell("Corruption")) and (not targetObj:HasDebuff("Corruption")) then
+				if (not targetObj:IsSpellInRange("Corruption")) or (not targetObj:IsInLineOfSight()) then
 				return 3;
 				end
-			elseif(not targetObj:IsSpellInRange("Shadowbolt")) or (not targetObj:IsInLineOfSight()) then
+			elseif (not targetObj:IsSpellInRange("Shadowbolt")) or (not targetObj:IsInLineOfSight()) then
 				return 3;
 			end
 
@@ -765,50 +779,6 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
-			-- Check: Keep the Curse of Agony up (24 s duration)
-			if (self.enableCurseOfAgony) then
-				if (not targetObj:HasDebuff("Curse of Agony") and targetHealth > 20) then
-					if (not targetObj:IsInLineOfSight()) then -- check line of sight
-						return 3; -- target not in line of sight
-					end -- move to target
-					if (Cast('Curse of Agony', targetObj)) then
-						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 1600;
-						return 0;
-					end
-				end
-			end
-	
-			-- Check: Keep the Corruption DoT up (15 s duration)
-			if (self.enableCorruption) then
-				if (not targetObj:HasDebuff("Corruption") and targetHealth >= 20) then
-					if (not targetObj:IsInLineOfSight()) then -- check line of sight
-						return 3; -- target not in line of sight
-					end -- move to target
-					if (targetObj:IsInLineOfSight()) then
-						Cast('Corruption', targetObj);
-						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 1600 + (self.corruptionCastTime / 10); 
-						return 0; 
-					end
-				end
-			end
-	
-			-- Check: Keep the Immolate DoT up (15 s duration)
-			if (self.enableImmolate) and (not targetObj:HasDebuff("Immolate")) and (not IsSpellOnCD("Immolate")) then
-				if (not targetObj:HasDebuff("Immolate")) and (localMana > 25) and (targetHealth > 20) then
-					if (not targetObj:IsInLineOfSight()) then -- check line of sight
-						return 3; -- target not in line of sight
-					end -- move to target
-					if (targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Immolate")) then
-						CastSpellByName("Immolate", targetObj);
-						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 2650;
-						return 0;
-					end
-				end
-			end
-
 			-- life tap in combat
 			if HasSpell("Life Tap") and not IsSpellOnCD("Life Tap") and localHealth > 35 and localMana < 15 then
 				if (CastSpellByName("Life Tap")) then
@@ -898,6 +868,51 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
+-- Check: Keep the Curse of Agony up (24 s duration)
+			if (self.enableCurseOfAgony) then
+				if (not targetObj:HasDebuff("Curse of Agony") and targetHealth > 20) then
+					if (not targetObj:IsInLineOfSight()) then -- check line of sight
+						return 3; -- target not in line of sight
+					end -- move to target
+					if (Cast('Curse of Agony', targetObj)) then
+						targetObj:FaceTarget();
+						self.waitTimer = GetTimeEX() + 1600;
+						return 0;
+					end
+				end
+			end
+	
+			-- Check: Keep the Corruption DoT up (15 s duration)
+			if (not self.targetCorruption) and (self.enableCorruption) and (not targetObj:HasDebuff("Corruption")) then
+				if (not targetObj:HasDebuff("Corruption") and targetHealth >= 20) then
+					if (not targetObj:IsInLineOfSight()) then -- check line of sight
+						return 3; -- target not in line of sight
+					end -- move to target
+					if (not self.targetCorruption) and (targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Corruption")) then
+						self.targetCorruption = true;
+						Cast('Corruption', targetObj);
+						targetObj:FaceTarget();
+						self.waitTimer = GetTimeEX() + 1600 + (self.corruptionCastTime / 10); 
+					end
+				end
+			end
+	
+			-- Check: Keep the Immolate DoT up (15 s duration)
+			if (not self.targetImmolate) and (self.enableImmolate) and (not targetObj:HasDebuff("Immolate")) and (not IsSpellOnCD("Immolate")) then
+				if (not targetObj:HasDebuff("Immolate")) and (localMana > 25) and (targetHealth > 20) then
+					if (not targetObj:IsInLineOfSight()) then -- check line of sight
+						return 3; -- target not in line of sight
+					end -- move to target
+					if (targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Immolate")) then
+						self.targetImmolate = true;
+						CastSpellByName("Immolate", targetObj);
+						targetObj:FaceTarget();
+						self.waitTimer = GetTimeEX() + 2650;
+						return 0;
+					end
+				end
+			end
+
 			if (self.useShadowBolt) then
 				-- Cast: Shadow Bolt
 				if (Cast('Shadow Bolt', targetObj)) then
@@ -953,21 +968,6 @@ function script_warlock:rest()
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;
-		end
-	end
-
-	-- looting
-	local lootRadius = 20;
-	local lootObj = script_nav:getLootTarget(lootRadius);
-	
-	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) and (not self.looted) then
-		
-		if (not script_grind:doLoot(localObj)) then
-		self.looted = true;
-		end
-
-		if (script_grind.skinning) then
-			script_grind:lootAndSkin();
 		end
 	end
 

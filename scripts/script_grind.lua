@@ -918,7 +918,6 @@ end
 
 function script_grind:runRest()
 	if(RunRestScript()) then
-		self.message = "Resting... -- Killing Too Fast!";
 		self.newTargetTime = GetTimeEX();
 		-- Stop moving
 		if (IsMoving() and not localObj:IsMovementDisabed()) then
@@ -930,9 +929,9 @@ function script_grind:runRest()
 			return true;
 		end
 		-- Add 2500 ms timer to the rest script rotations (timer could be set already) -- removed 2500 timer at end
-		--if ((self.waitTimer - GetTimeEX()) < 5000) then self.waitTimer = GetTimeEX() + 0; end;
-		--self.waitTimer = GetTimeEX() + 0;
-		return false;	-- was return true!! caused random pauses
+		if ((self.waitTimer - GetTimeEX()) < 5000) then self.waitTimer = GetTimeEX() + 0; end;
+		self.waitTimer = GetTimeEX() + 2000;
+		return true;	-- was return true!! caused random pauses
 	end
 
 	return false;

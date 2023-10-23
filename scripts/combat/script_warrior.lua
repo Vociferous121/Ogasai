@@ -188,14 +188,6 @@ function script_warrior:run(targetGUID)	-- main content of script
 	if (not self.isSetup) then	-- check setup stuff
 		script_warrior:setup();
 	end
-
-	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
-		end
-	end
 	
 	local localObj = GetLocalPlayer();
 	local localRage = localObj:GetRagePercentage();
@@ -224,6 +216,14 @@ function script_warrior:run(targetGUID)	-- main content of script
 	-- Check: Do nothing if we are channeling or casting or wait timer
 	if (IsChanneling()) or (IsCasting()) or (self.waitTimer >= GetTimeEX()) then
 		return 4;
+	end
+
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
 	end
 	
 	--Valid Enemy
@@ -808,29 +808,6 @@ function script_warrior:rest()
 
 	local localObj = GetLocalPlayer();
 	local localHealth = localObj:GetHealthPercentage();
-
-	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
-		end
-	end
-
-	-- looting
-	local lootRadius = 20;
-	local lootObj = script_nav:getLootTarget(lootRadius);
-	
-	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) and (not self.looted) then
-		
-		if (not script_grind:doLoot(localObj)) then
-		self.looted = true;
-		end
-
-		if (script_grind.skinning) then
-			script_grind:lootAndSkin();
-		end
-	end
 
 	-- use scrolls
 	if (script_helper:useScrolls()) then

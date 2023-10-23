@@ -160,14 +160,6 @@ function script_paladin:run(targetGUID)
 
 	local localLevel = localObj:GetLevel();
 
-	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
-		end
-	end
-
 	-- setup
 	if (not self.isSetup) then
 		script_paladin:setup();
@@ -206,6 +198,14 @@ function script_paladin:run(targetGUID)
 		if (localMana > 10) and (not localObj:HasBuff(self.blessing)) then
 			Buff(self.blessing, localObj);
 			return 0;
+		end
+	end
+
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
 		end
 	end
 	
@@ -698,30 +698,6 @@ function script_paladin:rest()
 	local localLevel = localObj:GetLevel();
 	local localHealth = localObj:GetHealthPercentage();
 	local localMana = localObj:GetManaPercentage();
-
-	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
-		end
-	end
-
-	-- looting
-	local lootRadius = 20;
-	local lootObj = script_nav:getLootTarget(lootRadius);
-	
-	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) and (not self.looted) then
-		
-		if (not script_grind:doLoot(localObj)) then
-		self.looted = true;
-		end
-
-		if (script_grind.skinning) then
-			script_grind:lootAndSkin();
-		end
-	end
-
 
 	-- use scrolls
 	if (script_helper:useScrolls()) then

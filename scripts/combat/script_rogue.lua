@@ -30,7 +30,6 @@ script_rogue = {
 	enableAdrenRush = true,
 	rotationTwo = false,
 	followTargetDistance = 100,
-	looted = false,
 }
 
 function script_rogue:setup()
@@ -191,14 +190,6 @@ function script_rogue:run(targetGUID)
 	local localHealth = localObj:GetHealthPercentage();
 	local localLevel = localObj:GetLevel();
 
-	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
-		end
-	end
-
 	if (localObj:IsDead()) then 
 		return 0; 
 	end
@@ -213,7 +204,7 @@ function script_rogue:run(targetGUID)
 
 	-- Assign the target 
 	targetObj =  GetGUIDObject(targetGUID);
-	
+
 	if(targetObj == 0 or targetObj == nil) then
 		return 2;
 	end
@@ -227,6 +218,14 @@ function script_rogue:run(targetGUID)
 	if (not IsInCombat() and self.usePoison) then
 		if (script_rogue:checkPoisons()) then
 			return 4;
+		end
+	end
+
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat() or targetObj:GetDistance() <= self.meleeDistance) then
+			script_grind.tickRate = 750;
 		end
 	end
 
@@ -890,46 +889,18 @@ function script_rogue:rest()
 	local localObj = GetLocalPlayer();
 	local localHealth = localObj:GetHealthPercentage();
 
-	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
-		end
-	end
-
-	-- looting
-	local lootRadius = 20;
-	local lootObj = script_nav:getLootTarget(lootRadius);
-	
-	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) and (not self.looted) then
-		
-		if (not script_grind:doLoot(localObj)) then
-		self.looted = true;
-		end
-
-		if (script_grind.skinning) then
-			script_grind:lootAndSkin();
-		end
-	end
-
-	-- use scrolls
-	if (script_helper:useScrolls()) then
-		self.waitTimer = GetTimeEX() + 1500;
-	end
-
 	-- Eat something
-	if (not IsEating() and localHealth < self.eatHealth) and (script_grind.lootObj == nil) then
+	if (not IsEating() and localHealth < self.eatHealth) then
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to eat...";
 		if (IsInCombat()) then
-			return true;
+			return false;
 		end
 			
 		if (IsMoving()) then StopMoving(); return true; end
 
 		if (script_helper:eat()) then 
-			self.message = "Eating...";
+			self.message = "Eating..."; 
 			return true; 
 		else 
 			self.message = "No food! (or food not included in script_helper)";
@@ -966,5 +937,6 @@ function script_rogue:rest()
 	end
 	
 	-- Don't need to eat
+	script_grind.tickRate = 100;
 	return false;
 end

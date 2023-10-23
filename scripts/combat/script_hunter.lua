@@ -149,14 +149,7 @@ function script_hunter:run(targetGUID)
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
 	local localLevel = localObj:GetLevel();
-	
-	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
-		end
-	end
+
 
 	if (localObj:IsDead()) then
 		return 0;
@@ -191,6 +184,14 @@ function script_hunter:run(targetGUID)
 	-- Check: Do nothing if we are channeling, casting or wait timer
 	if (IsChanneling() or IsCasting() or self.waitTimer > GetTimeEX()) then
 		return 4;
+	end
+
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
 	end
 
 	--Valid Enemy
@@ -523,21 +524,6 @@ function script_hunter:rest()
 		end
 	end
 
-	-- looting
-	local lootRadius = 20;
-	local lootObj = script_nav:getLootTarget(lootRadius);
-	
-	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) and (not self.looted) then
-		
-		if (not script_grind:doLoot(localObj)) then
-		self.looted = true;
-		end
-
-		if (script_grind.skinning) then
-			script_grind:lootAndSkin();
-		end
-	end
-
 	-- use scrolls
 	if (script_helper:useScrolls()) then
 		self.waitTimer = GetTimeEX() + 1500;
@@ -563,7 +549,7 @@ function script_hunter:rest()
 	end
 
 	-- Eat and Drink
-	if (not IsDrinking() and localMana < self.drinkMana) and (script_grind.lootObj == nil) then
+	if (not IsDrinking() and localMana < self.drinkMana) then
 
 		self.message = "We need to drink...";
 		if (IsMoving()) then
@@ -585,7 +571,7 @@ function script_hunter:rest()
 		end
 	end
 
-	if (not IsEating() and localHealth < self.eatHealth) and (script_grind.lootObj == nil) then	
+	if (not IsEating() and localHealth < self.eatHealth) then	
 		self.message = "We need to eat...";
 		if (IsMoving()) then
 			StopMoving();

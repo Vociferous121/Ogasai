@@ -308,14 +308,6 @@ function script_priest:run(targetGUID)
 	local localHealth = localObj:GetHealthPercentage(); -- get player health percentage wow API
 
 	local localLevel = localObj:GetLevel(); -- get player level wow API
-
-	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
-		end
-	end
 	
 	-- if target is dead then don't attack
 	if (localObj:IsDead()) then
@@ -371,6 +363,14 @@ function script_priest:run(targetGUID)
 		if (CastSpellByName("Shadowform")) then
 			self.waitTimer = GetTimeEX() + 2000;
 			return 0;
+		end
+	end
+
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
 		end
 	end
 	
@@ -860,21 +860,6 @@ function script_priest:rest()
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;
-		end
-	end
-
-	-- looting
-	local lootRadius = 20;
-	local lootObj = script_nav:getLootTarget(lootRadius);
-	
-	if (not AreBagsFull() and not script_grind.bagsFull and script_grind.lootObj ~= nil) and (not self.looted) then
-		
-		if (not script_grind:doLoot(localObj)) then
-		self.looted = true;
-		end
-
-		if (script_grind.skinning) then
-			script_grind:lootAndSkin();
 		end
 	end
 
