@@ -310,6 +310,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 						end
 					end
 				CastSpellByName("Defensive Stance");
+				script_nav:resetPath();
 				end
 			end
 
@@ -324,6 +325,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 					end
 					if (Cast("Charge", targetObj)) then 
 						targetObj:AutoAttack();
+						script_nav:resetPath();
 						if (IsMoving()) then
 							StopMoving();
 						end
