@@ -405,7 +405,7 @@ function script_rotation:menu()
 
 	end
 		Text('Script tic rate (ms)');
-		self.tickRate = SliderInt("TR", 50, 1000, self.tickRate);
+		self.tickRate = SliderInt("TR", 50, 2000, self.tickRate);
 
 	if (self.drawAggro) then
 		Text("Aggro Circle Range");

@@ -53,7 +53,7 @@ script_grind = {
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
 	paranoiaLoaded = include("scripts\\script_unstuck.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
-	nextToNodeDist = 2, -- (Set to about half your nav smoothness)
+	nextToNodeDist = 3.5, -- (Set to about half your nav smoothness)
 	blacklistedTargets = {},
 	blacklistedNum = 0,
 	isSetup = false,
@@ -807,7 +807,7 @@ function script_grind:doLoot(localObj)
 		self.message = "Looting...";
 		if(IsMoving() and not localObj:IsMovementDisabed()) then
 			StopMoving();
-			self.waitTimer = GetTimeEX() + 950;
+			--self.waitTimer = GetTimeEX() + 950;
 			return;
 		end
 		if(not IsStanding()) then
@@ -919,20 +919,7 @@ end
 function script_grind:runRest()
 	if(RunRestScript()) then
 		self.newTargetTime = GetTimeEX();
-		-- Stop moving
-		if (IsMoving() and not localObj:IsMovementDisabed()) then
-			StopMoving();
-			return true;
-		end
-		-- Dismount
-		if (IsMounted()) then DisMount();
-			return true;
-		end
-		-- Add 2500 ms timer to the rest script rotations (timer could be set already) -- removed 2500 timer at end
-		if ((self.waitTimer - GetTimeEX()) < 5000) then self.waitTimer = GetTimeEX() + 0; end;
-		self.waitTimer = GetTimeEX() + 2000;
-		return true;	-- was return true!! caused random pauses
-	end
+ 	end
 
 	return false;
 end

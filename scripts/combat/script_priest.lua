@@ -39,31 +39,19 @@ function script_priest:healAndBuff(targetObject, localMana)
 	-- get self player level
 	local localLevel = GetLocalPlayer():GetLevel();
 
-	-- use mind blast on CD
-			-- !! must be placed here to stop wand casting !!
-	if (HasSpell("Mind Blast")) and (not IsSpellOnCD("Mind Blast")) and (IsInCombat()) then
-		if (targetHealth >= 20) and (localMana >= self.mindBlastMana) then
-			CastSpellByName("Mind Blast", targetObj);
-			self.waitTimer = GetTimeEX() + 750;
-			return;
-		end
-	end
-
 	--Buff Inner Fire
 	if (not IsInCombat()) and (not localObj:HasBuff("Inner Fire")) and (HasSpell("Inner Fire")) and (localMana >= 8) then
-		if (Buff("Inner Fire", localObj)) then
-			self.waitTimer = GetTimeEX() + 1250;
-			return; -- keep trying until cast
-		end
+		Buff("Inner Fire", localObj);
+		self.waitTimer = GetTimeEX() + 1250;
+		return; -- keep trying until cast
 	end
 
 	-- Buff Fortitude
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 25) and (not IsInCombat()) and (not targetObject:HasBuff("Power Word: Fortitude")) then
-			if (Buff("Power Word: Fortitude", targetObject)) then 
-				self.waitTimer = GetTimeEX() + 1500;
-				return; -- if buffed return true
-			end
+			Buff("Power Word: Fortitude", targetObject);
+			self.waitTimer = GetTimeEX() + 1500;
+			return; -- if buffed return true
 		end
 	end
 	
@@ -361,7 +349,7 @@ function script_priest:run(targetGUID)
 	end
 
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
+		if (not IsInCombat()) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;
@@ -414,11 +402,11 @@ function script_priest:run(targetGUID)
 		end 
 		
 		-- for rotation mode stop moving
-		if (targetObj:GetDistance() > 25) then
-			if (IsMoving()) then
-				StopMoving();
-			end
-		end
+		--if (targetObj:GetDistance() <= 25) and (targetObj:IsInLineOfSight()) and (targetObj:GetHealthPercentage() > 1) then
+		--	if (IsMoving()) then
+		--		StopMoving();
+		--	end
+		--end
 		-- START OF COMBAT PHASE
 
 		-- Opener - not in combat pulling target
@@ -432,7 +420,7 @@ function script_priest:run(targetGUID)
 				return 3;
 			end
 
-			if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= 30) then
+			if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= 25) then
 				if (IsMoving()) then
 					StopMoving();
 				end
@@ -487,15 +475,6 @@ function script_priest:run(targetGUID)
 					return;
 				end
 			end
-
-			if (targetObj:IsInLineOfSight() and not IsMoving() and script_grind.lootObj == nil) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-					end
-				end
-			end
-
 
 			-- Devouring Plague to pull
 			if (HasSpell("Devouring Plague")) and (localMana >= 25) and (not IsSpellOnCD("Devouring Plague")) and (not IsMoving()) then
@@ -671,18 +650,16 @@ function script_priest:run(targetGUID)
 			end
 
 			-- Check: Keep Inner Fire up
-			if (not IsInCombat()) and (not localObj:HasBuff("Inner Fire")) and (HasSpell("Inner Fire")) and (localMana >= 8) then
-				if (Buff("Inner Fire", localObj)) then
-					self.waitTimer = GetTimeEX() + 1250;
-					return; -- keep trying until cast
-				end
+			if (not IsInCombat()) and (not localObj:HasBuff("Inner Fire")) and (HasSpell("Inner Fire")) and (localMana >= 25) then
+				Buff("Inner Fire", localObj);
+				self.waitTimer = GetTimeEX() + 1250;
+				return; -- keep trying until cast
 				-- check inner fire in combat
 			elseif (IsInCombat()) and (not localObj:HasBuff("Inner Fire")) and (HasSpell("Inner Fire")) and (localMana >= 8) then
 				if (localObj:HasBuff("Power Word: Shield")) then
-					if (Buff("Inner Fire", localObj)) then
-						self.waitTimer = GetTimeEX() + 750;
-						return; -- keep trying until cast
-					end
+					Buff("Inner Fire", localObj);
+					self.waitTimer = GetTimeEX() + 750;
+					return; -- keep trying until cast
 				end
 			end
 
@@ -837,6 +814,13 @@ end
 
 function script_priest:rest()
 
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
+	end
 	-- check setup
 	if (not self.isSetup) then
 		script_priest:setup();
@@ -848,21 +832,13 @@ function script_priest:rest()
 
 	local localHealth = localObj:GetHealthPercentage();
 
-	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
-		end
-	end
-
 	-- use scrolls
 	if (script_helper:useScrolls()) then
 		self.waitTimer = GetTimeEX() + 1500;
 	end
 
 	-- Stop moving before we can rest
-	if (localHealth <= self.eatHealth) or (localMana <= self.drinkMana) and (script_grind.lootObj == nil) then
+	if (localHealth <= self.eatHealth) or (localMana <= self.drinkMana) then
 		if (IsMoving()) then
 			StopMoving();
 			return true;
@@ -885,7 +861,7 @@ function script_priest:rest()
 	--end 
 
 	-- Check: Drink
-	if (not IsDrinking()) and (localMana <= self.drinkMana) and (not IsInCombat()) and (script_grind.lootObj == nil) then
+	if (not IsDrinking()) and (localMana <= self.drinkMana) and (not IsInCombat()) then
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to drink...";
 		if (IsMoving()) then
