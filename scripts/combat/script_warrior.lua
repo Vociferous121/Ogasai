@@ -235,14 +235,8 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 		end
 
-		-- wait before looting!
-		if (targetObj:IsDead() or script_grind.lootObj ~= nil) then
-			self.waitTimer = GetTimeEX() + 1532;
-			ClearTarget();
-		end
-
 		-- Auto Attack
-		if (targetObj:GetDistance() <= 40) then
+		if (targetObj:GetDistance() < 40) then
 			targetObj:AutoAttack();
 		end
 	
@@ -279,11 +273,9 @@ function script_warrior:run(targetGUID)	-- main content of script
 			self.targetObjGUID = targetObj:GetGUID();
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 
-			if (targetObj:IsInLineOfSight() and not IsMoving()) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-					end
+			if (targetObj:IsInLineOfSight()) and (not IsMoving()) and (targetObj:GetDistance() <= self.followTargetDistance) then
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
 				end
 			end
 			
@@ -340,13 +332,6 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end
 			end	
 
-			--if (targetObj:IsInLineOfSight() and not IsMoving()) then
-			--	if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-			--		if (not targetObj:FaceTarget()) then
-			--			targetObj:FaceTarget();
-			--		end
-			--	end
-			--end
 
 			-- Check move into melee range
 			if (targetObj:GetDistance() >= self.meleeDistance or not targetObj:IsInLineOfSight()) then
@@ -807,10 +792,6 @@ function script_warrior:run(targetGUID)	-- main content of script
 					end	
 				end
 				
-				if (targetHealth <= 0) then
-					self.waitTimer = GetTimeEX() + 0;
-				end
-
 			end
 			return 0; 
 		end

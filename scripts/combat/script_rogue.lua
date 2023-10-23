@@ -222,6 +222,7 @@ function script_rogue:run(targetGUID)
 	end
 
 	if (self.enableGrind) then
+
 		--Valid Enemy
 		if (targetObj ~= 0) then
 
