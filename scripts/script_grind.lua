@@ -247,6 +247,14 @@ function script_grind:run()
 		NavmeshSmooth(self.nextToNodeDist*4);
 	end
 	
+	if (localObj:IsDead()) then
+		script_nav:setNextToNodeDist(3);
+		NavmeshSmooth(12);
+	else
+		script_nav:setNextToNodeDist(self.nextToNodeDist);
+		NavmeshSmooth(self.nextToNodeDist*4);
+	end
+
 	if (not self.isSetup) then
 		script_grind:setup();
 	end
@@ -260,7 +268,7 @@ function script_grind:run()
 		return;
 	end
 
-	if (self.useUnstuck and IsMoving()) then
+	if (self.useUnstuck and IsMoving()) and (not self.pause) then
 		if (not script_unstuck:pathClearAuto(2)) then
 			script_unstuck:unstuck();
 			return true;

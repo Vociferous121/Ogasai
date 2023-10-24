@@ -222,7 +222,7 @@ function script_paladin:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		if (targetObj:IsInLineOfSight()) then
+		if (targetObj:IsInLineOfSight() and not IsMoving() and script_grind.lootObj == nil) then
 			if (targetObj:GetDistance() <= self.followTargetDistance) then
 				targetObj:FaceTarget();
 			end
@@ -265,7 +265,7 @@ function script_paladin:run(targetGUID)
 			 end
 
 			-- follow target
-			if (targetObj:IsInLineOfSight() and IsMoving()) then
+			if (targetObj:IsInLineOfSight() and not IsMoving() and script_grind.lootObj == nil) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();

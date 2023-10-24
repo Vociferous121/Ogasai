@@ -248,10 +248,8 @@ function script_rogue:run(targetGUID)
 				JumpOrAscendStart();
 			end
 		
-			if (targetObj:IsInLineOfSight()) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) then
-					targetObj:FaceTarget();
-				end
+			if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= self.followTargetDistance) and (not IsMoving()) then
+				targetObj:FaceTarget();
 			end
 
 			-- wait before looting!
@@ -937,6 +935,5 @@ function script_rogue:rest()
 	end
 	
 	-- Don't need to eat
-	script_grind.tickRate = 100;
 	return false;
 end

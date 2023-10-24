@@ -242,6 +242,10 @@ function script_warrior:run(targetGUID)	-- main content of script
 		if (targetObj:GetDistance() < 40) then
 			targetObj:AutoAttack();
 		end
+
+		if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= self.followTargetDistance) and (not IsMoving()) then
+				targetObj:FaceTarget();
+		end
 	
 		targetHealth = targetObj:GetHealthPercentage();
 
@@ -276,9 +280,6 @@ function script_warrior:run(targetGUID)	-- main content of script
 			self.targetObjGUID = targetObj:GetGUID();
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 
-			--if (targetObj:IsInLineOfSight()) and (not IsMoving()) and (targetObj:GetDistance() <= self.followTargetDistance) then
-			--	targetObj:FaceTarget();
-			--end
 
 			-- Check: Open with throw weapon
 			if (self.rangeOpener) then
@@ -804,6 +805,14 @@ end
 function script_warrior:rest()
 	if(not self.isSetup) then
 		script_warrior:setup();
+	end
+
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
 	end
 
 	local localObj = GetLocalPlayer();
