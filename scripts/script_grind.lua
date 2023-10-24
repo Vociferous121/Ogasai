@@ -913,7 +913,7 @@ function script_grind:lootAndSkin()
 		end
 	end
 	local isLoot = not IsInCombat() and not (self.lootObj == nil);
-	if (isLoot and not AreBagsFull() and not self.bagsFull) then
+	if (isLoot and not AreBagsFull() and not self.bagsFull) and (not IsEating() or not IsDrinking()) then
 		script_grind:doLoot(localObj);
 		return true;
 	elseif ((self.bagsFull or AreBagsFull()) and not hsWhenFull) then
@@ -935,8 +935,16 @@ end
 
 function script_grind:runRest()
 	if(RunRestScript()) then
+		self.message = "Resting...";
 		self.newTargetTime = GetTimeEX();
- 	end
+		-- Stop moving
+		if (IsMoving() and not localObj:IsMovementDisabed()) then StopMoving(); return true; end
+		-- Dismount
+		if (IsMounted()) then DisMount(); return true; end
+		-- Add 2500 ms timer to the rest script rotations (timer could be set already)
+		if ((self.waitTimer - GetTimeEX()) < 2500) then self.waitTimer = GetTimeEX()+2500 end;
+		return true;	
+	end
 
 	return false;
 end

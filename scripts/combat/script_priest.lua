@@ -370,7 +370,7 @@ function script_priest:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		if (targetObj:IsInLineOfSight() and not IsMoving() and script_grind.lootObj == nil) then
+		if (targetObj:IsInLineOfSight() and not IsMoving()) then
 			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 				if (not targetObj:FaceTarget()) then
 					targetObj:FaceTarget();
@@ -850,29 +850,17 @@ function script_priest:rest()
 		return;
 	end
 
-	--buff="Power Word: Fortitude(Rank " Sp={1,2,14,26,38,50};
-	--if (UnitLevel("target") ~= nil and UnitIsFriend("player","target")) then
-	--	for i=6, 1, -1 do 
-	--		if (UnitLevel("target") >= Sp) then
-	--			CastSpellByName(buff..i..")");
-	--			return;
-	--		end
-	--	end
-	--end 
-
 	-- Check: Drink
-	if (not IsDrinking()) and (localMana <= self.drinkMana) and (not IsInCombat()) then
-		self.waitTimer = GetTimeEX() + 2000;
+	if (not IsDrinking() and localMana < self.drinkMana) then
 		self.message = "Need to drink...";
 		if (IsMoving()) then
 			StopMoving();
-			self.waitTimer = GetTimeEX() + 2000;
 			return true;
 		end
 
 		if (script_helper:drinkWater()) then 
 			self.message = "Drinking..."; 
-			self.waitTimer = GetTimeEX() + 15000;
+			self.waitTimer = GetTimeEX() + 10000;
 			return true; 
 		else 
 			self.message = "No drinks! (or drink not included in script_helper)";
@@ -881,24 +869,23 @@ function script_priest:rest()
 	end
 
 	-- Check: Eat
-	if (not IsEating()) and (localHealth <= self.eatHealth) and (not IsInCombat()) then
-		self.waitTimer = GetTimeEX() + 2000;
+	if (not IsEating() and localHealth < self.eatHealth) then
 		self.message = "Need to eat...";	
 		if (IsMoving()) then
 			StopMoving();
-			self.waitTimer = GetTimeEX() + 2000;
 			return true;
 		end
 		
 		if (script_helper:eat()) then 
 			self.message = "Eating..."; 
-			self.waitTimer = GetTimeEX() + 15000;
-			return true; 	
+			self.waitTimer = GetTimeEX() + 10000;
+			return true; 
 		else 
 			self.message = "No food! (or food not included in script_helper)";
 			return true; 
 		end	
 	end
+	
 	-- night elve stealth while resting
 	if (IsDrinking() or IsEating()) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) then
 		if (CastSpellByName("Shadowmeld")) then
@@ -911,6 +898,7 @@ function script_priest:rest()
 		self.message = "Resting to full hp/mana...";
 		return true;
 	end
+
 	-- No rest / buff needed
 	return false;
 end
