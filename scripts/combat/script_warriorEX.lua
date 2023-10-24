@@ -39,7 +39,7 @@ function script_warriorEX:menu()
 		if (script_warrior.battleStance) then -- batle stance menu
 
 			wasClicked = true;
-			if (CollapsingHeader("Battle Stance Options")) then
+			if (CollapsingHeader("-- Battle Stance Options")) then
 
 				-- charge
 				if (HasSpell("Charge")) then

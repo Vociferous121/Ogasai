@@ -231,13 +231,14 @@ function script_grind:run()
 	end
 
 		localObj = GetLocalPlayer();
-
+	-- sprint
 	if (localObj:HasBuff("Sprint")) or (localObj:HasBuff("Aspect of the Cheetah")) then
 		script_nav:setNextToNodeDist(6); NavmeshSmooth(18);
 	else
 		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*4);
 	end
 
+	-- night elf whisp
 		local race = UnitRace('player');
 	if (race == 'Night Elf') and (localObj:IsDead()) then
 		script_nav:setNextToNodeDist(6);
@@ -247,6 +248,7 @@ function script_grind:run()
 		NavmeshSmooth(self.nextToNodeDist*4);
 	end
 	
+	-- player is dead
 	if (localObj:IsDead()) then
 		script_nav:setNextToNodeDist(3);
 		NavmeshSmooth(12);

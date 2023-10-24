@@ -2,11 +2,12 @@ script_rotation = {
 	useMount = false,
 	disMountRange = 25,
 	timer = GetTimeEX(),
-	tickRate = 350,
+	tickRate = 750,
 	combatError = 0,
 	message = 'Rotation',
 	enemyObj = 0,
 
+	useExpChecker = true,
 	aggroLoaded = include("scripts\\script_aggro.lua"),
 	gatherLoaded = include("scripts\\script_gather.lua"),
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
@@ -16,6 +17,7 @@ script_rotation = {
 	firstAid = include("scripts\\script_firstAid.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
 	menuLoaded = include("scripts\\script_rotationMenu.lua"),
+	expExtra = include("scripts\\script_expChecker.lua"),
 	drawEnabled = false,
 	drawAggro = false,
 	drawGather = false,
@@ -70,6 +72,11 @@ function script_rotation:run()
 	end
 	
 	localObj = GetLocalPlayer();
+
+
+	if (self.useExpChecker) then
+		script_expChecker:menu();
+	end
 
 	if (IsCasting() or IsChanneling()) then 
 		return; 
@@ -135,7 +142,7 @@ function script_rotation:run()
 				-- Attack the target
 				self.message = "Running the combat script on target...";
 				RunCombatScript(self.enemyObj:GetGUID());
-				return;
+			return;
 			end
 		else
 			-- Rest

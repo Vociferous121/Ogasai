@@ -15,7 +15,7 @@ script_warrior = {
 	enableGrind = true, -- enable/disable grind settings
 	enableCharge = false, -- enable/disable charge
 	defensiveStance = false, -- enable/disable defensive stance settings
-	battleStance = false, -- enable/disable battle stance settings
+	battleStance = true, -- enable/disable battle stance settings
 	berserkerStance = false, -- enable/disable berskerer stance settings
 	autoStance = false, -- auto stance changed -- not in use
 	sunderStacks = 2, -- how many stacks of sunder armor
@@ -813,7 +813,8 @@ function script_warrior:rest()
 	local localHealth = localObj:GetHealthPercentage();
 
 	-- use scrolls
-	if (script_helper:useScrolls()) then
+	if (script_helper.enableUseScrolls) then
+		script_helper:useScrolls();
 		self.waitTimer = GetTimeEX() + 1500;
 	end
 

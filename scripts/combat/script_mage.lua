@@ -129,7 +129,7 @@ function script_mage:polymorphAdd(targetObjGUID) -- cast the polymorph condition
     	if typeObj == 3 then
 			if (currentObj:CanAttack() and not currentObj:IsDead()) then
 				if (currentObj:GetGUID() ~= targetObjGUID and script_grind:isTargetingMe(currentObj)) then
-					if (not currentObj:HasDebuff("Polymorph") and currentObj:GetCreatureType() ~= 'Elemental' and not currentObj:IsCritter()) then
+					if (not currentObj:HasDebuff("Polymorph") and currentObj:GetCreatureType() ~= 'Elemental' and not currentObj:IsCritter()) and (currentObj:GetCreatureType() ~= "Undead") then
 						ClearTarget();
 						if (script_mage:cast('Polymorph', currentObj)) then 
 							self.addPolymorphed = true; 
@@ -332,7 +332,7 @@ function script_mage:run(targetGUID)
 	end
 
 	--Valid Enemy
-	if (targetObj ~= 0) and (targetObj ~= nil) then
+	if (targetObj ~= 0) and (targetObj ~= nil) and (not localObj:IsStunned()) and (not localObj:IsMovementDisabed()) then
 		
 		-- Cant Attack dead targets
 		if (targetObj:IsDead()) or (not targetObj:CanAttack()) then
@@ -350,7 +350,6 @@ function script_mage:run(targetGUID)
 			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 				if (not targetObj:FaceTarget()) then
 					targetObj:FaceTarget();
-					self.waitTimer = GetTimeEX() + 0;
 				end
 			end
 		end
@@ -396,6 +395,13 @@ function script_mage:run(targetGUID)
 			-- else if frost mage and not has frost bolt yet then cast fireball
 				-- many line of sight and other random checks to ensure the bot is doing what it needs to do
 
+			if (script_rotation.rotationEnabled) then
+				if (targetObj:GetDistance() <= 28) and (targetObj:IsInLineOfSight()) then
+					if (IsMoving()) then
+						StopMoving();
+					end
+				end
+			end
 
 			-- if frost mage and has frost bolt
 			if (self.frostMage) and (HasSpell("Frostbolt")) then
@@ -1136,32 +1142,27 @@ function script_mage:rest()
 		end
 	end
 
-	-- Eat and Drink
-	if (not IsDrinking() and localMana < self.drinkMana) and (not IsSwimming() and not IsInCombat()) then
+	-- drink something
+	if (not IsDrinking() and localMana <= self.drinkMana) and (not IsInCombat()) then
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to drink...";
-		-- Dismount
-		if(IsMounted()) then 
-			DisMount(); 
-			self.waitTimer = GetTimeEX() + 2000;
-			return true; 
-		end
-		if (IsMoving()) then
-			StopMoving();
-			self.waitTimer = GetTimeEX() + 2000;
+		if (IsInCombat()) then
 			return true;
 		end
-
-		self.waitTimer = GetTimeEX() + 2000;
+			
+		if (IsMoving()) then
+			StopMoving();
+			return true;
+		end
 
 		if (script_helper:drinkWater()) then 
 			self.message = "Drinking..."; 
 			self.waitTimer = GetTimeEX() + 10000;
-			return true; 
+			return true;
 		else 
 			self.message = "No drinks! (or drink not included in script_helper)";
 			return true; 
-		end
+		end		
 	end
 
 	if (not IsEating() and localHealth < self.eatHealth) and (not IsSwimming() and not IsInCombat()) then
