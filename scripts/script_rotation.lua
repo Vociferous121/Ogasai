@@ -6,7 +6,7 @@ script_rotation = {
 	combatError = 0,
 	message = 'Rotation',
 	enemyObj = 0,
-	pause = false,
+
 	aggroLoaded = include("scripts\\script_aggro.lua"),
 	gatherLoaded = include("scripts\\script_gather.lua"),
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
@@ -25,7 +25,7 @@ script_rotation = {
 	showClassOptions = true,
 	meleeDistance = 4,
 	aggroRangeTank = 50,
-	pause = true,
+
 	rotationEnabled = false,
 
 }
@@ -55,7 +55,7 @@ function script_rotation:run()
 		script_rotation:setup(); 
 	end
 
-	if (self.pause) then 
+	if (script_rotationMenu.pause) then 
 		self.message = "Paused by user..."; 
 		return; 
 	end
@@ -272,7 +272,7 @@ function script_rotation:draw()
 	end
 
 	-- info
-	if (not self.pause) then
+	if (not script_rotationMenu.pause) then
 		--DrawRect(x - 10, y - 5, x + width, y + 120, 255, 255, 0,  1, 1, 1);
 		--DrawRectFilled(x - 10, y - 5, x + width, y + 80, 0, 0, 0, 60, 0, 0);
 		--DrawText('Rotation', x-5, y-4, r, g, b) y = y + 15;

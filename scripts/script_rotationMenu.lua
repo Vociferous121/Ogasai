@@ -2,7 +2,7 @@ script_rotationMenu = {
 
 	drawUnits = true,
 	drawAggro = true,
-	pause = false,
+	pause = true,
 
 
 }
