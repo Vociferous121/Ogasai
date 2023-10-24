@@ -995,6 +995,14 @@ function script_mage:rest()
 		script_mage:setup();
 	end
 
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) then
+			script_grind.tickRate = 750;
+		end
+	end
+
 	local localObj = GetLocalPlayer();
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
