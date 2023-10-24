@@ -15,6 +15,7 @@ script_rotation = {
 	survivalprof = include("scripts\\script_survivalProf.lua"),
 	firstAid = include("scripts\\script_firstAid.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
+	menuLoaded = include("scripts\\script_rotationMenu.lua"),
 	drawEnabled = false,
 	drawAggro = false,
 	drawGather = false,
@@ -23,9 +24,9 @@ script_rotation = {
 	pullDistance = 150,
 	showClassOptions = true,
 	meleeDistance = 4,
-	nextToNodeDist = 8, -- (Set to about half your nav smoothness)
 	aggroRangeTank = 50,
 	pause = true,
+	rotationEnabled = false,
 
 }
 
@@ -33,6 +34,8 @@ function script_rotation:setup()
 	script_helper:setup();
 	script_gather:setup();
 	DEFAULT_CHAT_FRAME:AddMessage('script_rotation: loaded...');
+
+	self.rotationEnabled = true;
 
 	self.isSetup = true;
 end
@@ -42,7 +45,7 @@ function script_rotation:window()
 	EndWindow();
 
 	if(NewWindow("Rotation", 320, 300)) then 
-		script_rotation:menu(); 
+		script_rotationMenu:menu(); 
 	end
 end
 
@@ -51,8 +54,6 @@ function script_rotation:run()
 	if (not self.isSetup) then 
 		script_rotation:setup(); 
 	end
-
-	script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*2);
 
 	if (self.pause) then 
 		self.message = "Paused by user..."; 
@@ -141,13 +142,6 @@ function script_rotation:run()
 			if (script_rotation:runRest()) then
 				return;
 			end
-			
-			-- Mount if not moving
-			--if (not IsMoving() and localObj:GetLevel() >= 40) then
-			--	self.message = "Trying to mount up...";
-			--	script_grind:mountUp();
-			--	
-			--end
 
 			self.message = "Waiting for a target...";
 			return;
@@ -155,16 +149,6 @@ function script_rotation:run()
 	else
 	-- Auto ress?
 	end
-end
-
-function script_rotation:moveInLineOfSight(target)
-	if (not target:IsInLineOfSight() or target:GetDistance() > self.meleeDistance) then
-		local x, y, z = target:GetPosition();
-		script_nav:moveToTarget(GetTarget(), x , y, z);
-		self.timer = GetTimeEX() + 200;
-		return true;
-	end
-	return false;
 end
 
 function script_rotation:isTargetingMe(i) 
@@ -199,7 +183,6 @@ function script_rotation:enemyIsValid(i)
 	end
 	return false;
 end
-
 
 function script_rotation:getTargetAttackingUs() 
     local currentObj, typeObj = GetFirstObject(); 
@@ -253,23 +236,6 @@ function script_rotation:assignTarget()
 	-- Return the closest valid target or nil
 	return closestTarget;
 end
-
---function script_grind:mountUp()
---	local __, lastError = GetLastError();
---	if (lastError ~= 75) then
---		if(not IsSwimming() and not IsIndoors() and not IsMounted()) then
-			
---			if (script_:useMount()) then 
---				self.timer = GetTimeEX() + 4000; 
---				return true; 
---			end
---		end
---	else
---		ClearLastError();
---		self.timer = GetTimeEX() + 4000; 
---		return false;
---	end
---end
 
 function script_rotation:draw()
 
@@ -335,101 +301,4 @@ function script_rotation:runRest()
 	end
 
 	return false;
-end
-
-function script_rotation:menu()
-	if (not self.pause) then 
-		if (Button("Pause")) then 
-			self.pause = true; 
-		end
-	else 
-		if (Button("Resume")) then 
-			self.pause = false; 
-		end 
-	end
-
-	SameLine(); 
-
-	if (Button("Reload Scripts")) then 
-		coremenu:reload(); 
-	end
-
-	SameLine(); 
-	
-	if (Button("Turn Off")) then 
-		StopBot(); 
-	end
-
-	Separator();
-
-	-- Load combat menu by class
-	local class = UnitClass("player");
-	if (class == 'Mage') then
-		script_mageEX:menu();
-	elseif (class == 'Hunter') then
-		script_hunterEX:menu();
-	elseif (class == 'Warlock') then
-		script_warlockEX:menu();
-	elseif (class == 'Paladin') then
-		script_paladinEX:menu();
-	elseif (class == 'Druid') then
-		script_druidEX:menu();
-	elseif (class == 'Priest') then
-		script_priestEX:menu();
-	elseif (class == 'Warrior') then
-		script_warriorEX:menu();
-	elseif (class == 'Rogue') then
-		script_rogueEX:menu();
-	elseif (class == 'Shaman') then
-		script_shamanEX:menu();
-	end	
-
-	Separator();
-
-	if (CollapsingHeader('Display options')) then
-		if (CollapsingHeader("-- Radar - EXPERIMENTAL")) then
-			script_radar:menu();
-		end
-
-		local wasClicked = false;
-
-		wasClicked, self.drawEnabled = Checkbox('Show status window', self.drawEnabled);
-
-		wasClicked, self.drawGather = Checkbox('Show gather nodes', self.drawGather);
-
-		wasClicked, self.drawUnits = Checkbox("Show unit info on screen", self.drawUnits);
-
-		wasClicked, self.drawAggro = Checkbox('Show aggro range circles', self.drawAggro);
-		
-		Separator();
-
-	end
-		Text('Script tic rate (ms)');
-		self.tickRate = SliderInt("TR", 50, 2000, self.tickRate);
-
-	if (self.drawAggro) then
-		Text("Aggro Circle Range");
-		self.aggroRangeTank = SliderInt("AR", 30, 300, self.aggroRangeTank);
-	end
-	
-	if (HasItem("Unlit Poor Torch")) then
-			Separator();
-			wasClicked, script_survivalProf.useTorch = Checkbox("Use Torches to level Survival", script_survivalProf.useTorch);
-		if (script_survivalProf.useTorch) then
-			Text("Please open the trade skill window");
-			script_survivalProf:openMenu();
-		end
-	end	
-
-	if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) and (HasItem("Flint and Tinder")) then
-		wasClicked, script_survivalProf.useCampfire = Checkbox("Use Campfires", script_survivalProf.useCampfire);
-	end
-
-	if (HasSpell("First Aid")) then
-		Text("IN PROGRESS");
-		wasClicked, script_firstAid.showFirstAid = Checkbox("Show First Aid Skill", script_firstAid.showFirstAid);
-	end
-	if (script_firstAid.showFirstAid) then
-		script_firstAid:Menu();
-	end
 end

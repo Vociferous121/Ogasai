@@ -402,11 +402,15 @@ function script_priest:run(targetGUID)
 		end 
 		
 		-- for rotation mode stop moving
-		--if (targetObj:GetDistance() <= 25) and (targetObj:IsInLineOfSight()) and (targetObj:GetHealthPercentage() > 1) then
-		--	if (IsMoving()) then
-		--		StopMoving();
-		--	end
-		--end
+		if (script_rotation.rotationEnabled) then
+			if (targetObj:GetDistance() <= 25) and (targetObj:IsInLineOfSight()) and (targetObj:GetHealthPercentage() > 1) then
+				if (IsMoving()) then
+					StopMoving();
+				end
+			end
+
+		end
+
 		-- START OF COMBAT PHASE
 
 		-- Opener - not in combat pulling target

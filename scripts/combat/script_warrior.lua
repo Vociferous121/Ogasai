@@ -12,7 +12,6 @@ script_warrior = {
 	stopIfMHBroken = true, -- stop if main hand is broken
 	overpowerActionBarSlot = 72+6, -- Default: Overpower in slot 5 on the default Battle Stance Bar
 	revengeActionBarSlot = 82+8,  -- default at action bar 1 (82) slot 8 (82+8)
-	enableRotation = false, -- enable/disable rotation settings
 	enableGrind = true, -- enable/disable grind settings
 	enableCharge = false, -- enable/disable charge
 	defensiveStance = false, -- enable/disable defensive stance settings
@@ -64,6 +63,10 @@ function script_warrior:setup()
 
 	if (HasSpell("Rend")) then
 		self.enableRend = true;
+	end
+
+	if (script_rotation.rotationEnabled) then
+		self.meleeDistance = 8;
 	end
 end
 
@@ -227,7 +230,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 	end
 	
 	--Valid Enemy
-	if (targetObj ~= 0) then
+	if (targetObj ~= 0) and (not localObj:IsStunned()) and (not localObj:IsMovementDisabed()) then
 		
 		-- Cant Attack dead targets
 		if (targetObj:IsDead()) or (not targetObj:CanAttack()) then
@@ -243,7 +246,21 @@ function script_warrior:run(targetGUID)	-- main content of script
 			targetObj:AutoAttack();
 		end
 
+		if (script_rotation.rotationEnabled) then
+			if (self.enableCharge) and (not IsSpellOnCD("Charge")) and (targetObj:GetDistance() < 24) then
+				if (IsMoving()) then
+					StopMoving();
+				end
+			elseif (targetObj:GetDistance() < self.meleeDistance) then
+				if (IsMoving()) then
+					StopMoving();
+				end
+			end
+		end
+
 		if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= self.followTargetDistance) and (not IsMoving()) then
+				targetObj:FaceTarget();
+		elseif (IsMoving()) and (targetObj:GetDistance() < 10) then
 				targetObj:FaceTarget();
 		end
 	
@@ -824,7 +841,7 @@ function script_warrior:rest()
 	end
 
 	-- Eat something
-	if (not IsEating() and localHealth <= self.eatHealth) and (script_grind.lootObj == nil) then
+	if (not IsEating() and localHealth <= self.eatHealth) and (not IsInCombat()) then
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to eat...";
 		if (IsInCombat()) then
