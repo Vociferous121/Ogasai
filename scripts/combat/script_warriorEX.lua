@@ -59,7 +59,9 @@ function script_warriorEX:menu()
 			
 				-- battle stance sunder	
 				if (HasSpell("Sunder Armor")) then
-					wasClicked, script_warrior.enableSunder = Checkbox("Use Sunder x1", script_warrior.enableSunder);					end
+				Separator();
+					Text("How many Sunder Armor Stacks?");
+					script_warrior.sunderStacks = SliderInt("Sunder Stacks", 1, 5, script_warrior.sunderStacks);					end
 				
 				if (HasSpell("Overpower")) then
 					if (CollapsingHeader("-- Overpower Options")) then	-- overpower

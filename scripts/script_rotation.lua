@@ -272,7 +272,7 @@ function script_rotation:draw()
 	end
 
 	-- info
-	if (not script_rotationMenu.pause) then
+	if (not script_rotation.pause) then
 		--DrawRect(x - 10, y - 5, x + width, y + 120, 255, 255, 0,  1, 1, 1);
 		--DrawRectFilled(x - 10, y - 5, x + width, y + 80, 0, 0, 0, 60, 0, 0);
 		--DrawText('Rotation', x-5, y-4, r, g, b) y = y + 15;

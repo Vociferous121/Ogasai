@@ -63,23 +63,23 @@ function script_rotationMenu:menu()
 
 		local wasClicked = false;
 
-		wasClicked, self.drawEnabled = Checkbox('Show status window', self.drawEnabled);
+		wasClicked, script_rotation.drawEnabled = Checkbox('Show status window', script_rotation.drawEnabled);
 
-		wasClicked, self.drawGather = Checkbox('Show gather nodes', self.drawGather);
+		wasClicked, script_rotation.drawGather = Checkbox('Show gather nodes', script_rotation.drawGather);
 
-		wasClicked, self.drawUnits = Checkbox("Show unit info on screen", self.drawUnits);
+		wasClicked, script_rotation.drawUnits = Checkbox("Show unit info on screen", script_rotation.drawUnits);
 
-		wasClicked, self.drawAggro = Checkbox('Show aggro range circles', self.drawAggro);
+		wasClicked, script_rotation.drawAggro = Checkbox('Show aggro range circles', script_rotation.drawAggro);
 		
 		Separator();
 
 	end
 		Text('Script tic rate (ms)');
-		self.tickRate = SliderInt("TR", 50, 2000, self.tickRate);
+		script_rotation.tickRate = SliderInt("TR", 50, 2000, script_rotation.tickRate);
 
-	if (self.drawAggro) then
+	if (script_rotation.drawAggro) then
 		Text("Aggro Circle Range");
-		self.aggroRangeTank = SliderInt("AR", 30, 300, self.aggroRangeTank);
+		script_rotation.aggroRangeTank = SliderInt("AR", 30, 300, script_rotation.aggroRangeTank);
 	end
 	
 	if (HasItem("Unlit Poor Torch")) then

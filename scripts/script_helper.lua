@@ -9,6 +9,7 @@ script_helper = {
 	numHealthPotion = 0,
 	manaPotion = {},
 	numManaPotion = 0,
+	enableUseScrolls = true,
 	
 }
 

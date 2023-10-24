@@ -72,6 +72,17 @@ function script_grindMenu:menu()
 		script_shamanEX:menu();
 	end	
 	if (CollapsingHeader("Talents, Paranoia & Misc Options")) then
+
+		
+		wasClicked, script_helper.enableUseScrolls = Checkbox("Use Scrolls", script_helper.enableUseScrolls);
+
+		wasClicked, script_grind.autoTalent = Checkbox("Spend Talent Points  ", script_grind.autoTalent);
+		SameLine();
+		Text("Change Talents In script_talent.lua");
+		if (script_grind.autoTalent) then
+			Text("Spending Next Talent Point In: " .. (script_talent:getNextTalentName() or " "));
+		end
+		Separator();
 		wasClicked, script_grind.jump = Checkbox("Jump On/Off", script_grind.jump);
 
 	
@@ -83,18 +94,11 @@ function script_grindMenu:menu()
 
 		--wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount); Text('Dismount range');
 		--script_grind.disMountRange = SliderInt("DR (yd)", 1, 100, script_grind.disMountRange); Separator();
-		wasClicked, script_grind.autoTalent = Checkbox("Spend Talent Points  ", script_grind.autoTalent);
-		SameLine();
-		Text("Change Talents In script_talent.lua");
-		if (script_grind.autoTalent) then
-			Text("Spending Next Talent Point In: " .. (script_talent:getNextTalentName() or " "));
-			Separator();
-		end
-		
 		script_paranoia:menu();
 
 		wasClicked, script_grind.adjustTickRate = Checkbox("Adjust Script Speed !!CAUTION!!", script_grind.adjustTickRate);
-		Text("Script Tick Rate - How Fast The Scripts Run"); script_grind.tickRate = SliderInt("TR (ms)", 0, 2000, script_grind.tickRate);		
+		Text("Script Tick Rate - How Fast The Scripts Run"); script_grind.tickRate = SliderInt("TR (ms)", 0, 2000, script_grind.tickRate);	
+
 	end
 
 	if (CollapsingHeader("Vendor Options")) then

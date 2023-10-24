@@ -32,6 +32,7 @@ script_warrior = {
 	mockingBlowActionBarSlot = 72+4,
 	useMockingBlow = true,
 	followTargetDistance = 100,
+	usedCharge = false,
 
 	-- note. the checkbox in the menu controls battle, defensive, berserker stance. all spells have arguments for which
 	-- stance they apply to and can be used in. if the palyer does not click defensive stance in-game then the bot
@@ -52,10 +53,6 @@ function script_warrior:setup()
 	-- no more bugs first time we run the bot
 	self.waitTimer = GetTimeEX(); 
 	self.isSetup = true;
-	
-	if (GetLocalPlayer():GetLevel() < 10) then
-		self.battleStance = true;
-	end
 
 	if (HasSpell("Charge")) then
 		self.enableCharge = true;
@@ -247,11 +244,11 @@ function script_warrior:run(targetGUID)	-- main content of script
 		end
 
 		if (script_rotation.rotationEnabled) then
-			if (self.enableCharge) and (not IsSpellOnCD("Charge")) and (targetObj:GetDistance() < 24) then
+			if (self.enableCharge) and (not self.defensiveStance) and (not IsSpellOnCD("Charge")) and (targetObj:GetDistance() <= 24) then
 				if (IsMoving()) then
 					StopMoving();
 				end
-			elseif (targetObj:GetDistance() < self.meleeDistance) then
+			elseif (targetObj:GetDistance() < self.meleeDistance - 3) and (not targetObj:IsFleeing()) then
 				if (IsMoving()) then
 					StopMoving();
 				end
@@ -312,24 +309,6 @@ function script_warrior:run(targetGUID)	-- main content of script
 						self.waitTimer = GetTimeEX() + 4000;
 						return 0;
 					end
-				end
-			end
-
-			-- Charge in Defensive Stance
-			if (self.enableCharge and self.defensiveStance) then
-				if (HasSpell("Charge")) and (targetHealth >= 99 or (not script_grind:isTargetingMe(currentObj))) then
-					if (not IsSpellOnCD("Charge")) then
-						if (targetObj:GetDistance() >= 10 and targetObj:GetDistance() <= 28) and (not IsInCombat()) then
-							if (CastSpellByName("Battle Stance")) then
-								self.waitTimer = GetTimeEX() + 2000;
-							end
-							if (targetObj:GetDistance() >= 8) and (targetObj:GetDistance() <= 28) and (CastSpellByName("Charge")) then
-								self.waitTimer = GetTimeEX() + 2800;
-							end
-						end
-					end
-				CastSpellByName("Defensive Stance");
-				script_nav:resetPath();
 				end
 			end
 
@@ -689,15 +668,13 @@ function script_warrior:run(targetGUID)	-- main content of script
 					end
 				end
 
-				-- sunder armor in battle stance x1
-				if (self.battleStance) then
-					if (HasSpell("Sunder Armor")) and (localRage > 30) then
-						if (targetHealth > 30) and (targetObj:GetDistance() < self.meleeDistance) then
-							if (targetObj:GetDebuffStacks("Sunder Armor") < 1) then
-								if (Cast("Sunder Armor", targetObj)) then
-									self.waitTimer = GetTimeEX() + 1500;
-									return 0;
-								end
+				-- sunder armor in battle stance
+				if (self.battleStance) and (HasSpell("Sunder Armor")) and (localRage >= 15) then
+					if (targetHealth >= 30) and (targetObj:GetDistance() <= self.meleeDistance) then
+						if (targetObj:GetDebuffStacks("Sunder Armor") < self.sunderStacks) then
+							if (Cast("Sunder Armor", targetObj)) then
+								self.waitTimer = GetTimeEX() + 1500;
+								return 0;
 							end
 						end
 					end
@@ -743,7 +720,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 
 				-- Humanoid use to flee, keep Hamstring up on them
 				if (self.battleStance) or (self.berserkerStance) then
-					if (targetObj:GetCreatureType() == 'Humanoid' and localRage >= 10 and not targetObj:HasDebuff('Hamstring')) then 
+					if (targetObj:GetCreatureType() == 'Humanoid' and localRage >= 10 and not targetObj:HasDebuff('Hamstring')) and (targetHealth <= 40) then 
 						if (Cast('Hamstring', targetObj)) then
 							return 0; 
 						end 
