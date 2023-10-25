@@ -26,6 +26,7 @@ script_priest = {
 	shadowFormHealth = 50,	-- shadowform change health
 	useMindFlay = false,	-- use mind flay yes/no
 	swpMana = 20, -- Use shadow word: pain above this mana %
+	followTargetDistance = 100,
 	rangeDistance = 30,
 }
 
@@ -303,7 +304,7 @@ function script_priest:run(targetGUID)
 	end
 	
 	-- Assign the target 
-	targetObj = GetGUIDObject(targetGUID); -- get guid of target and save it
+	targetObj =  GetGUIDObject(targetGUID); -- get guid of target and save it
 
 	if (script_priest:healAndBuff(localObj, localMana)) then
 		return;
@@ -405,15 +406,11 @@ function script_priest:run(targetGUID)
 		end 
 		
 		-- for rotation mode stop moving
-		if (script_rotation.rotationEnabled) then
-			if (targetObj:GetDistance() <= 25) and (targetObj:IsInLineOfSight()) and (targetObj:GetHealthPercentage() > 1) then
-				if (IsMoving()) then
-					StopMoving();
-				end
-			end
-
-		end
-
+		--if (targetObj:GetDistance() <= 25) and (targetObj:IsInLineOfSight()) and (targetObj:GetHealthPercentage() > 1) then
+		--	if (IsMoving()) then
+		--		StopMoving();
+		--	end
+		--end
 		-- START OF COMBAT PHASE
 
 		-- Opener - not in combat pulling target
@@ -840,7 +837,7 @@ function script_priest:rest()
 	local localHealth = localObj:GetHealthPercentage();
 
 	-- use scrolls
-	if (script_helper:useScrolls()) then
+	if (script_helper:useScrolls() and IsStanding()) then
 		self.waitTimer = GetTimeEX() + 1500;
 	end
 
@@ -857,8 +854,18 @@ function script_priest:rest()
 		return;
 	end
 
+	--buff="Power Word: Fortitude(Rank " Sp={1,2,14,26,38,50};
+	--if (UnitLevel("target") ~= nil and UnitIsFriend("player","target")) then
+	--	for i=6, 1, -1 do 
+	--		if (UnitLevel("target") >= Sp) then
+	--			CastSpellByName(buff..i..")");
+	--			return;
+	--		end
+	--	end
+	--end 
+
 	-- Check: Drink
-	if (not IsDrinking() and localMana < self.drinkMana) then
+	if (not IsDrinking()) and (localMana <= self.drinkMana) and (not IsInCombat()) then
 		self.message = "Need to drink...";
 		if (IsMoving()) then
 			StopMoving();
@@ -867,7 +874,6 @@ function script_priest:rest()
 
 		if (script_helper:drinkWater()) then 
 			self.message = "Drinking..."; 
-			self.waitTimer = GetTimeEX() + 10000;
 			return true; 
 		else 
 			self.message = "No drinks! (or drink not included in script_helper)";
@@ -876,7 +882,7 @@ function script_priest:rest()
 	end
 
 	-- Check: Eat
-	if (not IsEating() and localHealth < self.eatHealth) then
+	if (not IsEating()) and (localHealth <= self.eatHealth) and (not IsInCombat()) then
 		self.message = "Need to eat...";	
 		if (IsMoving()) then
 			StopMoving();
@@ -885,14 +891,12 @@ function script_priest:rest()
 		
 		if (script_helper:eat()) then 
 			self.message = "Eating..."; 
-			self.waitTimer = GetTimeEX() + 10000;
-			return true; 
+			return true; 	
 		else 
 			self.message = "No food! (or food not included in script_helper)";
 			return true; 
 		end	
 	end
-	
 	-- night elve stealth while resting
 	if (IsDrinking() or IsEating()) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) then
 		if (CastSpellByName("Shadowmeld")) then
@@ -905,26 +909,9 @@ function script_priest:rest()
 		self.message = "Resting to full hp/mana...";
 		return true;
 	end
-
 	-- No rest / buff needed
 	return false;
 end
-
---function script_priest:mount()
---
---	if(not IsMounted() and not IsSwimming() and not IsIndoors() 
---		and not IsLooting() and not IsCasting() and not IsChanneling() 
---			and not IsDrinking() and not IsEating()) then
---		
---		if(IsMoving()) then
---			return true;
---		end
---		
---		return UseItem(self.mountName);
---	end
---	
---	return false;
---end
 
 function script_priest:window()
 
