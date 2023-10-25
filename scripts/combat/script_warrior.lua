@@ -67,7 +67,7 @@ function script_warrior:spellAttack(spellName, target) -- used in Core files to 
 		if (target:IsSpellInRange(spellName)) then
 			if (not IsSpellOnCD(spellName)) then
 				if (not IsAutoCasting(spellName)) then
-					if (self.faceTarget) then
+					if (self.enableFaceTarget) then
 						target:FaceTarget();
 					end
 				return target:CastSpell(spellName);
@@ -234,11 +234,11 @@ function script_warrior:run(targetGUID)	-- main content of script
 		end
 
 		-- Auto Attack
-		if (targetObj:GetDistance() < 40) then
+		if (targetObj:GetDistance() < 40) and (targetObj:IsInLineOfSight()) then
 			targetObj:AutoAttack();
 		end
 
-		if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= self.followTargetDistance) and (not IsMoving()) then
+		if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= self.followTargetDistance) and (not IsMoving()) and (self.enableFaceTarget) then
 				targetObj:FaceTarget();
 		elseif (IsMoving()) and (targetObj:GetDistance() < self.meleeDistance + 2) then
 				targetObj:FaceTarget();
@@ -340,7 +340,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 
 			-- if in line of sight then force facing target
-			if (targetObj:IsInLineOfSight()) and (not IsMoving()) and (self.faceTarget) and (targetHealth < 99) and (IsInCombat()) then
+			if (targetObj:IsInLineOfSight()) and (not IsMoving()) and (self.enableFaceTarget) and (targetHealth < 99) and (IsInCombat()) and (self.enableFaceTarget) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
@@ -360,7 +360,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 				return 3;
 			end
 
-			if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget and targetHealth <= 99) then
+			if (targetObj:IsInLineOfSight() and not IsMoving() and self.enableFaceTarget and targetHealth <= 99) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
@@ -626,7 +626,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end 
 			end
 
-			if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget and targetHealth < 99) then
+			if (targetObj:IsInLineOfSight() and not IsMoving() and self.enableFaceTarget and targetHealth < 99) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
@@ -741,7 +741,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 						if (localRage >= 35) and (targetObj:GetDebuffStacks("Sunder Armor") >= self.sunderStacks) then 
 							if (targetObj:GetDistance() <= 6) then
 								if (Cast('Heroic Strike', targetObj)) then
-									if (self.faceTarget) then
+									if (self.enableFaceTarget) then
 										targetObj:FaceTarget();
 									end
 								return 0;
@@ -756,7 +756,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 					if (localRage >= 50) then 
 						if (targetObj:GetDistance() <= 6) then
 							if (Cast('Heroic Strike', targetObj)) then
-								if (self.faceTarget) then
+								if (self.enableFaceTarget) then
 									targetObj:FaceTarget();
 									return 0;
 								end
@@ -815,7 +815,6 @@ function script_warrior:rest()
 
 		if (script_helper:eat()) then 
 			self.message = "Eating..."; 
-			self.waitTimer = GetTimeEX() + 10000;
 			return true;
 		else 
 			self.message = "No food! (or food not included in script_helper)";

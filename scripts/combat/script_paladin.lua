@@ -17,7 +17,7 @@ script_paladin = {
 	potionHealth = 12,
 	potionMana = 20,
 	consecrationMana = 50,
-	meleeDistance = 3.30,
+	meleeDistance = 3.00,
 	followTargetDistance = 100,
 	useSealOfCrusader = false,
 
@@ -228,6 +228,13 @@ function script_paladin:run(targetGUID)
 			end
 		end
 
+		-- paladin wants to move passed target and not stop. due to slow attack speed??  STOP MOVING!
+		if (targetObj:GetDistance() <= self.meleeDistance + 1) and (IsMoving()) and (not targetObj:IsFleeing()) and (targetObj:IsInLineOfSight()) then
+			if (IsMoving()) then
+				StopMoving();
+			end
+		end
+
 		-- wait before looting!
 		if (targetObj:IsDead() or script_grind.lootObj ~= nil) then
 			self.waitTimer = GetTimeEX() + 1532;
@@ -235,7 +242,7 @@ function script_paladin:run(targetGUID)
 		end
 
 		-- Auto Attack
-		if (targetObj:GetDistance() <= 40) then
+		if (targetObj:GetDistance() <= 40) and (targetObj:IsInLineOfSight()) then
 			targetObj:AutoAttack();
 		end
 	
@@ -267,9 +274,7 @@ function script_paladin:run(targetGUID)
 			-- follow target
 			if (targetObj:IsInLineOfSight() and not IsMoving() and script_grind.lootObj == nil) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-					end
+					targetObj:FaceTarget();
 				end
 			end
 
@@ -298,9 +303,7 @@ function script_paladin:run(targetGUID)
 
 			if (targetObj:IsInLineOfSight() and not IsMoving()) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-					end
 				end
 			end
 
@@ -316,13 +319,6 @@ function script_paladin:run(targetGUID)
 				targetObj:AutoAttack();
 				self.waitTimer = GetTimeEX() + 200;	
 			end
-
-			if (targetObj:GetDistance() <= self.meleeDistance) then
-				if (IsMoving()) then
-					StopMoving();
-				end
-			end
-
 				
 		-- Combat WE ARE NOW IN COMBAT
 		else	
@@ -351,18 +347,7 @@ function script_paladin:run(targetGUID)
 
 			if (targetObj:IsInLineOfSight() and not IsMoving()) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-					end
-				end
-			end
-
-			-- recheck facing target
-			if (targetObj:IsInLineOfSight() and not IsMoving()) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-					end
 				end
 			end
 			
@@ -555,9 +540,7 @@ function script_paladin:run(targetGUID)
 
 				if (targetObj:IsInLineOfSight() and not IsMoving()) then
 					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-						if (not targetObj:FaceTarget()) then
-							targetObj:FaceTarget();
-						end	
+						targetObj:FaceTarget();	
 					end
 				end
 
@@ -730,7 +713,7 @@ function script_paladin:rest()
 	end
 
 	-- Heal up: Holy Light
-	if (localMana > 25 and localHealth < self.eatHealth) and (IsStanding()) then
+	if (localMana >= 25 and localHealth <= self.eatHealth) and (IsStanding()) then
 		if (Buff("Holy Light", localObj)) then
 			script_grind:setWaitTimer(3500);
 			self.message = "Healing: Holy Light...";
@@ -739,7 +722,7 @@ function script_paladin:rest()
 	end
 
 	-- Heal up: Flash of Light
-	if (localMana > 10 and localHealth < self.flashOfLightHP and HasSpell("Flash of Light") and IsStanding()) then
+	if (localMana >= 10 and localHealth <= self.flashOfLightHP and HasSpell("Flash of Light") and IsStanding()) then
 		if (Buff("Flash of Light", localObj)) then
 			script_grind:setWaitTimer(1850);
 			self.message = "Healing: Flash of Light...";
@@ -748,7 +731,7 @@ function script_paladin:rest()
 	end
 
 	-- Drink something
-	if (not IsDrinking() and localMana < self.drinkMana) and (script_grind.lootObj == nil) then
+	if (not IsDrinking() and localMana < self.drinkMana) then
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to drink...";
 		if (IsMoving()) then
@@ -767,7 +750,7 @@ function script_paladin:rest()
 	end
 
 	-- Eat something
-	if (not IsEating() and localHealth < self.eatHealth) and (script_grind.lootObj == nil) then
+	if (not IsEating() and localHealth < self.eatHealth) then
 		self.message = "Need to eat...";
 		if (IsInCombat()) then
 			return true;

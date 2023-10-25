@@ -61,7 +61,7 @@ function script_warriorEX:menu()
 				if (HasSpell("Sunder Armor")) then
 				Separator();
 					Text("How many Sunder Armor Stacks?");
-					script_warrior.sunderStacks = SliderInt("Sunder Stacks", 1, 5, script_warrior.sunderStacks);					end
+					script_warrior.sunderStacks = SliderInt("Sunder Stacks", 0, 5, script_warrior.sunderStacks);					end
 				
 				if (HasSpell("Overpower")) then
 					if (CollapsingHeader("-- Overpower Options")) then	-- overpower

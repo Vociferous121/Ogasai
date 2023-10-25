@@ -250,6 +250,7 @@ function script_grind:run()
 	if (localObj:IsDead() or IsGhost()) then
 		script_nav:setNextToNodeDist(3);
 		NavmeshSmooth(12);
+		self.tickRate = 100;
 	else
 		script_nav:setNextToNodeDist(self.nextToNodeDist);
 		NavmeshSmooth(self.nextToNodeDist*4);
