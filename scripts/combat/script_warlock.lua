@@ -973,7 +973,7 @@ function script_warlock:rest()
 	end
 
 	-- use scrolls
-	if (script_helper:useScrolls()) then
+	if (script_helper:useScrolls() and IsStanding()) then
 		self.waitTimer = GetTimeEX() + 1500;
 	end
 

@@ -700,7 +700,7 @@ function script_paladin:rest()
 	local localMana = localObj:GetManaPercentage();
 
 	-- use scrolls
-	if (script_helper:useScrolls()) then
+	if (script_helper:useScrolls() and IsStanding()) then
 		self.waitTimer = GetTimeEX() + 1500;
 	end
 

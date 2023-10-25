@@ -285,6 +285,8 @@ end
 
 function script_mage:followTarget(targetGUID)
 
+	-- follow target
+
 	if (targetObj:IsInLineOfSight()) and (not IsMoving()) then
 		if (targetObj:GetDistance() <= self.followTargetDistance) then
 			if (not targetObj:FaceTarget()) then
@@ -954,7 +956,7 @@ function script_mage:rest()
 	local localHealth = localObj:GetHealthPercentage();
 
 	-- use scrolls
-	if (script_helper:useScrolls()) then
+	if (script_helper:useScrolls() and IsStanding()) then
 		self.waitTimer = GetTimeEX() + 1500;
 	end
 

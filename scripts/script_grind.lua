@@ -195,8 +195,6 @@ end
 --	end
 --end
 
-
-
 function script_grind:run()
 	script_grind:window();
 	

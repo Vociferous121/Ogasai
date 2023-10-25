@@ -17,7 +17,6 @@ script_warrior = {
 	defensiveStance = false, -- enable/disable defensive stance settings
 	battleStance = true, -- enable/disable battle stance settings
 	berserkerStance = false, -- enable/disable berskerer stance settings
-	autoStance = false, -- auto stance changed -- not in use
 	sunderStacks = 2, -- how many stacks of sunder armor
 	enableFaceTarget = true, -- enable/disable auto facing target
 	enableShieldBlock = true, -- enable/disable shield block
@@ -32,7 +31,6 @@ script_warrior = {
 	mockingBlowActionBarSlot = 72+4,
 	useMockingBlow = true,
 	followTargetDistance = 100,
-	usedCharge = false,
 
 	-- note. the checkbox in the menu controls battle, defensive, berserker stance. all spells have arguments for which
 	-- stance they apply to and can be used in. if the palyer does not click defensive stance in-game then the bot
@@ -51,6 +49,7 @@ end
 
 function script_warrior:setup()
 	-- no more bugs first time we run the bot
+
 	self.waitTimer = GetTimeEX(); 
 	self.isSetup = true;
 
@@ -60,10 +59,6 @@ function script_warrior:setup()
 
 	if (HasSpell("Rend")) then
 		self.enableRend = true;
-	end
-
-	if (script_rotation.rotationEnabled) then
-		self.meleeDistance = 8;
 	end
 end
 
@@ -243,21 +238,9 @@ function script_warrior:run(targetGUID)	-- main content of script
 			targetObj:AutoAttack();
 		end
 
-		if (script_rotation.rotationEnabled) then
-			if (self.enableCharge) and (not self.defensiveStance) and (not IsSpellOnCD("Charge")) and (targetObj:GetDistance() <= 24) then
-				if (IsMoving()) then
-					StopMoving();
-				end
-			elseif (targetObj:GetDistance() < self.meleeDistance - 3) and (not targetObj:IsFleeing()) then
-				if (IsMoving()) then
-					StopMoving();
-				end
-			end
-		end
-
 		if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= self.followTargetDistance) and (not IsMoving()) then
 				targetObj:FaceTarget();
-		elseif (IsMoving()) and (targetObj:GetDistance() < 10) then
+		elseif (IsMoving()) and (targetObj:GetDistance() < self.meleeDistance + 2) then
 				targetObj:FaceTarget();
 		end
 	
@@ -357,8 +340,8 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 
 			-- if in line of sight then force facing target
-			if (targetObj:IsInLineOfSight() and not IsMoving() and self.faceTarget and targetHealth < 99) and (IsInCombat()) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+			if (targetObj:IsInLineOfSight()) and (not IsMoving()) and (self.faceTarget) and (targetHealth < 99) and (IsInCombat()) then
+				if (targetObj:GetDistance() <= self.followTargetDistance) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
 					end
@@ -425,7 +408,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 
 			-- Sunder if possible as main threat source! this is most logical and easiest solution for the bot to handle
-			if (self.defensiveStance) then 
+			if (self.defensiveStance) or (self.battleStance) then 
 				if (HasSpell("Sunder Armor")) and (localRage >= self.sunderArmorRage) then
 					if (not targetObj:GetCreatureType() ~= 'Mechanical') and (not targetObj:GetCreatureType() ~= 'Elemental') then
 						if (targetObj:GetDebuffStacks("Sunder Armor") < self.sunderStacks) then
@@ -510,7 +493,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			
 			-- shield bash	first thing in combat!
 			-- TODO add if has shield
-			if (self.defensiveStance) then
+			if (self.defensiveStance) or (self.battleStance) then
 				if (HasSpell("Shield Bash")) and (not IsSpellOnCD("Shield Bash")) and (localRage >= 10)
 					and (targetObj:IsCasting()) and (targetHealth >= 20) then
 					CastSpellByName("Shield Bash");
@@ -813,8 +796,7 @@ function script_warrior:rest()
 	local localHealth = localObj:GetHealthPercentage();
 
 	-- use scrolls
-	if (script_helper.enableUseScrolls) then
-		script_helper:useScrolls();
+	if (script_helper:useScrolls() and IsStanding()) then
 		self.waitTimer = GetTimeEX() + 1500;
 	end
 
@@ -840,6 +822,7 @@ function script_warrior:rest()
 			return true; 
 		end		
 	end
+
 	-- night elve stealth while resting
 	if (IsDrinking() or IsEating()) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) then
 		if (CastSpellByName("Shadowmeld")) then

@@ -2,11 +2,10 @@ script_rotation = {
 	useMount = false,
 	disMountRange = 25,
 	timer = GetTimeEX(),
-	tickRate = 750,
+	tickRate = 500,
 	combatError = 0,
 	message = 'Rotation',
 	enemyObj = 0,
-
 	useExpChecker = true,
 	aggroLoaded = include("scripts\\script_aggro.lua"),
 	gatherLoaded = include("scripts\\script_gather.lua"),
@@ -27,17 +26,12 @@ script_rotation = {
 	showClassOptions = true,
 	meleeDistance = 4,
 	aggroRangeTank = 50,
-
-	rotationEnabled = false,
-
 }
 
 function script_rotation:setup()
 	script_helper:setup();
 	script_gather:setup();
 	DEFAULT_CHAT_FRAME:AddMessage('script_rotation: loaded...');
-
-	self.rotationEnabled = true;
 
 	self.isSetup = true;
 end

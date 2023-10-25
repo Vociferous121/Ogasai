@@ -887,6 +887,10 @@ function script_rogue:rest()
 	local localObj = GetLocalPlayer();
 	local localHealth = localObj:GetHealthPercentage();
 
+	if (script_helper:useScrolls() and IsStanding()) then
+		self.waitTimer = GetTimeEX() + 1500;
+	end
+
 	-- Eat something
 	if (not IsEating() and localHealth < self.eatHealth) then
 		self.waitTimer = GetTimeEX() + 2000;
