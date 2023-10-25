@@ -283,6 +283,26 @@ end
 			4 - do nothing , 
 			5 - targeted player pet/totem  ]]--
 
+function script_mage:followTarget(targetGUID)
+
+	if (targetObj:IsInLineOfSight()) and (not IsMoving()) then
+		if (targetObj:GetDistance() <= self.followTargetDistance) then
+			if (not targetObj:FaceTarget()) then
+				targetObj:FaceTarget();
+			end
+		end
+	end
+
+end
+
+function script_mage:checkLineOfSight(targetGUID)
+
+	if (not targetObj:IsInLineOfSight()) then
+		return 3;
+	end
+
+end
+
 function script_mage:run(targetGUID)
 	
 	-- when you click the start button all of this code runs at the script tick rate
@@ -307,10 +327,6 @@ function script_mage:run(targetGUID)
 	
 	-- Assign the target 
 	targetObj =  GetGUIDObject(targetGUID);
-
-	if (script_priest:healAndBuff(localObj, localMana)) then
-		return;
-	end
 
 	-- clear dead targets
 	if (targetObj == 0) or (targetObj == nil) or (targetObj:IsDead()) then
@@ -345,14 +361,7 @@ function script_mage:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		-- new follow target / facetarget
-		if (targetObj:IsInLineOfSight()) and (not IsMoving()) then
-			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-				if (not targetObj:FaceTarget()) then
-					targetObj:FaceTarget();
-				end
-			end
-		end
+		script_mage:followTarget(targetGUID);
 
 		-- Don't attack if we should rest first
 		if (GetNumPartyMembers() < 1) then
@@ -433,19 +442,10 @@ function script_mage:run(targetGUID)
 				if (HasSpell("Frostbolt")) then
 
 					-- check line of sight using frostbolt
-					if (not targetObj:IsInLineOfSight()) then
-						return 3;
-					end
+
+					script_mage:checkLineOfSight(targetGUID);
 				
-					-- new follow target
-					if (targetObj:IsInLineOfSight()) and (not IsMoving()) and (targetObj:GetHealthPercentage() < 99) then
-						if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-							if (not targetObj:FaceTarget()) then
-								targetObj:FaceTarget();
-								self.waitTimer = GetTimeEX() + 0;
-							end
-						end
-					end
+					script_mage:followTarget(targetGUID);
 
 					-- cast the spell - frostbolt
 					if (localMana > 8) and (not IsMoving()) and (targetObj:IsInLineOfSight()) then
@@ -458,9 +458,7 @@ function script_mage:run(targetGUID)
 				end
 
 				-- recheck line of sight on target
-				if (not targetObj:IsInLineOfSight()) then
-					return 3;
-				end
+				script_mage:checkLineOfSight(targetGUID);
 				
 				-- fire mage selected use these spells instead
 			elseif (self.fireMage) then
@@ -487,23 +485,13 @@ function script_mage:run(targetGUID)
 					self.waitTimer = GetTimeEX() + 1000;
 				end
 
-				-- new follow target / face target
-				if (targetObj:IsInLineOfSight()) and (not IsMoving()) and (targetObj:GetHealthPercentage() < 99) then
-					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-						if (not targetObj:FaceTarget()) then
-							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 0;
-						end
-					end
-				end
+				script_mage:followTarget(targetGUID);
 			
 				-- cast fireball to pull we do not have pyroblast yet
 				if (HasSpell("Fireball")) and (not HasSpell("Pyroblast")) then
 
 					-- recheck line of sight
-					if (not targetObj:IsInLineOfSight()) then
-						return 3;
-					end
+					script_mage:checkLineOfSight(targetGUID);
 		
 					-- cast the spell - fireball
 					if (localMana > 8) and (not IsMoving()) and (targetObj:IsInLineOfSight()) then
@@ -526,9 +514,7 @@ function script_mage:run(targetGUID)
 				elseif (HasSpell("Pyroblast")) and (not IsSpellOnCD("Pyroblast")) then
 				
 					-- recheck line of sight
-					if (not targetObj:IsInLineOfSight()) then
-						return 3;
-					end
+					script_mage:checkLineOfSight(targetGUID);
 		
 					-- cast the spell - pyroblast
 					if (localMana > 8) and (not IsMoving()) and (IsStanding()) and (targetObj:IsInLineOfSight()) and (not script_grind:isTargetingMe(targetObj)) then
@@ -558,9 +544,7 @@ function script_mage:run(targetGUID)
 					---------------------------------------
 
 				-- recheck line of sight
-				if (not targetObj:IsInLineOfSight()) then
-					return 3;
-				end
+				script_mage:checkLineOfSight(targetGUID);
 
 				-- frost mage slected use frost mage spells
 			elseif (self.frostMage) and (not HasSpell("Frostbolt")) then				
@@ -571,24 +555,14 @@ function script_mage:run(targetGUID)
 				end
 
 				-- check line of sight
-				if (not targetObj:IsInLineOfSight()) then
-					return 3;
-				end	
+				script_mage:checkLineOfSight(targetGUID);	
 
 				-- stand if sitting
 				if (not IsStanding()) then
 					JumpOrAscendStart();
 				end
 
-				-- new follow target / face target
-				if (targetObj:IsInLineOfSight()) and (not IsMoving()) and (targetObj:GetHealthPercentage() < 99) then
-					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-						if (not targetObj:FaceTarget()) then
-							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 0;
-						end
-					end
-				end
+				script_mage:followTarget(targetGUID);
 				
 				-- cast fireball
 				if (localMana > 15) and (not IsMoving()) and (targetObj:IsInLineOfSight()) then
@@ -599,9 +573,7 @@ function script_mage:run(targetGUID)
 				end
 
 				-- recheck line of sight
-				if (not targetObj:IsInLineOfSight()) then
-					return 3;
-				end
+				script_mage:checkLineOfSight(targetGUID);
 			end
 			
 		-- Combat
@@ -616,15 +588,7 @@ function script_mage:run(targetGUID)
 				DisMount();
 			end
 
-			-- new follow target / face target
-			if (targetObj:IsInLineOfSight()) and (not IsMoving()) and (targetHealth < 99) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 0;
-					end
-				end
-			end
+			script_mage:followTarget(targetGUID);
 
 			-- blink on movement stop debuffs
 			if (self.useBlink) then
@@ -826,9 +790,9 @@ function script_mage:run(targetGUID)
 			-- Fire blast
 			if (self.useFireBlast) and (targetObj:GetDistance() < 20) and (HasSpell("Fire Blast")) and (not IsSpellOnCD("Fire Blast")) then
 				if (localMana > 8) and (targetHealth >= self.useWandHealth) and (not IsSpellOnCD("Fire Blast")) then
-					if (not targetObj:IsInLineOfSight()) then
-						return 3;
-					end	
+
+					script_mage:checkLineOfSight(targetGUID);
+
 					if (CastSpellByName("Fire Blast", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1800;
 						return;
@@ -888,10 +852,7 @@ function script_mage:run(targetGUID)
 			if (HasSpell("Frostbolt")) and (self.frostMage) and (not IsChanneling()) then
 				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth - 5) then
 				
-					-- face target if in line of sight
-					if (targetObj:IsInLineOfSight()) then
-						targetObj:FaceTarget();
-					end
+					script_mage:followTarget(targetGUID);
 			
 					-- check range
 					if(not targetObj:IsSpellInRange("Frostbolt")) then
@@ -900,14 +861,9 @@ function script_mage:run(targetGUID)
 					end
 				
 					-- check line of sight
-					if (not targetObj:IsInLineOfSight()) then
-						return 3;
-					end	
+					script_mage:checkLineOfSight(targetGUID);
 
-					-- face target if in line of sight
-					if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
-						targetObj:FaceTarget();
-					end
+					script_mage:followTarget(targetGUID);
 				
 					-- cast frostbolt
 					if (CastSpellByName("Frostbolt", targetObj)) then
@@ -915,9 +871,7 @@ function script_mage:run(targetGUID)
 					end
 			
 					-- recheck line of sight
-					if (not targetObj:IsInLineOfSight()) then
-						return 3;
-					end
+					script_mage:checkLineOfSight(targetGUID);
 				end	
 
 				-- fire mage spells
@@ -932,14 +886,9 @@ function script_mage:run(targetGUID)
 					end
 
 					-- check line of sight
-					if (not targetObj:IsInLineOfSight()) then
-						return 3;
-					end	
+					script_mage:checkLineOfSight(targetGUID);
 
-					-- face target
-					if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
-						targetObj:FaceTarget();
-					end
+					script_mage:followTarget(targetGUID);
 
 					-- cast pyroblast
 					if (targetObj:GetDistance() > 30) and (targetObj:GetManaPercentage() > 1) and (targetHealth > 50) then
@@ -958,9 +907,7 @@ function script_mage:run(targetGUID)
 					end
 
 					-- recheck line of sight
-					if (not targetObj:IsInLineOfSight()) then
-						return 3;
-					end
+					script_mage:checkLineOfSight(targetGUID);
 				end	
 			
 				-- this is here to check for low level "frost Mage" not having frostbolt yet
@@ -972,24 +919,17 @@ function script_mage:run(targetGUID)
 				end
 
 				-- check line of sight
-				if (not targetObj:IsInLineOfSight()) then
-					return 3;
-				end	
+				script_mage:checkLineOfSight(targetGUID);
 
-				-- face target
-				if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
-					targetObj:FaceTarget();
-				end
-				
+				script_mage:followTarget(targetGUID);
+
 				-- cast fireball
 				if (CastSpellByName("Fireball", targetObj)) then
 					return 0;
 				end
 
 				-- recheck line of sight
-				if (not targetObj:IsInLineOfSight()) then
-					return 3;
-				end
+				script_mage:checkLineOfSight(targetGUID);
 			end	
 		end
 	end

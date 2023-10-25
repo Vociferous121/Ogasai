@@ -26,7 +26,6 @@ script_priest = {
 	shadowFormHealth = 50,	-- shadowform change health
 	useMindFlay = false,	-- use mind flay yes/no
 	swpMana = 20, -- Use shadow word: pain above this mana %
-	followTargetDistance = 100,
 	rangeDistance = 30,
 }
 
@@ -304,7 +303,11 @@ function script_priest:run(targetGUID)
 	end
 	
 	-- Assign the target 
-	targetObj =  GetGUIDObject(targetGUID); -- get guid of target and save it
+	targetObj = GetGUIDObject(targetGUID); -- get guid of target and save it
+
+	if (script_priest:healAndBuff(localObj, localMana)) then
+		return;
+	end
 
 	-- clear target
 	if(targetObj == 0) or (targetObj == nil) or (targetObj:IsDead()) then
