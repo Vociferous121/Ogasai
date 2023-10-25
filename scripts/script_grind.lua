@@ -249,7 +249,7 @@ function script_grind:run()
 	end
 	
 	-- player is dead
-	if (localObj:IsDead()) then
+	if (localObj:IsDead() or IsGhost()) then
 		script_nav:setNextToNodeDist(3);
 		NavmeshSmooth(12);
 	else
