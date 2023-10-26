@@ -274,6 +274,8 @@ function script_gather:gather()
 		local dist = self.nodeObj:GetDistance();		
 			
 		if(dist < self.lootDistance) then
+
+			script_grind.tickRate = 1000;
 			if(IsMoving()) then
 				StopMoving();
 				self.timer = GetTimeEX() + 1550;
@@ -284,10 +286,11 @@ function script_gather:gather()
 				self.timer = GetTimeEX() + 1750;
 			end
 			if (not LootTarget()) then
-				self.timer = GetTimeEX() + 650;
+				self.timer = GetTimeEX() + 1650;
 				return;
 			end
 		else
+			script_grind.tickRate = 100;
 			if (_x ~= 0) and (not IsDrinking() and not IsEating()) then
 				script_nav:moveToNav(GetLocalPlayer(), _x, _y, _z);
 				self.timer = GetTimeEX() + 150;
