@@ -751,7 +751,6 @@ function script_paladin:rest()
 		end
 
 		if (script_helper:drinkWater()) then 
-			self.waitTimer = GetTimeEX() + 10000;
 			self.message = "Drinking..."; 
 			return true; 
 		else 
@@ -774,7 +773,6 @@ function script_paladin:rest()
 
 		if (script_helper:eat()) then 
 			self.message = "Eating..."; 
-			self.waitTimer = GetTimeEX() + 10000;
 			return true; 
 		else 
 			self.message = "No food! (or food not included in script_helper)";

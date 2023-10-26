@@ -292,7 +292,6 @@ function script_grind:run()
 		
 	if (not IsInCombat()) then
 		if (script_paranoia:checkParanoia()) then
-			ClearTarget();
 			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 2000;
 			return;
 		end
@@ -700,9 +699,10 @@ function script_grind:playersWithinRange(range)
 		if (typeObj == 4 and not currentObj:IsDead()) then
 			if (currentObj:GetDistance() < range) then 
 				local localObj = GetLocalPlayer();
-				playerName = currentObj:GetUnitName();
 				if (localObj:GetGUID() ~= currentObj:GetGUID()) then
+					playerName = currentObj:GetUnitName();
 					if (self.useString) then
+							ClearTarget();
 						if (currentObj:GetDistance() < self.paranoidRange) then
 							local playerTime = GetTimeStamp();
 							local string ="" ..playerTime.. " - Player Name ("..playerName.. ") added to log file for further implementation of paranoia."
