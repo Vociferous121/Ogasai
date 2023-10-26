@@ -353,7 +353,7 @@ function script_priest:run(targetGUID)
 	end
 
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) or (targetObj:IsDead()) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;
@@ -819,12 +819,13 @@ end
 function script_priest:rest()
 
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) or (targetObj:IsDead()) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;
 		end
 	end
+
 	-- check setup
 	if (not self.isSetup) then
 		script_priest:setup();
