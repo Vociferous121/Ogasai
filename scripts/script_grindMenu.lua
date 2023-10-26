@@ -73,8 +73,6 @@ function script_grindMenu:menu()
 	end	
 	if (CollapsingHeader("Talents, Paranoia & Misc Options")) then
 
-		
-		wasClicked, script_helper.enableUseScrolls = Checkbox("Use Scrolls", script_helper.enableUseScrolls);
 
 		wasClicked, script_grind.autoTalent = Checkbox("Spend Talent Points  ", script_grind.autoTalent);
 		SameLine();

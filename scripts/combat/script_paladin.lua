@@ -229,7 +229,7 @@ function script_paladin:run(targetGUID)
 		end
 
 		-- paladin wants to move passed target and not stop. due to slow attack speed??  STOP MOVING!
-		if (targetObj:GetDistance() <= self.meleeDistance + 1) and (IsMoving()) and (not targetObj:IsFleeing()) and (targetObj:IsInLineOfSight()) then
+		if (targetObj:GetDistance() <= self.meleeDistance - 1) and (IsMoving()) and (not targetObj:IsFleeing()) and (targetObj:IsInLineOfSight()) then
 			if (IsMoving()) then
 				StopMoving();
 			end
@@ -322,6 +322,14 @@ function script_paladin:run(targetGUID)
 				
 		-- Combat WE ARE NOW IN COMBAT
 		else	
+
+		-- paladin wants to move passed target and not stop. due to slow attack speed??  STOP MOVING!
+		if (targetObj:GetDistance() <= self.meleeDistance - 1) and (IsMoving()) and (not targetObj:IsFleeing()) and (targetObj:IsInLineOfSight()) then
+			if (IsMoving()) then
+				StopMoving();
+				targetObj:FaceTarget();
+			end
+		end
 
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
@@ -688,11 +696,6 @@ function script_paladin:rest()
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;
 		end
-	end
-
-	-- use scrolls
-	if (script_helper:useScrolls() and IsStanding()) then
-		self.waitTimer = GetTimeEX() + 1500;
 	end
 
 	-- heal before eating

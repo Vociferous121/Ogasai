@@ -837,11 +837,6 @@ function script_priest:rest()
 
 	local localHealth = localObj:GetHealthPercentage();
 
-	-- use scrolls
-	if (script_helper:useScrolls() and IsStanding()) then
-		self.waitTimer = GetTimeEX() + 1500;
-	end
-
 	-- Stop moving before we can rest
 	if (localHealth <= self.eatHealth) or (localMana <= self.drinkMana) then
 		if (IsMoving()) then

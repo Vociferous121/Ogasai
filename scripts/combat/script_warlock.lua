@@ -972,11 +972,6 @@ function script_warlock:rest()
 		end
 	end
 
-	-- use scrolls
-	if (script_helper:useScrolls() and IsStanding()) then
-		self.waitTimer = GetTimeEX() + 1500;
-	end
-
 	-- check pet
 	if(GetPet() ~= 0) then 
 		self.hasPet = true; 

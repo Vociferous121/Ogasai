@@ -795,11 +795,6 @@ function script_warrior:rest()
 	local localObj = GetLocalPlayer();
 	local localHealth = localObj:GetHealthPercentage();
 
-	-- use scrolls
-	if (script_helper:useScrolls() and IsStanding()) then
-		self.waitTimer = GetTimeEX() + 1500;
-	end
-
 	-- Eat something
 	if (not IsEating() and localHealth <= self.eatHealth) and (not IsInCombat()) then
 		self.waitTimer = GetTimeEX() + 2000;

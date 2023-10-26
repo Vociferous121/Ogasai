@@ -221,6 +221,14 @@ function script_rogue:run(targetGUID)
 		end
 	end
 
+	-- stop moving when reached target if target is not fleeing and target is in line of sight
+	if (targetObj:GetDistance() <= self.meleeDistance) and (IsMoving()) and (not targetObj:IsFleeing()) and (targetObj:IsInLineOfSight()) then
+			if (IsMoving()) then
+				StopMoving();
+			end
+		end
+
+	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) or (targetObj:IsDead()) then
 			script_grind.tickRate = 100;
@@ -893,10 +901,6 @@ function script_rogue:rest()
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;
 		end
-	end
-
-	if (script_helper:useScrolls() and IsStanding()) then
-		self.waitTimer = GetTimeEX() + 1500;
 	end
 
 	-- Eat something

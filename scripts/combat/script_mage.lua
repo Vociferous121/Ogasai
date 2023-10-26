@@ -955,11 +955,6 @@ function script_mage:rest()
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
 
-	-- use scrolls
-	if (script_helper:useScrolls() and IsStanding()) then
-		self.waitTimer = GetTimeEX() + 1500;
-	end
-
 	--Create Water
 	local waterIndex = -1;
 	for i=0,self.numWater do
@@ -1130,20 +1125,13 @@ function script_mage:rest()
 		end	
 	end
 	
-	if (localMana < self.drinkMana or localHealth < self.eatHealth) and (not IsSwimming() and not IsInCombat()) and (script_grind.lootObj == nil) then
+	if (localMana < self.drinkMana or localHealth < self.eatHealth) and (not IsSwimming() and not IsInCombat()) then
 		self.waitTimer = GetTimeEX() + 2000;
 		if (IsMoving()) then
 			self.waitTimer = GetTimeEX() + 2000;
 			StopMoving();
 		end
 		return true;
-	end
-
-	-- night elve stealth while resting
-	if (IsDrinking() or IsEating()) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) then
-		if (CastSpellByName("Shadowmeld")) then
-			return true;
-		end
 	end
 	
 	-- continue to rest if eating or drinking

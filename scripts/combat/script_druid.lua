@@ -585,11 +585,6 @@ function script_druid:rest()
 		end
 	end
 
-	-- use scrolls
-	if (script_helper:useScrolls() and IsStanding()) then
-		self.waitTimer = GetTimeEX() + 1500;
-	end
-
 	-- Stay shapeshifted if we have hp!
 	if (localObj:HasBuff('Cat Form') or localObj:HasBuff('Bear Form')) then
 		if (localHealth > 90) then
@@ -649,7 +644,7 @@ function script_druid:rest()
 		end
 
 		-- Drink something
-		if (not IsDrinking() and localMana < self.drinkMana) and (script_grind.lootObj == nil) then
+		if (not IsDrinking() and localMana < self.drinkMana) then
 			self.message = "Need to drink...";
 			if (IsMoving()) then
 				StopMoving();
@@ -666,7 +661,7 @@ function script_druid:rest()
 		end
 
 		-- Eat something
-		if (not IsEating() and localHealth < self.eatHealth) and (script_grind.lootObj == nil) then
+		if (not IsEating() and localHealth < self.eatHealth) then
 			self.message = "Need to eat...";
 			if (IsInCombat()) then
 				return true;
