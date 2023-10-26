@@ -11,8 +11,8 @@ script_priest = {
 	lesserHealHP = 55,	-- lesser heal health
 	healHP = 40,	-- heal(spell) health
 	greaterHealHP = 23, -- greater heal health
-	potionMana = 10,	-- use potion at mana %
-	potionHealth = 10,	-- use potion at health %
+	potionMana = 8,	-- use potion at mana %
+	potionHealth = 6,	-- use potion at health %
 	waitTimer = 0,	-- set timer	
 	useWand = true,	-- use wand yes/no
 	useWandMana = 100,	-- use wand at mana %
@@ -142,16 +142,18 @@ function script_priest:healAndBuff(targetObject, localMana)
 			return;
 		end
 	end
+	self.waitTimer = GetTimeEX() + 1500;
 	return;
 end
 
 function script_priest:dispelDebuff(spellName, target)
 
 	local localPlayer = GetLocalPlayer();
+	local localMana = GetLocalPlayer():GetManaPercentage();
 	
 	local cureRandom = random(10, 100);
 	if (cureRandom > 90) then
-		if (HasSpell("Cure Disease")) then
+		if (HasSpell("Cure Disease")) and (localMana > 15) then
 			if (localPlayer:HasDebuff("Tetanus")) or (localPlayer:HasDebuff("Diseased Slime")) then
 				Buff("Cure Disease", localPlayer);
 				self.waitTimer = GetTimeEX() + 2000;
@@ -162,7 +164,7 @@ function script_priest:dispelDebuff(spellName, target)
 
 	local dispelRandom = random(10,100);
 	if (dispelRandom > 90) then
-		if (HasSpell("Dispel Magic")) then
+		if (HasSpell("Dispel Magic")) and (localMana > 15) then
 			if (localPlayer:HasDebuff("Sleep")) or (localPlayer:HasDebuff("Sap Might")) then
 				Buff("Dispel Magic", localPlayer);
 				self.waitTimer = GetTimeEX() + 2000;

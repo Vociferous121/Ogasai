@@ -42,7 +42,7 @@ script_mage = {
 	isChecked = true,	-- set up
 	useDampenMagic = false,	-- use dampen magic yes/no
 	fireMage = false,	-- is fire spec yes/no
-	frostMage = false,	-- is frost spec yes/no
+	frostMage = true,	-- is frost spec yes/no
 	scorchStacks = 2,	-- scorch debuff stacks on target
 	useScorch = true,	-- use  yes/no
 	followTargetDistance = 100,	-- new follow/face target distance here to debug melee
@@ -653,7 +653,7 @@ function script_mage:run(targetGUID)
 			
 			-- Check: Move backwards if the target is affected by Frost Nova or Frost Bite
 			if (GetNumPartyMembers() < 1) or (self.useFrostNova) then
-				if (targetHealth > 20) and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (not localObj:HasBuff('Evocation')) and 
+				if (targetHealth > 15) and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (not localObj:HasBuff('Evocation')) and 
 					(targetObj ~= 0 and IsInCombat()) and (self.useFrostNova) and (not localObj:HasDebuff("Web")) and (not localObj:HasDebuff("Encasing Webs")) then
 					if (script_mage:runBackwards(targetObj, 7)) then -- Moves if the target is closer than 7 yards
 						self.message = "Moving away from target...";
@@ -1094,7 +1094,6 @@ function script_mage:rest()
 
 		if (script_helper:drinkWater()) then 
 			self.message = "Drinking..."; 
-			self.waitTimer = GetTimeEX() + 10000;
 			return true;
 		else 
 			self.message = "No drinks! (or drink not included in script_helper)";
@@ -1116,7 +1115,6 @@ function script_mage:rest()
 		self.waitTimer = GetTimeEX() + 2000;
 		
 		if (script_helper:eat()) then 
-			self.waitTimer = GetTimeEX() + 10000;
 			self.message = "Eating..."; 
 			return true; 
 		else 
