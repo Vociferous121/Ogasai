@@ -149,23 +149,23 @@ function script_priest:dispelDebuff(spellName, target)
 
 	local localPlayer = GetLocalPlayer();
 	
-	local cureRandom = random(50, 100);
-	if (cureRandom > 95) then
+	local cureRandom = random(10, 100);
+	if (cureRandom > 90) then
 		if (HasSpell("Cure Disease")) then
 			if (localPlayer:HasDebuff("Tetanus")) or (localPlayer:HasDebuff("Diseased Slime")) then
-				CastSpellByName("Cure Disease", localPlayer);
-				self.waitTimer = GetTimeEX() + 1200;
+				Buff("Cure Disease", localPlayer);
+				self.waitTimer = GetTimeEX() + 2000;
 			return;
 			end
 		end
 	end
 
-	local dispelRandom = random(50,100);
-	if (dispelRandom > 95) then
+	local dispelRandom = random(10,100);
+	if (dispelRandom > 90) then
 		if (HasSpell("Dispel Magic")) then
 			if (localPlayer:HasDebuff("Sleep")) or (localPlayer:HasDebuff("Sap Might")) then
-				CastSpellByName("Dispel Magic", localPlayer);
-				self.waitTimer = GetTimeEX() + 1200;
+				Buff("Dispel Magic", localPlayer);
+				self.waitTimer = GetTimeEX() + 2000;
 			return;
 			end
 		end
