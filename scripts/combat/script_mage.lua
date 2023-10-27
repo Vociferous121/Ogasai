@@ -971,7 +971,7 @@ function script_mage:rest()
 			return true;
 		end
 		if (not IsStanding()) then
-				StopMoving();
+			StopMoving();
 			return true;
 		end
 		if(IsMounted()) then 
@@ -994,7 +994,8 @@ function script_mage:rest()
 			break;
 		end
 	end
-	if (foodIndex == -1 and HasSpell('Conjure Food') and not IsEating() and not IsDrinking() and not IsStanding()) then 
+
+	if (foodIndex == -1 and HasSpell('Conjure Food') and not IsEating() and not IsDrinking() and IsStanding()) then 
 		self.message = "Conjuring food...";
 		if (IsMoving()) then
 			StopMoving();
@@ -1010,7 +1011,7 @@ function script_mage:rest()
 		end
 		if (localMana > 10 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
 			if (HasSpell('Conjure Food')) then
-				CastSpellByName('Conjure Food')
+				CastSpellByName('Conjure Food');
 				self.waitTimer = GetTimeEX() + 1700;
 				return true;
 			end
@@ -1051,19 +1052,19 @@ function script_mage:rest()
 
 		if (localMana > 30 and not IsDrinking() and not IsEating() and not AreBagsFull() and not IsInCombat()) then
 			if (HasSpell('Conjure Mana Ruby')) then
-				CastSpellByName('Conjure Mana Ruby')
+				CastSpellByName('Conjure Mana Ruby');
 				self.waitTimer = GetTimeEX() + 1800;
 				return true;
 			elseif (HasSpell('Conjure Mana Citrine')) then
-				CastSpellByName('Conjure Mana Citrine')
+				CastSpellByName('Conjure Mana Citrine');
 				self.waitTimer = GetTimeEX() + 1800;
 				return true;
 			elseif (HasSpell('Conjure Mana Jade')) then
-				CastSpellByName('Conjure Mana Jade')
+				CastSpellByName('Conjure Mana Jade');
 				self.waitTimer = GetTimeEX() + 1800;
 				return true;
 			elseif (HasSpell('Conjure Mana Agate')) then
-				CastSpellByName('Conjure Mana Agate')
+				CastSpellByName('Conjure Mana Agate');
 				self.waitTimer = GetTimeEX() + 1800;
 				return true;
 			end
@@ -1101,7 +1102,7 @@ function script_mage:rest()
 		end		
 	end
 
-	if (not IsEating() and localHealth < self.eatHealth) and (not IsSwimming() and not IsInCombat()) then
+	if (not IsEating() and localHealth <= self.eatHealth) and (not IsSwimming() and not IsInCombat()) then
 		self.waitTimer = GetTimeEX() + 2000;
 		-- Dismount
 		if(IsMounted()) then DisMount(); end
