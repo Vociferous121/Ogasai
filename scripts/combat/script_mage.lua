@@ -839,20 +839,23 @@ function script_mage:run(targetGUID)
 			end
 
 			-- Wand if low mana or target is low
-			if (self.useWand) and (localMana <= self.useWandMana or targetHealth <= self.useWandHealth) and (not IsChanneling()) and (not localObj:IsStunned()) then
-				self.message = "Using wand...";
-				if (not IsAutoCasting("Shoot")) then
-					targetObj:FaceTarget();
-					targetObj:CastSpell("Shoot");
-					self.waitTimer = GetTimeEX() + 250; 
-					return true;
+			if (self.useWand) then
+				if (localMana <= self.useWandMana or targetHealth <= self.useWandHealth) then
+					if (not IsChanneling()) and (not localObj:IsStunned()) then
+						self.message = "Using wand...";
+						if (not IsAutoCasting("Shoot")) then
+							targetObj:FaceTarget();
+							targetObj:CastSpell("Shoot");
+							self.waitTimer = GetTimeEX() + 250; 
+							return true;
+						end
+					end
 				end
 			end
-			
 			-- Main damage source if all above conditions cannot be run
 			-- frost mage spells
 			if (HasSpell("Frostbolt")) and (self.frostMage) and (not IsChanneling()) then
-				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth - 5) then
+				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth - 5) or (not self.useWand) then
 				
 					script_mage:followTarget(targetGUID);
 			
@@ -874,7 +877,31 @@ function script_mage:run(targetGUID)
 			
 					-- recheck line of sight
 					script_mage:checkLineOfSight(targetGUID);
-				end	
+				end
+
+			-- frost mage but don't want to use wand - there was a bug
+			elseif (HasSpell("Frostbolt")) and (self.frostMage) and (not self.useWand) then
+					
+					script_mage:followTarget(targetGUID);
+			
+					-- check range
+					if(not targetObj:IsSpellInRange("Frostbolt")) then
+						self.message = "Frostbolt Main Damage Source!";
+						return 3;
+					end
+				
+					-- check line of sight
+					script_mage:checkLineOfSight(targetGUID);
+
+					script_mage:followTarget(targetGUID);
+				
+					-- cast frostbolt
+					if (CastSpellByName("Frostbolt", targetObj)) then
+						return 0;
+					end
+			
+					-- recheck line of sight
+					script_mage:checkLineOfSight(targetGUID);
 
 				-- fire mage spells
 			elseif (self.fireMage) and (not IsChanneling()) then
