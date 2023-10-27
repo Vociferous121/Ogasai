@@ -1202,7 +1202,6 @@ function script_mage:rest()
 	-- continue to rest if eating or drinking
 	if (localMana < 98 and IsDrinking()) or (localHealth < 98 and IsEating()) and (not IsSwimming()) then
 		self.message = "Resting to full hp/mana...";
-		self.waitTimer = GetTimeEX() + 10000;
 		return;
 	end
 
