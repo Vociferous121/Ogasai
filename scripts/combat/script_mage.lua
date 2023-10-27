@@ -40,7 +40,7 @@ script_mage = {
 	gemTimer = 0,		-- gem cooldown timer
 	useBlink = false,	-- use blink yes/no
 	isChecked = true,	-- set up
-	useDampenMagic = false,	-- use dampen magic yes/no
+	useDampenMagic = true,	-- use dampen magic yes/no
 	fireMage = false,	-- is fire spec yes/no
 	frostMage = true,	-- is frost spec yes/no
 	scorchStacks = 2,	-- scorch debuff stacks on target
@@ -263,6 +263,11 @@ function script_mage:setup()
 		self.useScorch = false;
 	end
 
+	-- don't use dampen magic if not obtained yet
+	if (not HasSpell("Dampen Magic")) then
+		self.useDampenMagic = false;
+	end
+
 	self.isSetup = true;
 end
 
@@ -406,11 +411,9 @@ function script_mage:run(targetGUID)
 			-- else if frost mage and not has frost bolt yet then cast fireball
 				-- many line of sight and other random checks to ensure the bot is doing what it needs to do
 
-			if (script_rotation.rotationEnabled) then
-				if (targetObj:GetDistance() <= 28) and (targetObj:IsInLineOfSight()) then
-					if (IsMoving()) then
-						StopMoving();
-					end
+			if (targetObj:GetDistance() <= 28) and (targetObj:IsInLineOfSight()) and (not targetObj:IsFleeing()) then
+				if (IsMoving()) then
+					StopMoving();
 				end
 			end
 
@@ -790,15 +793,12 @@ function script_mage:run(targetGUID)
 			end
 
 			-- Fire blast
-			if (self.useFireBlast) and (targetObj:GetDistance() < 20) and (HasSpell("Fire Blast")) and (not IsSpellOnCD("Fire Blast")) then
+			if (self.useFireBlast) and (targetObj:GetDistance() < 20) and (HasSpell("Fire Blast")) and (not IsSpellOnCD("Fire Blast")) and not (targetObj:HasDebuff('Polymorphed')) then
 				if (localMana > 8) and (targetHealth >= self.useWandHealth) and (not IsSpellOnCD("Fire Blast")) then
-
 					script_mage:checkLineOfSight(targetGUID);
-
-					if (CastSpellByName("Fire Blast", targetObj)) then
-						self.waitTimer = GetTimeEX() + 1800;
-						return;
-					end
+					CastSpellByName("Fire Blast", targetObj);
+					self.waitTimer = GetTimeEX() + 1800;
+				return;
 				end
 			end
 
@@ -854,7 +854,7 @@ function script_mage:run(targetGUID)
 			end
 			-- Main damage source if all above conditions cannot be run
 			-- frost mage spells
-			if (HasSpell("Frostbolt")) and (self.frostMage) and (not IsChanneling()) then
+			if (HasSpell("Frostbolt")) and (self.frostMage) and (not IsChanneling()) and (not IsMoving()) then
 				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth - 5) or (not self.useWand) then
 				
 					script_mage:followTarget(targetGUID);
@@ -1173,7 +1173,7 @@ function script_mage:rest()
 	end
 	
 	-- arcane intellect
-	if (HasSpell("Arcane Intellect")) and (not localObj:HasBuff("Arcane Intellect")) and (localMana > 25) then
+	if (HasSpell("Arcane Intellect")) and (not localObj:HasBuff("Arcane Intellect")) and (localMana > 25) and (not localObj:HasBuff("Intellect")) then
 		CastSpellByName("Arcane Intellect", localObj);
 		self.waitTimer = GetTimeEX() + 1700;
 		return true;
