@@ -230,7 +230,7 @@ function script_rogue:run(targetGUID)
 
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) or (targetObj:IsDead()) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;
@@ -896,7 +896,7 @@ function script_rogue:rest()
 	local localHealth = localObj:GetHealthPercentage();
 
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) or (targetObj:IsDead()) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;

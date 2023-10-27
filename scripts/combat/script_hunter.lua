@@ -188,7 +188,7 @@ function script_hunter:run(targetGUID)
 	end
 
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) or (targetObj:IsDead()) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;
@@ -518,7 +518,7 @@ function script_hunter:rest()
 	local localHealth = localObj:GetHealthPercentage();
 
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) or (targetObj:IsDead()) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;

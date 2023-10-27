@@ -202,7 +202,7 @@ function script_paladin:run(targetGUID)
 	end
 
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) or (targetObj:IsDead()) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;
@@ -691,7 +691,7 @@ function script_paladin:rest()
 	local localMana = localObj:GetManaPercentage();
 
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) or (targetObj:IsDead()) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;

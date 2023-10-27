@@ -1,5 +1,5 @@
 script_mage = {
-	message = 'Frostbite - Mage Combat Script',
+	message = 'Mage Combat Script',
 	mageMenu = include("scripts\\combat\\script_mageEX.lua"),
 	drinkMana = 40,	-- drink at this mana %
 	eatHealth = 51,	-- eat at this health %
@@ -347,7 +347,7 @@ function script_mage:run(targetGUID)
 	end
 
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) or (targetObj:IsDead()) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;
@@ -473,7 +473,7 @@ function script_mage:run(targetGUID)
 					return 3;
 
 					-- else check range using fireball - is there a range difference? twow there is
-				elseif (not HasSpell("Pyroblast")) and (not targetObj:IsSpellInRange("Fireball")) then
+				elseif (targetObj:GetDistance() >= 34) then
 					return 3;
 				end
 				
@@ -582,7 +582,7 @@ function script_mage:run(targetGUID)
 			end
 			
 		-- Combat
-
+			-- start of combat phase player is in combat
 		else	
 
 			-- display message in ogasai message box
@@ -662,10 +662,13 @@ function script_mage:run(targetGUID)
 						self.message = "Moving away from target...";
 						if (not IsSpellOnCD("Frost Nova")) then
 							CastSpellByName("Frost Nova");
-							return 0;
+							self.waitTimer = GetTimeEX() + 1565;
+							return;
 						end
+						self.waitTimer = GetTimeEX() + 1565;
 					return 4; 
 					end 
+			
 				end	
 			end
 
@@ -793,10 +796,11 @@ function script_mage:run(targetGUID)
 			end
 
 			-- Fire blast
-			if (self.useFireBlast) and (targetObj:GetDistance() < 20) and (HasSpell("Fire Blast")) and (not IsSpellOnCD("Fire Blast")) and not (targetObj:HasDebuff('Polymorphed')) then
+			if (self.useFireBlast) and (targetObj:GetDistance() < 20) and (HasSpell("Fire Blast")) and (not IsSpellOnCD("Fire Blast")) and (not targetObj:HasDebuff('Polymorphed')) then
 				if (localMana > 8) and (targetHealth >= self.useWandHealth) and (not IsSpellOnCD("Fire Blast")) then
 					script_mage:checkLineOfSight(targetGUID);
 					CastSpellByName("Fire Blast", targetObj);
+					targetObj:FaceTarget();
 					self.waitTimer = GetTimeEX() + 1800;
 				return;
 				end
@@ -852,8 +856,18 @@ function script_mage:run(targetGUID)
 					end
 				end
 			end
+
 			-- Main damage source if all above conditions cannot be run
-			-- frost mage spells
+			-- MAIN DAMAGE SOURCE!!!
+			-- Fireball Frostbolt Pyroblast
+			-- if use wand with frost bolt
+			-- else use frostbolt no wand
+			-- else use fireball with wand
+			-- else use fireball no wand
+			-- else low level use fireball
+
+				-- frost mage spells
+
 			if (HasSpell("Frostbolt")) and (self.frostMage) and (not IsChanneling()) and (not IsMoving()) then
 				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth - 5) or (not self.useWand) then
 				
@@ -903,14 +917,12 @@ function script_mage:run(targetGUID)
 					-- recheck line of sight
 					script_mage:checkLineOfSight(targetGUID);
 
-				-- fire mage spells
-			elseif (self.fireMage) and (not IsChanneling()) then
-
-				-- use these spells if not using wand
-				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
-				
-					-- else if not has frostbolt then use fireball as range check
-					if(not targetObj:IsSpellInRange("Fireball")) then
+				-- else if fire mage but no wand use
+			elseif (HasSpell("Fireball")) and (self.fireMage) and (not self.useWand) then
+					
+					
+					-- use fireball as range check
+					if (not targetObj:IsSpellInRange("Fireball")) then
 						return 3;
 					end
 
@@ -920,11 +932,41 @@ function script_mage:run(targetGUID)
 					script_mage:followTarget(targetGUID);
 
 					-- cast pyroblast
-					if (targetObj:GetDistance() > 30) and (targetObj:GetManaPercentage() > 1) and (targetHealth > 50) then
-						if (HasSpell("Pyroblast")) then
-							if (CastSpellByName("Pyroblast", targetObj)) then
-								return 0;
-							end
+					if (targetObj:GetDistance() >= 30) and (targetHealth > 50) and (HasSpell("Pyroblast")) then
+						if (CastSpellByName("Pyroblast", targetObj)) then
+							targetObj:FaceTarget();
+							return 0;
+						end
+				
+					else
+				
+						-- cast fireball
+						if (CastSpellByName("Fireball", targetObj)) then
+							targetObj:FaceTarget();
+							return 0;
+						end
+					end
+
+				-- fire mage spells
+			elseif (self.fireMage) and (not IsChanneling()) then
+
+				-- use these spells if not using wand
+				if (localMana >= self.useWandMana) and (targetHealth >= self.useWandHealth - 5) then
+				
+					-- use fireball as range check
+					if (not targetObj:IsSpellInRange("Fireball")) then
+						return 3;
+					end
+
+					-- check line of sight
+					script_mage:checkLineOfSight(targetGUID);
+
+					script_mage:followTarget(targetGUID);
+
+					-- cast pyroblast
+					if (targetObj:GetDistance() >= 30) and (targetHealth > 50) and (HasSpell("Pyroblast")) then
+						if (CastSpellByName("Pyroblast", targetObj)) then
+							return 0;
 						end
 				
 					else
@@ -971,7 +1013,7 @@ function script_mage:rest()
 	end
 
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) or (targetObj:IsDead()) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;
@@ -1109,7 +1151,6 @@ function script_mage:rest()
 
 	-- drink something
 	if (not IsDrinking() and localMana <= self.drinkMana) and (not IsInCombat()) then
-		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to drink...";
 		if (IsInCombat()) then
 			return true;
@@ -1130,7 +1171,6 @@ function script_mage:rest()
 	end
 
 	if (not IsEating() and localHealth <= self.eatHealth) and (not IsSwimming() and not IsInCombat()) then
-		self.waitTimer = GetTimeEX() + 2000;
 		-- Dismount
 		if(IsMounted()) then DisMount(); end
 		self.message = "Need to eat...";	
@@ -1152,7 +1192,6 @@ function script_mage:rest()
 	end
 	
 	if (localMana < self.drinkMana or localHealth < self.eatHealth) and (not IsSwimming() and not IsInCombat()) then
-		self.waitTimer = GetTimeEX() + 2000;
 		if (IsMoving()) then
 			self.waitTimer = GetTimeEX() + 2000;
 			StopMoving();
@@ -1175,30 +1214,27 @@ function script_mage:rest()
 	-- arcane intellect
 	if (HasSpell("Arcane Intellect")) and (not localObj:HasBuff("Arcane Intellect")) and (localMana > 25) and (not localObj:HasBuff("Intellect")) then
 		CastSpellByName("Arcane Intellect", localObj);
-		self.waitTimer = GetTimeEX() + 1700;
+		self.waitTimer = GetTimeEX() + 1580;
 		return true;
 	end
 	
 	-- ice armor / frost armor
 	if (HasSpell("Ice Armor")) and (not localObj:HasBuff("Ice Armor")) and (localMana > 20) then
-		if (CastSpellByName("Ice Armor", localObj)) then
-			self.waitTimer = GetTimeEX() + 1700;
-			return true;
-		end
+		CastSpellByName("Ice Armor", localObj);
+		self.waitTimer = GetTimeEX() + 15800;
+		return true;
 	elseif (not HasSpell("Ice Armor")) and (HasSpell("Frost Armor")) and (not localObj:HasBuff("Frost Armor")) and (localMana > 20) then
-		if (CastSpellByName("Frost Armor", localObj)) then
-			self.waitTimer = GetTimeEX() + 1700;
-			return true;
-		end
+		CastSpellByName("Frost Armor", localObj);
+		self.waitTimer = GetTimeEX() + 1580;
+		return true;
 	end
 
 	-- dampen magic
 	if (self.useDampenMagic) then
 		if (HasSpell("Dampen Magic")) and (not localObj:HasBuff("Dampen Magic")) and (localMana > 15) then
-			if (CastSpellByName("Dampen Magic", localObj)) then
-				self.waitTimer = GetTimeEX() + 1700;
-				return true;
-			end
+			CastSpellByName("Dampen Magic", localObj);
+			self.waitTimer = GetTimeEX() + 1580;
+			return true;
 		end
 	end
 

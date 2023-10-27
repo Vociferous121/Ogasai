@@ -214,7 +214,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 	end
 
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) or (targetObj:IsDead()) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;
@@ -785,7 +785,7 @@ function script_warrior:rest()
 	end
 
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) or (targetObj:IsDead()) then
+		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;
