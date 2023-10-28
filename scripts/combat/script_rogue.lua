@@ -163,7 +163,7 @@ function script_rogue:runBackwards(targetObj, range)
 		local moveX, moveY, moveZ = xT + xUV*5, yT + yUV*5, zT + zUV;		
  		if (distance < range) then 
  			Move(moveX, moveY, moveZ);
-			self.waitTimer = GetTimeEX() + 1500;
+			self.waitTimer = GetTimeEX() + 1200;
  			return true;
  		end
 	end
@@ -258,12 +258,6 @@ function script_rogue:run(targetGUID)
 		
 			if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= self.followTargetDistance) and (not IsMoving()) then
 				targetObj:FaceTarget();
-			end
-
-			-- wait before looting!
-			if (targetObj:IsDead() or script_grind.lootObj ~= nil) then
-				self.waitTimer = GetTimeEX() + 1532;
-				ClearTarget();
 			end
 
 			-- Auto Attack
@@ -384,7 +378,7 @@ function script_rogue:run(targetGUID)
 				local localCP = GetComboPoints("player", "target");
 
 				-- Run backwards if we are too close to the target
-				if (targetObj:GetDistance() < .3) then 
+				if (targetObj:GetDistance() < .2) then 
 					if (script_rogue:runBackwards(targetObj,2)) then 
 						return 4; 
 					end 
@@ -924,7 +918,6 @@ function script_rogue:rest()
 					CastSpellByName("Stealth");
 				end
 			end
-			self.waitTimer = GetTimeEX() + 15000;
 			return true; 
 		end		
 	end
@@ -933,7 +926,6 @@ function script_rogue:rest()
 	if (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and IsEating() and not localObj:HasDebuff("Touch of Zanzil")) and (not localObj:HasDebuff("Poison")) then
 		if (not localObj:HasBuff("Stealth")) then
 			CastSpellByName("Stealth");
-			self.waitTimer = GetTimeEX() + 15000;
 			return true;
 		end
 	end
