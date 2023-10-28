@@ -795,47 +795,49 @@ function script_warrior:rest()
 	local localObj = GetLocalPlayer();
 	local localHealth = localObj:GetHealthPercentage();
 
-	-- Eat something
-	if (not IsEating() and localHealth <= self.eatHealth) and (not IsInCombat()) then
-		self.waitTimer = GetTimeEX() + 2000;
-		self.message = "Need to eat...";
-		if (IsInCombat()) then
-			return true;
-		end
-			
+	if (not IsEating() and localHealth < self.eatHealth) then
+		-- Dismount
+		if(IsMounted()) then DisMount(); end
+		self.message = "Need to eat...";	
 		if (IsMoving()) then
 			StopMoving();
 			return true;
 		end
-
+		
 		if (script_helper:eat()) then 
 			self.message = "Eating..."; 
-			return true;
+			return true; 
 		else 
 			self.message = "No food! (or food not included in script_helper)";
 			return true; 
-		end		
+		end	
+	end
+	
+	if (localHealth < self.eatHealth) then
+		if (IsMoving()) then
+			StopMoving();
+		end
+		return true;
+	end
+	
+	if (localHealth < 98 and IsEating()) then
+		self.message = "Resting to full hp/mana...";
+		return true;
+	end
+
+	if (not IsEating()) then
+		if (not IsStanding()) then
+			JumpOrAscendStart();
+		end
 	end
 
 	-- night elve stealth while resting
-	if (IsDrinking() or IsEating()) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) then
+	if (IsEating()) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) then
 		if (CastSpellByName("Shadowmeld")) then
 			return 0;
 		end
 	end
 
-	-- Continue eating until we are full
-	if(localHealth <= 98 and IsEating()) then
-		self.message = "Resting up to full health...";
-		return true;
-	end
-		
-	-- Stand upp if we are rested
-	if (localHealth >= 98 and (IsEating() or not IsStanding())) then
-		StopMoving();
-		return false;
-	end
-	
-	-- Don't need to eat
+	-- No rest / buff needed
 	return false;
 end

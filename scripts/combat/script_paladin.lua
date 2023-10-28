@@ -741,10 +741,14 @@ function script_paladin:rest()
 		return true;
 	end
 
-	-- Drink something
+	-- Eat and Drink
 	if (not IsDrinking() and localMana < self.drinkMana) then
-		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to drink...";
+		-- Dismount
+		if(IsMounted()) then 
+			DisMount(); 
+			return true; 
+		end
 		if (IsMoving()) then
 			StopMoving();
 			return true;
@@ -758,40 +762,40 @@ function script_paladin:rest()
 			return true; 
 		end
 	end
-
-	-- Eat something
 	if (not IsEating() and localHealth < self.eatHealth) then
-		self.message = "Need to eat...";
-		if (IsInCombat()) then
-			return true;
-		end
-			
+		-- Dismount
+		if(IsMounted()) then DisMount(); end
+		self.message = "Need to eat...";	
 		if (IsMoving()) then
 			StopMoving();
 			return true;
 		end
-
+		
 		if (script_helper:eat()) then 
 			self.message = "Eating..."; 
 			return true; 
 		else 
 			self.message = "No food! (or food not included in script_helper)";
 			return true; 
-		end		
+		end	
 	end
-
-	-- Continue resting
-	if(localHealth < 98 and IsEating() or localMana < 98 and IsDrinking()) then
-		self.message = "Resting up to full HP/Mana...";
-		self.waitTimer = GetTimeEX() + 10000;
+	
+	if(localMana < self.drinkMana or localHealth < self.eatHealth) then
+		if (IsMoving()) then
+			StopMoving();
+		end
 		return true;
 	end
-		
-	-- Stand up if we are rested
-	if (localHealth > 98 and (IsEating() or not IsStanding()) 
-	    and localMana > 98 and (IsDrinking() or not IsStanding())) then
-		StopMoving();
-		return false;
+	
+	if((localMana < 98 and IsDrinking()) or (localHealth < 98 and IsEating())) then
+		self.message = "Resting to full hp/mana...";
+		return true;
+	end
+
+	if (not IsDrinking()) and (not IsEating()) then
+		if (not IsStanding()) then
+			JumpOrAscendStart();
+		end
 	end
 	
 	-- Set aura
@@ -800,7 +804,8 @@ function script_paladin:rest()
 			CastSpellByName(self.aura); 
 		end
 	end
-		-- Don't need to rest
+
+	-- Don't need to rest
 	return false;
 end
 

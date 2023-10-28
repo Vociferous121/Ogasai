@@ -944,10 +944,10 @@ function script_rogue:rest()
 		return true;
 	end
 		
-	-- Stand up if we are rested
-	if (localHealth > 98 and (IsEating() or not IsStanding())) then
-		StopMoving();
-		return false;
+	if (not IsDrinking()) and (not IsEating()) then
+		if (not IsStanding()) then
+			JumpOrAscendStart();
+		end
 	end
 	
 	-- Don't need to eat
