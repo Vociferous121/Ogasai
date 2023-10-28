@@ -469,7 +469,7 @@ function script_priest:run(targetGUID)
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 				end -- move to target
-					if (not IsAutoCasting("Shoot")) then
+					if (not IsAutoCasting("Shoot")) and (self.useWand) then
 						targetObj:CastSpell("Shadow Word: Pain");
 						self.message = "Using wand...";
 						targetObj:FaceTarget();
@@ -735,13 +735,13 @@ function script_priest:run(targetGUID)
 			end
 
 			--mind flay and then wand when set
-			if (self.useMindFlay) and (not localObj:IsCasting() or not localObj:IsChanneling()) and
+			if (self.useMindFlay) and (self.useWand) and (not localObj:IsCasting() or not localObj:IsChanneling()) and
 				(localMana <= self.mindFlayMana or targetHealth <= self.mindFlayHealth) or (targetObj:GetDistance() >= 25) then
 				if (localObj:HasRangedWeapon()) then
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 					end -- move to target
-					if (not IsAutoCasting("Shoot")) then
+					if (not IsAutoCasting("Shoot")) and (self.useWand) then
 						self.message = "Using wand...";
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
@@ -755,7 +755,7 @@ function script_priest:run(targetGUID)
 			end
 
 			--Wand if set to use wand
-			if (self.useWand and not self.useMindFlay) and (not localObj:IsCasting()) and (IsSpellOnCD("Mind Blast")) or (localMana <= self.mindBlastMana) then
+			if (self.useWand and not self.useMindFlay) and (not localObj:IsCasting()) and (IsSpellOnCD("Mind Blast")) then
 				if (localMana <= self.useWandMana) and (targetHealth <= self.useWandHealth) and (localObj:HasRangedWeapon()) then
 					if (script_priest:healAndBuff(localObj, localMana)) then
 						return;
@@ -788,7 +788,7 @@ function script_priest:run(targetGUID)
 						end
 					end
 
-					if (not IsAutoCasting("Shoot")) then
+					if (not IsAutoCasting("Shoot")) and (self.useWand) then
 						self.message = "Using wand...";
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
@@ -802,7 +802,7 @@ function script_priest:run(targetGUID)
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 				end -- move to target
-					if (not IsAutoCasting("Shoot")) then
+					if (not IsAutoCasting("Shoot")) and (self.useWand) then
 						self.message = "Using wand...";
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
@@ -851,7 +851,8 @@ function script_priest:rest()
 	if (script_priest:healAndBuff(localObj, localMana)) then 
 		return;
 	end
-
+	
+	-- can buff nearby players. needs work. 
 	--buff="Power Word: Fortitude(Rank " Sp={1,2,14,26,38,50};
 	--if (UnitLevel("target") ~= nil and UnitIsFriend("player","target")) then
 	--	for i=6, 1, -1 do 
@@ -862,9 +863,14 @@ function script_priest:rest()
 	--	end
 	--end 
 
-	-- Check: Drink
-	if (not IsDrinking()) and (localMana <= self.drinkMana) and (not IsInCombat()) then
+	-- Eat and Drink
+	if (not IsDrinking() and localMana < self.drinkMana) then
 		self.message = "Need to drink...";
+		-- Dismount
+		if(IsMounted()) then 
+			DisMount(); 
+			return true; 
+		end
 		if (IsMoving()) then
 			StopMoving();
 			return true;
@@ -878,9 +884,9 @@ function script_priest:rest()
 			return true; 
 		end
 	end
-
-	-- Check: Eat
-	if (not IsEating()) and (localHealth <= self.eatHealth) and (not IsInCombat()) then
+	if (not IsEating() and localHealth < self.eatHealth) then
+		-- Dismount
+		if(IsMounted()) then DisMount(); end
 		self.message = "Need to eat...";	
 		if (IsMoving()) then
 			StopMoving();
@@ -889,23 +895,36 @@ function script_priest:rest()
 		
 		if (script_helper:eat()) then 
 			self.message = "Eating..."; 
-			return true; 	
+			return true; 
 		else 
 			self.message = "No food! (or food not included in script_helper)";
 			return true; 
 		end	
 	end
+	
+	if(localMana < self.drinkMana or localHealth < self.eatHealth) then
+		if (IsMoving()) then
+			StopMoving();
+		end
+		return true;
+	end
+
 	-- night elve stealth while resting
 	if (IsDrinking() or IsEating()) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) then
 		if (CastSpellByName("Shadowmeld")) then
-			return 0;
+			return;
 		end
 	end
 	
-	-- Check: Keep resting
-	if (localMana <= 98) and (IsDrinking()) or (localHealth <= 98 and IsEating()) then
+	if((localMana < 98 and IsDrinking()) or (localHealth < 98 and IsEating())) then
 		self.message = "Resting to full hp/mana...";
 		return true;
+	end
+
+	if (not IsDrinking()) and (not IsEating()) then
+		if (not IsStanding()) then
+			JumpOrAscendStart();
+		end
 	end
 	-- No rest / buff needed
 	return false;
