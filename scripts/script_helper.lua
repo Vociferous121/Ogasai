@@ -175,6 +175,10 @@ function script_helper:setup()
 	script_helper:addFood('Slitherskin Mackerel');
 	script_helper:addFood('Longjaw Mud Snapper');
 
+	-- Night elf vendor food
+	script_helper:addFood('Bean Soup');
+	script_helper:addFood('Versicolor Treat');
+
 	--Halloween food and water
 	script_helper:addFood('Candy Corn');
 	script_helper:addWater('Candy Corn');
