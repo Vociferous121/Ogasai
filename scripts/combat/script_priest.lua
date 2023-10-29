@@ -48,7 +48,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 
 	-- Buff Fortitude
 	if (not self.shadowForm) then	-- if not in shadowform
-		if (localMana >= 25) and (not IsInCombat()) and (not targetObject:HasBuff("Power Word: Fortitude")) then
+		if (localMana >= 25) and (not IsInCombat()) and (not targetObject:HasBuff("Power Word: Fortitude")) and (HasSpell("Fortitude")) then
 			Buff("Power Word: Fortitude", targetObject);
 			self.waitTimer = GetTimeEX() + 1500;
 			return; -- if buffed return true
@@ -57,7 +57,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	
 	-- Buff Divine Spirit
 	if (not self.shadowForm) then	-- if not in shadowform
-		if (localMana >= 25) and (not IsInCombat()) and (not targetObject:HasBuff("Divine Spirit")) then
+		if (localMana >= 25) and (not IsInCombat()) and (not targetObject:HasBuff("Divine Spirit")) and (HasSpell("Divine Spririt")) then
 			if (Buff("Divine Spirit", targetObject)) then
 				return;  -- if buffed return true
 			end
@@ -66,7 +66,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 
 	-- Cast Renew
 	if (not self.shadowForm) then	-- if not in shadowform
-		if (localMana >= 12) and (localHealth <= self.renewHP) and (not targetObject:HasBuff("Renew")) then
+		if (localMana >= 12) and (localHealth <= self.renewHP) and (not targetObject:HasBuff("Renew")) and (HasSpell("Renew")) then
 			if (Buff("Renew", targetObject)) then
 				return; -- if buffed return true
 			end
@@ -74,7 +74,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	end
 
 	-- Cast Shield Power Word: Shield
-	if (localMana >= 10) and (localHealth <= self.shieldHP) and (not targetObject:HasDebuff("Weakened Soul")) and (IsInCombat()) then
+	if (localMana >= 10) and (localHealth <= self.shieldHP) and (not targetObject:HasDebuff("Weakened Soul")) and (IsInCombat()) and (HasSpell("Power Word: Shield")) then
 		if (Buff("Power Word: Shield", targetObject)) then 
 			-- targetObj:FaceTarget();
 			return;  -- if buffed return true
@@ -101,7 +101,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 
 	-- Cast Flash Heal
 	if (not self.shadowForm) then	-- if not in shadowform
-		if (localMana >= 8) and (targetHealth <= self.flashHealHP) then
+		if (localMana >= 8) and (localHealth <= self.flashHealHP) then
 			if (CastHeal("Flash Heal", targetObject)) then
 				return;	-- if cast return true
 			end
@@ -111,7 +111,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	-- Cast Lesser Heal
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localLevel < 20) then	-- don't use this when we get flash heal ELSE very low mana
-			if (localMana >= 10) and (targetHealth <= self.lesserHealHP) then
+			if (localMana >= 10) and (localHealth <= self.lesserHealHP) then
 				if (CastHeal("Lesser Heal", targetObject)) then
 					return;	-- if cast return true
 				end
@@ -119,7 +119,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 
 		-- ELSE IF player level >= 20
 		elseif (localLevel >= 20) then
-			if (localMana <= 8) and (targetHealth <= self.flashHealHP) then
+			if (localMana <= 8) and (localHealth <= self.flashHealHP) then
 				if (CastHeal("Lesser Heal", targetObject)) then
 					return;	-- if cast return true
 				end
@@ -139,11 +139,10 @@ function script_priest:healAndBuff(targetObject, localMana)
 		if (targetHealth >= 20) and (localMana >= self.mindBlastMana) then
 			CastSpellByName("Mind Blast", targetObj);
 			self.waitTimer = GetTimeEX() + 750;
-			return;
 		end
+		return;
 	end
-	self.waitTimer = GetTimeEX() + 1500;
-	return;
+return;
 end
 
 function script_priest:dispelDebuff(spellName, target)
@@ -261,6 +260,12 @@ function script_priest:setup()
 	if (GetNumPartyMembers() > 1) then
 		self.useScream = false;
 	end
+
+	-- if no wand equipped then force using smite
+	if (not localObj:HasRangedWeapon()) then
+		self.useSmite = true;
+		self.useWand = false;
+	end
 end
 
 function script_priest:draw()
@@ -286,11 +291,6 @@ function script_priest:run(targetGUID)
 	if(not self.isSetup) then
 		script_priest:setup();
 	end
-
-	-- if no wand equipped then force using smite
-	if (not localObj:HasRangedWeapon()) then
-		self.useSmite = true;
-	end
 	
 	local localObj = GetLocalPlayer(); -- get player
 
@@ -304,13 +304,13 @@ function script_priest:run(targetGUID)
 	if (localObj:IsDead()) then
 		return 0;
 	end
-	
-	-- Assign the target 
-	targetObj =  GetGUIDObject(targetGUID); -- get guid of target and save it
 
 	if (script_priest:healAndBuff(localObj, localMana)) then
 		return;
 	end
+	
+	-- Assign the target 
+	targetObj =  GetGUIDObject(targetGUID); -- get guid of target and save it
 
 	-- clear target
 	if(targetObj == 0) or (targetObj == nil) or (targetObj:IsDead()) then
@@ -394,6 +394,9 @@ function script_priest:run(targetGUID)
 		-- set target health
 		targetHealth = targetObj:GetHealthPercentage();
 
+			CastSpellByName("Smite");
+
+
 		-- Auto Attack
 		if (targetObj:GetDistance() <= 40) then
 			targetObj:AutoAttack();
@@ -406,14 +409,6 @@ function script_priest:run(targetGUID)
 				return 5; 
 			end
 		end 
-		
-		-- for rotation mode stop moving
-		--if (targetObj:GetDistance() <= 25) and (targetObj:IsInLineOfSight()) and (targetObj:GetHealthPercentage() > 1) then
-		--	if (IsMoving()) then
-		--		StopMoving();
-		--	end
-		--end
-		-- START OF COMBAT PHASE
 
 		-- Opener - not in combat pulling target
 		if (not IsInCombat()) then
@@ -820,17 +815,17 @@ end
 
 function script_priest:rest()
 
+	-- check setup
+	if (not self.isSetup) then
+		script_priest:setup();
+	end
+
 	if (not script_grind.adjustTickRate) then
 		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;
 		end
-	end
-
-	-- check setup
-	if (not self.isSetup) then
-		script_priest:setup();
 	end
 
 	local localObj = GetLocalPlayer();
