@@ -60,7 +60,7 @@ script_grind = {
 	drawUnits = true,
 	pathName = "", -- set to e.g. "paths\1-5 Durator.xml" for auto load at startup
 	pathLoaded = "",
-	drawPath = true,
+	drawPath = false,
 	autoPath = true,
 	drawAutoPath = true,
 	distToHotSpot = 325,
@@ -202,7 +202,7 @@ function script_grind:run()
 		script_radar:draw()
 	end
 
-	if (self.useExpChecker) then
+	if (self.useExpChecker) and (IsInCombat()) then
 		script_expChecker:menu();
 	end
 
@@ -821,7 +821,7 @@ function script_grind:doLoot(localObj)
 		return;
 	end
 
-	if(dist <= self.lootDistance) and (not IsDrinking()) and (not IsEating()) then
+	if(dist <= self.lootDistance) then
 		self.message = "Looting...";
 		if(IsMoving() and not localObj:IsMovementDisabed()) then
 			StopMoving();
@@ -869,11 +869,10 @@ function script_grind:doLoot(localObj)
 			return;
 		end
 	end
-	if (not IsEating()) or (not IsDrinking()) then
 	self.message = "Moving to loot...";		
 	script_nav:moveToTarget(localObj, _x, _y, _z);	
 	--script_grind:setWaitTimer(300);
-	end
+
 	if (self.lootObj:GetDistance() < 3) then
 		self.waitTimer = GetTimeEX() + 450;
 	end
