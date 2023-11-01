@@ -48,6 +48,7 @@ script_mage = {
 	followTargetDistance = 100,	-- new follow/face target distance here to debug melee
 	waitTimer = GetTimeEX(),	-- set wait timer variable. probably not needed?
 	rangeDistance = 38,
+	useThis = true,
 
 }
 
@@ -662,15 +663,18 @@ function script_mage:run(targetGUID)
 						self.message = "Moving away from target...";
 						if (not IsSpellOnCD("Frost Nova")) and (localMana > 9) then
 							CastSpellByName("Frost Nova");
-							self.waitTimer = GetTimeEX() + 1265;
 							return;
 						end
-						self.waitTimer = GetTimeEX() + 565;
-						targetObj:FaceTarget();
+						self.waitTimer = GetTimeEX() + 765;
 					return 4; 
 					end 
 			
 				end	
+			end
+
+			-- bot wouldn't face target after moving with backpedal without changing how backpedal works
+			if (targetObj:HasDebuff("Frostbite")) or (targetObj:HasDebuff("Frost Nova")) and (not IsMoving()) then
+				targetObj:FaceTarget();
 			end
 
 			-- frost nova if target is running away
@@ -802,7 +806,7 @@ function script_mage:run(targetGUID)
 					script_mage:checkLineOfSight(targetGUID);
 					CastSpellByName("Fire Blast", targetObj);
 					targetObj:FaceTarget();
-					self.waitTimer = GetTimeEX() + 1800;
+					self.waitTimer = GetTimeEX() + 1350;
 				return;
 				end
 			end
@@ -1009,7 +1013,7 @@ end
 
 function script_mage:rest()
 
-	if(not self.isSetup) then
+	if (not self.isSetup) then
 		script_mage:setup();
 	end
 
@@ -1034,7 +1038,7 @@ function script_mage:rest()
 		end
 	end
 	
-	if (waterIndex == -1 and HasSpell('Conjure Water')) then 
+	if (waterIndex == -1) and (HasSpell('Conjure Water')) and (not IsDrinking()) and (not IsEating()) then 
 		self.message = "Conjuring water...";
 		if (IsMoving()) then
 			StopMoving();
@@ -1063,7 +1067,7 @@ function script_mage:rest()
 			break;
 		end
 	end
-	if (foodIndex == -1 and HasSpell('Conjure Food')) then 
+	if (foodIndex == -1) and (HasSpell('Conjure Food')) and (not IsDrinking()) and (not IsEating()) then
 		self.message = "Conjuring food...";
 		if (IsMoving()) then
 			StopMoving();
@@ -1128,10 +1132,12 @@ function script_mage:rest()
 			StopMoving();
 			return true;
 		end
+	self.waitTimer = GetTimeEX() + 3500;
 	end
 
 	-- Eat and Drink
 	if (not IsDrinking() and localMana < self.drinkMana) then
+		self.waitTimer = GetTimeEX() + 3200;
 		self.message = "Need to drink...";
 		-- Dismount
 		if(IsMounted()) then 
@@ -1152,9 +1158,11 @@ function script_mage:rest()
 		end
 	end
 	if (not IsEating() and localHealth < self.eatHealth) then
-		-- Dismount
-		if(IsMounted()) then DisMount(); end
 		self.message = "Need to eat...";	
+		-- Dismount
+		if(IsMounted()) then
+			DisMount();
+		end
 		if (IsMoving()) then
 			StopMoving();
 			return true;

@@ -9,6 +9,8 @@ script_helper = {
 	numHealthPotion = 0,
 	manaPotion = {},
 	numManaPotion = 0,
+	bandage = {},
+	numBandage = 0,
 	
 }
 
@@ -28,6 +30,11 @@ function script_helper:enemiesAttackingUs(range) -- returns number of enemies at
     return unitsAttackingUs;
 end
 
+function script_helper:addBandage(name)
+	self.bandage[self.numBandage] = name;
+	self.numBandage = self.numBandage +1;
+end
+
 function script_helper:addHealthPotion(name)
 	self.healthPotion[self.numHealthPotion] = name;
 	self.numHealthPotion = self.numHealthPotion + 1;
@@ -37,6 +44,25 @@ function script_helper:addManaPotion(name)
 	self.manaPotion[self.numManaPotion] = name;
 	self.numManaPotion = self.numManaPotion + 1;
 end
+
+function script_helper:useBandage()
+
+	---- Search for bandage
+	local bandageIndex = -1;
+	for i=0,self.numBandage do
+		if (HasItem(self.bandage[i])) then
+			bandageIndex = i;
+			break;
+		end
+	end
+		
+	if(HasItem(self.bandage[bandageIndex])) then
+		if (UseItem(self.bandage[bandageIndex])) then
+			return true;
+		end
+	end
+end
+
 
 function script_helper:useHealthPotion()
 
@@ -90,8 +116,22 @@ function script_helper:addMount(name)
 end
 
 function script_helper:setup()
+
+	-- Add Bandages
+	script_helper:addBandage("Linen Bandage");
+	script_helper:addBandage("Heavy Linen Bandage");
+	script_helper:addBandage("Wool Bandage");
+	script_helper:addBandage("Heavy Wool Bandage");
+	script_helper:addBandage("Silk Bandage");
+	script_helper:addBandage("Heavy Silk Bandage");
+	script_helper:addBandage("Mageweave Bandage");
+	script_helper:addBandage("Heavy Mageweave Bandage");
+	script_helper:addBandage("Runecloth Bandage");
+	script_helper:addBandage("Heavy Runecloth Bandage");
+
 	-- Add Health Potions
 	script_helper:addHealthPotion("Minor Healing Potion");
+	script_helper:addHealthPotion("Discolored Healing Potion");
 	script_helper:addHealthPotion("Lesser Healing Potion");
 	script_helper:addHealthPotion("Healing Potion");
 	script_helper:addHealthPotion("Superior Healing Potion");
@@ -189,6 +229,9 @@ function script_helper:setup()
 	script_helper:addFood('Bobbing Apple');
 	script_helper:addWater('Bobbing Apple');
 
+	-- other food + water
+	script_helper:addFood("Senggin Root");
+	script_helper:addWater("Senggin Root");
 
 	-- Mage food
 	script_helper:addFood('Conjured Cinnamon Roll');

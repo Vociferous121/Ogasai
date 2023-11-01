@@ -4,7 +4,7 @@ script_expChecker = {
 
 }
 
--- check exp function top left of screen
+-- check exp function
 
 function script_expChecker:targetLevels()
 
@@ -81,7 +81,8 @@ function script_expChecker:targetLevels()
 	end
 
         -- rested exp calculation per mob targeted
-    if (script_grind.enemyObj ~= 0) and (script_grind.enemyObj ~= nil) and (GetLocalPlayer():GetLevel() < 60) then
+	if (GetLocalPlayer():GetLevel() < 60) then 
+		if (script_grind.enemyObj ~= nil) then
 
          -- bug in script trying to get targetObj when not having one "error can't find targetObj"
         targetObj = script_grind.enemyObj;
@@ -371,6 +372,7 @@ function script_expChecker:targetLevels()
 		end
 	end
 end
+end
 
 function script_expChecker:menu()
 
@@ -425,6 +427,10 @@ if (script_grind.useExpChecker) and (GetLocalPlayer():GetLevel() < 60) then
 		DrawText(' Killing level '..localLevel.. ' targets', x-750, y+20, r+255, g+255, b+255);
 
 	elseif (GetXPExhaustion() == nil or restR == 0) and (script_grind.useExpChecker) then
+		
+		if (killsNeeded <= 1) then
+			killsNeeded = 1;
+		end
 
 		DrawText('Kills needed - '..killsNeeded, x-740, y, r+255, g+255, b+255);
 		DrawText(' Killing level '..localLevel.. ' targets', x-750, y+20, r+255, g+255, b+255);

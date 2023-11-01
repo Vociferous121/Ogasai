@@ -25,7 +25,7 @@ script_priest = {
 	mindFlayMana = 18,	-- mind flay above self mana %
 	shadowFormHealth = 50,	-- shadowform change health
 	useMindFlay = false,	-- use mind flay yes/no
-	swpMana = 20, -- Use shadow word: pain above this mana %
+	swpMana = 15, -- Use shadow word: pain above this mana %
 	followTargetDistance = 100,
 	rangeDistance = 30,
 }
@@ -394,7 +394,10 @@ function script_priest:run(targetGUID)
 		-- set target health
 		targetHealth = targetObj:GetHealthPercentage();
 
-			CastSpellByName("Smite");
+		-- smite low level wouldn't cast for some reason kept defaulting to auto attack
+		if (GetLocalPlayer():GetLevel() <= 3) and (targetObj:GetDistance() < 30) and (localMana > 10) then
+			CastSpellByName("Smite", targetObj);
+		end
 
 
 		-- Auto Attack

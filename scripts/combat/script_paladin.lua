@@ -201,6 +201,13 @@ function script_paladin:run(targetGUID)
 		end
 	end
 
+	-- stop moving when reached target if target is not fleeing and target is in line of sight
+	if (targetObj:GetDistance() <= self.meleeDistance + 1) and (IsMoving()) and (not targetObj:IsFleeing()) and (targetObj:IsInLineOfSight()) then
+			if (IsMoving()) then
+				StopMoving();
+			end
+		end
+
 	if (not script_grind.adjustTickRate) then
 		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
 			script_grind.tickRate = 100;
@@ -233,12 +240,6 @@ function script_paladin:run(targetGUID)
 			if (IsMoving()) then
 				StopMoving();
 			end
-		end
-
-		-- wait before looting!
-		if (targetObj:IsDead() or script_grind.lootObj ~= nil) then
-			self.waitTimer = GetTimeEX() + 1532;
-			ClearTarget();
 		end
 
 		-- Auto Attack
@@ -343,7 +344,7 @@ function script_paladin:run(targetGUID)
 			
 			-- Run backwards if we are too close to the target
 			if (targetObj:GetDistance() < .2) then 
-				if (script_paladin:runBackwards(targetObj,2)) then 
+				if (script_paladin:runBackwards(targetObj,1)) then 
 					return 4; 
 				end 
 			end
@@ -371,7 +372,7 @@ function script_paladin:run(targetGUID)
 			end
 
 			-- check health and heal -- holy light
-			if (localHealth <= self.holyLightHealth) and (localMana >= 25) then
+			if (localHealth <= self.holyLightHealth) and (localMana >= 25) and (not IsChanneling()) then
 				if (Buff("Holy Light", localObj)) and (IsStanding()) then 
 					self.waitTimer = GetTimeEX() + 4000;
 					self.message = "Healing: Holy Light...";
@@ -681,14 +682,10 @@ function script_paladin:run(targetGUID)
 end
 
 function script_paladin:rest()
+
 	if(not self.isSetup) then
 		script_paladin:setup();
 	end
-
-	local localObj = GetLocalPlayer();
-	local localLevel = localObj:GetLevel();
-	local localHealth = localObj:GetHealthPercentage();
-	local localMana = localObj:GetManaPercentage();
 
 	if (not script_grind.adjustTickRate) then
 		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
@@ -697,6 +694,11 @@ function script_paladin:rest()
 			script_grind.tickRate = 750;
 		end
 	end
+
+	local localObj = GetLocalPlayer();
+	local localLevel = localObj:GetLevel();
+	local localHealth = localObj:GetHealthPercentage();
+	local localMana = localObj:GetManaPercentage();
 
 	-- heal before eating
 	if (localHealth < self.holyLightHealth) or (localHealth < self.eatHealth) and (IsStanding()) then
@@ -724,7 +726,7 @@ function script_paladin:rest()
 	end
 
 	-- Heal up: Holy Light
-	if (localMana >= 25 and localHealth <= self.eatHealth) and (IsStanding()) then
+	if (localMana >= 25 and localHealth <= self.eatHealth) and (IsStanding()) and (not IsDrinking()) and (not IsEating()) then
 		if (Buff("Holy Light", localObj)) then
 			script_grind:setWaitTimer(3500);
 			self.message = "Healing: Holy Light...";
@@ -733,7 +735,7 @@ function script_paladin:rest()
 	end
 
 	-- Heal up: Flash of Light
-	if (localMana >= 10 and localHealth <= self.flashOfLightHP and HasSpell("Flash of Light") and IsStanding()) then
+	if (localMana >= 10 and localHealth <= self.flashOfLightHP and HasSpell("Flash of Light") and IsStanding()) and (not IsDrinking()) and (not IsEating()) then
 		if (Buff("Flash of Light", localObj)) then
 			script_grind:setWaitTimer(1850);
 			self.message = "Healing: Flash of Light...";

@@ -55,6 +55,10 @@ function script_rotation:run()
 		self.message = "Paused by user..."; 
 		return; 
 	end
+
+	if (self.useExpChecker) then
+		script_expChecker:menu();
+	end
 	
 	local partyMana = GetLocalPlayer():GetManaPercentage();
 	local partyHealth = GetLocalPlayer():GetHealthPercentage();
@@ -67,11 +71,6 @@ function script_rotation:run()
 	
 	localObj = GetLocalPlayer();
 
-
-	if (self.useExpChecker) then
-		script_expChecker:menu();
-	end
-
 	if (IsCasting() or IsChanneling()) then 
 		return; 
 	end
@@ -82,29 +81,6 @@ function script_rotation:run()
 
 	self.timer = GetTimeEX() + self.tickRate;
 	
-	-- temporary use torches turtle wow
-	if (HasItem("Unlit Poor Torch")) and (HasSpell("Survival")) then
-		script_survivalProf:craftDimTorch();
-	else
-		script_survivalProf:closeMenu();
-		if (HasItem("Dim Torch")) then
-			DeleteItem("Dim Torch");
-		end
-	end
-
-	-- temporary use campfire
-	if (script_survivalProf.useCampfire) then
-		script_survivalProf:craftBrightCampfire();
-	end
-
-	-- temporary use first aid
-	--if (HasItem("Linen Cloth")) and (HasSpell("First Aid")) then
-	--	if (script_firstAid:craftBandages()) then
-	--		return;
-	--	end
-	--else
-	--	script_firstAid:closeMenu();
-	--end
 
 	if (GetTarget() ~= 0 and GetTarget() ~= nil) then
 		local target = GetTarget();
@@ -166,7 +142,7 @@ function script_rotation:enemyIsValid(i)
 	if (i ~= 0) then
 		-- Valid Targets: Tapped by us, or is attacking us or our pet
 		if (script_rotation:isTargetingMe(i) or script_rotation:getTargetAttackingUs()) or (i:IsTappedByMe() or not i:IsTapped()) or (i:IsTappedByMe()) and (not i:IsDead()) then 
-				return true; 
+			return true; 
 		end
 		-- Valid Targets: Within pull range, levelrange, not tapped, not skipped etc
 		if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
@@ -297,9 +273,7 @@ function script_rotation:runRest()
 		if ((self.timer - GetTimeEX()) < 2500) then 
 			self.timer = GetTimeEX() + 2500;
 		end
-
-		return true;	
+	return true;	
 	end
-
-	return false;
+return false;
 end

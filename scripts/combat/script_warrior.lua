@@ -2,22 +2,22 @@ script_warrior = {
 	message = 'Warrior Combat Script',
 	warriorMenu = include("scripts\\combat\\script_warriorEX.lua"),
 	eatHealth = 55, -- health to use food
-	bloodRageHealth = 50, -- health to use bloodrage
+	bloodRageHealth = 65, -- health to use bloodrage
 	potionHealth = 6, -- health to use potion
 	isSetup = false, -- setup check
 	meleeDistance = 3.6, -- melee distance
 	throwOpener = false, -- use throw as opener
-	throwName = "Heavy Throwing Dagger", -- opener throw item name
+	throwName = "Feeble Short Bow", -- opener throw item name
 	waitTimer = 0, -- set wait time for script
 	stopIfMHBroken = true, -- stop if main hand is broken
-	overpowerActionBarSlot = 72+6, -- Default: Overpower in slot 5 on the default Battle Stance Bar
-	revengeActionBarSlot = 82+8,  -- default at action bar 1 (82) slot 8 (82+8)
+	overpowerActionBarSlot = 73+6, -- Default: Overpower in slot 7 on the default Battle Stance Bar
+	revengeActionBarSlot = 83+5,  -- default at action bar 1 (85) -- action bar 72 is battle stance - defense is 82. slot 1 is + 1
 	enableGrind = true, -- enable/disable grind settings
 	enableCharge = false, -- enable/disable charge
 	defensiveStance = false, -- enable/disable defensive stance settings
 	battleStance = true, -- enable/disable battle stance settings
 	berserkerStance = false, -- enable/disable berskerer stance settings
-	sunderStacks = 2, -- how many stacks of sunder armor
+	sunderStacks = 0, -- how many stacks of sunder armor
 	enableFaceTarget = true, -- enable/disable auto facing target
 	enableShieldBlock = true, -- enable/disable shield block
 	shieldBlockRage = 10,  -- use shield block at this rage
@@ -30,11 +30,14 @@ script_warrior = {
 	challengingShoutAdds = 5, -- how many adds to use challenging shout. depends on dungeon/raid
 	mockingBlowActionBarSlot = 72+4,
 	useMockingBlow = true,
-	followTargetDistance = 100,
+	followTargetDistance = 40,
+	useBandage = false,
+	hasBandages = false,
+	lastStandHealth = 8,
 
 	-- note. the checkbox in the menu controls battle, defensive, berserker stance. all spells have arguments for which
 	-- stance they apply to and can be used in. if the palyer does not click defensive stance in-game then the bot
-	--will assume you are not using defensive stance. 
+	-- will assume you are not using defensive stance. 
 
 }
 
@@ -111,7 +114,7 @@ end
 
 function script_warrior:canOverpower()	-- use overpower function
 	local isUsable, _ = IsUsableAction(self.overpowerActionBarSlot); 
-	if (isUsable == 1 and not IsSpellOnCD('Overpower')) then 
+	if (isUsable == 1 and not IsSpellOnCD("Overpower")) then 
 		return true; 
 	end 
 	return false;
@@ -220,17 +223,36 @@ function script_warrior:run(targetGUID)	-- main content of script
 			script_grind.tickRate = 750;
 		end
 	end
+
+	if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= self.followTargetDistance) and (not IsMoving()) and (not targetObj:IsDead()) and (targetObj:CanAttack()) and (self.enableFaceTarget) then
+		targetObj:FaceTarget();
+	end
 	
 	--Valid Enemy
-	if (targetObj ~= 0) and (not localObj:IsStunned()) and (not localObj:IsMovementDisabed()) then
+	if (targetObj ~= 0) and (not localObj:IsStunned()) and (not localObj:IsMovementDisabed()) and (not localObj:HasDebuff("Disarm")) then
 		
 		-- Cant Attack dead targets
 		if (targetObj:IsDead()) or (not targetObj:CanAttack()) then
+			self.waitTimer = GetTimeEX() + 2000;
 			return 0;
 		end
 
 		if (not IsStanding()) then
 			JumpOrAscendStart();
+		end
+
+		-- Don't attack if we should rest first
+		if (localHealth < self.eatHealth and not script_grind:isTargetingMe(targetObj)
+			and targetHealth > 99 and not targetObj:IsStunned() and script_grind.lootobj == nil) then
+			self.message = "Need rest...";
+			return 4;
+		end
+
+		if (targetObj:GetDistance() < self.meleeDistance) and (not targetObj:IsFleeing()) and (IsInCombat()) and (self.enableFaceTarget) then
+			if (IsMoving()) then
+				StopMoving();
+				targetObj:FaceTarget();
+			end
 		end
 
 		-- Auto Attack
@@ -240,7 +262,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 
 		if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= self.followTargetDistance) and (not IsMoving()) and (self.enableFaceTarget) then
 				targetObj:FaceTarget();
-		elseif (IsMoving()) and (targetObj:GetDistance() < self.meleeDistance + 2) then
+		elseif (IsMoving()) and (self.enableFaceTarget) and (targetObj:GetDistance() < self.meleeDistance + 2) then
 				targetObj:FaceTarget();
 		end
 	
@@ -255,7 +277,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 		end 
 
 		-- Use bloodrage in party as rage gain before combat
-		if (GetNumPartyMembers() >= 1) and (self.defensiveStance) then
+		if (GetNumPartyMembers() >= 1) and (self.defensiveStance) or (IsInCombat()) then
 			if (not IsSpellOnCD('Bloodrage')) and (HasSpell('Bloodrage')) and (localHealth >= self.bloodRageHealth) 
 				and (targetObj:GetDistance() <= 40) then
 				CastSpellByName('Bloodrage'); 
@@ -280,18 +302,10 @@ function script_warrior:run(targetGUID)	-- main content of script
 
 			-- Check: Open with throw weapon
 			if (self.rangeOpener) then
-				if (targetObj:GetDistance() >= 30 or not targetObj:IsInLineOfSight()) then
-					return 3;
-				else
-					-- Dismount
-					if (IsMounted()) then DisMount(); 
-						return 0; 
-					end
-					-- cast throw
-					if (Cast("Throw", targetObj)) then
-						self.waitTimer = GetTimeEX() + 4000;
-						return 0;
-					end
+				if (targetObj:GetDistance() <= 30 and targetObj:IsInLineOfSight()) then
+					Cast("Shoot Bow", targetObj)
+					self.waitTimer = GetTimeEX() + 4000;
+					return 0;
 				end
 			end
 
@@ -301,7 +315,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 					and (targetObj:GetDistance() >= 12) and (targetObj:IsInLineOfSight()) then
 					targetObj:FaceTarget();
 					-- Dismount
-					if (IsMoving()) then
+					if (IsMoving()) and (not IsSpellOnCD("Charge")) then
 							StopMoving();
 					end
 					if (Cast("Charge", targetObj)) then 
@@ -339,8 +353,15 @@ function script_warrior:run(targetGUID)	-- main content of script
 				DisMount();
 			end
 
+			if (self.enableFaceTarget) and (targetObj:GetDistance() < self.meleeDistance) and (not targetObj:IsFleeing()) and (IsInCombat()) then
+				if (IsMoving()) then
+					StopMoving();
+					targetObj:FaceTarget();
+				end
+			end
+
 			-- if in line of sight then force facing target
-			if (targetObj:IsInLineOfSight()) and (not IsMoving()) and (self.enableFaceTarget) and (targetHealth < 99) and (IsInCombat()) and (self.enableFaceTarget) then
+			if (targetObj:IsInLineOfSight()) and (not IsMoving()) and (self.enableFaceTarget) and (targetHealth < 99) and (IsInCombat()) then
 				if (targetObj:GetDistance() <= self.followTargetDistance) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
@@ -349,7 +370,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 	
 			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() <= .3) then 
+			if (targetObj:GetDistance() <= .2) then 
 				if (script_warrior:runBackwards(targetObj,4)) then 
 					return 4; 
 				end 
@@ -380,29 +401,19 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end 
 			end
 
-			-- TEST DEFENSIVE STANCE RETALIATION
-			--if (not IsSpellOnCD("Retaliation")) then -- need this first or it will always cast defensive stance
-			--	if (self.defensiveStance) and (localHealth <= 75 and script_warrior:enemiesAttackingUs(10) >= 5) then
-			--		if (HasSpell("Retaliation")) then
-			--			if (CastSpellByName("Battle Stance")) then
-			--				self.waitTimer = GetTimeEX() + 1800;
-			--			end
-			--			if (targetObj:GetDistance() >= 8) and (targetObj:GetDistance() <= 28) and (CastSpellByName("Retaliation")) then
-			--				self.waitTimer = GetTimeEX() + 2700;
-			--			end
-			--		end
-			--	CastSpellByName("Defensive Stance");
-			--	end
-			--end
+			-- check use last stand talent
+			if (HasSpell("Last Stand")) and (not IsSpellOnCD("Last Stand")) and (localHealth <= self.lastStandHealth) and (IsInCombat()) and (targetHealth > 10) then
+				CastSpellByName("Last Stand");
+				self.waitTimer = GetTimeEX() + 1500;
+				return 0;
+			end
 
 			-- shield block
 			-- main rage user use only if target has at least 1 sunder for threat gain
 			if (self.defensiveStance) and (self.enableShieldBlock) then
-				if (HasSpell("Shield Block")) and (not IsSpellOnCD("Shield Block")) and (localRage >= self.shieldBlockRage) and (localHealth <= self.shieldBlockHealth) then
-					if (targetObj:GetDebuffStacks("Sunder Armor") >= 1) then
-						if (CastSpellByName("Shield Block")) then
-							return 0;
-						end
+				if (HasSpell("Shield Block")) and (not IsSpellOnCD("Shield Block")) and (localRage >= self.shieldBlockRage) and (localHealth <= self.shieldBlockHealth) and (targetObj:HasDebuff("Sunder Armor")) then
+					if (CastSpellByName("Shield Block")) then
+						return 0;
 					end
 				end
 			end
@@ -419,15 +430,15 @@ function script_warrior:run(targetGUID)	-- main content of script
 						end
 					end
 
-					-- shield bash first
-				elseif (targetObj:IsCasting()) and (HasSpell("Shield Bash")) and (not IsSpellOnCD("Shield Bash")) then
-					if (localRage >= 10) and (targetHealth >= 10) then
+					-- shield bash
+				elseif (self.defensiveStance) and (targetObj:IsCasting()) and (HasSpell("Shield Bash")) and (not IsSpellOnCD("Shield Bash")) then
+					if (localRage >= 10) and (targetHealth >= 10) and (self.defensiveStance) then
 						CastSpellByName("Shield Bash");
 						self.waitTimer = GetTimeEX() + 700;
 					end
 				
 					-- else get sunder out!
-				elseif (localRage > self.sunderArmorRage) and (targetObj:GetDebuffStacks("Sunder Armor") < self.sunderStacks) then
+				elseif (localRage >= self.sunderArmorRage) and (targetObj:GetDebuffStacks("Sunder Armor") < self.sunderStacks) then
 					if (not targetObj:GetCreatureType() ~= 'Mechanical') and (not targetObj:GetCreatureType() ~= 'Elemental') then
 						self.waitTimer = GetTimeEX() + 500
 					end
@@ -493,7 +504,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			
 			-- shield bash	first thing in combat!
 			-- TODO add if has shield
-			if (self.defensiveStance) or (self.battleStance) then
+			if (self.defensiveStance) then
 				if (HasSpell("Shield Bash")) and (not IsSpellOnCD("Shield Bash")) and (localRage >= 10)
 					and (targetObj:IsCasting()) and (targetHealth >= 20) then
 					CastSpellByName("Shield Bash");
@@ -525,7 +536,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 
 			--Demoralizing shout if targets >= 1
-			if (HasSpell("Demoralizing Shout")) and (script_warrior:enemiesAttackingUs(10) >= 2) and (not targetObj:HasDebuff("Demoralizing Shout")) then
+			if (HasSpell("Demoralizing Shout")) and (script_warrior:enemiesAttackingUs(5) >= 2) and (not targetObj:HasDebuff("Demoralizing Shout")) and (localRage >= 10) then
 				if (localRage >= self.demoShoutRage) then 
 					if CastSpellByName("Demoralizing Shout") then
 						return 0;
@@ -569,11 +580,12 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 	
 			-- War Stomp Tauren Racial
-			if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) or (targetObj:IsCasting())
-				and (targetHealth >= 50) and (not IsMoving()) then
+			if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) and (not IsMoving()) and (targetObj:GetDistance() <= 6) then
+				if (targetObj:IsCasting()) or (script_warrior:enemiesAttackingUs(2)) or (targetObj:IsFleeing()) then
 					CastSpellByName("War Stomp");
 					self.waitTimer = GetTimeEX() + 200;
 					return 0;
+				end
 			end
 
 			-- Stone Form Dwarf Racial
@@ -584,15 +596,14 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 
 			-- Check: Thunder clap if 2 mobs or more
-			if (self.battleStance) or (self.defensiveStance) then
-				if (script_warrior:enemiesAttackingUs(5) >= 2 and HasSpell('Thunder Clap') 
+			if (self.battleStance) then
+				if (script_warrior:enemiesAttackingUs(5) >= 2 and HasSpell('Thunder Clap') and (localRage >= 20)
 					and not IsSpellOnCD('Thunder Clap') and not targetObj:HasDebuff('Thunder Clap')) then 
 					if (localRage >= 20) then
-						return 0;
-					end
 					CastSpellByName('Thunder Clap'); 
 					self.waitTimer = GetTimeEX() + 550;
-					return 0;
+						return 0;
+					end
 				end
 			end
 
@@ -666,7 +677,9 @@ function script_warrior:run(targetGUID)	-- main content of script
 				-- melee Skill: Overpower if possible battle stance
 				if (self.battleStance) then
 					if (script_warrior:canOverpower() and localRage >= 5 and not IsSpellOnCD('Overpower')) then 
-						CastSpellByName('Overpower'); 
+						if (Cast("Overpower", targetObj)) then
+							return 0;
+						end
 					end  
 				end
 
@@ -711,7 +724,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end
 
 				-- melee Skill: Rend if we got more than 10 rage battle or bersker stance
-				if (self.battleStance or self.defensiveStance) and (self.enableRend) then
+				if (self.battleStance) and (self.enableRend) then
 					if (targetObj:GetCreatureType() ~= 'Mechanical' and targetObj:GetCreatureType() ~= 'Elemental' and HasSpell('Rend') and not targetObj:HasDebuff("Rend") 
 						and targetHealth >= 30 and localRage >= 10) then 
 						if (Cast('Rend', targetObj)) then 
@@ -795,9 +808,43 @@ function script_warrior:rest()
 	local localObj = GetLocalPlayer();
 	local localHealth = localObj:GetHealthPercentage();
 
-	if (not IsEating() and localHealth < self.eatHealth) then
+	if (HasItem("Linen Bandage")) or 
+		(HasItem("Heavy Linen Bandage")) or 
+		(HasItem("Wool Bandage")) or 
+		(HasItem("Heavy Wool Bandage")) or 
+		(HasItem("Silk Bandage")) or 
+		(HasItem("Heavy Silk Bandage")) or 
+		(HasItem("Mageweave Bandage")) or 
+		(HasItem("Heavy Mageweave Bandage")) or 
+		(HasItem("Runecloth Bandage")) or 
+		(HasItem("Heavy Runecloth Bandage")) then
+
+		self.hasBandages = true;
+	else
+		self.hasBandages = false;
+		self.useBandage = false;
+	end
+	
+	-- if has bandage then use bandages
+	if (self.hasBandages) and (self.useBandage) and (not IsMoving()) then
+		if (not localObj:HasDebuff("Creeping Mold")) and (not IsEating()) and (localHealth <= self.eatHealth) and (not localObj:HasDebuff("Recently Bandaged")) and (not localObj:HasDebuff("Poison")) then
+		if (IsMoving()) then
+			StopMoving();
+		end
+		if (IsStanding()) and (not IsInCombat()) and (not IsMoving()) and (not localObj:HasDebuff("Recently Bandaged")) then
+			script_helper:useBandage()		
+			self.waitTimer = GetTimeEX() + 6000;
+		end
+		return 0;
+		end
+	end
+
+	-- eat if not bandages
+	if (not IsEating() and localHealth <= self.eatHealth) and (not IsInCombat()) and (not IsMoving()) then
 		-- Dismount
-		if(IsMounted()) then DisMount(); end
+		if(IsMounted()) then
+			DisMount();
+		end
 		self.message = "Need to eat...";	
 		if (IsMoving()) then
 			StopMoving();
@@ -819,7 +866,14 @@ function script_warrior:rest()
 		end
 		return true;
 	end
-	
+
+	-- night elve stealth while resting
+	if (IsEating()) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) then
+		if (CastSpellByName("Shadowmeld")) then
+			return 0;
+		end
+	end
+
 	if (localHealth < 98 and IsEating()) then
 		self.message = "Resting to full hp/mana...";
 		return true;
@@ -828,13 +882,6 @@ function script_warrior:rest()
 	if (not IsEating()) then
 		if (not IsStanding()) then
 			JumpOrAscendStart();
-		end
-	end
-
-	-- night elve stealth while resting
-	if (IsEating()) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) then
-		if (CastSpellByName("Shadowmeld")) then
-			return 0;
 		end
 	end
 

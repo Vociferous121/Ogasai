@@ -10,6 +10,7 @@ script_fish = {
 	message = 'Fishing...',
 	pause = false,
 	setup = false,
+	displayRadar = true,
 }
 
 function script_fish:GetBobber()
@@ -118,6 +119,9 @@ function script_fish:run()
 		end
 	end
 
+	if (self.displayRadar) then
+        	script_radar:Radar();
+    	end        
 	if (script_grind.paranoidOn) then
 		if (script_grind:playersWithinRange(script_grind.paranoidRange)) then
 			self.message = "Player(s) within paranoid range, pausing...";
@@ -300,6 +304,9 @@ function script_fish:menu()
 			wasClicked, script_grind.paranoidOn = Checkbox("Enable Paranoia", script_grind.paranoidOn);
 	 		Text('Paranoia Range'); script_grind.paranoidRange = SliderInt("P (yd)", 50, 300, script_grind.paranoidRange);
 		end
+
+		wasClicked, self.displayRadar = Checkbox("Draw the radar", self.displayRadar);
+
 end
 
 function script_fish:checkLure(lureName)

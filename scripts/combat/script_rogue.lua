@@ -884,7 +884,9 @@ function script_rogue:run(targetGUID)
 end
 
 function script_rogue:rest()
-	if(not self.isSetup) then script_rogue:setup(); end
+	if(not self.isSetup) then
+		script_rogue:setup();
+	end
 
 	local localObj = GetLocalPlayer();
 	local localHealth = localObj:GetHealthPercentage();

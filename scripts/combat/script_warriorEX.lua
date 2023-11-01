@@ -4,6 +4,23 @@ script_warriorEX = {
 
 function script_warriorEX:menu()
 
+	if (HasItem("Linen Bandage")) or 
+		(HasItem("Heavy Linen Bandage")) or 
+		(HasItem("Wool Bandage")) or 
+		(HasItem("Heavy Wool Bandage")) or 
+		(HasItem("Silk Bandage")) or 
+		(HasItem("Heavy Silk Bandage")) or 
+		(HasItem("Mageweave Bandage")) or 
+		(HasItem("Heavy Mageweave Bandage")) or 
+		(HasItem("Runecloth Bandage")) or 
+		(HasItem("Heavy Runecloth Bandage")) then
+		
+		self.menuBandages = true;
+	else
+		self.menuBandages = false;
+	end
+	
+
 	local wasClicked = false;
 
 	if (not script_warrior.battleStance) and (not script_warrior.defensiveStance) and (not script_warrior.berserkerStance) then
@@ -115,10 +132,23 @@ function script_warriorEX:menu()
 		end
 	end
 	if (CollapsingHeader("Warrior Combat Options")) then -- grind menu plans to hide this menu once rotation is complete
+		
+		if (self.menuBandages) then
+			Text("Use Bandages");
+			wasClicked, script_warrior.useBandage = Checkbox("Use Bandages", script_warrior.useBandage);
+		end
+
 		Text('Eat below health percentage');
-		script_warrior.eatHealth = SliderInt("EHP %", 1, 100, script_warrior.eatHealth);	-- use food health
+		script_warrior.eatHealth = SliderInt("EHP %", 15, 100, script_warrior.eatHealth);	-- use food health
+
 		Text('Potion below health percentage');
 		script_warrior.potionHealth = SliderInt("PHP %", 5, 15, script_warrior.potionHealth);	-- use potion health
+
+		if (HasSpell("Last Stand")) then
+			Text("Last Stand Health");
+			script_warrior.lastStandHealth = SliderInt("LSH %", 5, 15, script_warrior.lastStandHealth);
+		end
+
 		Separator();
 		wasClicked, script_warrior.stopIfMHBroken = Checkbox("Stop bot if main hand is broken.", script_warrior.stopIfMHBroken);
 		

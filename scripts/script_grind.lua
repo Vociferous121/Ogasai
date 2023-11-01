@@ -926,6 +926,7 @@ function script_grind:lootAndSkin()
 	-- Skin if there is anything skinnable within the loot radius
 	if (HasSpell('Skinning') and self.skinning and HasItem('Skinning Knife')) then
 		self.lootObj = nil;
+		self.waitTimer = GetTimeEX() + 650;
 		self.lootObj = script_grind:getSkinTarget(self.findLootDistance);
 		if (not AreBagsFull() and not self.bagsFull and self.lootObj ~= nil) then
 			script_grind:doLoot(localObj);

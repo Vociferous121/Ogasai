@@ -200,12 +200,18 @@ function script_hunter:run(targetGUID)
 		
 		-- Cant Attack dead targets
 		if (targetObj:IsDead() or not targetObj:CanAttack()) then
-			self.waitTimer = GetTimeEX() + 1200;
+			self.waitTimer = GetTimeEX() + 1700;
 			return 0;
 		end
 		
 		if (not IsStanding()) then
 			StopMoving();
+		end
+
+		-- Don't attack if we should rest first
+		if (localHealth < self.eatHealth and not script_grind:isTargetingMe(targetObj) and targetHealth > 99 and not targetObj:IsStunned() and script_grind.lootobj == nil) then
+			self.message = "Need rest...";
+			return 4;
 		end
 
 		script_hunterEX:chooseAspect(targetObj);
@@ -227,7 +233,6 @@ function script_hunter:run(targetGUID)
 		
 		-- Opener
 		if (not IsInCombat()) and (targetObj:GetDistance() < 36) then
-			self.dontRest = true;
 			if (script_hunter:doOpenerRoutine(targetGUID, pet)) then
 				targetObj:FaceTarget();
 				self.waitTimer = GetTimeEX() + 1850;
@@ -237,9 +242,7 @@ function script_hunter:run(targetGUID)
 			end
 			
 		-- Combat
-		else	
-			self.dontRest = false;
-
+		else				
 			-- Check: Use Healing Potion 
 			if (localHealth < self.potionHealth) then 
 				if (script_helper:useHealthPotion()) then 
@@ -319,14 +322,6 @@ function script_hunter:rest()
 		script_hunter:setup();
 	end
 
-	if (self.dontRest) then
-		return false;
-	end
-	
-	local localObj = GetLocalPlayer();
-	local localMana = localObj:GetManaPercentage();
-	local localHealth = localObj:GetHealthPercentage();
-
 	if (not script_grind.adjustTickRate) then
 		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
 			script_grind.tickRate = 100;
@@ -334,6 +329,19 @@ function script_hunter:rest()
 			script_grind.tickRate = 750;
 		end
 	end
+
+	if (not IsLooting()) then
+		script_grind:doLoot(targetObj);
+	return;
+	end
+
+	if (self.dontRest) then
+		return false;
+	end
+	
+	local localObj = GetLocalPlayer();
+	local localMana = localObj:GetManaPercentage();
+	local localHealth = localObj:GetHealthPercentage();
 
 	-- Stop moving before we can rest
 	if(localHealth < self.eatHealth or localMana < self.drinkMana) then
@@ -686,9 +694,13 @@ end
 function script_hunter:doRangeAttack(targetObj, localMana)
 	-- Keep up the debuff: Hunter's Mark 
 	if (not targetObj:HasDebuff("Hunter's Mark") and not IsSpellOnCD("Hunter's Mark")) then 
-		if (script_hunter:cast("Hunter's Mark", targetObj)) then return true; end end
+		if (script_hunter:cast("Hunter's Mark", targetObj)) then
+			return true;
+		end
+	end
+
 	-- Attack: Use Auto Shot 
-	if (not IsAutoCasting('Auto Shot')) then
+	if (not IsAutoCasting('Auto Shot')) and (IsInCombat()) then
 		if (script_hunter:cast('Auto Shot', targetObj)) then return true; else return false; end
 	end
 	-- Check: Let pet get aggro, dont use special attacks before the mob has less than 95% HP
