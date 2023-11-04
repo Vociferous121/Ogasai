@@ -57,7 +57,6 @@ function script_paranoia:checkParanoia()
 			return true;
 		end
 
-
 		-- if paranoid turned on then do....
 
 		-- if players in range
