@@ -12,7 +12,7 @@ script_fish = {
 	setup = false,
 	displayRadar = true,
 	useFishRandom = false,
-	fishRandomFloat = 17,
+	fishRandomFloat = 92,
 }
 
 function script_fish:GetBobber()
