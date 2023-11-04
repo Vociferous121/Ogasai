@@ -333,6 +333,7 @@ function script_grind:run()
 
 		-- Gather
 		if (self.gather and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
+			script_grind.tickRate = 100;
 			if (script_gather:gather()) then
 				self.message = 'Gathering ' .. script_gather:currentGatherName() .. '...';
 				return;
@@ -477,7 +478,7 @@ function script_grind:run()
 				return;
 			else
 				self.message = script_nav:moveToSavedLocation(localObj, self.minLevel, self.maxLevel, self.staticHotSpot);
-				script_grind:setWaitTimer(100);
+				script_grind:setWaitTimer(80);
 			end
 		else
 			-- Check: Load/Refresh the walk path
@@ -856,7 +857,6 @@ function script_grind:doLoot(localObj)
 			self.waitTimer = GetTimeEX() + 950;
 			return;
 		end
-		self.waitTimer = GetTimeEX() + 850;
 
 		-- If we reached the loot object, reset the nav path
 		script_nav:resetNavigate();

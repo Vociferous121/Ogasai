@@ -11,14 +11,10 @@ script_gather = {
 	numHerbs = 0,
 	minerals = {},
 	numMinerals = 0,
-	lootDistance = 3,
+	lootDistance = 2,
 	timer = 0,
 	nodeID = 0,
-	gatherAllPossible = true,
-	collectPowerCrystals = false,
-	powerCrystals = {},
-	numPowerCrystals = 0,
-	
+	gatherAllPossible = true
 }
 
 function script_gather:addHerb(name, id, use, req)
@@ -37,15 +33,6 @@ function script_gather:addMineral(name, id, use, req)
 	self.minerals[self.numMinerals][2] = use;
 	self.minerals[self.numMinerals][3] = req;
 	self.numMinerals = self.numMinerals + 1;
-end
-
-function script_gather:addPowerCrystals(name, id, use, req)
-	self.powerCrystals[self.numPowerCrystals] = {}
-	self.powerCrystals[self.numPowerCrystals][0] = name;
-	self.powerCrystals[self.numPowerCrystals][1] = id;
-	self.powerCrystals[self.numPowerCrystals][2] = use;
-	self.powerCrystals[self.numPowerCrystals][3] = req;
-	self.numPowerCrystals = self.numPowerCrystals + 1;
 end
 
 function script_gather:setup()
@@ -96,10 +83,6 @@ function script_gather:setup()
 	script_gather:addMineral('Small Thorium Vein', 3951, false, 230);
 	script_gather:addMineral('Rich Thorium Vein', 3952, false, 255);
 
-	script_gather:addPowerCrystals('Red Power Crystal', 11186, false, 1);
-	script_gather:addPowerCrystals('Green Power Crystal', 11185, false, 1);
-	script_gather:addPowerCrystals('Yellow Power Crystal', 11188, false, 1);
-	script_gather:addPowerCrystals('Blue Power Crystal', 11184, false, 1);
 	
 	self.timer = GetTimeEX();
 
@@ -134,6 +117,7 @@ function script_gather:getMiningSkill()
 	return miningSkill;
 end
 
+
 function script_gather:ShouldGather(id)
 
 	local herbSkill = script_gather:getHerbSkill();
@@ -149,18 +133,10 @@ function script_gather:ShouldGather(id)
 	
 	if(self.collectHerbs) then
 		for i=0,self.numHerbs - 1 do
-			if(self.herbs[i][1] == id and (self.herbs[i][2] or ((self.herbs[i][3] <= herbSkill) and self.gatherAllPossible))) then			
+			if(self.herbs[i][1] == id and (self.herbs[i][2]or ((self.herbs[i][3] <= herbSkill) and self.gatherAllPossible))) then			
 				return true;		
 			end
 		end	
-	end
-
-	if(self.collectPowerCrystals) then
-		for i=o,self.numPowerCrystals - 1 do
-			if(self.powerCrystals[i][1] == id and (self.powerCyrstals[i][2] or ((self.powerCrystals[i][3] <= 1) and self.gatherAllPossible))) then
-				return true;
-			end
-		end
 	end
 end
 
@@ -207,12 +183,6 @@ local targetObj, targetType = GetFirstObject();
 						name = self.minerals[i][0];
 					end
 				end
-
-				for i=0,self.numPowerCrystals - 1 do
-					if (self.powerCrystals[i][1] == id) then
-						name = self.powerCrystals[i][0];
-					end
-				end
 					
 				DrawText(name, _tX-10, _tY, 255, 255, 0);
 			end
@@ -233,12 +203,6 @@ function script_gather:currentGatherName()
 		for i=0,self.numMinerals - 1 do
 			if (self.minerals[i][1] == self.nodeID) then
 				name = self.minerals[i][0];
-			end
-		end
-
-		for i=0,self.numPowerCrystals - 1 do
-			if (self.powerCrystals[i][1] == self.nodeID) then
-				name = self.powerCrystals[i][0];
 			end
 		end
 	end
@@ -273,24 +237,21 @@ function script_gather:gather()
 		local dist = self.nodeObj:GetDistance();		
 			
 		if(dist < self.lootDistance) then
-
-			script_grind.tickRate = 1000;
 			if(IsMoving()) then
 				StopMoving();
-				self.timer = GetTimeEX() + 1550;
+				self.timer = GetTimeEX() + 150;
 			end
 
 			if(not IsLooting() and not IsChanneling()) then
 				self.nodeObj:GameObjectInteract();
-				self.timer = GetTimeEX() + 1750;
+				self.timer = GetTimeEX() + 1250;
 			end
 			if (not LootTarget()) then
-				self.timer = GetTimeEX() + 1650;
+				self.timer = GetTimeEX() + 650;
 				return;
 			end
 		else
-			script_grind.tickRate = 100;
-			if (_x ~= 0) and (not IsDrinking() and not IsEating()) then
+			if (_x ~= 0) then
 				script_nav:moveToNav(GetLocalPlayer(), _x, _y, _z);
 				self.timer = GetTimeEX() + 150;
 			end
@@ -316,15 +277,9 @@ function script_gather:menu()
 		wasClicked, self.collectMinerals = Checkbox("Mining", self.collectMinerals);
 		SameLine();
 		wasClicked, self.collectHerbs = Checkbox("Herbalism", self.collectHerbs);
-		
-		--collect power crystals
-		if (GetLocalPlayer():GetLevel() >= 50) then
-			SameLine();
-			wasClicked, self.collectPowerCrystals = Checkbox("Power Crystals", self.collectPowerCrystals);
-		end
-		
+
 		Text('Gather Search Distance');
-		self.gatherDistance = SliderInt("GSD", 1, 500, self.gatherDistance);
+		self.gatherDistance = SliderFloat("GSD", 1, 150, self.gatherDistance);
 		
 		if (script_gather.collectMinerals or script_gather.collectHerbs) then
 			wasClicked, script_gather.gatherAllPossible = Checkbox("Gather everything we can", script_gather.gatherAllPossible);

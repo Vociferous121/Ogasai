@@ -16,7 +16,7 @@ script_nav = {
 	currentHotSpotZ = 0,
 	currentHotSpotName = 0,
 	hotSpotDist = 0,
-	drawNav = true,
+	drawNav = true
 }
 
 function script_nav:setup()
@@ -40,9 +40,12 @@ function script_nav:loadHotspotDB(id)
 			self.numSavedLocation = 0;
 			self.currentGoToLocation = 0;
 		end
-		self.currentHotSpotX , self.currentHotSpotY, self.currentHotSpotZ, self.currentHotSpotName = hotspot['pos']['x'], hotspot['pos']['y'], hotspot['pos']['z'], hotspot['name'];	
-		return true;
+		self.currentHotSpotX , self.currentHotSpotY, self.currentHotSpotZ, self.currentHotSpotName =
+			hotspot['pos']['x'], hotspot['pos']['y'], hotspot['pos']['z'], hotspot['name'];
+			
+			return true;
 	end
+
 	return false;
 end
 
@@ -62,7 +65,7 @@ function script_nav:updateHotSpot(currentLevel, factionNr, useStaticHotSpot)
 		local localObj = GetLocalPlayer();
 		local x, y, z = localObj:GetPosition();
 		self.currentHotSpotX , self.currentHotSpotY, self.currentHotSpotZ, self.currentHotSpotName =
-		x+1, y+1, z, 'Change in path options';
+		x, y, z, 'Change in path options';
 		return true;
 	end
 end
@@ -152,7 +155,7 @@ function script_nav:moveToSavedLocation(localObj, minLevel, maxLevel, useStaticH
 	-- Check: Move to the next location index
 	local _lx, _ly, _lz = localObj:GetPosition();
 	local currentDist = math.sqrt((_lx-self.savedLocations[self.currentGoToLocation]['x'])^2+(_ly-self.savedLocations[self.currentGoToLocation]['y'])^2);
-	if (currentDist < 10
+	if (currentDist < 5 
 		or self.savedLocations[self.currentGoToLocation]['level'] < minLevel
 		or self.savedLocations[self.currentGoToLocation]['level'] > maxLevel) then
 		self.currentGoToLocation = self.currentGoToLocation + 1;
@@ -247,7 +250,7 @@ function script_nav:drawPath()
 		else
 			firstIndex = self.lastnavIndex;
 		end
-		if (self.lastnavIndex <= GetPathSize(5)) then
+		if (self.lastnavIndex-1 <= GetPathSize(5)-1) then
 			for index = firstIndex, GetPathSize(5) do
 				local _x, _y, _z = GetPathPositionAtIndex(5, index);
 				local _xx, _yy, _zz = GetPathPositionAtIndex(5, index+1);
@@ -320,7 +323,7 @@ function script_nav:moveToTarget(localObj, _x, _y, _z) -- use when moving to mov
 	end	
 
 	if (not IsPathLoaded(5)) then
-			return "Generating path...";
+		return "Generating path...";
 	end
 
 	-- Get the current path node's coordinates
@@ -330,13 +333,13 @@ function script_nav:moveToTarget(localObj, _x, _y, _z) -- use when moving to mov
 	if(GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) < self.nextNavNodeDistance) then
 		self.lastnavIndex = 1 + self.lastnavIndex;		
 		if (GetPathSize(5) <= self.lastnavIndex) then
-			self.lastnavIndex = GetPathSize(5);
+			self.lastnavIndex = GetPathSize(5)-1;
 		end
 	end
 
 	-- Check: If move to coords are too far away, something wrong, dont move... BUT WHY ?!
-	if (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 20) then
-		GeneratePath(_lx, _ly+1, _lz, _lx, _ly, _lz);
+	if (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
+		GeneratePath(_lx, _ly, _lz, _lx+2, _ly+2, _lz);
 		return "Generating a new path...";
 	end
 
@@ -352,7 +355,7 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 	if (not IsUsingNavmesh() and self.useNavMesh) then
 		return "Please load and and enable the nav mesh...";
 	end
-
+	
 	self.drawNav = true;
 
 	-- Fetch our current position
@@ -361,24 +364,13 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 	local _ix, _iy, _iz = GetPathPositionAtIndex(5, self.lastpathnavIndex);
 			
 	-- If we have a new destination, generate a new path to it
-	if (not script_grind.gather) and (not localObj:IsDead()) then
-		if(self.navPathPosition['x'] ~= _x or self.navPathPosition['y'] ~= _y or self.navPathPosition['z'] ~= _z
-			or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 15) then
-			self.navPathPosition['x'] = _x;
-			self.navPathPosition['y'] = _y;
-			self.navPathPosition['z'] = _z;
-			GeneratePath(_lx, _ly, _lz, _x, _y, _z);
-			self.lastpathnavIndex = -1; 
-		end	
-	elseif (script_grind.gather) or (localObj:IsDead()) then
-		if(self.navPathPosition['x'] ~= _x or self.navPathPosition['y'] ~= _y or self.navPathPosition['z'] ~= _z
-			or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
-			self.navPathPosition['x'] = _x;
-			self.navPathPosition['y'] = _y;
-			self.navPathPosition['z'] = _z;
-			GeneratePath(_lx, _ly, _lz, _x, _y, _z);
-			self.lastpathnavIndex = 0; 
-		end
+	if(self.navPathPosition['x'] ~= _x or self.navPathPosition['y'] ~= _y or self.navPathPosition['z'] ~= _z
+		or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
+		self.navPathPosition['x'] = _x;
+		self.navPathPosition['y'] = _y;
+		self.navPathPosition['z'] = _z;
+		GeneratePath(_lx, _ly, _lz, _x, _y, _z);
+		self.lastpathnavIndex = 1; 
 	end	
 
 	if (not IsPathLoaded(5)) then
@@ -391,23 +383,23 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 	-- When dead use 2D distance
 	if (localObj:IsDead()) then
 		if (math.sqrt((_lx - _ix)^2 + (_ly - _iy)^2) < self.nextNavNodeDistance) then
-			self.lastpathnavIndex = self.lastpathnavIndex +1;	
-			if (GetPathSize(5) <= self.lastpathnavIndex +1) then
-				self.lastpathnavIndex = GetPathSize(5);
+			self.lastpathnavIndex = self.lastpathnavIndex + 1;	
+			if (GetPathSize(5) <= self.lastpathnavIndex) then
+				self.lastpathnavIndex = GetPathSize(5)-1;
 			end
 		end
 	else
 		-- If we are close to the next path node, increase our nav node index
-		if(GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) < self.nextNavNodeDistance + 1) then
-			self.lastpathnavIndex = self.lastpathnavIndex;	
+		if(GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) < self.nextNavNodeDistance) then
+			self.lastpathnavIndex = self.lastpathnavIndex + 1;	
 			if (GetPathSize(5) <= self.lastpathnavIndex) then
-				self.lastpathnavIndex = GetPathSize(5);
+				self.lastpathnavIndex = GetPathSize(5)-1;
 			end
 		end
 	end
 
 	-- Check: If the move to coords are too far away, something wrong don't use those
-	if (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 20) then
+	if (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
 		return "Moving to target...";
 	end
 
@@ -458,29 +450,26 @@ function script_nav:navigate(localObj)
 	if (not IsUsingNavmesh() and self.useNavMesh) then
 		return "Please load the nav mesh...";
 	end
-
+	
 	if(IsPathLoaded(0)) then
 		local pathSize = GetPathSize(0); -- walkPath = 0
 		local _lx, _ly, _lz = localObj:GetPosition();
-		self.nextNavNodeDistance = 5;
-		self.nextPathNodeDistance = 5;
-		self.lastPathIndex = -1;
 
 		-- At start get the closest walk path node
-		if(self.lastPathIndex == 0) then
+		if(self.lastPathIndex == -1) then
 			self.lastPathIndex = script_nav:findClosestPathNode(localObj, -1, 0, 5);
 		end
 
 		local _x, _y, _z = GetPathPositionAtIndex(0, self.lastPathIndex);
 
 		-- Check: If we are close to the next node in the walking path, hop to the next one		
-		if(GetDistance3D(_x, _y, _z, _lx, _ly, _lz) < self.nextPathNodeDistance -1) then
+		if(GetDistance3D(_x, _y, _z, _lx, _ly, _lz) < self.nextPathNodeDistance) then
 			self.lastPathIndex = self.lastPathIndex + 1;
 		end
 			
 		-- Check: If we reached the end node, start over at node 1
 		if(self.lastPathIndex >= pathSize) then
-			self.lastPathIndex = -1;
+			self.lastPathIndex = 0;
 		end
 			
 		script_nav:moveToNav(localObj, _x, _y, _z);
