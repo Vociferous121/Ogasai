@@ -253,7 +253,6 @@ function script_gather:gather()
 		else
 			if (_x ~= 0) then
 				script_nav:moveToNav(GetLocalPlayer(), _x, _y, _z);
-				self.timer = GetTimeEX() + 150;
 			end
 		end
 
