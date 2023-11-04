@@ -463,13 +463,13 @@ function script_nav:navigate(localObj)
 		local _x, _y, _z = GetPathPositionAtIndex(0, self.lastPathIndex);
 
 		-- Check: If we are close to the next node in the walking path, hop to the next one		
-		if(GetDistance3D(_x, _y, _z, _lx, _ly, _lz) < self.nextPathNodeDistance) then
+		if(GetDistance3D(_x, _y, _z, _lx, _ly, _lz) < self.nextPathNodeDistance-1) then
 			self.lastPathIndex = self.lastPathIndex + 1;
 		end
 			
 		-- Check: If we reached the end node, start over at node 1
 		if(self.lastPathIndex >= pathSize) then
-			self.lastPathIndex = 0;
+			self.lastPathIndex = -1;
 		end
 			
 		script_nav:moveToNav(localObj, _x, _y, _z);
