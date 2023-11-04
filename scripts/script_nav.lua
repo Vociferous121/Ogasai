@@ -16,7 +16,7 @@ script_nav = {
 	currentHotSpotZ = 0,
 	currentHotSpotName = 0,
 	hotSpotDist = 0,
-	drawNav = true
+	drawNav = true,
 }
 
 function script_nav:setup()
