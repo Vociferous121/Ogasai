@@ -244,7 +244,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			return 4;
 		end
 
-		if (self.useBow) and (not IsInCombat()) and (targetObj:GetDistance() < 34) and (targetObj:GetDistance() > 19) and (targetObj:IsInLineOfSight()) and (not IsChanneling()) and (not IsAutoCasting("Shoot Bow")) and (not IsSpellOnCD("Shoot Bow")) and (targetHealth > 99) then
+		if (self.useBow) and (not IsInCombat()) and (targetObj:GetDistance() <= 34) and (targetObj:GetDistance() >= 19) and (targetObj:IsInLineOfSight()) and (not IsChanneling()) and (not IsAutoCasting("Shoot Bow")) and (not IsSpellOnCD("Shoot Bow")) and (targetHealth > 99) then
 				if (IsMoving()) then
 					StopMoving();
 					self.waitTimer = GetTimeEX() + 1500;
@@ -256,7 +256,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 		end
 
 		if (targetObj:GetDistance() < self.meleeDistance) and (not targetObj:IsFleeing()) and (IsInCombat()) and (self.enableFaceTarget) then
-			if (IsMoving()) then
+			if (IsMoving()) and (not targetObj:IsFleeing()) then
 				StopMoving();
 				targetObj:FaceTarget();
 			end
@@ -345,7 +345,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 
 			if (self.enableFaceTarget) and (targetObj:GetDistance() < self.meleeDistance) and (not targetObj:IsFleeing()) and (IsInCombat()) then
-				if (IsMoving()) then
+				if (IsMoving()) and (not targetObj:IsFleeing()) then
 					StopMoving();
 					targetObj:FaceTarget();
 				end
@@ -386,13 +386,18 @@ function script_warrior:run(targetGUID)	-- main content of script
 
 			-- Execute the target if possible battle or berserker stance
 			if (self.battleStance) or (self.berserkerStance) then
-				if (targetHealth <= 16 and HasSpell('Execute')) and (localRage >= 15) then 
+				if (targetHealth <= 18 and HasSpell('Execute')) and (localRage >= 15) then 
 					if (Cast('Execute', targetObj)) then 
 						return 0; 
 					else 
 						return 0; -- save rage for execute
 					end 
 				end
+			end
+
+			if (HasSpell("Concussion Blow")) and (not IsSpellOnCD("Concussion Blow")) then
+				CastSpellByName("Concussion Blow");
+				return 0;
 			end
 
 			-- Check: Use Healing Potion 
