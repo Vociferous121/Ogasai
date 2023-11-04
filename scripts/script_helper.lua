@@ -210,7 +210,7 @@ function script_helper:setup()
 	-- Vendor fish food
 	script_helper:addFood('Spinefin Halibut');
 	script_helper:addFood('Striped Yellowtail');
-	script_helper:addFood('Rockscale Cod');
+	--script_helper:addFood('Rockscale Cod');
 	script_helper:addFood('Bristle Whisker Catfish');
 	script_helper:addFood('Slitherskin Mackerel');
 	script_helper:addFood('Longjaw Mud Snapper');
