@@ -221,7 +221,7 @@ function script_fish:run()
 			CastSpellByName("Fishing");
 		end
 
-			local fishRandom = random(1, 20);
+			local fishRandom = random(1, 100);
 
 		if (self.useFishRandom) and (fishRandom >= self.fishRandomFloat) and (not IsChanneling()) and (not IsMoving()) then
 			CastSpellByName("Fishing");
@@ -336,7 +336,7 @@ function script_fish:menu()
 		wasClicked, self.useFishRandom = Checkbox("Randomize Casting TIme", self.useFishRandom);
 
 		if (self.useFishRandom) then	
-			self.fishRandomFloat = SliderInt("", 15, 18, self.fishRandomFloat);
+			self.fishRandomFloat = SliderInt("", 80, 90, self.fishRandomFloat);
 		end
 
 end
