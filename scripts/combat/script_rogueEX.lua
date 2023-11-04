@@ -31,10 +31,18 @@ function script_rogueEX:menu()
 			Separator();
 			wasClicked, script_rogue.stopIfMHBroken = Checkbox("Stop bot if main hand is broken", script_rogue.stopIfMHBroken);
 			SameLine();
-			wasClicked, script_rogue.useSliceAndDice = Checkbox("Use Slice & Dice", script_rogue.useSliceAndDice);
-			wasClicked, script_rogue.useStealth = Checkbox("Use Stealth", script_rogue.useStealth);
-			Text("Stealth range to target");
-			script_rogue.stealthRange = SliderInt('SR (yd)', 1, 100, script_rogue.stealthRange);
+
+			if (HasSpell("Slice And Dice")) then
+				wasClicked, script_rogue.useSliceAndDice = Checkbox("Use Slice & Dice", script_rogue.useSliceAndDice);
+			end
+
+			if (HasSpell("Stealth")) then
+				wasClicked, script_rogue.useStealth = Checkbox("Use Stealth", script_rogue.useStealth);
+				Text("Stealth range to target");
+				script_rogue.stealthRange = SliderInt('SR (yd)', 1, 100, script_rogue.stealthRange);
+			end
+
+			Separator();
 
 			if (CollapsingHeader("--Combo Point Generator")) then
 				Text("Combo Point ability");
@@ -43,29 +51,37 @@ function script_rogueEX:menu()
 				script_rogue.cpGeneratorCost = SliderInt("Energy", 20, 50, script_rogue.cpGeneratorCost);
 			end
 			
-			if (CollapsingHeader("--Stealth Ability Opener")) then
-				Text("Stealth ability opener");
-				script_rogue.stealthOpener = InputText("STO", script_rogue.stealthOpener);
+			if (HasSpell("Stealth")) then
+				if(CollapsingHeader("--Stealth Ability Opener")) then
+					Text("Stealth ability opener");
+					script_rogue.stealthOpener = InputText("STO", script_rogue.stealthOpener);
+				end
 			end
 
-			if (CollapsingHeader("--Adrenaline Rush / Blade Flurry Options")) then
-				Text("Use Adrenaline Rush with Blade Furry health percent");
-				wasClicked, script_rogue.adrenRushCombo = Checkbox("Use Adren Blade Flurry combo", script_rogue.adrenRushCombo);
-				script_rogue.adrenRushComboHP = SliderInt("Health below percent", 15, 75, script_rogue.adrenRushComboHP);
+			if (HasSpell("Adrenaline Rush")) and (HasSpell("Blade Flurry")) then
+				if (CollapsingHeader("--Adrenaline Rush / Blade Flurry Options")) then
+					Text("Use Adrenaline Rush with Blade Furry health percent");
+					wasClicked, script_rogue.adrenRushCombo = Checkbox("Use Adren Blade Flurry combo", script_rogue.adrenRushCombo);
+					script_rogue.adrenRushComboHP = SliderInt("Health below percent", 15, 75, script_rogue.adrenRushComboHP);
+				end
 			end
-
-			if (CollapsingHeader("--Throwing Weapon Options")) then
-				wasClicked, script_rogue.throwOpener = Checkbox("Pull with throw (if stealth disabled)", script_rogue.throwOpener);	
-				Text("Throwing weapon");
-				script_rogue.throwName = InputText("TW", script_rogue.throwName);
+		
+			if (localObj:HasRangedWeapon()) then
+				if (CollapsingHeader("--Throwing Weapon Options")) then
+					wasClicked, script_rogue.throwOpener = Checkbox("Pull with throw (if stealth disabled)", script_rogue.throwOpener);	
+					Text("Throwing weapon");
+					script_rogue.throwName = InputText("TW", script_rogue.throwName);
+				end
 			end
 			
-			if (CollapsingHeader("--Poisons Options")) then
-				wasClicked, script_rogue.usePoison = Checkbox("Use poison on weapons", script_rogue.usePoison);
-				Text("Poison on Main Hand");
-				script_rogue.mainhandPoison = InputText("PMH", script_rogue.mainhandPoison);
-				Text("Poison on Off Hand");
-				script_rogue.offhandPoison = InputText("POH", script_rogue.offhandPoison);
+			if (GetLocalPlayer():GetLevel() >= 20) then
+				if (CollapsingHeader("--Poisons Options")) then
+					wasClicked, script_rogue.usePoison = Checkbox("Use poison on weapons", script_rogue.usePoison);
+					Text("Poison on Main Hand");
+					script_rogue.mainhandPoison = InputText("PMH", script_rogue.mainhandPoison);
+					Text("Poison on Off Hand");
+					script_rogue.offhandPoison = InputText("POH", script_rogue.offhandPoison);
+				end
 			end
 		end
 	end
@@ -73,15 +89,25 @@ function script_rogueEX:menu()
 	if (script_rogue.enableRotation) then
 		Separator();
 		if(CollapsingHeader("Rogue Talent Rotation Options")) then
-			wasClicked, script_rogue.useSliceAndDice = Checkbox("Use Slice & Dice", script_rogue.useSliceAndDice);
-			SameLine();
-			wasClicked, script_rogue.useKidneyShot = Checkbox("Kidney Shot Interrupts", script_rogue.useKidneyShot);
-			wasClicked, script_rogue.useStealth = Checkbox("Use Stealth", script_rogue.useStealth);
-			SameLine();
+			if (HasSpell("Slice And Dice")) then
+				wasClicked, script_rogue.useSliceAndDice = Checkbox("Use Slice & Dice", script_rogue.useSliceAndDice);
+			end
+			if (HasSpell("Kidney Shot")) then
+				SameLine();
+				wasClicked, script_rogue.useKidneyShot = Checkbox("Kidney Shot Interrupts", script_rogue.useKidneyShot);
+			end
+			if (HasSpell("Stealth")) then
+				SameLine();
+				wasClicked, script_rogue.useStealth = Checkbox("Use Stealth", script_rogue.useStealth);
+			end
 			wasClicked, script_rogue.enableFaceTarget = Checkbox("Auto Face Target", script_rogue.enableFaceTarget);
-			wasClicked, script_rogue.enableBladeFlurry = Checkbox("Blade Flurry on CD", script_rogue.enableBladeFlurry);
-			SameLine();
-			wasClicked, script_rogue.enableAdrenRush = Checkbox("Adren Rush on CD", script_rogue.enableAdrenRush);
+			if (HasSpell("Blade Flurry")) then
+				SameLine();
+				wasClicked, script_rogue.enableBladeFlurry = Checkbox("Blade Flurry on CD", script_rogue.enableBladeFlurry);
+			end
+			if (HasSpell("Adrenaline Rush")) then
+				wasClicked, script_rogue.enableAdrenRush = Checkbox("Adren Rush on CD", script_rogue.enableAdrenRush);
+			end
 			Text("Experimental Elite Target Rotation");
 			wasClicked, script_rogue.rotationTwo = Checkbox("Rotation 2", script_rogue.rotationTwo);
 		end

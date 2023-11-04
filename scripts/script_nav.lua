@@ -419,7 +419,7 @@ function script_nav:resetNavigate() -- navPathPosition used for navigate
 	self.navPathPosition['x'] = 0;
 	self.navPathPosition['y'] = 0;
 	self.navPathPosition['z'] = 0;
-	self.lastPathIndex = -1;
+	self.lastPathIndex = 0;
 end
 
 function script_nav:findClosestPathNode(localObj, currentIndex, pathType, maxHeightLevel)

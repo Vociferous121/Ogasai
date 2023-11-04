@@ -376,7 +376,7 @@ function script_grind:run()
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
 			-- Fix bug, when not targeting correctly
 			if (self.lastTarget ~= self.enemyObj:GetGUID()) then
-				self.newTargetTime = GetTimeEX();
+				self.newTargetTime = GetTimeEX() + 2500;
 				ClearTarget();
 			elseif (self.lastTarget == self.enemyObj:GetGUID() and not IsStanding() and not IsInCombat()) then
 				self.newTargetTime = GetTimeEX(); -- reset time if we rest

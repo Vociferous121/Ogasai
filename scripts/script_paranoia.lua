@@ -45,6 +45,8 @@ function script_paranoia:checkParanoia()
 
 	-- players targeting us
 	if (not localObj:IsDead() and self.paranoidOn and not IsInCombat()) then 
+		
+		self.waitTimer = GetTimeEX() + 3500;
 
 		if (self.paranoidOnTargeted and script_grind:playersTargetingUs() > 0) then
 			script_grind.message = "Player(s) targeting us, pausing...";
