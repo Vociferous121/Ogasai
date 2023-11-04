@@ -620,8 +620,8 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 
 			-- Check: Use Shield Wall if we have four or more mobs on us
-			if (self.battleStance) then
-				if (script_warrior:enemiesAttackingUs(10) >= 4 and HasSpell('Shield Wall') and not IsSpellOnCD('Shield Wall')) then 
+			if (self.defensiveStance) then
+				if (script_warrior:enemiesAttackingUs(10) >= 4 and HasSpell('Shield Wall') and not IsSpellOnCD('Shield Wall')) and (localHealth <=50) then 
 					CastSpellByName('Shield Wall');
 					return 0; 
 				end
