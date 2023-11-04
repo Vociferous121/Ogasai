@@ -384,14 +384,14 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 	if (localObj:IsDead()) then
 		if (math.sqrt((_lx - _ix)^2 + (_ly - _iy)^2) < self.nextNavNodeDistance) then
 			self.lastpathnavIndex = self.lastpathnavIndex + 1;	
-			if (GetPathSize(5) <= self.lastpathnavIndex) then
-				self.lastpathnavIndex = GetPathSize(5)-1;
+			if (GetPathSize(5) <= self.lastpathnavIndex +1) then
+				self.lastpathnavIndex = GetPathSize(5);
 			end
 		end
 	else
 		-- If we are close to the next path node, increase our nav node index
 		if(GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) < self.nextNavNodeDistance) then
-			self.lastpathnavIndex = self.lastpathnavIndex + 1;	
+			self.lastpathnavIndex = self.lastpathnavIndex;	
 			if (GetPathSize(5) <= self.lastpathnavIndex) then
 				self.lastpathnavIndex = GetPathSize(5)-1;
 			end

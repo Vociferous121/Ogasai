@@ -242,11 +242,15 @@ function script_hunterEX:menu()
 			Text("Pet Food Name:");
 			script_hunter.foodName = InputText("PFN", script_hunter.foodName);
 			Text('Always put the pet food in the last slot of the bag.');
+			Separator();
 		end
-		Separator();
-		script_hunter.quiverBagNr = InputText("Bag# for quiver (2-5)", script_hunter.quiverBagNr);
-		script_hunter.hsBag = InputText("Bag# for HS", script_hunter.hsBag);
-		script_hunter.hsSlot = InputText("Bag-slot (1-X) for HS", script_hunter.hsSlot);
+		if (script_hunter.buyWhenQuiverEmpty) then
+			script_hunter.quiverBagNr = InputText("Bag# for quiver (2-5)", script_hunter.quiverBagNr);
+		end
+		if (script_hunter.hsWhenStop) then
+			script_hunter.hsBag = InputText("Bag# for HS", script_hunter.hsBag);
+			script_hunter.hsSlot = InputText("Bag-slot (1-X) for HS", script_hunter.hsSlot);
+		end
 		Separator();	
 		Text('Stop settings:');
 		wasClicked, script_hunter.stopWhenBagsFull = Checkbox("Stop when bags are full", script_hunter.stopWhenBagsFull);

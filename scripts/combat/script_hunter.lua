@@ -14,11 +14,11 @@ script_hunter = {
 	stopWhenNoPetFood = true,
 	quiverBagNr = 5,
 	ammoIsArrow = true,
-	useVendor = true,
-	buyWhenQuiverEmpty = true,
+	useVendor = false,
+	buyWhenQuiverEmpty = false,
 	stopWhenQuiverEmpty = false,
 	stopWhenBagsFull = false,
-	hsWhenStop = true,
+	hsWhenStop = false,
 	hsBag = 1, -- HS in backpack (1rst bag)
 	hsSlot = 1, -- HS in slot 1 of the bag: hsBag
 	ammoName = 0,
@@ -29,6 +29,7 @@ script_hunter = {
 	followTargetDistance = 45,
 	useBandage = false,
 	hasBandages = false,
+	needToRest = false,
 }	
 
 function script_hunter:setup()
@@ -279,7 +280,8 @@ function script_hunter:doInCombatRoutine(targetObj, localMana)
 		if(targetObj:IsInLineOfSight() and (targetObj:GetDistance() < 35 or targetObj:GetDistance() < 4)) then 
 			targetObj:FaceTarget();
 			if (IsMoving()) then
-				StopMoving(); 
+				StopMoving();
+				targetObj:FaceTarget();
 			end
 		end
 	end
@@ -414,7 +416,8 @@ function script_hunter:run(targetGUID)
 		end
 
 		-- Don't attack if we should rest first
-		if (localHealth <= self.eatHealth) and (not script_grind:isTargetingMe(targetObj)) and (targetHealth > 99) and (not targetObj:IsStunned()) then
+		if (localHealth < self.eatHealth and not script_grind:isTargetingMe(targetObj)
+			and targetHealth > 99 and not targetObj:IsStunned() and script_grind.lootobj == nil) then
 			self.message = "Need rest...";
 			return 4;
 		end
@@ -531,6 +534,7 @@ function script_hunter:run(targetGUID)
 				return 3;
 			end
 		end
+	self.needToRest = true;
 	end
 end
 
@@ -606,6 +610,15 @@ function script_hunter:rest()
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
 
+
+	-- Stop moving before we can rest
+	if(localHealth < self.eatHealth or localMana < self.drinkMana) then
+		if (IsMoving()) then
+			StopMoving();
+			return true;
+		end
+	end
+
 	-- if has bandage then use bandages
 	if (self.eatHealth >= 35) and (self.hasBandages) and (self.useBandage) and (not IsMoving()) and (localHealth >= 35) then
 		if (not localObj:HasDebuff("Creeping Mold")) and (not IsEating()) and (localHealth <= self.eatHealth) and (not localObj:HasDebuff("Recently Bandaged")) and (not localObj:HasDebuff("Poison")) then
@@ -618,15 +631,6 @@ function script_hunter:rest()
 			self.waitTimer = GetTimeEX() + 6000;
 		end
 		return 0;
-		end
-	end
-
-
-	-- Stop moving before we can rest
-	if(localHealth < self.eatHealth or localMana < self.drinkMana) then
-		if (IsMoving()) then
-			StopMoving();
-			return true;
 		end
 	end
 
@@ -802,6 +806,12 @@ function script_hunter:rest()
 	if (not IsMounted()) then if (script_hunterEX:chooseAspect(script_grind:getTarget())) then return false; end end
 
 	-- No rest / buff needed
+	if (self.needToRest) then
+		self.waitTimer = GetTimeEX() + 2500;
+		self.message = "Need to rest!";
+		self.needToRest = false;
+		return;
+	end
 	return false;
 end
 
