@@ -619,6 +619,14 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end
 			end
 
+			-- Check: Use Shield Wall if we have four or more mobs on us
+			if (self.battleStance) then
+				if (script_warrior:enemiesAttackingUs(10) >= 4 and HasSpell('Shield Wall') and not IsSpellOnCD('Shield Wall')) then 
+					CastSpellByName('Shield Wall');
+					return 0; 
+				end
+			end
+
 			-- Check: Use Orc Racial Blood Fury
 			if (not IsSpellOnCD('Blood Fury') and HasSpell('Blood Fury')) then 
 				CastSpellByName('Blood Fury'); 
