@@ -100,7 +100,6 @@ function script_gather:setup()
 	script_gather:addPowerCrystals('Green Power Crystal', 11185, false, 1);
 	script_gather:addPowerCrystals('Yellow Power Crystal', 11188, false, 1);
 	script_gather:addPowerCrystals('Blue Power Crystal', 11184, false, 1);
-
 	
 	self.timer = GetTimeEX();
 

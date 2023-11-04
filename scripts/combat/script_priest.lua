@@ -48,7 +48,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 
 	-- Buff Fortitude
 	if (not self.shadowForm) then	-- if not in shadowform
-		if (localMana >= 25) and (not IsInCombat()) and (not targetObject:HasBuff("Power Word: Fortitude")) and (HasSpell("Fortitude")) then
+		if (localMana >= 25) and (not IsInCombat()) and (not targetObject:HasBuff("Power Word: Fortitude")) and (HasSpell("Power Word: Fortitude")) then
 			Buff("Power Word: Fortitude", targetObject);
 			self.waitTimer = GetTimeEX() + 1500;
 			return; -- if buffed return true

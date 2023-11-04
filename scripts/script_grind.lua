@@ -357,7 +357,7 @@ function script_grind:run()
 				CastSpellByName('Ghost Wolf');
 			end
 			self.message = script_nav:moveToHotspot(localObj);
-			script_grind:setWaitTimer(100);
+			script_grind:setWaitTimer(80);
 			return;
 		end
 		
@@ -402,7 +402,7 @@ function script_grind:run()
 		end
 
 		-- Finish loot before we engage new targets or navigate
-		if (self.lootObj ~= nil and not IsInCombat()) then 
+		if (self.lootObj ~= nil and not IsInCombat()) then
 			return; 
 		else
 			-- reset the combat status
@@ -430,7 +430,7 @@ function script_grind:run()
 				return;
 			end
 			-- Move in range: combat script return 3
-			if (self.combatError == 3) then
+			if (self.combatError == 3) and (not localObj:IsMovementDisabed()) then
 				self.message = "Moving to target...";
 				if (self.enemyObj:GetDistance() < self.disMountRange) then
 				end
@@ -438,7 +438,7 @@ function script_grind:run()
 				local localObj = GetLocalPlayer();
 				if (_x ~= 0 and x ~= 0) then
 					self.message = script_nav:moveToTarget(localObj, _x, _y, _z);
-					script_grind:setWaitTimer(100);
+					script_grind:setWaitTimer(80);
 				end
 				return;
 			end
@@ -678,9 +678,10 @@ function script_grind:playersTargetingUs() -- returns number of players attackin
 			if (script_grind:isTargetingMe(currentObj)) then 
                 	nrPlayersTargetingUs = nrPlayersTargetingUs + 1;
 				if (self.useOtherString) then
-					playerName = currentObj:GetUnitName();
+					local playerDistance = currentObj:GetDistance();
+					local playerName = currentObj:GetUnitName();
 					local playerTime = GetTimeStamp();
-					local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Targeted Us! - added to log file for further implementation of paranoia."
+					local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance(yds) "..playerDistance.. " - Targeted Us! - added to log file for further implementation of paranoia."
 					DEFAULT_CHAT_FRAME:AddMessage(string);
 					ToFile(string);
 					self.useOtherString = false;
@@ -704,8 +705,10 @@ function script_grind:playersWithinRange(range)
 					if (self.useString) then
 							ClearTarget();
 						if (currentObj:GetDistance() < self.paranoidRange) then
+							local playerDistance = currentObj:GetDistance();
 							local playerTime = GetTimeStamp();
-							local string ="" ..playerTime.. " - Player Name ("..playerName.. ") added to log file for further implementation of paranoia."
+							local playerName = currentObj:GetUnitName();
+							local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance (yds) "..playerDistance.. " - added to log file for further implementation of paranoia."
 							DEFAULT_CHAT_FRAME:AddMessage(string);
 							ToFile(string);
 							self.useString = false;
@@ -729,7 +732,7 @@ end
 
 function script_grind:drawStatus()
 	if (self.drawAggro) then
-		script_aggro:drawAggroCircles(100);
+		script_aggro:drawAggroCircles(70);
 	end
 	if (self.autoPath and self.drawAutoPath) then
 		script_nav:drawSavedTargetLocations();

@@ -335,7 +335,7 @@ function script_nav:moveToTarget(localObj, _x, _y, _z) -- use when moving to mov
 	end
 
 	-- Check: If move to coords are too far away, something wrong, dont move... BUT WHY ?!
-	if (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
+	if (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 20) then
 		GeneratePath(_lx, _ly+1, _lz, _lx, _ly, _lz);
 		return "Generating a new path...";
 	end
@@ -407,7 +407,7 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 	end
 
 	-- Check: If the move to coords are too far away, something wrong don't use those
-	if (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
+	if (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 20) then
 		return "Moving to target...";
 	end
 
@@ -467,7 +467,7 @@ function script_nav:navigate(localObj)
 		self.lastPathIndex = -1;
 
 		-- At start get the closest walk path node
-		if(self.lastPathIndex == -1) then
+		if(self.lastPathIndex == 0) then
 			self.lastPathIndex = script_nav:findClosestPathNode(localObj, -1, 0, 5);
 		end
 

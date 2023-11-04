@@ -8,9 +8,11 @@ script_fish = {
 	timer = 0,
 	bobberInfo = {},
 	message = 'Fishing...',
-	pause = false,
+	pause = true,
 	setup = false,
 	displayRadar = true,
+	useFishRandom = false,
+	fishRandomFloat = 17,
 }
 
 function script_fish:GetBobber()
@@ -73,8 +75,20 @@ function script_fish:run()
 		script_vendor:setup();
 		
 		DEFAULT_CHAT_FRAME:AddMessage('script_fish: loaded...');
-		self.setup = true;
-		return;
+	
+	-- set lure name from inventory items
+	if (HasItem("Aquadynamic Fish Attractor")) then
+		self.lureName = 'Aquadynamic Fish Attractor';
+	elseif (HasItem("Bright Baubles")) then
+		self.lureName = 'Bright Baubles';
+	elseif (HasItem("Nightcrawlers")) then
+		self.lureName = 'Nightcrawlers';
+	elseif (HasItem("Shiny Bauble")) then
+		self.lureName = 'Shiny Bauble';
+	end
+
+	self.setup = true;
+	return;
 	end
 	
 	local localObj = GetLocalPlayer();
@@ -195,15 +209,23 @@ function script_fish:run()
 		end		
 
 		self.message = "Casting Fishing!";
-		
+
 		UseItem(self.PoleName);
 
 		if (script_fish:checkLure(self.lureName)) then
 			self.timer = GetTime() + 6;
 			return;
 		end	
-	
-		CastSpellByName("Fishing");
+
+		if (not self.useFishRandom) then
+			CastSpellByName("Fishing");
+		end
+
+			local fishRandom = random(1, 20);
+
+		if (self.useFishRandom) and (fishRandom >= self.fishRandomFloat) and (not IsChanneling()) and (not IsMoving()) then
+			CastSpellByName("Fishing");
+		end
 
 		self.timer = GetTime() + 1;
 		
@@ -240,7 +262,11 @@ function script_fish:menu()
 				self.pause = false; 
 			end 
 		end
-		SameLine(); if (Button("Reload Scripts")) then coremenu:reload(); end
+		SameLine();
+		if (Button("Reload Scripts")) then
+			self.setup = false;
+			coremenu:reload();
+		end
 		SameLine(); if (Button("Exit Bot")) then StopBot(); end
 
 		Separator();
@@ -306,6 +332,12 @@ function script_fish:menu()
 		end
 
 		wasClicked, self.displayRadar = Checkbox("Draw the radar", self.displayRadar);
+		
+		wasClicked, self.useFishRandom = Checkbox("Randomize Casting TIme", self.useFishRandom);
+
+		if (self.useFishRandom) then	
+			self.fishRandomFloat = SliderInt("", 15, 18, self.fishRandomFloat);
+		end
 
 end
 

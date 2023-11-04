@@ -20,6 +20,7 @@ function script_warriorEX:menu()
 		self.menuBandages = false;
 	end
 	
+	local localObj = GetLocalPlayer();
 
 	local wasClicked = false;
 
@@ -58,20 +59,14 @@ function script_warriorEX:menu()
 			wasClicked = true;
 			if (CollapsingHeader("-- Battle Stance Options")) then
 
-				-- charge
-				if (HasSpell("Charge")) then
-					wasClicked, script_warrior.enableCharge = Checkbox("Charge On/Off", script_warrior.enableCharge);
-				end
-
 				-- rend
 				if (HasSpell("Rend")) then
 					wasClicked, script_warrior.enableRend = Checkbox("Rend On/Off", script_warrior.enableRend);
 				end
-
-				SameLine();
 				
 				-- cleave
 				if (HasSpell("Cleave")) then
+					SameLine();
 					wasClicked, script_warrior.enableCleave = Checkbox("Cleave On/Off TODO", script_warrior.enableCleave)					end
 			
 				-- battle stance sunder	
@@ -132,10 +127,20 @@ function script_warriorEX:menu()
 		end
 	end
 	if (CollapsingHeader("Warrior Combat Options")) then -- grind menu plans to hide this menu once rotation is complete
+		Separator();
 		
 		if (self.menuBandages) then
-			Text("Use Bandages");
 			wasClicked, script_warrior.useBandage = Checkbox("Use Bandages", script_warrior.useBandage);
+		end
+
+		if (localObj:HasRangedWeapon()) then
+		SameLine();
+			wasClicked, script_warrior.useBow = Checkbox("Use Bow", script_warrior.useBow);
+		end
+
+		if (HasSpell("Charge")) then
+		SameLine();
+			wasClicked, script_warrior.enableCharge = Checkbox("Charge On/Off", script_warrior.enableCharge);
 		end
 
 		Text('Eat below health percentage');
@@ -158,10 +163,5 @@ function script_warriorEX:menu()
 		end
 		Text("Melee Range Distance");
 		script_warrior.meleeDistance = SliderFloat("MR (yd)", 1, 8, script_warrior.meleeDistance);	-- melee distance range
-		if (CollapsingHeader("-- Throwing Weapon Options")) then -- throwing weapon menu
-			wasClicked, script_warrior.throwOpener = Checkbox("Pull with throw", script_warrior.throwOpener);
-			Text("Throwing weapon");
-			script_warrior.throwName = InputText("TW", script_warrior.throwName);
-		end
 	end
 end
