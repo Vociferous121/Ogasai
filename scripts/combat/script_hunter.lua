@@ -26,6 +26,7 @@ script_hunter = {
 	dontRest = false,
 	isChecked = true,
 	rangeDistance = 38,
+	followTargetDistance = 45,
 }	
 
 function script_hunter:setup()
@@ -160,6 +161,7 @@ function script_hunter:run(targetGUID)
 	targetObj = GetGUIDObject(targetGUID);
 
 	if(targetObj == 0 or targetObj == nil) then
+		ClearTarget();
 		return 2;
 	end
 
@@ -209,7 +211,7 @@ function script_hunter:run(targetGUID)
 		end
 
 		-- Don't attack if we should rest first
-		if (localHealth < self.eatHealth and not script_grind:isTargetingMe(targetObj) and targetHealth > 99 and not targetObj:IsStunned() and script_grind.lootobj == nil) then
+		if (localHealth <= self.eatHealth) and (not script_grind:isTargetingMe(targetObj)) and (targetHealth > 99) and (not targetObj:IsStunned()) then
 			self.message = "Need rest...";
 			return 4;
 		end
@@ -231,11 +233,22 @@ function script_hunter:run(targetGUID)
 			end
 		end 
 		
+		if (targetObj:IsInLineOfSight() and not IsMoving()) then
+			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+				end
+			end
+		end
+		
 		-- Opener
-		if (not IsInCombat()) and (targetObj:GetDistance() < 36) then
+		if (not IsInCombat()) and (targetObj:GetDistance() < 36) and (localHealth > self.eatHealth) then
+			if (not targetObj:IsSpellInRange("Auto Shot")) or (not targetObj:IsInLineOfSight()) then
+				return 3;
+			end
 			if (script_hunter:doOpenerRoutine(targetGUID, pet)) then
+				self.waitTimer = GetTimeEX() + 2250;
 				targetObj:FaceTarget();
-				self.waitTimer = GetTimeEX() + 1850;
 				return 4; -- return 0 bugs turning around cause of StopMoving();
 			else
 				return 3;
@@ -244,17 +257,26 @@ function script_hunter:run(targetGUID)
 		-- Combat
 		else				
 			-- Check: Use Healing Potion 
-			if (localHealth < self.potionHealth) then 
+			if (localHealth <= self.potionHealth) then 
 				if (script_helper:useHealthPotion()) then 
 					return 0; 
 				end 
 			end
 
 			-- Check: Use Mana Potion 
-			if (localMana < self.potionMana) then 
+			if (localMana <= self.potionMana) then 
 				if (script_helper:useManaPotion()) then 
 					return 0; 
 				end 
+			end
+
+			-- War Stomp Tauren Racial
+			if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) and (not IsMoving()) and (targetObj:GetDistance() <= 6) then
+				if (targetObj:IsCasting()) or (targetObj:IsFleeing()) or (localLevel < 10) then
+					CastSpellByName("War Stomp");
+					self.waitTimer = GetTimeEX() + 200;
+					return 0;
+				end
 			end
 
 			if (script_hunter:mendPet(localMana, petHP)) then
@@ -273,6 +295,13 @@ function script_hunter:run(targetGUID)
 				if (script_hunter:runBackwards(targetObj, 2)) then
 					self.waitTimer = GetTimeEX() + 1850;
 					return 0;
+				end
+			end
+
+			-- Auto Attack
+			if (targetObj:GetDistance() <= 5) then
+				if (not targetObj:AutoAttack()) then
+					targetObj:AutoAttack();
 				end
 			end
 
@@ -330,10 +359,18 @@ function script_hunter:rest()
 		end
 	end
 
-	if (not IsLooting()) then
-		script_grind:doLoot(targetObj);
-	return;
-	end
+	--if (not IsLooting()) and (not IsEating()) and (not IsDrinking()) and (not IsInCombat()) then
+	--	script_grind:doLoot(targetObj);
+	--	if (IsLooting()) then
+	--		LootTarget();
+	--	end
+	
+	--	if(not self.lootObj:UnitInteract() and not IsLooting()) then
+	--		self.waitTimer = GetTimeEX() + 1850;
+	--		return;
+	--	end
+	--	return;
+	--end
 
 	if (self.dontRest) then
 		return false;
@@ -544,7 +581,8 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	-- Check: If we can auto attack, before moving "in line of sight"
 	local canDoRangeAttacks = false;
 
-	-- Attack: Use Auto Shot 
+	-- Attack: Use Auto Shot
+	if (targetObj:GetHealthPercentage() > 99) then
 	if (not IsAutoCasting('Auto Shot') and targetObj:GetDistance() < 35 and targetObj:GetDistance() > 13) then
 		-- Dismount
 		if (IsMounted()) then DisMount(); end
@@ -552,7 +590,7 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	elseif (IsAutoCasting('Auto Shot')) then
 		canDoRangeAttacks = true;
 	end
-	
+	end
 	if (canDoRangeAttacks) then
 		if (script_hunter:doPullAttacks(targetObj, localMana)) then
 			targetObj:FaceTarget();
@@ -661,6 +699,7 @@ function script_hunter:doInCombatRoutine(targetObj, localMana)
 		-- Meele Skill: Raptor Strike
 		if (localMana > 10 and not IsSpellOnCD('Raptor Strike')) then 
 			if (script_hunter:cast('Raptor Strike', targetObj)) then 
+				targetObj:FaceTarget();
 				return true; 
 			end 
 		end
@@ -693,7 +732,7 @@ end
 
 function script_hunter:doRangeAttack(targetObj, localMana)
 	-- Keep up the debuff: Hunter's Mark 
-	if (not targetObj:HasDebuff("Hunter's Mark") and not IsSpellOnCD("Hunter's Mark")) then 
+	if (not targetObj:HasDebuff("Hunter's Mark") and not IsSpellOnCD("Hunter's Mark")) and (self.hasPet) then 
 		if (script_hunter:cast("Hunter's Mark", targetObj)) then
 			return true;
 		end
