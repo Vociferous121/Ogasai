@@ -313,7 +313,9 @@ function script_warrior:run(targetGUID)	-- main content of script
 					targetObj:FaceTarget();
 					if (Cast("Charge", targetObj)) then 
 						targetObj:AutoAttack();
+						script_nav:resetNavPos();
 						script_nav:resetPath();
+						script_nav:resetNavigate();
 					return 0;
 					end
 				end
@@ -846,10 +848,6 @@ function script_warrior:rest()
 
 	-- eat if not bandages
 	if (not IsEating() and localHealth <= self.eatHealth) and (not IsInCombat()) and (not IsMoving()) then
-		-- Dismount
-		if(IsMounted()) then
-			DisMount();
-		end
 		self.message = "Need to eat...";	
 		if (IsMoving()) then
 			StopMoving();
