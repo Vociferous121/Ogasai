@@ -188,14 +188,39 @@ end
 
 function script_hunterEX:menu()
 	if (CollapsingHeader("Hunter Combat Options")) then
+
 		local wasClicked = false;
+
+	if (HasItem("Linen Bandage")) or 
+		(HasItem("Heavy Linen Bandage")) or 
+		(HasItem("Wool Bandage")) or 
+		(HasItem("Heavy Wool Bandage")) or 
+		(HasItem("Silk Bandage")) or 
+		(HasItem("Heavy Silk Bandage")) or 
+		(HasItem("Mageweave Bandage")) or 
+		(HasItem("Heavy Mageweave Bandage")) or 
+		(HasItem("Runecloth Bandage")) or 
+		(HasItem("Heavy Runecloth Bandage")) then
 		
+		self.menuBandages = true;
+	else
+		self.menuBandages = false;
+	end
+		
+		if (self.menuBandages) or (GetLocalPlayer():GetLevel() >= 10) then
+			Separator();
+		end
 		if (GetLocalPlayer():GetLevel() >= 10) then
 			Text('Use Pet or not:');
 			wasClicked, script_hunter.hasPet = Checkbox("Do we have an active pet?", script_hunter.hasPet);
-			Separator();
 		end
 
+		if (self.menuBandages) then
+			SameLine();
+			wasClicked, script_hunter.useBandage = Checkbox("Use Bandages", script_hunter.useBandage);
+		end
+
+		Separator();
 		Text('Drink below mana percentage');
 		script_hunter.drinkMana = SliderFloat("M%", 1, 100, script_hunter.drinkMana);
 		Text('Eat below health percentage');
