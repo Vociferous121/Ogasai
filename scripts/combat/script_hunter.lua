@@ -238,8 +238,8 @@ function script_hunter:run(targetGUID)
 	-- Auto Attack
 		if (targetObj:GetDistance() < 40) then
 			targetObj:AutoAttack();
-			if (not IsMoving()) and (GetPet():GetFocus() >= 99) then
-				PetAttack();
+			if (not IsMoving()) and (self.hasPet) then
+					PetAttack();
 			end
 		end
 
@@ -252,12 +252,8 @@ function script_hunter:run(targetGUID)
 	--			self.waitTimer = GetTimeEX() + 1500;
 	--		end
 	--	end
-
-
-		-- bugged... let's try to force a recheck here
-		local getTheCheck = GetPet():GetHealthPercentage();
 			
-		if (GetLocalPlayer():GetUnitsTarget() == 0) and (IsInCombat()) then
+		if (GetLocalPlayer():GetUnitsTarget() == 0) and (IsInCombat()) and (self.hasPet) then
 			PetFollow();
 			--self.waitTimer = GetTimeEX() + 550;
 			self.message = ("waiting... In combat bug");
@@ -291,7 +287,7 @@ function script_hunter:run(targetGUID)
 			end
 		end
 
-			if (not IsMoving()) and (PetAttack()) and (script_grind.lootObj == nil) then
+			if (self.hasPet) and (not IsMoving()) and (PetAttack()) and (script_grind.lootObj == nil) then
 				self.waitTimer = GetTimeEX() + 600;
 			end
 
@@ -323,14 +319,12 @@ function script_hunter:run(targetGUID)
 				end 
 			end				
 
-			if (script_grind.lootObj ~= nil) and (not IsMoving()) and (not GetPet():IsDead()) then
-				self.waitTimer = GetTimeEX() + 600;
-			end
-
-			if (IsInCombat()) and (GetPet():GetUnitsTarget() == 0) and (GetLocalPlayer():GetUnitsTarget() == 0) then
-				script_grind.tickRate = 100;
-				self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
-				self.message = ("waiting dead target line 264");
+			if (self.hasPet) then
+				if (IsInCombat()) and (GetPet():GetUnitsTarget() == 0) and (GetLocalPlayer():GetUnitsTarget() == 0) then
+					script_grind.tickRate = 100;
+					self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
+					self.message = ("waiting dead target line 264");
+				end
 			end
 
 			-- Check: Use Mana Potion 
