@@ -300,6 +300,8 @@ function script_hunter:run(targetGUID)
 
 			if (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) then
 				CastSpellByName("Hunter's Mark");
+				self.waitTimer = GetTimeEX() + 1500;
+				return 0;
 			end
 			if (script_hunter:doOpenerRoutine(targetGUID, pet)) then
 				self.waitTimer = GetTimeEX() + 1450;
@@ -755,6 +757,7 @@ if (IsInCombat()) then
 	if (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) then
 		CastSpellByName("Hunter's Mark");
 		self.waitTimer = GetTimeEX() + 1500;
+		return 0;
 	end
 	-- Pull with Concussive Shot to make it easier for pet to get aggro
 	if (script_hunter:cast('Concussive Shot', targetObj)) then
@@ -811,7 +814,7 @@ function script_hunter:doInCombatRoutine(targetObj, localMana)
 				if (pet:GetUnitsTarget():GetGUID() ~= targetObj:GetGUID()) then
 					PetFollow(); 
 				end
-			elseif (targetObj:GetDistance() < 34) and (IsInCombat()) then
+			elseif (targetObj:GetDistance() < 34) and (IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 				PetAttack();
 			end
 		end
@@ -898,9 +901,9 @@ function script_hunter:doRangeAttack(targetObj, localMana)
 	end
 	-- Keep up the debuff: Hunter's Mark 
 	if (not targetObj:HasDebuff("Hunter's Mark") and not IsSpellOnCD("Hunter's Mark")) and (HasSpell("Concussive Shot")) and (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() > 20) then 
-		if (script_hunter:cast("Hunter's Mark", targetObj)) then
-			return true;
-		end
+			CastSpellByName("Hunter's Mark");
+			self.waitTimer = GetTimeEX() + 1500;
+			return 0;
 	end
 
 	-- Attack: Use Auto Shot 
