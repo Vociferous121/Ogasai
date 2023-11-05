@@ -174,11 +174,15 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 		-- Dismount
 		if (IsMounted()) then DisMount(); end
 		if (script_hunter:cast('Auto Shot', targetObj)) then
-			targetObj:FaceTarget();
+			if (not targetObj:FaceTarget()) then
+				targetObj:FaceTarget();
+			end
 			canDoRangeAttacks = true;
 		end
 	elseif (IsAutoCasting('Auto Shot')) then
-		targetObj:FaceTarget();
+		if (not targetObj:FaceTarget()) then
+			targetObj:FaceTarget();
+		end
 		canDoRangeAttacks = true;
 	end
 	end
@@ -278,9 +282,10 @@ function script_hunter:doInCombatRoutine(targetObj, localMana)
 		return false;
 	else
 		if(targetObj:IsInLineOfSight() and (targetObj:GetDistance() < 35 or targetObj:GetDistance() < 4)) then 
-			targetObj:FaceTarget();
 			if (IsMoving()) then
 				StopMoving();
+			end
+			if (not targetObj:FaceTarget()) then
 				targetObj:FaceTarget();
 			end
 		end
@@ -620,7 +625,7 @@ function script_hunter:rest()
 	end
 
 	-- if has bandage then use bandages
-	if (self.eatHealth >= 35) and (self.hasBandages) and (self.useBandage) and (not IsMoving()) and (localHealth >= 35) then
+	if (self.hasBandages) and (self.useBandage) and (not IsMoving()) then
 		if (not localObj:HasDebuff("Creeping Mold")) and (not IsEating()) and (localHealth <= self.eatHealth) and (not localObj:HasDebuff("Recently Bandaged")) and (not localObj:HasDebuff("Poison")) then
 		if (IsMoving()) then
 			StopMoving();
