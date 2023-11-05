@@ -258,7 +258,7 @@ function script_hunter:run(targetGUID)
 		end
 
 		if (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) and (localHealth > self.eatHealth) then
-			if (targetObj:IsSpellInRange("Auto Shot")) and (targetObj:IsInLineOfSight()) and (targetObj:GetDistance > 17) then
+			if (targetObj:IsSpellInRange("Auto Shot")) and (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() > 17) then
 				CastSpellByName("Hunter's Mark");
 				targetObj:FaceTarget();
 				return 0;
