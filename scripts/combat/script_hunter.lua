@@ -14,19 +14,21 @@ script_hunter = {
 	stopWhenNoPetFood = true,
 	quiverBagNr = 5,
 	ammoIsArrow = true,
-	useVendor = true,
-	buyWhenQuiverEmpty = true,
+	useVendor = false,
+	buyWhenQuiverEmpty = false,
 	stopWhenQuiverEmpty = false,
 	stopWhenBagsFull = false,
-	hsWhenStop = true,
+	hsWhenStop = false,
 	hsBag = 1, -- HS in backpack (1rst bag)
 	hsSlot = 1, -- HS in slot 1 of the bag: hsBag
 	ammoName = 0,
 	isSetup = false,
-	dontRest = false,
 	isChecked = true,
 	rangeDistance = 38,
 	followTargetDistance = 45,
+	useBandage = false,
+	hasBandages = false,
+	needToRest = false,
 }	
 
 function script_hunter:setup()
@@ -193,7 +195,7 @@ function script_hunter:run(targetGUID)
 		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
+			script_grind.tickRate = 450;
 		end
 	end
 
@@ -211,7 +213,8 @@ function script_hunter:run(targetGUID)
 		end
 
 		-- Don't attack if we should rest first
-		if (localHealth <= self.eatHealth) and (not script_grind:isTargetingMe(targetObj)) and (targetHealth > 99) and (not targetObj:IsStunned()) then
+		if (localHealth < self.eatHealth and not script_grind:isTargetingMe(targetObj)
+			and targetHealth > 99 and not targetObj:IsStunned() and script_grind.lootobj == nil) then
 			self.message = "Need rest...";
 			return 4;
 		end
@@ -224,7 +227,11 @@ function script_hunter:run(targetGUID)
 		if (targetObj:GetDistance() < 40) then
 			targetObj:AutoAttack();
 		end
-		
+
+		if (not targetObj:IsInLineOfSight()) then
+			return 3;
+		end
+
 		-- Check: if we target player pets/totems
 		if (GetTarget() ~= nil and targetObj ~= nil) then
 			if (UnitPlayerControlled("target") and GetTarget() ~= localObj) then 
@@ -240,11 +247,33 @@ function script_hunter:run(targetGUID)
 				end
 			end
 		end
+
+		if (targetObj:IsSpellInRange("Auto Shot")) and (targetObj:IsInLineOfSight()) and (not targetObj:IsFleeing()) then
+			if (IsMoving()) then
+				StopMoving();
+			end
+			if (not targetObj:FaceTarget()) then
+				targetObj:FaceTarget();
+			end
+		end
+
+		if (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) and (localHealth > self.eatHealth) then
+			if (targetObj:IsSpellInRange("Auto Shot")) and (targetObj:IsInLineOfSight()) and (targetObj:GetDistance > 17) then
+				CastSpellByName("Hunter's Mark");
+				targetObj:FaceTarget();
+				return 0;
+			end
+		end
 		
+		targetObj:FaceTarget();
+
 		-- Opener
 		if (not IsInCombat()) and (targetObj:GetDistance() < 36) and (localHealth > self.eatHealth) then
 			if (not targetObj:IsSpellInRange("Auto Shot")) or (not targetObj:IsInLineOfSight()) then
 				return 3;
+			end
+			if (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) then
+				CastSpellByName("Hunter's Mark");
 			end
 			if (script_hunter:doOpenerRoutine(targetGUID, pet)) then
 				self.waitTimer = GetTimeEX() + 2250;
@@ -272,7 +301,7 @@ function script_hunter:run(targetGUID)
 
 			-- War Stomp Tauren Racial
 			if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) and (not IsMoving()) and (targetObj:GetDistance() <= 6) then
-				if (targetObj:IsCasting()) or (targetObj:IsFleeing()) or (localLevel < 10) then
+				if (targetObj:IsCasting()) or (targetObj:IsFleeing()) or (localLevel < 10) and (IsAutoCasting("Auto Attack")) then
 					CastSpellByName("War Stomp");
 					self.waitTimer = GetTimeEX() + 200;
 					return 0;
@@ -322,6 +351,7 @@ function script_hunter:run(targetGUID)
 				return 3;
 			end
 		end
+	self.needToRest = true;
 	end
 end
 
@@ -351,11 +381,28 @@ function script_hunter:rest()
 		script_hunter:setup();
 	end
 
+	if (HasItem("Linen Bandage")) or 
+		(HasItem("Heavy Linen Bandage")) or 
+		(HasItem("Wool Bandage")) or 
+		(HasItem("Heavy Wool Bandage")) or 
+		(HasItem("Silk Bandage")) or 
+		(HasItem("Heavy Silk Bandage")) or 
+		(HasItem("Mageweave Bandage")) or 
+		(HasItem("Heavy Mageweave Bandage")) or 
+		(HasItem("Runecloth Bandage")) or 
+		(HasItem("Heavy Runecloth Bandage")) then
+
+		self.hasBandages = true;
+	else
+		self.hasBandages = false;
+		self.useBandage = false;
+	end
+
 	if (not script_grind.adjustTickRate) then
 		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
+			script_grind.tickRate = 450;
 		end
 	end
 
@@ -371,20 +418,32 @@ function script_hunter:rest()
 	--	end
 	--	return;
 	--end
-
-	if (self.dontRest) then
-		return false;
-	end
 	
 	local localObj = GetLocalPlayer();
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
+
 
 	-- Stop moving before we can rest
 	if(localHealth < self.eatHealth or localMana < self.drinkMana) then
 		if (IsMoving()) then
 			StopMoving();
 			return true;
+		end
+	end
+
+	-- if has bandage then use bandages
+	if (self.hasBandages) and (self.useBandage) and (not IsMoving()) then
+		if (not localObj:HasDebuff("Creeping Mold")) and (not IsEating()) and (localHealth <= self.eatHealth) and (not localObj:HasDebuff("Recently Bandaged")) and (not localObj:HasDebuff("Poison")) then
+		if (IsMoving()) then
+			StopMoving();
+		end
+			self.waitTimer = GetTimeEX() + 1200;
+		if (IsStanding()) and (not IsInCombat()) and (not IsMoving()) and (not localObj:HasDebuff("Recently Bandaged")) then
+			script_helper:useBandage()		
+			self.waitTimer = GetTimeEX() + 6000;
+		end
+		return 0;
 		end
 	end
 
@@ -560,6 +619,12 @@ function script_hunter:rest()
 	if (not IsMounted()) then if (script_hunterEX:chooseAspect(script_grind:getTarget())) then return false; end end
 
 	-- No rest / buff needed
+	if (self.needToRest) then
+		self.waitTimer = GetTimeEX() + 2500;
+		self.message = "Need to rest!";
+		self.needToRest = false;
+		return;
+	end
 	return false;
 end
 
@@ -586,8 +651,16 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	if (not IsAutoCasting('Auto Shot') and targetObj:GetDistance() < 35 and targetObj:GetDistance() > 13) then
 		-- Dismount
 		if (IsMounted()) then DisMount(); end
-		if (script_hunter:cast('Auto Shot', targetObj)) then canDoRangeAttacks = true; end
+		if (script_hunter:cast('Auto Shot', targetObj)) then
+			if (not targetObj:FaceTarget()) then
+				targetObj:FaceTarget();
+			end
+			canDoRangeAttacks = true;
+		end
 	elseif (IsAutoCasting('Auto Shot')) then
+		if (not targetObj:FaceTarget()) then
+			targetObj:FaceTarget();
+		end
 		canDoRangeAttacks = true;
 	end
 	end
@@ -624,6 +697,10 @@ end
 function script_hunter:doPullAttacks(targetObj)
 	-- Dismount
 	if (IsMounted()) then DisMount(); end
+
+	if (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) then
+		CastSpellByName("Hunter's Mark");
+	end
 	-- Pull with Concussive Shot to make it easier for pet to get aggro
 	if (script_hunter:cast('Concussive Shot', targetObj)) then return true; end
 	-- If no concussive shot pull with Serpent Sting
@@ -687,9 +764,11 @@ function script_hunter:doInCombatRoutine(targetObj, localMana)
 		return false;
 	else
 		if(targetObj:IsInLineOfSight() and (targetObj:GetDistance() < 35 or targetObj:GetDistance() < 4)) then 
-			targetObj:FaceTarget();
 			if (IsMoving()) then
-				StopMoving(); 
+				StopMoving();
+			end
+			if (not targetObj:FaceTarget()) then
+				targetObj:FaceTarget();
 			end
 		end
 	end
@@ -731,8 +810,12 @@ function script_hunter:doInCombatRoutine(targetObj, localMana)
 end
 
 function script_hunter:doRangeAttack(targetObj, localMana)
+
+	if (not targetObj:IsInLineOfSight()) then
+		return 3;
+	end
 	-- Keep up the debuff: Hunter's Mark 
-	if (not targetObj:HasDebuff("Hunter's Mark") and not IsSpellOnCD("Hunter's Mark")) and (self.hasPet) then 
+	if (not targetObj:HasDebuff("Hunter's Mark") and not IsSpellOnCD("Hunter's Mark")) and (HasSpell("Concussive Shot")) and (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() > 20) then 
 		if (script_hunter:cast("Hunter's Mark", targetObj)) then
 			return true;
 		end

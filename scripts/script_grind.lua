@@ -702,13 +702,12 @@ function script_grind:playersWithinRange(range)
 			if (currentObj:GetDistance() < range) then 
 				local localObj = GetLocalPlayer();
 				if (localObj:GetGUID() ~= currentObj:GetGUID()) then
-					playerName = currentObj:GetUnitName();
+					local playerName = currentObj:GetUnitName();
 					if (self.useString) then
 							ClearTarget();
 						if (currentObj:GetDistance() < self.paranoidRange) then
 							local playerDistance = currentObj:GetDistance();
 							local playerTime = GetTimeStamp();
-							local playerName = currentObj:GetUnitName();
 							local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance (yds) "..playerDistance.. " - added to log file for further implementation of paranoia."
 							DEFAULT_CHAT_FRAME:AddMessage(string);
 							ToFile(string);

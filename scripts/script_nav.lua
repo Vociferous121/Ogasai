@@ -16,7 +16,7 @@ script_nav = {
 	currentHotSpotZ = 0,
 	currentHotSpotName = 0,
 	hotSpotDist = 0,
-	drawNav = true,
+	drawNav = true
 }
 
 function script_nav:setup()
@@ -251,7 +251,7 @@ function script_nav:drawPath()
 			firstIndex = self.lastnavIndex;
 		end
 		if (self.lastnavIndex-1 <= GetPathSize(5)-1) then
-			for index = firstIndex, GetPathSize(5) do
+			for index = firstIndex, GetPathSize(5) - 2 do
 				local _x, _y, _z = GetPathPositionAtIndex(5, index);
 				local _xx, _yy, _zz = GetPathPositionAtIndex(5, index+1);
 				local _tX, _tY, onScreen = WorldToScreen(_x, _y, _z);
@@ -419,7 +419,7 @@ function script_nav:resetNavigate() -- navPathPosition used for navigate
 	self.navPathPosition['x'] = 0;
 	self.navPathPosition['y'] = 0;
 	self.navPathPosition['z'] = 0;
-	self.lastPathIndex = 0;
+	self.lastPathIndex = -1;
 end
 
 function script_nav:findClosestPathNode(localObj, currentIndex, pathType, maxHeightLevel)
@@ -463,13 +463,13 @@ function script_nav:navigate(localObj)
 		local _x, _y, _z = GetPathPositionAtIndex(0, self.lastPathIndex);
 
 		-- Check: If we are close to the next node in the walking path, hop to the next one		
-		if(GetDistance3D(_x, _y, _z, _lx, _ly, _lz) < self.nextPathNodeDistance-1) then
+		if(GetDistance3D(_x, _y, _z, _lx, _ly, _lz) < self.nextPathNodeDistance) then
 			self.lastPathIndex = self.lastPathIndex + 1;
 		end
 			
 		-- Check: If we reached the end node, start over at node 1
 		if(self.lastPathIndex >= pathSize) then
-			self.lastPathIndex = -1;
+			self.lastPathIndex = 0;
 		end
 			
 		script_nav:moveToNav(localObj, _x, _y, _z);

@@ -188,14 +188,39 @@ end
 
 function script_hunterEX:menu()
 	if (CollapsingHeader("Hunter Combat Options")) then
+
 		local wasClicked = false;
+
+	if (HasItem("Linen Bandage")) or 
+		(HasItem("Heavy Linen Bandage")) or 
+		(HasItem("Wool Bandage")) or 
+		(HasItem("Heavy Wool Bandage")) or 
+		(HasItem("Silk Bandage")) or 
+		(HasItem("Heavy Silk Bandage")) or 
+		(HasItem("Mageweave Bandage")) or 
+		(HasItem("Heavy Mageweave Bandage")) or 
+		(HasItem("Runecloth Bandage")) or 
+		(HasItem("Heavy Runecloth Bandage")) then
 		
+		self.menuBandages = true;
+	else
+		self.menuBandages = false;
+	end
+		
+		if (self.menuBandages) or (GetLocalPlayer():GetLevel() >= 10) then
+			Separator();
+		end
 		if (GetLocalPlayer():GetLevel() >= 10) then
 			Text('Use Pet or not:');
 			wasClicked, script_hunter.hasPet = Checkbox("Do we have an active pet?", script_hunter.hasPet);
-			Separator();
 		end
 
+		if (self.menuBandages) then
+			SameLine();
+			wasClicked, script_hunter.useBandage = Checkbox("Use Bandages", script_hunter.useBandage);
+		end
+
+		Separator();
 		Text('Drink below mana percentage');
 		script_hunter.drinkMana = SliderFloat("M%", 1, 100, script_hunter.drinkMana);
 		Text('Eat below health percentage');
@@ -217,11 +242,15 @@ function script_hunterEX:menu()
 			Text("Pet Food Name:");
 			script_hunter.foodName = InputText("PFN", script_hunter.foodName);
 			Text('Always put the pet food in the last slot of the bag.');
+			Separator();
 		end
-		Separator();
-		script_hunter.quiverBagNr = InputText("Bag# for quiver (2-5)", script_hunter.quiverBagNr);
-		script_hunter.hsBag = InputText("Bag# for HS", script_hunter.hsBag);
-		script_hunter.hsSlot = InputText("Bag-slot (1-X) for HS", script_hunter.hsSlot);
+		if (script_hunter.buyWhenQuiverEmpty) then
+			script_hunter.quiverBagNr = InputText("Bag# for quiver (2-5)", script_hunter.quiverBagNr);
+		end
+		if (script_hunter.hsWhenStop) then
+			script_hunter.hsBag = InputText("Bag# for HS", script_hunter.hsBag);
+			script_hunter.hsSlot = InputText("Bag-slot (1-X) for HS", script_hunter.hsSlot);
+		end
 		Separator();	
 		Text('Stop settings:');
 		wasClicked, script_hunter.stopWhenBagsFull = Checkbox("Stop when bags are full", script_hunter.stopWhenBagsFull);
