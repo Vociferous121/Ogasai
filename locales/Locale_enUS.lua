@@ -1,4 +1,4 @@
-local L = LibStub("AceLocale-3.0"):NewLocale("oGasai", "enUS", true, true)
+local L = LibStub("AceLocale-3.1"):NewLocale(O_NAME, "enUS", true, true)
 
 --[[
 

@@ -1,4 +1,4 @@
-local L = LibStub("AceLocale-3.0"):NewLocale("oGasai", "ruRU", false)
+local L = LibStub("AceLocale-3.1"):NewLocale(O_NAME, "ruRU", false)
 if not L then
 	return
 end

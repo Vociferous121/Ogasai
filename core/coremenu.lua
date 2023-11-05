@@ -1,3 +1,9 @@
+---------------------------
+------GlobalVariables------
+---------------------------
+O_NAME = "oGasai";
+O_VERSION = "0.XXXX";
+
 ----------------------------
 ---------Load Libs----------
 ----------------------------
@@ -13,7 +19,7 @@ include("libs\\CallbackHandler-1.0\\CallbackHandler-1.0.lua")
 --include("libs\\AceDB-3.0\\AceDB-3.0.lua")
 --include("libs\\AceDBOptions-3.0\\AceDBOptions-3.0.lua")
 
-include("libs\\AceLocale-3.0\\AceLocale-3.0.lua")
+--include("libs\\AceLocale-3.0\\AceLocale-3.0.lua")
 include("libs\\AceLocale-3.1\\AceLocale-3.1.lua")
 
 --include("libs\\LibBabble-Class-3.0\\LibBabble-3.0.lua")
@@ -39,7 +45,8 @@ include("locales\\Locale_ruRU.lua")
 ----------------------------
 ---------Local--------------
 ----------------------------
-local L = LibStub("AceLocale-3.0"):GetLocale("oGasai")
+local AceLocale = LibStub("AceLocale-3.1")
+local L = AceLocale:GetLocale(O_NAME, false)
 --local BC = AceLibrary("Babble-Class-2.2")
 --local BC = LibStub("LibBabble-Class-3.0")
 
