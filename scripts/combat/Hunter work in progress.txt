@@ -1,6 +1,8 @@
 	hasPet = false,
 	
 
+	force pet get units get guids to equal player target guid else stop and wait
+
 	if not is in combat
 
 	local targetHealth = targetObj:GetHealthPercentage();

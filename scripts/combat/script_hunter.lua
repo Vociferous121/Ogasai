@@ -11,7 +11,7 @@ script_hunter = {
 	bagWithPetFood = 4,
 	slotWithPetFood = GetContainerNumSlots(3), -- last slot in the bag
 	foodName = 'PET FOOD NAME',
-	stopWhenNoPetFood = true,
+	stopWhenNoPetFood = false,
 	quiverBagNr = 5,
 	ammoIsArrow = true,
 	useVendor = false,
@@ -25,7 +25,7 @@ script_hunter = {
 	isSetup = false,
 	isChecked = true,
 	rangeDistance = 38,
-	followTargetDistance = 45,
+	followTargetDistance = 38,
 	useBandage = false,
 	hasBandages = false,
 	needToRest = false,
@@ -208,9 +208,9 @@ function script_hunter:run(targetGUID)
 			return 0;
 		end
 		
-		if (not IsStanding()) then
-			StopMoving();
-		end
+		--if (not IsStanding()) then
+		--	StopMoving();
+		--end
 
 		-- Don't attack if we should rest first
 		if (localHealth < self.eatHealth and not script_grind:isTargetingMe(targetObj)
@@ -223,11 +223,6 @@ function script_hunter:run(targetGUID)
 
 		targetHealth = targetObj:GetHealthPercentage();
 
-		-- Auto Attack
-		if (targetObj:GetDistance() < 40) then
-			targetObj:AutoAttack();
-		end
-
 		if (not targetObj:IsInLineOfSight()) then
 			return 3;
 		end
@@ -239,26 +234,42 @@ function script_hunter:run(targetGUID)
 				return 5; 
 			end
 		end 
-		
-		if (targetObj:IsInLineOfSight()) and (not IsMoving()) then
-			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-				if (not targetObj:FaceTarget()) then
-					targetObj:FaceTarget();
-				end
+
+	-- Auto Attack
+		if (targetObj:GetDistance() < 40) then
+			targetObj:AutoAttack();
+			if (not IsMoving()) and (GetPet():GetFocus() >= 99) then
+				PetAttack();
 			end
 		end
-		
-		if (not targetObj:FaceTarget()) and (not IsMoving()) then
-			targetObj:FaceTarget();
-		end
-
-		-- Opener
 
 	-- this here is causing the bot to attack before looting - this needs to be rewritten from top to bottom
 
+		--if (script_grind.lootObj ~= nil) and (not IsInCombat()) then
+	--		ClearTarget();
+	--		if (IsMoving()) then
+	--			StopMoving();
+	--			self.waitTimer = GetTimeEX() + 1500;
+	--		end
+	--	end
+
+
+		-- bugged... let's try to force a recheck here
+		local getTheCheck = GetPet():GetHealthPercentage();
+			
+		if (GetLocalPlayer():GetUnitsTarget() == 0) and (GetPet():GetUnitsTarget() == 0) and (IsInCombat()) then
+			PetFollow();
+			ClearTarget();
+			self.waitTimer = GetTimeEX() + 2750;
+			self.message = ("waiting... In combat bug");
+			return 4;
+		end
+		
 		if (not IsInCombat()) and (targetObj:GetDistance() < 36) and (localHealth > self.eatHealth) and (script_grind.lootObj == nil) then
 
 	-- this above here is causing the bot to attack before looting
+
+		--do some random checks to stop fast targeting?
 
 			if (not targetObj:IsSpellInRange("Auto Shot")) or (not targetObj:IsInLineOfSight()) then
 				return 3;
@@ -273,7 +284,7 @@ function script_hunter:run(targetGUID)
 			end
 		end
 
-		if (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) and (localHealth > self.eatHealth) then
+		if not (IsMoving()) and (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) and (localHealth > self.eatHealth) then
 			if (targetObj:IsSpellInRange("Auto Shot")) and (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() > 17) then
 				CastSpellByName("Hunter's Mark");
 				targetObj:FaceTarget();
@@ -281,8 +292,16 @@ function script_hunter:run(targetGUID)
 			end
 		end
 
-			if (PetAttack()) then
+			if (not IsMoving()) and (PetAttack()) and (script_grind.lootObj == nil) then
 				self.waitTimer = GetTimeEX() + 1200;
+			end
+
+			if (not GetPet():GetUnitsTarget() == 0) then
+				local petTarget = pet:GetUnitsTarget():GetGUID();
+
+				if (IsInCombat()) and (not petTarget == targetObj:GetGUID()) then
+					ClearTarget();
+				end
 			end
 
 			if (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) then
@@ -295,6 +314,8 @@ function script_hunter:run(targetGUID)
 			else
 				return 3;
 			end
+
+			local hunterTarget = targetObj:GetGUID();
 			
 		-- Combat
 		else				
@@ -303,6 +324,26 @@ function script_hunter:run(targetGUID)
 				if (script_helper:useHealthPotion()) then 
 					return 0; 
 				end 
+			end
+
+			if (not GetPet():GetUnitsTarget() == 0) and (IsInCombat()) and (not GetPet():IsDead()) then
+				local petTarget = pet:GetUnitsTarget():GetGUID();
+
+				if (IsInCombat()) and (not petTarget == targetObj:GetGUID()) then
+					ClearTarget();
+				else
+					targetObj:AutoAttack();
+				end
+			end
+
+			if (script_grind.lootObj ~= nil) and (not IsMoving()) and (not GetPet():IsDead()) then
+				self.waitTimer = GetTimeEX() + 1200;
+			end
+			if (IsInCombat()) and (hunterTarget ~= targetObj:GetGUID()) or (targetObj:IsDead()) then
+				script_grind.tickRate = 100;
+				self.waitTimer = GetTimeEX() + 2500;
+				self.message = ("waiting dead target line 264");
+				hunterTarget = targetObj:GetGUID();
 			end
 
 			-- Check: Use Mana Potion 
@@ -389,8 +430,13 @@ function script_hunter:mendPet(localMana, petHP)
 end
 
 function script_hunter:rest()
+	local pet = GetPet();
 	if (not self.isSetup) then
 		script_hunter:setup();
+	end
+
+	if (IsInCombat()) and (not targetObj:IsTargetingMe()) then
+		self.waitTimer = GetTimeEX() + 3500;
 	end
 
 	if (HasItem("Linen Bandage")) or 

@@ -76,6 +76,7 @@ function script_hunterEX:petChecks()
 			StopMoving(); 
 			return true; 
 		end
+		CastSpellByName("Call Pet");
 		if (localMana > 60) then 
 			CastSpellByName('Revive Pet'); 
 			script_hunter.waitTimer = GetTimeEX() + 1850;
