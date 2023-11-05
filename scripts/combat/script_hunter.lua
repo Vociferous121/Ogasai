@@ -28,7 +28,7 @@ script_hunter = {
 	followTargetDistance = 38,
 	useBandage = false,
 	hasBandages = false,
-	waitAfterCombat = 5;
+	waitAfterCombat = 8;
 }	
 
 function script_hunter:setup()
@@ -153,6 +153,8 @@ function script_hunter:run(targetGUID)
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
 	local localLevel = localObj:GetLevel();
+	local petMana = GetPet():GetManaPercentage();
+	local petFocus = GetPet():GetFocus();
 
 
 	if (localObj:IsDead()) then
@@ -199,6 +201,13 @@ function script_hunter:run(targetGUID)
 		end
 	end
 
+	if (IsInCombat()) then
+		if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) then
+			CastSpellByName("Auto Shot");
+			return 0;
+		end
+	end
+
 	--Valid Enemy
 	if (targetObj ~= 0 and targetObj ~= nil) then
 		
@@ -227,6 +236,16 @@ function script_hunter:run(targetGUID)
 			return 3;
 		end
 
+		-- force stop the bot after combat and waiting for pet to return - hangs in combat phase
+		if (self.hasPet) and (GetNumPartyMembers() > 0) then
+			if (IsInCombat()) and (GetPet():GetUnitsTarget() == 0) and (GetLocalPlayer():GetUnitsTarget() == 0) then
+				script_grind.tickRate = 100;
+				self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
+				self.message = ("waiting dead target line 321");
+			end
+		end
+
+
 		-- Check: if we target player pets/totems
 		if (GetTarget() ~= nil and targetObj ~= nil) then
 			if (UnitPlayerControlled("target") and GetTarget() ~= localObj) then 
@@ -238,12 +257,10 @@ function script_hunter:run(targetGUID)
 	-- Auto Attack
 		if (targetObj:GetDistance() < 40) then
 			targetObj:AutoAttack();
-			if (not IsMoving()) and (self.hasPet) then
-					PetAttack();
+			if (not IsMoving()) and (self.hasPet) and (petMana >= 99 or petFocus >= 99) then
+				PetAttack();
 			end
 		end
-
-	-- this here is causing the bot to attack before looting - this needs to be rewritten from top to bottom
 
 		--if (script_grind.lootObj ~= nil) and (not IsInCombat()) then
 	--		ClearTarget();
@@ -252,13 +269,6 @@ function script_hunter:run(targetGUID)
 	--			self.waitTimer = GetTimeEX() + 1500;
 	--		end
 	--	end
-			
-		if (GetLocalPlayer():GetUnitsTarget() == 0) and (IsInCombat()) and (self.hasPet) then
-			PetFollow();
-			--self.waitTimer = GetTimeEX() + 550;
-			self.message = ("waiting... In combat bug");
-			return 4;
-		end
 		
 		if (not IsInCombat()) and (targetObj:GetDistance() < 36) and (localHealth > self.eatHealth) and (script_grind.lootObj == nil) then
 
@@ -291,14 +301,6 @@ function script_hunter:run(targetGUID)
 				self.waitTimer = GetTimeEX() + 600;
 			end
 
-			--if (not GetPet():GetUnitsTarget() == 0) then
-			--	local petTarget = pet:GetUnitsTarget():GetGUID();
-			--
-			--	if (IsInCombat()) and (not petTarget == targetObj:GetGUID()) then
-			--		ClearTarget();
-			--	end
-			--end
-
 			if (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) then
 				CastSpellByName("Hunter's Mark");
 			end
@@ -319,11 +321,12 @@ function script_hunter:run(targetGUID)
 				end 
 			end				
 
-			if (self.hasPet) then
+			-- force stop the bot after combat and waiting for pet to return - hangs in combat phase
+			if (self.hasPet) and (GetNumPartyMembers() > 0) then
 				if (IsInCombat()) and (GetPet():GetUnitsTarget() == 0) and (GetLocalPlayer():GetUnitsTarget() == 0) then
 					script_grind.tickRate = 100;
 					self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
-					self.message = ("waiting dead target line 264");
+					self.message = ("waiting dead target line 321");
 				end
 			end
 
@@ -371,6 +374,7 @@ function script_hunter:run(targetGUID)
 
 			if (targetObj:GetDistance() < 14 and not script_grind:isTargetingMe(targetObj) and targetObj:GetUnitsTarget() ~= 0) then
 				if (targetObj:GetUnitsTarget():GetGUID() == pet:GetGUID()) then
+					script_grind.tickRate = 100;
 					if (script_hunter:runBackwards(targetObj, 15)) then
 						PetAttack();
 						self.message = "Moving away from target for range attacks...";
@@ -393,6 +397,7 @@ function script_hunter:mendPet(localMana, petHP)
 	local mendPet = HasSpell("Mend Pet");
 	if (mendPet and IsInCombat() and self.hasPet and petHP > 0) then
 		if (GetPet():GetHealthPercentage() < 35) then
+			script_grind.tickRate = 100;
 			self.message = "Pet has lower than 35% HP, mending pet...";
 			-- Check: If in range to mend the pet 
 			if (GetPet():GetDistance() < 20 and localMana > 10 and GetPet():IsInLineOfSight()) then 
@@ -658,13 +663,23 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	local targetObj = GetGUIDObject(targetGUID);
 	self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 
+	-- force stop the bot after combat and waiting for pet to return - hangs in combat phase
+			if (self.hasPet) and (GetNumPartyMembers() > 0) then
+				if (IsInCombat()) and (GetPet():GetUnitsTarget() == 0) and (GetLocalPlayer():GetUnitsTarget() == 0) then
+					script_grind.tickRate = 100;
+					self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
+					self.message = ("waiting dead target line 660");
+				end
+			end
+
+
 	-- Let pet loose early to get aggro (even before we are in range ourselves)
 	if (self.hasPet and targetObj:GetDistance() < 45) then 
 		if (pet:GetUnitsTarget() ~= nil and pet:GetUnitsTarget() ~= 0) then
 			if (pet:GetUnitsTarget():GetGUID() ~= targetObj:GetGUID()) then
 				PetFollow(); 
 			end
-		elseif (targetObj:GetDistance() < 35) and (not script_paranoia:checkParanoia()) then
+		elseif (targetObj:GetDistance() < 35) then
 			PetAttack();
 		end
 	end	
@@ -675,13 +690,11 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	-- Attack: Use Auto Shot
 	if (targetObj:GetHealthPercentage() > 99) then
 	if (not IsAutoCasting('Auto Shot') and targetObj:GetDistance() < 35 and targetObj:GetDistance() > 13) then
-		-- Dismount
-		if (IsMounted()) then DisMount(); end
 		if (script_hunter:cast('Auto Shot', targetObj)) then
 			if (not targetObj:FaceTarget()) then
 				targetObj:FaceTarget();
 			end
-			canDoRangeAttacks = true;
+		canDoRangeAttacks = true;
 		end
 	elseif (IsAutoCasting('Auto Shot')) then
 		if (not targetObj:FaceTarget()) then
@@ -692,9 +705,15 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	end
 	if (canDoRangeAttacks) then
 		if (script_hunter:doPullAttacks(targetObj, localMana)) then
-			targetObj:FaceTarget();
-			self.waitTimer = GetTimeEX() + 850;
-			return true;
+			if (IsInCombat()) then
+				if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) then
+					CastSpellByName("Auto Shot");
+					return 0;
+				end
+			end
+		targetObj:FaceTarget();
+		self.waitTimer = GetTimeEX() + 850;
+		return true;
 		end
 	end
 	
@@ -721,6 +740,22 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 end
 
 function script_hunter:doPullAttacks(targetObj)
+
+-- force stop the bot after combat and waiting for pet to return - hangs in combat phase
+			if (self.hasPet) and (GetNumPartyMembers() > 0) then
+				if (IsInCombat()) and (GetPet():GetUnitsTarget() == 0) and (GetLocalPlayer():GetUnitsTarget() == 0) then
+					script_grind.tickRate = 100;
+					self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
+					self.message = ("waiting dead target line 761");
+				end
+			end
+
+if (IsInCombat()) then
+		if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) then
+			CastSpellByName("Auto Shot");
+			return 0;
+		end
+	end
 	-- Dismount
 	if (IsMounted()) then DisMount(); end
 
@@ -748,6 +783,22 @@ function script_hunter:doInCombatRoutine(targetObj, localMana)
 	self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 	local targetHealth = targetObj:GetHealthPercentage(); -- update target's HP
 	local pet = GetPet(); -- get pet
+
+	if (IsInCombat()) then
+		if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) then
+			CastSpellByName("Auto Shot");
+			return 0;
+		end
+	end
+-- force stop the bot after combat and waiting for pet to return - hangs in combat phase
+			if (self.hasPet) and (GetNumPartyMembers() > 0) then
+				if (IsInCombat()) and (GetPet():GetUnitsTarget() == 0) and (GetLocalPlayer():GetUnitsTarget() == 0) then
+					script_grind.tickRate = 100;
+					self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
+					self.message = ("waiting dead target line 761");
+				end
+			end
+
 
 	-- Dismount
 	if (IsMounted()) then DisMount(); end
