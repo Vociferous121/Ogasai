@@ -190,7 +190,7 @@ end
 function script_hunterEX:menu()
 	if (CollapsingHeader("Hunter Combat Options")) then
 	Text("Wait After Combat - Fixes Bug Stuck InCombat Phase");
-	script_hunter.waitAfterCombat = SliderInt("Seconds", 0, 5, script_hunter.waitAfterCombat);
+	script_hunter.waitAfterCombat = SliderInt("Seconds", 0, 10, script_hunter.waitAfterCombat);
 
 
 		local wasClicked = false;

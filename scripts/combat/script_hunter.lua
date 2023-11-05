@@ -196,15 +196,8 @@ function script_hunter:run(targetGUID)
 	if (not script_grind.adjustTickRate) then
 		if (not IsInCombat()) or (IsMoving()) then
 			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
+		elseif (IsInCombat()) and (not IsMoving()) then
 			script_grind.tickRate = 450;
-		end
-	end
-
-	if (IsInCombat()) then
-		if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) then
-			CastSpellByName("Auto Shot");
-			return 0;
 		end
 	end
 
@@ -239,9 +232,13 @@ function script_hunter:run(targetGUID)
 		-- force stop the bot after combat and waiting for pet to return - hangs in combat phase
 		if (self.hasPet) and (GetNumPartyMembers() > 0) then
 			if (IsInCombat()) and (GetPet():GetUnitsTarget() == 0) and (GetLocalPlayer():GetUnitsTarget() == 0) then
+				if (IsMoving()) then
+					StopMoving();
+				end
 				script_grind.tickRate = 100;
 				self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
 				self.message = ("waiting dead target line 321");
+			return;
 			end
 		end
 
@@ -253,6 +250,17 @@ function script_hunter:run(targetGUID)
 				return 5; 
 			end
 		end 
+
+		if (IsInCombat()) then
+			if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) and (targetObj:GetDistance() < 35) and (targetObj:IsInLineOfSight()) then
+				if (IsMoving()) then
+					StopMoving();
+				end
+			CastSpellByName("Auto Shot");
+			targetObj:FaceTarget();
+			return 0;
+			end
+		end
 
 	-- Auto Attack
 		if (targetObj:GetDistance() < 40) then
@@ -284,17 +292,6 @@ function script_hunter:run(targetGUID)
 			if (IsMoving()) then
 				StopMoving();
 			end
-			if (not targetObj:FaceTarget()) and (not IsMoving()) then
-				targetObj:FaceTarget();
-			end
-		end
-
-		if not (IsMoving()) and (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) and (localHealth > self.eatHealth) then
-			if (targetObj:IsSpellInRange("Auto Shot")) and (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() > 17) then
-				CastSpellByName("Hunter's Mark");
-				targetObj:FaceTarget();
-				return 0;
-			end
 		end
 
 			if (self.hasPet) and (not IsMoving()) and (PetAttack()) and (script_grind.lootObj == nil) then
@@ -306,7 +303,6 @@ function script_hunter:run(targetGUID)
 			end
 			if (script_hunter:doOpenerRoutine(targetGUID, pet)) then
 				self.waitTimer = GetTimeEX() + 1450;
-				targetObj:FaceTarget();
 				return 4; -- return 0 bugs turning around cause of StopMoving();
 			else
 				return 3;
@@ -319,11 +315,26 @@ function script_hunter:run(targetGUID)
 				if (script_helper:useHealthPotion()) then 
 					return 0; 
 				end 
-			end				
+			end		
+
+			-- walk away from target if pet target guid is the same guid as target targeting me
+			if (targetObj:GetDistance() < 14) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) then
+				if (targetObj:GetUnitsTarget():GetGUID() == pet:GetGUID()) then
+					script_grind.tickRate = 100;
+					if (script_hunter:runBackwards(targetObj, 15)) then
+						PetAttack();
+						self.message = "Moving away from target for range attacks...";
+						return 4;
+					end
+				end
+			end
 
 			-- force stop the bot after combat and waiting for pet to return - hangs in combat phase
 			if (self.hasPet) and (GetNumPartyMembers() > 0) then
 				if (IsInCombat()) and (GetPet():GetUnitsTarget() == 0) and (GetLocalPlayer():GetUnitsTarget() == 0) then
+					if (IsMoving()) then
+						StopMoving();
+					end
 					script_grind.tickRate = 100;
 					self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
 					self.message = ("waiting dead target line 321");
@@ -371,18 +382,7 @@ function script_hunter:run(targetGUID)
 					targetObj:AutoAttack();
 				end
 			end
-
-			if (targetObj:GetDistance() < 14 and not script_grind:isTargetingMe(targetObj) and targetObj:GetUnitsTarget() ~= 0) then
-				if (targetObj:GetUnitsTarget():GetGUID() == pet:GetGUID()) then
-					script_grind.tickRate = 100;
-					if (script_hunter:runBackwards(targetObj, 15)) then
-						PetAttack();
-						self.message = "Moving away from target for range attacks...";
-						return 4;
-					end
-				end
-			end
-			
+		
 			if (script_hunter:doInCombatRoutine(targetObj, localMana)) then
 				self.waitTimer = GetTimeEX() + 1850;
 				return 0;
@@ -445,7 +445,7 @@ function script_hunter:rest()
 	if (not script_grind.adjustTickRate) then
 		if (not IsInCombat()) or (IsMoving()) then
 			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
+		elseif (IsInCombat()) and (not IsMoving()) then
 			script_grind.tickRate = 450;
 		end
 	end
@@ -653,7 +653,6 @@ function script_hunter:rest()
 	if (self.needToRest) then
 		self.waitTimer = GetTimeEX() + 500;
 		self.message = "Need to rest!";
-		self.needToRest = false;
 		return;
 	end
 	return false;
@@ -666,6 +665,9 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	-- force stop the bot after combat and waiting for pet to return - hangs in combat phase
 			if (self.hasPet) and (GetNumPartyMembers() > 0) then
 				if (IsInCombat()) and (GetPet():GetUnitsTarget() == 0) and (GetLocalPlayer():GetUnitsTarget() == 0) then
+					if (IsMoving()) then
+						StopMoving();
+					end
 					script_grind.tickRate = 100;
 					self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
 					self.message = ("waiting dead target line 660");
@@ -688,32 +690,19 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	local canDoRangeAttacks = false;
 
 	-- Attack: Use Auto Shot
-	if (targetObj:GetHealthPercentage() > 99) then
 	if (not IsAutoCasting('Auto Shot') and targetObj:GetDistance() < 35 and targetObj:GetDistance() > 13) then
-		if (script_hunter:cast('Auto Shot', targetObj)) then
-			if (not targetObj:FaceTarget()) then
-				targetObj:FaceTarget();
-			end
+		script_hunter:cast('Auto Shot', targetObj);
+		targetObj:FaceTarget();
 		canDoRangeAttacks = true;
-		end
 	elseif (IsAutoCasting('Auto Shot')) then
-		if (not targetObj:FaceTarget()) then
-			targetObj:FaceTarget();
-		end
+		targetObj:FaceTarget();
 		canDoRangeAttacks = true;
-	end
 	end
 	if (canDoRangeAttacks) then
 		if (script_hunter:doPullAttacks(targetObj, localMana)) then
-			if (IsInCombat()) then
-				if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) then
-					CastSpellByName("Auto Shot");
-					return 0;
-				end
-			end
-		targetObj:FaceTarget();
-		self.waitTimer = GetTimeEX() + 850;
-		return true;
+			targetObj:FaceTarget();
+			self.waitTimer = GetTimeEX() + 850;
+			return true;
 		end
 	end
 	
@@ -744,6 +733,9 @@ function script_hunter:doPullAttacks(targetObj)
 -- force stop the bot after combat and waiting for pet to return - hangs in combat phase
 			if (self.hasPet) and (GetNumPartyMembers() > 0) then
 				if (IsInCombat()) and (GetPet():GetUnitsTarget() == 0) and (GetLocalPlayer():GetUnitsTarget() == 0) then
+					if (IsMoving()) then
+						StopMoving();
+					end
 					script_grind.tickRate = 100;
 					self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
 					self.message = ("waiting dead target line 761");
@@ -753,6 +745,7 @@ function script_hunter:doPullAttacks(targetObj)
 if (IsInCombat()) then
 		if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) then
 			CastSpellByName("Auto Shot");
+			targetObj:FaceTarget();
 			return 0;
 		end
 	end
@@ -761,6 +754,7 @@ if (IsInCombat()) then
 
 	if (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) then
 		CastSpellByName("Hunter's Mark");
+		self.waitTimer = GetTimeEX() + 1500;
 	end
 	-- Pull with Concussive Shot to make it easier for pet to get aggro
 	if (script_hunter:cast('Concussive Shot', targetObj)) then
@@ -774,6 +768,7 @@ if (IsInCombat()) then
 	-- If no special attacks available for pull use Auto Shot
 	if (script_hunter:cast('Auto Shot', targetObj)) then
 		self.waitTimer = GetTimeEX() + 750;
+		targetObj:FaceTarget();
 		return true;
 	end
 	return false;
@@ -787,12 +782,16 @@ function script_hunter:doInCombatRoutine(targetObj, localMana)
 	if (IsInCombat()) then
 		if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) then
 			CastSpellByName("Auto Shot");
+			targetObj:FaceTarget();
 			return 0;
 		end
 	end
 -- force stop the bot after combat and waiting for pet to return - hangs in combat phase
 			if (self.hasPet) and (GetNumPartyMembers() > 0) then
 				if (IsInCombat()) and (GetPet():GetUnitsTarget() == 0) and (GetLocalPlayer():GetUnitsTarget() == 0) then
+					if (IsMoving()) then
+						StopMoving();
+					end
 					script_grind.tickRate = 100;
 					self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
 					self.message = ("waiting dead target line 761");
@@ -907,6 +906,7 @@ function script_hunter:doRangeAttack(targetObj, localMana)
 	-- Attack: Use Auto Shot 
 	if (not IsAutoCasting('Auto Shot')) and (IsInCombat()) then
 		if (script_hunter:cast('Auto Shot', targetObj)) then
+			targetObj:FaceTarget();
 			self.waitTimer = GetTimeEX() + 600;
 			return true;
 		else
@@ -926,6 +926,7 @@ function script_hunter:doRangeAttack(targetObj, localMana)
 		if (script_hunter:cast('Arcane Shot', targetObj)) then return true; end end
 	-- Check if we are able to attack
 	if (IsAutoCasting('Auto Shot')) then
+		targetObj:FaceTarget();
 		return true;
 	end
 end

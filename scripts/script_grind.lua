@@ -704,7 +704,6 @@ function script_grind:playersWithinRange(range)
 				if (localObj:GetGUID() ~= currentObj:GetGUID()) then
 					local playerName = currentObj:GetUnitName();
 					if (self.useString) then
-							ClearTarget();
 						if (currentObj:GetDistance() < self.paranoidRange) then
 							local playerDistance = currentObj:GetDistance();
 							local playerTime = GetTimeStamp();
