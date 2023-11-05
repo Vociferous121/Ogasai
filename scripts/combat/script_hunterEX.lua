@@ -189,6 +189,9 @@ end
 
 function script_hunterEX:menu()
 	if (CollapsingHeader("Hunter Combat Options")) then
+	Text("Wait After Combat - Fixes Bug Stuck InCombat Phase");
+	script_hunter.waitAfterCombat = SliderInt("Seconds", 0, 5, script_hunter.waitAfterCombat);
+
 
 		local wasClicked = false;
 
@@ -213,7 +216,7 @@ function script_hunterEX:menu()
 		end
 		if (GetLocalPlayer():GetLevel() >= 10) then
 			Text('Use Pet or not:');
-			wasClicked, script_hunter.hasPet = Checkbox("Do we have an active pet?", script_hunter.hasPet);
+			wasClicked, script_hunter.hasPet = Checkbox("Is Pet Active?", script_hunter.hasPet);
 		end
 
 		if (self.menuBandages) then

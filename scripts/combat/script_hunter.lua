@@ -28,7 +28,7 @@ script_hunter = {
 	followTargetDistance = 38,
 	useBandage = false,
 	hasBandages = false,
-	needToRest = false,
+	waitAfterCombat = 5;
 }	
 
 function script_hunter:setup()
@@ -204,7 +204,7 @@ function script_hunter:run(targetGUID)
 		
 		-- Cant Attack dead targets
 		if (targetObj:IsDead() or not targetObj:CanAttack()) then
-			self.waitTimer = GetTimeEX() + 1700;
+			self.waitTimer = GetTimeEX() + 1200;
 			return 0;
 		end
 		
@@ -257,10 +257,9 @@ function script_hunter:run(targetGUID)
 		-- bugged... let's try to force a recheck here
 		local getTheCheck = GetPet():GetHealthPercentage();
 			
-		if (GetLocalPlayer():GetUnitsTarget() == 0) and (GetPet():GetUnitsTarget() == 0) and (IsInCombat()) then
+		if (GetLocalPlayer():GetUnitsTarget() == 0) and (IsInCombat()) then
 			PetFollow();
-			ClearTarget();
-			self.waitTimer = GetTimeEX() + 2750;
+			--self.waitTimer = GetTimeEX() + 550;
 			self.message = ("waiting... In combat bug");
 			return 4;
 		end
@@ -293,29 +292,27 @@ function script_hunter:run(targetGUID)
 		end
 
 			if (not IsMoving()) and (PetAttack()) and (script_grind.lootObj == nil) then
-				self.waitTimer = GetTimeEX() + 1200;
+				self.waitTimer = GetTimeEX() + 600;
 			end
 
-			if (not GetPet():GetUnitsTarget() == 0) then
-				local petTarget = pet:GetUnitsTarget():GetGUID();
-
-				if (IsInCombat()) and (not petTarget == targetObj:GetGUID()) then
-					ClearTarget();
-				end
-			end
+			--if (not GetPet():GetUnitsTarget() == 0) then
+			--	local petTarget = pet:GetUnitsTarget():GetGUID();
+			--
+			--	if (IsInCombat()) and (not petTarget == targetObj:GetGUID()) then
+			--		ClearTarget();
+			--	end
+			--end
 
 			if (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) then
 				CastSpellByName("Hunter's Mark");
 			end
 			if (script_hunter:doOpenerRoutine(targetGUID, pet)) then
-				self.waitTimer = GetTimeEX() + 2450;
+				self.waitTimer = GetTimeEX() + 1450;
 				targetObj:FaceTarget();
 				return 4; -- return 0 bugs turning around cause of StopMoving();
 			else
 				return 3;
 			end
-
-			local hunterTarget = targetObj:GetGUID();
 			
 		-- Combat
 		else				
@@ -324,26 +321,16 @@ function script_hunter:run(targetGUID)
 				if (script_helper:useHealthPotion()) then 
 					return 0; 
 				end 
-			end
-
-			if (not GetPet():GetUnitsTarget() == 0) and (IsInCombat()) and (not GetPet():IsDead()) then
-				local petTarget = pet:GetUnitsTarget():GetGUID();
-
-				if (IsInCombat()) and (not petTarget == targetObj:GetGUID()) then
-					ClearTarget();
-				else
-					targetObj:AutoAttack();
-				end
-			end
+			end				
 
 			if (script_grind.lootObj ~= nil) and (not IsMoving()) and (not GetPet():IsDead()) then
-				self.waitTimer = GetTimeEX() + 1200;
+				self.waitTimer = GetTimeEX() + 600;
 			end
-			if (IsInCombat()) and (hunterTarget ~= targetObj:GetGUID()) or (targetObj:IsDead()) then
+
+			if (IsInCombat()) and (GetPet():GetUnitsTarget() == 0) and (GetLocalPlayer():GetUnitsTarget() == 0) then
 				script_grind.tickRate = 100;
-				self.waitTimer = GetTimeEX() + 2500;
+				self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
 				self.message = ("waiting dead target line 264");
-				hunterTarget = targetObj:GetGUID();
 			end
 
 			-- Check: Use Mana Potion 
@@ -665,7 +652,7 @@ function script_hunter:rest()
 
 	-- No rest / buff needed
 	if (self.needToRest) then
-		self.waitTimer = GetTimeEX() + 2500;
+		self.waitTimer = GetTimeEX() + 500;
 		self.message = "Need to rest!";
 		self.needToRest = false;
 		return;
@@ -712,7 +699,7 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	if (canDoRangeAttacks) then
 		if (script_hunter:doPullAttacks(targetObj, localMana)) then
 			targetObj:FaceTarget();
-			self.waitTimer = GetTimeEX() + 1850;
+			self.waitTimer = GetTimeEX() + 850;
 			return true;
 		end
 	end
@@ -875,7 +862,7 @@ function script_hunter:doRangeAttack(targetObj, localMana)
 	-- Attack: Use Auto Shot 
 	if (not IsAutoCasting('Auto Shot')) and (IsInCombat()) then
 		if (script_hunter:cast('Auto Shot', targetObj)) then
-			self.waitTimer = GetTimeEX() + 1200;
+			self.waitTimer = GetTimeEX() + 600;
 			return true;
 		else
 			return false;
