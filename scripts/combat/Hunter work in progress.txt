@@ -1,0 +1,146 @@
+	hasPet = false,
+	
+
+	if not is in combat
+
+	local targetHealth = targetObj:GetHealthPercentage();
+	local targetDistance = targetObj:GetDistnace();
+	local localObj = GetLocalPlayer();
+	local localMana = localObj:GetManaPercentage();
+	local localHealth = localObj:GetHealthPercentage();
+	local playerLevel = localObj:GetLevel();
+	local pet = GetPet();
+	local petHealth = pet:GetHealthPercentage();
+	local petMana = pet:GetManaPercentage();
+	local petTarget = pet:GetUnitsTarget():GetGUID();
+	local localTarget = localObj:GetUnitsTarget();
+
+		localtarget == petTarget then
+
+		send pet to attack then do other checks
+
+	-- check line of sight and distance
+	if (targetDistance > 40) or (not targetObj:IsInLineOfSight()) then
+		return 3;
+	end
+	
+	-- check auto shot range
+	if (not targetObj:IsSpellInRange("Auto Shot")) then
+		return 3;
+	end
+	
+	-- stop moving when in spell range
+	if (targetObj:IsSpellInRange("Auto Shot")) then
+		if (not targetObj:IsFleeing()) and (IsMoving()) then
+			StopMoving();
+		end
+	end
+
+	-- use hunter's mark first
+	if (Has Spell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) and (targetObj:IsInLineOfSight()) then
+		CastSpellByName("Hunter's Mark");
+		return 0;
+	end
+	
+	-- use concussive shot
+	if (HasSpell("Concussive Shot")) and (not IsSpellOnCD("Concussive Shot")) and (targetObj:IsInLineOfSight()) then
+		CastSpellByName("Concussive Shot");
+		return 0;
+	end
+
+	-- use serpent sting
+	if (Has Spell("Serpent Sting")) and (not targetObj:HasDebuff("Serpent Sting")) and (targetObj:IsInLineOfSight)) then
+		CastSpellByName("Serpent Sting");
+		return 0;
+	end
+	
+	-- use arcane shot
+	if (HasSpell("Arcane Shot")) and (not IsSpellOnCD("Arcane Shot")) and (targetObj:IsInLineOfSight()) then
+		CastSpellByName("Arcane Shot");
+		return 0;
+	end
+
+	-- if distance too close then use auto shot
+	If (targetDistance < 34) and (targetDistance > 13) then
+		if (not IsAutoCasting("Auto Shot") then
+			CastSpellByName("Auto Shot");
+			return 0;
+		end
+
+	-- else use melee
+	elseif (targetDistance < 13) then
+		if (not targetObj:IsInLineOfSight()) and (not targetDistance < 6) then
+			return 3;
+		end
+		if (targetDistance < 5) then
+			if (not IsAutoCasting("Attack")) then
+				CastSpellByName("Attack");
+				return 0;
+			end
+		end
+	end
+
+	
+			is in combat
+
+	-- check hunter's mark
+	if (Has Spell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) and (targetObj:IsInLineOfSight()) then
+		if (targetDistance > 14) and (targetDistance < 34) and (localMana > 20) then
+			CastSpellByName("Hunter's Mark");
+			return 0;
+		end
+	end
+	
+	-- use concussive shot
+	if (HasSpell("Concussive Shot")) and (not IsSpellOnCD("Concussive Shot")) and (targetObj:IsInLineOfSight()) then
+		if (targetDistance > 14) and (targetDistance < 34) and (localMana > 20) then
+			CastSpellByName("Concussive Shot");
+			return 0;
+		end
+	end
+
+	-- use serpent sting
+	if (Has Spell("Serpent Sting")) and (not targetObj:HasDebuff("Serpent Sting")) and (targetObj:IsInLineOfSight)) then
+		if (targetDistance > 14) and (targetDistance < 34) and (localMana > 20) then
+			CastSpellByName("Serpent Sting");
+			return 0;
+		end
+	end
+	
+	-- use arcane shot
+	if (HasSpell("Arcane Shot")) and (not IsSpellOnCD("Arcane Shot")) and (targetObj:IsInLineOfSight()) then
+		if (targetDistance > 14) and (targetDistance < 34) and (localMana > 20) then
+			CastSpellByName("Arcane Shot");
+			return 0;
+		end
+	end
+
+	-- check range for melee attacks
+	if (targetDistance < 14) and (targetObj:IsTargetingMe()) then
+		if (targetDistance > 6) then
+			return 3;
+		end
+
+		-- if in melee range then do melee attacks
+		if (targetDistance < 6) and (targetObj:IsTargetingMe()) then
+			if (not IsAutoCasting("Attack")) then
+				CastSpellByName("Attack");
+				return 0;
+			end
+			if (HasSpell("Raptor Strike")) and (not IsSpellOnCD("Raptor Strike")) and (localMana > 10) then
+				CastSpellByName("Raptor Strike");
+				return 0;
+			end
+		end
+	end
+
+	if (targetDistance < 14) and (not targetObj:IsTargetingMe()) then
+		
+		move xyz
+		do ranged attacks
+		
+		need to make pet controls
+		pet guid target needs to be my target
+		checks for pet - target health - self health - pet health
+		line of sight and range checks
+			
