@@ -1,13 +1,11 @@
  # oGasai Scripts for WoW Classic
  Ogasaism
 
-Priest, Warlock, Warrior, Paladin, Rogue - working the best
+Priest, Warlock, Warrior, Paladin, Rogue, Hunter - working the best
 
-Shaman, Hunter, Druid - have issues :(
+Shaman, Druid - have issues :(
 
 # Fixed several bugs affecting low level botting! Casters - please obtain a wand ASAP. Can be used level 5+.
- 
-## *Hunter script is bugged.* The pet has a mind of its own. I believe I have sucessfully stopped the bot from hanging during long combat phases (like a 3 mob pull) but the targting of the bot and sending pet to attack can overlap. The bot may kill everything in the area before anything else.
 
 Bot made by DarkLinux @ OwnedCore
 
