@@ -192,7 +192,7 @@ function script_hunter:run(targetGUID)
 	end
 
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
+		if (not IsInCombat()) or (IsMoving()) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 450;
@@ -214,7 +214,7 @@ function script_hunter:run(targetGUID)
 
 		-- Don't attack if we should rest first
 		if (localHealth < self.eatHealth and not script_grind:isTargetingMe(targetObj)
-			and targetHealth > 99 and not targetObj:IsStunned() and script_grind.lootobj == nil) then
+			and targetHealth > 99 and not targetObj:IsStunned() and script_grind.lootobj ~= nil) then
 			self.message = "Need rest...";
 			return 4;
 		end
@@ -247,12 +247,28 @@ function script_hunter:run(targetGUID)
 				end
 			end
 		end
+		
+		if (not targetObj:FaceTarget()) and (not IsMoving()) then
+			targetObj:FaceTarget();
+		end
+
+		-- Opener
+
+	-- this here is causing the bot to attack before looting - this needs to be rewritten from top to bottom
+
+		if (not IsInCombat()) and (targetObj:GetDistance() < 36) and (localHealth > self.eatHealth) and (script_grind.lootObj == nil) then
+
+	-- this above here is causing the bot to attack before looting
+
+			if (not targetObj:IsSpellInRange("Auto Shot")) or (not targetObj:IsInLineOfSight()) then
+				return 3;
+			end
 
 		if (targetObj:IsSpellInRange("Auto Shot")) and (targetObj:IsInLineOfSight()) and (not targetObj:IsFleeing()) then
 			if (IsMoving()) then
 				StopMoving();
 			end
-			if (not targetObj:FaceTarget()) then
+			if (not targetObj:FaceTarget()) and (not IsMoving()) then
 				targetObj:FaceTarget();
 			end
 		end
@@ -264,14 +280,11 @@ function script_hunter:run(targetGUID)
 				return 0;
 			end
 		end
-		
-		targetObj:FaceTarget();
 
-		-- Opener
-		if (not IsInCombat()) and (targetObj:GetDistance() < 36) and (localHealth > self.eatHealth) then
-			if (not targetObj:IsSpellInRange("Auto Shot")) or (not targetObj:IsInLineOfSight()) then
-				return 3;
+			if (PetAttack()) then
+				self.waitTimer = GetTimeEX() + 1200;
 			end
+
 			if (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) then
 				CastSpellByName("Hunter's Mark");
 			end
@@ -351,7 +364,6 @@ function script_hunter:run(targetGUID)
 				return 3;
 			end
 		end
-	self.needToRest = true;
 	end
 end
 
@@ -399,26 +411,13 @@ function script_hunter:rest()
 	end
 
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
+		if (not IsInCombat()) or (IsMoving()) then
 			script_grind.tickRate = 100;
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 450;
 		end
 	end
 
-	--if (not IsLooting()) and (not IsEating()) and (not IsDrinking()) and (not IsInCombat()) then
-	--	script_grind:doLoot(targetObj);
-	--	if (IsLooting()) then
-	--		LootTarget();
-	--	end
-	
-	--	if(not self.lootObj:UnitInteract() and not IsLooting()) then
-	--		self.waitTimer = GetTimeEX() + 1850;
-	--		return;
-	--	end
-	--	return;
-	--end
-	
 	local localObj = GetLocalPlayer();
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();

@@ -115,7 +115,7 @@ function script_hunterEX:petChecks()
 		local happiness, damagePercentage, loyaltyRate = GetPetHappiness();
 
 		if (not GetPet():IsDead() and script_hunter.feedTimer < GetTimeEX() and not IsInCombat()) then
-			if (happiness < 3 or loyaltyRate < 0) then
+			if (happiness < 3 or loyaltyRate < 0) and (GetPet():GetDistance() <= 8) and (not IsInCombat()) then
 				script_hunter.message = "Pet is not happy, feeding the pet...";
 				if (not IsStanding()) then
 					StopMoving();
