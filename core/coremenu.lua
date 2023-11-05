@@ -2,7 +2,8 @@
 ------GlobalVariables------
 ---------------------------
 O_NAME = "oGasai";
-O_VERSION = "0.XXXX";
+--MY_VERSION = "0.XXXX";
+--_G.MY_VERSION = string.match([[*<= Version '1.5.99+D20201231T235959' =>*]], "'.-'")
 
 ----------------------------
 ---------Load Libs----------
@@ -64,14 +65,13 @@ function coremenu:draw()
 	if self.isSetup == false then
 		self.isSetup = true
 
-		DEFAULT_CHAT_FRAME:AddMessage(L["Loading Scripts!"])
+		--DEFAULT_CHAT_FRAME:AddMessage(format(L["Loading Scripts! Your version "]) .. O_NAME .. " : " .. MY_VERSION)
+		DEFAULT_CHAT_FRAME:AddMessage(L['Loading Scripts!']);
 
-		--[[
+
 			----------------------------
-			Core Files
+			--------Core Files----------
 			----------------------------
-		]]
-		--
 
 		include("core\\core.lua")
 
@@ -79,12 +79,10 @@ function coremenu:draw()
 		include("scripts\\db\\vendorDB.lua")
 		include("scripts\\db\\hotspotDB.lua")
 
-		--[[
+
 			----------------------------
-			Class Rotations
+			------Class Rotations-------
 			----------------------------
-		]]
-		--
 
 		LoadScript("Mage", "scripts\\combat\\script_mage.lua")
 		AddScriptToCombat(L["Mage"], "script_mage")
@@ -113,12 +111,10 @@ function coremenu:draw()
 		LoadScript("Druid", "scripts\\combat\\script_druid.lua")
 		AddScriptToCombat(L["Druid"], "script_druid")
 
-		--[[
+
 			----------------------------
-			Bot Types
+			----------Bot Types---------
 			----------------------------
-		]]
-		--
 
 		LoadScript(L["Grinder"], "scripts\\script_grind.lua")
 		AddScriptToMode(L["Grinder"], "script_grind")
@@ -142,24 +138,20 @@ function coremenu:draw()
 		--LoadScript("Pather", "scripts\\script_pather.lua");
 		--AddScriptToMode("Pather Debug", "script_pather");
 
-		--[[
+
 			----------------------------
-			Override Settings
+			-----Override Settings------
 			----------------------------
-		]]
-		--
 
 		DrawPath(true)
 
 		--NewTheme(false);
 	end
 
-	--[[
+
 		----------------------------
-		Append To Menu
+		------Append To Menu--------
 		----------------------------
-	]]
-	--
 
 	-- Grind
 	Separator()
