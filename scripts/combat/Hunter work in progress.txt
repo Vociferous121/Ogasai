@@ -60,14 +60,14 @@
 		return 0;
 	end
 
-	-- if distance too close then use auto shot
+	-- if distance too close then use auto attack
 	If (targetDistance < 34) and (targetDistance > 13) then
 		if (not IsAutoCasting("Auto Shot") then
 			CastSpellByName("Auto Shot");
 			return 0;
 		end
 
-	-- else use melee
+	-- use melee
 	elseif (targetDistance < 13) then
 		if (not targetObj:IsInLineOfSight()) and (not targetDistance < 6) then
 			return 3;

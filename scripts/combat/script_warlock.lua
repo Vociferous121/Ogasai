@@ -46,8 +46,6 @@ script_warlock = {
 	hasConsumeShadowsSpell = false,
 	hasSacrificeSpell = false,
 	followTargetDistance = 100,
-	targetCorruption = false,
-	targetImmolate = false,
 	rangeDistance = 35,
 }
 
@@ -323,19 +321,6 @@ function script_warlock:run(targetGUID)
 	--Valid Enemy
 	if (targetObj ~= 0 and targetObj ~= nil) then
 		
-		if (targetObj:GetHealthPercentage() < 80) then
-			if (targetObj:HasDebuff("Corruption")) then
-				self.targetCorruption = true;
-			else 
-				self.targetCorruption = false;
-			end
-			if (targetObj:HasDebuff("Immolate")) then
-				self.targetImmolate = true;
-			else
-				self.targetImmolate = false;
-			end
-		end
-
 		-- Cant Attack dead targets
 		if (targetObj:IsDead() or not targetObj:CanAttack()) then
 			ClearTarget();
@@ -358,30 +343,34 @@ function script_warlock:run(targetGUID)
 		-- set target health
 		targetHealth = targetObj:GetHealthPercentage();
 
-		-- Auto attack
-		if (targetObj:GetDistance() < 40) or (localMana < 25) then
-			targetObj:AutoAttack();
+		if (targetObj:GetDistance() < 40) then
+			if (not targetObj:AutoAttack()) then
+				targetObj:AutoAttack();
+			end
 		end
 
-
 		-- level 1 - 4
-			if (not HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight()) and (GetLocalPlayer():GetLevel() <= 3) and (not IsMoving()) then
-				if (Cast('Shadow Bolt', targetObj)) then
+			if (not HasSpell("Corruption")) then
+				if (not HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight())  and (not IsMoving()) then
+					if (Cast('Shadow Bolt', targetObj)) then
+						targetObj:FaceTarget();
+						self.waitTimer = GetTimeEX() + 1950;
+						return;
+					end
+				elseif (HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Immolate")) then
+					if (IsMoving()) then
+						StopMoving();
+						targetObj:FaceTarget();
+						PetAttack();
+					end
+		
 					targetObj:FaceTarget();
-					self.waitTimer = GetTimeEX() + 1650;
-					return;
+					if (not targetObj:HasDebuff("Immolate")) and (not IsMoving()) then
+						CastSpellByName("Immolate");
+						self.waitTimer = GetTimeEX() + 2500;
+					end
+					return 0;
 				end
-			elseif (not self.targetImmolate) and (HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Immolate")) then
-				if (IsMoving()) then
-					StopMoving();
-					targetObj:FaceTarget();
-					PetAttack();
-				end
-	
-				targetObj:FaceTarget();
-				CastSpellByName("Immolate");
-				self.targetImmolate = true;
-				self.waitTimer = GetTimeEX() + 2650;
 			end
 
 		-- Check: if we target player pets/totems
@@ -433,9 +422,12 @@ function script_warlock:run(targetGUID)
 
 			-- level 1 - 4
 			if (not HasSpell("Summon Imp")) and (localMana > 25) then
-				if (Cast('Shadow Bolt', targetObj)) then
-					return 0;
-				end
+				Cast('Shadow Bolt', targetObj);
+				return 0;
+			end
+			if (HasSpell("Summon Imp")) and (localMana > 25) and (not HasSpell("Corruption")) then
+				Cast('Immolate', targetObj);
+				return 0;
 			end
 
 			-- if pet goes too far then recall
@@ -884,28 +876,27 @@ function script_warlock:run(targetGUID)
 			end
 	
 			-- Check: Keep the Corruption DoT up (15 s duration)
-			if (not self.targetCorruption) and (self.enableCorruption) and (not targetObj:HasDebuff("Corruption")) then
+			if (self.enableCorruption) and (not targetObj:HasDebuff("Corruption")) then
 				if (not targetObj:HasDebuff("Corruption") and targetHealth >= 20) then
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 					end -- move to target
-					if (not self.targetCorruption) and (targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Corruption")) then
-						self.targetCorruption = true;
+					if (targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Corruption")) then
 						Cast('Corruption', targetObj);
 						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 1600 + (self.corruptionCastTime / 10); 
+						self.waitTimer = GetTimeEX() + 1500 + (self.corruptionCastTime * 100); 
+						return 0;
 					end
 				end
 			end
 	
 			-- Check: Keep the Immolate DoT up (15 s duration)
-			if (not self.targetImmolate) and (self.enableImmolate) and (not targetObj:HasDebuff("Immolate")) and (not IsSpellOnCD("Immolate")) then
+			if (self.enableImmolate) and (not targetObj:HasDebuff("Immolate")) and (not IsSpellOnCD("Immolate")) then
 				if (not targetObj:HasDebuff("Immolate")) and (localMana > 25) and (targetHealth > 20) then
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 					end -- move to target
 					if (targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Immolate")) then
-						self.targetImmolate = true;
 						CastSpellByName("Immolate", targetObj);
 						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 2650;
@@ -972,6 +963,8 @@ function script_warlock:rest()
 		end
 	end
 
+	ClearTarget();
+
 	-- check pet
 	if(GetPet() ~= 0) then 
 		self.hasPet = true; 
@@ -1011,8 +1004,8 @@ function script_warlock:rest()
 			return 0;
 		end
 		return 0;
-	end
-
+	end			
+		
 	-- Eat and Drink
 	if (not IsDrinking() and localMana < self.drinkMana) and (not IsSwimming()) then
 		self.message = "Need to drink...";
@@ -1029,6 +1022,7 @@ function script_warlock:rest()
 			return true; 
 		else 
 			self.message = "No drinks! (or drink not included in script_helper)";
+			ClearTarget();
 			return true; 
 		end
 	end
@@ -1084,7 +1078,7 @@ function script_warlock:rest()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Succubus")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
-					self.waitTimer = GetTimeEX() + 14000;
+					self.waitTimer = GetTimeEX() + 17000;
 					self.message = "Summoning Succubus";
 					self.hasPet = true;
 					return 0; 
@@ -1100,7 +1094,7 @@ function script_warlock:rest()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Voidwalker")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
-					self.waitTimer = GetTimeEX() + 14000;
+					self.waitTimer = GetTimeEX() + 17000;
 					self.message = "Summoning Void Walker";
 					self.hasPet = true;
 					return 0; 
@@ -1116,7 +1110,7 @@ function script_warlock:rest()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Felhunter")) and (GetPet == 0) and (not self.hasPet) then
-					self.waitTimer = GetTimeEX() + 14000;
+					self.waitTimer = GetTimeEX() + 17000;
 					self.message = "Summoning Felhunter";
 					hasPet = true;
 					return 0; 
@@ -1132,7 +1126,7 @@ function script_warlock:rest()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Imp")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
-					self.waitTimer = GetTimeEX() + 14000;
+					self.waitTimer = GetTimeEX() + 17000;
 					self.message = "Summoning Imp";
 					self.hasPet = true;
 					return 0;
