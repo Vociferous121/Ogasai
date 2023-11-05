@@ -9,7 +9,7 @@ script_rogue = {
 	eatHealth = 55,
 	potionHealth = 5,
 	cpGeneratorCost = 40,
-	meleeDistance = 4.0,
+	meleeDistance = 3.5,
 	stealthRange = 100,
 	waitTimer = 0,
 	vanishHealth = 8,
@@ -244,7 +244,10 @@ function script_rogue:run(targetGUID)
 
 		-- Set Slice and Dice level 10 or greater
 			if not (HasSpell("Slice And Dice")) then
-				useSliceAndDice = false;
+				self.useSliceAndDice = false;
+			end
+			if (not HasSpell("Stealth")) then
+				self.useStealth = false;
 			end
 		
 			-- Cant Attack dead targets
