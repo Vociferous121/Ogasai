@@ -344,29 +344,33 @@ function script_warlock:run(targetGUID)
 		targetHealth = targetObj:GetHealthPercentage();
 
 		if (targetObj:GetDistance() < 40) then
-			targetObj:AutoAttack();
+			if (not targetObj:AutoAttack()) then
+				targetObj:AutoAttack();
+			end
 		end
 
 		-- level 1 - 4
-			if (not HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight())  and (not IsMoving()) then
-				if (Cast('Shadow Bolt', targetObj)) then
+			if (not HasSpell("Corruption")) then
+				if (not HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight())  and (not IsMoving()) then
+					if (Cast('Shadow Bolt', targetObj)) then
+						targetObj:FaceTarget();
+						self.waitTimer = GetTimeEX() + 1950;
+						return;
+					end
+				elseif (HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Immolate")) then
+					if (IsMoving()) then
+						StopMoving();
+						targetObj:FaceTarget();
+						PetAttack();
+					end
+		
 					targetObj:FaceTarget();
-					self.waitTimer = GetTimeEX() + 1950;
-					return;
+					if (not targetObj:HasDebuff("Immolate")) and (not IsMoving()) then
+						CastSpellByName("Immolate");
+						self.waitTimer = GetTimeEX() + 2500;
+					end
+					return 0;
 				end
-			elseif (HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Immolate")) then
-				if (IsMoving()) then
-					StopMoving();
-					targetObj:FaceTarget();
-					PetAttack();
-				end
-	
-				targetObj:FaceTarget();
-				if (not targetObj:HasDebuff("Immolate")) and (not IsMoving()) then
-					CastSpellByName("Immolate");
-					self.waitTimer = GetTimeEX() + 2500;
-				end
-				return 0;
 			end
 
 		-- Check: if we target player pets/totems
@@ -421,7 +425,7 @@ function script_warlock:run(targetGUID)
 				Cast('Shadow Bolt', targetObj);
 				return 0;
 			end
-			if (HaSpell("Summon Imp")) and (localMana > 25) and (GetLocalPlayer():GetLevel() <= 5) then
+			if (HasSpell("Summon Imp")) and (localMana > 25) and (not HasSpell("Corruption")) then
 				Cast('Immolate', targetObj);
 				return 0;
 			end
@@ -880,7 +884,8 @@ function script_warlock:run(targetGUID)
 					if (targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Corruption")) then
 						Cast('Corruption', targetObj);
 						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 1600 + (self.corruptionCastTime / 10); 
+						self.waitTimer = GetTimeEX() + 1500 + (self.corruptionCastTime * 100); 
+						return 0;
 					end
 				end
 			end
@@ -958,6 +963,8 @@ function script_warlock:rest()
 		end
 	end
 
+	ClearTarget();
+
 	-- check pet
 	if(GetPet() ~= 0) then 
 		self.hasPet = true; 
@@ -1015,6 +1022,7 @@ function script_warlock:rest()
 			return true; 
 		else 
 			self.message = "No drinks! (or drink not included in script_helper)";
+			ClearTarget();
 			return true; 
 		end
 	end
@@ -1070,7 +1078,7 @@ function script_warlock:rest()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Succubus")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
-					self.waitTimer = GetTimeEX() + 14000;
+					self.waitTimer = GetTimeEX() + 17000;
 					self.message = "Summoning Succubus";
 					self.hasPet = true;
 					return 0; 
@@ -1086,7 +1094,7 @@ function script_warlock:rest()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Voidwalker")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
-					self.waitTimer = GetTimeEX() + 14000;
+					self.waitTimer = GetTimeEX() + 17000;
 					self.message = "Summoning Void Walker";
 					self.hasPet = true;
 					return 0; 
@@ -1102,7 +1110,7 @@ function script_warlock:rest()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Felhunter")) and (GetPet == 0) and (not self.hasPet) then
-					self.waitTimer = GetTimeEX() + 14000;
+					self.waitTimer = GetTimeEX() + 17000;
 					self.message = "Summoning Felhunter";
 					hasPet = true;
 					return 0; 
@@ -1118,7 +1126,7 @@ function script_warlock:rest()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Imp")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
-					self.waitTimer = GetTimeEX() + 14000;
+					self.waitTimer = GetTimeEX() + 17000;
 					self.message = "Summoning Imp";
 					self.hasPet = true;
 					return 0;

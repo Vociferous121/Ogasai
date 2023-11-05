@@ -240,7 +240,7 @@ function script_hunter:run(targetGUID)
 			end
 		end 
 		
-		if (targetObj:IsInLineOfSight() and not IsMoving()) then
+		if (targetObj:IsInLineOfSight()) and (not IsMoving()) then
 			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 				if (not targetObj:FaceTarget()) then
 					targetObj:FaceTarget();
@@ -276,7 +276,7 @@ function script_hunter:run(targetGUID)
 				CastSpellByName("Hunter's Mark");
 			end
 			if (script_hunter:doOpenerRoutine(targetGUID, pet)) then
-				self.waitTimer = GetTimeEX() + 2250;
+				self.waitTimer = GetTimeEX() + 2450;
 				targetObj:FaceTarget();
 				return 4; -- return 0 bugs turning around cause of StopMoving();
 			else
@@ -702,13 +702,19 @@ function script_hunter:doPullAttacks(targetObj)
 		CastSpellByName("Hunter's Mark");
 	end
 	-- Pull with Concussive Shot to make it easier for pet to get aggro
-	if (script_hunter:cast('Concussive Shot', targetObj)) then return true; end
+	if (script_hunter:cast('Concussive Shot', targetObj)) then
+		self.waitTimer = GetTimeEX() + 250;
+		return true;
+	end
 	-- If no concussive shot pull with Serpent Sting
 	if (targetObj:GetCreatureType() ~= 'Elemental') then
 		if (script_hunter:cast('Serpent Sting', targetObj)) then return true; end
 	end
 	-- If no special attacks available for pull use Auto Shot
-	if (script_hunter:cast('Auto Shot', targetObj)) then return true; end
+	if (script_hunter:cast('Auto Shot', targetObj)) then
+		self.waitTimer = GetTimeEX() + 750;
+		return true;
+	end
 	return false;
 end
 
@@ -823,7 +829,12 @@ function script_hunter:doRangeAttack(targetObj, localMana)
 
 	-- Attack: Use Auto Shot 
 	if (not IsAutoCasting('Auto Shot')) and (IsInCombat()) then
-		if (script_hunter:cast('Auto Shot', targetObj)) then return true; else return false; end
+		if (script_hunter:cast('Auto Shot', targetObj)) then
+			self.waitTimer = GetTimeEX() + 1200;
+			return true;
+		else
+			return false;
+		end
 	end
 	-- Check: Let pet get aggro, dont use special attacks before the mob has less than 95% HP
 	if (targetObj:GetHealthPercentage() > 95 and UnitExists("Pet")) then return true; end
