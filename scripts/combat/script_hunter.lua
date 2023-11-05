@@ -328,8 +328,12 @@ function script_hunter:doInCombatRoutine(targetObj, localMana)
 end
 
 function script_hunter:doRangeAttack(targetObj, localMana)
+
+	if (not targetObj:IsInLineOfSight()) then
+		return 3;
+	end
 	-- Keep up the debuff: Hunter's Mark 
-	if (not targetObj:HasDebuff("Hunter's Mark") and not IsSpellOnCD("Hunter's Mark")) and (self.hasPet) then 
+	if (not targetObj:HasDebuff("Hunter's Mark") and not IsSpellOnCD("Hunter's Mark")) and (HasSpell("Concussive Shot")) and (targetObj:IsInLineOfSight()) then 
 		if (script_hunter:cast("Hunter's Mark", targetObj)) then
 			return true;
 		end
@@ -435,7 +439,11 @@ function script_hunter:run(targetGUID)
 		if (targetObj:GetDistance() < 40) then
 			targetObj:AutoAttack();
 		end
-		
+
+		if (not targetObj:IsInLineOfSight()) then
+			return 3;
+		end
+
 		-- Check: if we target player pets/totems
 		if (GetTarget() ~= nil and targetObj ~= nil) then
 			if (UnitPlayerControlled("target") and GetTarget() ~= localObj) then 
@@ -452,12 +460,25 @@ function script_hunter:run(targetGUID)
 			end
 		end
 
+
+		if (targetObj:GetDistance() < 39) and (targetObj:IsInLineOfSight()) and (targetObj:GetDistance > 20) and (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) then
+			CastSpellByName("Hunter's Mark");
+			targetObj:FaceTarget();
+			return 0;
+		end
+		
+
 		if (targetObj:IsSpellInRange("Auto Shot")) and (targetObj:IsInLineOfSight()) and (not targetObj:IsFleeing()) then
 			if (IsMoving()) then
 				StopMoving();
 			end
+			if (not targetObj:FaceTarget()) then
+				targetObj:FaceTarget();
+			end
 		end
 		
+		targetObj:FaceTarget();
+
 		-- Opener
 		if (not IsInCombat()) and (targetObj:GetDistance() < 36) and (localHealth > self.eatHealth) then
 			if (not targetObj:IsSpellInRange("Auto Shot")) or (not targetObj:IsInLineOfSight()) then
