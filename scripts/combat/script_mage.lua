@@ -308,10 +308,6 @@ function script_mage:run(targetGUID)
 	-- Assign the target 
 	targetObj =  GetGUIDObject(targetGUID);
 
-	if (script_priest:healAndBuff(localObj, localMana)) then
-		return;
-	end
-
 	-- clear dead targets
 	if (targetObj == 0) or (targetObj == nil) or (targetObj:IsDead()) then
 		ClearTarget();
@@ -506,7 +502,7 @@ function script_mage:run(targetGUID)
 					end
 		
 					-- cast the spell - fireball
-					if (localMana > 8) and (not IsMoving()) and (targetObj:IsInLineOfSight()) then
+					if (localMana > 12) and (not IsMoving()) and (targetObj:IsInLineOfSight()) then
 						if (CastSpellByName("Fireball", targetObj)) then
 							targetObj:FaceTarget();
 							self.message = "Pulling with Fireball!";
@@ -603,6 +599,11 @@ function script_mage:run(targetGUID)
 					return 3;
 				end
 			end
+
+		if (not HasSpell("Frost Bolt")) and (self.frostMage) and (localMana > 15) then
+			CastSpellByName("Fireball");
+			return 0;
+		end
 			
 		-- Combat
 
@@ -1012,11 +1013,6 @@ function script_mage:rest()
 	local localObj = GetLocalPlayer();
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
-
-	-- use scrolls
-	if (script_helper:useScrolls()) then
-		self.waitTimer = GetTimeEX() + 1500;
-	end
 
 	--Create Water
 	local waterIndex = -1;
