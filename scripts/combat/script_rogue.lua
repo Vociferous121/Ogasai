@@ -9,7 +9,7 @@ script_rogue = {
 	eatHealth = 55,
 	potionHealth = 5,
 	cpGeneratorCost = 40,
-	meleeDistance = 3.5,
+	meleeDistance = 3.2,
 	stealthRange = 100,
 	waitTimer = 0,
 	vanishHealth = 8,
@@ -30,6 +30,8 @@ script_rogue = {
 	enableAdrenRush = true,
 	rotationTwo = false,
 	followTargetDistance = 100,
+	useBandage = false,
+	hasBandages = false,
 }
 
 function script_rogue:setup()
@@ -313,7 +315,6 @@ function script_rogue:run(targetGUID)
 				elseif (not self.useStealth and localObj:HasBuff("Stealth")) and (not localObj:HasDebuff("Poison")) then
 					CastSpellByName("Stealth");
 				end
-
 
 				-- Open with stealth opener
 				if (targetObj:GetDistance() < 6 and self.useStealth and HasSpell(self.stealthOpener) and localObj:HasBuff("Stealth")) then
@@ -893,6 +894,38 @@ function script_rogue:rest()
 
 	local localObj = GetLocalPlayer();
 	local localHealth = localObj:GetHealthPercentage();
+
+	if (HasItem("Linen Bandage")) or 
+		(HasItem("Heavy Linen Bandage")) or 
+		(HasItem("Wool Bandage")) or 
+		(HasItem("Heavy Wool Bandage")) or 
+		(HasItem("Silk Bandage")) or 
+		(HasItem("Heavy Silk Bandage")) or 
+		(HasItem("Mageweave Bandage")) or 
+		(HasItem("Heavy Mageweave Bandage")) or 
+		(HasItem("Runecloth Bandage")) or 
+		(HasItem("Heavy Runecloth Bandage")) then
+
+		self.hasBandages = true;
+	else
+		self.hasBandages = false;
+		self.useBandage = false;
+	end
+
+	-- if has bandage then use bandages
+	if (self.eatHealth >= 35) and (self.hasBandages) and (self.useBandage) and (not IsMoving()) and (localHealth >= 35) then
+		if (not localObj:HasDebuff("Creeping Mold")) and (not IsEating()) and (localHealth <= self.eatHealth) and (not localObj:HasDebuff("Recently Bandaged")) and (not localObj:HasDebuff("Poison")) then
+		if (IsMoving()) then
+			StopMoving();
+		end
+			self.waitTimer = GetTimeEX() + 1200;
+		if (IsStanding()) and (not IsInCombat()) and (not IsMoving()) and (not localObj:HasDebuff("Recently Bandaged")) then
+			script_helper:useBandage()		
+			self.waitTimer = GetTimeEX() + 6000;
+		end
+		return 0;
+		end
+	end
 
 	if (not script_grind.adjustTickRate) then
 		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then

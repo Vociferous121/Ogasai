@@ -3,7 +3,25 @@ script_rogueEX = {
 }
 
 function script_rogueEX:menu()
+
+	if (HasItem("Linen Bandage")) or 
+		(HasItem("Heavy Linen Bandage")) or 
+		(HasItem("Wool Bandage")) or 
+		(HasItem("Heavy Wool Bandage")) or 
+		(HasItem("Silk Bandage")) or 
+		(HasItem("Heavy Silk Bandage")) or 
+		(HasItem("Mageweave Bandage")) or 
+		(HasItem("Heavy Mageweave Bandage")) or 
+		(HasItem("Runecloth Bandage")) or 
+		(HasItem("Heavy Runecloth Bandage")) then
+		
+		self.menuBandages = true;
+	else
+		self.menuBandages = false;
+	end
+
 	Separator();
+
 	if (CollapsingHeader("Temporary Grind/Rotation Buttons")) then
 		if (not script_rogue.enableRotation) then -- if not showing rotation button
 			wasClicked, script_rogue.enableGrind = Checkbox("Grinder", script_rogue.enableGrind); -- then show grind button
@@ -21,6 +39,9 @@ function script_rogueEX:menu()
 		Separator();
 		if (CollapsingHeader("Rogue Grind Options")) then
 			local wasClicked = false;
+			if (self.menuBandages) then
+			wasClicked, script_rogue.useBandage = Checkbox("Use Bandages", script_rogue.useBandage);
+			end
 			Text('Eat below health percent');
 			script_rogue.eatHealth = SliderInt('EHP %', 1, 100, script_rogue.eatHealth);
 			Text("Potion below health percent");
@@ -89,6 +110,7 @@ function script_rogueEX:menu()
 	if (script_rogue.enableRotation) then
 		Separator();
 		if(CollapsingHeader("Rogue Talent Rotation Options")) then
+			Separator();
 			if (HasSpell("Slice And Dice")) then
 				wasClicked, script_rogue.useSliceAndDice = Checkbox("Use Slice & Dice", script_rogue.useSliceAndDice);
 			end
