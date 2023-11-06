@@ -250,13 +250,18 @@ function script_hunter:run(targetGUID)
 			end
 		end 
 
+		-- new follow target / facetarget
+		if (targetObj:IsInLineOfSight()) and (not IsMoving()) and (not IsInCombat()) then
+			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+				end
+			end
+		end
+
 		if (IsInCombat()) then
 			if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) and (targetObj:GetDistance() < 35) and (targetObj:IsInLineOfSight()) then
-				if (IsMoving()) then
-					StopMoving();
-				end
 			CastSpellByName("Auto Shot");
-			--targetObj:FaceTarget();
 			return 0;
 			end
 		end
@@ -293,7 +298,8 @@ function script_hunter:run(targetGUID)
 			end
 		end
 
-			if (self.hasPet) and (not IsMoving()) and (PetAttack()) and (script_grind.lootObj == nil) then
+			if (self.hasPet) and (not IsMoving()) and (script_grind.lootObj == nil) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+				PetAttack();
 				self.waitTimer = GetTimeEX() + 600;
 			end
 
@@ -682,7 +688,7 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 			if (pet:GetUnitsTarget():GetGUID() ~= targetObj:GetGUID()) then
 				PetFollow(); 
 			end
-		elseif (targetObj:GetDistance() < 35) then
+		elseif (targetObj:GetDistance() < 35) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 			PetAttack();
 		end
 	end	
@@ -693,18 +699,17 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	-- Attack: Use Auto Shot
 	if (not IsAutoCasting('Auto Shot') and targetObj:GetDistance() < 35 and targetObj:GetDistance() > 13) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 		CastSpellByName("Auto Shot");
-		targetObj:FaceTarget();
+		--targetObj:FaceTarget();
 		canDoRangeAttacks = true;
 	elseif (IsAutoCasting('Auto Shot')) then
-		targetObj:FaceTarget();
+		--targetObj:FaceTarget();
 		canDoRangeAttacks = true;
 	end
 	if (canDoRangeAttacks) then
-		if (script_hunter:doPullAttacks(targetObj, localMana)) then
-			--targetObj:FaceTarget();
-			self.waitTimer = GetTimeEX() + 850;
+		script_hunter:doPullAttacks(targetObj, localMana);
+			targetObj:FaceTarget();
+			self.waitTimer = GetTimeEX() + 1750;
 			return true;
-		end
 	end
 	
 	-- Check: If we are already in meele range before pull, use Raptor Strike
@@ -720,10 +725,9 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 		return false;
 	end 
 	
-	if (script_hunter:doPullAttacks(targetObj)) then
+	if (not IsInCombat()) then
+		script_hunter:doPullAttacks(targetObj);
 		targetObj:FaceTarget();
-		self.waitTimer = GetTimeEX() + 1850;
-		return true;
 	end
 
 	return true; -- return true so we dont move closer to the mob
@@ -737,6 +741,7 @@ function script_hunter:doPullAttacks(targetObj)
 					if (IsMoving()) then
 						StopMoving();
 					end
+				ClearTarget();
 					script_grind.tickRate = 100;
 					self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
 					self.message = ("waiting dead target line 761");
