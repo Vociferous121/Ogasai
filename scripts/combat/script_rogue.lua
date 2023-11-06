@@ -49,7 +49,7 @@ function script_rogue:setup()
 	end
 
 	--set backstab as opener
-	if (GetLocalPlayer():GetLevel() < 20) then
+	if (GetLocalPlayer():GetLevel() < 10) then
 		self.stealthOpener = "Backstab";
 	end
 
@@ -251,7 +251,7 @@ function script_rogue:run(targetGUID)
 	if (self.enableGrind) then
 
 		--Valid Enemy
-		if (targetObj ~= 0) then
+		if (targetObj ~= 0) and (not localObj:IsStunned()) then
 
 		-- Set Slice and Dice level 10 or greater
 			if not (HasSpell("Slice And Dice")) then
@@ -275,7 +275,10 @@ function script_rogue:run(targetGUID)
 			end
 
 			-- Auto Attack
-			if (targetObj:GetDistance() < 40) then
+			if (targetObj:GetDistance() < 40) and (not IsMoving()) then
+				targetObj:AutoAttack();
+			-- stops spamming auto attacking while moving to target
+			elseif (targetObj:GetDistance() < self.meleeDistance) then
 				targetObj:AutoAttack();
 			end
 	
@@ -566,7 +569,10 @@ function script_rogue:run(targetGUID)
 			end
 		
 			-- Auto Attack
-			if (targetObj:GetDistance() < 40) then
+			if (targetObj:GetDistance() < 40) and (not IsMoving()) then
+				targetObj:AutoAttack();
+			-- stops spamming auto attacking while moving to target
+			elseif (targetObj:GetDistance() < self.meleeDistance) then
 				targetObj:AutoAttack();
 			end
 			
