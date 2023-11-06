@@ -221,12 +221,9 @@ function script_mage:setup()
 	localObj = GetLocalPlayer();
 
 	-- set spec below level 4
-	if (localObj:GetLevel() < 4) then
+	if (not HasSpell("Frostbolt")) then
 		self.fireMage = true;
-	end
-
-	-- set spec below level 4-10
-	if (localObj:GetLevel() >= 4) and (localObj:GetLevel() < 10) then
+	else
 		self.frostMage = true;
 	end
 	
@@ -391,11 +388,13 @@ function script_mage:run(targetGUID)
 			-- else if frost mage and not has frost bolt yet then cast fireball
 				-- many line of sight and other random checks to ensure the bot is doing what it needs to do
 
-			if (targetObj:GetDistance() <= 28) and (targetObj:IsInLineOfSight()) then
-				if (IsMoving()) then
-					StopMoving();
-				end
-			end
+			--if (IsMoving()) and (targetObj:IsInLineOfSight()) then
+			--	if (targetObj:GetDistance() <= 28) then
+			--		if (IsMoving()) then
+			--			StopMoving();
+			--		end
+			--	end
+			--end
 
 			-- if frost mage and has frost bolt
 			if (self.frostMage) and (HasSpell("Frostbolt")) then
@@ -598,7 +597,7 @@ function script_mage:run(targetGUID)
 				end
 			end
 
-		if (not HasSpell("Frost Bolt")) and (self.frostMage) and (localMana > 15) then
+		if (not HasSpell("Frostbolt")) and (self.frostMage) and (localMana > 15) then
 			CastSpellByName("Fireball");
 			return 0;
 		end
@@ -1020,25 +1019,27 @@ function script_mage:rest()
 			break;
 		end
 	end
-	
-	if (waterIndex == -1 and HasSpell('Conjure Water') and not IsEating() and not IsDrinking() and IsStanding()) then 
-		self.message = "Conjuring water...";
-		if (IsMoving()) then
-			StopMoving();
-			return true;
-		end
-		if (not IsStanding()) then
+
+	if (not IsEating()) and (not IsDrinking()) and (IsStanding()) then 
+		if (waterIndex == -1) and (HasSpell('Conjure Water')) then
+			self.message = "Conjuring water...";
+			if (IsMoving()) then
 				StopMoving();
-			return true;
-		end
-		if(IsMounted()) then 
-			DisMount(); 
-		end
-		if (localMana > 10 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
-			if (HasSpell('Conjure Water')) then
-				CastSpellByName('Conjure Water')
-				self.waitTimer = GetTimeEX() + 1700;
 				return true;
+			end
+			if (not IsStanding()) then
+				StopMoving();
+				return true;
+			end
+			if(IsMounted()) then 
+				DisMount(); 
+			end
+			if (localMana > 10 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
+				if (HasSpell('Conjure Water')) then
+					CastSpellByName('Conjure Water')
+					self.waitTimer = GetTimeEX() + 1700;
+					return true;
+				end
 			end
 		end
 	end
@@ -1051,29 +1052,32 @@ function script_mage:rest()
 			break;
 		end
 	end
-	if (foodIndex == -1 and HasSpell('Conjure Food') and not IsEating() and not IsDrinking() and IsStanding()) then 
-		self.message = "Conjuring food...";
-		if (IsMoving()) then
-			StopMoving();
-			return true;
-		end
-		if (not IsStanding()) then
-			StopMoving();
-			return true;
-		end
-		if(IsMounted()) then 
-			DisMount(); 
-			return true;
-		end
-		if (localMana > 10 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
-			if (HasSpell('Conjure Food')) then
-				CastSpellByName('Conjure Food')
-				self.waitTimer = GetTimeEX() + 1700;
+
+	if (not IsEating()) and (not IsDrinking()) and (IsStanding()) then
+		if (foodIndex == -1) and (HasSpell('Conjure Food')) then 
+			self.message = "Conjuring food...";
+			if (IsMoving()) then
+				StopMoving();
 				return true;
+			end
+			if (not IsStanding()) then
+				StopMoving();
+				return true;
+			end
+			if(IsMounted()) then 
+				DisMount(); 
+				return true;
+			end
+			if (localMana > 10 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
+				if (HasSpell('Conjure Food')) then
+					CastSpellByName('Conjure Food')
+					self.waitTimer = GetTimeEX() + 1700;
+					return true;
+				end
 			end
 		end
 	end
-
+	
 	--Create Mana Gem
 	local gemIndex = -1;
 	for i=0,self.numGem do
@@ -1083,67 +1087,68 @@ function script_mage:rest()
 		end
 	end
 
-	if (gemIndex == -1 and (HasSpell('Conjure Mana Ruby') 
-				or HasSpell('Conjure Mana Citrine') 
-				or HasSpell('Conjure Mana Jade')
-				or HasSpell('Conjure Mana Agate')))
-				and (not IsEating() and not IsDrinking()) then 
-		self.message = "Conjuring mana gem...";
-		if(IsMounted()) then 
-			DisMount(); 
-		end
-
-		if (IsMoving()) then
-			StopMoving();
-			return true;
-		end
-
-		if (not IsStanding()) then
-			JumpOrAscendStart();
-		end
-
-		if (IsStanding()) then
-			StopMoving();
-		end
-
-		if (localMana > 30 and not IsDrinking() and not IsEating() and not AreBagsFull() and not IsInCombat()) then
-			if (HasSpell('Conjure Mana Ruby')) then
-				CastSpellByName('Conjure Mana Ruby')
-				self.waitTimer = GetTimeEX() + 1800;
+	if (not IsEating()) and (not IsDrinking()) and (IsStanding()) then
+		if (gemIndex == -1 and (HasSpell('Conjure Mana Ruby') 
+					or HasSpell('Conjure Mana Citrine') 
+					or HasSpell('Conjure Mana Jade')
+					or HasSpell('Conjure Mana Agate')))
+					and (not IsEating() and not IsDrinking()) then 
+			self.message = "Conjuring mana gem...";
+			if(IsMounted()) then 
+				DisMount(); 
+			end
+	
+			if (IsMoving()) then
+				StopMoving();
 				return true;
-			elseif (HasSpell('Conjure Mana Citrine')) then
-				CastSpellByName('Conjure Mana Citrine')
-				self.waitTimer = GetTimeEX() + 1800;
-				return true;
-			elseif (HasSpell('Conjure Mana Jade')) then
-				CastSpellByName('Conjure Mana Jade')
-				self.waitTimer = GetTimeEX() + 1800;
-				return true;
-			elseif (HasSpell('Conjure Mana Agate')) then
-				CastSpellByName('Conjure Mana Agate')
-				self.waitTimer = GetTimeEX() + 1800;
-				return true;
+			end
+	
+			if (not IsStanding()) then
+				JumpOrAscendStart();
+			end
+
+			if (IsStanding()) then
+				StopMoving();
+			end
+
+			if (localMana > 30 and not IsDrinking() and not IsEating() and not AreBagsFull() and not IsInCombat()) then
+				if (HasSpell('Conjure Mana Ruby')) then
+					CastSpellByName('Conjure Mana Ruby')
+					self.waitTimer = GetTimeEX() + 1800;
+					return true;
+				elseif (HasSpell('Conjure Mana Citrine')) then
+					CastSpellByName('Conjure Mana Citrine')
+					self.waitTimer = GetTimeEX() + 1800;
+					return true;
+				elseif (HasSpell('Conjure Mana Jade')) then
+					CastSpellByName('Conjure Mana Jade')
+					self.waitTimer = GetTimeEX() + 1800;
+					return true;
+				elseif (HasSpell('Conjure Mana Agate')) then
+					CastSpellByName('Conjure Mana Agate')
+					self.waitTimer = GetTimeEX() + 1800;
+					return true;
+				end
 			end
 		end
 	end
 
 	-- Stop moving before we can rest
-	if(localHealth < self.eatHealth or localMana < self.drinkMana) and (not IsSwimming()) then
+	if(localHealth < self.eatHealth or localMana < self.drinkMana) then
 		if (IsMoving()) then
 			StopMoving();
-			self.waitTimer = GetTimeEX() + 2000;
 			return true;
 		end
 	end
 
-	-- drink something
-	if (not IsDrinking() and localMana <= self.drinkMana) and (not IsInCombat()) then
-		self.waitTimer = GetTimeEX() + 2000;
+	-- Eat and Drink
+	if (not IsDrinking() and localMana < self.drinkMana) then
 		self.message = "Need to drink...";
-		if (IsInCombat()) then
-			return true;
+		-- Dismount
+		if(IsMounted()) then 
+			DisMount(); 
+			return true; 
 		end
-			
 		if (IsMoving()) then
 			StopMoving();
 			return true;
@@ -1151,26 +1156,20 @@ function script_mage:rest()
 
 		if (script_helper:drinkWater()) then 
 			self.message = "Drinking..."; 
-			self.waitTimer = GetTimeEX() + 10000;
-			return true;
+			return true; 
 		else 
 			self.message = "No drinks! (or drink not included in script_helper)";
 			return true; 
-		end		
+		end
 	end
-
-	if (not IsEating() and localHealth < self.eatHealth) and (not IsSwimming() and not IsInCombat()) then
-		self.waitTimer = GetTimeEX() + 2000;
+	if (not IsEating() and localHealth < self.eatHealth) then
 		-- Dismount
 		if(IsMounted()) then DisMount(); end
 		self.message = "Need to eat...";	
 		if (IsMoving()) then
 			StopMoving();
-			self.waitTimer = GetTimeEX() + 2000;
 			return true;
 		end
-		
-		self.waitTimer = GetTimeEX() + 2000;
 		
 		if (script_helper:eat()) then 
 			self.message = "Eating..."; 
@@ -1181,101 +1180,93 @@ function script_mage:rest()
 		end	
 	end
 	
-	if (localMana < self.drinkMana or localHealth < self.eatHealth) and (not IsSwimming() and not IsInCombat()) and (script_grind.lootObj == nil) then
-		self.waitTimer = GetTimeEX() + 2000;
+	if(localMana < self.drinkMana or localHealth < self.eatHealth) then
 		if (IsMoving()) then
-			self.waitTimer = GetTimeEX() + 2000;
 			StopMoving();
 		end
 		return true;
 	end
-
-	-- night elve stealth while resting
-	if (IsDrinking() or IsEating()) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) then
-		if (CastSpellByName("Shadowmeld")) then
-			return true;
-		end
-	end
 	
-	-- continue to rest if eating or drinking
-	if (localMana < 98 and IsDrinking()) or (localHealth < 98 and IsEating()) and (not IsSwimming()) then
+	if((localMana < 98 and IsDrinking()) or (localHealth < 98 and IsEating())) then
 		self.message = "Resting to full hp/mana...";
-		return;
-	end
-
-	-- stand up if sitting after drinking/eating -- used for buffs
-	if (not IsStanding()) then
-		JumpOrAscendStart();
-	end
-	
-	-- arcane intellect
-	if (HasSpell("Arcane Intellect")) and (not localObj:HasBuff("Arcane Intellect")) and (localMana > 25) then
-		CastSpellByName("Arcane Intellect", localObj);
-		self.waitTimer = GetTimeEX() + 1700;
 		return true;
 	end
 	
-	-- ice armor / frost armor
-	if (HasSpell("Ice Armor")) and (not localObj:HasBuff("Ice Armor")) and (localMana > 20) then
-		if (CastSpellByName("Ice Armor", localObj)) then
-			self.waitTimer = GetTimeEX() + 1700;
-			return true;
-		end
-	elseif (not HasSpell("Ice Armor")) and (HasSpell("Frost Armor")) and (not localObj:HasBuff("Frost Armor")) and (localMana > 20) then
-		if (CastSpellByName("Frost Armor", localObj)) then
-			self.waitTimer = GetTimeEX() + 1700;
-			return true;
-		end
-	end
+	-- stand up if sitting after drinking/eating -- used for buffs
+	if (not IsEating()) and (not IsDrinking()) then
 
-	-- dampen magic
-	if (self.useDampenMagic) then
-		if (HasSpell("Dampen Magic")) and (not localObj:HasBuff("Dampen Magic")) and (localMana > 15) then
-			if (CastSpellByName("Dampen Magic", localObj)) then
-				self.waitTimer = GetTimeEX() + 1700;
-				return true;
-			end
+		if (not IsStanding())then
+			JumpOrAscendStart();
 		end
-	end
-
-	-- combustion
-	if (HasSpell("Combustion")) and (not IsSpellOnCD("Combustion")) and not (localObj:HasBuff("Combustion")) and (self.fireMage) then
-		if (CastSpellByName("Combustion")) then
-			self.waitTimer = GetTimeEX() + 1700;
-			return true;
-		end
-	end
-
-	-- frost ward
-	if (self.useFrostWard) and (HasSpell("Frost Ward")) and (not localObj:HasBuff("Frost Ward")) then
-		if (localMana > 50) and (not localObj:HasBuff("Fire Ward")) then
-			if (CastSpellByName("Frost Ward", localObj)) then
-				self.waitTimer = GetTimeEX() + 1700;
-				return true;
-			end
-		end
-	end
 	
-	-- fire ward
-	if (self.useFireWard) and (HasSpell("Fire Ward")) and (not localObj:HasBuff("Fire Ward")) then
-		if (localMana > 50) and (not localObj:HasBuff("Frost Ward")) then
-			if (CastSpellByName("Fire Ward", localObj)) then
+		-- arcane intellect
+		if (HasSpell("Arcane Intellect")) and (not localObj:HasBuff("Arcane Intellect")) and (localMana > 25) then
+			CastSpellByName("Arcane Intellect", localObj);
+			self.waitTimer = GetTimeEX() + 1700;
+			return true;
+		end
+		
+		-- ice armor / frost armor
+		if (HasSpell("Ice Armor")) and (not localObj:HasBuff("Ice Armor")) and (localMana > 20) then
+			if (CastSpellByName("Ice Armor", localObj)) then
+				self.waitTimer = GetTimeEX() + 1700;
+				return true;
+			end
+		elseif (not HasSpell("Ice Armor")) and (HasSpell("Frost Armor")) and (not localObj:HasBuff("Frost Armor")) and (localMana > 20) then	
+			if (CastSpellByName("Frost Armor", localObj)) then
 				self.waitTimer = GetTimeEX() + 1700;
 				return true;
 			end
 		end
-	end
-
-	-- remove curse
-	if (HasSpell("Remove Lesser Curse")) and (localMana > 10) then
-		if (localObj:HasDebuff("Curse of the Shadowhorn")) then
-			if (CastSpellByName("Remove Lesser Curse", localObj)) then
-				self.waitTimer = GetTimeEX() + 1800;
-				return;
+	
+		-- dampen magic
+		if (self.useDampenMagic) then
+			if (HasSpell("Dampen Magic")) and (not localObj:HasBuff("Dampen Magic")) and (localMana > 15) then
+					if (CastSpellByName("Dampen Magic", localObj)) then
+					self.waitTimer = GetTimeEX() + 1700;
+					return true;
+				end
 			end
 		end
-	end
+	
+		-- combustion
+		if (HasSpell("Combustion")) and (not IsSpellOnCD("Combustion")) and not (localObj:HasBuff("Combustion")) and (self.fireMage) then	
+			if (CastSpellByName("Combustion")) then
+				self.waitTimer = GetTimeEX() + 1700;
+				return true;
+			end
+		end
 
+		-- frost ward
+		if (self.useFrostWard) and (HasSpell("Frost Ward")) and (not localObj:HasBuff("Frost Ward")) then
+			if (localMana > 50) and (not localObj:HasBuff("Fire Ward")) then
+				if (CastSpellByName("Frost Ward", localObj)) then
+					self.waitTimer = GetTimeEX() + 1700;
+					return true;
+				end
+			end
+		end
+	
+		-- fire ward
+		if (self.useFireWard) and (HasSpell("Fire Ward")) and (not localObj:HasBuff("Fire Ward")) then
+			if (localMana > 50) and (not localObj:HasBuff("Frost Ward")) then
+				if (CastSpellByName("Fire Ward", localObj)) then
+					self.waitTimer = GetTimeEX() + 1700;
+					return true;
+				end
+			end
+		end
+
+		-- remove curse
+		if (HasSpell("Remove Lesser Curse")) and (localMana > 10) then
+			if (localObj:HasDebuff("Curse of the Shadowhorn")) then
+				if (CastSpellByName("Remove Lesser Curse", localObj)) then
+					self.waitTimer = GetTimeEX() + 1800;
+					return;
+				end
+			end
+		end
+	end	
 	-- No rest / buff needed
 	return false;
 end
