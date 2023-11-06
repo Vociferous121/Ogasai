@@ -242,7 +242,6 @@ function script_hunter:run(targetGUID)
 			end
 		end
 
-
 		-- Check: if we target player pets/totems
 		if (GetTarget() ~= nil and targetObj ~= nil) then
 			if (UnitPlayerControlled("target") and GetTarget() ~= localObj) then 
@@ -257,7 +256,7 @@ function script_hunter:run(targetGUID)
 					StopMoving();
 				end
 			CastSpellByName("Auto Shot");
-			targetObj:FaceTarget();
+			--targetObj:FaceTarget();
 			return 0;
 			end
 		end
@@ -265,7 +264,7 @@ function script_hunter:run(targetGUID)
 	-- Auto Attack
 		if (targetObj:GetDistance() < 40) then
 			targetObj:AutoAttack();
-			if (not IsMoving()) and (self.hasPet) and (petMana >= 99 or petFocus >= 99) then
+			if (not IsMoving()) and (self.hasPet) and (petMana >= 99 or petFocus >= 99) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 				PetAttack();
 			end
 		end
@@ -692,8 +691,8 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	local canDoRangeAttacks = false;
 
 	-- Attack: Use Auto Shot
-	if (not IsAutoCasting('Auto Shot') and targetObj:GetDistance() < 35 and targetObj:GetDistance() > 13) then
-		script_hunter:cast('Auto Shot', targetObj);
+	if (not IsAutoCasting('Auto Shot') and targetObj:GetDistance() < 35 and targetObj:GetDistance() > 13) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+		CastSpellByName("Auto Shot");
 		targetObj:FaceTarget();
 		canDoRangeAttacks = true;
 	elseif (IsAutoCasting('Auto Shot')) then
@@ -702,7 +701,7 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	end
 	if (canDoRangeAttacks) then
 		if (script_hunter:doPullAttacks(targetObj, localMana)) then
-			targetObj:FaceTarget();
+			--targetObj:FaceTarget();
 			self.waitTimer = GetTimeEX() + 850;
 			return true;
 		end

@@ -1,64 +1,160 @@
-	runScript(guid)
+script_hunter = {
+	message = 'Hunter Combat Script',
+	hunterExtra = include("scripts\\combat\\script_hunterEX.lua"),
+	drinkMana = 30,
+	eatHealth = 65,
+	potionHealth = 10,
+	potionMana = 20,
+	feedTimer = 0,
+	waitTimer = 0,
+	hasPet = true,
+	bagWithPetFood = 4,
+	slotWithPetFood = GetContainerNumSlots(3), -- last slot in the bag
+	foodName = 'PET FOOD NAME',
+	stopWhenNoPetFood = false,
+	quiverBagNr = 5,
+	ammoIsArrow = true,
+	useVendor = false,
+	buyWhenQuiverEmpty = false,
+	stopWhenQuiverEmpty = false,
+	stopWhenBagsFull = false,
+	hsWhenStop = false,
+	hsBag = 1, -- HS in backpack (1rst bag)
+	hsSlot = 1, -- HS in slot 1 of the bag: hsBag
+	ammoName = 0,
+	isSetup = false,
+	isChecked = true,
+	rangeDistance = 38,
+	followTargetDistance = 40,
+	useBandage = false,
+	hasBandages = false,
+	waitAfterCombat = 8;
+}
 
-		--do pet checks
-			--pet goes too far call back
-			--pet dead then revive
-			--mend pet
-		end
+
+function script_hunter:setup()
+	-- no more bug first time
+	self.feedTimer = GetTimeEX();
+	self.waitTimer = GetTimeEX();
 	
-		--if valid enemy then
+	-- Save the name of ammo we use
+	local bagSlots = GetContainerNumSlots(self.quiverBagNr-1);
+	if (GetContainerItemLink(self.quiverBagNr-1, bagSlots)  ~= nil) then
+		_,_,itemLink = string.find(GetContainerItemLink(self.quiverBagNr-1, bagSlots),"(item:%d+)");
+		itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType,
+   		itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemLink);
+		self.ammoName = itemName;
+	end
+
+	DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Ammo name is set to: "' .. self.ammoName .. '" ...');
+	if (not strfind(itemName, "Arrow")) then
+		DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Ammo will be bought at "Bullet" vendors...');
+		script_vendor.itemIsArrow = false;
+		self.ammoIsArrow = false;
+		script_vendor.ammoName = itemName;
+	else
+		DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Ammo will be bought at "Arrow" vendors...');
+		script_vendor.ammoName = itemName;
+		self.ammoIsArrow = true;
+	end	
+
+	-- Save the name of pet food we use
+	if (GetContainerItemLink(self.bagWithPetFood-1, self.slotWithPetFood)  ~= nil) then
+		local _, _, iLink = string.find(GetContainerItemLink(self.bagWithPetFood-1, self.slotWithPetFood), "(item:%d+)");
+		local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType,
+   		itemStackCount, itemEquipLoc, itemTexture = GetItemInfo(iLink);
+		self.foodName = itemName;
+		DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Pet food name is set to: "' .. self.foodName .. '" ...');
+	else
+		DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Please set the pet food name in hunter options...');
+	end
+
+	if (GetLocalPlayer():GetLevel() < 3) then
+		self.buyWhenQuiverEmpty = false;
+	end
 		
-			--check mend pet
+	self.isSetup = true;
+end
 
-			--move to target auto shot distance
-
-			--send pet if has pet
-
-			--if too close then move away if has pet
-
-	
-			--if not in combat
-
-				--if no pet then do melee
-
-				--GUID checks for pet and target
-
-				--if range satisfactory then do ranged pull
-			
-				--do ranged attacks
-
-			--if is in combat (else)
-		
-				--potion checks
-				--skill (feign death) checks
-				--do pet checks
-				--mend pet
-				--no pet then do melee
-				--target too close then move away - melee until then
-				--do ranged attacks
+function script_hunter:cast(spellName, target)
+	if (HasSpell(spellName)) then
+		if (target:IsSpellInRange(spellName)) then
+			if (not IsSpellOnCD(spellName)) then
+				if (not IsAutoCasting(spellName)) then
+					target:TargetEnemy();
+					if (targetObj:IsInLineOfSight()) then
+						target:FaceTarget();
+					elseif (target:CastSpell(spellName)) then
+						return true;
+					elseif (not target:CastSpell(spellName)) then
+						return false;
+					end
+					return target:CastSpell(spellName);
+				end
 			end
 		end
+	end
+	return false;
 end
-			
 
-		
+function script_hunter:enemiesAttackingMe() -- returns number of enemies attacking me
+	local unitsAttackingUs = 0; 
+	local currentObj, typeObj = GetFirstObject(); 
+	while currentObj ~= 0 do 
+    	if typeObj == 3 then
+		if (currentObj:CanAttack() and not currentObj:IsDead()) then
+                	if (script_grind:isTargetingMe(currentObj)) then 
+                		unitsAttackingUs = unitsAttackingUs + 1; 
+                	end 
+            	end 
+       	end
+        currentObj, typeObj = GetNextObject(currentObj); 
+    end
+    return unitsAttackingUs;
+end
 
+-- Run backwards if the target is within range
+function script_hunter:runBackwards(targetObj, range) 
+	local localObj = GetLocalPlayer();
+ 	if targetObj ~= 0 then
+ 		local xT, yT, zT = targetObj:GetPosition();
+ 		local xP, yP, zP = localObj:GetPosition();
+ 		local distance = targetObj:GetDistance();
+ 		local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
+ 		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
+ 		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
+ 		local moveX, moveY, moveZ = xT + xUV*20, yT + yUV*20, zT + zUV;		
+ 		if (distance < range and targetObj:IsInLineOfSight()) then 
+ 			script_nav:moveToTarget(localObj, moveX, moveY, moveZ);
+ 			return true;
+ 		end
+	end
+	return false;
+end
 
-
-
-
-		hasPet = false,
-	
+function script_hunter:draw()
+	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
+	if (onScreen) then
+		DrawText(self.message, tX+75, tY+40, 0, 255, 255);
+	else
+		DrawText(self.message, 25, 185, 0, 255, 255);
+	end
+end
 
 function script_hunter:mendPet(localMana, petHP)
-	local mendPet = HasSpell("Mend Pet");
-	if (mendPet and IsInCombat() and self.hasPet and petHP > 0) then
-		if (GetPet():GetHealthPercentage() < 35) then
+
+	if (HasSpell("Mend Pet")) and (self.hasPet) and (petHealth > 0) then
+		if (GetPet():GetHealthPercentage() < 75) then
+
 			script_grind.tickRate = 100;
-			self.message = "Pet has lower than 35% HP, mending pet...";
+			self.message = "Pet has lower than 75% HP, mending pet...";
+
 			-- Check: If in range to mend the pet 
-			if (GetPet():GetDistance() < 20 and localMana > 10 and GetPet():IsInLineOfSight()) then 
-				if (IsMoving()) then StopMoving(); return true; end 
+			if (GetPet():GetDistance() < 20) and (localMana > 10) and (GetPet():IsInLineOfSight()) then 
+					if (IsMoving()) then
+						StopMoving();
+						return true;
+					end 
 				CastSpellByName("Mend Pet"); 
 				self.waitTimer = GetTimeEX() + 1850;
 				return true;
@@ -72,7 +168,235 @@ function script_hunter:mendPet(localMana, petHP)
 	return false;
 end
 
+--[[ error codes: 	0 - All Good , 
+			1 - missing arg , 
+			2 - invalid target , 
+			3 - not in range, 
+			4 - do nothing , 
+			5 - targeted player pet/totem
+ ]]--
 
+
+
+function script_hunter:run(targetGUID)
+
+	local targetHealth = targetObj:GetHealthPercentage();
+	local targetDistance = targetObj:GetDistnace();
+	local localObj = GetLocalPlayer();
+	local localMana = localObj:GetManaPercentage();
+	local localHealth = localObj:GetHealthPercentage();
+	local playerLevel = localObj:GetLevel();
+	local localTarget = localObj:GetUnitsTarget();
+
+	--pet
+	local pet = GetPet();
+
+	-- Check: Do we have a pet?
+	if (self.hasPet) then
+		if (localLevel < 10) then
+			self.hasPet = false;
+		end
+	end
+	
+	if (pet ~= nil and pet ~= 0) then
+		local petHealth = pet:GetHealthPercentage();
+		local petMana = pet:GetManaPercentage();
+		local petTarget = pet:GetUnitsTarget():GetGUID();
+	end
+	
+	if (self.hasPet and not IsInCombat()) then
+		if (script_hunterEX:petChecks()) then
+			return 0;
+		end
+	end
+
+	if (localObj:IsDead()) then
+		return 0;
+	end
+
+	-- Assign the target 
+	targetObj = GetGUIDObject(targetGUID);
+
+	if(targetObj == 0 or targetObj == nil) then
+		ClearTarget();
+		return 2;
+	end
+
+	-- Check: Do nothing if we are channeling, casting or wait timer
+	if (IsChanneling() or IsCasting() or self.waitTimer > GetTimeEX()) then
+		return 4;
+	end
+
+	if (not script_grind.adjustTickRate) then
+		if (not IsInCombat()) or (IsMoving()) then
+			script_grind.tickRate = 100;
+		elseif (IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = 450;
+		end
+	end
+
+	--Valid Enemy
+	if (targetObj ~= 0 and targetObj ~= nil) then
+		
+		-- Cant Attack dead targets
+		if (targetObj:IsDead() or not targetObj:CanAttack()) then
+			self.waitTimer = GetTimeEX() + 1200;
+			return 0;
+		end
+
+		-- Don't attack if we should rest first
+		if (localHealth < self.eatHealth) and (not script_grind:isTargetingMe(targetObj))
+			and (targetHealth > 99) and (not targetObj:IsStunned()) and (script_grind.lootobj ~= nil) then
+			self.message = "Need rest...";
+			return 4;
+		end
+
+		-- stand if sitting
+		if (not IsStanding()) then
+			JumpOrAscendStart();
+		end
+
+		-- check aspects
+		script_hunterEX:chooseAspect(targetObj);
+
+		-- check mend pet
+		script_hunter:mendPet();
+
+		-- check line of sight
+		if (not targetObj:IsInLineOfSight()) or (targetObj:GetDistance() < 36) then
+			return 3;
+		end
+
+		-- Check: if we target player pets/totems
+		if (GetTarget() ~= nil and targetObj ~= nil) then
+			if (UnitPlayerControlled("target") and GetTarget() ~= localObj) then 
+				script_grind:addTargetToBlacklist(targetObj:GetGUID());
+				return 5; 
+			end
+		end 
+
+		-- Auto Attack
+		if (targetObj:GetDistance() < 40) then
+			targetObj:AutoAttack();
+		end
+
+		-- follow target / facetarget
+		if (targetObj:IsInLineOfSight()) and (not IsMoving()) then
+			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+				end
+			end
+		end
+		
+		
+			-- check and do these! -------------
+
+			--move to target auto shot distance
+
+			--send pet if has pet
+
+			--if too close then move away if has pet
+
+	------ starting combat phase and pulling of targets
+		
+		if (not IsInCombat()) then
+
+			-- check line of sight and range
+			if (not targetObj:IsInLineOfSight()) or (not targetObj:IsSpellInRange("Auto Shot")) then
+				return 3;
+			end
+	
+				-- no pet then do these attacks
+			
+			if (not self.hasPet) then
+
+			-- move if target is too close
+				if (targetObj:GetDistance() < 0.50) then
+					if (script_hunter:runBackwards(targetObj, 2)) then
+						self.waitTimer = GetTimeEX() + 1850;
+					return 0;
+				end
+
+			-- if target is far enough to do ranged attacks then do ranged attacks
+
+				if (targetObj:GetDistance() > 15) and (targetObj:GetDistance() < 36) then
+
+					-- use concussive shot
+					if (HasSpell("Concussive Shot")) and (not IsSpellOnCD("Concussive Shot")) and (targetObj:IsInLineOfSight()) then
+						CastSpellByName("Concussive Shot");
+						return 0;
+					end
+
+					-- use serpent sting
+					if (Has Spell("Serpent Sting")) and (not targetObj:HasDebuff("Serpent Sting")) and (targetObj:IsInLineOfSight)) then
+						CastSpellByName("Serpent Sting");
+						return 0;
+					end
+	
+					-- use arcane shot
+					if (HasSpell("Arcane Shot")) and (not IsSpellOnCD("Arcane Shot")) and (targetObj:IsInLineOfSight()) then
+						CastSpellByName("Arcane Shot");
+						return 0;
+					end
+				
+			-- if target is too close to do ranged attacks them move to melee and do melee attacks
+
+				elseif (targetObj:GetDistance() < 15) then
+				
+					if (targetObj:GetDistance() > 5) then
+						return 3;
+					end
+
+					-- Auto Attack
+					if (targetObj:GetDistance() <= 5) then
+						if (not targetObj:AutoAttack()) then
+							targetObj:AutoAttack();
+						end
+					end
+
+					-- cast raptor strike
+					if (HasSpell("Raptor Strike")) and (not IsSpellOnCD("Raptor Strike")) and (localMana > 10) then
+						CastSpellByName("Raptor Strike");
+						return 0;
+					end
+					
+					-- cast wing clip
+					if (HasSpell("Wing Clip")) and (not IsSpellOnCD("Wing Clip")) and (localMana > 10) and (targetHealth < 35) then
+						CastSpellByName("Wing Clip");
+						return 0;
+					end
+
+
+
+		
+			
+		-- else has pet and is active	
+		
+		else
+
+
+				--GUID checks for pet and target
+
+				--if range satisfactory then do ranged pull
+			
+				--do ranged attacks
+
+				--cast hunter's mark then release pet
+
+				-- chec
+
+			--if is in combat (else)
+		
+				--potion checks
+				--skill (feign death) checks
+				--do pet checks
+				--mend pet
+				--no pet then do melee
+				--target too close then move away - melee until then
+				--do ranged attacks
+end
+			
 	force pet get units get guids to equal player target guid else stop and wait
 
 	if not is in combat
@@ -84,19 +408,6 @@ end
 					script_grind.enemyObj = petsTarget;
 				end
 			
-
-	local targetHealth = targetObj:GetHealthPercentage();
-	local targetDistance = targetObj:GetDistnace();
-	local localObj = GetLocalPlayer();
-	local localMana = localObj:GetManaPercentage();
-	local localHealth = localObj:GetHealthPercentage();
-	local playerLevel = localObj:GetLevel();
-	local pet = GetPet();
-	local petHealth = pet:GetHealthPercentage();
-	local petMana = pet:GetManaPercentage();
-	local petTarget = pet:GetUnitsTarget():GetGUID();
-	local localTarget = localObj:GetUnitsTarget();
-
 		localtarget == petTarget then
 
 		send pet to attack then do other checks

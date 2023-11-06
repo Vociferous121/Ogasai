@@ -391,11 +391,9 @@ function script_mage:run(targetGUID)
 			-- else if frost mage and not has frost bolt yet then cast fireball
 				-- many line of sight and other random checks to ensure the bot is doing what it needs to do
 
-			if (script_rotation.rotationEnabled) then
-				if (targetObj:GetDistance() <= 28) and (targetObj:IsInLineOfSight()) then
-					if (IsMoving()) then
-						StopMoving();
-					end
+			if (targetObj:GetDistance() <= 28) and (targetObj:IsInLineOfSight()) then
+				if (IsMoving()) then
+					StopMoving();
 				end
 			end
 
