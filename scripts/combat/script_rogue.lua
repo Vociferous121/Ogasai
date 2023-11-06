@@ -9,7 +9,7 @@ script_rogue = {
 	eatHealth = 55,
 	potionHealth = 5,
 	cpGeneratorCost = 40,
-	meleeDistance = 3.2,
+	meleeDistance = 2.9,
 	stealthRange = 100,
 	waitTimer = 0,
 	vanishHealth = 8,
@@ -30,7 +30,7 @@ script_rogue = {
 	enableAdrenRush = true,
 	rotationTwo = false,
 	followTargetDistance = 100,
-	useBandage = false,
+	useBandage = true,
 	hasBandages = false,
 }
 
@@ -223,6 +223,15 @@ function script_rogue:run(targetGUID)
 		end
 	end
 
+	-- force stealth all the time
+	--if (self.forceStealth) and (not localObj:HasBuff("Stealth")) then
+	--	if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not IsInCombat()) and (localHealth > self.eatHealth) then
+	--		CastSpellByName("Stealth");
+	--		return 0;
+	--	end
+	--return;
+	--end
+
 	-- stop moving when reached target if target is not fleeing and target is in line of sight
 	if (targetObj:GetDistance() <= self.meleeDistance) and (IsMoving()) and (not targetObj:IsFleeing()) and (targetObj:IsInLineOfSight()) then
 			if (IsMoving()) then
@@ -317,7 +326,7 @@ function script_rogue:run(targetGUID)
 				end
 
 				-- Open with stealth opener
-				if (targetObj:GetDistance() < 6 and self.useStealth and HasSpell(self.stealthOpener) and localObj:HasBuff("Stealth")) then
+				if (targetObj:GetDistance() <= 5 and self.useStealth and HasSpell(self.stealthOpener) and localObj:HasBuff("Stealth")) then
 					if (script_rogue:spellAttack(self.stealthOpener, targetObj)) then
 						return 0;
 					end
@@ -370,6 +379,18 @@ function script_rogue:run(targetGUID)
 				end
 
 
+				-- Gouge then bandage
+				-- bot won't release target. needs changed above autoattack()
+				--if (self.hasBandages) and (self.useBandage) and (script_helper:enemiesAttackingUs(10) < 2) and (HasSpell("Gouge")) and (localHealth <= 99) then
+				--	if (not IsSpellOnCD("Gouge")) and (not localObj:HasDebuff("Recently Bandaged")) then
+				--		if (CastSpellByName("Gouge")) then
+				--			script_helper:useBandage();
+				--			self.waitTimer = GetTimeEX() + 3000;
+				--			return 4;
+				--		end
+				--	end
+				--end
+
 				-- Check: Do we have the right target (in UI) ??
 				if (GetTarget() ~= 0 and GetTarget() ~= nil) then
 					if (GetTarget():GetGUID() ~= targetObj:GetGUID()) then
@@ -399,7 +420,7 @@ function script_rogue:run(targetGUID)
 							targetObj:FaceTarget();
 						end
 					end
-				end
+				end		
 
 				-- Check: Use Vanish 
 				if (HasSpell('Vanish') and HasItem('Flash Powder') and localHealth < self.vanishHealth and not IsSpellOnCD('Vanish')) then 
@@ -912,6 +933,9 @@ function script_rogue:rest()
 		self.useBandage = false;
 	end
 
+	-- stops bot from targeting during rest phase
+	ClearTarget();
+
 	-- if has bandage then use bandages
 	if (self.eatHealth >= 35) and (self.hasBandages) and (self.useBandage) and (not IsMoving()) and (localHealth >= 35) then
 		if (not localObj:HasDebuff("Creeping Mold")) and (not IsEating()) and (localHealth <= self.eatHealth) and (not localObj:HasDebuff("Recently Bandaged")) and (not localObj:HasDebuff("Poison")) then
@@ -951,7 +975,7 @@ function script_rogue:rest()
 		else 
 			self.message = "No food! (or food not included in script_helper)";
 
-			if (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and not localObj:HasDebuff("Touch of Zanzil")) and (not localObj:HasDebuff("Poison")) then
+			if (IsEating()) and (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and not localObj:HasDebuff("Touch of Zanzil")) and (not localObj:HasDebuff("Poison")) then
 				if (not localObj:HasBuff("Stealth")) then
 					CastSpellByName("Stealth");
 				end
@@ -961,7 +985,7 @@ function script_rogue:rest()
 	end
 
 	-- Stealth when we eat
-	if (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and IsEating() and not localObj:HasDebuff("Touch of Zanzil")) and (not localObj:HasDebuff("Poison")) then
+	if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (IsEating()) and (not localObj:HasDebuff("Touch of Zanzil")) and (not localObj:HasDebuff("Poison")) then
 		if (not localObj:HasBuff("Stealth")) then
 			CastSpellByName("Stealth");
 			return true;

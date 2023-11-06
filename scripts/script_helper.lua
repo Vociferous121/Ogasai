@@ -375,3 +375,13 @@ function script_helper:useMount()
 	end
 	return false;
 end
+
+function script_helper:checkPoisonDebuff()
+	if (localObj:HasDebuff("Weak Poison")) then
+		a = 1;
+	return true;
+	end
+
+
+return false;
+end
