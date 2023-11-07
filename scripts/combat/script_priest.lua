@@ -472,7 +472,7 @@ function script_priest:run(targetGUID)
 			end
 
 			-- No Mind Blast but wand ? fixed!
-			if (not HasSpell("Mind Blast")) and (localObj:HasRangedWeapon()) and (self.useWand) then
+			if (not HasSpell("Mind Blast")) and (localObj:HasRangedWeapon()) and (self.useWand) and (not self.useSmite) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
 				end -- move to target
@@ -539,8 +539,29 @@ function script_priest:run(targetGUID)
 					return 0; -- keep trying until cast
 				end
 
-			-- Use Smite if we have it
-			elseif (self.useSmite) and (localMana >= 7) then
+			-- Use Smite and wand
+			elseif (self.useSmite) and (localMana >= self.useWandMana) and (targetHealth >= self.useWandHealth) then
+				if (not targetObj:IsInLineOfSight()) then -- check line of sight
+					return 3; -- target not in line of sight
+				end -- move to target
+				if (IsMoving()) then
+					StopMoving();
+				end
+				if (Cast("Smite", targetObj)) then
+					targetObj:FaceTarget();
+					self.waitTimer = GetTimeEX() + 750;
+					self.message = "Smite is checked!";
+					return 0; -- keep trying until cast
+				end
+				if (HasSpell("Holy Fire")) and (not targetObj:HasDebuff("Holy Fire")) and (localMana >= 25) then
+					targetObj:FaceTarget();
+					CastSpellByName("Holy Fire");
+					self.waitTimer = GetTimeEX() + 750;
+					return 0;
+				end
+
+			-- Use Smite if we have it - no wand
+			elseif (self.useSmite) and (localMana >= 7) and (not self.useWand) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 					return 3; -- target not in line of sight
 				end -- move to target
