@@ -51,7 +51,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 		if (localMana >= 25) and (not IsInCombat()) and (not targetObject:HasBuff("Power Word: Fortitude")) and (HasSpell("Power Word: Fortitude")) then
 			Buff("Power Word: Fortitude", targetObject);
 			self.waitTimer = GetTimeEX() + 1500;
-			return 0; -- if buffed return 0 true
+			return 0; -- if buffed 
 		end
 	end
 	
@@ -59,7 +59,8 @@ function script_priest:healAndBuff(targetObject, localMana)
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 25) and (not IsInCombat()) and (not targetObject:HasBuff("Divine Spirit")) and (HasSpell("Divine Spririt")) then
 			if (Buff("Divine Spirit", targetObject)) then
-				return 0;  -- if buffed return 0 true
+				self.waitTimer = GetTimeEX() + 1500;
+				return 0;  -- if buffed 
 			end
 		end
 	end
@@ -68,7 +69,8 @@ function script_priest:healAndBuff(targetObject, localMana)
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 12) and (localHealth <= self.renewHP) and (not targetObject:HasBuff("Renew")) and (HasSpell("Renew")) then
 			if (Buff("Renew", targetObject)) then
-				return 0; -- if buffed return 0 0 true
+				self.waitTimer = GetTimeEX() + 1500;
+				return 0; -- if buffed 
 			end
 		end
 	end
@@ -77,7 +79,8 @@ function script_priest:healAndBuff(targetObject, localMana)
 	if (localMana >= 10) and (localHealth <= self.shieldHP) and (not targetObject:HasDebuff("Weakened Soul")) and (IsInCombat()) and (HasSpell("Power Word: Shield")) then
 		if (Buff("Power Word: Shield", targetObject)) then 
 			-- targetObj:FaceTarget();
-			return 0;  -- if buffed return 0 true
+			self.waitTimer = GetTimeEX() + 1500;
+			return 0;  -- if buffed 
 		end
 	end
 
@@ -85,7 +88,8 @@ function script_priest:healAndBuff(targetObject, localMana)
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 20) and (localHealth <= self.greaterHealHP) then
 			if (CastHeal("Greater Heal", targetObject)) then
-				return 0;	-- if cast return 0 true
+				self.waitTimer = GetTimeEX() + 1500;
+				return 0;	-- if cast 
 			end
 		end
 	end
@@ -94,7 +98,8 @@ function script_priest:healAndBuff(targetObject, localMana)
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 15) and (localHealth <= self.healHP) then
 			if (CastHeal("Heal", targetObject)) then
-				return 0;	-- if cast return 0 true
+				self.waitTimer = GetTimeEX() + 1500;
+				return 0;	-- if cast 
 			end
 		end
 	end
@@ -103,7 +108,8 @@ function script_priest:healAndBuff(targetObject, localMana)
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 8) and (localHealth <= self.flashHealHP) then
 			if (CastHeal("Flash Heal", targetObject)) then
-				return 0;	-- if cast return 0 true
+				self.waitTimer = GetTimeEX() + 1500;
+				return 0;	-- if cast 
 			end
 		end
 	end
@@ -113,7 +119,8 @@ function script_priest:healAndBuff(targetObject, localMana)
 		if (localLevel < 20) then	-- don't use this when we get flash heal ELSE very low mana
 			if (localMana >= 10) and (localHealth <= self.lesserHealHP) then
 				if (CastHeal("Lesser Heal", targetObject)) then
-					return true;	-- if cast return true
+					self.waitTimer = GetTimeEX() + 1500;
+					return 0;	-- if cast return true
 				end
 			end
 
@@ -121,6 +128,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 		elseif (localLevel >= 20) then
 			if (localMana <= 8) and (localHealth <= self.flashHealHP) then
 				if (CastHeal("Lesser Heal", targetObject)) then
+					self.waitTimer = GetTimeEX() + 1500;
 					return 0;	-- if cast return true
 				end
 			end
@@ -139,8 +147,8 @@ function script_priest:healAndBuff(targetObject, localMana)
 		if (targetHealth >= 20) and (localMana >= self.mindBlastMana) then
 			CastSpellByName("Mind Blast", targetObj);
 			self.waitTimer = GetTimeEX() + 750;
+			return 0;
 		end
-		return 0;
 	end
 return false;
 end
@@ -459,7 +467,8 @@ function script_priest:run(targetGUID)
 			-- Berserking Troll Racial
 			if (HasSpell("Berserking")) and (not IsSpellOnCD("Berserking")) and (targetObj:GetDistance() < 31) then
 				CastSpellByName("Berserking");
-				self.waitTimer = GetTimeEX() + 500;
+				self.waitTimer = GetTimeEX() + 900;
+				return 0;
 			end
 
 			-- No Mind Blast but wand ? fixed!
