@@ -8,7 +8,7 @@ script_rogue = {
 	stealthOpener = "Sinister Strike",
 	eatHealth = 55,
 	potionHealth = 5,
-	cpGeneratorCost = 40,
+	cpGeneratorCost = 45,
 	meleeDistance = 3.2,
 	stealthRange = 100,
 	waitTimer = 0,
@@ -57,15 +57,16 @@ function script_rogue:setup()
 	_, _, _, _, self.cpGeneratorCost = GetSpellInfo(self.cpGenerator);
 	self.isSetup = true;
 
+	-- set for easy combat rogue setup
 	--level 10 talent
-	if (GetLocalPlayer():GetLevel() == 10) then
-		self.cpGeneratorCost = 42;
-	end
+	--if (GetLocalPlayer():GetLevel() == 10) then
+	--	self.cpGeneratorCost = 42;
+	--end
 	
 	--level 11 talent
-	if (GetLocalPlayer():GetLevel() > 10) then
-		self.cpGeneratorCost = 40;
-	end
+	--if (GetLocalPlayer():GetLevel() > 10) then
+	--	self.cpGeneratorCost = 40;
+	--end
 
 	if (not HasSpell("Adrenaline Rush")) then
 		self.adrenRushCombo = false;
@@ -254,7 +255,7 @@ function script_rogue:run(targetGUID)
 		if (targetObj ~= 0) and (not localObj:IsStunned()) then
 
 		-- Set Slice and Dice level 10 or greater
-			if not (HasSpell("Slice And Dice")) then
+			if not (HasSpell("Slice and Dice")) then
 				self.useSliceAndDice = false;
 			end
 			if (not HasSpell("Stealth")) then
@@ -442,10 +443,7 @@ function script_rogue:run(targetGUID)
 				end
 
 				-- Check: Kick if the target is casting
-				if (HasSpell("Kick") and targetObj:IsCasting() and not IsSpellOnCD("Kick")) then
-					if (localEnergy <= 25) then
-						return 0;
-					end
+				if (HasSpell("Kick") and targetObj:IsCasting() and not IsSpellOnCD("Kick")) and (localEnergy >= 25) then
 					if (Cast("Kick", targetObj)) then
 						return 0;
 					end
@@ -459,13 +457,9 @@ function script_rogue:run(targetGUID)
 				hasAdrenalineRush = HasSpell('Adrenaline Rush'); 
 
 				-- Check: Use Riposte whenever we can
-				if (HasSpell("Riposte")) and (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) then 
-					if (localEnergy < 10) then 
-						return 0; 
-					end -- return until we have energy
-					if (not script_rogue:spellAttack("Riposte", targetObj)) then 
-						return 0; -- return until we cast Riposte
-					end 
+				if (HasSpell("Riposte")) and (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) and (localEnergy >= 10) then 
+				CastSpellByName("Riposte", targetObj);
+					return 0; -- return until we cast Riposte
 				end
 			
 				-- Check: Use Evasion if low HP or more than one enemy attack us
@@ -510,18 +504,14 @@ function script_rogue:run(targetGUID)
 			
 				-- Eviscerate with 5 CPs
 				if (localCP > 4) and (localEnergy >= 35) then
-					script_rogue:spellAttack("Eviscerate", targetObj);
+					CastSpellByName("Eviscerate", targetObj);
 					return 0; -- return until we use Eviscerate
 				end
 
 				-- Keep Slice and Dice up
-				if (self.useSliceAndDice) and (not localObj:HasBuff('Slice and Dice')) and (targetHealth > 50) and (localCP > 0) then
-					if (localEnergy < 25) then 
-						return 0;
-					end -- return until we have energy
-					if (script_rogue:spellAttack("Slice and Dice", targetObj)) and (localEnergy <= 25) then
+				if (self.useSliceAndDice) and (not localObj:HasBuff('Slice and Dice')) and (targetHealth > 50) and (localCP > 0) and (localEnergy >= 25) then
+					CastSpellByName("Slice and Dice", targetObj);
 					return 0;	
-					end
 				end
 
 				-- Use CP generator attack 
@@ -535,7 +525,7 @@ function script_rogue:run(targetGUID)
 			
 				-- Dynamic health check when using Eviscerate between 1 and 4 CP
 				if (targetHealth <= (10*localCP)) and (localEnergy >= 35) then
-					script_rogue:spellAttack("Eviscerate", targetObj);
+					CastSpellByName("Eviscerate", targetObj);
 					return 0; -- return until we use Eviscerate
 				end
 
@@ -662,7 +652,7 @@ function script_rogue:run(targetGUID)
 						-- Check: Kick if the target is casting
 					if (HasSpell("Kick") and targetObj:IsCasting() and not IsSpellOnCD("Kick")) then
 						self.message = "Waiting for Kick Energy Combat Rotation 2";
-						if (localEnergy > 24) then 
+						if (localEnergy >= 25) then 
 							return 0; 
 						end
 						if (Cast("Kick", targetObj)) then
@@ -675,7 +665,7 @@ function script_rogue:run(targetGUID)
 						-- check: Kidney shot if target is casting and kick is on cooldown
 					if (self.useKidneyShot) then
 						if (HasSpell('Kidney Shot')) and (localCP >= 1 ) and (targetObj:IsCasting()) and (not IsSpellOnCD('Kidney Shot')) then
-							if (localEnergy > 24) then
+							if (localEnergy >= 25) then
 								self.message = "Waiting for Kidney Shot Energy Combat Rotation 2";
 								return 0;
 							end
@@ -687,25 +677,19 @@ function script_rogue:run(targetGUID)
 					end
 
 					-- check riposte
-					if (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) then 
-						self.message = "Waiting for Riposte Energy Combat Rotation 2";
-						if (localEnergy < 10) then 
-							return 0; 
-						end -- return until we have energy
-						if (not script_rogue:spellAttack("Riposte", targetObj)) then 
-							self.message = "Using Riposte Combat Rotation 2";
-							return 0; -- return until we cast Riposte
-						end 
+					if (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) and (localEnergy >= 10) then
+						CastSpellByName("Riposte", targetObj);
+						self.message = "Using Riposte Combat Rotation 2";
+						return 0;
 					end
 
 					-- Use Blade Flurry on CD targets > 1
 					if (self.enableBladeFlurry) then
 						if (HasSpell("Blade Flurry")) and (not IsSpellOnCD("Blade Flurry")) and (targetHealth > 50) then
 							if (script_helper:enemiesAttackingUs(5) >= 1) then
-								if (CastSpellByName("Blade Flurry")) then
+								CastSpellByName("Blade Flurry");
 								self.message = "Using Blade Flurry Combat Rotation 2";
-									return 0;
-								end
+								return 0;
 							end
 						end
 					end
@@ -714,47 +698,35 @@ function script_rogue:run(targetGUID)
 					if (self.enableAdrenRush)then
 						if (HasSpell("Adrenaline Rush")) and (not IsSpellOnCD("Adrenaline Rush")) and (targetHealth > 60) then
 							if (script_helper:enemiesAttackingUs(5) >= 1) then
-								if(CastSpellByName("Adrenaline Rush")) then
-									self.message = "Using Adrenaline Rush Combat Rotation 2";
-									return 0;
-								end
-							end
-						end
-					end
-
-					-- Slice and Dice at 2 combo points
-					if (localCP > 2) and (HasSpell("Slice And Dice")) then
-						if (not localObj:HasBuff('Slice and Dice')) and (targetHealth > 25) then
-							if (localEnergy < 25) then 
-								self.message = "waiting for 25 energy for Slice and Dice Combat Rotation 2";
-								return 0; -- return until we have energy
-							end
-							if (not script_rogue:spellAttack('Slice and Dice', targetObj) or localEnergy <= 25) then
-								self.message = "Using Slice and Dice Combat Rotation 2";
+								CastSpellByName("Adrenaline Rush");
+								self.message = "Using Adrenaline Rush Combat Rotation 2";
 								return 0;
 							end
 						end
 					end
 
-					-- Eviscerate
-					if (localCP > 1) and (targetHealth < 15) then
-						if (localEnergy < 35) then
-							self.message = "Waiting for 35 energy for Eviscerate Combat Rotation 2";
+					-- Slice and Dice at 2 combo points
+					if (localCP > 2) and (HasSpell("Slice and Dice")) then
+						if (not localObj:HasBuff('Slice and Dice')) and (targetHealth > 25) and (localEnergy >= 25) then
+							CastSpellByName('Slice and Dice', targetObj);
+							self.message = "Using Slice and Dice Combat Rotation 2";
 							return 0;
 						end
-						if (not script_rogue:spellAttack('Eviscerate', targetObj)) then 
-							self.messsage = "Using Eviscerate Combat Rotation 2";
-							return 0; -- return until we use Eviscerate
-						end
+					end
+
+					-- Eviscerate
+					if (localCP > 1) and (targetHealth < 15) and (localEnergy >= 35) then
+						CastSpellByName('Eviscerate', targetObj);
+						self.messsage = "Using Eviscerate Combat Rotation 2";
+						return 0; -- return until we use Eviscerate
 					end
 
 					-- eviscerate at 5 CP only
 					if (localCP == 5) then
-						if localObj:HasBuff('Slice and Dice') and (targetHealth > 25) and (localEnergy > 35) then
-							if (not script_rogue:spellAttack('Eviscerate', targetObj)) then 
-								self.messsage = "Using Eviscerate 5 Combo Points Combat Rotation 2";
-								return 0; -- return until we use Eviscerate
-							end
+						if localObj:HasBuff('Slice and Dice') and (targetHealth > 25) and (localEnergy >= 35) then
+							CastSpellByName('Eviscerate', targetObj);
+							self.messsage = "Using Eviscerate 5 Combo Points Combat Rotation 2";
+							return 0; -- return until we use Eviscerate
 						end
 					end
 
@@ -808,10 +780,7 @@ function script_rogue:run(targetGUID)
 					end
 
 					-- Check: Kick if the target is casting
-					if (HasSpell("Kick") and targetObj:IsCasting() and not IsSpellOnCD("Kick")) then
-						if (localEnergy > 24) then 
-							return 0; 
-						end
+					if (HasSpell("Kick") and targetObj:IsCasting() and not IsSpellOnCD("Kick")) and (localEnergy >= 25) then
 						if (Cast("Kick", targetObj)) then
 							return 0;
 						end
@@ -819,10 +788,7 @@ function script_rogue:run(targetGUID)
 
 					-- check: Kidney shot if target is casting and kick is on cooldown
 					if (self.useKidneyShot) then
-						if (HasSpell('Kidney Shot')) and (localCP > 0) and (targetObj:IsCasting()) and (not IsSpellOnCD('Kidney Shot')) then
-							if (localEnergy > 24) then
-								return 0;
-							end
+						if (HasSpell('Kidney Shot')) and (localCP > 0) and (targetObj:IsCasting()) and (not IsSpellOnCD('Kidney Shot')) and (localEnergy >= 25) then
 							if (Cast('Kidney Shot', targetObj)) then
 								return 0;
 							end
@@ -831,38 +797,33 @@ function script_rogue:run(targetGUID)
 
 					-- Use Blade Flurry on CD targets > 1
 					if (self.enableBladeFlurry) then
-						if (HasSpell("Blade Flurry")) and (not IsSpellOnCD("Blade Flurry")) and (targetHealth > 50) then
+						if (HasSpell("Blade Flurry")) and (not IsSpellOnCD("Blade Flurry")) and (targetHealth >= 50) and (localEnergy >= 25) then
 							if (script_helper:enemiesAttackingUs(5) >= 1) then
-								if (CastSpellByName("Blade Flurry")) then
-									return 0;
-								end
+								CastSpellByName("Blade Flurry");
+								return 0;
 							end
 						end
 					end
 
 					-- Use adrenaline Rush on CD targets > 1
 					if (self.enableAdrenRush)then
-						if (HasSpell("Adrenaline Rush")) and (not IsSpellOnCD("Adrenaline Rush")) and (targetHealth > 60) then
+						if (HasSpell("Adrenaline Rush")) and (not IsSpellOnCD("Adrenaline Rush")) and (targetHealth >= 60) then
 							if (script_helper:enemiesAttackingUs(5) >= 1) then
-								if(CastSpellByName("Adrenaline Rush")) then
-									return 0;
-								end
+								CastSpellByName("Adrenaline Rush");
+								return 0;
+								
 							end
 						end
 					end
 
 					-- Check: Use Riposte whenever we can
-					if (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) then 
-						if (localEnergy < 10) then 
-							return 0; 
-						end -- return until we have energy
-						if (not script_rogue:spellAttack("Riposte", targetObj)) then 
-							return 0; -- return until we cast Riposte
-						end 
+					if (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) and (localEnergy >= 10) then 
+						CastSpellByName("Riposte", targetObj);
+						return 0; -- return until we cast Riposte 
 					end
 			
 					-- Check: Use Evasion if low HP
-					if (localHealth < self.evasionHealth) then
+					if (localHealth <= self.evasionHealth) then
 						if (HasSpell('Evasion') and not IsSpellOnCD('Evasion')) then
 							CastSpellByName('Evasion');
 							return 0;
@@ -870,40 +831,28 @@ function script_rogue:run(targetGUID)
 					end 
  
 					-- Eviscerate with 5 CPs
-					if (localCP == 5) then
-						if (localEnergy < 35) then
-							return 0; 
-						end -- return until we have energy
-						if (not script_rogue:spellAttack('Eviscerate', targetObj)) then 
-							return 0; -- return until we use Eviscerate
-						end 
+					if (localCP == 5) and (localEnergy >= 35) then
+						CastSpellByName('Eviscerate', targetObj);
+						return 0; -- return until we use Eviscerate
 					end
 			
 					-- Keep Slice and Dice up
-					if (HasSpell("Slice And Dice")) then
-						if (self.useSliceAndDice and not localObj:HasBuff('Slice and Dice') and targetHealth > 50 and localCP > 0) then
-							if (localEnergy < 25) then 
-								return 0;
-							end -- return until we have energy
-							if (not script_rogue:spellAttack('Slice and Dice', targetObj) or localEnergy <= 25) then
-								return 0;
-							end
+					if (HasSpell("Slice and Dice")) then
+						if (self.useSliceAndDice and not localObj:HasBuff('Slice and Dice') and targetHealth > 50 and localCP > 0) and (localEnergy >= 25) then 
+							CastSpellByName("Slice and Dice");
+							return 0;
 						end
 					end
 
 					-- Dynamic health check when using Eviscerate between 1 and 4 CP
-					if (targetHealth < (10*localCP)) then
-						if (localEnergy < 35) then
-							return 0; 
-						end -- return until we have energy
-						if (not script_rogue:spellAttack('Eviscerate', targetObj)) then 
-							return 0; -- return until we use Eviscerate
-						end
+					if (targetHealth < (10*localCP)) and (localEnergy >= 35) then
+						CastSpellByName('Eviscerate', targetObj);
+						return 0; -- return until we use Eviscerate
 					end
 
 					-- Use CP generator attack 
 					if ((localEnergy >= self.cpGeneratorCost) and HasSpell(self.cpGenerator)) then
-						if(script_rogue:spellAttack(self.cpGenerator, targetObj)) then
+						if (script_rogue:spellAttack(self.cpGenerator, targetObj)) then
 							return 0;
 						end
 					end
