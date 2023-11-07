@@ -285,7 +285,7 @@ function script_rogue:run(targetGUID)
 
 			-- pick pocket
 			if (HasSpell("Pick Pocket")) and (localObj:HasBuff("Stealth")) and (not IsInCombat()) and (targetObj:GetDistance() < 5) then
-				if (targetObj:GetCreatureType() == 'Humanoid') or (taretObj:GetCreatureType() == 'Undead') then
+				if (targetObj:GetCreatureType() == 'Humanoid') or (targetObj:GetCreatureType() == 'Undead') then
 					CastSpellByName("Pick Pocket");
 					LootTarget();
 					return 0;
