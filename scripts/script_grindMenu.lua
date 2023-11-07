@@ -11,7 +11,8 @@ script_grindMenu = {
 	paladinMenu = include("scripts\\combat\\script_paladinEX.lua"),
 	shamanMenu = include("scripts\\combat\\script_shamanEX.lua"),
 	druidMenu = include("scripts\\combat\\script_druidEX.lua"),
-
+	useHotSpotArea = true,
+	selectedWalkPath = false,
 
 }
 
@@ -112,24 +113,47 @@ function script_grindMenu:menu()
 	end
 	if (CollapsingHeader("Path Options")) then
 		local wasClicked = false;
-		wasClicked, script_grind.autoPath = Checkbox("Auto Pathing (Disable To Use Walk Paths)", script_grind.autoPath);
-		if (script_grind.autoPath) then
-			wasClicked, script_grind.staticHotSpot = Checkbox("Auto Load Hotspots From - HotspotDB.lua", script_grind.staticHotSpot);
 
-			Text("Select A Hotspot From Database:");
+		Text("         ");
+		SameLine();
+		wasClicked, script_grindMenu.useHotSpotArea = Checkbox("Use Auto Hotspots", script_grindMenu.useHotSpotArea);
+		Text("Move to area - Click save current location - Click resume bot");
+		
+		if (script_grindMenu.useHotSpotArea) then
+			if (Button("Save Current Location As Hotspot")) then script_nav:newHotspot(GetMinimapZoneText() .. ' ' .. GetLocalPlayer():GetLevel() .. ' - ' .. GetLocalPlayer():GetLevel()+2); script_grind.staticHotSpot = false; script_grindMenu:printHotspot(); 
+				end
 
-			wasClicked, self.selectedHotspotID = 
-				ComboBox("", self.selectedHotspotID, unpack(hotspotDB.selectionList));
-			SameLine();
+				Text('Distance To Move From Hotspot');
+				script_grind.distToHotSpot = SliderInt("DHS (yd)", 1, 1000, script_grind.distToHotSpot); Separator();
+		end
 
-			if Button("Load") then script_grind.staticHotSpot = false; script_nav:loadHotspotDB(self.selectedHotspotID+1); end
-			if (Button("Save Current Location As Hotspot")) then script_nav:newHotspot(GetMinimapZoneText() .. ' ' .. GetLocalPlayer():GetLevel() .. ' - ' .. GetLocalPlayer():GetLevel()+2); script_grind.staticHotSpot = false; script_grindMenu:printHotspot(); end
-			Text('Distance To Hotspot');
-			script_grind.distToHotSpot = SliderInt("DHS (yd)", 1, 1000, script_grind.distToHotSpot); Separator();
-		else
-			Separator();
-			Text("Current Walk Path"); Text("E.g. paths\\1-5 Durotar.xml"); script_grind.pathName = InputText(' ', script_grind.pathName); Separator();
-			Text('Next Node Distance'); script_grind.nextToNodeDist = SliderFloat("ND (yd)", 1, 10, script_grind.nextToNodeDist); Separator();
+		if (not script_grindMenu.useHotSpotArea) then
+			wasClicked, script_grind.autoPath = Checkbox("Auto Pathing (Disable To Use Walk Paths)", script_grind.autoPath);
+			wasClicked, script_grindMenu.selectedWalkPath = Checkbox("Use Walk Paths", script_grindMenu.selectedWalkPath);
+			if (script_grind.autoPath) then
+				wasClicked, script_grind.staticHotSpot = Checkbox("Auto Load Hotspots From - HotspotDB.lua", script_grind.staticHotSpot);
+
+				Text("Select A Hotspot From Database:");
+
+				wasClicked, self.selectedHotspotID = 
+					ComboBox("", self.selectedHotspotID, unpack(hotspotDB.selectionList));
+				SameLine();
+
+				if Button("Load") then script_grind.staticHotSpot = false; script_nav:loadHotspotDB(self.selectedHotspotID+1);
+				end
+			end
+
+				if (script_grindMenu.selectedWalkPath) then
+					Separator();
+
+					Text("Current Walk Path"); Text("E.g. paths\\1-5 Durotar.xml"); script_grind.pathName = InputText(' ', script_grind.pathName);
+				
+					Separator();
+
+			Text('Next Node Distance'); script_grind.nextToNodeDist = SliderFloat("ND (yd)", 1, 10, script_grind.nextToNodeDist);
+					Separator();
+				end
+		
 		end
 		wasClicked, script_grind.useUnstuck = Checkbox("Use Unstuck Feature (script_unstuck)", script_grind.useUnstuck);
 		Separator()
