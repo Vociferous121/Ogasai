@@ -702,9 +702,9 @@ function script_grind:playersWithinRange(range)
 			if (currentObj:GetDistance() < range) then 
 				local localObj = GetLocalPlayer();
 				if (localObj:GetGUID() ~= currentObj:GetGUID()) then
+					local playerName = currentObj:GetUnitName();
 					if (self.useString) then
 						if (currentObj:GetDistance() < self.paranoidRange) then
-							local playerName = currentObj:GetUnitName();
 							local playerDistance = currentObj:GetDistance();
 							local playerTime = GetTimeStamp();
 							local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance (yds) "..playerDistance.. " - added to log file for further implementation of paranoia."
@@ -927,7 +927,6 @@ function script_grind:lootAndSkin()
 	-- Skin if there is anything skinnable within the loot radius
 	if (HasSpell('Skinning') and self.skinning and HasItem('Skinning Knife')) then
 		self.lootObj = nil;
-		self.waitTimer = GetTimeEX() + 650;
 		self.lootObj = script_grind:getSkinTarget(self.findLootDistance);
 		if (not AreBagsFull() and not self.bagsFull and self.lootObj ~= nil) then
 			script_grind:doLoot(localObj);

@@ -6,7 +6,7 @@ script_paranoia = {
 	deathCounterExit = true,	-- death counter until exit
 	sitParanoid = false,		-- sit paranoid true/false
 	paranoidOn = true,		-- paranoid on true/false
-	paranoidOnTargeted = false,	-- paranoid when targeted on/off
+	--paranoidOnTargeted = false,	-- paranoid when targeted on/off
 	useCampfire = true,		-- use bright campfire when paranoid on/off
 	counted = 5,
 }
@@ -43,22 +43,21 @@ function script_paranoia:checkParanoia()
 		self.sitParanoid = false;
 	end
 
-	-- players targeting us
+	-- if paranoid turned on then do....
 	if (not localObj:IsDead() and self.paranoidOn and not IsInCombat()) then 
 		
 		self.waitTimer = GetTimeEX() + 3500;
 
-		if (self.paranoidOnTargeted and script_grind:playersTargetingUs() > 0) then
-			script_grind.message = "Player(s) targeting us, pausing...";
-			self.waitTimer = GetTimeEX() + 2000;
-			if IsMoving() then
-				StopMoving();
-			end
-			self.waitTimer = GetTimeEX() + 19324;
-			return true;
-		end
-
-		-- if paranoid turned on then do....
+		-- players targeting us
+		--if (self.paranoidOnTargeted and script_grind:playersTargetingUs() > 0) then
+			--script_grind.message = "Player(s) targeting us, pausing...";
+			--self.waitTimer = GetTimeEX() + 2000;
+			--if IsMoving() then
+			--	StopMoving();
+			--end
+			--self.waitTimer = GetTimeEX() + 19324;
+			--return true;
+		--end
 
 		-- if players in range
 		if (script_grind:playersWithinRange(script_grind.paranoidRange)) then
@@ -151,7 +150,7 @@ function script_paranoia:menu()
 		end
 
 		-- paranoid on targeted button on/off
-		wasClicked, script_paranoia.paranoidOnTargeted = Checkbox("Paranoid When Targeted By Player", script_paranoia.paranoidOnTargeted);
+		--wasClicked, script_paranoia.paranoidOnTargeted = Checkbox("Paranoid When Targeted By Player", script_paranoia.paranoidOnTargeted);
 
 		-- turtle wow server bright campfire button on/off
 		if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) then

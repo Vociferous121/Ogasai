@@ -53,7 +53,7 @@ function script_rogueEX:menu()
 			wasClicked, script_rogue.stopIfMHBroken = Checkbox("Stop bot if main hand is broken", script_rogue.stopIfMHBroken);
 			SameLine();
 
-			if (HasSpell("Slice And Dice")) then
+			if (HasSpell("Slice and Dice")) then
 				wasClicked, script_rogue.useSliceAndDice = Checkbox("Use Slice & Dice", script_rogue.useSliceAndDice);
 			end
 
@@ -111,7 +111,7 @@ function script_rogueEX:menu()
 		Separator();
 		if(CollapsingHeader("Rogue Talent Rotation Options")) then
 			Separator();
-			if (HasSpell("Slice And Dice")) then
+			if (HasSpell("Slice and Dice")) then
 				wasClicked, script_rogue.useSliceAndDice = Checkbox("Use Slice & Dice", script_rogue.useSliceAndDice);
 			end
 			if (HasSpell("Kidney Shot")) then
