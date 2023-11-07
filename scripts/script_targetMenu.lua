@@ -3,13 +3,13 @@ script_targetMenu = {
 
 function script_targetMenu:menu()
 
+	local wasClicked = false;
+
 	if (CollapsingHeader("Target Options")) then
 
-		Text("          Blacklisting resets when script is reloaded");
+		Text(" !! Blacklisting resets when script is reloaded !! ");
 
-		Text(" "); -- empty space
-
-		local wasClicked = false;
+		wasClicked, script_grindEX.dontSwim = Checkbox("Allow Swimming", script_grindEX.dontSwim);
 
 		wasCLicked, script_grind.skipHardPull = Checkbox("Blacklist Target With More Than 1 Add", script_grind.skipHardPull);
 

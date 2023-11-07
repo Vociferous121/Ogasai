@@ -145,172 +145,172 @@ function script_helper:setup()
 	script_helper:addManaPotion("Major Mana Potion");
 
 	-- Vendor water
-	script_helper:addWater('Morning Glory Dew');
-	script_helper:addWater('Moonberry Juice');
-	script_helper:addWater('Sweet Nectar');
-	script_helper:addWater('Melon Juice');
-	script_helper:addWater('Ice Cold Milk');
-	script_helper:addWater('Refreshing Spring Water');
-   	script_helper:addWater('Fizzy faire Drink');
-    	script_helper:addWater('Freshly-Squeezed Lemonade');
-    	script_helper:addWater('Hyjal Nectar');
-    	script_helper:addWater('Green Garden Tea');
-    	script_helper:addWater('Bottle Winterspring Water');
+	script_helper:addWater("Morning Glory Dew");
+	script_helper:addWater("Moonberry Juice");
+	script_helper:addWater("Sweet Nectar");
+	script_helper:addWater("Melon Juice");
+	script_helper:addWater("Ice Cold Milk");
+	script_helper:addWater("Refreshing Spring Water");
+   	script_helper:addWater("Fizzy faire Drink");
+    	script_helper:addWater("Freshly-Squeezed Lemonade");
+    	script_helper:addWater("Hyjal Nectar");
+    	script_helper:addWater("Green Garden Tea");
+    	script_helper:addWater("Bottle Winterspring Water");
 
 	-- Mage water
-	script_helper:addWater('Conjured Crystal Water');
-	script_helper:addWater('Conjured Sparkling Water');
-	script_helper:addWater('Conjured Mineral Water');
-	script_helper:addWater('Conjured Spring Water');
-	script_helper:addWater('Conjured Purified Water');
-	script_helper:addWater('Conjured Fresh Water');
-	script_helper:addWater('Conjured Water');
+	script_helper:addWater("Conjured Crystal Water");
+	script_helper:addWater("Conjured Sparkling Water");
+	script_helper:addWater("Conjured Mineral Water");
+	script_helper:addWater("Conjured Spring Water");
+	script_helper:addWater("Conjured Purified Water");
+	script_helper:addWater("Conjured Fresh Water");
+	script_helper:addWater("Conjured Water");
 
 	-- Vendor mushroom food
-	script_helper:addFood('Dried King Bolete');	
-	script_helper:addFood('Raw Black Truffle');	
-	script_helper:addFood('Delicious Cave Mold');	
-	script_helper:addFood('Spongy Morel');
-	script_helper:addFood('Red-speckled Mushroom');
-	script_helper:addFood('Forest Mushroom Cap');
-	script_helper:addFood('Winter Kimchi');
+	script_helper:addFood("Dried King Bolete");	
+	script_helper:addFood("Raw Black Truffle");	
+	script_helper:addFood("Delicious Cave Mold");	
+	script_helper:addFood("Spongy Morel");
+	script_helper:addFood("Red-speckled Mushroom");
+	script_helper:addFood("Forest Mushroom Cap");
+	script_helper:addFood("Winter Kimchi");
 
 	-- Vendor fruit food
-	script_helper:addFood('Deep Fried Plantains');
-	script_helper:addFood('Moon Harvest Pumpkin');
-	script_helper:addFood('Goldenbark Apple');
-	script_helper:addFood('Snapvine Watermelon');
+	script_helper:addFood("Deep Fried Plantains");
+	script_helper:addFood("Moon Harvest Pumpkin");
+	script_helper:addFood("Goldenbark Apple");
+	script_helper:addFood("Snapvine Watermelon");
 	script_helper:addFood("Tel'Abim Banana");
-	script_helper:addFood('Shiny Red Apple');
+	script_helper:addFood("Shiny Red Apple");
 
 	-- Vendor baked food
-	script_helper:addFood('Tough Hunk of Bread');
-	script_helper:addFood('Freshly Baked Bread');
-	script_helper:addFood('Moist Cornbread');
-	script_helper:addFood('Mulgore Spice Bread');
-	script_helper:addFood('Soft Banana Bread');
-	script_helper:addFood('Homemade Cherry Pie');
+	script_helper:addFood("Tough Hunk of Bread");
+	script_helper:addFood("Freshly Baked Bread");
+	script_helper:addFood("Moist Cornbread");
+	script_helper:addFood("Mulgore Spice Bread");
+	script_helper:addFood("Soft Banana Bread");
+	script_helper:addFood("Homemade Cherry Pie");
 	
 	-- Vendor meat food
-	script_helper:addFood('Cured Ham Steak');
-	script_helper:addFood('Haunch of Meat');
-	script_helper:addFood('Mutton Chop');
-	script_helper:addFood('Roasted Quail');
-	script_helper:addFood('Tough Jerky');
-	script_helper:addFood('Wild Hog Shank');
+	script_helper:addFood("Cured Ham Steak");
+	script_helper:addFood("Haunch of Meat");
+	script_helper:addFood("Mutton Chop");
+	script_helper:addFood("Roasted Quail");
+	script_helper:addFood("Tough Jerky");
+	script_helper:addFood("Wild Hog Shank");
 	
 	-- Vendor cheese
-	script_helper:addFood('Alterac Swiss');
-	script_helper:addFood('Fine Aged Cheddar');
-	script_helper:addFood('Stormwind Brie');
-	script_helper:addFood('Dwarven Mild');
-	script_helper:addFood('Dalaran Sharp');
-	script_helper:addFood('Darnassian Bleu');
+	script_helper:addFood("Alterac Swiss");
+	script_helper:addFood("Fine Aged Cheddar");
+	script_helper:addFood("Stormwind Brie");
+	script_helper:addFood("Dwarven Mild");
+	script_helper:addFood("Dalaran Sharp");
+	script_helper:addFood("Darnassian Bleu");
 	
 	-- Vendor fish food
-	script_helper:addFood('Spinefin Halibut');
-	script_helper:addFood('Striped Yellowtail');
-	--script_helper:addFood('Rockscale Cod');
-	script_helper:addFood('Bristle Whisker Catfish');
-	script_helper:addFood('Slitherskin Mackerel');
-	script_helper:addFood('Longjaw Mud Snapper');
+	script_helper:addFood("Spinefin Halibut");
+	script_helper:addFood("Striped Yellowtail");
+	--script_helper:addFood("Rockscale Cod");
+	script_helper:addFood("Bristle Whisker Catfish");
+	script_helper:addFood("Slitherskin Mackerel");
+	script_helper:addFood("Longjaw Mud Snapper");
 
 	-- Night elf vendor food
-	script_helper:addFood('Bean Soup');
-	script_helper:addFood('Versicolor Treat');
+	script_helper:addFood("Bean Soup");
+	script_helper:addFood("Versicolor Treat");
 
 	--Halloween food and water
-	script_helper:addFood('Candy Corn');
-	script_helper:addWater('Candy Corn');
-	script_helper:addFood('Lollipop');
-	script_helper:addWater('Lollipop');
-	script_helper:addFood('Candy Bar');
-	script_helper:addWater('Candy Bar');
-	script_helper:addFood('Bobbing Apple');
-	script_helper:addWater('Bobbing Apple');
+	script_helper:addFood("Candy Corn");
+	script_helper:addWater("Candy Corn");
+	script_helper:addFood("Lollipop");
+	script_helper:addWater("Lollipop");
+	script_helper:addFood("Candy Bar");
+	script_helper:addWater("Candy Bar");
+	script_helper:addFood("Bobbing Apple");
+	script_helper:addWater("Bobbing Apple");
 
 	-- other food + water
 	script_helper:addFood("Senggin Root");
 	script_helper:addWater("Senggin Root");
 
 	-- Mage food
-	script_helper:addFood('Conjured Cinnamon Roll');
-	script_helper:addFood('Conjured Sweet Roll');
-	script_helper:addFood('Conjured Sourdough')
-	script_helper:addFood('Conjured Pumpernickel');
-	script_helper:addFood('Conjured Rye');
-	script_helper:addFood('Conjured Bread');
-	script_helper:addFood('Conjured Muffin');
+	script_helper:addFood("Conjured Cinnamon Roll");
+	script_helper:addFood("Conjured Sweet Roll");
+	script_helper:addFood("Conjured Sourdough")
+	script_helper:addFood("Conjured Pumpernickel");
+	script_helper:addFood("Conjured Rye");
+	script_helper:addFood("Conjured Bread");
+	script_helper:addFood("Conjured Muffin");
 
 	-- Epic mounts
 	script_helper:addMount("Deathcharger's Reins");
-	script_helper:addMount('Black War Kodo');
-	script_helper:addMount('Black War Ram');
-	script_helper:addMount('Black War Steed Bridle');
-	script_helper:addMount('Great Brown Kodo');
-	script_helper:addMount('Great Gray Kodo');
-	script_helper:addMount('Great White Kodo');
-	script_helper:addMount('Green Kodo');
-	script_helper:addMount('Horn of the Black War Wolf');
-	script_helper:addMount('Horn of the Frostwolf Howler');
-	script_helper:addMount('Horn of the Swift Brown Wolf');
-	script_helper:addMount('Horn of the Swift Gray Wolf');
-	script_helper:addMount('Horn of the Swift Timber Wolf');
-	script_helper:addMount('Red Skeletal Warhorse');
-	script_helper:addMount('Reins of the Black War Tiger');
-	script_helper:addMount('Stormspike Battle Charger');
-	script_helper:addMount('Swift Blue Raptor');
-	script_helper:addMount('Swift Brown Ram');
-	script_helper:addMount('Swift Brown Steed');
-	script_helper:addMount('Swift Gray Ram');
-	script_helper:addMount('Swift Green Mechanostrider');
-	script_helper:addMount('Swift Olive Raptor');
-	script_helper:addMount('Swift Orange Raptor');
-	script_helper:addMount('Swift Palomino');
-	script_helper:addMount('Swift Razzashi Raptor');
-	script_helper:addMount('Swift White Mechanostrider');
-	script_helper:addMount('Swift White Ram');
-	script_helper:addMount('Swift White Steed');
-	script_helper:addMount('Swift Yellow Mechanostrider');
-	script_helper:addMount('Swift Zulian Tiger');
-	script_helper:addMount('Teal Kodo');
+	script_helper:addMount("Black War Kodo");
+	script_helper:addMount("Black War Ram");
+	script_helper:addMount("Black War Steed Bridle");
+	script_helper:addMount("Great Brown Kodo");
+	script_helper:addMount("Great Gray Kodo");
+	script_helper:addMount("Great White Kodo");
+	script_helper:addMount("Green Kodo");
+	script_helper:addMount("Horn of the Black War Wolf");
+	script_helper:addMount("Horn of the Frostwolf Howler");
+	script_helper:addMount("Horn of the Swift Brown Wolf");
+	script_helper:addMount("Horn of the Swift Gray Wolf");
+	script_helper:addMount("Horn of the Swift Timber Wolf");
+	script_helper:addMount("Red Skeletal Warhorse");
+	script_helper:addMount("Reins of the Black War Tiger");
+	script_helper:addMount("Stormspike Battle Charger");
+	script_helper:addMount("Swift Blue Raptor");
+	script_helper:addMount("Swift Brown Ram");
+	script_helper:addMount("Swift Brown Steed");
+	script_helper:addMount("Swift Gray Ram");
+	script_helper:addMount("Swift Green Mechanostrider");
+	script_helper:addMount("Swift Olive Raptor");
+	script_helper:addMount("Swift Orange Raptor");
+	script_helper:addMount("Swift Palomino");
+	script_helper:addMount("Swift Razzashi Raptor");
+	script_helper:addMount("Swift White Mechanostrider");
+	script_helper:addMount("Swift White Ram");
+	script_helper:addMount("Swift White Steed");
+	script_helper:addMount("Swift Yellow Mechanostrider");
+	script_helper:addMount("Swift Zulian Tiger");
+	script_helper:addMount("Teal Kodo");
 	script_helper:addMount("The Phylactery of Kel'Thuzad");
-	script_helper:addMount('Warlords Deck');
-	script_helper:addMount('Whistle of the Black War Raptor');
-	script_helper:addMount('Whistle of the Ivory Raptor');
-	script_helper:addMount('Whistle of the Mottled Red Raptor');
+	script_helper:addMount("Warlords Deck");
+	script_helper:addMount("Whistle of the Black War Raptor");
+	script_helper:addMount("Whistle of the Ivory Raptor");
+	script_helper:addMount("Whistle of the Mottled Red Raptor");
 
 	-- Level 40 mounts
-	script_helper:addMount('Black Stallion Bridle');
-	script_helper:addMount('Blue Mechanostrider');
-	script_helper:addMount('Blue Skeletal Horse');
-	script_helper:addMount('Brown Horse Bridle');
-	script_helper:addMount('Brown Kodo');
-	script_helper:addMount('Brown Ram');
-	script_helper:addMount('Brown Skeletal Horse');
-	script_helper:addMount('Chestnut Mare Bridle');
-	script_helper:addMount('Gray Kodo');
-	script_helper:addMount('Gray Ram');
-	script_helper:addMount('Green Mechanostrider');
-	script_helper:addMount('Horn of the Brown Wolf');
-	script_helper:addMount('Horn of the Dire Wolf');
-	script_helper:addMount('Horn of the Timber Wolf');
-	script_helper:addMount('Palomino');
-	script_helper:addMount('Pinto Bridle');
-	script_helper:addMount('Red Mechanostrider');
-	script_helper:addMount('Red Skeletal Horse');
-	script_helper:addMount('Unpainted Mechanostrider');
-	script_helper:addMount('Whistle of the Emerald Raptor');
-	script_helper:addMount('Whistle of the Turquoise Raptor');
-	script_helper:addMount('Whistle of the Violet Raptor');
-	script_helper:addMount('White Ram');
-	script_helper:addMount('White Stallion');
-	script_helper:addMount('Reins of the Spotted Frostsaber');
-	script_helper:addMount('Reins of the Striped Frostsaber');
-	script_helper:addMount('Reins of the Striped Nightsaber');
+	script_helper:addMount("Black Stallion Bridle");
+	script_helper:addMount("Blue Mechanostrider");
+	script_helper:addMount("Blue Skeletal Horse");
+	script_helper:addMount("Brown Horse Bridle");
+	script_helper:addMount("Brown Kodo");
+	script_helper:addMount("Brown Ram");
+	script_helper:addMount("Brown Skeletal Horse");
+	script_helper:addMount("Chestnut Mare Bridle");
+	script_helper:addMount("Gray Kodo");
+	script_helper:addMount("Gray Ram");
+	script_helper:addMount("Green Mechanostrider");
+	script_helper:addMount("Horn of the Brown Wolf");
+	script_helper:addMount("Horn of the Dire Wolf");
+	script_helper:addMount("Horn of the Timber Wolf");
+	script_helper:addMount("Palomino");
+	script_helper:addMount("Pinto Bridle");
+	script_helper:addMount("Red Mechanostrider");
+	script_helper:addMount("Red Skeletal Horse");
+	script_helper:addMount("Unpainted Mechanostrider");
+	script_helper:addMount("Whistle of the Emerald Raptor");
+	script_helper:addMount("Whistle of the Turquoise Raptor");
+	script_helper:addMount("Whistle of the Violet Raptor");
+	script_helper:addMount("White Ram");
+	script_helper:addMount("White Stallion");
+	script_helper:addMount("Reins of the Spotted Frostsaber");
+	script_helper:addMount("Reins of the Striped Frostsaber");
+	script_helper:addMount("Reins of the Striped Nightsaber");
 
 
-	DEFAULT_CHAT_FRAME:AddMessage('script_helper: loaded...');
+	DEFAULT_CHAT_FRAME:AddMessage("script_helper: loaded...");
 	return true;
 end
 

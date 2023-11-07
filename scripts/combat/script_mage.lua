@@ -226,6 +226,10 @@ function script_mage:setup()
 	else
 		self.frostMage = true;
 	end
+
+	if (GetLocalPlayer():GetLevel() < 10) and (localObj:HasRangedWeapon()) then
+		self.useWandHealth = 60;
+	end
 	
 	-- set group settings mainly used for easy follower reloads
 	if (GetNumPartyMembers() > 1) then
@@ -400,7 +404,7 @@ function script_mage:run(targetGUID)
 			if (self.frostMage) and (HasSpell("Frostbolt")) then
 	
 				-- check range of all spells
-				if (not targetObj:IsSpellInRange("Frostbolt")) or (not targetObj:IsInLineOfSight()) then
+				if (targetObj:GetDistance() > 29) or (not targetObj:IsInLineOfSight()) then
 					self.message = "Pulling with Frostbolt!";
 					return 3;
 				end
@@ -408,13 +412,6 @@ function script_mage:run(targetGUID)
 				-- stand if sitting
 				if (not IsStanding()) then
 					JumpOrAscendStart();
-				end
-
-				-- we are in spell range to pull with frostbolt then stop moving
-				if (targetObj:IsSpellInRange("Frostbolt")) and (targetObj:IsInLineOfSight()) then
-					if (IsMoving()) then
-						StopMoving();
-					end
 				end
 
 				-- Dismount
@@ -435,7 +432,6 @@ function script_mage:run(targetGUID)
 						if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 							if (not targetObj:FaceTarget()) then
 								targetObj:FaceTarget();
-								self.waitTimer = GetTimeEX() + 0;
 							end
 						end
 					end
@@ -485,7 +481,6 @@ function script_mage:run(targetGUID)
 					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 						if (not targetObj:FaceTarget()) then
 							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 0;
 						end
 					end
 				end
@@ -494,7 +489,7 @@ function script_mage:run(targetGUID)
 				if (HasSpell("Fireball")) and (not HasSpell("Pyroblast")) then
 
 					-- recheck line of sight
-					if (not targetObj:IsInLineOfSight()) then
+					if (not targetObj:IsInLineOfSight()) or (targetObj:GetDistance() > 30) then
 						return 3;
 					end
 		
@@ -578,7 +573,6 @@ function script_mage:run(targetGUID)
 					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 						if (not targetObj:FaceTarget()) then
 							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 0;
 						end
 					end
 				end
@@ -619,7 +613,6 @@ function script_mage:run(targetGUID)
 				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
-						self.waitTimer = GetTimeEX() + 0;
 					end
 				end
 			end

@@ -29,7 +29,7 @@ script_rogue = {
 	enableBladeFlurry = true,
 	enableAdrenRush = true,
 	rotationTwo = false,
-	followTargetDistance = 100,
+	followTargetDistance = 35,
 	useBandage = true,
 	hasBandages = false,
 }
@@ -939,9 +939,6 @@ function script_rogue:rest()
 		self.useBandage = false;
 	end
 
-	-- stops bot from targeting during rest phase
-	ClearTarget();
-
 	-- if has bandage then use bandages
 	if (self.eatHealth >= 35) and (self.hasBandages) and (self.useBandage) and (not IsMoving()) and (localHealth >= 35) then
 		if (not localObj:HasDebuff("Creeping Mold")) and (not IsEating()) and (localHealth <= self.eatHealth) and (not localObj:HasDebuff("Recently Bandaged")) and (not localObj:HasDebuff("Poison")) then
@@ -963,6 +960,10 @@ function script_rogue:rest()
 		elseif (IsInCombat()) then
 			script_grind.tickRate = 750;
 		end
+	end
+
+	if (localHealth < self.eatHealth) and (not IsInCombat()) then
+		ClearTarget();
 	end
 
 	-- Eat something

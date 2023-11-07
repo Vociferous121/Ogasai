@@ -40,7 +40,7 @@ script_grind = {
 	skipGiant = false,
 	skipMechanical = false,
 	skipElites = true,
-	paranoidRange = 150,
+	paranoidRange = 137,
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
 	helperLoaded = include("scripts\\script_helper.lua"),
 	talentLoaded = include("scripts\\script_talent.lua"),
@@ -87,7 +87,7 @@ script_grind = {
 	blacklistAdds = 1,
 	blacklistedNameNum = 0,
 	useExpChecker = true,
-	paranoidSetTimer = 12,
+	paranoidSetTimer = 16,
 	useString = true,	-- message to send to log players in range run once
 	useOtherString = true,	-- message to send to log players targeting us run once
 	useLogoutTimer = false,	-- use logout timer true/false
@@ -326,10 +326,10 @@ function script_grind:run()
 		end
 
 		-- Jump swimming
-		local jumpSwimRandom = random(1, 100);
-		if (jumpSwimRandom > 94 and IsSwimming() and not IsInCombat() and not localObj:IsCasting()) then
-			JumpOrAscendStart();
-		end
+		--local jumpSwimRandom = random(1, 100);
+		--if (jumpSwimRandom > 80) and (IsSwimming()) and (not IsMoving()) and (not localObj:IsCasting()) and (not IsAutoCasting("Wand")) then
+		--	JumpOrAscendStart();
+		--end
 
 		-- Gather
 		if (self.gather and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
@@ -864,7 +864,7 @@ function script_grind:doLoot(localObj)
 
 	-- Blacklist loot target if swimming or we are close to aggro blacklisted targets and not close to loot target
 	if (self.lootObj ~= nil) then
-		if (script_aggro:closeToBlacklistedTargets() and self.lootObj:GetDistance() > 5) then
+		if (IsSwimming()) and (not script_grindEX.allowSwim) and (script_aggro:closeToBlacklistedTargets() and self.lootObj:GetDistance() > 5) then
 			script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
 			DEFAULT_CHAT_FRAME:AddMessage('script_grind: Blacklisting loot target to avoid aggro/swimming...');
 			return;

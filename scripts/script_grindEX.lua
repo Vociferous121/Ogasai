@@ -4,6 +4,7 @@ script_grindEX = {
 	unstuckTime = GetTimeEX(),
 	deathCounter = 0,
 	logoutOnHearth = true,
+	allowSwim = false,
 
 }
 
@@ -185,13 +186,13 @@ function script_grindEX:doChecks()
 
 		if (not IsInCombat() and not localObj:HasBuff('Feign Death')) then
 			-- Move out of water before resting/mounting
-			--if (IsSwimming()) then 
-			--	script_grind.message = "Moving out of the water..."; 
-			--	if (script_grind.autoPath) then
-			--		self.message = script_nav:moveToSavedLocation(localObj, script_grind.minLevel, script_grind.maxLevel, script_grind.staticHotSpot);
-			--	else
-			--		script_nav:navigate(GetLocalPlayer()); return true; end
-			--	end
+			if (IsSwimming()) and (not self.allowSwim) then 
+				script_grind.message = "Moving out of the water..."; 
+				if (script_grind.autoPath) then
+					self.message = script_nav:moveToSavedLocation(localObj, script_grind.minLevel, script_grind.maxLevel, script_grind.staticHotSpot);
+				else
+					script_nav:navigate(GetLocalPlayer()); return true; end
+				end
 			if (rest) then
 				if (script_grind:runRest()) then
 					return true;

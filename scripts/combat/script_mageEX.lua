@@ -140,6 +140,8 @@ function script_mageEX:menu()
 				wasClicked, script_mage.useFireWard = Checkbox("Use Fire Ward", script_mage.useFireWard);
 
 			end
+
+			Separator();
 			
 			if (localObj:HasRangedWeapon()) then
 				
