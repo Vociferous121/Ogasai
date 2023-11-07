@@ -282,7 +282,16 @@ function script_rogue:run(targetGUID)
 			elseif (targetObj:GetDistance() < self.meleeDistance) then
 				targetObj:AutoAttack();
 			end
-	
+
+			-- pick pocket
+			if (HasSpell("Pick Pocket")) and (localObj:HasBuff("Stealth")) and (not IsInCombat()) and (targetObj:GetDistance() < 5) then
+				if (targetObj:GetCreatureType() == 'Humanoid') or (taretObj:GetCreatureType() == 'Undead') then
+					CastSpellByName("Pick Pocket");
+					LootTarget();
+					return 0;
+				end
+			end
+
 			targetHealth = targetObj:GetHealthPercentage();
 
 			-- Don't attack if we should rest first
@@ -443,10 +452,15 @@ function script_rogue:run(targetGUID)
 				end
 
 				-- Check: Kick if the target is casting
-				if (HasSpell("Kick") and targetObj:IsCasting() and not IsSpellOnCD("Kick")) and (localEnergy >= 25) then
-					if (Cast("Kick", targetObj)) then
-						return 0;
-					end
+				if (HasSpell("Kick")) and (targetObj:IsCasting()) and (not IsSpellOnCD("Kick")) and (localEnergy >= 25) then
+					CastSpellByName("Kick", targetObj);
+					return 0;
+				end
+
+				-- Gouge if target casting
+				if (HasSpell("Gouge")) and (not IsSpellOnCD("Gouge")) and (localEnergy >= 45) and (targetObj:IsCasting()) then
+					CastSpellByName("Gouge");
+					return 0;
 				end
 
 				-- Set available skills variables
