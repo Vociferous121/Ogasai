@@ -153,9 +153,6 @@ function script_hunter:run(targetGUID)
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
 	local localLevel = localObj:GetLevel();
-	local petMana = GetPet():GetManaPercentage();
-	local petFocus = GetPet():GetFocus();
-
 
 	if (localObj:IsDead()) then
 		return 0;
@@ -180,6 +177,8 @@ function script_hunter:run(targetGUID)
 	local petHP = 0;
 	if (pet ~= nil and pet ~= 0) then
 		petHP = pet:GetHealthPercentage();
+		local petMana = GetPet():GetManaPercentage();
+		local petFocus = GetPet():GetFocus();
 	end
 
 	if (self.hasPet and not IsInCombat()) then
