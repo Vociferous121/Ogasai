@@ -9,11 +9,11 @@ function script_targetMenu:menu()
 
 		Text(" !! Blacklisting resets when script is reloaded !! ");
 
-		wasClicked, script_grindEX.dontSwim = Checkbox("Allow Swimming", script_grindEX.dontSwim);
+		wasClicked, script_grindEX.allowSwim = Checkbox("Allow Swimming (Has Bugs)", script_grindEX.allowSwim);
+
+		wasClicked, script_grindEX.avoidBlacklisted = Checkbox("Avoid Blacklisted Targets (Has Bugs)", script_grindEX.avoidBlacklisted);
 
 		wasCLicked, script_grind.skipHardPull = Checkbox("Blacklist Target With More Than 1 Add", script_grind.skipHardPull);
-
-		wasClicked, script_grindEX.avoidBlacklisted = Checkbox("Avoid Blacklisted Targets (Buggy)", script_grindEX.avoidBlacklisted);
 		
 		if (Button("BlackList By GUID")) then
 			if UnitExists("target") then

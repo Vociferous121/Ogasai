@@ -184,24 +184,22 @@ function script_grindEX:doChecks()
 			end
 		end
 
-		if (not IsInCombat() and not localObj:HasBuff('Feign Death')) then
+		if (not IsInCombat()) and (not localObj:HasBuff('Feign Death')) then
 			-- Move out of water before resting/mounting
-			if (IsSwimming()) and (not self.allowSwim) then 
+			if (IsSwimming()) and (not script_grindEX.allowSwim) then 
 				script_grind.message = "Moving out of the water..."; 
 				if (script_grind.autoPath) then
 					self.message = script_nav:moveToSavedLocation(localObj, script_grind.minLevel, script_grind.maxLevel, script_grind.staticHotSpot);
 				else
-					script_nav:navigate(GetLocalPlayer()); return true; end
-				end
-			if (rest) then
-				if (script_grind:runRest()) then
+					script_nav:navigate(GetLocalPlayer());
 					return true;
 				end
 			end
-			
-			if (script_grind:lootAndSkin()) then
-				return true;
+			if (rest) then
+				if (script_grind:runRest()) then return true; end
 			end
+			
+			if (script_grind:lootAndSkin()) then return true; end
 		end
 
 		if ((AreBagsFull() or script_grind.bagsFull) and not IsInCombat()) then

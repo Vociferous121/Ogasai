@@ -81,7 +81,7 @@ function hotspotDB:setup()
 	hotspotDB:addHotspot("Plaguewood West 58 - 60", 'ALL', 58, 60, 2796.4, -3338.75, 96.86);
 	hotspotDB:addHotspot("Frostsaber Rock 58 - 61", 'ALL', 58, 61, 8088, -3899.37, 697.41);
 
-	-- Tanaris
+	-- Add new paths here
 	
 
 	DEFAULT_CHAT_FRAME:AddMessage('hotspotDB: loaded...');
