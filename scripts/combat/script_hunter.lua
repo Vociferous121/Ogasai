@@ -268,7 +268,7 @@ function script_hunter:run(targetGUID)
 	-- Auto Attack
 		if (targetObj:GetDistance() < 40) then
 			targetObj:AutoAttack();
-			if (not IsMoving()) and (self.hasPet) and (petMana >= 99 or petFocus >= 99) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+			if (not IsMoving()) and (self.hasPet) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 				PetAttack();
 			end
 		end
