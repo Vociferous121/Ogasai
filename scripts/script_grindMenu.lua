@@ -112,27 +112,50 @@ function script_grindMenu:menu()
 		end
 	end
 	if (CollapsingHeader("Path Options")) then
+
 		local wasClicked = false;
 
 		Text("         ");
+
 		SameLine();
+
+		-- checkbox use auto hotspots
 		wasClicked, script_grindMenu.useHotSpotArea = Checkbox("Use Auto Hotspots", script_grindMenu.useHotSpotArea);
+
 		Text("Move to area - Click save current location - Click resume bot");
 		
+		-- show auto hotspot button
 		if (script_grindMenu.useHotSpotArea) then
-			if (Button("Save Current Location As Hotspot")) then script_nav:newHotspot(GetMinimapZoneText() .. ' ' .. GetLocalPlayer():GetLevel() .. ' - ' .. GetLocalPlayer():GetLevel()+2); script_grind.staticHotSpot = false; script_grindMenu:printHotspot(); 
-				end
+			if (Button("Save Current Location As Hotspot")) then script_nav:newHotspot(GetMinimapZoneText() .. ' ' .. GetLocalPlayer():GetLevel() .. ' - ' .. GetLocalPlayer():GetLevel()+2);
+				script_grind.staticHotSpot = false;
+				script_grindMenu:printHotspot(); 
+			end
 
-				Text('Distance To Move From Hotspot');
-				script_grind.distToHotSpot = SliderInt("DHS (yd)", 1, 1000, script_grind.distToHotSpot); Separator();
+		-- distance from hotspot slider
+			Text('Distance To Move From Hotspot');
+			script_grind.distToHotSpot = SliderInt("DHS (yd)", 1, 1000, script_grind.distToHotSpot); Separator();
 		end
 
+		-- if not use hotspot then show rest of pathing
 		if (not script_grindMenu.useHotSpotArea) then
+
+			-- click auto pathing (nav)
 			wasClicked, script_grind.autoPath = Checkbox("Auto Pathing (Disable To Use Walk Paths)", script_grind.autoPath);
+
+			--click walk path (no nav)
 			wasClicked, script_grindMenu.selectedWalkPath = Checkbox("Use Walk Paths", script_grindMenu.selectedWalkPath);
+
+			-- if auto pathing then show hotspot
 			if (script_grind.autoPath) then
 				wasClicked, script_grind.staticHotSpot = Checkbox("Auto Load Hotspots From - HotspotDB.lua", script_grind.staticHotSpot);
 
+			-- draw save current location button
+			if (Button("Save Current Location To Log File")) then script_nav:newHotspot(GetMinimapZoneText() .. ' ' .. GetLocalPlayer():GetLevel() .. ' - ' .. GetLocalPlayer():GetLevel()+2);
+				script_grind.staticHotSpot = false;
+				script_grindMenu:printHotspot(); 
+			end
+
+				-- select hotspot dropdown menu
 				Text("Select A Hotspot From Database:");
 
 				wasClicked, self.selectedHotspotID = 
@@ -143,6 +166,7 @@ function script_grindMenu:menu()
 				end
 			end
 
+				-- select walk path input text box
 				if (script_grindMenu.selectedWalkPath) then
 					Separator();
 
@@ -150,13 +174,18 @@ function script_grindMenu:menu()
 				
 					Separator();
 
+			-- set next to node distance for walk paths
 			Text('Next Node Distance'); script_grind.nextToNodeDist = SliderFloat("ND (yd)", 1, 10, script_grind.nextToNodeDist);
 					Separator();
 				end
 		
 		end
+		
+		-- checkbox use unstuck script
 		wasClicked, script_grind.useUnstuck = Checkbox("Use Unstuck Feature (script_unstuck)", script_grind.useUnstuck);
 		Separator()
+		
+		-- ressurect distance
 		wasClicked, script_grind.safeRess = Checkbox("Ressurect In Safe Area", script_grind.safeRess);
 		Text('Ressurect To Corpse Distance'); script_grind.ressDistance = SliderFloat("RD (yd)", 1, 35, script_grind.ressDistance); Separator();
 	end

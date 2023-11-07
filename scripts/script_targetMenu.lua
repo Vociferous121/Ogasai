@@ -40,9 +40,11 @@ function script_targetMenu:menu()
 			
 		wasClicked, script_grind.avoidElite = Checkbox("Avoid Elites", script_grind.avoidElite);
 		
-		Text("Avoid Elite Range"); 
-		script_grind.avoidRange = SliderInt("ER (yd)", 1, 100, script_grind.avoidRange);
-		
+		if (script_grind.avoidElite) then
+			Text("Avoid Elite Range"); 
+			script_grind.avoidRange = SliderInt("ER (yd)", 1, 100, script_grind.avoidRange);
+		end
+
 		Separator();
 		
 		if (CollapsingHeader("-- Skip Creature By Type")) then
@@ -57,7 +59,6 @@ function script_targetMenu:menu()
 			SameLine(); wasClicked, script_grind.skipDragonkin = Checkbox("Skip Dragonkin", script_grind.skipDragonkin);
 			wasClicked, script_grind.skipGiant = Checkbox("Skip Giant", script_grind.skipGiant);
 			SameLine(); wasClicked, script_grind.skipMechanical = Checkbox("Skip Mechanical", script_grind.skipMechanical);
-			wasClicked, self.skipNotspecified = Checkbox("Skip 'Not Specified' (Slimes)", self.skipNotspecified);
 		end
 	end
 end
