@@ -1,55 +1,51 @@
----------------------------
-------GlobalVariables------
----------------------------
-O_NAME = "oGasai";
---MY_VERSION = "0.XXXX";
---_G.MY_VERSION = string.match([[*<= Version '1.5.99+D20201231T235959' =>*]], "'.-'")
+			---------------------------
+			------GlobalVariables------
+			---------------------------
+	O_NAME = "oGasai";
+	--MY_VERSION = "0.XXXX";
+	--_G.MY_VERSION = string.match([[*<= Version '1.5.99+D20201231T235959' =>*]], "'.-'")
 
-----------------------------
----------Load Libs----------
-----------------------------
-include("libs\\AceLibrary\\AceLibrary.lua")
-include("libs\\AceLocale-2.2\\AceLocale-2.2.lua")
---include("libs\\Babble-Race-2.2\\Babble-Race-2.2.lua")
+			----------------------------
+			---------Load Libs----------
+			----------------------------
+	include("libs\\Libs3\\Ace3v\\LibStub\\LibStub.lua")
+	include("libs\\Libs3\\Ace3v\\CallbackHandler-1.0\\CallbackHandler-1.0.lua")
 
-include("libs\\LibStub\\LibStub.lua")
+	include("libs\\Libs3\\Ace3v\\AceCore-3.0\\AceCore-3.0.lua")
+	include("libs\\Libs3\\Ace3v\\AceDB-3.0\\AceDB-3.0.lua")
+	include("libs\\Libs3\\Ace3v\\AceDBOptions-3.0\\AceDBOptions-3.0.lua")
+	include("libs\\Libs3\\Ace3v\\AceLocale-3.1\\AceLocale-3.1.lua")
 
-include("libs\\CallbackHandler-1.0\\CallbackHandler-1.0.lua")
 
---include("libs\\AceCore-3.0\\AceCore-3.0.lua")
---include("libs\\AceDB-3.0\\AceDB-3.0.lua")
---include("libs\\AceDBOptions-3.0\\AceDBOptions-3.0.lua")
+	--[[
+	include("libs\\Libs3\\Ace3v\\LibBabble-Class-3.0\\LibBabble-3.0.lua")
+	include("libs\\Libs3\\Ace3v\\LibBabble-Class-3.0\\LibBabble-Class-3.0.lua")
 
---include("libs\\AceLocale-3.0\\AceLocale-3.0.lua")
-include("libs\\AceLocale-3.1\\AceLocale-3.1.lua")
+	include("libs\\Libs3\\Ace3v\\LibBabble-Spell-3.0\\LibBabble-3.0.lua")
+	include("libs\\Libs3\\Ace3v\\LibBabble-Spell-3.0\\LibBabble-Spell-3.0.lua")
+	include("libs\\Libs3\\Ace3v\\LibBabble-Spell-3.0\\deDE.lua")
+	include("libs\\Libs3\\Ace3v\\LibBabble-Spell-3.0\\esES.lua")
+	include("libs\\Libs3\\Ace3v\\LibBabble-Spell-3.0\\frFR.lua")
+	include("libs\\Libs3\\Ace3v\\LibBabble-Spell-3.0\\koKR.lua")
+	include("libs\\Libs3\\Ace3v\\LibBabble-Spell-3.0\\zhCN.lua")
+	include("libs\\Libs3\\Ace3v\\LibBabble-Spell-3.0\\zhTW.lua")
+	include("libs\\Libs3\\Ace3v\\LibBabble-Spell-3.0\\ruRU.lua")
+	include("libs\\Libs3\\Ace3v\\LibBabble-Spell-3.0\\Cleanup.lua")
+	--]]
 
---include("libs\\LibBabble-Class-3.0\\LibBabble-3.0.lua")
---include("libs\\LibBabble-Class-3.0\\LibBabble-Class-3.0.lua")
+			----------------------------
+			-----Load Localization------
+			----------------------------
+	include("locales\\Locale_enUS.lua")
+	include("locales\\Locale_ruRU.lua")
 
-include("libs\\LibBabble-Spell-3.0\\LibBabble-3.0.lua")
-include("libs\\LibBabble-Spell-3.0\\LibBabble-Spell-3.0.lua")
-include("libs\\LibBabble-Spell-3.0\\deDE.lua")
-include("libs\\LibBabble-Spell-3.0\\esES.lua")
-include("libs\\LibBabble-Spell-3.0\\frFR.lua")
-include("libs\\LibBabble-Spell-3.0\\koKR.lua")
-include("libs\\LibBabble-Spell-3.0\\zhCN.lua")
-include("libs\\LibBabble-Spell-3.0\\zhTW.lua")
-include("libs\\LibBabble-Spell-3.0\\ruRU.lua")
-include("libs\\LibBabble-Spell-3.0\\Cleanup.lua")
-
-----------------------------
------Load Localization------
-----------------------------
-include("locales\\Locale_enUS.lua")
-include("locales\\Locale_ruRU.lua")
-
-----------------------------
----------Local--------------
-----------------------------
-local AceLocale = LibStub("AceLocale-3.1")
-local L = AceLocale:GetLocale(O_NAME, false)
---local BC = AceLibrary("Babble-Class-2.2")
---local BC = LibStub("LibBabble-Class-3.0")
+			----------------------------
+			---------Local--------------
+			----------------------------
+	local AceLocale = LibStub("AceLocale-3.1")
+	local L = AceLocale:GetLocale(O_NAME, false)
+	--local BC = AceLibrary("Babble-Class-2.2")
+	--local BC = LibStub("LibBabble-Class-3.0")
 
 coremenu = {
 	--Setup
@@ -65,8 +61,8 @@ function coremenu:draw()
 	if self.isSetup == false then
 		self.isSetup = true
 
-		--DEFAULT_CHAT_FRAME:AddMessage(format(L["Loading Scripts! Your version "]) .. O_NAME .. " : " .. MY_VERSION)
-		DEFAULT_CHAT_FRAME:AddMessage(L['Loading Scripts!']);
+	--DEFAULT_CHAT_FRAME:AddMessage(format(L["Loading Scripts! Your version "]) .. O_NAME .. " : " .. MY_VERSION)
+	DEFAULT_CHAT_FRAME:AddMessage(L['Loading Scripts!']);
 
 
 			----------------------------
