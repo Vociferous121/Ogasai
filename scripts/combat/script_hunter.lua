@@ -325,14 +325,14 @@ function script_hunter:run(targetGUID)
 
 			-- walk away from target if pet target guid is the same guid as target targeting me
 			if (targetObj:GetDistance() < 14) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) then
-			if (targetObj:GetUnitsTarget():GetGUID() == pet:GetGUID()) then
-				script_grind.tickRate = 100;
-				if (script_hunter:runBackwards(targetObj, 15)) then
-					PetAttack();
-					self.message = "Moving away from target for range attacks...";
-					return 4;
+				if (targetObj:GetUnitsTarget():GetGUID() == pet:GetGUID()) then
+					script_grind.tickRate = 100;
+					if (script_hunter:runBackwards(targetObj, 15)) then
+						PetAttack();
+						self.message = "Moving away from target for range attacks...";
+						return 4;
+					end
 				end
-			end
 			end
 			
 			-- force stop the bot after combat and waiting for pet to return - hangs in combat phase

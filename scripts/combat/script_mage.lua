@@ -228,7 +228,7 @@ function script_mage:setup()
 	end
 
 	if (GetLocalPlayer():GetLevel() < 10) and (localObj:HasRangedWeapon()) then
-		self.useWandHealth = 60;
+		self.useWandHealth = 40;
 	end
 	
 	-- set group settings mainly used for easy follower reloads
@@ -392,21 +392,15 @@ function script_mage:run(targetGUID)
 			-- else if frost mage and not has frost bolt yet then cast fireball
 				-- many line of sight and other random checks to ensure the bot is doing what it needs to do
 
-			--if (IsMoving()) and (targetObj:IsInLineOfSight()) then
-			--	if (targetObj:GetDistance() <= 28) then
-			--		if (IsMoving()) then
-			--			StopMoving();
-			--		end
-			--	end
-			--end
-
 			-- if frost mage and has frost bolt
 			if (self.frostMage) and (HasSpell("Frostbolt")) then
 	
 				-- check range of all spells
-				if (targetObj:GetDistance() > 29) or (not targetObj:IsInLineOfSight()) then
+				if (not targetObj:IsSpellInRange("Frostbolt")) or (not targetObj:IsInLineOfSight()) then
 					self.message = "Pulling with Frostbolt!";
 					return 3;
+				else
+					StopMoving();
 				end
 
 				-- stand if sitting
@@ -425,15 +419,6 @@ function script_mage:run(targetGUID)
 					-- check line of sight using frostbolt
 					if (not targetObj:IsInLineOfSight()) then
 						return 3;
-					end
-				
-					-- new follow target
-					if (targetObj:IsInLineOfSight()) and (not IsMoving()) and (targetObj:GetHealthPercentage() < 99) then
-						if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-							if (not targetObj:FaceTarget()) then
-								targetObj:FaceTarget();
-							end
-						end
 					end
 
 					-- cast the spell - frostbolt
@@ -475,21 +460,12 @@ function script_mage:run(targetGUID)
 					JumpOrAscendStart();
 					self.waitTimer = GetTimeEX() + 1000;
 				end
-
-				-- new follow target / face target
-				if (targetObj:IsInLineOfSight()) and (not IsMoving()) and (targetObj:GetHealthPercentage() < 99) then
-					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-						if (not targetObj:FaceTarget()) then
-							targetObj:FaceTarget();
-						end
-					end
-				end
 			
 				-- cast fireball to pull we do not have pyroblast yet
 				if (HasSpell("Fireball")) and (not HasSpell("Pyroblast")) then
 
 					-- recheck line of sight
-					if (not targetObj:IsInLineOfSight()) or (targetObj:GetDistance() > 30) then
+					if (not targetObj:IsInLineOfSight()) or (not targetObj:IsSpellInRange("Fireball")) then
 						return 3;
 					end
 		
@@ -1003,6 +979,8 @@ function script_mage:rest()
 	local localObj = GetLocalPlayer();
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
+
+	ClearTarget();
 
 	--Create Water
 	local waterIndex = -1;

@@ -37,7 +37,7 @@ function script_grindEX:doChecks()
 		end
 
 		if (GetLoadNavmeshProgress() ~= 1) then
-			script_grind.message = "Loading the nav mesh... ";
+			script_grind.message = "Loading Nav Mesh! Please Wait!";
 			return true;
 		end
 		

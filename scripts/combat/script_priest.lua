@@ -268,12 +268,6 @@ function script_priest:setup()
 	if (GetNumPartyMembers() > 1) then
 		self.useScream = false;
 	end
-
-	-- if no wand equipped then force using smite
-	if (not localObj:HasRangedWeapon()) then
-		self.useSmite = true;
-		self.useWand = false;
-	end
 end
 
 function script_priest:draw()
@@ -308,6 +302,12 @@ function script_priest:run(targetGUID)
 
 	local localLevel = localObj:GetLevel(); -- get player level wow API
 	
+	-- if no wand equipped then force using smite
+	if (not localObj:HasRangedWeapon()) or (localLevel < 10) then
+		self.useSmite = true;
+		self.useWand = false;
+	end
+
 	-- if target is dead then don't attack
 	if (localObj:IsDead()) then
 		return 0;

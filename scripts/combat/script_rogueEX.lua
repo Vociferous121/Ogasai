@@ -154,12 +154,14 @@ function script_rogueEX:menu()
 				Text("Stealth - Distance to target"); 
 				script_rogue.stealthRange = SliderInt('SR (yd)', 1, 50, script_rogue.stealthRange);
 			end
-
-			if (CollapsingHeader("--Poison Options")) then
-				Text("Poison on Main Hand");
-				script_rogue.mainhandPoison = InputText("PMH", script_rogue.mainhandPoison);
-				Text("Poison on Off Hand");
-				script_rogue.offhandPoison = InputText("POH", script_rogue.offhandPoison);
+	
+			if (GetLocalPlayer():GetLevel() >= 20) then
+				if (CollapsingHeader("--Poison Options")) then
+					Text("Poison on Main Hand");
+					script_rogue.mainhandPoison = InputText("PMH", script_rogue.mainhandPoison);
+					Text("Poison on Off Hand");
+					script_rogue.offhandPoison = InputText("POH", script_rogue.offhandPoison);
+				end
 			end
 		end
 	end
