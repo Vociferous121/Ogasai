@@ -43,7 +43,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	if (not IsInCombat()) and (not localObj:HasBuff("Inner Fire")) and (HasSpell("Inner Fire")) and (localMana >= 8) then
 		Buff("Inner Fire", localObj);
 		self.waitTimer = GetTimeEX() + 1250;
-		return; -- keep trying until cast
+		return 0; -- keep trying until cast
 	end
 
 	-- Buff Fortitude
@@ -51,7 +51,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 		if (localMana >= 25) and (not IsInCombat()) and (not targetObject:HasBuff("Power Word: Fortitude")) and (HasSpell("Power Word: Fortitude")) then
 			Buff("Power Word: Fortitude", targetObject);
 			self.waitTimer = GetTimeEX() + 1500;
-			return; -- if buffed return true
+			return 0; -- if buffed return 0 true
 		end
 	end
 	
@@ -59,7 +59,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 25) and (not IsInCombat()) and (not targetObject:HasBuff("Divine Spirit")) and (HasSpell("Divine Spririt")) then
 			if (Buff("Divine Spirit", targetObject)) then
-				return;  -- if buffed return true
+				return 0;  -- if buffed return 0 true
 			end
 		end
 	end
@@ -68,7 +68,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 12) and (localHealth <= self.renewHP) and (not targetObject:HasBuff("Renew")) and (HasSpell("Renew")) then
 			if (Buff("Renew", targetObject)) then
-				return; -- if buffed return true
+				return 0; -- if buffed return 0 0 true
 			end
 		end
 	end
@@ -77,7 +77,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	if (localMana >= 10) and (localHealth <= self.shieldHP) and (not targetObject:HasDebuff("Weakened Soul")) and (IsInCombat()) and (HasSpell("Power Word: Shield")) then
 		if (Buff("Power Word: Shield", targetObject)) then 
 			-- targetObj:FaceTarget();
-			return;  -- if buffed return true
+			return 0;  -- if buffed return 0 true
 		end
 	end
 
@@ -85,7 +85,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 20) and (localHealth <= self.greaterHealHP) then
 			if (CastHeal("Greater Heal", targetObject)) then
-				return;	-- if cast return true
+				return 0;	-- if cast return 0 true
 			end
 		end
 	end
@@ -94,7 +94,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 15) and (localHealth <= self.healHP) then
 			if (CastHeal("Heal", targetObject)) then
-				return;	-- if cast return true
+				return 0;	-- if cast return 0 true
 			end
 		end
 	end
@@ -103,7 +103,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 8) and (localHealth <= self.flashHealHP) then
 			if (CastHeal("Flash Heal", targetObject)) then
-				return;	-- if cast return true
+				return 0;	-- if cast return 0 true
 			end
 		end
 	end
@@ -113,7 +113,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 		if (localLevel < 20) then	-- don't use this when we get flash heal ELSE very low mana
 			if (localMana >= 10) and (localHealth <= self.lesserHealHP) then
 				if (CastHeal("Lesser Heal", targetObject)) then
-					return;	-- if cast return true
+					return true;	-- if cast return true
 				end
 			end
 
@@ -121,7 +121,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 		elseif (localLevel >= 20) then
 			if (localMana <= 8) and (localHealth <= self.flashHealHP) then
 				if (CastHeal("Lesser Heal", targetObject)) then
-					return;	-- if cast return true
+					return 0;	-- if cast return true
 				end
 			end
 		end
@@ -130,7 +130,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	--Check Disease Debuffs -- cure disease
 	if (localMana > 20) and (HasSpell("Cure Disease") or HasSpell("Dispel Magic")) then
 		script_priest:dispelDebuff();
-		return;
+		return 0;
 	end
 
 	-- use mind blast on CD
@@ -140,9 +140,9 @@ function script_priest:healAndBuff(targetObject, localMana)
 			CastSpellByName("Mind Blast", targetObj);
 			self.waitTimer = GetTimeEX() + 750;
 		end
-		return;
+		return 0;
 	end
-return;
+return false;
 end
 
 function script_priest:dispelDebuff(spellName, target)
@@ -543,6 +543,12 @@ function script_priest:run(targetGUID)
 					self.waitTimer = GetTimeEX() + 750;
 					self.message = "Smite is checked!";
 					return 0; -- keep trying until cast
+				end
+				if (HasSpell("Holy Fire")) and (not targetObj:HasDebuff("Holy Fire")) and (localMana >= 25) then
+					targetObj:FaceTarget();
+					CastSpellByName("Holy Fire");
+					self.waitTimer = GetTimeEX() + 750;
+					return 0;
 				end
 			end
 
