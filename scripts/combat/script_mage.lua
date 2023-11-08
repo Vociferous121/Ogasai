@@ -323,7 +323,7 @@ function script_mage:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(1612, 2426);
+		local tickRandom = random(1312, 2026);
 
 		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
 			script_grind.tickRate = 135;
@@ -352,15 +352,6 @@ function script_mage:run(targetGUID)
 		-- stand if sitting
 		if (not IsStanding()) then
 			JumpOrAscendStart();
-		end
-
-		-- new follow target / facetarget
-		if (targetObj:IsInLineOfSight()) and (not IsMoving()) then
-			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-				if (not targetObj:FaceTarget()) then
-					targetObj:FaceTarget();
-				end
-			end
 		end
 
 		-- Don't attack if we should rest first
@@ -558,15 +549,6 @@ function script_mage:run(targetGUID)
 				if (not IsStanding()) then
 					JumpOrAscendStart();
 				end
-
-				-- new follow target / face target
-				if (targetObj:IsInLineOfSight()) and (not IsMoving()) and (targetObj:GetHealthPercentage() < 99) then
-					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-						if (not targetObj:FaceTarget()) then
-							targetObj:FaceTarget();
-						end
-					end
-				end
 				
 				-- cast fireball
 				if (localMana > 15) and (not IsMoving()) and (targetObj:IsInLineOfSight()) then
@@ -597,15 +579,6 @@ function script_mage:run(targetGUID)
 			-- Dismount
 			if (IsMounted()) then
 				DisMount();
-			end
-
-			-- new follow target / face target
-			if (targetObj:IsInLineOfSight()) and (not IsMoving()) and (targetHealth < 99) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-					end
-				end
 			end
 
 			-- blink on movement stop debuffs
@@ -671,6 +644,8 @@ function script_mage:run(targetGUID)
 			if (GetNumPartyMembers() < 1) or (self.useFrostNova) then
 				if (targetHealth > 20) and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (not localObj:HasBuff('Evocation')) and 
 					(targetObj ~= 0 and IsInCombat()) and (self.useFrostNova) and (not localObj:HasDebuff("Web")) and (not localObj:HasDebuff("Encasing Webs")) then
+					script_grind.tickRate = 287;
+					script_rotation.tickRate = 269;
 					if (script_mage:runBackwards(targetObj, 7)) then -- Moves if the target is closer than 7 yards
 						self.message = "Moving away from target...";
 						if (not IsSpellOnCD("Frost Nova")) then
@@ -742,7 +717,6 @@ function script_mage:run(targetGUID)
 			if (not localObj:HasBuff("Ice Barrier")) and (HasSpell("Mana Shield")) and (localMana >= self.manaShieldMana) and (localHealth <= self.manaShieldHealth) and (not localObj:HasBuff("Mana Shield")) and (IsInCombat()) then
 				if (not targetObj:HasDebuff("Frost Nova") and not targetObj:HasDebuff("Frostbite")) then
 					CastSpellByName("Mana Shield");
-					self.waitTimer = GetTimeEX() + 1800;
 					return 0;
 				end
 			end
@@ -769,6 +743,8 @@ function script_mage:run(targetGUID)
 
 			-- Check: Frostnova when the target is close, but not when we polymorhped one enemy or the target is affected by Frostbite
 			if (not self.addPolymorphed) and (targetObj:GetDistance() < 5 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova then
+				script_grind.tickRate = 325;
+				script_grind.tickRate = 290;
 				self.message = "Frost nova the target(s)...";
 				CastSpellByName("Frost Nova");
 				return 0;
@@ -812,7 +788,6 @@ function script_mage:run(targetGUID)
 						return 3;
 					end	
 					if (CastSpellByName("Fire Blast", targetObj)) then
-						self.waitTimer = GetTimeEX() + 1800;
 						return;
 					end
 				end
@@ -986,7 +961,7 @@ function script_mage:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(1688, 2461);
+		local tickRandom = random(1388, 2061);
 
 		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
 			script_grind.tickRate = 135;

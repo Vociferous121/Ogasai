@@ -66,7 +66,7 @@ function script_priestEX:menu()
 				
 				SameLine();
 
-				wasClicked,	script_priest.useMindFlay = Checkbox("Mind Flay vs Wand", script_priest.useMindFlay);
+				wasClicked,	script_priest.useMindFlay = Checkbox("Mind Flay instead of Wand", script_priest.useMindFlay);
 				
 				-- if mind flay is clicked then set useWand to false/unclicked
 				if script_priest.useMindFlay then

@@ -30,11 +30,14 @@ script_priest = {
 	rangeDistance = 30,
 }
 
-function script_priest:healAndBuff(targetObject, localMana)
+function script_priest:healAndBuff(localObj, localMana)
 
 	-- get target health percentage
-	local targetHealth = targetObject:GetHealthPercentage();
+	if (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+		local targetHealth = targetObj:GetHealthPercentage();
+	end
 	local localHealth = GetLocalPlayer():GetHealthPercentage();
+	local localObj = GetLocalPlayer();
 
 	-- get self player level
 	local localLevel = GetLocalPlayer():GetLevel();
@@ -48,8 +51,8 @@ function script_priest:healAndBuff(targetObject, localMana)
 
 	-- Buff Fortitude
 	if (not self.shadowForm) then	-- if not in shadowform
-		if (localMana >= 25) and (not IsInCombat()) and (not targetObject:HasBuff("Power Word: Fortitude")) and (HasSpell("Power Word: Fortitude")) then
-			Buff("Power Word: Fortitude", targetObject);
+		if (localMana >= 25) and (not IsInCombat()) and (not localObj:HasBuff("Power Word: Fortitude")) and (HasSpell("Power Word: Fortitude")) then
+			Buff("Power Word: Fortitude", localObj);
 			self.waitTimer = GetTimeEX() + 1500;
 			return 0; -- if buffed 
 		end
@@ -57,8 +60,8 @@ function script_priest:healAndBuff(targetObject, localMana)
 	
 	-- Buff Divine Spirit
 	if (not self.shadowForm) then	-- if not in shadowform
-		if (localMana >= 25) and (not IsInCombat()) and (not targetObject:HasBuff("Divine Spirit")) and (HasSpell("Divine Spririt")) then
-			if (Buff("Divine Spirit", targetObject)) then
+		if (localMana >= 25) and (not IsInCombat()) and (not localObj:HasBuff("Divine Spirit")) and (HasSpell("Divine Spririt")) then
+			if (Buff("Divine Spirit", localObj)) then
 				self.waitTimer = GetTimeEX() + 1500;
 				return 0;  -- if buffed 
 			end
@@ -67,8 +70,8 @@ function script_priest:healAndBuff(targetObject, localMana)
 
 	-- Cast Renew
 	if (not self.shadowForm) then	-- if not in shadowform
-		if (localMana >= 12) and (localHealth <= self.renewHP) and (not targetObject:HasBuff("Renew")) and (HasSpell("Renew")) then
-			if (Buff("Renew", targetObject)) then
+		if (localMana >= 12) and (localHealth <= self.renewHP) and (not localObj:HasBuff("Renew")) and (HasSpell("Renew")) then
+			if (Buff("Renew", localObj)) then
 				self.waitTimer = GetTimeEX() + 1500;
 				return 0; -- if buffed 
 			end
@@ -76,8 +79,8 @@ function script_priest:healAndBuff(targetObject, localMana)
 	end
 
 	-- Cast Shield Power Word: Shield
-	if (localMana >= 10) and (localHealth <= self.shieldHP) and (not targetObject:HasDebuff("Weakened Soul")) and (IsInCombat()) and (HasSpell("Power Word: Shield")) then
-		if (Buff("Power Word: Shield", targetObject)) then 
+	if (localMana >= 10) and (localHealth <= self.shieldHP) and (not localObj:HasDebuff("Weakened Soul")) and (IsInCombat()) and (HasSpell("Power Word: Shield")) then
+		if (Buff("Power Word: Shield", localObj)) then 
 			-- targetObj:FaceTarget();
 			self.waitTimer = GetTimeEX() + 1500;
 			return 0;  -- if buffed 
@@ -87,7 +90,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	-- Cast Greater Heal
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 20) and (localHealth <= self.greaterHealHP) then
-			if (CastHeal("Greater Heal", targetObject)) then
+			if (CastHeal("Greater Heal", localObj)) then
 				self.waitTimer = GetTimeEX() + 1500;
 				return 0;	-- if cast 
 			end
@@ -97,7 +100,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	-- Cast Heal(spell)
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 15) and (localHealth <= self.healHP) then
-			if (CastHeal("Heal", targetObject)) then
+			if (CastHeal("Heal", localObj)) then
 				self.waitTimer = GetTimeEX() + 1500;
 				return 0;	-- if cast 
 			end
@@ -107,7 +110,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	-- Cast Flash Heal
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 8) and (localHealth <= self.flashHealHP) then
-			if (CastHeal("Flash Heal", targetObject)) then
+			if (CastHeal("Flash Heal", localObj)) then
 				self.waitTimer = GetTimeEX() + 1500;
 				return 0;	-- if cast 
 			end
@@ -118,7 +121,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localLevel < 20) then	-- don't use this when we get flash heal ELSE very low mana
 			if (localMana >= 10) and (localHealth <= self.lesserHealHP) then
-				if (CastHeal("Lesser Heal", targetObject)) then
+				if (CastHeal("Lesser Heal", localObj)) then
 					self.waitTimer = GetTimeEX() + 1500;
 					return 0;	-- if cast return true
 				end
@@ -127,7 +130,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 		-- ELSE IF player level >= 20
 		elseif (localLevel >= 20) then
 			if (localMana <= 8) and (localHealth <= self.flashHealHP) then
-				if (CastHeal("Lesser Heal", targetObject)) then
+				if (CastHeal("Lesser Heal", localObj)) then
 					self.waitTimer = GetTimeEX() + 1500;
 					return 0;	-- if cast return true
 				end
@@ -138,7 +141,6 @@ function script_priest:healAndBuff(targetObject, localMana)
 	--Check Disease Debuffs -- cure disease
 	if (localMana > 20) and (HasSpell("Cure Disease") or HasSpell("Dispel Magic")) then
 		script_priest:dispelDebuff();
-		return 0;
 	end
 
 	-- use mind blast on CD
@@ -153,7 +155,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 return false;
 end
 
-function script_priest:dispelDebuff(spellName, target)
+function script_priest:dispelDebuff()
 
 	local localPlayer = GetLocalPlayer();
 	local localMana = GetLocalPlayer():GetManaPercentage();
@@ -179,7 +181,7 @@ function script_priest:dispelDebuff(spellName, target)
 			end
 		end
 	end
-			
+	return false;		
 end
 
 function script_priest:heal(spellName, target)
@@ -362,11 +364,23 @@ function script_priest:run(targetGUID)
 		end
 	end
 
+	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
+
+		local tickRandom = random(1388, 2061);
+
+		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
+			script_grind.tickRate = 135;
+			script_rotation.tickRate = 135;
+
+		elseif (not IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
+			script_grind.tickRate = tickRandom
+			script_rotation.tickRate = tickRandom;
+
+		elseif (IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
+			script_grind.tickRate = tickRandom;
+			script_rotation.tickRate = tickRandom;
+
 		end
 	end
 	
@@ -382,14 +396,6 @@ function script_priest:run(targetGUID)
 		-- stand if sitting
 		if (not IsStanding()) then
 			JumpOrAscendStart();
-		end
-
-		if (targetObj:IsInLineOfSight() and not IsMoving()) then
-			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-				if (not targetObj:FaceTarget()) then
-					targetObj:FaceTarget();
-				end
-			end
 		end
 
 		-- Don't attack if we should rest first
@@ -453,15 +459,6 @@ function script_priest:run(targetGUID)
 			-- Dismount
 			if (IsMounted()) then
 				DisMount();
-			end
-
-			-- new follow target
-			if (targetObj:IsInLineOfSight() and not IsMoving()) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-					end
-				end
 			end
 
 			-- Berserking Troll Racial
@@ -618,15 +615,6 @@ function script_priest:run(targetGUID)
 				end 
 			end
 
-			-- new follow target
-			if (targetObj:IsInLineOfSight() and not IsMoving() and targetHealth <= 99) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-					end
-				end
-			end
-
 			-- Silence if talent obtained
 			if (HasSpell("Silence")) and (targetObj:IsCasting()) and (localMana >= 15) and (targetHealth >= 25) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
@@ -658,7 +646,7 @@ function script_priest:run(targetGUID)
 			end
 
 			-- Check: Keep Shadow Word: Pain up
-			if (not targetObj:HasDebuff("Shadow Word: Pain")) and (HasSpell("Shadow Word: Pain")) and (localMana >= self.swpMana) and (targetHealth >= 25) then
+			if (not targetObj:HasDebuff("Shadow Word: Pain")) and (HasSpell("Shadow Word: Pain")) and (localMana >= self.swpMana) and (targetHealth >= 20) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 					return 3; -- target not in line of sight
 				end -- move to target
@@ -745,18 +733,9 @@ function script_priest:run(targetGUID)
 				return; -- keep trying until cast
 			end
 
-			-- new follow target
-			if (targetObj:IsInLineOfSight() and not IsMoving() and targetHealth <= 99) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-					end
-				end
-			end
-
 			-- Mind flay 
 			if (self.shadowForm or self.useMindFlay) and (IsSpellOnCD("Mind Blast") or localMana <= self.mindBlastMana) then
-				if (HasSpell("Mind Flay")) and (not IsSpellOnCD("Mind Flay")) and (localMana >= self.mindFlayMana) and (targetHealth >= self.mindFlayHealth) and
+				if (HasSpell("Mind Flay")) and (not IsSpellOnCD("Mind Flay")) and (targetHealth >= self.mindFlayHealth) and
 					(not localObj:IsChanneling() and targetObj:GetDistance() <= 20) then
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
@@ -770,7 +749,7 @@ function script_priest:run(targetGUID)
 
 			--mind flay and then wand when set
 			if (self.useMindFlay) and (self.useWand) and (not localObj:IsCasting() or not localObj:IsChanneling()) and
-				(localMana <= self.mindFlayMana or targetHealth <= self.mindFlayHealth) or (targetObj:GetDistance() >= 25) then
+				(localMana <= self.mindFlayMana or targetHealth <= self.mindFlayHealth) or (targetObj:GetDistance() <= 25) then
 				if (localObj:HasRangedWeapon()) then
 					if (not targetObj:IsInLineOfSight()) then -- check line of sight
 						return 3; -- target not in line of sight
@@ -831,6 +810,16 @@ function script_priest:run(targetGUID)
 				end
 			end
 
+			if (not self.useMindFlay) and (self.useWand) and (targetHealth < 25) then
+				if (not IsAutoCasting("Shoot")) and (self.useWand) then
+						self.message = "Using wand...";
+						targetObj:FaceTarget();
+						targetObj:CastSpell("Shoot");
+						self.waitTimer = GetTimeEX() + 250; 
+						return true; -- return true - if not AutoCasting then false
+					end
+			end
+
 			-- No Mind Blast but wand ? fixed!
 			if (not HasSpell("Mind Blast")) and (localObj:HasRangedWeapon()) and (self.useWand) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
@@ -859,11 +848,23 @@ function script_priest:rest()
 		script_priest:setup();
 	end
 
+	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
+
+		local tickRandom = random(1388, 2061);
+
+		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
+			script_grind.tickRate = 135;
+			script_rotation.tickRate = 135;
+
+		elseif (not IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
+			script_grind.tickRate = tickRandom
+			script_rotation.tickRate = tickRandom;
+
+		elseif (IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
+			script_grind.tickRate = tickRandom;
+			script_rotation.tickRate = tickRandom;
+
 		end
 	end
 
