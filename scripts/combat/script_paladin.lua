@@ -208,11 +208,23 @@ function script_paladin:run(targetGUID)
 			end
 		end
 
+	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
+
+		local tickRandom = random(743, 2522);
+
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+			script_rotation.tickRate = 135;
+
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom
+			script_rotation.tickRate = tickRandom;
+
+		elseif (IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+			script_rotation.tickRate = tickRandom;
+
 		end
 	end
 	
@@ -687,11 +699,23 @@ function script_paladin:rest()
 		script_paladin:setup();
 	end
 
+	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
+
+		local tickRandom = random(776, 2434);
+
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+			script_rotation.tickRate = 135;
+
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom
+			script_rotation.tickRate = tickRandom;
+
+		elseif (IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+			script_rotation.tickRate = tickRandom;
+
 		end
 	end
 

@@ -310,11 +310,23 @@ function script_warlock:run(targetGUID)
 		return 4;
 	end
 
+	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
+
+		local tickRandom = random(1488, 2261);
+
+		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
+			script_grind.tickRate = 135;
+			script_rotation.tickRate = 135;
+
+		elseif (not IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
+			script_grind.tickRate = tickRandom
+			script_rotation.tickRate = tickRandom;
+
+		elseif (IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
+			script_grind.tickRate = tickRandom;
+			script_rotation.tickRate = tickRandom;
+
 		end
 	end
 
@@ -955,11 +967,23 @@ function script_warlock:rest()
 
 	local localHealth = localObj:GetHealthPercentage();
 
+	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
+
+		local tickRandom = random(1488, 2261);
+
+		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
+			script_grind.tickRate = 135;
+			script_rotation.tickRate = 135;
+
+		elseif (not IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
+			script_grind.tickRate = tickRandom
+			script_rotation.tickRate = tickRandom;
+
+		elseif (IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
+			script_grind.tickRate = tickRandom;
+			script_rotation.tickRate = tickRandom;
+
 		end
 	end
 

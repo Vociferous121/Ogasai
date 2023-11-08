@@ -192,11 +192,23 @@ function script_hunter:run(targetGUID)
 		return 4;
 	end
 
+	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (IsMoving()) then
-			script_grind.tickRate = 100;
+
+		local tickRandom = random(750, 2046);
+
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+			script_rotation.tickRate = 135;
+
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom
+			script_rotation.tickRate = tickRandom;
+
 		elseif (IsInCombat()) and (not IsMoving()) then
-			script_grind.tickRate = 450;
+			script_grind.tickRate = tickRandom;
+			script_rotation.tickRate = tickRandom;
+
 		end
 	end
 
@@ -448,11 +460,23 @@ function script_hunter:rest()
 		self.useBandage = false;
 	end
 
+	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (IsMoving()) then
-			script_grind.tickRate = 100;
+
+		local tickRandom = random(721, 2446);
+
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+			script_rotation.tickRate = 135;
+
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom
+			script_rotation.tickRate = tickRandom;
+
 		elseif (IsInCombat()) and (not IsMoving()) then
-			script_grind.tickRate = 450;
+			script_grind.tickRate = tickRandom;
+			script_rotation.tickRate = tickRandom;
+
 		end
 	end
 

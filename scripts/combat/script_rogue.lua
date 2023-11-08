@@ -928,7 +928,7 @@ function script_rogue:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(1500, 2621);
+		local tickRandom = random(798, 2321);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
