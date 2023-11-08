@@ -20,7 +20,6 @@ script_paladin = {
 	meleeDistance = 3.00,
 	followTargetDistance = 100,
 	useSealOfCrusader = false,
-
 	-- turtle wow
 	crusaderStacks = 3,
 	crusaderStacksMana = 40,
@@ -58,9 +57,6 @@ function script_paladin:setup()
 	self.waitTimer = GetTimeEX();
 
 	self.isSetup = true;
-
-	-- Force setting devotion aura
-	--self.aura = "Devotion Aura";
 
 end
 
@@ -284,13 +280,6 @@ function script_paladin:run(targetGUID)
 				return 0;
 			 end
 
-			-- follow target
-			if (targetObj:IsInLineOfSight() and not IsMoving() and script_grind.lootObj == nil) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					targetObj:FaceTarget();
-				end
-			end
-
 			-- Check move into melee range
 			-- keep doing this return 3 until target is in melee range
 			if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
@@ -314,13 +303,6 @@ function script_paladin:run(targetGUID)
 				end
 			end
 
-			if (targetObj:IsInLineOfSight() and not IsMoving()) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-						targetObj:FaceTarget();
-				end
-			end
-
-
 			-- Check move into melee range
 			-- keep doing this if target is not in melee range
 			if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
@@ -335,14 +317,6 @@ function script_paladin:run(targetGUID)
 				
 		-- Combat WE ARE NOW IN COMBAT
 		else	
-
-		-- paladin wants to move passed target and not stop. due to slow attack speed??  STOP MOVING!
-		if (targetObj:GetDistance() <= self.meleeDistance - 1) and (IsMoving()) and (not targetObj:IsFleeing()) and (targetObj:IsInLineOfSight()) then
-			if (IsMoving()) then
-				StopMoving();
-				targetObj:FaceTarget();
-			end
-		end
 
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 

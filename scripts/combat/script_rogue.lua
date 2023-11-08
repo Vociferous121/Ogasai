@@ -244,7 +244,7 @@ function script_rogue:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(750, 2046);
+		local tickRandom = random(750, 2146);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -399,6 +399,11 @@ function script_rogue:run(targetGUID)
 					DisMount();
 				end
 
+				if (IsInCombat()) and (not IsMoving()) and (targetObj:GetDistance() < 8) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+					end
+				end
 
 				-- Gouge then bandage
 				-- bot won't release target. needs changed above autoattack()
@@ -928,7 +933,7 @@ function script_rogue:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(798, 2321);
+		local tickRandom = random(798, 1921);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -996,5 +1001,10 @@ function script_rogue:rest()
 	end
 	
 	-- Don't need to eat
+
+	if (localHealth < self.eatHealth) and (not IsSpellOnCD("Stealth")) and (not localObj:HasBuff("Stealth")) then
+		CastSpellByName("Stealth");
+		return 0;
+	end
 	return false;
 end
