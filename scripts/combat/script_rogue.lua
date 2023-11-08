@@ -35,6 +35,7 @@ script_rogue = {
 }
 
 function script_rogue:setup()
+
 	-- no more bugs first time we run the bot
 	self.waitTimer = GetTimeEX(); 
 
@@ -187,7 +188,7 @@ function script_rogue:run(targetGUID)
 	if (not self.isSetup) then 
 		script_rogue:setup(); 
 	end
-	
+
 	local localObj = GetLocalPlayer();
 	local localEnergy = localObj:GetEnergy();
 	local localHealth = localObj:GetHealthPercentage();
@@ -242,10 +243,21 @@ function script_rogue:run(targetGUID)
 
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
+
+		local tickRandom = random(750, 2046);
+
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+			script_rotation.tickRate = 135;
+
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom
+			script_rotation.tickRate = tickRandom;
+
+		elseif (IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+			script_rotation.tickRate = tickRandom;
+
 		end
 	end
 
@@ -269,10 +281,6 @@ function script_rogue:run(targetGUID)
 		
 			if (not IsStanding()) then
 				JumpOrAscendStart();
-			end
-		
-			if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= self.followTargetDistance) and (not IsMoving()) then
-				targetObj:FaceTarget();
 			end
 
 			-- Auto Attack
@@ -917,13 +925,26 @@ function script_rogue:rest()
 		end
 	end
 
+	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
+
+		local tickRandom = random(1500, 2621);
+
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+			script_rotation.tickRate = 135;
+
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom
+			script_rotation.tickRate = tickRandom;
+
+		elseif (IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+			script_rotation.tickRate = tickRandom;
+
 		end
 	end
+
 
 	if (localHealth < self.eatHealth) and (not IsInCombat()) then
 		ClearTarget();

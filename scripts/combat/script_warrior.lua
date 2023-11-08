@@ -212,16 +212,24 @@ function script_warrior:run(targetGUID)	-- main content of script
 		return 4;
 	end
 
+	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) or (IsMoving()) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) or (not IsMoving()) then
-			script_grind.tickRate = 750;
-		end
-	end
 
-	if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= self.followTargetDistance) and (not IsMoving()) and (not targetObj:IsDead()) and (targetObj:CanAttack()) and (self.enableFaceTarget) then
-		targetObj:FaceTarget();
+		local tickRandom = random(750, 2046);
+
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+			script_rotation.tickRate = 135;
+
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom
+			script_rotation.tickRate = tickRandom;
+
+		elseif (IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+			script_rotation.tickRate = tickRandom;
+
+		end
 	end
 	
 	--Valid Enemy
@@ -253,19 +261,6 @@ function script_warrior:run(targetGUID)	-- main content of script
 				self.waitTimer = GetTimeEX() + 4750;
 				return 0;
 			end
-		end
-
-		if (targetObj:GetDistance() < self.meleeDistance) and (not targetObj:IsFleeing()) and (IsInCombat()) and (self.enableFaceTarget) then
-			if (IsMoving()) and (not targetObj:IsFleeing()) then
-				StopMoving();
-				targetObj:FaceTarget();
-			end
-		end
-
-		if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= self.followTargetDistance) and (not IsMoving()) and (self.enableFaceTarget) then
-				targetObj:FaceTarget();
-		elseif (IsMoving()) and (self.enableFaceTarget) and (targetObj:GetDistance() < self.meleeDistance + 2) then
-				targetObj:FaceTarget();
 		end
 	
 		targetHealth = targetObj:GetHealthPercentage();
@@ -343,22 +338,6 @@ function script_warrior:run(targetGUID)	-- main content of script
 			if (IsMounted()) then 
 				DisMount();
 			end
-
-			if (self.enableFaceTarget) and (targetObj:GetDistance() < self.meleeDistance) and (not targetObj:IsFleeing()) and (IsInCombat()) then
-				if (IsMoving()) and (not targetObj:IsFleeing()) then
-					StopMoving();
-					targetObj:FaceTarget();
-				end
-			end
-
-			-- if in line of sight then force facing target
-			if (targetObj:IsInLineOfSight()) and (not IsMoving()) and (self.enableFaceTarget) and (targetHealth < 99) and (IsInCombat()) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-					end
-				end
-			end
 	
 			-- Run backwards if we are too close to the target
 			if (targetObj:GetDistance() <= .2) then 
@@ -370,14 +349,6 @@ function script_warrior:run(targetGUID)	-- main content of script
 			-- Check if we are in melee range
 			if (targetObj:GetDistance() >= self.meleeDistance or not targetObj:IsInLineOfSight()) then
 				return 3;
-			end
-
-			if (targetObj:IsInLineOfSight() and not IsMoving() and self.enableFaceTarget and targetHealth <= 99) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-					end
-				end
 			end
 			
 			if (not IsAutoCasting("Attack")) then
@@ -649,14 +620,6 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end 
 			end
 
-			if (targetObj:IsInLineOfSight() and not IsMoving() and self.enableFaceTarget and targetHealth < 99) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-					end
-				end
-			end
-
 	-- Check: If we are in melee range, do melee attacks
 			if (targetObj:GetDistance() <= self.meleeDistance) then
 		
@@ -778,13 +741,6 @@ function script_warrior:run(targetGUID)	-- main content of script
 						end
 					end 
 				end
-
-				-- Always face target
-				if (self.enableFaceTarget) then
-					if (targetHealth <= 99) then
-						targetObj:FaceTarget();
-					end	
-				end
 				
 			end
 			return 0; 
@@ -900,12 +856,23 @@ function script_warrior:rest()
 			JumpOrAscendStart();
 		end
 	end
-
+	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) or (IsMoving()) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) or (not IsMoving()) then
-			script_grind.tickRate = 750;
+
+		local tickRandom = random(750, 2046);
+
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+			script_rotation.tickRate = 135;
+
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom
+			script_rotation.tickRate = tickRandom;
+
+		elseif (IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+			script_rotation.tickRate = tickRandom;
+
 		end
 	end
 

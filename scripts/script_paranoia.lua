@@ -7,7 +7,6 @@ script_paranoia = {
 	sitParanoid = false,		-- sit paranoid true/false
 	paranoidOn = true,		-- paranoid on true/false
 	--paranoidOnTargeted = false,	-- paranoid when targeted on/off
-	useCampfire = true,		-- use bright campfire when paranoid on/off
 	counted = 5,
 }
 
@@ -64,26 +63,6 @@ function script_paranoia:checkParanoia()
 			script_grind.message = "Player(s) within paranoid range, pausing...";
 			if IsMoving() then
 				StopMoving();
-			end
-
-			-- use turtle wow server bright campfire on paranoia
-			if (HasSpell("Bright Campfire")) and (not IsInCombat()) and (self.useCampfire) then
-				if (GetXPExhaustion() == nil) and (not IsInCombat()) and (not localObj:HasBuff("Stealth")) and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:HasBuff("Shadowmeld")) then
-					if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) and (HasItem("Flint and Tinder")) and (not IsSpellOnCD("Bright Campfire")) then
-						if (not IsStanding()) then
-							JumpOrAscendStart();
-						end
-						if (not IsSpellOnCD("Bright Campfire")) then
-							CastSpellByName("Bright Campfire");
-							if (IsStanding()) and (self.sitParanoid) then
-								SitOrStand();
-							end
-							if (localObj:HasBuff("Cozy Fire")) then
-								self.waitTimer = GetTimeEX() + 122167;
-							end
-						end
-					end
-				end
 			end
 
 			-- rogue stealth while paranoid
@@ -152,11 +131,6 @@ function script_paranoia:menu()
 		-- paranoid on targeted button on/off
 		--wasClicked, script_paranoia.paranoidOnTargeted = Checkbox("Paranoid When Targeted By Player", script_paranoia.paranoidOnTargeted);
 
-		-- turtle wow server bright campfire button on/off
-		if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) then
-			wasClicked, script_paranoia.useCampfire = Checkbox("Use Bright Campfire No Rested EXP", script_paranoia.useCampfire);
-		end
-		
 		Separator();
 	
 		Text('Paranoia Range');

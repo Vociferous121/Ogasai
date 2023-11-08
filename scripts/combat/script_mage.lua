@@ -320,11 +320,23 @@ function script_mage:run(targetGUID)
 		return 4;
 	end
 
+	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 500;
+
+		local tickRandom = random(1712, 2646);
+
+		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
+			script_grind.tickRate = 135;
+			script_rotation.tickRate = 135;
+
+		elseif (not IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
+			script_grind.tickRate = tickRandom
+			script_rotation.tickRate = tickRandom;
+
+		elseif (IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
+			script_grind.tickRate = tickRandom;
+			script_rotation.tickRate = tickRandom;
+
 		end
 	end
 
@@ -364,7 +376,10 @@ function script_mage:run(targetGUID)
 		targetHealth = targetObj:GetHealthPercentage();
 
 		-- Auto Attack
-		if (targetObj:GetDistance() < 40) then
+		if (targetObj:GetDistance() < 40) and (not IsMoving()) then
+			targetObj:AutoAttack();
+		-- stops spamming auto attacking while moving to target
+		elseif (targetObj:GetDistance() < 5) then
 			targetObj:AutoAttack();
 		end
 
@@ -968,13 +983,26 @@ function script_mage:rest()
 		script_mage:setup();
 	end
 
+	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.rangeDistance) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 500;
+
+		local tickRandom = random(1788, 2461);
+
+		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
+			script_grind.tickRate = 135;
+			script_rotation.tickRate = 135;
+
+		elseif (not IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
+			script_grind.tickRate = tickRandom
+			script_rotation.tickRate = tickRandom;
+
+		elseif (IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
+			script_grind.tickRate = tickRandom;
+			script_rotation.tickRate = tickRandom;
+
 		end
 	end
+
 
 	local localObj = GetLocalPlayer();
 	local localMana = localObj:GetManaPercentage();
