@@ -373,7 +373,7 @@ function script_priest:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(500, 1000);
+		local tickRandom = math.random(500, 1000);
 
 		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
 			script_grind.tickRate = 135;
@@ -426,7 +426,10 @@ function script_priest:run(targetGUID)
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 			
 			-- Opener check range of ALL SPELLS
-			if (targetObj:GetDistance() > 26) then
+
+			local randomOpener = 24;
+
+			if (targetObj:GetDistance() >= randomOpener) then
 				self.message = "Walking to spell range!";
 				return 3;
 			end
@@ -442,14 +445,14 @@ function script_priest:run(targetGUID)
 			end
 
 			-- Berserking Troll Racial
-			if (HasSpell("Berserking")) and (not IsSpellOnCD("Berserking")) and (targetObj:GetDistance() < 31) then
-				CastSpellByName("Berserking");
+			if (HasSpell("Berserking")) and (not IsSpellOnCD("Berserking")) and (targetObj:GetDistance() <= randomOpener) then
+				CastSpellByName("Berserking", localObj);
 				self.waitTimer = GetTimeEX() + 900;
 				return 0;
 			end
 
 			-- smite low level wouldn't cast for some reason kept defaulting to auto attack
-			if (GetLocalPlayer():GetLevel() <= 3) and (targetObj:GetDistance() < 30) and (localMana > 10) then
+			if (GetLocalPlayer():GetLevel() <= 3) and (targetObj:GetDistance() < randomOpener) and (localMana > 10) then
 				CastSpellByName("Smite", targetObj);
 			end
 
@@ -489,9 +492,6 @@ function script_priest:run(targetGUID)
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 					return 3; -- target not in line of sight
 				end -- move to target
-				if (IsMoving()) then
-					StopMoving();
-				end
 				if (Cast("Mind Blast", targetObj)) then	
 					targetObj:FaceTarget();
 					self.waitTimer = GetTimeEX() + 750;
@@ -526,10 +526,8 @@ function script_priest:run(targetGUID)
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 					return 3; -- target not in line of sight
 				end -- move to target
-				if (IsMoving()) then
-					StopMoving();
-				end
-				if (not IsMoving()) and (Cast("Smite", targetObj)) then
+				if (not IsMoving()) then
+					Cast("Smite", targetObj);
 					targetObj:FaceTarget();
 					self.waitTimer = GetTimeEX() + 750;
 					self.message = "Smite is checked!";
@@ -542,14 +540,11 @@ function script_priest:run(targetGUID)
 					return 0;
 				end
 
-			-- Use Smite if we have it - no wand
+			-- Use Smite if we have it
 			elseif (self.useSmite) and (localMana >= 7) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 					return 3; -- target not in line of sight
 				end -- move to target
-				if (IsMoving()) then
-					StopMoving();
-				end
 				if (Cast("Smite", targetObj)) then
 					targetObj:FaceTarget();
 					self.waitTimer = GetTimeEX() + 750;
@@ -844,7 +839,7 @@ function script_priest:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(1388, 2061);
+		local tickRandom = math.random(1388, 2061);
 
 		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
 			script_grind.tickRate = 135;

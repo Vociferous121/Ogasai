@@ -413,7 +413,7 @@ function script_grind:run()
 			if (self.enemyObj ~= nil and self.enemyObj ~= 0) then
 				self.combatError = RunCombatScript(self.enemyObj:GetGUID());
 			end
-			script_grind:setWaitTimer(1500);
+			--script_grind:setWaitTimer(500);
 		end
 
 		if(self.enemyObj ~= nil or IsInCombat()) then
@@ -442,13 +442,13 @@ function script_grind:run()
 				local localObj = GetLocalPlayer();
 
 				if (_x ~= 0 and x ~= 0) and (self.enemyObj:GetDistance() >= 7) then
-					local moveBufferX = math.random(0, 2);
-					local moveBufferY = math.random(-7, 7);
-					self.message = script_nav:moveToTarget(localObj, _x + (moveBufferX), _y + (moveBufferY), _z);
+					local moreRandomBuffer = random(-8, 8)
+					local moveBufferY = math.random(moreRandomBuffer, moreRandomBuffer);
+					self.message = script_nav:moveToTarget(localObj, _x, _y + (moveBufferY), _z);
 					script_grind:setWaitTimer(125);
 
 				elseif (_x ~= 0 and x ~= 0) and (self.enemyObj:GetDistance() < 7) then
-					self.message = script_nav:moveToTarget(localObj, _x - 3, _y + (moveBufferY), _z);
+					self.message = script_nav:moveToTarget(localObj, _x, _y + (moveBufferY), _z);
 					script_grind:setWaitTimer(70);
 
 				end
@@ -473,7 +473,8 @@ function script_grind:run()
 			end
 		end
 
-		script_grind:setWaitTimer(2000);
+		--script_grind:setWaitTimer(1000);
+
 		-- Pre checks before navigating
 		if (IsLooting() or IsCasting() or IsChanneling() or IsDrinking() or IsEating() or IsInCombat()) then
 			return;
@@ -867,7 +868,7 @@ function script_grind:doLoot(localObj)
 			return;
 		else
 			self.lootObj = nil;
-			script_grind:setWaitTimer(1500);
+			script_grind:setWaitTimer(1000);
 			return;
 		end
 
