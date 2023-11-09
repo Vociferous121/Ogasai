@@ -9,7 +9,7 @@ script_rogue = {
 	eatHealth = 55,
 	potionHealth = 5,
 	cpGeneratorCost = 45,
-	meleeDistance = 3.2,
+	meleeDistance = 3.5,
 	stealthRange = 100,
 	waitTimer = 0,
 	vanishHealth = 8,
@@ -244,7 +244,7 @@ function script_rogue:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(750, 2146);
+		local tickRandom = random(400, 900);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -933,7 +933,7 @@ function script_rogue:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(798, 1921);
+		local tickRandom = random(400, 900);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -951,7 +951,7 @@ function script_rogue:rest()
 	end
 
 
-	if (localHealth < self.eatHealth) and (not IsInCombat()) then
+	if (localHealth < self.eatHealth) and (not IsInCombat()) and (not IsMoving()) then
 		ClearTarget();
 	end
 
@@ -1001,10 +1001,5 @@ function script_rogue:rest()
 	end
 	
 	-- Don't need to eat
-
-	if (localHealth < self.eatHealth) and (not IsSpellOnCD("Stealth")) and (not localObj:HasBuff("Stealth")) then
-		CastSpellByName("Stealth");
-		return 0;
-	end
 	return false;
 end

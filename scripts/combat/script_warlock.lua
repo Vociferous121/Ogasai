@@ -313,7 +313,7 @@ function script_warlock:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(1488, 2261);
+		local tickRandom = random(500, 1000);
 
 		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
 			script_grind.tickRate = 135;
@@ -970,7 +970,7 @@ function script_warlock:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(1488, 2261);
+		local tickRandom = random(500, 1000);
 
 		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
 			script_grind.tickRate = 135;

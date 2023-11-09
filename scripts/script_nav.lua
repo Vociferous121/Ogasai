@@ -16,7 +16,7 @@ script_nav = {
 	currentHotSpotZ = 0,
 	currentHotSpotName = 0,
 	hotSpotDist = 0,
-	drawNav = true
+	drawNav = true,
 }
 
 function script_nav:setup()
@@ -364,13 +364,23 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 	local _ix, _iy, _iz = GetPathPositionAtIndex(5, self.lastpathnavIndex);
 			
 	-- If we have a new destination, generate a new path to it
-	if(self.navPathPosition['x'] ~= _x or self.navPathPosition['y'] ~= _y or self.navPathPosition['z'] ~= _z
+	if (not script_grind.gather) then
+		if(self.navPathPosition['x'] ~= _x or self.navPathPosition['y'] ~= _y or self.navPathPosition['z'] ~= _z
 		or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
 		self.navPathPosition['x'] = _x;
 		self.navPathPosition['y'] = _y;
 		self.navPathPosition['z'] = _z;
 		GeneratePath(_lx, _ly, _lz, _x, _y, _z);
 		self.lastpathnavIndex = 1; 
+		end
+		
+	elseif (self.navPathPosition['x'] ~= _x) or (self.navPathPosition['y'] ~= _y) or (self.navPathPosition['z'] ~= _z)
+		or (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
+		self.navPathPosition['x'] = _x;
+		self.navPathPosition['y'] = _y;
+		self.navPathPosition['z'] = _z;
+		GeneratePath(_lx, _ly, _lz, _x, _y, _z);
+		self.lastpathnavIndex = -1; 
 	end	
 
 	if (not IsPathLoaded(5)) then
@@ -419,7 +429,7 @@ function script_nav:resetNavigate() -- navPathPosition used for navigate
 	self.navPathPosition['x'] = 0;
 	self.navPathPosition['y'] = 0;
 	self.navPathPosition['z'] = 0;
-	self.lastPathIndex = -1;
+	self.lastPathIndex = 0;
 end
 
 function script_nav:findClosestPathNode(localObj, currentIndex, pathType, maxHeightLevel)
@@ -469,7 +479,7 @@ function script_nav:navigate(localObj)
 			
 		-- Check: If we reached the end node, start over at node 1
 		if(self.lastPathIndex >= pathSize) then
-			self.lastPathIndex = 0;
+			self.lastPathIndex = -1;
 		end
 			
 		script_nav:moveToNav(localObj, _x, _y, _z);

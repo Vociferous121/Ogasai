@@ -323,7 +323,7 @@ function script_mage:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(1312, 2026);
+		local tickRandom = random(500, 1000);
 
 		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
 			script_grind.tickRate = 135;

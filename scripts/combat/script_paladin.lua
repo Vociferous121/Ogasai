@@ -207,7 +207,7 @@ function script_paladin:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(743, 2522);
+		local tickRandom = random(500, 1000);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -676,7 +676,7 @@ function script_paladin:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(776, 2434);
+		local tickRandom = random(500, 1000);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;

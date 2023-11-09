@@ -195,7 +195,7 @@ function script_hunter:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(750, 2046);
+		local tickRandom = random(500, 1000);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -463,7 +463,7 @@ function script_hunter:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(721, 2446);
+		local tickRandom = random(500, 1000);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
