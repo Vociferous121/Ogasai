@@ -7,9 +7,9 @@ script_rogue = {
 	throwName = "Heavy Throwing Dagger",
 	stealthOpener = "Sinister Strike",
 	eatHealth = 55,
-	potionHealth = 5,
+	potionHealth = 7,
 	cpGeneratorCost = 45,
-	meleeDistance = 3.5,
+	meleeDistance = 3.9,
 	stealthRange = 100,
 	waitTimer = 0,
 	vanishHealth = 8,
@@ -184,7 +184,7 @@ function script_rogue:draw()
 end
 
 function script_rogue:run(targetGUID)
-	
+
 	if (not self.isSetup) then 
 		script_rogue:setup(); 
 	end
@@ -234,30 +234,17 @@ function script_rogue:run(targetGUID)
 	--return;
 	--end
 
-	-- stop moving when reached target if target is not fleeing and target is in line of sight
-	if (targetObj:GetDistance() <= self.meleeDistance) and (IsMoving()) and (not targetObj:IsFleeing()) and (targetObj:IsInLineOfSight()) then
-			if (IsMoving()) then
-				StopMoving();
-			end
-		end
-
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
 		local tickRandom = random(400, 900);
 
-		if (IsMoving()) or (not IsInCombat()) then
+		if (IsMoving()) or (not IsInCombat()) or (targetObj:IsFleeing()) then
 			script_grind.tickRate = 135;
-			script_rotation.tickRate = 135;
-
-		elseif (not IsInCombat()) and (not IsMoving()) then
+		elseif (not IsInCombat()) and (not IsMoving()) and (not targetObj:IsFleeing()) then
 			script_grind.tickRate = tickRandom
-			script_rotation.tickRate = tickRandom;
-
-		elseif (IsInCombat()) and (not IsMoving()) then
+		elseif (IsInCombat()) and (not IsMoving())and (not targetObj:IsFleeing()) then
 			script_grind.tickRate = tickRandom;
-			script_rotation.tickRate = tickRandom;
-
 		end
 	end
 
@@ -287,16 +274,23 @@ function script_rogue:run(targetGUID)
 			if (targetObj:GetDistance() < 40) and (not IsMoving()) then
 				targetObj:AutoAttack();
 			-- stops spamming auto attacking while moving to target
-			elseif (targetObj:GetDistance() < self.meleeDistance) then
+			elseif (targetObj:GetDistance() <= 8) then
 				targetObj:AutoAttack();
 			end
 
 			-- pick pocket
-			if (HasSpell("Pick Pocket")) and (localObj:HasBuff("Stealth")) and (not IsInCombat()) and (targetObj:GetDistance() < 5) then
+			if (HasSpell("Pick Pocket")) and (localObj:HasBuff("Stealth")) and (not IsInCombat()) and (not IsAutoCasting("Attack")) then
 				if (targetObj:GetCreatureType() == 'Humanoid') or (targetObj:GetCreatureType() == 'Undead') then
-					CastSpellByName("Pick Pocket");
-					LootTarget();
-					return 0;
+					if (targetObj:GetDistance() <= 5) and (localObj:HasBuff("Stealth")) then
+						CastSpellByName("Pick Pocket");
+						if (IsLooting()) then
+							LootTarget();
+							return;
+						end
+						return;
+					else
+						return 3;
+					end
 				end
 			end
 
@@ -316,6 +310,10 @@ function script_rogue:run(targetGUID)
 					return 5; 
 				end
 			end 
+
+			if (targetObj:GetDistance() <= self.meleeDistance - 0.25) and (not targetObj:IsFleeing()) and (IsMoving()) then
+				StopMoving();
+			end
 		
 			-- Opener
 			if (not IsInCombat()) then
@@ -323,13 +321,12 @@ function script_rogue:run(targetGUID)
 				self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 
 				if (targetObj:IsInLineOfSight() and not IsMoving()) then
-					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (targetObj:GetDistance() <= 10) and (targetObj:IsInLineOfSight()) then
 						if (not targetObj:FaceTarget()) then
 							targetObj:FaceTarget();
 						end
 					end
 				end
-	
 
 				-- Stealth in range if enabled
 				if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) and (not localObj:HasDebuff("Poison")) then
@@ -338,12 +335,10 @@ function script_rogue:run(targetGUID)
 						return 3;
 					end
 					-- Use sprint (when stealthed for pull)
-					if (HasSpell("Sprint") and not IsSpellOnCD("Sprint")) then
+					if (HasSpell("Sprint")) and (not IsSpellOnCD("Sprint")) and (localObj:HasBuff("Stealth")) then
 						CastSpellByName("Sprint");
 						return 3;
 					end
-				elseif (not self.useStealth and localObj:HasBuff("Stealth")) and (not localObj:HasDebuff("Poison")) then
-					CastSpellByName("Stealth");
 				end
 
 				-- Open with stealth opener
@@ -376,7 +371,7 @@ function script_rogue:run(targetGUID)
 						end
 					end
 				end
-			
+
 				-- Check if we are in melee range
 				if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
 					return 3;
@@ -399,9 +394,16 @@ function script_rogue:run(targetGUID)
 					DisMount();
 				end
 
-				if (IsInCombat()) and (not IsMoving()) and (targetObj:GetDistance() < 8) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
+				-- Check if we are in melee range
+				if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
+					return 3;
+				end
+
+				if (targetObj:IsInLineOfSight() and not IsMoving()) then
+					if (targetObj:GetDistance() <= 10) and (targetObj:IsInLineOfSight()) then
+						if (not targetObj:FaceTarget()) then
+							targetObj:FaceTarget();
+						end
 					end
 				end
 
@@ -429,8 +431,8 @@ function script_rogue:run(targetGUID)
 				local localCP = GetComboPoints("player", "target");
 
 				-- Run backwards if we are too close to the target
-				if (targetObj:GetDistance() < .2) then 
-					if (script_rogue:runBackwards(targetObj,2)) then 
+				if (targetObj:GetDistance() < .5) then 
+					if (script_rogue:runBackwards(targetObj, 4)) then 
 						return 4; 
 					end 
 				end
@@ -937,16 +939,10 @@ function script_rogue:rest()
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
-			script_rotation.tickRate = 135;
-
 		elseif (not IsInCombat()) and (not IsMoving()) then
 			script_grind.tickRate = tickRandom
-			script_rotation.tickRate = tickRandom;
-
 		elseif (IsInCombat()) and (not IsMoving()) then
 			script_grind.tickRate = tickRandom;
-			script_rotation.tickRate = tickRandom;
-
 		end
 	end
 
@@ -967,6 +963,7 @@ function script_rogue:rest()
 
 		if (script_helper:eat()) then 
 			self.message = "Eating..."; 
+			self.waitTimer = GetTimeEX() + 2000;
 			return true; 
 		else 
 			self.message = "No food! (or food not included in script_helper)";
@@ -991,6 +988,7 @@ function script_rogue:rest()
 	-- Continue eating until we are full
 	if(localHealth < 98 and IsEating()) then
 		self.message = "Resting up to full health...";
+		self.waitTimer = GetTimeEX() + 2000;
 		return true;
 	end
 		

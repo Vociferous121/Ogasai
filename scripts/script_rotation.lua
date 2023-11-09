@@ -12,8 +12,6 @@ script_rotation = {
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
 	helperLoaded = include("scripts\\script_helper.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
-	survivalprof = include("scripts\\script_survivalProf.lua"),
-	firstAid = include("scripts\\script_firstAid.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
 	menuLoaded = include("scripts\\script_rotationMenu.lua"),
 	expExtra = include("scripts\\script_expChecker.lua"),
@@ -26,6 +24,7 @@ script_rotation = {
 	showClassOptions = true,
 	meleeDistance = 4,
 	aggroRangeTank = 50,
+	adjustTickRate = false,
 }
 
 function script_rotation:setup()
@@ -81,6 +80,15 @@ function script_rotation:run()
 
 	self.timer = GetTimeEX() + self.tickRate;
 	
+	if (not self.adjustTickRate) then
+			local tickRotationRandom = random(400, 1200);
+		if (not IsInCombat()) then
+			script_rotation.tickRate = 135;
+
+		else
+			script_rotation.tickRate = tickRotationRandom;
+		end
+	end
 
 	if (GetTarget() ~= 0 and GetTarget() ~= nil) then
 		local target = GetTarget();

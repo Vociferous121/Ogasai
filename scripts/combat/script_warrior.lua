@@ -219,16 +219,10 @@ function script_warrior:run(targetGUID)	-- main content of script
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
-			script_rotation.tickRate = 135;
-
 		elseif (not IsInCombat()) and (not IsMoving()) then
 			script_grind.tickRate = tickRandom
-			script_rotation.tickRate = tickRandom;
-
 		elseif (IsInCombat()) and (not IsMoving()) then
 			script_grind.tickRate = tickRandom;
-			script_rotation.tickRate = tickRandom;
-
 		end
 	end
 	
@@ -317,8 +311,14 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end	
 
 			-- Check move into melee range
-			if (targetObj:GetDistance() >= self.meleeDistance or not targetObj:IsInLineOfSight()) then
+			if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
 				return 3;
+			end
+
+			if (targetObj:GetDistance() <= self.meleeDistance + 1) and (not targetObj:IsFleeing()) then
+				if (IsMoving()) then
+					StopMoving();
+				end
 			end
 
 			-- Combat
@@ -333,6 +333,15 @@ function script_warrior:run(targetGUID)	-- main content of script
 				self.waitTimer = GetTimeEX() + 5000;
 			return 0;
 			end
+
+			if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (not targetObj:FaceTarget()) and (not IsMoving()) then
+				targetObj:FaceTarget();
+			end
+
+			-- Check move into melee range
+			if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
+				return 3;
+			end
 			
 			-- Dismount
 			if (IsMounted()) then 
@@ -340,17 +349,12 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 	
 			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() <= .2) then 
+			if (targetObj:GetDistance() <= .6) then 
 				if (script_warrior:runBackwards(targetObj,4)) then 
 					return 4; 
 				end 
 			end
 
-			-- Check if we are in melee range
-			if (targetObj:GetDistance() >= self.meleeDistance or not targetObj:IsInLineOfSight()) then
-				return 3;
-			end
-			
 			if (not IsAutoCasting("Attack")) then
 				targetObj:AutoAttack();
 			end
@@ -555,7 +559,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 	
 			-- War Stomp Tauren Racial
-			if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) and (not IsMoving()) and (targetObj:GetDistance() <= 6) then
+			if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) and (not IsMoving()) and (targetObj:GetDistance() <= 6) and (not targetObj:HasDebuff("Concussive Blow")) then
 				if (targetObj:IsCasting()) or (script_warrior:enemiesAttackingUs(2)) or (targetObj:IsFleeing()) then
 					CastSpellByName("War Stomp");
 					self.waitTimer = GetTimeEX() + 200;
@@ -625,6 +629,11 @@ function script_warrior:run(targetGUID)	-- main content of script
 		
 				if (localObj:IsCasting()) and (not IsAutoCasting("Attack")) then
 					targetObj:AutoAttack();
+				end
+
+				-- Check move into melee range
+				if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
+					return 3;
 				end
 
 				-- shield block
@@ -776,7 +785,7 @@ function script_warrior:rest()
 	end
 
 	-- use battle shout if we have rage but need to rest and heal
-	if (localHealth <= self.eatHealth) and (localRage >= 10) and (not IsEating()) and (IsStanding()) and (not IsInCombat()) then
+	if (localHealth <= self.eatHealth) and (localRage >= 10) and (not IsEating()) and (IsStanding()) and (not IsInCombat()) and (not localObj:HasBuff("Battle Shout")) then
 		CastSpellByName("Battle Shout");
 		self.waitTimer = GetTimeEX() + 1900;
 		return 0;
@@ -863,16 +872,10 @@ function script_warrior:rest()
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
-			script_rotation.tickRate = 135;
-
 		elseif (not IsInCombat()) and (not IsMoving()) then
 			script_grind.tickRate = tickRandom
-			script_rotation.tickRate = tickRandom;
-
 		elseif (IsInCombat()) and (not IsMoving()) then
 			script_grind.tickRate = tickRandom;
-			script_rotation.tickRate = tickRandom;
-
 		end
 	end
 

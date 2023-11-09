@@ -211,16 +211,10 @@ function script_paladin:run(targetGUID)
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
-			script_rotation.tickRate = 135;
-
 		elseif (not IsInCombat()) and (not IsMoving()) then
 			script_grind.tickRate = tickRandom
-			script_rotation.tickRate = tickRandom;
-
 		elseif (IsInCombat()) and (not IsMoving()) then
 			script_grind.tickRate = tickRandom;
-			script_rotation.tickRate = tickRandom;
-
 		end
 	end
 	
@@ -680,16 +674,10 @@ function script_paladin:rest()
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
-			script_rotation.tickRate = 135;
-
 		elseif (not IsInCombat()) and (not IsMoving()) then
 			script_grind.tickRate = tickRandom
-			script_rotation.tickRate = tickRandom;
-
 		elseif (IsInCombat()) and (not IsMoving()) then
 			script_grind.tickRate = tickRandom;
-			script_rotation.tickRate = tickRandom;
-
 		end
 	end
 

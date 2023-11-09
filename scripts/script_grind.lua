@@ -53,14 +53,14 @@ script_grind = {
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
 	paranoiaLoaded = include("scripts\\script_unstuck.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
-	nextToNodeDist = 2.2, -- (Set to about half your nav smoothness)
+	nextToNodeDist = 4.2, -- (Set to about half your nav smoothness)
 	blacklistedTargets = {},
 	blacklistedNum = 0,
 	isSetup = false,
 	drawUnits = true,
 	pathName = "", -- set to e.g. "paths\1-5 Durator.xml" for auto load at startup
 	pathLoaded = "",
-	drawPath = false,
+	drawPath = true,
 	autoPath = true,
 	drawAutoPath = true,
 	distToHotSpot = 325,
@@ -225,13 +225,13 @@ function script_grind:run()
 	if (self.useMount and IsMounted()) then
 		script_nav:setNextToNodeDist(12); NavmeshSmooth(24);
 	else
-		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*4);
+		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*3);
 	end
 
 		localObj = GetLocalPlayer();
 	-- sprint
 	if (localObj:HasBuff("Sprint")) or (localObj:HasBuff("Aspect of the Cheetah")) then
-		script_nav:setNextToNodeDist(6); NavmeshSmooth(18);
+		script_nav:setNextToNodeDist(8); NavmeshSmooth(24);
 	else
 		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*4);
 	end
@@ -402,8 +402,11 @@ function script_grind:run()
 			end
 		end
 
+		script_grind:setWaitTimer(1500);
+
 		-- Finish loot before we engage new targets or navigate
 		if (self.lootObj ~= nil and not IsInCombat()) then
+
 			return; 
 		else
 			-- reset the combat status
@@ -412,6 +415,7 @@ function script_grind:run()
 			if (self.enemyObj ~= nil and self.enemyObj ~= 0) then
 				self.combatError = RunCombatScript(self.enemyObj:GetGUID());
 			end
+			script_grind:setWaitTimer(1500);
 		end
 
 		if(self.enemyObj ~= nil or IsInCombat()) then
@@ -437,9 +441,24 @@ function script_grind:run()
 				end
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
-				if (_x ~= 0 and x ~= 0) then
-					self.message = script_nav:moveToTarget(localObj, _x, _y, _z);
-					script_grind:setWaitTimer(80);
+
+				if (_x ~= 0 and x ~= 0) and (self.enemyObj:GetDistance() > 15) then
+					local moveBufferX = math.random(0, 2);
+					local moveBufferY = math.random(-10, 10);
+					self.message = script_nav:moveToTarget(localObj, _x + (moveBufferX+math.cos(moveBufferX)), _y + (moveBufferY+math.cos(moveBufferY)), _z);
+					script_grind:setWaitTimer(250);
+					self.waitTimer = GetTimeEX() + 500;
+
+				elseif (_x ~= 0 and x ~= 0) and (self.enemyObj:GetManaPercentage() < 1) and (localObj:GetManaPercentage() > 0) then
+					self.message = script_nav:moveToTarget(localObj, _x, _y - 15, _z);
+					script_grind:setWaitTimer(300);
+					self.waitTimer = GetTimeEX() + 500;
+
+				elseif (_x ~= 0 and x ~= 0) then
+					local moveBuffer_Y = random(-7, 7);
+					self.message = script_nav:moveToTarget(localObj, _x, _y+moveBuffer_Y, _z);
+					script_grind:setWaitTimer(70);
+
 				end
 				return;
 			end
@@ -478,7 +497,7 @@ function script_grind:run()
 				return;
 			else
 				self.message = script_nav:moveToSavedLocation(localObj, self.minLevel, self.maxLevel, self.staticHotSpot);
-				script_grind:setWaitTimer(80);
+				script_grind:setWaitTimer(50);
 			end
 		else
 			-- Check: Load/Refresh the walk path
@@ -704,13 +723,16 @@ function script_grind:playersWithinRange(range)
 				if (localObj:GetGUID() ~= currentObj:GetGUID()) then
 					local playerName = currentObj:GetUnitName();
 					if (self.useString) then
-						if (currentObj:GetDistance() < self.paranoidRange) then
+						if (currentObj:GetDistance() < self.paranoidRange) and (not UnitOnTaxi('playerName')) then
 							local playerDistance = currentObj:GetDistance();
 							local playerTime = GetTimeStamp();
 							local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance (yds) "..playerDistance.. " - added to log file for further implementation of paranoia."
 							DEFAULT_CHAT_FRAME:AddMessage(string);
 							ToFile(string);
 							self.useString = false;
+						end
+						if (currentObj:GetDistance() < self.paranoidRange) and (UnitOnTaxi('playerName')) then
+							local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance (yds) "..playerDistance.. " - Flew by on taxi service."
 						end
 					end
 				return true;
@@ -848,15 +870,16 @@ function script_grind:doLoot(localObj)
 			return;
 		end
 		if (not LootTarget()) then
-			self.waitTimer = GetTimeEX() + 950;
+			script_grind:setWaitTimer(1500);
 			return;
 		else
 			self.lootObj = nil;
-			self.waitTimer = GetTimeEX() + 950;
+			script_grind:setWaitTimer(1500);
 			return;
 		end
 
 		-- If we reached the loot object, reset the nav path
+		script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
 		script_nav:resetNavigate();
 		self.waitTimer = GetTimeEX() + 550;
 		
@@ -918,6 +941,7 @@ function script_grind:lootAndSkin()
 	local isLoot = not IsInCombat() and not (self.lootObj == nil);
 	if (isLoot and not AreBagsFull() and not self.bagsFull) and (not IsEating() or not IsDrinking()) then
 		script_grind:doLoot(localObj);
+		
 		return true;
 	elseif ((self.bagsFull or AreBagsFull()) and not hsWhenFull) then
 		self.lootObj = nil;

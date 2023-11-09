@@ -317,16 +317,10 @@ function script_warlock:run(targetGUID)
 
 		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
 			script_grind.tickRate = 135;
-			script_rotation.tickRate = 135;
-
 		elseif (not IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
 			script_grind.tickRate = tickRandom
-			script_rotation.tickRate = tickRandom;
-
 		elseif (IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
 			script_grind.tickRate = tickRandom;
-			script_rotation.tickRate = tickRandom;
-
 		end
 	end
 
@@ -974,16 +968,10 @@ function script_warlock:rest()
 
 		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
 			script_grind.tickRate = 135;
-			script_rotation.tickRate = 135;
-
 		elseif (not IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
 			script_grind.tickRate = tickRandom
-			script_rotation.tickRate = tickRandom;
-
 		elseif (IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
 			script_grind.tickRate = tickRandom;
-			script_rotation.tickRate = tickRandom;
-
 		end
 	end
 

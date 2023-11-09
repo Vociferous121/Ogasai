@@ -98,21 +98,22 @@ function script_grindEX:doChecks()
 					groupMana = groupMana + partyMember:GetManaPercentage();
 					manaUsers = manaUsers + 1;
 				end
-				if (partyMember:GetDistance() > 100 and not IsInCombat()) then
-					if (IsMoving()) then StopMoving(); end
-					script_grind.message = 'Waiting for group members...';
-					ClearTarget();
-					return true;
-				end
 			end
-			if (groupMana/manaUsers < 25 and GetNumPartyMembers() >= 1 and not IsInCombat()) then
-				if (IsMoving()) then
-					StopMoving();
-				end
-				script_grind.message = 'Waiting for group to regen mana (25%+)...';
-				ClearTarget();
-				return true;
-			end
+			--	if (partyMember:GetDistance() > 100 and not IsInCombat()) then
+			--		if (IsMoving()) then StopMoving(); end
+			--		script_grind.message = 'Waiting for group members...';
+			--		ClearTarget();
+			--		return true;
+			--	end
+			--end
+			--if (groupMana/manaUsers < 25 and GetNumPartyMembers() >= 1 and not IsInCombat()) then
+			--	if (IsMoving()) then
+			--		StopMoving();
+			--	end
+			--	script_grind.message = 'Waiting for group to regen mana (25%+)...';
+			--	ClearTarget();
+			--	return true;
+			--end
 		end
 
 		if (localObj:HasBuff("Vanish")) then if (script_nav:runBackwards(1, 30)) then 

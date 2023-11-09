@@ -1,6 +1,6 @@
 script_nav = {
 	useNavMesh = true,
-	nextNavNodeDistance = 2, -- for mobs and loot
+	nextNavNodeDistance = 5, -- for mobs and loot
 	nextPathNodeDistance = 2.7, -- for walking paths
 	lastPathIndex = -1,
 	navPosition = {},
@@ -102,7 +102,9 @@ end
 
 function script_nav:moveToHotspot(localObj)
 	if (self.currentHotSpotName ~= 0) then
-		script_nav:moveToTarget(localObj, self.currentHotSpotX, self.currentHotSpotY, self.currentHotSpotZ); 
+		local moveBuffer_X = math.random(0, 2);
+		local moveBuffer_Y = math.random(-10, 10);
+		script_nav:moveToTarget(localObj, self.currentHotSpotX + (moveBuffer_X+math.cos(moveBuffer_X)), self.currentHotSpotY + (moveBuffer_Y+math.cos(moveBuffer_Y)), self.currentHotSpotZ); 
 		return "Moving to hotspot " .. self.currentHotSpotName .. '...';
 	else
 		return "No hotspot has been loaded...";
