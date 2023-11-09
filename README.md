@@ -1,6 +1,8 @@
  # oGasai Scripts for WoW Classic
  Ogasaism
 
+Causes bans on turtle WoW. There are much better places to play, anyways. I am unsure what is causing the ban but it could be the queries for protected API or never-used API calls or it could be the navigation. The bot is not detected on other servers running the same Warden. You can try BloogBot if you plan to play Twow.
+
 Priest, Warlock, Warrior, Paladin, Rogue, Hunter - working the best
 
 Shaman, Druid - have issues :(
