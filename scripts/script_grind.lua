@@ -441,14 +441,14 @@ function script_grind:run()
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
 
-				if (_x ~= 0 and x ~= 0) and (self.enemyObj:GetDistance() >= 10) then
-					local moveBufferX = math.random(0, 1);
-					local moveBufferY = math.random(-9, 9);
-					self.message = script_nav:moveToTarget(localObj, _x + (moveBufferX+math.cos(moveBufferX)), _y + (math.cos(moveBufferY)), _z);
-					script_grind:setWaitTimer(200);
+				if (_x ~= 0 and x ~= 0) and (self.enemyObj:GetDistance() >= 7) then
+					local moveBufferX = math.random(0, 2);
+					local moveBufferY = math.random(-5, 5);
+					self.message = script_nav:moveToTarget(localObj, _x + (moveBufferX), _y + moveBufferY, _z);
+					script_grind:setWaitTimer(175);
 
 				elseif (_x ~= 0 and x ~= 0) then
-					self.message = script_nav:moveToTarget(localObj, _x, _y, _z);
+					self.message = script_nav:moveToTarget(localObj, _x-3, _y, _z);
 					script_grind:setWaitTimer(70);
 
 				end
@@ -713,7 +713,7 @@ function script_grind:playersWithinRange(range)
 		if (typeObj == 4 and not currentObj:IsDead()) then
 			if (currentObj:GetDistance() < range) then 
 				local localObj = GetLocalPlayer();
-				if (localObj:GetGUID() ~= currentObj:GetGUID()) then
+				if (localObj:GetGUID() ~= currentObj:GetGUID()) and (not UnitOnTaxi('CurrentObj:GetUnitName')) then
 					local playerName = currentObj:GetUnitName();
 					if (self.useString) then
 						if (currentObj:GetDistance() < self.paranoidRange) and (not UnitOnTaxi('playerName')) then
