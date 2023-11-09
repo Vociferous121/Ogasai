@@ -52,6 +52,8 @@ function script_rogue:setup()
 	--set backstab as opener
 	if (GetLocalPlayer():GetLevel() < 10) then
 		self.stealthOpener = "Backstab";
+	elseif (HasSpell("Garrote")) and (GetLocalPlayer():GetLevel() >= 10) then
+		self.stealthOpener = "Garrote";
 	end
 
 	-- Set the energy cost for the CP builder ability (does not recognize talent e.g. imp. sinister strike)
@@ -310,10 +312,6 @@ function script_rogue:run(targetGUID)
 					return 5; 
 				end
 			end 
-
-			if (targetObj:GetDistance() <= self.meleeDistance - 0.25) and (not targetObj:IsFleeing()) and (IsMoving()) then
-				StopMoving();
-			end
 		
 			-- Opener
 			if (not IsInCombat()) then
@@ -449,6 +447,11 @@ function script_rogue:run(targetGUID)
 						end
 					end
 				end		
+				
+				if (GetNumPartyMembers() > 1) and (HasSpell("Feint")) and (script_grind:isTargetingMe(targetObj)) and (not IsSpellOnCD("Feint")) and (localEnergy >= 20) then
+						CastSpellByName("Feint", targetObj);
+						return 0;
+				end
 
 				-- Check: Use Vanish 
 				if (HasSpell('Vanish') and HasItem('Flash Powder') and localHealth < self.vanishHealth and not IsSpellOnCD('Vanish')) then 
@@ -457,7 +460,12 @@ function script_rogue:run(targetGUID)
 					self.waitTimer = GetTimeEX() + 10000;
 					self.targetObj = 0;
 					return 4;
-				end 
+				end
+
+				if (HasSpell("Ghostly Strike")) and (not IsSpellOnCD("Ghostly Strike")) and (localEnergy >= 40) then
+					CastSpellByName("Ghostly Strike", targetObj);
+					return 0;
+				end
 
 				-- Check: Use Healing Potion 
 				if (localHealth <= self.potionHealth) then 
@@ -474,7 +482,7 @@ function script_rogue:run(targetGUID)
 
 				-- Gouge if target casting
 				if (HasSpell("Gouge")) and (not IsSpellOnCD("Gouge")) and (localEnergy >= 45) and (targetObj:IsCasting()) then
-					CastSpellByName("Gouge");
+					CastSpellByName("Gouge", targetObj);
 					return 0;
 				end
 
@@ -791,10 +799,6 @@ function script_rogue:run(targetGUID)
 					-- Check if we are in melee range
 					if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
 						return 3;
-					else
-						if (IsMoving()) then
-							StopMoving();
-						end
 					end
 
 					if (self.enableFaceTarget and not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
@@ -949,6 +953,11 @@ function script_rogue:rest()
 
 	if (localHealth < self.eatHealth) and (not IsInCombat()) and (not IsMoving()) then
 		ClearTarget();
+	end
+
+	if (HasSpell("Cold Blood")) and (not IsSpellOnCD("Cold Blood")) and (not localObj:HasBuff("Cold Blood")) then
+		CastSpellByName("Cold Blood");
+		return 0;
 	end
 
 	-- Eat something

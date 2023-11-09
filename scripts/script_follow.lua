@@ -420,7 +420,7 @@ function script_follow:run()
 
 		-- Follow our master
 		if (script_follow:GetPartyLeaderObject() ~= 0) then
-			if(script_follow:GetPartyLeaderObject():GetDistance() > self.followLeaderDistance and not script_follow:GetPartyLeaderObject():IsDead()) then
+			if(script_follow:GetPartyLeaderObject():GetDistance() > self.followLeaderDistance and not script_follow:GetPartyLeaderObject():IsDead()) and (not localObj:IsDead()) then
 				local x, y, z = script_follow:GetPartyLeaderObject():GetPosition();
 				self.message = "Following Party Leader...";
 				script_nav:moveToTarget(GetLocalPlayer(), x, y, z);

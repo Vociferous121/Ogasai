@@ -53,7 +53,7 @@ script_grind = {
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
 	paranoiaLoaded = include("scripts\\script_unstuck.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
-	nextToNodeDist = 4.2, -- (Set to about half your nav smoothness)
+	nextToNodeDist = 5, -- (Set to about half your nav smoothness)
 	blacklistedTargets = {},
 	blacklistedNum = 0,
 	isSetup = false,
@@ -402,8 +402,6 @@ function script_grind:run()
 			end
 		end
 
-		script_grind:setWaitTimer(1500);
-
 		-- Finish loot before we engage new targets or navigate
 		if (self.lootObj ~= nil and not IsInCombat()) then
 
@@ -439,24 +437,18 @@ function script_grind:run()
 				self.message = "Moving to target...";
 				if (self.enemyObj:GetDistance() < self.disMountRange) then
 				end
+
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
 
-				if (_x ~= 0 and x ~= 0) and (self.enemyObj:GetDistance() > 15) then
-					local moveBufferX = math.random(0, 2);
-					local moveBufferY = math.random(-10, 10);
-					self.message = script_nav:moveToTarget(localObj, _x + (moveBufferX+math.cos(moveBufferX)), _y + (moveBufferY+math.cos(moveBufferY)), _z);
-					script_grind:setWaitTimer(250);
-					self.waitTimer = GetTimeEX() + 500;
-
-				elseif (_x ~= 0 and x ~= 0) and (self.enemyObj:GetManaPercentage() < 1) and (localObj:GetManaPercentage() > 0) then
-					self.message = script_nav:moveToTarget(localObj, _x, _y - 15, _z);
-					script_grind:setWaitTimer(300);
-					self.waitTimer = GetTimeEX() + 500;
+				if (_x ~= 0 and x ~= 0) and (self.enemyObj:GetDistance() >= 10) then
+					local moveBufferX = math.random(0, 1);
+					local moveBufferY = math.random(-9, 9);
+					self.message = script_nav:moveToTarget(localObj, _x + (moveBufferX+math.cos(moveBufferX)), _y + (math.cos(moveBufferY)), _z);
+					script_grind:setWaitTimer(200);
 
 				elseif (_x ~= 0 and x ~= 0) then
-					local moveBuffer_Y = random(-7, 7);
-					self.message = script_nav:moveToTarget(localObj, _x, _y+moveBuffer_Y, _z);
+					self.message = script_nav:moveToTarget(localObj, _x, _y, _z);
 					script_grind:setWaitTimer(70);
 
 				end
@@ -481,6 +473,7 @@ function script_grind:run()
 			end
 		end
 
+		script_grind:setWaitTimer(2000);
 		-- Pre checks before navigating
 		if (IsLooting() or IsCasting() or IsChanneling() or IsDrinking() or IsEating() or IsInCombat()) then
 			return;

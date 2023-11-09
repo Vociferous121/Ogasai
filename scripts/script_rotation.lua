@@ -82,10 +82,10 @@ function script_rotation:run()
 	
 	if (not self.adjustTickRate) then
 			local tickRotationRandom = random(400, 1200);
-		if (not IsInCombat()) then
+		if (not GetLocalPlayer():GetUnitsTarget() == 0) or (IsMoving()) then
 			script_rotation.tickRate = 135;
 
-		else
+		elseif (not IsMoving()) and (IsInCombat()) then
 			script_rotation.tickRate = tickRotationRandom;
 		end
 	end

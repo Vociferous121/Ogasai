@@ -349,8 +349,8 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 	
 			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() <= .6) then 
-				if (script_warrior:runBackwards(targetObj,4)) then 
+			if (targetObj:GetDistance() <= .4) then 
+				if (script_warrior:runBackwards(targetObj,3)) then 
 					return 4; 
 				end 
 			end
