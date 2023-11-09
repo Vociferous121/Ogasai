@@ -270,6 +270,11 @@ function script_priest:setup()
 	if (GetNumPartyMembers() > 1) then
 		self.useScream = false;
 	end
+
+	if (not HasSpell("Mind Blast")) then
+		self.useSmite = true;
+		self.useWandHealth = 65;
+	end
 end
 
 function script_priest:draw()
@@ -305,9 +310,10 @@ function script_priest:run(targetGUID)
 	local localLevel = localObj:GetLevel(); -- get player level wow API
 	
 	-- if no wand equipped then force using smite
-	if (not localObj:HasRangedWeapon()) or (localLevel < 10) then
-		self.useSmite = true;
+	if (not localObj:HasRangedWeapon()) then
 		self.useWand = false;
+	elseif (localObj:HasRangedWeapon()) then
+		self.useWand = true;
 	end
 
 	-- if target is dead then don't attack
@@ -393,20 +399,13 @@ function script_priest:run(targetGUID)
 		end
 
 		-- Don't attack if we should rest first
-		if (GetNumPartyMembers() < 1) and ((localHealth < self.eatHealth or localMana < self.drinkMana) and not script_grind:isTargetingMe(targetObj)
-				and not targetObj:IsFleeing() and not targetObj:IsStunned() and not script_mage:isAddPolymorphed()) then
+		if (GetNumPartyMembers() < 1) and ((localHealth < self.eatHealth or localMana < self.drinkMana) and not script_grind:isTargetingMe(targetObj) and not targetObj:IsFleeing() and not targetObj:IsStunned()) then
 				self.message = "Need rest...";
 				return 4;
 		end
 
 		-- set target health
 		targetHealth = targetObj:GetHealthPercentage();
-
-		-- smite low level wouldn't cast for some reason kept defaulting to auto attack
-		if (GetLocalPlayer():GetLevel() <= 3) and (targetObj:GetDistance() < 30) and (localMana > 10) then
-			CastSpellByName("Smite", targetObj);
-		end
-
 
 		-- Auto Attack
 		if (targetObj:GetDistance() <= 40) then
@@ -427,28 +426,15 @@ function script_priest:run(targetGUID)
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 			
 			-- Opener check range of ALL SPELLS
-			if (targetObj:GetDistance() > 30) then
+			if (targetObj:GetDistance() > 26) then
 				self.message = "Walking to spell range!";
 				return 3;
-			end
-
-			if (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= 25) then
-				if (IsMoving()) then
-					StopMoving();
-				end
 			end
 
 			-- stand if sitting
 			if (not IsStanding()) then
 				JumpOrAscendStart();
 			end
-
-			-- we are in spell range to pull then stop moving
-			--if (targetObj:GetDistance() < 25) and (targetObj:IsInLineOfSight()) then
-				--if (IsMoving()) then
-				--	StopMoving();
-				--end
-			--end
 
 			-- Dismount
 			if (IsMounted()) then
@@ -460,6 +446,11 @@ function script_priest:run(targetGUID)
 				CastSpellByName("Berserking");
 				self.waitTimer = GetTimeEX() + 900;
 				return 0;
+			end
+
+			-- smite low level wouldn't cast for some reason kept defaulting to auto attack
+			if (GetLocalPlayer():GetLevel() <= 3) and (targetObj:GetDistance() < 30) and (localMana > 10) then
+				CastSpellByName("Smite", targetObj);
 			end
 
 			-- No Mind Blast but wand ? fixed!
@@ -538,7 +529,7 @@ function script_priest:run(targetGUID)
 				if (IsMoving()) then
 					StopMoving();
 				end
-				if (Cast("Smite", targetObj)) then
+				if (not IsMoving()) and (Cast("Smite", targetObj)) then
 					targetObj:FaceTarget();
 					self.waitTimer = GetTimeEX() + 750;
 					self.message = "Smite is checked!";
@@ -552,7 +543,7 @@ function script_priest:run(targetGUID)
 				end
 
 			-- Use Smite if we have it - no wand
-			elseif (self.useSmite) and (localMana >= 7) and (not self.useWand) then
+			elseif (self.useSmite) and (localMana >= 7) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 					return 3; -- target not in line of sight
 				end -- move to target
@@ -712,7 +703,15 @@ function script_priest:run(targetGUID)
 			end
 
 			-- Cast: Smite (last choice e.g. at level 1)
-			if (self.useSmite) and (localMana >= 7) then
+			if (self.useSmite) and (self.useWand) and (targetHealth >= self.useWandHealth) and (localMana >= 7) then
+				if (not targetObj:IsInLineOfSight()) then -- check line of sight
+					return 3; -- target not in line of sight
+				end -- move to target
+				if (Cast("Smite", targetObj)) then 
+					self.waitTimer = GetTimeEX() + 750;
+					return 0; -- keep trying until cast
+				end
+			elseif (self.useSmite) and (not localObj:HasRangedWeapon()) and (localMana >=7) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 					return 3; -- target not in line of sight
 				end -- move to target

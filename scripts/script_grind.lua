@@ -443,12 +443,12 @@ function script_grind:run()
 
 				if (_x ~= 0 and x ~= 0) and (self.enemyObj:GetDistance() >= 7) then
 					local moveBufferX = math.random(0, 2);
-					local moveBufferY = math.random(-5, 5);
-					self.message = script_nav:moveToTarget(localObj, _x + (moveBufferX), _y + moveBufferY, _z);
-					script_grind:setWaitTimer(175);
+					local moveBufferY = math.random(-7, 7);
+					self.message = script_nav:moveToTarget(localObj, _x + (moveBufferX), _y + (moveBufferY), _z);
+					script_grind:setWaitTimer(125);
 
-				elseif (_x ~= 0 and x ~= 0) then
-					self.message = script_nav:moveToTarget(localObj, _x-3, _y, _z);
+				elseif (_x ~= 0 and x ~= 0) and (self.enemyObj:GetDistance() < 7) then
+					self.message = script_nav:moveToTarget(localObj, _x - 3, _y + (moveBufferY), _z);
 					script_grind:setWaitTimer(70);
 
 				end
