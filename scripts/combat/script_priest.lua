@@ -147,7 +147,11 @@ function script_priest:healAndBuff(localObj, localMana)
 			-- !! must be placed here to stop wand casting !!
 	if (HasSpell("Mind Blast")) and (not IsSpellOnCD("Mind Blast")) and (IsInCombat()) then
 		if (targetHealth >= 20) and (localMana >= self.mindBlastMana) then
+			if (not targetObj:FaceTarget()) then
+				targetObj:FaceTarget();
+			end
 			CastSpellByName("Mind Blast", targetObj);
+			targetObj:FaceTarget();
 			self.waitTimer = GetTimeEX() + 750;
 			return 0;
 		end
@@ -427,6 +431,15 @@ function script_priest:run(targetGUID)
 			
 			-- Opener check range of ALL SPELLS
 
+			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+				if (targetObj:GetDistance() <= 27) and (targetObj:IsInLineOfSight()) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+					end
+				end
+			end
+
+
 			local randomOpener = 24;
 
 			if (targetObj:GetDistance() >= randomOpener) then
@@ -574,6 +587,14 @@ function script_priest:run(targetGUID)
 			-- Dismount
 			if (IsMounted()) then DisMount(); end
 
+			if (targetObj:IsInLineOfSight() and not IsMoving()) then
+				if (targetObj:GetDistance() <= 32) and (targetObj:IsInLineOfSight()) and (script_grind:isTargetingMe(targetObj)) then
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+					end
+				end
+			end
+
 			-- check heals and buffs
 			if (script_priest:healAndBuff(localObj, localMana)) then
 				return;
@@ -619,6 +640,7 @@ function script_priest:run(targetGUID)
 			if (HasSpell("Mind Blast")) and (not IsSpellOnCD("Mind Blast")) then
 				if (targetHealth >= 20) and (localMana >= self.mindBlastMana) then
 					CastSpellByName("Mind Blast", targetObj);
+					targetObj:FaceTarget();
 					self.waitTimer = GetTimeEX() + 750;
 					return;
 				end
@@ -766,6 +788,7 @@ function script_priest:run(targetGUID)
 					if (HasSpell("Mind Blast")) and (not IsSpellOnCD("Mind Blast")) then
 						if (targetHealth >= 20) and (localMana >= self.mindBlastMana) then
 							CastSpellByName("Mind Blast", targetObj);
+							targetObj:FaceTarget();
 							self.waitTimer = GetTimeEX() + 750;
 							return;
 						end
@@ -785,6 +808,7 @@ function script_priest:run(targetGUID)
 					if (HasSpell("Mind Blast")) and (not IsSpellOnCD("Mind Blast")) then
 						if (targetHealth >= 20) and (localMana >= self.mindBlastMana) then
 							CastSpellByName("Mind Blast", targetObj);
+							targetObj:FaceTarget();
 							self.waitTimer = GetTimeEX() + 750;
 						end
 					end

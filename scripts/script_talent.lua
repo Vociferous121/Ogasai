@@ -74,9 +74,10 @@ function script_talent:setup()
 			"2;Leader of the Pack"
 		}
 		
-		-- Priest shadow talent points in order 1-31
+		-- Priest talent points in order 1-31
 		self.priestTalents = {
 			"1;Wand Specialization", "1;Wand Specialization", "1;Wand Specialization", "1;Wand Specialization", "1;Wand Specialization", 
+			"3;Spirit Tap", "3;Spirit Tap", "3;Spirit Tap", "3;Spirit Tap", "3;Spirit Tap",
 			"1;Improved Power Word: Shield", "1;Improved Power Word: Shield", "1;Improved Power Word: Shield",
 			"1;Improved Power Word: Fortitude", "1;Improved Power Word: Fortitude", 
 			"1;Inner Focus",

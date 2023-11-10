@@ -335,6 +335,7 @@ function script_hunter:run(targetGUID)
 					script_grind.tickRate = 100;
 					if (script_hunter:runBackwards(targetObj, 15)) then
 						PetAttack();
+						targetObj:FaceTarget();
 						self.message = "Moving away from target for range attacks...";
 						return 4;
 					end
@@ -822,7 +823,7 @@ function script_hunter:doInCombatRoutine(targetObj, localMana)
 
 	-- Check: If pet is too far away set it to follow us, else attack
 	if (self.hasPet and GetPet() ~= 0) then
-		if (pet:GetDistance() > 34) then 
+		if (pet:GetDistance() > 30) then 
 			PetFollow(); 
 		else 
 			if (pet:GetUnitsTarget() ~= nil and pet:GetUnitsTarget() ~= 0) then
