@@ -444,9 +444,9 @@ function script_grind:run()
 				local localObj = GetLocalPlayer();
 
 				if (_x ~= 0 and x ~= 0) then
-					local moveBufferY = math.random(-4, 4);
+					local moveBufferY = math.random(-3, 3);
 					self.message = script_nav:moveToTarget(localObj, _x, _y+moveBufferY, _z);
-					script_grind:setWaitTimer(60);
+					script_grind:setWaitTimer(200);
 				end
 				return;
 			end
@@ -711,9 +711,9 @@ function script_grind:playersWithinRange(range)
 			if (currentObj:GetDistance() < range) then 
 				local localObj = GetLocalPlayer();
 				if (localObj:GetGUID() ~= currentObj:GetGUID()) then
-					local playerName = currentObj:GetUnitName();
 					if (self.useString) then
-						if (currentObj:GetDistance() < self.paranoidRange) then
+						if (currentObj:GetDistance() < self.paranoidRange) and (typeObj == 4) then
+							local playerName = currentObj:GetUnitName();
 							local playerDistance = currentObj:GetDistance();
 							local playerTime = GetTimeStamp();
 							local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance (yds) "..playerDistance.. " - added to log file for further implementation of paranoia."

@@ -37,10 +37,17 @@ function script_priest:healAndBuff(localObj, localMana)
 		local targetHealth = targetObj:GetHealthPercentage();
 	end
 	local localHealth = GetLocalPlayer():GetHealthPercentage();
+
 	local localObj = GetLocalPlayer();
 
 	-- get self player level
 	local localLevel = GetLocalPlayer():GetLevel();
+
+	if (IsAutoCasting("Shoot")) then
+		local _xX, _yY, _zZ = localObj:GetPosition();
+		self.message = script_nav:moveToTarget(localObj, _xX+.1, _yY+.1, _zZ);
+		self.waitTimer = GetTimeEX() + 1500;
+	end
 
 	--Buff Inner Fire
 	if (not IsInCombat()) and (not localObj:HasBuff("Inner Fire")) and (HasSpell("Inner Fire")) and (localMana >= 8) then
@@ -72,7 +79,7 @@ function script_priest:healAndBuff(localObj, localMana)
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 12) and (localHealth <= self.renewHP) and (not localObj:HasBuff("Renew")) and (HasSpell("Renew")) then
 			if (Buff("Renew", localObj)) then
-				self.waitTimer = GetTimeEX() + 1500;
+				self.waitTimer = GetTimeEX() + 1700;
 				return 0; -- if buffed 
 			end
 		end
@@ -81,7 +88,6 @@ function script_priest:healAndBuff(localObj, localMana)
 	-- Cast Shield Power Word: Shield
 	if (localMana >= 10) and (localHealth <= self.shieldHP) and (not localObj:HasDebuff("Weakened Soul")) and (IsInCombat()) and (HasSpell("Power Word: Shield")) then
 		if (Buff("Power Word: Shield", localObj)) then 
-			-- targetObj:FaceTarget();
 			self.waitTimer = GetTimeEX() + 1500;
 			return 0;  -- if buffed 
 		end
@@ -111,7 +117,7 @@ function script_priest:healAndBuff(localObj, localMana)
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 8) and (localHealth <= self.flashHealHP) then
 			if (CastHeal("Flash Heal", localObj)) then
-				self.waitTimer = GetTimeEX() + 1500;
+				self.waitTimer = GetTimeEX() + 1700;
 				return 0;	-- if cast 
 			end
 		end
@@ -122,7 +128,7 @@ function script_priest:healAndBuff(localObj, localMana)
 		if (localLevel < 20) then	-- don't use this when we get flash heal ELSE very low mana
 			if (localMana >= 10) and (localHealth <= self.lesserHealHP) then
 				if (CastHeal("Lesser Heal", localObj)) then
-					self.waitTimer = GetTimeEX() + 1500;
+					self.waitTimer = GetTimeEX() + 1700;
 					return 0;	-- if cast return true
 				end
 			end
@@ -131,7 +137,7 @@ function script_priest:healAndBuff(localObj, localMana)
 		elseif (localLevel >= 20) then
 			if (localMana <= 8) and (localHealth <= self.flashHealHP) then
 				if (CastHeal("Lesser Heal", localObj)) then
-					self.waitTimer = GetTimeEX() + 1500;
+					self.waitTimer = GetTimeEX() + 1700;
 					return 0;	-- if cast return true
 				end
 			end
@@ -147,9 +153,6 @@ function script_priest:healAndBuff(localObj, localMana)
 			-- !! must be placed here to stop wand casting !!
 	if (HasSpell("Mind Blast")) and (not IsSpellOnCD("Mind Blast")) and (IsInCombat()) then
 		if (targetHealth >= 20) and (localMana >= self.mindBlastMana) then
-			if (not targetObj:FaceTarget()) then
-				targetObj:FaceTarget();
-			end
 			CastSpellByName("Mind Blast", targetObj);
 			targetObj:FaceTarget();
 			self.waitTimer = GetTimeEX() + 750;
@@ -427,21 +430,6 @@ function script_priest:run(targetGUID)
 		-- Opener - not in combat pulling target
 		if (not IsInCombat()) then
 
-			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
-			
-			-- Opener check range of ALL SPELLS
-			if (targetObj:GetDistance() > 26) or (not targetObj:IsInLineOfSight()) then
-				return 3;
-			end
-
-
-			local randomOpener = 29;
-
-			if (targetObj:GetDistance() >= randomOpener) then
-				self.message = "Walking to spell range!";
-				return 3;
-			end
-
 			-- stand if sitting
 			if (not IsStanding()) then
 				JumpOrAscendStart();
@@ -452,10 +440,31 @@ function script_priest:run(targetGUID)
 				DisMount();
 			end
 
+			local randomOpener = 26;
+
+			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
+			
+			-- Opener check range of ALL SPELLS
+			if (targetObj:GetDistance() > randomOpener) or (not targetObj:IsInLineOfSight()) then
+				self.message = "Walking to spell range!";
+				return 3;
+			end
+				if (IsMoving()) then
+					StopMoving();
+					targetObj:FaceTarget();
+				end
+
+			if (HasSpell("Mind Blast")) and (not IsSpellOnCD("Mind Blast")) and (not IsMoving()) then
+				if (not HasSpell("Vampiric Embrace")) or (not HasSpell("Devouring Plague")) then
+					CastSpellByName("Mind Blast");
+					targetObj:FaceTarget();
+					return 0;
+				end
+			end
+
 			-- Berserking Troll Racial
 			if (HasSpell("Berserking")) and (not IsSpellOnCD("Berserking")) and (targetObj:GetDistance() <= randomOpener) then
-				CastSpellByName("Berserking", localObj);
-				self.waitTimer = GetTimeEX() + 900;
+				CastSpellByName("Berserking");
 				return 0;
 			end
 
@@ -575,6 +584,7 @@ function script_priest:run(targetGUID)
 		-- IN COMBAT
 
 		-- Combat
+
 		else	
 
 			self.message = "Killing.. " .. targetObj:GetUnitName() .. "...";
@@ -584,9 +594,7 @@ function script_priest:run(targetGUID)
 
 			if (targetObj:IsInLineOfSight() and not IsMoving()) then
 				if (targetObj:GetDistance() <= 32) and (targetObj:IsInLineOfSight()) and (script_grind:isTargetingMe(targetObj)) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-					end
+					targetObj:FaceTarget();
 				end
 			end
 
@@ -628,6 +636,16 @@ function script_priest:run(targetGUID)
 					CastSpellByName("Psychic Scream");
 					self.message = 'Adds close, use Psychic Scream...';
 					return 0; -- keep trying until cast
+				end
+			end
+
+			--hex of weakness troll
+			local hexRandom = random(0, 100);
+			if (HasSpell("Hex of Weakness")) and  (hexRandom >= 90) then
+				if (not targetObj:HasDebuff("Hex of Weakness")) and (localMana >= 25) then
+					CastSpellByName("Hex of Weakness");
+					self.waitTimer = GetTimeEX() + 1500;
+					return 0;
 				end
 			end
 
@@ -810,7 +828,6 @@ function script_priest:run(targetGUID)
 
 					if (not IsAutoCasting("Shoot")) and (self.useWand) then
 						self.message = "Using wand...";
-						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
 						--self.waitTimer = GetTimeEX() + 250; 
 					end
@@ -878,6 +895,7 @@ function script_priest:rest()
 	-- Stop moving before we can rest
 	if (localHealth <= self.eatHealth) or (localMana <= self.drinkMana) then
 		if (IsMoving()) then
+			self.waitTimer = GetTimeEX() + 1000;
 			StopMoving();
 			return true;
 		end
@@ -899,17 +917,14 @@ function script_priest:rest()
 	--	end
 	--end 
 
-	-- Stop moving before we can rest
-	if(localHealth < self.eatHealth or localMana < self.drinkMana) then
-		if (IsMoving()) then
-			StopMoving();
-			return true;
-		end
-	end
-
 	-- Eat and Drink
-	if (not IsDrinking() and localMana < self.drinkMana) then
+	if (not IsDrinking() and localMana < self.drinkMana) and (not localObj:HasBuff("Spirit Tap")) then
+
+		ClearTarget();
+
 		self.message = "Need to drink...";
+		self.waitTimer = GetTimeEX() + 2200;
+
 		-- Dismount
 		if(IsMounted()) then 
 			DisMount(); 
@@ -922,6 +937,7 @@ function script_priest:rest()
 
 		if (script_helper:drinkWater()) then 
 			self.message = "Drinking..."; 
+			self.waitTimer = GetTimeEX() + 1200;
 			return true; 
 		else 
 			self.message = "No drinks! (or drink not included in script_helper)";
@@ -930,18 +946,23 @@ function script_priest:rest()
 	end
 	if (not IsEating() and localHealth < self.eatHealth) then
 		-- Dismount
-		if(IsMounted()) then DisMount(); end
+		if(IsMounted()) then
+			DisMount();
+		end
 		self.message = "Need to eat...";	
 		if (IsMoving()) then
+			self.waitTimer = GetTimeEX() + 900;
 			StopMoving();
 			return true;
 		end
 		
 		if (script_helper:eat()) then 
 			self.message = "Eating..."; 
+			self.waitTimer = GetTimeEX() + 800;
 			return true; 
 		else 
 			self.message = "No food! (or food not included in script_helper)";
+			self.waitTimer = GetTimeEX() + 600;
 			return true; 
 		end	
 	end
@@ -949,6 +970,7 @@ function script_priest:rest()
 	if(localMana < self.drinkMana or localHealth < self.eatHealth) then
 		if (IsMoving()) then
 			StopMoving();
+			self.waitTimer = GetTimeEX() + 500;
 		end
 		return true;
 	end
