@@ -17,13 +17,9 @@ script_paladin = {
 	potionHealth = 12,
 	potionMana = 20,
 	consecrationMana = 50,
-	meleeDistance = 3.00,
+	meleeDistance = 3.60,
 	followTargetDistance = 100,
 	useSealOfCrusader = false,
-	-- turtle wow
-	crusaderStacks = 3,
-	crusaderStacksMana = 40,
-	crusaderStacksHealth = 35,
 }
 
 function script_paladin:setup()
@@ -231,12 +227,6 @@ function script_paladin:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		if (targetObj:IsInLineOfSight() and not IsMoving() and script_grind.lootObj == nil) then
-			if (targetObj:GetDistance() <= self.followTargetDistance) then
-				targetObj:FaceTarget();
-			end
-		end
-
 		-- paladin wants to move passed target and not stop. due to slow attack speed??  STOP MOVING!
 		if (targetObj:GetDistance() <= self.meleeDistance - 1) and (IsMoving()) and (not targetObj:IsFleeing()) and (targetObj:IsInLineOfSight()) then
 			if (IsMoving()) then
@@ -333,12 +323,6 @@ function script_paladin:run(targetGUID)
 				if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
 					return 3;
 				end
-
-			if (targetObj:IsInLineOfSight() and not IsMoving()) then
-				if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-						targetObj:FaceTarget();
-				end
-			end
 			
 			-- recheck auto attack
 			if (targetObj:GetDistance() <= self.meleeDistance) and (not IsAutoCasting("Attack")) then
@@ -528,7 +512,7 @@ function script_paladin:run(targetGUID)
 
 
 				if (targetObj:IsInLineOfSight() and not IsMoving()) then
-					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
+					if (targetObj:GetDistance() <= 8) and (targetObj:IsInLineOfSight()) then
 						targetObj:FaceTarget();	
 					end
 				end
@@ -542,17 +526,7 @@ function script_paladin:run(targetGUID)
 						end
 					end
 				end
-
-				-- Stack Crusader Strike
-				if (HasSpell("Crusader Strike")) and ((localObj:HasBuff("Seal of Righteousness")) or (localObj:HasBuff("Seal of Command"))) and (targetObj:HasDebuff("Judgement of the Crusader")) then
-					if (targetObj:GetDebuffStacks("Crusader Strike") < self.crusaderStacks) and (targetHealth > self.crusaderStacksHealth) and (localMana > self.crusaderStacksMana) then
-						if (Cast("Crusader Strike", targetObj)) then
-							self.waitTimer = GetTimeEX() + 1750;
-								return 0;
-						end
-					end
-				end
-						
+	
 				-- On low health do seal of light if targetHP > 50 and localMana < 15
 				if (HasSpell("Seal of Light")) and (not localObj:HasBuff("Seal of Light")) and (localMana < 15) then
 					if (targetHealth > 50) or (script_grind:enemiesAttackingUs(5) > 1) then

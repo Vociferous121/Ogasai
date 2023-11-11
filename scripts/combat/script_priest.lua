@@ -28,6 +28,7 @@ script_priest = {
 	swpMana = 15, -- Use shadow word: pain above this mana %
 	followTargetDistance = 100,
 	rangeDistance = 28,
+	openerRange = 25,
 }
 
 function script_priest:healAndBuff(localObj, localMana)
@@ -60,7 +61,7 @@ function script_priest:healAndBuff(localObj, localMana)
 	if (not self.shadowForm) then	-- if not in shadowform
 		if (localMana >= 25) and (not IsInCombat()) and (not localObj:HasBuff("Power Word: Fortitude")) and (HasSpell("Power Word: Fortitude")) then
 			Buff("Power Word: Fortitude", localObj);
-			self.waitTimer = GetTimeEX() + 1500;
+			self.waitTimer = GetTimeEX() + 1550;
 			return 0; -- if buffed 
 		end
 	end
@@ -155,7 +156,7 @@ function script_priest:healAndBuff(localObj, localMana)
 		if (targetHealth >= 20) and (localMana >= self.mindBlastMana) then
 			CastSpellByName("Mind Blast", targetObj);
 			targetObj:FaceTarget();
-			self.waitTimer = GetTimeEX() + 750;
+			self.waitTimer = GetTimeEX() + 1550;
 			return 0;
 		end
 	end
@@ -282,6 +283,10 @@ function script_priest:setup()
 		self.useSmite = true;
 		self.useWandHealth = 65;
 	end
+
+	if (HasSpell("Vampiric Embrace")) then
+		self.openerRange = 30;
+	end
 end
 
 function script_priest:draw()
@@ -382,7 +387,7 @@ function script_priest:run(targetGUID)
 
 		local tickRandom = math.random(500, 1000);
 
-		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
+		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
 		elseif (not IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
 			script_grind.tickRate = tickRandom
@@ -440,36 +445,31 @@ function script_priest:run(targetGUID)
 				DisMount();
 			end
 
-			local randomOpener = 26;
-
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 			
 			-- Opener check range of ALL SPELLS
-			if (targetObj:GetDistance() > randomOpener) or (not targetObj:IsInLineOfSight()) then
+			if (targetObj:GetDistance() > self.openerRange) or (not targetObj:IsInLineOfSight()) then
 				self.message = "Walking to spell range!";
 				return 3;
 			end
-				if (IsMoving()) then
-					StopMoving();
-					targetObj:FaceTarget();
-				end
 
+			-- forces bot to walk closer to enemy and adds some randomness
+			if (targetObj:GetDistance() <= self.openerRange + 3) then
+				self.openerRange = 31;
+			end
+
+			-- casts mind blast quicker
 			if (HasSpell("Mind Blast")) and (not IsSpellOnCD("Mind Blast")) and (not IsMoving()) then
 				if (not HasSpell("Vampiric Embrace")) or (not HasSpell("Devouring Plague")) then
 					CastSpellByName("Mind Blast");
 					targetObj:FaceTarget();
+					self.waitTimer = GetTimeEX() + 1550;
 					return 0;
 				end
 			end
 
-			-- Berserking Troll Racial
-			if (HasSpell("Berserking")) and (not IsSpellOnCD("Berserking")) and (targetObj:GetDistance() <= randomOpener) then
-				CastSpellByName("Berserking");
-				return 0;
-			end
-
 			-- smite low level wouldn't cast for some reason kept defaulting to auto attack
-			if (GetLocalPlayer():GetLevel() <= 3) and (targetObj:GetDistance() < randomOpener) and (localMana > 10) then
+			if (GetLocalPlayer():GetLevel() <= 3) and (targetObj:GetDistance() < self.openerRange) and (localMana > 10) then
 				CastSpellByName("Smite", targetObj);
 			end
 
@@ -511,7 +511,7 @@ function script_priest:run(targetGUID)
 				end -- move to target
 				if (Cast("Mind Blast", targetObj)) then	
 					targetObj:FaceTarget();
-					self.waitTimer = GetTimeEX() + 750;
+					self.waitTimer = GetTimeEX() + 1550;
 					self.message = "Casting Mind Blast!";
 					return 0; -- keep trying until cast
 				end
@@ -598,6 +598,12 @@ function script_priest:run(targetGUID)
 				end
 			end
 
+			-- Berserking Troll Racial
+			if (HasSpell("Berserking")) and (not IsSpellOnCD("Berserking")) and (targetHealth > 30) then
+				CastSpellByName("Berserking");
+				return 0;
+			end
+
 			-- check heals and buffs
 			if (script_priest:healAndBuff(localObj, localMana)) then
 				return;
@@ -619,7 +625,7 @@ function script_priest:run(targetGUID)
 				end 
 			end
 
-			-- Silence if talent obtained
+			-- Silence
 			if (HasSpell("Silence")) and (targetObj:IsCasting()) and (localMana >= 15) and (targetHealth >= 25) then
 				if (not targetObj:IsInLineOfSight()) then -- check line of sight
 					return 3; -- target not in line of sight
@@ -640,11 +646,10 @@ function script_priest:run(targetGUID)
 			end
 
 			--hex of weakness troll
-			local hexRandom = random(0, 100);
-			if (HasSpell("Hex of Weakness")) and  (hexRandom >= 90) then
+			if (HasSpell("Hex of Weakness")) then
 				if (not targetObj:HasDebuff("Hex of Weakness")) and (localMana >= 25) then
 					CastSpellByName("Hex of Weakness");
-					self.waitTimer = GetTimeEX() + 1500;
+					self.waitTimer = GetTimeEX() + 1550;
 					return 0;
 				end
 			end
@@ -654,7 +659,7 @@ function script_priest:run(targetGUID)
 				if (targetHealth >= 20) and (localMana >= self.mindBlastMana) then
 					CastSpellByName("Mind Blast", targetObj);
 					targetObj:FaceTarget();
-					self.waitTimer = GetTimeEX() + 750;
+					self.waitTimer = GetTimeEX() + 1550;
 					return;
 				end
 			
@@ -666,7 +671,7 @@ function script_priest:run(targetGUID)
 					return 3; -- target not in line of sight
 				end -- move to target
 				if (Cast("Shadow Word: Pain", targetObj)) then 
-					self.waitTimer = GetTimeEX() + 750;
+					self.waitTimer = GetTimeEX() + 1550;
 					self.message = "Keeping DoT up!";
 					return; -- keep trying until cast
 				end
@@ -678,7 +683,7 @@ function script_priest:run(targetGUID)
 					return 3; -- target not in line of sight
 				end -- move to target
 				if (Cast("Vampiric Embrace", targetObj)) then	
-					self.waitTimer = GetTimeEX() + 750;
+					self.waitTimer = GetTimeEX() + 1550;
 					self.message = "Casting Vampiric Embrace!";
 					return; -- keep trying until cast
 				end
@@ -687,7 +692,7 @@ function script_priest:run(targetGUID)
 			-- night elf Elune's Grace racial
 			if (IsInCombat()) and (HasSpell("Elune's Grace")) and (not IsSpellOnCD("Elune's Grace")) and (not localObj:HasBuff("Elune's Grace")) and (localHealth < 75) then
 				if (Buff("Elune's Grace", localObj)) then
-					self.waitTimer = GetTimeEX() + 1500;
+					self.waitTimer = GetTimeEX() + 1550;
 					return true;
 				end
 			end
@@ -695,13 +700,13 @@ function script_priest:run(targetGUID)
 			-- Check: Keep Inner Fire up
 			if (not IsInCombat()) and (not localObj:HasBuff("Inner Fire")) and (HasSpell("Inner Fire")) and (localMana >= 25) then
 				Buff("Inner Fire", localObj);
-				self.waitTimer = GetTimeEX() + 1250;
+				self.waitTimer = GetTimeEX() + 1550;
 				return; -- keep trying until cast
 				-- check inner fire in combat
 			elseif (IsInCombat()) and (not localObj:HasBuff("Inner Fire")) and (HasSpell("Inner Fire")) and (localMana >= 8) then
 				if (localObj:HasBuff("Power Word: Shield")) then
 					Buff("Inner Fire", localObj);
-					self.waitTimer = GetTimeEX() + 750;
+					self.waitTimer = GetTimeEX() + 1550;
 					return; -- keep trying until cast
 				end
 			end
@@ -711,7 +716,7 @@ function script_priest:run(targetGUID)
 				if (not IsSpellOnCD("Inner Focus")) then
 					if (GetLocalPlayer():GetManaPercentage() <= 20) and (GetLocalPlayer():GetHealthPercentage() <= 20) then
 						if (Buff("Inner Focus")) then
-							self.waitTimer = GetTimeEX() + 1500;
+							self.waitTimer = GetTimeEX() + 1550;
 							return; -- keep trying until cast
 						end
 					end
@@ -719,6 +724,7 @@ function script_priest:run(targetGUID)
 				-- cast heal while inner focus active
 			elseif (localObj:HasBuff("Inner Focus")) then
 				if (Cast("Flash Heal", localObj)) then
+					self.waitTimer = GetTimeEX() + 1550;
 					return; -- keep trying until cast
 				end
 			end
@@ -802,7 +808,7 @@ function script_priest:run(targetGUID)
 						if (targetHealth >= 20) and (localMana >= self.mindBlastMana) then
 							CastSpellByName("Mind Blast", targetObj);
 							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 750;
+							self.waitTimer = GetTimeEX() + 1550;
 							return;
 						end
 			
@@ -822,7 +828,7 @@ function script_priest:run(targetGUID)
 						if (targetHealth >= 20) and (localMana >= self.mindBlastMana) then
 							CastSpellByName("Mind Blast", targetObj);
 							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 750;
+							self.waitTimer = GetTimeEX() + 1550;
 						end
 					end
 

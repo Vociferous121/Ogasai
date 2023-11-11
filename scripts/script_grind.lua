@@ -290,7 +290,7 @@ function script_grind:run()
 	
 	-- check paranoia
 		
-	if (not IsInCombat()) then
+	if (not IsInCombat()) and (not IsLooting()) then
 		if (script_paranoia:checkParanoia()) then
 			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 2000;
 			return;
@@ -366,9 +366,10 @@ function script_grind:run()
 		
 		-- Assign the next valid target to be killed within the pull range
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) and self.lootobj == nil then
-			self.waitTimer = GetTimeEX() + 500;
+			self.waitTimer = GetTimeEX() + 800;
 			self.lastTarget = self.enemyObj:GetGUID();
 		end
+
 		self.enemyObj = script_grind:assignTarget();
 
 		if (self.useExpChecker) then
@@ -442,17 +443,19 @@ function script_grind:run()
 
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
-
+				
 				if (_x ~= 0 and x ~= 0) then
-					local moveBufferY = math.random(-3, 3);
+					local moveBufferY = math.random(-2, 2);
 					self.message = script_nav:moveToTarget(localObj, _x, _y+moveBufferY, _z);
-					script_grind:setWaitTimer(200);
+					script_grind:setWaitTimer(225);
 				end
 				return;
 			end
 
 			-- Do nothing, return : combat script return 4
-			if(self.combatError == 4) then return; end
+			if (self.combatError == 4) then
+				return;
+			end
 			
 			-- Target player pet/totem: pause for 5 seconds, combat script should add target to blacklist
 			if(self.combatError == 5) then
@@ -467,6 +470,8 @@ function script_grind:run()
 				StopBot();
 				return;
 			end
+
+			
 		end
 
 		script_grind:setWaitTimer(1500);
