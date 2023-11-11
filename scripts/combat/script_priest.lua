@@ -27,13 +27,13 @@ script_priest = {
 	useMindFlay = false,	-- use mind flay yes/no
 	swpMana = 15, -- Use shadow word: pain above this mana %
 	followTargetDistance = 100,
-	rangeDistance = 30,
+	rangeDistance = 28,
 }
 
 function script_priest:healAndBuff(localObj, localMana)
 
 	-- get target health percentage
-	if (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+	if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (IsInCombat()) then
 		local targetHealth = targetObj:GetHealthPercentage();
 	end
 	local localHealth = GetLocalPlayer():GetHealthPercentage();
@@ -430,17 +430,12 @@ function script_priest:run(targetGUID)
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 			
 			-- Opener check range of ALL SPELLS
-
-			if (targetObj:IsInLineOfSight() and not IsMoving()) then
-				if (targetObj:GetDistance() <= 27) and (targetObj:IsInLineOfSight()) then
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-					end
-				end
+			if (targetObj:GetDistance() > 26) or (not targetObj:IsInLineOfSight()) then
+				return 3;
 			end
 
 
-			local randomOpener = 24;
+			local randomOpener = 29;
 
 			if (targetObj:GetDistance() >= randomOpener) then
 				self.message = "Walking to spell range!";
@@ -904,6 +899,14 @@ function script_priest:rest()
 	--	end
 	--end 
 
+	-- Stop moving before we can rest
+	if(localHealth < self.eatHealth or localMana < self.drinkMana) then
+		if (IsMoving()) then
+			StopMoving();
+			return true;
+		end
+	end
+
 	-- Eat and Drink
 	if (not IsDrinking() and localMana < self.drinkMana) then
 		self.message = "Need to drink...";
@@ -951,7 +954,7 @@ function script_priest:rest()
 	end
 
 	-- night elve stealth while resting
-	if (IsDrinking() or IsEating()) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) then
+	if (IsDrinking() or IsEating()) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) and (HasSpell("Shadowmeld")) then
 		if (CastSpellByName("Shadowmeld")) then
 			return;
 		end
@@ -967,6 +970,7 @@ function script_priest:rest()
 			JumpOrAscendStart();
 		end
 	end
+
 	-- No rest / buff needed
 	return false;
 end

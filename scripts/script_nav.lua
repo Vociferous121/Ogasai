@@ -102,9 +102,8 @@ end
 
 function script_nav:moveToHotspot(localObj)
 	if (self.currentHotSpotName ~= 0) then
-		local moveBuffer_X = math.random(0, 2);
-		local moveBuffer_Y = math.random(-10, 10);
-		script_nav:moveToTarget(localObj, self.currentHotSpotX + (moveBuffer_X+math.cos(moveBuffer_X)), self.currentHotSpotY + (moveBuffer_Y+math.cos(moveBuffer_Y)), self.currentHotSpotZ); 
+		local moveBuffer_Y = math.random(-3, 3);
+		script_nav:moveToTarget(localObj, self.currentHotSpotX, self.currentHotSpotY + (moveBuffer_Y), self.currentHotSpotZ); 
 		return "Moving to hotspot " .. self.currentHotSpotName .. '...';
 	else
 		return "No hotspot has been loaded...";

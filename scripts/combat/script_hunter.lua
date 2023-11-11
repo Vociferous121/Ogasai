@@ -234,6 +234,12 @@ function script_hunter:run(targetGUID)
 			return 3;
 		end
 
+		if (IsInCombat()) and (self.hasPet) then
+			if (GetPet():GetUnitsTarget() ~= 0) and (localObj:GetUnitsTarget() ~= 0) then
+				targetObj:FaceTarget();
+			end
+		end
+
 		-- force stop the bot after combat and waiting for pet to return - hangs in combat phase
 		if (self.hasPet) and (GetNumPartyMembers() > 0) then
 			if (IsInCombat()) and (GetPet():GetUnitsTarget() == 0) and (GetLocalPlayer():GetUnitsTarget() == 0) then
@@ -255,15 +261,6 @@ function script_hunter:run(targetGUID)
 			end
 		end 
 
-		-- new follow target / facetarget
-		if (targetObj:IsInLineOfSight()) and (not IsMoving()) and (not IsInCombat()) then
-			if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-				if (not targetObj:FaceTarget()) then
-					targetObj:FaceTarget();
-				end
-			end
-		end
-
 		if (IsInCombat()) then
 			if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) and (targetObj:GetDistance() < 35) and (targetObj:IsInLineOfSight()) then
 			CastSpellByName("Auto Shot");
@@ -278,14 +275,6 @@ function script_hunter:run(targetGUID)
 				PetAttack();
 			end
 		end
-
-		--if (script_grind.lootObj ~= nil) and (not IsInCombat()) then
-	--		ClearTarget();
-	--		if (IsMoving()) then
-	--			StopMoving();
-	--			self.waitTimer = GetTimeEX() + 1500;
-	--		end
-	--	end
 		
 		if (not IsInCombat()) and (targetObj:GetDistance() < 36) and (localHealth > self.eatHealth) and (script_grind.lootObj == nil) then
 
@@ -310,6 +299,8 @@ function script_hunter:run(targetGUID)
 
 			if (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) then
 				CastSpellByName("Hunter's Mark");
+				PetAttack();
+				targetObj:FaceTarget();
 				self.waitTimer = GetTimeEX() + 1500;
 				return 0;
 			end

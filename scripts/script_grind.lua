@@ -58,9 +58,9 @@ script_grind = {
 	blacklistedNum = 0,
 	isSetup = false,
 	drawUnits = true,
-	pathName = "", -- set to e.g. "paths\1-5 Durator.xml" for auto load at startup
+	Name = "", -- set to e.g. "paths\1-5 Durator.xml" for auto load at startup
 	pathLoaded = "",
-	drawPath = true,
+	drawPath = false,
 	autoPath = true,
 	drawAutoPath = true,
 	distToHotSpot = 325,
@@ -322,6 +322,8 @@ function script_grind:run()
 			local jumpRandom = random(1, 100);
 			if (jumpRandom > self.jumpRandomFloat and IsMoving() and not IsInCombat()) then
 				JumpOrAscendStart();
+			elseif (jumpRandom > self.jumpRandomFloat) and (IsMoving()) and (IsInCombat()) and (not IsChanneling()) and (not localObj:IsCasting()) then
+				JumpOrAscendStart();
 			end
 		end
 
@@ -413,7 +415,7 @@ function script_grind:run()
 			if (self.enemyObj ~= nil and self.enemyObj ~= 0) then
 				self.combatError = RunCombatScript(self.enemyObj:GetGUID());
 			end
-			--script_grind:setWaitTimer(500);
+			script_grind:setWaitTimer(1500);
 		end
 
 		if(self.enemyObj ~= nil or IsInCombat()) then
@@ -441,18 +443,10 @@ function script_grind:run()
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
 
-				if (_x ~= 0 and x ~= 0) and (self.enemyObj:GetDistance() >= 7) then
-					local moreRandomBuffer = random(-15, 15)
-					local moveBufferY = math.random(moreRandomBuffer, moreRandomBuffer);
-					self.message = script_nav:moveToTarget(localObj, _x-.1, _y + (moveBufferY), _z);
-					script_grind:setWaitTimer(125);
-
-				elseif (_x ~= 0 and x ~= 0) and (self.enemyObj:GetDistance() < 7) then
-					local moreRandomBufferP = random(-15, 15)
-					local moveBufferYP = math.random(moreRandomBufferP, moreRandomBufferP);
-					self.message = script_nav:moveToTarget(localObj, _x-.1, _y + (moveBufferYP), _z);
-					script_grind:setWaitTimer(70);
-
+				if (_x ~= 0 and x ~= 0) then
+					local moveBufferY = math.random(-4, 4);
+					self.message = script_nav:moveToTarget(localObj, _x, _y+moveBufferY, _z);
+					script_grind:setWaitTimer(60);
 				end
 				return;
 			end
@@ -475,10 +469,10 @@ function script_grind:run()
 			end
 		end
 
-		--script_grind:setWaitTimer(1000);
+		script_grind:setWaitTimer(1500);
 
 		-- Pre checks before navigating
-		if (IsLooting() or IsCasting() or IsChanneling() or IsDrinking() or IsEating() or IsInCombat()) then
+		if (IsLooting() or IsCasting() or IsChanneling() or IsDrinking() or IsEating() or GetLocalPlayer():GetUnitsTarget() ~= 0) then
 			return;
 		end
 
@@ -716,10 +710,10 @@ function script_grind:playersWithinRange(range)
 		if (typeObj == 4 and not currentObj:IsDead()) then
 			if (currentObj:GetDistance() < range) then 
 				local localObj = GetLocalPlayer();
-				if (localObj:GetGUID() ~= currentObj:GetGUID()) and (not UnitOnTaxi(currentObj:GetUnitName())) then
+				if (localObj:GetGUID() ~= currentObj:GetGUID()) then
 					local playerName = currentObj:GetUnitName();
 					if (self.useString) then
-						if (currentObj:GetDistance() < self.paranoidRange) and (not UnitOnTaxi('playerName')) then
+						if (currentObj:GetDistance() < self.paranoidRange) then
 							local playerDistance = currentObj:GetDistance();
 							local playerTime = GetTimeStamp();
 							local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance (yds) "..playerDistance.. " - added to log file for further implementation of paranoia."
@@ -727,9 +721,7 @@ function script_grind:playersWithinRange(range)
 							ToFile(string);
 							self.useString = false;
 						end
-						if (currentObj:GetDistance() < self.paranoidRange) and (UnitOnTaxi('playerName')) then
-							local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance (yds) "..playerDistance.. " - Flew by on taxi service."
-						end
+				
 					end
 				return true;
 				end

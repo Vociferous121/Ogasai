@@ -287,6 +287,7 @@ function script_rogue:run(targetGUID)
 						CastSpellByName("Pick Pocket");
 						if (IsLooting()) then
 							LootTarget();
+							script_grind.doLoot();
 							return;
 						end
 						return;
