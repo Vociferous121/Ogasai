@@ -322,10 +322,10 @@ function script_grind:run()
 			local jumpRandom = random(1, 100);
 			if (jumpRandom > self.jumpRandomFloat and IsMoving() and not IsInCombat()) then
 				JumpOrAscendStart();
-				self.enemyObj:FaceTarget();
+				targetObj:FaceTarget();
 			elseif (jumpRandom > self.jumpRandomFloat) and (IsMoving()) and (IsInCombat()) and (not IsChanneling()) and (not localObj:IsCasting()) and (targetObj:GetDistance() > 8) then
 				JumpOrAscendStart();
-				self.enemyObj:FaceTarget();
+				targetObj:FaceTarget();
 			end
 		end
 
