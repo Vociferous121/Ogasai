@@ -293,6 +293,11 @@ function script_mage:run(targetGUID)
 		script_mage:setup();
 	end
 	
+	if (not HasSpell("Frostbolt")) then
+		self.frostMage = false;
+		self.fireMage = true;
+	end
+
 	local localObj = GetLocalPlayer();
 
 	local localMana = localObj:GetManaPercentage();
@@ -348,6 +353,10 @@ function script_mage:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
+		if (not targetObj:IsInLineOfSight()) or (targetObj:GetDistance() > 25) then
+			return 3;
+		end
+
 		-- Don't attack if we should rest first
 		if (GetNumPartyMembers() < 1) then
 			if (localHealth < self.eatHealth or localMana < self.drinkMana) and (not script_grind:isTargetingMe(targetObj))
@@ -384,184 +393,29 @@ function script_mage:run(targetGUID)
 			-- display message in ogasai message box
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 
-			-- Opener spell if has frostbolt.... else....
-
-			-- read the opener as following ---- if frost mage and has frost bolt then cast frost bolt
-			-- else if fire mage and has pyroblast then cast pryroblast
-			-- else if not has pyroblast then cast fireball
-			-- else if frost mage and not has frost bolt yet then cast fireball
-				-- many line of sight and other random checks to ensure the bot is doing what it needs to do
-
-			-- if frost mage and has frost bolt
-			if (self.frostMage) and (HasSpell("Frostbolt")) then
-	
-				-- check range of all spells
-				if (not targetObj:IsSpellInRange("Frostbolt")) or (not targetObj:IsInLineOfSight()) then
-					self.message = "Pulling with Frostbolt!";
-					return 3;
-				else
-					StopMoving();
-				end
-
-				-- stand if sitting
-				if (not IsStanding()) then
-					JumpOrAscendStart();
-				end
-
-				-- Dismount
-				if (IsMounted()) then
-					DisMount();
-				end
-
-				-- using frostbolt if we have it do the stuff below first
-				if (HasSpell("Frostbolt")) then
-
-					-- check line of sight using frostbolt
-					if (not targetObj:IsInLineOfSight()) then
-						return 3;
-					end
-
-					-- cast the spell - frostbolt
-					if (localMana > 8) and (not IsMoving()) and (targetObj:IsInLineOfSight()) then
-						if (CastSpellByName("Frostbolt", targetObj)) then
-							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 1600;
-							return 0;
-						end
-					end
-				end
-
-				-- recheck line of sight on target
-				if (not targetObj:IsInLineOfSight()) then
-					return 3;
+			-- frost mage selected
+			if (self.frostMage) then
+				if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (targetObj:GetDistance() <= 29) then
+					script_mage.frostMagePull(targetObj);
+					targetObj:FaceTarget();
+					return 0;
 				end
 				
-				-- fire mage selected use these spells instead
-			elseif (self.fireMage) then
-				
-				-- check range using pyroblast if has spell
-				if (HasSpell("Pyroblast")) and (not targetObj:IsSpellInRange("Pyroblast")) then
-					return 3;
-
-					-- else check range using fireball - is there a range difference? twow there is
-				elseif (not HasSpell("Pyroblast")) and (not targetObj:IsSpellInRange("Fireball")) then
-					return 3;
-				end
-				
-				-- we are in spell range to pull with fireball then stop moving
-				if (targetObj:IsSpellInRange("Fireball")) and (targetObj:IsInLineOfSight()) then
-					if (IsMoving()) then
-						StopMoving();
-					end
+			-- fire mage selected use these spells instead
+			elseif (not HasSpell("Pyroblast")) and (self.fireMage) then
+				if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (targetObj:GetDistance() <= 29) then
+					script_mage.fireMagePull(targetObj);
+					targetObj:FaceTarget();
+					return 0;
 				end
 
-				-- stand if sitting
-				if (not IsStanding()) then
-					JumpOrAscendStart();
-					self.waitTimer = GetTimeEX() + 1000;
-				end
-			
-				-- cast fireball to pull we do not have pyroblast yet
-				if (HasSpell("Fireball")) and (not HasSpell("Pyroblast")) then
-
-					-- recheck line of sight
-					if (not targetObj:IsInLineOfSight()) or (not targetObj:IsSpellInRange("Fireball")) then
-						return 3;
-					end
-		
-					-- cast the spell - fireball
-					if (localMana > 12) and (not IsMoving()) and (targetObj:IsInLineOfSight()) then
-						if (CastSpellByName("Fireball", targetObj)) then
-							targetObj:FaceTarget();
-							self.message = "Pulling with Fireball!";
-							self.waitTimer = GetTimeEX() + 1600;
-							return 0;
-						end
-					end
-
-					-- end of pulling with fireball!
-					--------------------------------
-
-					-- read below as follows ---- if has pyrpblast then cast it
-						-- else if target is too close and attacking us then cast fireball
-							-- else if target is close but not attacking us then cast pyroblast
-
-				-- else if has spell pyroblast then use it instead of fireball
-				elseif (HasSpell("Pyroblast")) and (not IsSpellOnCD("Pyroblast")) then
-				
-					-- recheck line of sight
-					if (not targetObj:IsInLineOfSight()) then
-						return 3;
-					end
-		
-					-- cast the spell - pyroblast
-					if (localMana > 8) and (not IsMoving()) and (IsStanding()) and (targetObj:IsInLineOfSight()) and (not script_grind:isTargetingMe(targetObj)) then
-						if (not targetObj:HasDebuff("Pyroblast")) and (not script_grind:isTargetingMe(targetObj)) and (not IsMoving()) then
-							if (CastSpellByName("Pyroblast", targetObj)) then
-								targetObj:FaceTarget();
-								self.message = "Pulling with Pyroblast!";
-								self.waitTimer = GetTimeEX() + 5500;
-								return 0;
-							end
-						end
-					
-						-- cast fireball instead if target is too close or attacking us
-					elseif (not IsMoving()) and (IsStanding()) and (targetObj:IsInLineOfSight()) and (script_grind:isTargetingMe(targetObj)) then
-					
-						-- cast the spell - fireball
-						if (CastSpellByName("Fireball", targetObj)) then
-							targetObj:FaceTarget();
-							self.message = "Pulling with Fireball!";
-							self.waitTimer = GetTimeEX() + 1600;
-							return 0;
-						end
-					end
-				end
-
-					-- end of pulling with pyroblast!
-					---------------------------------------
-
-				-- recheck line of sight
-				if (not targetObj:IsInLineOfSight()) then
-					return 3;
-				end
-
-				-- frost mage slected use frost mage spells
-			elseif (self.frostMage) and (not HasSpell("Frostbolt")) then				
-
-				-- else if not has frostbolt then use fireball as range check
-				if (not targetObj:IsSpellInRange("Fireball")) then
-					return 3;
-				end
-
-				-- check line of sight
-				if (not targetObj:IsInLineOfSight()) then
-					return 3;
-				end	
-
-				-- stand if sitting
-				if (not IsStanding()) then
-					JumpOrAscendStart();
-				end
-				
-				-- cast fireball
-				if (localMana > 15) and (not IsMoving()) and (targetObj:IsInLineOfSight()) then
-					if (CastSpellByName("Fireball", targetObj)) then
-						self.waitTimer = GetTimeEX() + 1600;
-						return 0;
-					end
-				end
-
-				-- recheck line of sight
-				if (not targetObj:IsInLineOfSight()) then
-					return 3;
+			elseif (HasSpell("Pyroblast")) and (self.fireMage) then
+				if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (targetObj:GetDistance() <= 34) then
+					script_mage.fireMagePull(targetObj);
+					targetObj:FaceTarget();
+					return 0;
 				end
 			end
-
-		if (not HasSpell("Frostbolt")) and (self.frostMage) and (localMana > 15) then
-			CastSpellByName("Fireball");
-			return 0;
-		end
 			
 		-- Combat
 
@@ -1231,4 +1085,81 @@ function script_mage:rest()
 	end	
 	-- No rest / buff needed
 	return false;
+end
+
+function script_mage.frostMagePull(targetObj)
+
+	local localMana = GetLocalPlayer():GetManaPercentage();
+	
+	-- cast frost bolt
+	if (localMana > 8) and (not IsMoving()) and (targetObj:IsInLineOfSight()) then
+		if (CastSpellByName("Frostbolt", targetObj)) then
+			targetObj:FaceTarget();
+			self.waitTimer = GetTimeEX() + 1600;
+			return 0;
+		end
+	end
+
+	-- recheck line of sight on target
+	if (not targetObj:IsInLineOfSight()) then
+		return 3;
+	end
+return;
+end
+
+function script_mage.fireMagePull(targetObj)
+
+	-- check line of sight
+	if (HasSpell("Pyroblast")) and (not targetObj:IsSpellInRange("Pyroblast")) and (targetObj:IsInLineOfSight()) then
+		return 3;
+
+		-- else check range using fireball - is there a range difference? twow there is
+	elseif (not HasSpell("Pyroblast")) and (not targetObj:IsSpellInRange("Fireball")) and (targetObj:IsInLineOfSight()) then
+		return 3;
+	end
+				
+				
+	-- cast fireball to pull we do not have pyroblast yet
+	if (not HasSpell("Pyroblast")) then
+		if (localMana > 12) and (not IsMoving()) and (targetObj:IsInLineOfSight()) then
+			if (CastSpellByName("Fireball", targetObj)) then
+				targetObj:FaceTarget();
+				self.message = "Pulling with Fireball!";
+				self.waitTimer = GetTimeEX() + 1600;
+				return 0;
+			end
+		end
+
+		-- end of pulling with fireball
+		--------------------------------
+
+				
+		-- has spell pyroblast then use it instead of fireball
+	elseif (HasSpell("Pyroblast")) and (not IsSpellOnCD("Pyroblast")) then
+		if (localMana > 8) and (not IsMoving()) and (IsStanding()) and (targetObj:IsInLineOfSight()) and (not script_grind:isTargetingMe(targetObj)) then
+			if (not targetObj:HasDebuff("Pyroblast")) and (not script_grind:isTargetingMe(targetObj)) and (not IsMoving()) then
+				if (CastSpellByName("Pyroblast", targetObj)) then
+					targetObj:FaceTarget();
+					self.message = "Pulling with Pyroblast!";
+					self.waitTimer = GetTimeEX() + 5500;
+					return 0;
+				end
+			end
+		end
+					
+	-- cast fireball instead if target is too close or attacking us
+	elseif (not IsMoving()) and (IsStanding()) and (targetObj:IsInLineOfSight()) and (script_grind:isTargetingMe(targetObj)) then
+		if (CastSpellByName("Fireball", targetObj)) then
+			targetObj:FaceTarget();
+			self.message = "Pulling with Fireball!";
+			self.waitTimer = GetTimeEX() + 1600;
+			return 0;
+		end
+	end
+
+	-- recheck line of sight
+	if (not targetObj:IsInLineOfSight()) then
+		return 3;
+	end
+return;
 end

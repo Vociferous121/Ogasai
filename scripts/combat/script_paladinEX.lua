@@ -22,11 +22,12 @@ function script_paladinEX:menu()
 		
 		Separator();
 
-		script_paladin.meleeDistance = SliderFloat("Melee range", 1, 6, script_paladin.meleeDistance);
+		script_paladin.meleeDistance = SliderFloat("Melee range", 1, 8, script_paladin.meleeDistance);
 
 		Separator();
-
+		wasClicked, script_paladin.useJudgement = Checkbox("Use Judgement", script_paladin.useJudgement);
 		if (HasSpell("Seal of the Crusader")) then
+			SameLine();
 			wasClicked, script_paladin.useSealOfCrusader = Checkbox("Use Crusader Seal", script_paladin.useSealOfCrusader);
 		end
 

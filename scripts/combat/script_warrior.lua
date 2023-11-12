@@ -1,11 +1,11 @@
 script_warrior = {
 	message = 'Warrior Combat Script',
 	warriorMenu = include("scripts\\combat\\script_warriorEX.lua"),
-	eatHealth = 55, -- health to use food
+	eatHealth = 65, -- health to use food
 	bloodRageHealth = 65, -- health to use bloodrage
 	potionHealth = 6, -- health to use potion
 	isSetup = false, -- setup check
-	meleeDistance = 3.9, -- melee distance
+	meleeDistance = 4.1, -- melee distance
 	waitTimer = 0, -- set wait time for script
 	stopIfMHBroken = true, -- stop if main hand is broken
 	overpowerActionBarSlot = 73+6, -- Default: Overpower in slot 7 on the default Battle Stance Bar
@@ -297,7 +297,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 
 			-- Check: Charge if possible in battle stance
 			if (self.enableCharge and self.battleStance) then
-				if (HasSpell("Charge")) and (not IsSpellOnCD("Charge")) and (targetObj:GetDistance() <= 25) 
+				if (HasSpell("Charge")) and (not IsSpellOnCD("Charge")) and (targetObj:IsSpellInRange("Charge")) 
 					and (targetObj:GetDistance() >= 12) and (targetObj:IsInLineOfSight()) then
 					targetObj:FaceTarget();
 					if (Cast("Charge", targetObj)) then 
@@ -831,13 +831,17 @@ function script_warrior:rest()
 			StopMoving();
 			return true;
 		end
+		if (localHealth <= self.eatHealth) then
+			self.waitTimer = GetTimeEX() + 2600;
 		
-		if (script_helper:eat()) then 
-			self.message = "Eating..."; 
-			return true; 
-		else 
-			self.message = "No food! (or food not included in script_helper)";
-			return true; 
+			if (script_helper:eat()) and (not IsMoving()) then 
+				self.message = "Eating..."; 
+				self.waitTimer = GetTimeEX() + 2000;
+				return true; 
+			else 
+				self.message = "No food! (or food not included in script_helper)";
+				return true; 
+			end
 		end	
 	end
 	

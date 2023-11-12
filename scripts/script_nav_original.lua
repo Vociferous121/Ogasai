@@ -1,6 +1,6 @@
 script_nav = {
 	useNavMesh = true,
-	nextNavNodeDistance = 1, -- for mobs and loot
+	nextNavNodeDistance = 5, -- for mobs and loot
 	nextPathNodeDistance = 2.7, -- for walking paths
 	lastPathIndex = -1,
 	navPosition = {},
@@ -365,8 +365,8 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 			
 	-- If we have a new destination, generate a new path to it
 	if (not script_grind.gather) then
-		if(self.navPathPosition['x'] ~= _x or self.navPathPosition['y'] ~= _y or self.navPathPosition['z'] ~= _z
-		or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
+		if(self.navPathPosition['x'] ~= _x or self.navPathPosition['y'] ~= _y) or (self.navPathPosition['z'] ~= _z)
+		or (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
 		self.navPathPosition['x'] = _x;
 		self.navPathPosition['y'] = _y;
 		self.navPathPosition['z'] = _z;
@@ -374,8 +374,7 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 		self.lastpathnavIndex = 1; 
 		end
 		
-	elseif (script_grind.gather) and (self.navPathPosition['x'] ~= _x) or (self.navPathPosition['y'] ~= _y) or (self.navPathPosition['z'] ~= _z)
-		or (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
+	elseif (script_grind.gather) and (self.navPathPosition['x'] ~= _x) or (self.navPathPosition['y'] ~= _y) or (self.navPathPosition['z'] ~= _z) or (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
 		self.navPathPosition['x'] = _x;
 		self.navPathPosition['y'] = _y;
 		self.navPathPosition['z'] = _z;

@@ -11,7 +11,7 @@ script_gather = {
 	numHerbs = 0,
 	minerals = {},
 	numMinerals = 0,
-	lootDistance = 2,
+	lootDistance = 5,
 	timer = 0,
 	nodeID = 0,
 	gatherAllPossible = true
@@ -242,13 +242,22 @@ function script_gather:gather()
 				self.timer = GetTimeEX() + 150;
 			end
 
+			--self.lootDistance = 6;
+
 			if(not IsLooting() and not IsChanneling()) then
 				self.nodeObj:GameObjectInteract();
-				self.timer = GetTimeEX() + 1250;
+				self.timer = GetTimeEX() + 4250;
+				
 			end
 			if (not LootTarget()) then
-				self.timer = GetTimeEX() + 650;
+				self.timer = GetTimeEX() +4250;
 				return;
+			end
+			if (IsLooting()) then
+				self.waitTimer = GetTimeEX() + 4200;
+			end
+			if (self.nodeObj:UnitInteract()) then
+				self.waitTimer = GetTimeEX() + 4200;
 			end
 		else
 			if (_x ~= 0) then

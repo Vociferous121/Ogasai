@@ -322,8 +322,10 @@ function script_grind:run()
 			local jumpRandom = random(1, 100);
 			if (jumpRandom > self.jumpRandomFloat and IsMoving() and not IsInCombat()) then
 				JumpOrAscendStart();
-			elseif (jumpRandom > self.jumpRandomFloat) and (IsMoving()) and (IsInCombat()) and (not IsChanneling()) and (not localObj:IsCasting()) then
+				self.enemyObj:FaceTarget();
+			elseif (jumpRandom > self.jumpRandomFloat) and (IsMoving()) and (IsInCombat()) and (not IsChanneling()) and (not localObj:IsCasting()) and (targetObj:GetDistance() > 8) then
 				JumpOrAscendStart();
+				self.enemyObj:FaceTarget();
 			end
 		end
 
@@ -397,7 +399,7 @@ function script_grind:run()
 		end
 
 		-- Dont pull if more than 1 add will be pulled
-		if (self.enemyObj ~= nil and self.enemyObj ~= 0 and self.skipHardPull) then
+		if (self.enemyObj ~= nil and self.enemyObj ~= 0 and self.skipHardPull) and (UnitReaction("targetObj", "player") == 2) then
 			if (not script_aggro:safePull(self.enemyObj) and not IsInCombat()) then
 				script_grind:addTargetToBlacklist(self.enemyObj:GetGUID());
 				DEFAULT_CHAT_FRAME:AddMessage('script_grind: Blacklisting ' .. self.enemyObj:GetUnitName() .. ', too many adds...');
@@ -443,11 +445,15 @@ function script_grind:run()
 
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
-				
-				if (_x ~= 0 and x ~= 0) then
+	
+				if (_x ~= 0 and x ~= 0) and (not IsInCombat()) then
 					local moveBufferY = math.random(-2, 2);
 					self.message = script_nav:moveToTarget(localObj, _x, _y+moveBufferY, _z);
-					script_grind:setWaitTimer(225);
+					script_grind:setWaitTimer(200);
+				end
+				if (_x ~= 0 and x ~= 0) and (IsInCombat()) then
+					self.message = script_nav:moveToTarget(localObj, _x, _y, _z);
+					script_grind:setWaitTimer(200);
 				end
 				return;
 			end
@@ -474,12 +480,13 @@ function script_grind:run()
 			
 		end
 
-		script_grind:setWaitTimer(1500);
-
 		-- Pre checks before navigating
 		if (IsLooting() or IsCasting() or IsChanneling() or IsDrinking() or IsEating() or GetLocalPlayer():GetUnitsTarget() ~= 0) then
+			script_grind:setWaitTimer(1500);
 			return;
 		end
+
+		script_grind:setWaitTimer(1500);
 
 		-- Mount before we navigate through the path, error check to get around indoors
 		--if (script_grind:mountUp() and self.useMount) then return; end	

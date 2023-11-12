@@ -232,6 +232,7 @@ function script_helper:setup()
 	-- other food + water
 	script_helper:addFood("Senggin Root");
 	script_helper:addWater("Senggin Root");
+	script_helper:addFood("Healing Herb");
 
 	-- Mage food
 	script_helper:addFood("Conjured Cinnamon Roll");

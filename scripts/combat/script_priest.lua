@@ -918,7 +918,7 @@ function script_priest:rest()
 	--	for i=6, 1, -1 do 
 	--		if (UnitLevel("target") >= Sp) then
 	--			CastSpellByName(buff..i..")");
-	--			return;
+	--			return 0;
 	--		end
 	--	end
 	--end 

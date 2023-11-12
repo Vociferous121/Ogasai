@@ -234,22 +234,13 @@ function script_hunter:run(targetGUID)
 			return 3;
 		end
 
-		if (IsInCombat()) and (self.hasPet) then
-			if (GetPet():GetUnitsTarget() ~= 0) and (localObj:GetUnitsTarget() ~= 0) then
-				targetObj:FaceTarget();
-			end
-		end
-
 		-- force stop the bot after combat and waiting for pet to return - hangs in combat phase
 		if (self.hasPet) and (GetNumPartyMembers() > 0) then
 			if (IsInCombat()) and (GetPet():GetUnitsTarget() == 0) and (GetLocalPlayer():GetUnitsTarget() == 0) then
 				if (IsMoving()) then
 					StopMoving();
 				end
-				script_grind.tickRate = 100;
-				self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
-				self.message = ("waiting dead target line 321");
-			return;
+			return 4;
 			end
 		end
 
@@ -264,6 +255,7 @@ function script_hunter:run(targetGUID)
 		if (IsInCombat()) then
 			if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) and (targetObj:GetDistance() < 35) and (targetObj:IsInLineOfSight()) then
 			CastSpellByName("Auto Shot");
+			targetObj:FaceTarget();
 			return 0;
 			end
 		end
@@ -340,8 +332,7 @@ function script_hunter:run(targetGUID)
 						StopMoving();
 					end
 					script_grind.tickRate = 100;
-					self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
-					self.message = ("waiting dead target line 321");
+				return 4;
 				end
 			end
 
@@ -702,17 +693,17 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	-- Attack: Use Auto Shot
 	if (not IsAutoCasting('Auto Shot') and targetObj:GetDistance() < 35 and targetObj:GetDistance() > 13) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 		CastSpellByName("Auto Shot");
-		--targetObj:FaceTarget();
+		targetObj:FaceTarget();
 		canDoRangeAttacks = true;
-	elseif (IsAutoCasting('Auto Shot')) then
-		--targetObj:FaceTarget();
+	elseif (IsAutoCasting('Auto Shot')) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+		targetObj:FaceTarget();
 		canDoRangeAttacks = true;
 	end
-	if (canDoRangeAttacks) then
+	if (canDoRangeAttacks) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 		script_hunter:doPullAttacks(targetObj, localMana);
-			targetObj:FaceTarget();
-			self.waitTimer = GetTimeEX() + 1750;
-			return true;
+		targetObj:FaceTarget();
+		self.waitTimer = GetTimeEX() + 1750;
+		return true;
 	end
 	
 	-- Check: If we are already in meele range before pull, use Raptor Strike
@@ -751,8 +742,8 @@ function script_hunter:doPullAttacks(targetObj)
 				end
 			end
 
-if (IsInCombat()) then
-		if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) then
+if (not IsInCombat()) then
+		if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 			CastSpellByName("Auto Shot");
 			targetObj:FaceTarget();
 			return 0;
@@ -776,7 +767,7 @@ if (IsInCombat()) then
 		if (script_hunter:cast('Serpent Sting', targetObj)) then return true; end
 	end
 	-- If no special attacks available for pull use Auto Shot
-	if (script_hunter:cast('Auto Shot', targetObj)) then
+	if (script_hunter:cast('Auto Shot', targetObj)) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 		self.waitTimer = GetTimeEX() + 750;
 		targetObj:FaceTarget();
 		return true;
@@ -789,8 +780,16 @@ function script_hunter:doInCombatRoutine(targetObj, localMana)
 	local targetHealth = targetObj:GetHealthPercentage(); -- update target's HP
 	local pet = GetPet(); -- get pet
 
+	if (self.hasPet) and (IsInCombat()) then
+		if (GetLocalPlayer():GetUnitsTarget() == 0) and (GetPet():GetUnitsTarget() ~= 0) then
+			GetNearestEnemy();
+			targetObj:FaceTarget();
+			return 0;
+		end
+	end
+
 	if (IsInCombat()) then
-		if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) then
+		if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 			CastSpellByName("Auto Shot");
 			targetObj:FaceTarget();
 			return 0;
@@ -859,7 +858,7 @@ function script_hunter:doInCombatRoutine(targetObj, localMana)
 			if (IsMoving()) then
 				StopMoving();
 			end
-			if (not targetObj:FaceTarget()) then
+			if (not targetObj:FaceTarget()) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 				targetObj:FaceTarget();
 			end
 		end
@@ -914,7 +913,7 @@ function script_hunter:doRangeAttack(targetObj, localMana)
 	end
 
 	-- Attack: Use Auto Shot 
-	if (not IsAutoCasting('Auto Shot')) and (IsInCombat()) then
+	if (not IsAutoCasting('Auto Shot')) and (IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 		if (script_hunter:cast('Auto Shot', targetObj)) then
 			targetObj:FaceTarget();
 			self.waitTimer = GetTimeEX() + 600;
@@ -935,7 +934,7 @@ function script_hunter:doRangeAttack(targetObj, localMana)
 	if (not IsSpellOnCD('Arcane Shot') and localMana > 70) then 
 		if (script_hunter:cast('Arcane Shot', targetObj)) then return true; end end
 	-- Check if we are able to attack
-	if (IsAutoCasting('Auto Shot')) then
+	if (IsAutoCasting('Auto Shot')) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 		targetObj:FaceTarget();
 		return true;
 	end
