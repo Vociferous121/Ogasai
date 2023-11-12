@@ -237,6 +237,9 @@ function script_hunterEX:menu()
 
 		Text('Vendor/Bag settings:');
 		wasClicked, script_hunter.useVendor = Checkbox("Vendor when full inventory.", script_hunter.useVendor);	
+		if (script_grind.useVendor) then
+			script_hunter.useVendor = true;
+		end
 		wasClicked, script_hunter.buyWhenQuiverEmpty = Checkbox("Buy ammo when only 1 stack left.", script_hunter.buyWhenQuiverEmpty);
 		if (script_hunter.hasPet) then	
 			Text("Bag# with pet food (2-5)");

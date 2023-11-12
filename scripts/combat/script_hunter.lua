@@ -15,9 +15,9 @@ script_hunter = {
 	quiverBagNr = 5,
 	ammoIsArrow = true,
 	useVendor = false,
-	buyWhenQuiverEmpty = false,
+	buyWhenQuiverEmpty = true,
 	stopWhenQuiverEmpty = false,
-	stopWhenBagsFull = false,
+	stopWhenBagsFull = true,
 	hsWhenStop = false,
 	hsBag = 1, -- HS in backpack (1rst bag)
 	hsSlot = 1, -- HS in slot 1 of the bag: hsBag
@@ -592,9 +592,12 @@ function script_hunter:rest()
 		return false;
 	end
 
-	if (inventoryFull and self.stopWhenBagsFull) then
+	if (not script_grind.useVendor) and (inventoryFull and self.stopWhenBagsFull) then
 		self.message = "Inventory is full...";
-		if (IsMoving()) then StopMoving(); end
+
+		if (IsMoving()) then
+			StopMoving();
+		end
 		
 		if (self.hsWhenStop) then
 			if (GetContainerItemCooldown(self.hsBag-1, self.hsSlot) == 0) then 

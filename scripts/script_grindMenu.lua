@@ -95,6 +95,9 @@ function script_grindMenu:menu()
 
 	if (CollapsingHeader("Vendor Options")) then
 		wasClicked, script_grind.useVendor = Checkbox("Vendoring On/Off", script_grind.useVendor);
+		if (script_hunter.useVendor) then
+			script_grind.useVendor = true;
+		end
 		if (script_grind.useVendor) then 
 			script_vendorMenu:menu(); Separator();
 		else
