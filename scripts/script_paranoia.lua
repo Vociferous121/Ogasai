@@ -1,6 +1,6 @@
 script_paranoia = {
 
-	stopOnLevel = true,		-- stop bot on level up on/off
+	stopOnLevel = false,		-- stop bot on level up on/off
 	exitBot = false,		-- exit bot on level up
 	targetedLevel = GetLocalPlayer():GetLevel() + 1,	-- target level to stop bot when we level up.
 	deathCounterExit = true,	-- death counter until exit
@@ -20,7 +20,7 @@ function script_paranoia:checkParanoia()
 		StopBot();
 		script_grindEX.deathCounter = 0;
 		if (script_paranoia.deathCounterExit) then
-			Exit();
+			return 6;
 		end
 	end
 
@@ -114,6 +114,17 @@ function script_paranoia:checkParanoia()
 end
 
 function script_paranoia:menu()
+
+	--grind script spend talent points is placed above here in grind menu script
+		Separator();
+
+	wasClicked, script_grind.jump = Checkbox("Random Jump", script_grind.jump);
+	
+	if (script_grind.jump) then
+		SameLine();
+		Text("- 100 = No Jumping");
+		script_grind.jumpRandomFloat = SliderInt("Jump Rate", 92, 100, script_grind.jumpRandomFloat);
+	end
 		
 	-- paranoid on/off button
 	wasClicked, script_paranoia.paranoidOn = Checkbox("Enable Paranoia", script_paranoia.paranoidOn);
@@ -124,7 +135,7 @@ function script_paranoia:menu()
 	if (script_paranoia.paranoidOn) then
 
 		-- hide and disable sit if paranoid range > x
-		if (script_grind.paranoidRange > 199) then
+		if (script_grind.paranoidRange >= 200) then
 			wasClicked, script_paranoia.sitParanoid = Checkbox("Sit When Paranoid", script_paranoia.sitParanoid);
 		end
 
@@ -136,11 +147,11 @@ function script_paranoia:menu()
 		Text('Paranoia Range');
 	
 		-- main paranoia range
-		script_grind.paranoidRange = SliderInt("P (yd)", 60, 300, script_grind.paranoidRange);
+		script_grind.paranoidRange = SliderInt("P (yd)", 45, 300, script_grind.paranoidRange);
 
 		--timer to wait after paranoia
-		Text("How long to wait after paranoid target leaves range + 2 Sec");
-		script_grind.paranoidSetTimer = SliderInt("Time in Sec", 0, 60, script_grind.paranoidSetTimer);
+		Text("Wait time after paranoid target leaves");
+		script_grind.paranoidSetTimer = SliderInt("Time in Sec", 0, 120, script_grind.paranoidSetTimer);
 
 	end
 
@@ -152,14 +163,15 @@ function script_paranoia:menu()
 	-- if stop on level button checked then...
 	if (script_paranoia.stopOnLevel) then
 	
-		SameLine();
-	
 		-- show exit bot on level up on/off button
-		wasClicked, script_paranoia.exitBot = Checkbox("Exit Bot On Level Up", script_paranoia.exitBot);
-	
+		wasClicked, script_paranoia.exitBot = Checkbox("Exit Game On Level Up", script_paranoia.exitBot);
 	end
 
 	Separator();
+	Text("The bot will force stop on x deaths or close the game.");
+	Text("You can choose not to close the game.");
+	--space looks better for wording
+	Text("");
 	
 	Text("Stop Bot On "..script_paranoia.counted.. " Deaths    "); 
 
@@ -173,15 +185,12 @@ function script_paranoia:menu()
 		
 	Separator();
 
-	wasClicked, script_grind.useLogoutTimer = Checkbox("Use Logout Timer", script_grind.useLogoutTimer);
-
-	SameLine();
-	Text("");
-	Text("        Timer Starts When Checked!");
+	wasClicked, script_grind.useLogoutTimer = Checkbox("Start Logout Timer", script_grind.useLogoutTimer);
 
 	if (script_grind.useLogoutTimer) then
-		Text("Logout Timer Set In Hours");
-		script_grind.logoutTime = SliderInt("Logout Time - Hours", 1, 5, script_grind.logoutTime);
+		SameLine();
+		Text("-- Set In Hours");
+		script_grind.logoutTime = SliderInt("Hours", 1, 5, script_grind.logoutTime);
 	end
 
 	Separator();

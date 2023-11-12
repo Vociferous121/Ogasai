@@ -5,6 +5,7 @@ script_grindEX = {
 	deathCounter = 0,
 	logoutOnHearth = true,
 	allowSwim = false,
+	chicken = true;
 
 }
 
@@ -26,6 +27,13 @@ function script_grindEX:doChecks()
 				script_grind.waitTimer = GetTimeEX() + 1500;
 				return true; 
 			end 
+		end
+
+		if (self.chicken) then
+			if (HasItem("Chicken Egg")) then
+				UseItem("Chicken Egg");
+			end
+		self.chicken = false;
 		end
 
 		if (not IsUsingNavmesh()) then UseNavmesh(true);

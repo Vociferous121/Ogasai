@@ -152,7 +152,7 @@ end
 function script_warrior:draw()	-- draw warrior window and status text
 	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
 	if (onScreen) then
-		DrawText(self.message, tX+75, tY+40, 0, 255, 255);
+		DrawText(self.message, tX+75, tY+44, 255, 0, 0);
 	else
 		DrawText(self.message, 25, 185, 0, 255, 255);
 	end

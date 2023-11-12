@@ -82,7 +82,7 @@ function script_rotationMenu:menu()
 	end
 	if (script_rotation.drawAggro) then
 		Text("Aggro Circle Range");
-		script_rotation.aggroRangeTank = SliderInt("AR", 30, 300, script_rotation.aggroRangeTank);
+		script_rotation.aggroRangeTank = SliderInt("AR", 36, 300, script_rotation.aggroRangeTank);
 	end
 	
 	if (HasItem("Unlit Poor Torch")) then

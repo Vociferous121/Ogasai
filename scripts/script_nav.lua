@@ -539,7 +539,8 @@ function script_nav:avoidElite(range) -- Runs away if there is atleast one elite
  				local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
  				local moveX, moveY, moveZ = xT + xUV*100, yT + yUV*100, zT + zUV;			
 				script_nav:moveToTarget(localObj, moveX, moveY, moveZ);
-				return true;
+				script_grind.setWaitTimer(5000);
+			return;
  			end
  		end
  		currentObj, typeObj = GetNextObject(currentObj);

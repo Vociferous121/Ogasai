@@ -134,7 +134,7 @@ end
 function script_hunter:draw()
 	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
 	if (onScreen) then
-		DrawText(self.message, tX+75, tY+40, 0, 255, 255);
+		DrawText(self.message, tX+75, tY+44, 255, 0, 0);
 	else
 		DrawText(self.message, 25, 185, 0, 255, 255);
 	end
@@ -268,7 +268,7 @@ function script_hunter:run(targetGUID)
 			end
 		end
 		
-		if (not IsInCombat()) and (targetObj:GetDistance() < 36) and (localHealth > self.eatHealth) and (script_grind.lootObj == nil) then
+		if (not IsInCombat()) and (targetObj:GetDistance() < 36) and (targetObj:GetDistance() > 10) and (localHealth > self.eatHealth) and (script_grind.lootObj == nil) then
 
 	-- this above here is causing the bot to attack before looting
 
@@ -301,6 +301,14 @@ function script_hunter:run(targetGUID)
 				return 4; -- return 0 bugs turning around cause of StopMoving();
 			else
 				return 3;
+			end
+
+			if (hasPet) then
+				if (targetObj:GetDistance() < 10) then
+					targetObj:AutoAttack();
+				else
+					return 3;
+				end
 			end
 			
 		-- Combat

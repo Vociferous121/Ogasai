@@ -81,15 +81,6 @@ function script_grindMenu:menu()
 		if (script_grind.autoTalent) then
 			Text("Spending Next Talent Point In: " .. (script_talent:getNextTalentName() or " "));
 		end
-		Separator();
-		wasClicked, script_grind.jump = Checkbox("Jump On/Off", script_grind.jump);
-
-	
-		if (script_grind.jump) then
-			SameLine();
-			Text("- Jump Rate 100 = No Jumping!");
-			script_grind.jumpRandomFloat = SliderInt("Jump Rate", 92, 100, script_grind.jumpRandomFloat);
-		end
 
 		--wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount); Text('Dismount range');
 		--script_grind.disMountRange = SliderInt("DR (yd)", 1, 100, script_grind.disMountRange); Separator();
@@ -116,10 +107,6 @@ function script_grindMenu:menu()
 	if (CollapsingHeader("Path Options")) then
 
 		local wasClicked = false;
-
-		Text("         ");
-
-		SameLine();
 
 		-- checkbox use auto hotspots
 		wasClicked, script_grindMenu.useHotSpotArea = Checkbox("Use Auto Hotspots", script_grindMenu.useHotSpotArea);
@@ -197,6 +184,9 @@ function script_grindMenu:menu()
 	if (CollapsingHeader("Loot Options")) then
 		local wasClicked = false;
 		wasClicked, script_grind.skipLooting = Checkbox("Skip Looting", script_grind.skipLooting);
+		
+		SameLine();
+
 		wasClicked, script_grind.skinning = Checkbox("Use Skinning", script_grind.skinning);
 		Text('Search For Loot Distance'); script_grind.findLootDistance = SliderFloat("SFL (yd)", 1, 100, script_grind.findLootDistance); Text('Loot Corpse Distance');	 script_grind.lootDistance = SliderFloat("LCD (yd)", 1, 5, script_grind.lootDistance);
 	end
@@ -214,7 +204,9 @@ function script_grindMenu:menu()
 			wasClicked, script_grind.useExpChecker = Checkbox("Display Exp Tracker", script_grind.useExpChecker);
 		end
 
-		if (CollapsingHeader("-- Radar - EXPERIMENTAL")) then
+		wasClicked, script_grind.drawAggro = Checkbox('Display Aggro Range', script_grind.drawAggro);
+
+		if (CollapsingHeader("Draw Radar")) then
 		local wasClicked = false;
 				script_radar:menu()
 		end
@@ -223,6 +215,5 @@ function script_grindMenu:menu()
 		wasClicked, script_grind.drawAutoPath = Checkbox('Display Auto-Path Nodes', script_grind.drawAutoPath);
 		wasClicked, script_grind.drawPath = Checkbox('Display Move Path', script_grind.drawPath);
 		wasClicked, script_grind.drawGather = Checkbox('Display Gather Nodes', script_grind.drawGather);
-		wasClicked, script_grind.drawAggro = Checkbox('Display Aggro Range', script_grind.drawAggro);
 	end
 end

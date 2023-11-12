@@ -179,7 +179,7 @@ end
 function script_rogue:draw()
 	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
 	if (onScreen) then
-		DrawText(self.message, tX+75, tY+40, 0, 255, 255);
+		DrawText(self.message, tX+75, tY+44, 255, 0, 0);
 	else
 		DrawText(self.message, 25, 185, 0, 255, 255);
 	end
@@ -898,6 +898,11 @@ function script_rogue:run(targetGUID)
 end
 
 function script_rogue:rest()
+
+	if (localHealth < self.eatHealth) then
+		ClearTarget();
+	end
+
 	if(not self.isSetup) then
 		script_rogue:setup();
 	end
@@ -952,9 +957,9 @@ function script_rogue:rest()
 	end
 
 
-	if (localHealth < self.eatHealth) and (not IsInCombat()) and (not IsMoving()) then
-		ClearTarget();
-	end
+	--if (localHealth < self.eatHealth) and (not IsInCombat()) and (not IsMoving()) then
+	--	ClearTarget();
+	--end
 
 	if (HasSpell("Cold Blood")) and (not IsSpellOnCD("Cold Blood")) and (not localObj:HasBuff("Cold Blood")) then
 		CastSpellByName("Cold Blood");

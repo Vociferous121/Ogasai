@@ -9,18 +9,17 @@ script_paladin = {
 	blessing = "Blessing of Wisdom",
 	waitTimer = 0,
 	eatHealth = 30,
-	drinkMana = 40,
-	bopHealth = 20,
-	lohHealth = 10,
+	drinkMana = 35,
+	shieldHealth = 13,
+	lohHealth = 9,
 	holyLightHealth = 55,
-	flashOfLightHP = 65,
-	potionHealth = 12,
-	potionMana = 20,
+	flashOfLightHP = 70,
+	potionHealth = 10,
+	potionMana = 15,
 	consecrationMana = 50,
 	meleeDistance = 3.4,
-	followTargetDistance = 25,
-	useSealOfCrusader = false,
-	useJudgement = false,
+	useSealOfCrusader = true,
+	useJudgement = true,
 	runOnce = true,
 }
 
@@ -52,6 +51,11 @@ function script_paladin:setup()
 		self.blessing = "Blessing of Might";
 	end
 	
+	--set holy light health no flash of light
+	if (not HasSpell("Flash of Light")) then
+		self.holyLightHealth = 66;
+	end
+
 	script_grind.jumpRandomFloat = 92;
 	script_grind.jump = true;
 	self.waitTimer = GetTimeEX();
@@ -139,10 +143,10 @@ function script_paladin:draw()
 	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
 
 	if (onScreen) then
-		DrawText(self.message, tX+75, tY+40, 0, 255, 255);
+		DrawText(self.message, tX+75, tY+44, 255, 255, 255);
 
 	else
-		DrawText(self.message, 25, 185, 0, 255, 255);
+		DrawText(self.message, 25, 185, 255, 0, 0);
 	end
 end
 
@@ -162,12 +166,13 @@ function script_paladin:healAndBuff(localObj, localMana)
 
 	local localMana = GetLocalPlayer():GetManaPercentage();
 	local localHealth = GetLocalPlayer():GetHealthPercentage();
-	
-	-- Set aura
+	local localObj = GetLocalPlayer();
+
+	-- Set aura - cast aura
 	if (self.aura ~= 0 and not IsMounted()) then
 		if (not localObj:HasBuff(self.aura) and HasSpell(self.aura)) then
 			CastSpellByName(self.aura);
-			self.waitTimer = GetTimeEX() + 1500;
+			self.waitTimer = GetTimeEX() + 1750;
 		end
 	end
 
@@ -180,7 +185,7 @@ function script_paladin:healAndBuff(localObj, localMana)
 	end
 			
 	-- Check: Divine Protection if BoP on CD
-	if(localHealth < self.bopHealth) and (not localObj:HasDebuff("Forbearance")) then
+	if(localHealth < self.shieldHealth) and (not localObj:HasDebuff("Forbearance")) then
 		if (HasSpell("Divine Shield")) and (not IsSpellOnCD("Divine Shield")) then
 			CastSpellByName("Divine Shield");
 			self.message = "Cast Divine Shield...";
@@ -196,62 +201,30 @@ function script_paladin:healAndBuff(localObj, localMana)
 		end
 	end
 
-	-- Check: Heal ourselves if below heal health or we are immune to physical damage
-	if (localHealth <= self.holyLightHealth) or (localObj:HasBuff("Blessing of Protection")) or (localObj:HasBuff("Divine Protection")) then 
-
-		-- Check: If we have multiple targets attacking us, use BoP before healing
-
-		-- use BoP on 3 or more adds
-		if (script_paladin:enemiesAttackingUs(5) > 2) and (HasSpell("Blessing of Protection")) and (not IsSpellOnCD("Blessing of Protection")) and (not localObj:HasDebuff("Forbearance")) then
-			if (Buff("Blessing of Protection", localObj)) then 
-				self.message = "Cast Blessing of Protection...";
-				return 0;
-			end
-		end
-
-		-- use divine shield on 3 or more adds
-		-- Check: If we have multiple targets attacking us, use Divine Shield before healing
-		if (script_paladin:enemiesAttackingUs(5) > 2) and (localHealth < 25) and (HasSpell("Divine Shield")) and (not localObj:HasDebuff("Forbearance")) and (not IsSpellOnCD("Divine Shield")) then
-			CastSpellByName("Divine Shield");
-			self.message = "Cast Divine Shield...";
-			return 0;
-		end
-
-		-- use divine protection on 3 or more adds
-		-- Check: If we have multiple targets attacking us, use Divine Protection before healing
-		if (script_paladin:enemiesAttackingUs(5) > 2) and (localHealth < 40) and (HasSpell("Divine Protection")) and (not localObj:HasDebuff("Forbearance")) and (not IsSpellOnCD("Divine Protection")) then
-			CastSpellByName("Divine Protection");
-			self.message = "Cast Divine Protection...";
-			return 0;
-		end
-	end
-
 	-- flash of light not in combat
-	if (HasSpell("Flash of Light")) and (localMana > 40) and (not IsInCombat()) and (localHealth > self.holyLightHealth) and (localHealth < 85) then
-		if (CastHeal("Flash of Light", localObj)) then
-			self.waitTimer = GetTimeEX() + 1500;
-			return 0;
-		end
+	if (HasSpell("Flash of Light")) and (localMana >= 40) and (not IsInCombat()) and (localHealth >= self.holyLightHealth) and (localHealth <= 85) then
+		CastHeal("Flash of Light", localObj);
+		self.waitTimer = GetTimeEX() + 1500;
+		return 0;
 	end
 
-	-- holy light in combat
-	if (HasSpell("Holy Light")) and (localMana > 25) and (GetLocalPlayer():GetHealthPercentage() < self.holyLightHealth) then
-		CastSpellByName("Holy Light");
-		self.waitTimer = GetTimeEX() + 5050;
+	-- holy light
+	if (localMana > 18) and (GetLocalPlayer():GetHealthPercentage() <= self.holyLightHealth) then
+		CastSpellByName("Holy Light", localObj);
 		if (IsMoving()) then
 			StopMoving();
 		end
+		self.waitTimer = GetTimeEX() + 5050;
 		return 0;
 	end
 
 	-- Flash of Light in combat
-	if (self.useFlashOfLightCombat) and (IsInCombat()) and (HasSpell("Flash of Light")) then
-		if (localHealth <= self.flashOfLightHP) and (localMana > 10) then
-			if (CastHeal("Flash of Light", localObj)) then
-				self.waitTimer = GetTimeEX() + 1500;
-				self.message = "Flash of Light enabled - Healing!";
-				return 0;
-			end				
+	if (self.useFlashOfLightCombat) then
+		if (IsInCombat()) and (HasSpell("Flash of Light")) and (localHealth <= self.flashOfLightHP) and (localMana >= 10) then
+			CastHeal("Flash of Light", localObj);
+			self.waitTimer = GetTimeEX() + 1500;
+			self.message = "Flash of Light enabled - Healing!";
+			return 0;				
 		end
 	end
 
@@ -259,6 +232,7 @@ function script_paladin:healAndBuff(localObj, localMana)
 	if (self.blessing ~= 0) and (HasSpell(self.blessing)) then
 		if (localMana > 10) and (not localObj:HasBuff(self.blessing)) then
 			Buff(self.blessing, localObj);
+			self.waitTimer = GetTimeEX() + 1750;
 			return 0;
 		end
 	end
@@ -295,11 +269,11 @@ function script_paladin:run(targetGUID)
 	end
 
 	-- Assign the target 
-		targetObj = GetGUIDObject(targetGUID);
+	targetObj = GetGUIDObject(targetGUID);
 
-	if(targetObj == 0) or (targetObj == nil) then
+	if (targetObj == 0) or (targetObj == nil) then
 		return 2;
-	end
+	end	
 
 	-- Check: Do nothing if we are channeling or casting or wait timer
 	if (IsChanneling()) or (IsCasting()) or (self.waitTimer > GetTimeEX()) then
@@ -333,12 +307,19 @@ function script_paladin:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		if (targetObj:GetDistance() < 6) and (not IsMoving()) then
+		if (targetObj:GetDistance() <= 8) and (not IsMoving()) then
 			targetObj:FaceTarget();
 		end
 
-		if (script_paladin:healAndBuff(localObj, localMana)) then
-			return;
+		-- Check move into melee range
+		if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) and (IsInCombat()) then
+			return 3;
+		end
+
+		if (not targetObj:IsFleeing()) then
+			if (script_paladin:healAndBuff(localObj, localMana)) then
+				return;
+			end
 		end
 
 		-- Auto Attack
@@ -347,9 +328,16 @@ function script_paladin:run(targetGUID)
 		-- stops spamming auto attacking while moving to target
 		elseif (targetObj:GetDistance() <= 8) then
 			targetObj:AutoAttack();
+			targetObj:FaceTarget();
 		end
 	
 		targetHealth = targetObj:GetHealthPercentage();
+
+		-- Don't attack if we should rest first
+		if (localHealth < self.eatHealth) and (not script_grind:isTargetingMe(targetObj)) and (targetHealth > 99) and (not targetObj:IsStunned()) and (script_grind.lootobj == nil) then
+			self.message = "Need rest...";
+			return 4;
+		end
 
 		-- Check: if we target player pets/totems
 		if (GetTarget() ~= nil) and (targetObj ~= nil) then
@@ -361,7 +349,6 @@ function script_paladin:run(targetGUID)
 		
 		-- Opener
 
-		-- buffs and stuff before we are in combat NOT IN COMBAT YET
 		if (not IsInCombat()) then
 
 			self.targetObjGUID = targetObj:GetGUID();
@@ -376,37 +363,13 @@ function script_paladin:run(targetGUID)
 				return 0;
 			 end
 
-			-- Check move into melee range
-			-- keep doing this return 3 until target is in melee range
-			if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
-				return 3;
+			if (script_paladin:paladinPull(targetObj)) then
+				return;
 			end
 
-			-- Check: Exorcism
-			if (targetObj:GetCreatureType() == "Demon") or (targetObj:GetCreatureType() == "Undead") then
-				if (targetObj:GetDistance() < 30) and (HasSpell("Exorcism")) and (not IsSpellOnCD("Exorcism")) then
-					if (Cast("Exorcism", targetObj)) then 
-						self.message = "Pulling with Exocism...";
-						return 0;
-					end
-				end
-			end
-
-			-- Check: Seal of the Crusader until we use judgement
-			if (self.useSealOfCrusader) and (not targetObj:HasDebuff("Judgement of the Crusader")) and (targetObj:GetDistance() < 15) and (not localObj:HasBuff("Seal of the Crusader")) and localMana > 15 and (not IsSpellOnCD("Judgement")) and (targetObj:GetHealthPercentage() > 25) then
-				if (Cast("Seal of the Crusader", targetObj)) then
-						return 3;
-				end
-			end
-
-			-- Check move into melee range
-			-- keep doing this if target is not in melee range
-			if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
-				return 3;
-			end
 
 			-- check if we are in combat?
-			if (IsInCombat()) and (targetObj:GetDistance() < self.meleeDistance) and (targetHealth > 99) and (not IsAutoCasting("Attack")) then
+			if (IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance) and (targetHealth > 99) and (not IsAutoCasting("Attack")) then
 				targetObj:AutoAttack();
 				self.waitTimer = GetTimeEX() + 200;	
 			end
@@ -424,8 +387,10 @@ function script_paladin:run(targetGUID)
 
 			--targetObj = GetGUIDObject(targetGUID);
 
-			if (script_paladin:healAndBuff(localObj, localMana)) then
-				return;
+			if (not targetObj:IsFleeing()) then
+				if (script_paladin:healAndBuff(localObj, localMana)) then
+					return;
+				end
 			end
 
 			-- Run backwards if we are too close to the target
@@ -469,7 +434,7 @@ function script_paladin:run(targetGUID)
 			end
 
 			-- dwarf stone form racial
-			if (HasSpell("Stoneform")) and (not IsSpellOnCD("Stoneform")) and (IsInCombat()) and (targetHealth >= 35) then
+			if (HasSpell("Stoneform")) and (not IsSpellOnCD("Stoneform")) and (IsInCombat()) and (targetHealth >= 35) and (localHealth >= 15) then
 				CastSpellByName("Stoneform");
 				self.waitTimer = GetTimeEX() + 1550;
 				return 0;
@@ -523,7 +488,7 @@ function script_paladin:run(targetGUID)
 				if (localObj:HasDebuff("Rabies")) or (localObj:HasDebuff("Corrosive Poison")) or (localObj:HasDebuff("Poison")) or (localObj:HasDebuff("Fevered Fatigue"))
 					or (localObj:HasDebuff("Dark Sludge")) or (localObj:HasDebuff("Corrosive Poison")) or (localObj:HasDebuff("Slowing Poison"))
 						or (localObj:HasDebuff("Infected Bite")) or (localObj:HasDebuff("Wandering Plague"))
-							or (localObj:HasDebuff("Plague Mind")) or (localObj:HasDebuff("Fevered Fatigue")) then
+							or (localObj:HasDebuff("Plague Mind")) or (localObj:HasDebuff("Fevered Fatigue")) or (localObj:HasDebuff("Tetanus")) then
 
 				-- add some randomness to how quick the bot casts cleanse
 
@@ -545,6 +510,13 @@ function script_paladin:run(targetGUID)
 				return 0;
 			end
 
+			-- Check: Seal of the Crusader until we use judgement
+			if (self.useSealOfCrusader) and (not targetObj:HasDebuff("Judgement of the Crusader")) and (targetObj:GetDistance() < 15) and (not localObj:HasBuff("Seal of the Crusader")) and localMana > 15 and (not IsSpellOnCD("Judgement")) and (targetObj:GetHealthPercentage() > 25) then
+				if (Cast("Seal of the Crusader", targetObj)) then
+					return 3;
+				end
+			end
+
 			-- Check: Exorcism
 			if (targetObj:GetCreatureType() == "Demon") or (targetObj:GetCreatureType() == "Undead") then
 				if (targetObj:GetDistance() < 30) and (HasSpell("Exorcism")) and (not IsSpellOnCD("Exorcism")) and (localMana > 30) then
@@ -557,20 +529,25 @@ function script_paladin:run(targetGUID)
 			-- Check: If we are in melee range, do melee attacks ----- RETURN 0   ONLY USE IN MELEE RANGE
 			if (targetObj:GetDistance() <= self.meleeDistance + 2) then
 
-			-- run forwards
-			if (not self.runOnce) then
-				if (targetHealth <= 29) and (script_grind.jump) then
-					if (script_paladin:runForwards(targetObj,1)) then
-						targetObj:FaceTarget();
-						return 4;
+				-- run forwards
+				if (not self.runOnce) then
+					if (targetHealth <= 29) and (script_grind.jump) then
+						if (script_paladin:runForwards(targetObj,1)) then
+							targetObj:FaceTarget();
+							return 4;
+						end
 					end
 				end
-			end
-					
-				if (targetObj:IsInLineOfSight() and not IsMoving()) then
-					if (targetObj:GetDistance() <= 6) and (targetObj:IsInLineOfSight()) then
-						targetObj:FaceTarget();	
+
+				
+				if (not targetObj:IsFleeing()) then
+					if (script_paladin:healAndBuff(localObj, localMana)) then
+						return;
 					end
+				end
+					
+				if (targetObj:IsInLineOfSight() and not IsMoving()) and (targetObj:GetDistance() <= 6) then
+					targetObj:FaceTarget();	
 				end
 
 				-- hammer of justice when fleeing
@@ -622,13 +599,19 @@ function script_paladin:run(targetGUID)
 				end
 
 				-- Seal of the Crusader until we used judgement
-				if (self.useSealOfCrusader) and (HasSpell("Seal of the Crusader")) and (localMana > 15) and (targetHealth > 45) then
+				if (self.useSealOfCrusader) and (HasSpell("Seal of the Crusader")) and (localMana > 15) and (targetHealth > 55) then
 					if (not targetObj:HasDebuff("Judgement of the Crusader")) and (not localObj:HasBuff("Seal of the Crusader")) and (not localObj:HasBuff("Seal of Light")) then
 						if (Buff("Seal of the Crusader", localObj)) then
 							self.waitTimer = GetTimeEX() + 1500; 
 							return 0;
 						 end
 					end 
+				elseif (targetHealth < 55) then
+					if (not localObj:HasBuff("Seal of Righteousness")) and (not localObj:HasBuff("Seal of the Crusader")) and (localMana > 15) then
+						CastSpellByName("Seal of Righteousness");
+						self.waitTimer = GetTimeEX() + 1750;
+						return 0;
+					end
 				end
 
 				-- use Judgement when we have crusader buffed
@@ -694,13 +677,15 @@ end
 
 function script_paladin:rest()
 
+	if (GetLocalPlayer():GetHealthPercentage() <= self.eatHealth) then
+		ClearTarget();
+	end
+
 	if(not self.isSetup) then
 		script_paladin:setup();
 	end
 	
 	self.runOnce = true;
-	
-	ClearTarget();
 
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
@@ -721,11 +706,11 @@ function script_paladin:rest()
 	local localHealth = localObj:GetHealthPercentage();
 	local localMana = localObj:GetManaPercentage();
 
-	ClearTarget();
-
 	-- heal before eating
-	if (script_paladin:healAndBuff(localObj, localMana)) then
-		return;
+	if (IsStanding()) and (not IsEating()) and (not IsDrinking()) then
+		if (script_paladin:healAndBuff(localObj, localMana)) then
+			return;
+		end
 	end
 
 	-- Buff with Blessing
@@ -742,10 +727,6 @@ function script_paladin:rest()
 			StopMoving();
 			return true;
 		end
-	end
-
-	if (script_paladin:healAndBuff(localObj, localMana)) and (not IsEating()) and (not IsDrinking()) and (IsStanding()) then
-		return;
 	end
 
 	-- Eat and Drink
@@ -768,6 +749,7 @@ function script_paladin:rest()
 			return true; 
 		else 
 			self.message = "No drinks! (or drink not included in script_helper)";
+			ClearTarget();
 			return true; 
 		end
 	end
@@ -787,11 +769,12 @@ function script_paladin:rest()
 			return true; 
 		else 
 			self.message = "No food! (or food not included in script_helper)";
+			ClearTarget();
 			return true; 
 		end	
 	end
 
-	if((localMana < 98 and IsDrinking()) or (localHealth < 98 and IsEating())) then
+	if ((localMana < 98 and IsDrinking()) or (localHealth < 98 and IsEating())) then
 		self.message = "Resting to full hp/mana...";
 		return true;
 	end
@@ -824,4 +807,23 @@ function script_paladin:window()
 			script_paladin:menuEX();
 		end
 	end
+end
+
+function script_paladin:paladinPull(targetObj)
+	-- Check: Exorcism
+	if (targetObj:GetDistance() < 30) and (HasSpell("Exorcism")) and (not IsSpellOnCD("Exorcism")) then
+		if (targetObj:GetCreatureType() == "Demon") or (targetObj:GetCreatureType() == "Undead") then
+			if (Cast("Exorcism", targetObj)) then 
+				self.message = "Pulling with Exocism...";
+				return 0;
+			end
+		end
+	end
+
+	-- Check move into melee range
+	if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
+		return 3;
+	end
+	
+return;
 end
