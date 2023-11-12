@@ -260,6 +260,11 @@ function script_paladin:run(targetGUID)
 		return 0; 
 	end
 
+	-- stop when target is dead and still in combat
+	if (IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() == 0) then
+		return 4;
+	end
+
 	-- Check: If Mainhand is broken stop bot
 	isMainHandBroken = GetInventoryItemBroken("player", 16);
 	
@@ -295,7 +300,7 @@ function script_paladin:run(targetGUID)
 	end
 	
 	--Valid Enemy
-	if (targetObj ~= 0) then
+	if (targetObj ~= 0) and (not localObj:IsStunned()) then
 
 		-- Cant Attack dead targets
 		if (targetObj:IsDead()) or (not targetObj:CanAttack()) then

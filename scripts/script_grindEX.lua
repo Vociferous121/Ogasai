@@ -29,13 +29,6 @@ function script_grindEX:doChecks()
 			end 
 		end
 
-		if (self.chicken) then
-			if (HasItem("Chicken Egg")) then
-				UseItem("Chicken Egg");
-			end
-		self.chicken = false;
-		end
-
 		if (not IsUsingNavmesh()) then UseNavmesh(true);
 			return true;
 		end

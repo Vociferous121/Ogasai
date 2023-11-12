@@ -16,21 +16,9 @@ function script_paladinEX:menu()
 
 		script_paladin.drinkMana = SliderInt("Drink below Mana%", 1, 100, script_paladin.drinkMana);
 
-		-- check potions and clean up menu
-		if (HasItem(script_helper.healthPotion[i])) or (HasItem(script_helper.manaPotion[i])) then
-			if (HasItem(script_helper.healthPotion[i])) then
-				script_paladin.potionHealth = SliderInt("Potion below HP %", 1, 99, script_paladin.potionHealth);
-			else
-				Text("No Health Potion in inventory!");
-			end
-			if (HasItem(script_helper.manaPotion[i])) then
-				script_paladin.potionMana = SliderInt("Potion below Mana %", 1, 99, script_paladin.potionMana);
-			else
-				Text("No Mana Potion in inventory!");
-			end
-		else
-			Text("No Potions in inventory!");
-		end
+		script_paladin.potionHealth = SliderInt("Potion below HP %", 1, 99, script_paladin.potionHealth);
+
+		script_paladin.potionMana = SliderInt("Potion below Mana %", 1, 99, script_paladin.potionMana);
 
 		Separator();
 
