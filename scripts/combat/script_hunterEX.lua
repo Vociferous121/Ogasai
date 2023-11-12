@@ -1,4 +1,5 @@
 script_hunterEX = {
+
 	
 }
 
@@ -111,7 +112,7 @@ function script_hunterEX:petChecks()
 	end
 
 	-- Check: If pet isn't happy, feed it 
-	if (petHP > 0 and script_hunter.hasPet) then
+	if (petHP > 0) and (script_hunter.hasPet) and (script_hunter.useFeedPet) then
 	
 		local happiness, damagePercentage, loyaltyRate = GetPetHappiness();
 
@@ -236,12 +237,13 @@ function script_hunterEX:menu()
 		Separator();
 
 		Text('Vendor/Bag settings:');
-		wasClicked, script_hunter.useVendor = Checkbox("Vendor when full inventory.", script_hunter.useVendor);	
+		wasClicked, script_hunter.useVendor = Checkbox("Vendor when full inventory", script_hunter.useVendor);	
 		if (script_grind.useVendor) then
 			script_hunter.useVendor = true;
 		end
 		wasClicked, script_hunter.buyWhenQuiverEmpty = Checkbox("Buy ammo when only 1 stack left.", script_hunter.buyWhenQuiverEmpty);
 		if (script_hunter.hasPet) then	
+			wasClicked, script_hunter.useFeedPet = Checkbox("Auto Feed Pet", script_hunter.useFeedPet);
 			Text("Bag# with pet food (2-5)");
 			script_hunter.bagWithPetFood = InputText("BPF", script_hunter.bagWithPetFood);
 			Text("Bagslot# with pet food (1-Maxslot)");

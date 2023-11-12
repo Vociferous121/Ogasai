@@ -211,9 +211,6 @@ function script_paladin:healAndBuff(localObj, localMana)
 	-- holy light
 	if (localMana > 18) and (GetLocalPlayer():GetHealthPercentage() <= self.holyLightHealth) then
 		CastSpellByName("Holy Light", localObj);
-		if (IsMoving()) then
-			StopMoving();
-		end
 		self.waitTimer = GetTimeEX() + 5050;
 		return 0;
 	end

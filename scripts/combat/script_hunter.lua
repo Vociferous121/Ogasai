@@ -28,7 +28,9 @@ script_hunter = {
 	followTargetDistance = 38,
 	useBandage = false,
 	hasBandages = false,
-	waitAfterCombat = 8;
+	waitAfterCombat = 8,
+	useFeedPet = true,
+
 }	
 
 function script_hunter:setup()
@@ -488,7 +490,7 @@ function script_hunter:rest()
 	end
 
 	-- Check: Let the feed pet duration last, don't engage new targets
-	if (self.feedTimer > GetTimeEX() and not IsInCombat() and self.hasPet and GetPet() ~= 0) then 
+	if (self.feedTimer > GetTimeEX()) and (self.useFeedPet) and (not IsInCombat()) and (self.hasPet) and (GetPet() ~= 0) then 
 		self.message = "Feeding the pet, pausing...";
 		if (GetPet():GetDistance() > 8) then
 			PetFollow();
