@@ -30,6 +30,7 @@ script_hunter = {
 	hasBandages = false,
 	waitAfterCombat = 8,
 	useFeedPet = true,
+	meleeDistance = 5,
 
 }	
 
@@ -254,6 +255,14 @@ function script_hunter:run(targetGUID)
 			end
 		end 
 
+		if (self.hasPet) and (GetPet() ~= 0) and (GetLocalPlayer():GetUnitsTarget() == 0) and (GetPet():GetDistance() > 34) then 
+			PetFollow();
+		end
+
+		if (self.hasPet) and (GetPet() ~= 0) and (GetLocalPlayer():GetUnitsTarget() ~= 0) and (GetPet():GetDistance() <= 34) then
+			PetAttack();
+		end
+
 		if (IsInCombat()) then
 			if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) and (targetObj:GetDistance() < 35) and (targetObj:IsInLineOfSight()) then
 			CastSpellByName("Auto Shot");
@@ -263,14 +272,14 @@ function script_hunter:run(targetGUID)
 		end
 
 	-- Auto Attack
-		if (targetObj:GetDistance() < 40) then
+		if (targetObj:GetDistance() < 46) then
 			targetObj:AutoAttack();
 			if (not IsMoving()) and (self.hasPet) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 				PetAttack();
 			end
 		end
 		
-		if (not IsInCombat()) and (targetObj:GetDistance() < 36) and (targetObj:GetDistance() > 10) and (localHealth > self.eatHealth) and (script_grind.lootObj == nil) then
+		if (not IsInCombat()) and (targetObj:GetDistance() < 36) and (targetObj:GetDistance() > self.meleeDistance) and (localHealth > self.eatHealth) and (script_grind.lootObj == nil) then
 
 	-- this above here is causing the bot to attack before looting
 
@@ -305,7 +314,7 @@ function script_hunter:run(targetGUID)
 				return 3;
 			end
 
-			if (hasPet) then
+			if (not self.hasPet) then
 				if (targetObj:GetDistance() < 10) then
 					targetObj:AutoAttack();
 				else
@@ -826,7 +835,7 @@ function script_hunter:doInCombatRoutine(targetObj, localMana)
 
 	-- Check: If pet is too far away set it to follow us, else attack
 	if (self.hasPet and GetPet() ~= 0) then
-		if (pet:GetDistance() > 30) then 
+		if (pet:GetDistance() > 27) then 
 			PetFollow(); 
 		else 
 			if (pet:GetUnitsTarget() ~= nil and pet:GetUnitsTarget() ~= 0) then

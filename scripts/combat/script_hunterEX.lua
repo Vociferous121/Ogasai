@@ -242,8 +242,12 @@ function script_hunterEX:menu()
 			script_hunter.useVendor = true;
 		end
 		wasClicked, script_hunter.buyWhenQuiverEmpty = Checkbox("Buy ammo when only 1 stack left.", script_hunter.buyWhenQuiverEmpty);
-		if (script_hunter.hasPet) then	
-			wasClicked, script_hunter.useFeedPet = Checkbox("Auto Feed Pet", script_hunter.useFeedPet);
+		if (script_hunter.buyWhenQuiverEmpty) then
+			script_hunter.quiverBagNr = InputText("Bag# for quiver (2-5)", script_hunter.quiverBagNr);
+		end
+		Separator();
+		wasClicked, script_hunter.useFeedPet = Checkbox("Auto Feed Pet", script_hunter.useFeedPet);
+		if (script_hunter.hasPet) and (script_hunter.useFeedPet) then	
 			Text("Bag# with pet food (2-5)");
 			script_hunter.bagWithPetFood = InputText("BPF", script_hunter.bagWithPetFood);
 			Text("Bagslot# with pet food (1-Maxslot)");
@@ -252,9 +256,6 @@ function script_hunterEX:menu()
 			script_hunter.foodName = InputText("PFN", script_hunter.foodName);
 			Text('Always put the pet food in the last slot of the bag.');
 			Separator();
-		end
-		if (script_hunter.buyWhenQuiverEmpty) then
-			script_hunter.quiverBagNr = InputText("Bag# for quiver (2-5)", script_hunter.quiverBagNr);
 		end
 		if (script_hunter.hsWhenStop) then
 			script_hunter.hsBag = InputText("Bag# for HS", script_hunter.hsBag);
