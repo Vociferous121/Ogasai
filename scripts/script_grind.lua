@@ -808,7 +808,7 @@ function script_grind:drawStatus()
 	if (script_grind.useVendor) then
 		DrawText('Vendor - ' .. script_vendorMenu:getInfo(), x, y, r+255, g+255, b+0); y = y + 15;
 		DrawText('Vendor Status: ', x, y, r+255, g+255, b+0);
-		DrawText(script_vendor:getMessage(), x+52, y, 255, 0, 0);
+		DrawText(script_vendor:getMessage(), x+105, y, 0, 255, 255);
 	end
 
 	local time = ((GetTimeEX()-self.newTargetTime)/1000); 

@@ -4,7 +4,7 @@ script_paladin = {
 	isSetup = false,
 	isChecked = true,
 	stopIfMHBroken = true,
-	useFlashOfLightCombat = true,
+	useFlashOfLightCombat = false,
 	aura = "Devotion Aura",
 	blessing = "Blessing of Wisdom",
 	waitTimer = 0,
@@ -219,7 +219,7 @@ function script_paladin:healAndBuff(localObj, localMana)
 	-- flash of light not in combat
 	if (HasSpell("Flash of Light")) and (localMana >= 40) and (not IsInCombat()) and (localHealth >= self.holyLightHealth) and (localHealth <= 85) then
 		CastHeal("Flash of Light", localObj);
-		self.waitTimer = GetTimeEX() + 1500;
+		self.waitTimer = GetTimeEX() + 1600;
 		return 0;
 	end
 
@@ -236,7 +236,7 @@ function script_paladin:healAndBuff(localObj, localMana)
 	if (self.useFlashOfLightCombat) then
 		if (IsInCombat()) and (HasSpell("Flash of Light")) and (localHealth <= self.flashOfLightHP) and (localMana >= 10) then
 			CastHeal("Flash of Light", localObj);
-			self.waitTimer = GetTimeEX() + 1500;
+			self.waitTimer = GetTimeEX() + 1575;
 			self.message = "Flash of Light enabled - Healing!";
 			return 0;				
 		end
@@ -677,8 +677,8 @@ function script_paladin:run(targetGUID)
 				end
 
 				-- Consecration when we have adds
-				if (HasSpell("Consecration")) and (not IsSpellOnCD("Consecration")) and (localMana > self.consecrationMana) then
-					if (script_grind:enemiesAttackingUs(4) >= 1) then
+				if (HasSpell("Consecration")) and (not IsSpellOnCD("Consecration")) and (localMana >= self.consecrationMana) then
+					if (script_grind:enemiesAttackingUs() >= 2) then
 						CastSpellByName("Consecration"); self.waitTimer = GetTimeEX() + 1500;
  						return 0;	
 					end
