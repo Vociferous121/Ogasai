@@ -217,10 +217,12 @@ function script_paladin:healAndBuff(localObj, localMana)
 	end
 
 	-- flash of light not in combat
-	if (HasSpell("Flash of Light")) and (localMana >= 40) and (not IsInCombat()) and (localHealth >= self.holyLightHealth) and (localHealth <= 85) then
-		CastHeal("Flash of Light", localObj);
-		self.waitTimer = GetTimeEX() + 1600;
-		return 0;
+	if (not IsInCombat()) then
+		if (HasSpell("Flash of Light")) and (localMana >= 40) and (localHealth >= self.holyLightHealth) and (localHealth <= 85) and (not IsLooting()) and (script_grind.lootObj == nil) then
+			CastHeal("Flash of Light", localObj);
+			self.waitTimer = GetTimeEX() + 1600;
+			return 0;
+		end
 	end
 
 	local checkHealth = GetLocalPlayer():GetHealthPercentage();
