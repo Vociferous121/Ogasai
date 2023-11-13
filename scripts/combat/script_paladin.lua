@@ -12,7 +12,7 @@ script_paladin = {
 	drinkMana = 35,
 	shieldHealth = 13,
 	lohHealth = 9,
-	holyLightHealth = 55,
+	holyLightHealth = 45,
 	flashOfLightHP = 70,
 	potionHealth = 10,
 	potionMana = 15,
@@ -176,6 +176,21 @@ function script_paladin:healAndBuff(localObj, localMana)
 		end
 	end
 
+	-- Buff with Blessing
+	if (self.blessing ~= 0) and (HasSpell(self.blessing)) then
+		if (localMana > 10) and (not localObj:HasBuff(self.blessing)) then
+			Buff(self.blessing, localObj);
+			self.waitTimer = GetTimeEX() + 1750;
+			return 0;
+		end
+	end
+
+	if (localObj:HasBuff("Judgement")) and (not IsSpellOnCD("Judgement")) and (localObj:HasBuff("Seal of Righteousness")) then
+		CastSpellByName("Judgement");
+		self.waitTimer = GetTimeEX() + 1650;
+		return 0;
+	end
+
 	-- Check: Use Lay of Hands
 	if (localHealth < self.lohHealth) and (HasSpell("Lay on Hands")) and (not IsSpellOnCD("Lay on Hands")) then 
 		if (Cast("Lay on Hands", localObj)) then 
@@ -208,10 +223,12 @@ function script_paladin:healAndBuff(localObj, localMana)
 		return 0;
 	end
 
+	local checkHealth = GetLocalPlayer():GetHealthPercentage();
+
 	-- holy light
-	if (localMana > 18) and (GetLocalPlayer():GetHealthPercentage() <= self.holyLightHealth) then
-		CastSpellByName("Holy Light", localObj);
-		self.waitTimer = GetTimeEX() + 5050;
+	if (localMana > 18) and (checkHealth < self.holyLightHealth) and (not IsMoving()) then
+		CastHeal("Holy Light", localObj);
+		self.waitTimer = GetTimeEX() + 3250;
 		return 0;
 	end
 
@@ -222,15 +239,6 @@ function script_paladin:healAndBuff(localObj, localMana)
 			self.waitTimer = GetTimeEX() + 1500;
 			self.message = "Flash of Light enabled - Healing!";
 			return 0;				
-		end
-	end
-
-	-- Buff with Blessing
-	if (self.blessing ~= 0) and (HasSpell(self.blessing)) then
-		if (localMana > 10) and (not localObj:HasBuff(self.blessing)) then
-			Buff(self.blessing, localObj);
-			self.waitTimer = GetTimeEX() + 1750;
-			return 0;
 		end
 	end
 
@@ -276,6 +284,10 @@ function script_paladin:run(targetGUID)
 	if (targetObj == 0) or (targetObj == nil) then
 		return 2;
 	end	
+
+	if (script_paladin:healAndBuff(localObj, localMana)) then
+		return;
+	end
 
 	-- Check: Do nothing if we are channeling or casting or wait timer
 	if (IsChanneling()) or (IsCasting()) or (self.waitTimer > GetTimeEX()) then

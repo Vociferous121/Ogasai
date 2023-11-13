@@ -137,9 +137,9 @@ end
 function script_hunter:draw()
 	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
 	if (onScreen) then
-		DrawText(self.message, tX+75, tY+44, 255, 0, 0);
+		DrawText(self.message, tX+75, tY+44, 255, 250, 205);
 	else
-		DrawText(self.message, 25, 185, 0, 255, 255);
+		DrawText(self.message, 25, 185, 255, 250, 205);
 	end
 end
 
@@ -255,12 +255,13 @@ function script_hunter:run(targetGUID)
 			end
 		end 
 
-		if (self.hasPet) and (GetPet() ~= 0) and (GetLocalPlayer():GetUnitsTarget() == 0) and (GetPet():GetDistance() > 34) then 
-			PetFollow();
-		end
-
-		if (self.hasPet) and (GetPet() ~= 0) and (GetLocalPlayer():GetUnitsTarget() ~= 0) and (GetPet():GetDistance() <= 34) then
+		if (self.hasPet) and (GetPet() ~= 0) then 
+			if (GetPet():GetDistance() > 34) and (GetLocalPlayer():GetUnitsTarget() == 0) then 
+				PetFollow();
+			end
+		elseif (GetPet():GetDistance() <= 34) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then 
 			PetAttack();
+			targetObj:AutoAttack();
 		end
 
 		if (IsInCombat()) then
@@ -417,7 +418,7 @@ function script_hunter:mendPet(localMana, petHP)
 			if (GetPet():GetDistance() < 20 and localMana > 10 and GetPet():IsInLineOfSight()) then 
 				if (IsMoving()) then StopMoving(); return true; end 
 				CastSpellByName("Mend Pet"); 
-				self.waitTimer = GetTimeEX() + 1850;
+				self.waitTimer = GetTimeEX() + 3850;
 				return true;
 			elseif (localMana > 10) then 
 				script_nav:moveToTarget(GetLocalPlayer(), GetPet():GetPosition()); 
@@ -694,6 +695,7 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 					script_grind.tickRate = 100;
 					self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
 					self.message = ("waiting dead target line 660");
+					return 4;
 				end
 			end
 
@@ -742,8 +744,9 @@ function script_hunter:doOpenerRoutine(targetGUID, pet)
 	end 
 	
 	if (not IsInCombat()) then
-		script_hunter:doPullAttacks(targetObj);
-		targetObj:FaceTarget();
+		if (script_hunter:doPullAttacks(targetObj)) then
+			targetObj:FaceTarget();
+		end
 	end
 
 	return true; -- return true so we dont move closer to the mob
@@ -761,6 +764,7 @@ function script_hunter:doPullAttacks(targetObj)
 					script_grind.tickRate = 100;
 					self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
 					self.message = ("waiting dead target line 761");
+					return 4;
 				end
 			end
 
@@ -826,6 +830,7 @@ function script_hunter:doInCombatRoutine(targetObj, localMana)
 					script_grind.tickRate = 100;
 					self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
 					self.message = ("waiting dead target line 761");
+					return 4;
 				end
 			end
 
@@ -879,9 +884,6 @@ function script_hunter:doInCombatRoutine(targetObj, localMana)
 		if(targetObj:IsInLineOfSight() and (targetObj:GetDistance() < 35 or targetObj:GetDistance() < 4)) then 
 			if (IsMoving()) then
 				StopMoving();
-			end
-			if (not targetObj:FaceTarget()) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
-				targetObj:FaceTarget();
 			end
 		end
 	end
