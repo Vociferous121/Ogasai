@@ -20,6 +20,7 @@ script_paladin = {
 	meleeDistance = 3.4,
 	useSealOfCrusader = true,
 	useJudgement = true,
+	useFlashOfLightCombat = false,
 }
 
 function script_paladin:setup()
@@ -287,12 +288,14 @@ function script_paladin:healAndBuff(localObj, localMana)
 	-- flash of light not in combat
 	if (not IsInCombat()) and (localMana > self.drinkMana + 10) then
 		if (HasSpell("Flash of Light")) and (localMana >= 40) and (localHealth >= self.holyLightHealth) and (localHealth <= 85) and (not IsLooting()) and (script_grind.lootObj == nil) then
+			script_grind.tickRate = 100;
 			if (IsMoving()) then
 				StopMoving();
 			end
 			CastHeal("Flash of Light", localObj);
-			self.waitTimer = GetTimeEX() + 1550;
-			return 0;
+			ClearTarget();
+			self.waitTimer = GetTimeEX() + 1500;
+			return;
 		end
 	end
 
@@ -311,23 +314,28 @@ function script_paladin:healAndBuff(localObj, localMana)
 	-- Flash of Light in combat
 	if (self.useFlashOfLightCombat) then
 		if (IsInCombat()) and (HasSpell("Flash of Light")) and (localHealth <= self.flashOfLightHP) and (localMana >= 10) then
+			script_grind.tickRate = 100;
 			if (IsMoving()) then
 				StopMoving();
 			end
 			CastHeal("Flash of Light", localObj);
-			self.waitTimer = GetTimeEX() + 1575;
+			self.waitTimer = GetTimeEX() + 1500;
 			self.message = "Flash of Light enabled - Healing!";
-			return 0;				
+			if (localMana > 8) then
+				CastSpellByName("Flash of Light", localObj);
+			end
+			return;				
 		end
 	end
 
 	--flash of light in combat very low health and mana
 	if (HasSpell("Flash of Light")) and (IsInCombat()) and (localMana < 15) and (localMana > 5) and (localHealth < self.holyLightHealth) then
+			script_grind.tickRate = 100;
 			if (IsMoving()) then
 				StopMoving();
 			end
 			CastHeal("Flash of Light", localObj);
-			self.waitTimer = GetTimeEX() + 1575;
+			self.waitTimer = GetTimeEX() + 1500;
 			self.message = "We are dying - trying to save!";
 			return 0;
 	end
@@ -376,7 +384,9 @@ function script_paladin:run(targetGUID)
 	end	
 
 	if (script_paladin:healAndBuff(localObj, localMana)) then
-		ClearTarget();
+		if (not IsInCombat()) then
+			ClearTarget();
+		end
 		return 4;
 	end
 
@@ -453,6 +463,10 @@ function script_paladin:run(targetGUID)
 				return 0;
 			 end
 
+			if (script_paladin:healAndBuff(localObj, localMana)) then
+				return 4;
+			end
+
 			-- Check move into melee range
 			if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
 				return 3;
@@ -480,6 +494,7 @@ function script_paladin:run(targetGUID)
 
 			if (not IsAutoCasting("Attack")) then
 				targetObj:AutoAttack();
+				targetObj:FaceTarget();
 			end
 
 			-- Check move into melee range
@@ -712,7 +727,7 @@ end
 
 function script_paladin:rest()
 
-	if (GetLocalPlayer():GetHealthPercentage() <= self.eatHealth) then
+	if (GetLocalPlayer():GetHealthPercentage() <= self.eatHealth) and (not IsInCombat()) then
 		ClearTarget();
 	end
 
@@ -740,8 +755,8 @@ function script_paladin:rest()
 	local localMana = localObj:GetManaPercentage();
 
 	-- heal before eating
-	if (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsMoving()) then
-		if (script_paladin:healAndBuff(localObj, localMana)) and (localMana > 8) then
+	if (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsMoving()) and (not IsInCombat()) and (localMana > 8) then
+		if (script_paladin:healAndBuff(localObj, localMana)) then
 				ClearTarget();
 			if (IsMoving()) then
 				StopMoving();
