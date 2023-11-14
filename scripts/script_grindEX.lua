@@ -5,8 +5,6 @@ script_grindEX = {
 	deathCounter = 0,
 	logoutOnHearth = true,
 	allowSwim = false,
-	chicken = true;
-
 }
 
 function script_grindEX:doChecks() 
