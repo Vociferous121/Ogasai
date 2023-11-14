@@ -29,9 +29,38 @@ function script_checkDebuffs:hasDisease()
 		or (player:HasDebuff("Plague Mind"))
 		or (player:HasDebuff("Fevered Fatigue"))
 		or (player:HasDebuff("Tetanus")) then
-	return true;
+
+		return true;
 	else
 
-	return false;
+		return false;
+	end
+end
+
+function script_checkDebuffs:hasDisabledMovement()
+
+	local player = GetLocalPlayer();
+
+	if (player:HasDebuff("Web")) then
+	
+		return true;
+
+	else 
+	
+		return false;
+	end
+end
+
+function script_checkDebuffs:petDebuff()
+
+	local pet = GetPet();
+
+	if (pet:HasDebuff("Web")) then
+
+		return true;
+	
+	else
+
+		return false;
 	end
 end

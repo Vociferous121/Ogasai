@@ -125,7 +125,7 @@ end
 -- Run backwards if the target is within range
 function script_hunter:runBackwards(targetObj, range) 
 	local localObj = GetLocalPlayer();
- 	if (targetObj ~= 0) and (not localObj:IsMovementDisabed()) then
+ 	if (targetObj ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) then
  		local xT, yT, zT = targetObj:GetPosition();
  		local xP, yP, zP = localObj:GetPosition();
  		local distance = targetObj:GetDistance();
@@ -231,7 +231,9 @@ function script_hunter:run(targetGUID)
 	end
 
 	if (not targetObj:IsFleeing()) and (not targetObj:IsInLineOfSight()) then
+		if (not script_checkDebuffs:petDebuff()) then
 			PetFollow();
+		end
 	end	
 
 	-- set tick rate for script to run
@@ -271,7 +273,9 @@ function script_hunter:run(targetGUID)
 		targetHealth = targetObj:GetHealthPercentage();
 
 		if (not targetObj:IsFleeing()) and (not targetObj:IsInLineOfSight()) then
-			PetFollow();
+			if (not script_checkDebuffs:petDebuff()) then
+				PetFollow();
+			end
 		end
 
 		-- check line of sight
@@ -332,8 +336,11 @@ function script_hunter:run(targetGUID)
 			end
 
 			if (not targetObj:IsFleeing()) and (not targetObj:IsInLineOfSight()) then
-				PetFollow();
+				if (not script_checkDebuffs:petDebuff()) then
+					PetFollow();
+				end
 			end
+
 			-- force auto shot if in combat
 			if (IsInCombat()) then
 				if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) and (targetObj:GetDistance() < 30) and (targetObj:IsInLineOfSight()) then
@@ -400,7 +407,7 @@ function script_hunter:run(targetGUID)
 			end
 		
 			-- move backwards if target too close for melee attacks
-			if (targetObj:GetDistance() < 0.50) and (targetObj:IsInLineOfSight()) then
+			if (targetObj:GetDistance() < 0.50) then
 				if (script_hunter:runBackwards(targetObj, 2)) then
 					self.waitTimer = GetTimeEX() + 1850;
 					return 0;
