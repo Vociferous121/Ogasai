@@ -14,28 +14,30 @@ function script_hunterEX:chooseAspect(targetObj)
 		return false;
 	end
 
-	hasHawk, hasMonkey, hasCheetah = HasSpell("Aspect of the Hawk"), HasSpell("Aspect of the Monkey"), HasSpell("Aspect of the Cheetah");
+	hasHawk = HasSpell("Aspect of the Hawk");
+	hasMonkey = HasSpell("Aspect of the Monkey");
+	hasCheetah = HasSpell("Aspect of the Cheetah");
 	
-	if (hasMonkey and localObj:GetLevel() < 10) then 
+	if (hasMonkey) and (localObj:GetLevel() < 10) then 
 		if (not localObj:HasBuff('Aspect of the Monkey')) then  
 			CastSpellByName('Aspect of the Monkey'); 
 			return true; 
 		end	
-	elseif (hasMonkey and (targetObj ~= nil and not targetObj ~= 0)) then
-		if (targetObj:GetDistance() < 5 and IsInCombat() and localHealth < 50) then
+	elseif (hasMonkey) and (targetObj ~= nil) and (not targetObj ~= 0) then
+		if (targetObj:GetDistance() <= 5) and (IsInCombat()) and (localHealth <= 50) then
 			if (not localObj:HasBuff('Aspect of the Monkey')) then  
 				CastSpellByName('Aspect of the Monkey'); 
 				return true; 
 			end
 		else
-			if (hasHawk and IsInCombat()) then 
+			if (hasHawk) and (targetObj:GetDistance() <= 37) then 
 				if (not localObj:HasBuff('Aspect of the Hawk')) then 
 					CastSpellByName('Aspect of the Hawk'); 
 					return true; 
 				end 
 			end
 		end
-	elseif (script_hunter.useCheetah) and (hasCheetah and not IsInCombat() and targetObj == nil) then 
+	elseif (script_hunter.useCheetah) and (hasCheetah) and (not IsInCombat()) and (targetObj == nil) then 
 		if (not localObj:HasBuff('Aspect of the Cheetah')) then 
 			CastSpellByName('Aspect of the Cheetah'); 
 			return true;  
@@ -60,9 +62,9 @@ function script_hunterEX:petChecks()
 	end
 
 	-- Check: If pet is dismissed then Call pet 
-	if (GetPet() == 0 and script_hunter.hasPet) then
+	if (GetPet() == 0) and (script_hunter.hasPet) and (IsStanding()) then
 		script_hunter.message = "Pet is missing, calling pet...";
-		if (IsMoving() or not IsStanding()) then
+		if (IsMoving()) or (not IsStanding()) then
 			StopMoving();
 		end
 		CastSpellByName('Call Pet'); 
@@ -71,9 +73,9 @@ function script_hunterEX:petChecks()
 	end
 
 	-- Check: If pet is dead, then revive pet
-	if (script_hunter.hasPet and GetPet():IsDead() and not IsInCombat() and HasSpell("Revive Pet")) then	
+	if (script_hunter.hasPet) and (GetPet():IsDead()) and (not IsInCombat()) and (HasSpell("Revive Pet")) then	
 		script_hunter.message = "Pet is dead, reviving pet...";
-		if (IsMoving() or not IsStanding()) then 
+		if (IsMoving()) or (not IsStanding()) then 
 			StopMoving(); 
 			return true; 
 		end
@@ -89,7 +91,7 @@ function script_hunterEX:petChecks()
 	end
 
 	-- Check: Stop if we ran out of pet food in the "pet food slot"
-	if (script_hunter.stopWhenNoPetFood and script_hunter.hasPet and not IsInCombat()) then
+	if (script_hunter.stopWhenNoPetFood) and (script_hunter.hasPet) and (not IsInCombat()) then
 
 		local texture, itemCount, locked, quality, readable = GetContainerItemInfo(script_hunter.bagWithPetFood-1, script_hunter.slotWithPetFood);
 
@@ -116,7 +118,7 @@ function script_hunterEX:petChecks()
 	
 		local happiness, damagePercentage, loyaltyRate = GetPetHappiness();
 
-		if (not GetPet():IsDead() and script_hunter.feedTimer < GetTimeEX() and not IsInCombat()) then
+		if (not GetPet():IsDead()) and (script_hunter.feedTimer < GetTimeEX()) and (not IsInCombat()) then
 			if (happiness < 3 or loyaltyRate < 0) and (GetPet():GetDistance() <= 8) and (not IsInCombat()) then
 				script_hunter.message = "Pet is not happy, feeding the pet...";
 				if (not IsStanding()) then
@@ -128,8 +130,8 @@ function script_hunterEX:petChecks()
 				PickupContainerItem(script_hunter.bagWithPetFood-1, script_hunter.slotWithPetFood);
 
 				-- Set a 20 seconds timer for this check (Feed Pet duration)
-				script_hunter.feedTimer = GetTimeEX() + 20000; 
-				script_hunter.waitTimer = GetTimeEX() + 1850; 
+					script_hunter.feedTimer = GetTimeEX() + 20000; 
+					script_hunter.waitTimer = GetTimeEX() + 1850; 
 				return true;
 			end
 		end
@@ -140,16 +142,16 @@ function script_hunterEX:petChecks()
 
 	if (mendPet) then
 		-- Check: Mend the pet if it has lower than 70% HP and out of combat
-		if (script_hunter.hasPet and petHP < 70 and petHP > 0 and not IsInCombat()) then
+		if (script_hunter.hasPet) and (petHP < 70) and (petHP > 0) and (not IsInCombat()) then
 			if (GetPet():GetDistance() > 8) then
 				PetFollow();
 				script_hunter.waitTimer = GetTimeEX() + 1850; 
 				return true;
 			end
-			if (GetPet():GetDistance() < 20 and localMana > 10) then
-				if (script_hunter.hasPet and petHP < 70 and not IsInCombat() and petHP > 0) then
+			if (GetPet():GetDistance() < 20) and (localMana > 10) then
+				if (script_hunter.hasPet) and (petHP < 70) and (not IsInCombat()) and (petHP > 0) then
 					script_hunter.message = "Pet has lower than 70% HP, mending pet...";
-					if (IsMoving() or not IsStanding()) then
+					if (IsMoving()) or (not IsStanding()) then
 						StopMoving();
 						return true;
 					end
@@ -192,7 +194,7 @@ function script_hunterEX:menu()
 
 		local wasClicked = false;
 
-		if (CollapsingHeader("Combat Options")) then
+	if (CollapsingHeader("Combat Options")) then
 
 		if (HasItem("Linen Bandage")) or 
 			(HasItem("Heavy Linen Bandage")) or 
@@ -213,9 +215,10 @@ function script_hunterEX:menu()
 		if (self.menuBandages) or (GetLocalPlayer():GetLevel() >= 10) then
 			Separator();
 		end
+
 		if (GetLocalPlayer():GetLevel() >= 10) then
 			Text('Use Pet or not:');
-			wasClicked, script_hunter.hasPet = Checkbox("Is Pet Active?", script_hunter.hasPet);
+			wasClicked, script_hunter.hasPet = Checkbox("Use Pet", script_hunter.hasPet);
 		end
 
 		if (self.menuBandages) then
@@ -229,6 +232,7 @@ function script_hunterEX:menu()
 		end
 
 		Separator();
+
 		Text('Drink below mana percentage');
 		script_hunter.drinkMana = SliderFloat("M%", 1, 100, script_hunter.drinkMana);
 		Text('Eat below health percentage');
@@ -237,10 +241,12 @@ function script_hunterEX:menu()
 		script_hunter.potionHealth = SliderFloat("HP%", 1, 99, script_hunter.potionHealth);
 		Text('Use mana potions below percentage');
 		script_hunter.potionMana = SliderFloat("MP%", 1, 99, script_hunter.potionMana);
+
 		Separator();
 
 		Text('Vendor/Bag settings:');
 		wasClicked, script_hunter.useVendor = Checkbox("Vendor when full inventory", script_hunter.useVendor);	
+
 		if (script_grind.useVendor) then
 			script_hunter.useVendor = true;
 		end
@@ -252,32 +258,43 @@ function script_hunterEX:menu()
 		end
 	
 		wasClicked, script_hunter.buyWhenQuiverEmpty = Checkbox("Buy ammo when only 1 stack left.", script_hunter.buyWhenQuiverEmpty);
+
 		if (script_hunter.buyWhenQuiverEmpty) then
 			script_hunter.quiverBagNr = InputText("Bag# for quiver (2-5)", script_hunter.quiverBagNr);
 		end
+
 		Separator();
+
 		wasClicked, script_hunter.useFeedPet = Checkbox("Auto Feed Pet", script_hunter.useFeedPet);
+
 		if (script_hunter.hasPet) and (script_hunter.useFeedPet) then	
 			Text("Bag# with pet food (2-5)");
 			script_hunter.bagWithPetFood = InputText("BPF", script_hunter.bagWithPetFood);
+
 			Text("Bagslot# with pet food (1-Maxslot)");
 			script_hunter.slotWithPetFood = InputText("SPF", script_hunter.slotWithPetFood);
+
+			Text('Always put the pet food in the last slot of the bag.');
 			Text("Pet Food Name:");
 			script_hunter.foodName = InputText("PFN", script_hunter.foodName);
-			Text('Always put the pet food in the last slot of the bag.');
 			Separator();
 		end
+
 		if (script_hunter.hsWhenStop) then
 			script_hunter.hsBag = InputText("Bag# for HS", script_hunter.hsBag);
 			script_hunter.hsSlot = InputText("Bag-slot (1-X) for HS", script_hunter.hsSlot);
 		end
+
 		Separator();	
+		
 		Text('Stop settings:');
 		wasClicked, script_hunter.stopWhenBagsFull = Checkbox("Stop when bags are full", script_hunter.stopWhenBagsFull);
 		wasClicked, script_hunter.stopWhenQuiverEmpty = Checkbox("Stop when we run out of ammo", script_hunter.stopWhenQuiverEmpty);
+		
 		if (script_hunter.hasPet) then
 			wasClicked, script_hunter.stopWhenNoPetFood = Checkbox("Stop when we run out of pet food", script_hunter.stopWhenNoPetFood);
 		end
+		
 		wasClicked, script_hunter.hsWhenStop = Checkbox("Use HS before stopping the bot, if not on CD", script_hunter.hsWhenStop);
-end
+	end
 end

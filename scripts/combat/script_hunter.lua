@@ -201,17 +201,18 @@ function script_hunter:run(targetGUID)
 	-- force bot to attack pets target
 	if (IsInCombat()) and (playerHasTarget == 0) then
 		if (petHasTarget ~= 0) then
+			GetPet():FaceTarget();
 			TargetNearestEnemy();
 		else
 			return 4;
 		end
 	end
-	
+
 	if (IsInCombat()) and (playerHasTarget == 0) then
 		self.message = "No Target - stuck in combat! WAITING!";
 		return 4;
 	end	
-	
+
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
@@ -260,11 +261,11 @@ function script_hunter:run(targetGUID)
 		end
 
 		-- Auto Attack
-		if (targetObj:GetDistance() < 42) then
-			targetObj:AutoAttack();
-			if (not IsMoving()) and (self.hasPet) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+		if (targetObj:GetDistance() < 35) then
+			if (self.hasPet) then
 				PetAttack();
 			end
+			targetObj:AutoAttack();
 		end
 
 		-- Check: if we target player pets/totems
@@ -276,72 +277,20 @@ function script_hunter:run(targetGUID)
 		end 
 
 		-- check pet range
-		if (self.hasPet) and (GetPet() ~= 0) then 
-			if (GetPet():GetDistance() > 30) and (GetLocalPlayer():GetUnitsTarget() == 0) then 
-				PetFollow();
-			end
-		elseif (self.hasPet) and (GetPet():GetDistance() <= 30) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then 
+		if (self.hasPet) and (GetPet() ~= 0) and (GetPet():GetDistance() > 35) and (GetLocalPlayer():GetUnitsTarget() == 0) then 
+			PetFollow();
+		end
+		if (self.hasPet) and (GetPet():GetDistance() <= 32) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then 
 			PetAttack();
 			targetObj:AutoAttack();
 		end
 	
-	-- not in combat do pull stuff
+		-- not in combat do pull stuff
 
-	if (not IsInCombat()) and (targetObj:GetDistance() < 35) and (targetObj:GetDistance() > 15) then
-
-			if (targetObj:GetDistance() > 30) or (not targetObj:IsInLineOfSight()) then
-				return 3;
-			end
-
-			if (self.hasPet) and (not IsMoving()) then
-				PetAttack();
-				self.waitTimer = GetTimeEX() + 250;
-			end
-
-			-- use hunters mark
-			if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (targetObj:CanAttack()) and (not targetObj:IsDead()) and (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) then
-				CastSpellByName("Hunter's Mark");
-				PetAttack();
-				targetObj:FaceTarget();
-				self.waitTimer = GetTimeEX() + 1500;
-				return 0;
-			end
-
-			-- auto shot
-			if (not IsAutoCasting("Auto Shot")) and (targetObj:IsInLineOfSight()) then
-				CastSpellByName("Auto Shot");
-				targetObj:FaceTarget();
-				PetAttack();
-				return 0;
-			end
-
-			-- use concussive shot
-			if (HasSpell("Concussive Shot")) and (not IsSpellOnCD("Concussive Shot")) and (targetObj:IsInLineOfSight()) then
-				CastSpellByName("Concussive Shot");
-				PetAttack();
-				return 0;
-			end
-
-			-- use serpent sting
-			if (HasSpell("Serpent Sting")) and (not targetObj:HasDebuff("Serpent Sting")) and (targetObj:IsInLineOfSight()) then
-				CastSpellByName("Serpent Sting");
-				PetAttack();
-				return 0;
-			end
-	
-			-- use arcane shot
-			if (HasSpell("Arcane Shot")) and (not IsSpellOnCD("Arcane Shot")) and (targetObj:IsInLineOfSight()) then
-				CastSpellByName("Arcane Shot");
-				return 0;
-			end
-
-			if (not self.hasPet) then
-				if (targetObj:GetDistance() < 10) then
-					targetObj:AutoAttack();
-				else
-					return 3;
-				end
-			end
+		if (not IsInCombat()) and (targetObj:GetDistance() < 35) and (targetObj:GetDistance() > 15) then
+			script_hunter:hunterPull(targetObj);
+			targetObj:FaceTarget();
+			return;
 			
 		-- NOW IN COMBAT
 			-----------------------------
@@ -773,4 +722,61 @@ function script_hunter:rest()
 		return;
 	end
 	return false;
+end
+
+function script_hunter:hunterPull(targetObj)
+	if (targetObj:GetDistance() > 30) or (not targetObj:IsInLineOfSight()) then
+				return 3;
+			end
+
+			if (self.hasPet) and (not IsMoving()) then
+				PetAttack();
+				self.waitTimer = GetTimeEX() + 250;
+			end
+
+			-- use hunters mark
+			if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (targetObj:CanAttack()) and (not targetObj:IsDead()) and (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) then
+				CastSpellByName("Hunter's Mark");
+				PetAttack();
+				targetObj:FaceTarget();
+				self.waitTimer = GetTimeEX() + 1500;
+				return 0;
+			end
+
+			-- auto shot
+			if (not IsAutoCasting("Auto Shot")) and (targetObj:IsInLineOfSight()) then
+				CastSpellByName("Auto Shot");
+				targetObj:FaceTarget();
+				PetAttack();
+				return 0;
+			end
+
+			-- use concussive shot
+			if (HasSpell("Concussive Shot")) and (not IsSpellOnCD("Concussive Shot")) and (targetObj:IsInLineOfSight()) then
+				CastSpellByName("Concussive Shot");
+				PetAttack();
+				return 0;
+			end
+
+			-- use serpent sting
+			if (HasSpell("Serpent Sting")) and (not targetObj:HasDebuff("Serpent Sting")) and (targetObj:IsInLineOfSight()) then
+				CastSpellByName("Serpent Sting");
+				PetAttack();
+				return 0;
+			end
+	
+			-- use arcane shot
+			if (HasSpell("Arcane Shot")) and (not IsSpellOnCD("Arcane Shot")) and (targetObj:IsInLineOfSight()) then
+				CastSpellByName("Arcane Shot");
+				return 0;
+			end
+
+			if (not self.hasPet) then
+				if (targetObj:GetDistance() < 10) then
+					targetObj:AutoAttack();
+				else
+					return 3;
+				end
+			end
+	return;
 end

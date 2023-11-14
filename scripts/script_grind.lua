@@ -158,7 +158,7 @@ function script_grind:window()
 end
 
 function script_grind:setWaitTimer(ms)
-	self.waitTimer = GetTimeEX() + ms;
+	self.waitTimer = (GetTimeEX() + ms);
 end
 
 function script_grind:addTargetToBlacklist(targetGUID)
@@ -969,14 +969,25 @@ function script_grind:runRest()
 	if(RunRestScript()) then
 		self.message = "Resting...";
 		self.newTargetTime = GetTimeEX();
+
 		-- Stop moving
-		if (IsMoving() and not localObj:IsMovementDisabed()) then StopMoving(); return true; end
+		if (IsMoving()) and (not localObj:IsMovementDisabed()) then
+			StopMoving();
+			return true;
+		end
+
 		-- Dismount
-		if (IsMounted()) then DisMount(); return true; end
+		if (IsMounted()) then
+			DisMount();
+			return true;
+		end
+
 		-- Add 2500 ms timer to the rest script rotations (timer could be set already)
-		if ((self.waitTimer - GetTimeEX()) < 2500) then self.waitTimer = GetTimeEX()+2500 end;
-		return true;	
+		if ((self.waitTimer - GetTimeEX()) < 2500) then
+			self.waitTimer = GetTimeEX() + 2500;
+		end
+	return true;	
 	end
 
-	return false;
+return false;
 end
