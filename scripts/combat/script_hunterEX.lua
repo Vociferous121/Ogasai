@@ -246,6 +246,9 @@ function script_hunterEX:menu()
 
 		Separator();
 
+		Text("Use Hunter Mark above mana percentage");
+		script_hunter.useMarkMana = SliderInt("MM", 5, 109, script_hunter.useMarkMana);
+
 		if (CollapsingHeader("-- Vendor Settings -- These May Be Defunct")) then
 			Text('Vendor/Bag settings:');
 			wasClicked, script_hunter.useVendor = Checkbox("Vendor when full inventory", script_hunter.useVendor);	

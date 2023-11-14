@@ -32,6 +32,7 @@ script_hunter = {
 	useFeedPet = true,
 	meleeDistance = 5,
 	useCheetah = true,
+	useMarkMana = 40,
 }	
 
 function script_hunter:setup()
@@ -287,161 +288,168 @@ function script_hunter:run(targetGUID)
 			targetObj:AutoAttack();
 		end
 	
-		-- not in combat do pull stuff
+	-- not in combat do pull stuff
 
 		if (not IsInCombat()) and (targetObj:GetDistance() < 35) and (targetObj:GetDistance() > 12) then
 			script_hunter:hunterPull(targetObj);
 			targetObj:FaceTarget();
 			return;
 			
+
 		-- NOW IN COMBAT
 			-----------------------------
 
-		else	
+		else
 
-		-- force auto shot if in combat
-		if (IsInCombat()) then
-			if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) and (targetObj:GetDistance() < 30) and (targetObj:IsInLineOfSight()) then
-				CastSpellByName("Auto Shot");
-				targetObj:FaceTarget();
-				PetAttack();
-				return 0;
-			end
-		end
-
-		-- Check: Use Healing Potion 
-		if (localHealth <= self.potionHealth) then 
-			if (script_helper:useHealthPotion()) then 
-				return 0; 
-			end 
-		end
-
-		-- Check: Use Mana Potion 
-		if (localMana <= self.potionMana) then 
-			if (script_helper:useManaPotion()) then 
-				return 0; 
-			end 
-		end
-
-		-- Check: Use Rapid Fire if we have adds
-		if (script_grind:enemiesAttackingUs() > 1 and HasSpell('Rapid Fire') and not IsSpellOnCD('Rapid Fire')) then
-			CastSpellByName('Rapid Fire');
-			return 0;
-		end
-
-		-- Check: If pet is stunned, feared etc use Bestial Wrath
-		if (self.hasPet and GetPet() ~= 0 and GetPet() ~= nil) then
-			if ((pet:IsStunned() or pet:IsConfused() or pet:IsFleeing()) and UnitExists("Pet") and HasSpell('Bestial Wrath')) then 
-				if (script_hunter:cast('Bestial Wrath', targetObj)) then 
-					return true; 
-				end
-			end
-		end
-
-		-- mend pet
-		if (script_hunter:mendPet(localMana, petHP)) then
-			self.waitTimer = GetTimeEX() + 3850;
-			return 0;
-		end
-
-		-- feign death if pet is dead
-		if (self.hasPet) and (petHP < 1) and (HasSpell("Feign Death")) and (not IsSpellOnCD("Feign Death")) and (script_hunter:enemiesAttackingMe() > 1) then
-			CastSpellByName("Feign Death");
-			self.waitTimer = GetTimeEX() + 3850;
-			return 0;
-		end
-
-		-- War Stomp Tauren Racial
-		if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) and (not IsMoving()) and (targetObj:GetDistance() <= 6) then
-			if (targetObj:IsCasting()) or (targetObj:IsFleeing()) or (localLevel < 10) and (IsAutoCasting("Auto Attack")) then
-				CastSpellByName("War Stomp");
-				self.waitTimer = GetTimeEX() + 200;
-				return 0;
-			end
-		end
-		
-		-- move backwards if target too close for melee attacks
-		if (targetObj:GetDistance() < 0.50) then
-			if (script_hunter:runBackwards(targetObj, 2)) then
-				self.waitTimer = GetTimeEX() + 1850;
-				return 0;
-			end
-		end		
-
-		-- walk away from target if pet target guid is the same guid as target targeting me
-		if (targetObj:GetDistance() <= 14) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) then
-			if (targetObj:GetUnitsTarget():GetGUID() == pet:GetGUID()) then
-
-				script_grind.tickRate = 100;
-				local randomMoveBack = math.random(14, 18);
-
-				if (script_hunter:runBackwards(targetObj, randomMoveBack)) then
+			-- force auto shot if in combat
+			if (IsInCombat()) then
+				if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) and (targetObj:GetDistance() < 30) and (targetObj:IsInLineOfSight()) then
+					CastSpellByName("Auto Shot");
+					targetObj:FaceTarget();
 					PetAttack();
-					self.message = "Moving away from target for range attacks...";
-					return 4;
+					return 0;
 				end
 			end
-		end
-
-		if (targetObj:GetDistance() > 12) and (targetObj:GetDistance() < 35) then
-		-- use hunter's mark first
-		if (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) and (targetObj:IsInLineOfSight()) and (targetHealth >= 50) then
-			CastSpellByName("Hunter's Mark");
-			targetObj:FaceTarget();
-			return 0;
-		end
 	
-		-- use concussive shot
-		if (HasSpell("Concussive Shot")) and (not IsSpellOnCD("Concussive Shot")) and (targetObj:IsTargetingMe()) then
-			CastSpellByName("Concussive Shot");
-			targetObj:FaceTarget();
-			return 0;
-		end
-
-		-- use serpent sting
-		if (HasSpell("Serpent Sting")) and (not targetObj:HasDebuff("Serpent Sting")) and (targetObj:IsInLineOfSight()) then
-			CastSpellByName("Serpent Sting");
-			targetObj:FaceTarget();
-			return 0;
-		end
-	
-		-- use arcane shot
-		if (HasSpell("Arcane Shot")) and (not IsSpellOnCD("Arcane Shot")) and (targetObj:IsInLineOfSight()) then
-			CastSpellByName("Arcane Shot");
-			targetObj:FaceTarget();
-			return 0;
-		end
-
-		-- mend pet
-		if (script_hunter:mendPet(localMana, petHP)) then
-			self.waitTimer = GetTimeEX() + 3850;
-			return 0;
-		end
-
-		end
-
-		-- Auto Attack
-		if (targetObj:GetDistance() <= self.meleeDistance) then
-			if (not targetObj:AutoAttack()) then
-				targetObj:AutoAttack();
+			-- Check: Use Healing Potion 
+			if (localHealth <= self.potionHealth) then 
+				if (script_helper:useHealthPotion()) then 
+					return 0; 
+				end 
 			end
-
-			-- cast raptor strike
-			if (HasSpell("Raptor Strike")) and (not IsSpellOnCD("Raptor Strike")) and (localMana > 10) then
-				CastSpellByName("Raptor Strike");
+	
+			-- Check: Use Mana Potion 
+			if (localMana <= self.potionMana) then 
+				if (script_helper:useManaPotion()) then 
+					return 0; 
+				end 
+			end
+	
+			-- Check: Use Rapid Fire if we have adds
+			if (script_grind:enemiesAttackingUs() > 1 and HasSpell('Rapid Fire') and not IsSpellOnCD('Rapid Fire')) and (localMana > 10) then
+				CastSpellByName('Rapid Fire');
 				return 0;
 			end
+	
+			-- Check: If pet is stunned, feared etc use Bestial Wrath
+			if (self.hasPet and GetPet() ~= 0 and GetPet() ~= nil) then
+				if ((pet:IsStunned() or pet:IsConfused() or pet:IsFleeing()) and UnitExists("Pet") and HasSpell('Bestial Wrath')) then 
+					if (script_hunter:cast('Bestial Wrath', targetObj)) then 
+						return true; 
+					end
+				end
+			end
+
+			-- mend pet
+			if (script_hunter:mendPet(localMana, petHP)) then
+				self.waitTimer = GetTimeEX() + 3850;
+				return 0;
+			end
+
+			-- feign death if pet is dead
+			if (self.hasPet) and (petHP < 1) and (HasSpell("Feign Death")) and (not IsSpellOnCD("Feign Death")) and (localMana > 7) and (script_hunter:enemiesAttackingMe() > 1) then
+				CastSpellByName("Feign Death");
+				self.waitTimer = GetTimeEX() + 3850;
+				return 0;
+			end
+
+			-- War Stomp Tauren Racial
+			if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) and (not IsMoving()) and (targetObj:GetDistance() <= 6) then
+				if (targetObj:IsCasting()) or (targetObj:IsFleeing()) or (localLevel < 10) and (IsAutoCasting("Auto Attack")) then
+					CastSpellByName("War Stomp");
+					self.waitTimer = GetTimeEX() + 200;
+					return 0;
+				end
+			end
+		
+			-- move backwards if target too close for melee attacks
+			if (targetObj:GetDistance() < 0.50) then
+				if (script_hunter:runBackwards(targetObj, 2)) then
+					self.waitTimer = GetTimeEX() + 1850;
+					return 0;
+				end
+			end		
+
+			-- walk away from target if pet target guid is the same guid as target targeting me
+			if (targetObj:GetDistance() <= 14) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) then
+				if (targetObj:GetUnitsTarget():GetGUID() == pet:GetGUID()) then
+	
+					script_grind.tickRate = 100;
+					local randomMoveBack = math.random(12, 20);
+
+					if (script_hunter:runBackwards(targetObj, randomMoveBack)) then
+						PetAttack();
+						self.message = "Moving away from target for range attacks...";
+						return 4;
+					end
+				end
+			end
+
+			if (targetObj:GetDistance() > 12) and (targetObj:GetDistance() < 35) then
+
+				-- use hunter's mark first
+				if (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) and (targetObj:IsInLineOfSight()) and (targetHealth >= 50) and (localMana >= self.useMarkMana) then
+					CastSpellByName("Hunter's Mark");
+					targetObj:FaceTarget();
+					return 0;
+				end
+		
+				-- use concussive shot
+				if (HasSpell("Concussive Shot")) and (not IsSpellOnCD("Concussive Shot")) and (targetObj:IsTargetingMe()) and (localMana > 25) then
+					CastSpellByName("Concussive Shot");
+					targetObj:FaceTarget();
+					return 0;
+				end
+
+				-- use serpent sting
+				if (HasSpell("Serpent Sting")) and (not targetObj:HasDebuff("Serpent Sting")) and (targetObj:IsInLineOfSight()) and (localMana >25) then	
+					CastSpellByName("Serpent Sting");
+					targetObj:FaceTarget();
+					return 0;
+				end
+	
+				-- use arcane shot
+				if (HasSpell("Arcane Shot")) and (not IsSpellOnCD("Arcane Shot")) and (targetObj:IsInLineOfSight()) and (localMana > 15) then
+					CastSpellByName("Arcane Shot");
+					targetObj:FaceTarget();
+					return 0;
+				end
+	
+				-- mend pet
+				if (script_hunter:mendPet(localMana, petHP)) then
+					self.waitTimer = GetTimeEX() + 3850;
+					return 0;
+				end
+
+			end
+
+			-- melee attacks otherwise
+
+			-- Auto Attack
+			if (targetObj:GetDistance() <= self.meleeDistance) then
+				if (not targetObj:AutoAttack()) then
+					targetObj:AutoAttack();
+				end
+
+				-- cast raptor strike
+				if (HasSpell("Raptor Strike")) and (not IsSpellOnCD("Raptor Strike")) and (localMana > 10) then
+					CastSpellByName("Raptor Strike");
+					return 0;
+				end
 					
-			-- cast wing clip
-			if (HasSpell("Wing Clip")) and (not IsSpellOnCD("Wing Clip")) and (localMana > 10) and (targetHealth < 35) then
-				CastSpellByName("Wing Clip");
-				return 0;
-			end
-		end
-	end
-	end			
+				-- cast wing clip
+				if (HasSpell("Wing Clip")) and (not IsSpellOnCD("Wing Clip")) and (localMana > 10) and (targetHealth < 35) then
+					CastSpellByName("Wing Clip");
+					return 0;
+				end
+
+			end -- melee auto attack
+
+		end -- distance >12 <35
+
+	end -- valid enemy	
 			
-end
+end -- run function
 
 function script_hunter:mendPet(localMana, petHP)
 	local mendPet = HasSpell("Mend Pet");
@@ -733,7 +741,7 @@ function script_hunter:hunterPull(targetObj)
 			end
 
 			-- use hunters mark
-			if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (targetObj:CanAttack()) and (not targetObj:IsDead()) and (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) then
+			if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (targetObj:CanAttack()) and (not targetObj:IsDead()) and (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) and (localMana >= self.useMarkMana) then
 				CastSpellByName("Hunter's Mark");
 				PetAttack();
 				targetObj:FaceTarget();
