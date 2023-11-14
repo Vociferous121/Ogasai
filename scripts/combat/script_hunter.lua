@@ -206,13 +206,12 @@ function script_hunter:run(targetGUID)
 			return 4;
 		end
 	end
-
+	
 	if (IsInCombat()) and (playerHasTarget == 0) then
-		if (petHasTarget == 0) then
-			return 4;
-		end
+		self.message = "No Target - stuck in combat! WAITING!";
+		return 4;
 	end	
-
+	
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
