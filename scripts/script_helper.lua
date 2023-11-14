@@ -371,18 +371,8 @@ function script_helper:useMount()
 		if (HasItem(self.myMounts[i])) then
 			if (UseItem(self.myMounts[i])) then
 				return true;
-		end
+			end
 		end
 	end
 	return false;
-end
-
-function script_helper:checkPoisonDebuff()
-	if (localObj:HasDebuff("Weak Poison")) then
-		a = 1;
-	return true;
-	end
-
-
-return false;
 end

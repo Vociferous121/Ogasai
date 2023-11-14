@@ -53,6 +53,7 @@ script_grind = {
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
 	paranoiaLoaded = include("scripts\\script_unstuck.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
+	debuffCheck = include("scripts\\script_checkDebuffs.lua"),
 	nextToNodeDist = 5, -- (Set to about half your nav smoothness)
 	blacklistedTargets = {},
 	blacklistedNum = 0,
@@ -449,7 +450,7 @@ function script_grind:run()
 				if (_x ~= 0 and x ~= 0) and (not IsInCombat()) then
 					local moveBufferY = math.random(-2, 2);
 					self.message = script_nav:moveToTarget(localObj, _x, _y+moveBufferY, _z);
-					script_grind:setWaitTimer(200);
+					script_grind:setWaitTimer(190);
 				end
 				if (_x ~= 0 and x ~= 0) and (IsInCombat()) then
 					self.message = script_nav:moveToTarget(localObj, _x, _y, _z);
@@ -817,7 +818,7 @@ function script_grind:drawStatus()
 		--DrawRect(x - 10, y + 19, x + width, y + 45, 255, 255, 0,  1, 1, 1);
 		--DrawRectFilled(x-10, y+20, x + width, y + 45, 0, 0, 0, 100, 0, 0);
 		DrawText('Blacklist-timer: ' .. self.enemyObj:GetUnitName() .. ': ' .. time .. ' s.', x, y+20, 0, 255, 120); 
-		DrawText('Blacklisting target after ' .. self.blacklistTime .. " s. (If above 80% HP.)", x, y+35, 0, 255, 120);
+		DrawText('Blacklisting target after ' .. self.blacklistTime .. " s. (If above 92% HP.)", x, y+35, 0, 255, 120);
 	end
 	else
 		DrawText('Grinder paused by user...', x-5, y-4, r+255, g+122, b+122);

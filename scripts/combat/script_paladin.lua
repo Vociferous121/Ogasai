@@ -20,7 +20,6 @@ script_paladin = {
 	meleeDistance = 3.4,
 	useSealOfCrusader = true,
 	useJudgement = true,
-	runOnce = true,
 }
 
 function script_paladin:setup()
@@ -56,8 +55,6 @@ function script_paladin:setup()
 		self.holyLightHealth = 66;
 	end
 
-	script_grind.jumpRandomFloat = 92;
-	script_grind.jump = true;
 	self.waitTimer = GetTimeEX();
 
 	self.isSetup = true;
@@ -97,19 +94,34 @@ end
 
 -- Run backwards if the target is within range
 function script_paladin:runBackwards(targetObj, range) 
-	local localObj = GetLocalPlayer();
+	--local localObj = GetLocalPlayer();
+ 	--if targetObj ~= 0 then
+ 	--	local xT, yT, zT = targetObj:GetPosition();
+ 	--	local xP, yP, zP = localObj:GetPosition();
+ 	--	local distance = targetObj:GetDistance();
+ 	--	local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
+ 	--	local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
+ 	--	local xUV, yUV, zUV = (1/vectorLength)*xV-1, (1/vectorLength)*yV-1, (1/vectorLength)*zV;		
+ 	--	local moveX, moveY, moveZ = (xT) - xUV*1, (yT) - yUV*1, zT - zUV;		
+ 	--	if (distance < range) then 
+ 	--		Move(moveX, moveY, moveZ);
+	--		JumpOrAscendStart();
+	--		targetObj:FaceTarget();
+ 	--		return true;
+ 	--	end
+	--end
+	--return false;
  	if targetObj ~= 0 then
  		local xT, yT, zT = targetObj:GetPosition();
  		local xP, yP, zP = localObj:GetPosition();
  		local distance = targetObj:GetDistance();
  		local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
  		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
- 		local xUV, yUV, zUV = (1/vectorLength)*xV-1, (1/vectorLength)*yV-1, (1/vectorLength)*zV;		
- 		local moveX, moveY, moveZ = (xT) - xUV*1, (yT) - yUV*1, zT - zUV;		
- 		if (distance < range) then 
- 			Move(moveX, moveY, moveZ);
-			JumpOrAscendStart();
-			targetObj:FaceTarget();
+ 		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
+ 		local moveX, moveY, moveZ = xT + xUV*10, yT + yUV*10, zT + zUV;		
+ 		if (distance < range and targetObj:IsInLineOfSight()) then 
+ 			--script_nav:moveToTarget(localObj, moveX, moveY, moveZ);
+			Move(moveX, moveY, moveZ);
  			return true;
  		end
 	end
@@ -117,25 +129,25 @@ function script_paladin:runBackwards(targetObj, range)
 end
 
 -- Run forwards if the target is low health
-function script_paladin:runForwards(targetObj, range) 
-	local localObj = GetLocalPlayer();
- 	if targetObj ~= 0 then
- 		local xT, yT, zT = targetObj:GetPosition();
- 		local xP, yP, zP = localObj:GetPosition();
- 		local distance = targetObj:GetDistance();
- 		local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
- 		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
- 		local xUV, yUV, zUV = (1/vectorLength)*xV-1, (4/vectorLength)*yV+5, (1/vectorLength)*zV;		
- 		local moveX, moveY, moveZ = (xT) - xUV*1, (yT) - yUV*1, zT - zUV;		
- 		if (distance < range) then 
- 			Move(moveX, moveY, moveZ);
-			JumpOrAscendStart();
-			targetObj:FaceTarget();
- 			return true;
- 		end
-	end
-	return false;
-end
+--function script_paladin:runForwards(targetObj, range) 
+--	local localObj = GetLocalPlayer();
+ --	if targetObj ~= 0 then
+ --		local xT, yT, zT = targetObj:GetPosition();
+ --		local xP, yP, zP = localObj:GetPosition();
+ --		local distance = targetObj:GetDistance();
+ --		local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
+ --		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
+ --		local xUV, yUV, zUV = (1/vectorLength)*xV-1, (4/vectorLength)*yV+5, (1/vectorLength)*zV;		
+ --		local moveX, moveY, moveZ = (xT) - xUV*1, (yT) - yUV*1, zT - zUV;		
+ --		if (distance < range) then 
+ --			Move(moveX, moveY, moveZ);
+--			JumpOrAscendStart();
+--			targetObj:FaceTarget();
+ --			return true;
+ --		end
+--	end
+--	return false;
+--end
 
 function script_paladin:draw()
 	--script_paladin:window();
@@ -167,6 +179,12 @@ function script_paladin:healAndBuff(localObj, localMana)
 	local localMana = GetLocalPlayer():GetManaPercentage();
 	local localHealth = GetLocalPlayer():GetHealthPercentage();
 	local localObj = GetLocalPlayer();
+
+	if (not IsDrinking()) and (not IsEating()) then
+		if (not IsStanding()) then
+			JumpOrAscendStart();
+		end
+	end
 
 	-- Set aura - cast aura
 	if (self.aura ~= 0 and not IsMounted()) then
@@ -200,7 +218,7 @@ function script_paladin:healAndBuff(localObj, localMana)
 	end
 			
 	-- Check: Divine Protection if BoP on CD
-	if(localHealth < self.shieldHealth) and (not localObj:HasDebuff("Forbearance")) then
+	if(localHealth <= self.shieldHealth) and (not localObj:HasDebuff("Forbearance")) then
 		if (HasSpell("Divine Shield")) and (not IsSpellOnCD("Divine Shield")) then
 			CastSpellByName("Divine Shield");
 			self.message = "Cast Divine Shield...";
@@ -216,11 +234,55 @@ function script_paladin:healAndBuff(localObj, localMana)
 		end
 	end
 
+	-- force cast heal when buffed with shield
+	if (localObj:HasBuff("Divine Shield") or localObj:HasBuff("Divine Protection") or localObj:HasBuff("Blessing of Protection")) then
+		if (localMana > 15) then
+			CastSpellByName("Holy Light", localObj);
+			self.waitTimer = GetTimeEX() + 2550;
+			return 0;
+		else
+			if (localMana > 8) and (HasSpell("Flash of Light")) then
+				CastSpellByName("Flash of Light", localObj);
+				self.waitTimer = GetTimeEX() + 1550;
+				return 0;
+			end
+		end
+	end
+
+	-- Check: Remove desease or poison
+	if (script_checkDebuffs:hasPoison()) or (script_checkDebuffs:hasDisease()) then
+		if (HasSpell("Cleanse")) and (localMana > 40) then
+			if (Buff("Cleanse", localObj)) then 
+				self.message = "Cleansing..."; 
+					self.waitTimer = GetTimeEX() + 1750; 
+					return 0; 
+			end
+		end
+	end
+
+	-- remove disease with purify
+	if (script_checkDebuffs:hasDisease()) or (script_checkDebuffs:hasPoison()) then
+		if (HasSpell("Purify")) and (localMana > 40) then
+			if (Buff("Purify", localObj)) then 
+				self.message = "Cleansing..."; 
+				self.waitTimer = GetTimeEX() + 1750; 
+				return 0; 
+			end
+		end
+	end
+
+
+	-- Check: Remove movement disables with Freedom
+	if (localObj:IsMovementDisabed() and HasSpell("Blessing of Freedom")) then
+		Buff("Blessing of Freedom", localObj);
+		return 0;
+	end
+
 	-- flash of light not in combat
-	if (not IsInCombat()) then
+	if (not IsInCombat()) and (localMana > self.drinkMana + 10) then
 		if (HasSpell("Flash of Light")) and (localMana >= 40) and (localHealth >= self.holyLightHealth) and (localHealth <= 85) and (not IsLooting()) and (script_grind.lootObj == nil) then
 			CastHeal("Flash of Light", localObj);
-			self.waitTimer = GetTimeEX() + 1600;
+			self.waitTimer = GetTimeEX() + 1550;
 			return 0;
 		end
 	end
@@ -242,6 +304,14 @@ function script_paladin:healAndBuff(localObj, localMana)
 			self.message = "Flash of Light enabled - Healing!";
 			return 0;				
 		end
+	end
+
+	--flash of light in combat very low health and mana
+	if (HasSpell("Flash of Light")) and (IsInCombat()) and (localMana < 15) and (localMana > 5) and (localHealth < self.holyLightHealth) then
+			CastHeal("Flash of Light", localObj);
+			self.waitTimer = GetTimeEX() + 1575;
+			self.message = "We are dying - trying to save!";
+			return 0;
 	end
 
 return false;
@@ -324,7 +394,9 @@ function script_paladin:run(targetGUID)
 		end
 
 		if (targetObj:GetDistance() <= 8) and (not IsMoving()) then
-			targetObj:FaceTarget();
+			if (not targetObj:FaceTarget()) then
+				targetObj:FaceTarget();
+			end
 		end
 
 		-- Check move into melee range
@@ -369,8 +441,6 @@ function script_paladin:run(targetGUID)
 
 			self.targetObjGUID = targetObj:GetGUID();
 
-			self.runOnce = true;
-
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 	
 			-- Dismount
@@ -382,7 +452,6 @@ function script_paladin:run(targetGUID)
 			if (script_paladin:paladinPull(targetObj)) then
 				return;
 			end
-
 
 			-- check if we are in combat?
 			if (IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance) and (targetHealth > 99) and (not IsAutoCasting("Attack")) then
@@ -401,6 +470,12 @@ function script_paladin:run(targetGUID)
 				DisMount();
 			end
 
+			if (not targetObj:IsFleeing()) and (targetObj:GetDistance() < self.meleeDistance + 1) then
+				if (IsMoving()) then
+					StopMoving();
+				end
+			end
+
 			--targetObj = GetGUIDObject(targetGUID);
 
 			if (not targetObj:IsFleeing()) then
@@ -410,22 +485,13 @@ function script_paladin:run(targetGUID)
 			end
 
 			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() < .9) then 
-				if (script_paladin:runBackwards(targetObj,1)) then 
+			if (targetObj:GetDistance() < .2) then 
+				if (script_paladin:runBackwards(targetObj,2)) then 
 					JumpOrAscendStart();
 					targetObj:FaceTarget();
-					self.runOnce = false;
 					return 4; 
 				end 
 				if (IsMoving()) then
-					JumpOrAscendStart();
-					targetObj:FaceTarget();
-				end
-			end
-
-			if (script_grind.jump) and (IsMoving()) and (localHealth > self.holyLightHealth) and (localHealth > self.flashOfLightHP) then
-				local randomJumping = math.random(1, 100);
-				if (randomJumping > 90) then
 					JumpOrAscendStart();
 					targetObj:FaceTarget();
 				end
@@ -456,15 +522,6 @@ function script_paladin:run(targetGUID)
 				return 0;
 			end
 
-			-- Holy strike
-		--	if (HasSpell("Holy Strike")) and (localMana > 15) and (not IsSpellOnCD("Holy Strike")) then
-		--		if (targetObj:GetDistance() <= self.meleeDistance) then
-		--			targetObj:FaceTarget();
-		--			Cast("Holy Strike", targetObj);
-		--			return 0;
-		--		end
-		--	end
-
 			-- Check: Use Healing Potion 
 			if (localHealth < self.potionHealth) then 
 				if (script_helper:useHealthPotion()) then 
@@ -477,53 +534,6 @@ function script_paladin:run(targetGUID)
 				if (script_helper:useManaPotion()) then 
 					return 0; 
 				end 
-			end
-
-			-- Check: Remove desease or poison
-			if (HasSpell("Cleanse")) then
-				if (localObj:HasDebuff("Rabies")) or (localObj:HasDebuff("Corrosive Poison")) or (localObj:HasDebuff("Poison")) or (localObj:HasDebuff("Fevered Fatigue"))
-					or (localObj:HasDebuff("Dark Sludge")) or (localObj:HasDebuff("Corrosive Poison")) or (localObj:HasDebuff("Slowing Poison"))
-						or (localObj:HasDebuff("Infected Bite")) or (localObj:HasDebuff("Wandering Plague"))
-							or (localObj:HasDebuff("Plague Mind")) or (localObj:HasDebuff("Fevered Fatigue")) then
-
-				-- add some randomness to how quick the bot casts cleanse
-
-						local cleanseRandom = random(1, 100);
-					if (cleanseRandom > 90) then
-						if (Buff("Cleanse", localObj)) then 
-							self.message = "Cleansing..."; 
-							self.waitTimer = GetTimeEX() + 1750; 
-							return 0; 
-						end
-					end
-				end
-			end
-
-			-- remove disease with purify
-			if (HasSpell("Purify")) then
-				if (localObj:HasDebuff("Rabies")) or (localObj:HasDebuff("Corrosive Poison")) or (localObj:HasDebuff("Poison")) or (localObj:HasDebuff("Fevered Fatigue"))
-					or (localObj:HasDebuff("Dark Sludge")) or (localObj:HasDebuff("Corrosive Poison")) or (localObj:HasDebuff("Slowing Poison"))
-						or (localObj:HasDebuff("Infected Bite")) or (localObj:HasDebuff("Wandering Plague"))
-							or (localObj:HasDebuff("Plague Mind")) or (localObj:HasDebuff("Fevered Fatigue")) or (localObj:HasDebuff("Tetanus")) then
-
-				-- add some randomness to how quick the bot casts cleanse
-
-						local cleanseRandom = random(1, 100);
-					if (cleanseRandom > 90) then
-						if (Buff("Purify", localObj)) then 
-							self.message = "Cleansing..."; 
-							self.waitTimer = GetTimeEX() + 1750; 
-							return 0; 
-						end
-					end
-				end
-			end
-
-
-			-- Check: Remove movement disables with Freedom
-			if (localObj:IsMovementDisabed() and HasSpell("Blessing of Freedom")) then
-				Buff("Blessing of Freedom", localObj);
-				return 0;
 			end
 
 			-- Check: Seal of the Crusader until we use judgement
@@ -544,16 +554,6 @@ function script_paladin:run(targetGUID)
 
 			-- Check: If we are in melee range, do melee attacks ----- RETURN 0   ONLY USE IN MELEE RANGE
 			if (targetObj:GetDistance() <= self.meleeDistance + 2) then
-
-				-- run forwards
-				if (not self.runOnce) then
-					if (targetHealth <= 29) and (script_grind.jump) then
-						if (script_paladin:runForwards(targetObj,1)) then
-							targetObj:FaceTarget();
-							return 4;
-						end
-					end
-				end
 
 				
 				if (not targetObj:IsFleeing()) then
@@ -701,8 +701,6 @@ function script_paladin:rest()
 		script_paladin:setup();
 	end
 	
-	self.runOnce = true;
-
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
@@ -723,17 +721,13 @@ function script_paladin:rest()
 	local localMana = localObj:GetManaPercentage();
 
 	-- heal before eating
-	if (IsStanding()) and (not IsEating()) and (not IsDrinking()) then
+	if (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsMoving()) then
 		if (script_paladin:healAndBuff(localObj, localMana)) then
-			return;
-		end
-	end
-
-	-- Buff with Blessing
-	if (self.blessing ~= 0 and HasSpell(self.blessing) and not IsMounted()) then
-		if (localMana > 10 and not localObj:HasBuff(self.blessing)) then
-			Buff(self.blessing, localObj);
-			return false;
+			if (IsMoving()) then
+				StopMoving();
+				ClearTarget();
+			end
+		return;
 		end
 	end
 
@@ -769,6 +763,7 @@ function script_paladin:rest()
 			return true; 
 		end
 	end
+
 	if (not IsEating() and localHealth < self.eatHealth) then
 		-- Dismount
 		if(IsMounted()) then DisMount(); end
@@ -801,12 +796,6 @@ function script_paladin:rest()
 	--	end
 	--	return true;
 	--end
-
-	if (not IsDrinking()) and (not IsEating()) then
-		if (not IsStanding()) then
-			JumpOrAscendStart();
-		end
-	end
 
 	-- Don't need to rest
 	return false;

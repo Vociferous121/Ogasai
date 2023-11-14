@@ -30,14 +30,14 @@ function script_hunterEX:chooseAspect(targetObj)
 				return true; 
 			end
 		else
-			if (hasHawk) and (targetObj:GetDistance() <= 37) then 
+			if (hasHawk) and (targetObj:GetDistance() <= 37) and (not targetObj:IsDead()) and (targetObj:CanAttack()) then 
 				if (not localObj:HasBuff('Aspect of the Hawk')) then 
 					CastSpellByName('Aspect of the Hawk'); 
 					return true; 
 				end 
 			end
 		end
-	elseif (script_hunter.useCheetah) and (hasCheetah) and (not IsInCombat()) and (targetObj == nil) then 
+	elseif (script_hunter.useCheetah) and (hasCheetah) and (not IsInCombat()) and (targetObj == nil) and (localMana > script_hunter.drinkMana + 10) then 
 		if (not localObj:HasBuff('Aspect of the Cheetah')) then 
 			CastSpellByName('Aspect of the Cheetah'); 
 			return true;  
@@ -56,7 +56,7 @@ function script_hunterEX:petChecks()
 		petHP = pet:GetHealthPercentage();
 	end
 	
-		-- has pet check
+	-- has pet check
 	if (localObj:GetLevel() < 10) then
 		script_hunter.hasPet = false;
 	end
@@ -246,8 +246,22 @@ function script_hunterEX:menu()
 
 		Separator();
 
-		Text("Use Hunter Mark above mana percentage");
-		script_hunter.useMarkMana = SliderInt("MM", 5, 109, script_hunter.useMarkMana);
+		if (HasSpell("Hunter's Mark")) then
+			wasClicked, script_hunter.useMark = Checkbox("Use Hunter's Mark", script_hunter.useMark);
+			if (script_hunter.useMark) then
+				Text("Use Hunter Mark above mana percentage");
+				script_hunter.useMarkMana = SliderInt("MM", 5, 100, script_hunter.useMarkMana);
+			end
+		end
+
+		if (HasSpell("Multi-Shot")) then
+			wasClicked, script_hunter.useMultiShot = Checkbox("Use MultiShot", script_hunter.useMultiShot);
+		end
+
+		--if (HasSpell("Scorpid Sting")) then
+		--	SameLine();
+		--	wasClicked, script_hunter.useScorpidSting = Checkbox("Scorpid Sting", script_hunter.useScorpidSting);
+		--end
 
 		if (CollapsingHeader("-- Vendor Settings -- These May Be Defunct")) then
 			Text('Vendor/Bag settings:');
