@@ -962,9 +962,9 @@ function script_rogue:rest()
 	end
 
 
-	--if (localHealth < self.eatHealth) and (not IsInCombat()) and (not IsMoving()) then
-	--	ClearTarget();
-	--end
+	if (localHealth <= self.eatHealth) and (not IsInCombat()) and (not IsMoving()) then
+		ClearTarget();
+	end
 
 	if (HasSpell("Cold Blood")) and (not IsSpellOnCD("Cold Blood")) and (not localObj:HasBuff("Cold Blood")) then
 		CastSpellByName("Cold Blood");
@@ -972,14 +972,18 @@ function script_rogue:rest()
 	end
 
 	-- Eat something
-	if (not IsEating() and localHealth < self.eatHealth) then
+	if (not IsEating() and localHealth <= self.eatHealth) then
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to eat...";
+
 		if (IsInCombat()) then
 			return false;
 		end
 			
-		if (IsMoving()) then StopMoving(); return true; end
+		if (IsMoving()) then
+			StopMoving();
+			return true;
+		end
 
 		if (script_helper:eat()) then 
 			self.message = "Eating..."; 
@@ -988,7 +992,7 @@ function script_rogue:rest()
 		else 
 			self.message = "No food! (or food not included in script_helper)";
 
-			if (IsEating()) and (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and not localObj:HasDebuff("Touch of Zanzil")) and (not localObj:HasDebuff("Poison")) then
+			if (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and not localObj:HasDebuff("Touch of Zanzil")) and (not localObj:HasDebuff("Poison")) then
 				if (not localObj:HasBuff("Stealth")) then
 					CastSpellByName("Stealth");
 				end
@@ -1006,13 +1010,13 @@ function script_rogue:rest()
 	end
 	
 	-- Continue eating until we are full
-	if(localHealth < 98 and IsEating()) then
+	if (localHealth < 98) and (IsEating()) then
 		self.message = "Resting up to full health...";
-		self.waitTimer = GetTimeEX() + 2000;
+		self.waitTimer = GetTimeEX() + 1000;
 		return true;
 	end
 		
-	if (not IsDrinking()) and (not IsEating()) then
+	if (not IsEating()) then
 		if (not IsStanding()) then
 			JumpOrAscendStart();
 		end

@@ -4,6 +4,8 @@ script_rogueEX = {
 
 function script_rogueEX:menu()
 
+	local localObj = GetLocalPlayer();
+
 	if (HasItem("Linen Bandage")) or 
 		(HasItem("Heavy Linen Bandage")) or 
 		(HasItem("Wool Bandage")) or 
