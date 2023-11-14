@@ -74,7 +74,7 @@ function script_hunter:setup()
 	if (GetLocalPlayer():GetLevel() < 3) then
 		self.buyWhenQuiverEmpty = false;
 	end
-		
+
 	self.isSetup = true;
 end
 

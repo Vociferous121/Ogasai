@@ -192,6 +192,8 @@ function script_hunterEX:menu()
 
 		local wasClicked = false;
 
+		if (CollapsingHeader("Combat Options")) then
+
 		if (HasItem("Linen Bandage")) or 
 			(HasItem("Heavy Linen Bandage")) or 
 			(HasItem("Wool Bandage")) or 
@@ -242,6 +244,13 @@ function script_hunterEX:menu()
 		if (script_grind.useVendor) then
 			script_hunter.useVendor = true;
 		end
+		if (script_hunter.useVendor) then
+			script_grind.useVendor = true;
+		end
+		if (self.useVendor) or (script_grind.useVendor) then
+			script_hunter.stopWhenBagsFull = false;
+		end
+	
 		wasClicked, script_hunter.buyWhenQuiverEmpty = Checkbox("Buy ammo when only 1 stack left.", script_hunter.buyWhenQuiverEmpty);
 		if (script_hunter.buyWhenQuiverEmpty) then
 			script_hunter.quiverBagNr = InputText("Bag# for quiver (2-5)", script_hunter.quiverBagNr);
@@ -270,4 +279,5 @@ function script_hunterEX:menu()
 			wasClicked, script_hunter.stopWhenNoPetFood = Checkbox("Stop when we run out of pet food", script_hunter.stopWhenNoPetFood);
 		end
 		wasClicked, script_hunter.hsWhenStop = Checkbox("Use HS before stopping the bot, if not on CD", script_hunter.hsWhenStop);
+end
 end
