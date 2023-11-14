@@ -82,6 +82,7 @@ function script_hunter:setup()
 	end
 
 	self.isSetup = true;
+
 end
 
 function script_hunter:cast(spellName, target)
