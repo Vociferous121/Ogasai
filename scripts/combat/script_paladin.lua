@@ -485,7 +485,7 @@ function script_paladin:run(targetGUID)
 			end
 
 			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() < .2) then 
+			if (targetObj:GetDistance() < .4) then 
 				if (script_paladin:runBackwards(targetObj,2)) then 
 					JumpOrAscendStart();
 					targetObj:FaceTarget();
@@ -825,9 +825,16 @@ function script_paladin:paladinPull(targetObj)
 		end
 	end
 
-	-- Check move into melee range
-	if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
-		return 3;
+	if (targetObj:GetDistance() <= self.meleeDistance) then
+		if (not targetObj:AutoAttack()) then
+			targetObj:AutoAttack();
+			targetObj:FaceTarget();
+		end
+	end
+
+	if (targetObj:GetDistance() < 10) and (localObj:HasBuff("Seal of Righteousness")) or (localObj:HasBuff("Seal of the Crusader")) and (not IsSpellOnCD("Judgement")) then
+		CastSpellByName("Judgement");
+		return 0;
 	end
 	
 return;

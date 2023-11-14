@@ -124,7 +124,7 @@ end
 -- Run backwards if the target is within range
 function script_hunter:runBackwards(targetObj, range) 
 	local localObj = GetLocalPlayer();
- 	if targetObj ~= 0 then
+ 	if (targetObj ~= 0) and (not localObj:IsMovementDisabed()) then
  		local xT, yT, zT = targetObj:GetPosition();
  		local xP, yP, zP = localObj:GetPosition();
  		local distance = targetObj:GetDistance();
@@ -134,6 +134,9 @@ function script_hunter:runBackwards(targetObj, range)
  		local moveX, moveY, moveZ = xT + xUV*20, yT + yUV*20, zT + zUV;		
  		if (distance < range and targetObj:IsInLineOfSight()) then
  			script_nav:moveToTarget(localObj, moveX, moveY, moveZ);
+			if (IsMoving()) then
+				JumpOrAscendStart();
+			end
  			return true;
  		end
 	end
@@ -211,7 +214,10 @@ function script_hunter:run(targetGUID)
 				GetPet():FaceTarget();
 			end
 
-			TargetNearestEnemy();
+			if (GetPet():GetDistance() > 10) then
+				GetPet():FaceTarget();
+				TargetNearestEnemy();
+			end
 		else
 			return 4;
 		end
@@ -259,6 +265,10 @@ function script_hunter:run(targetGUID)
 
 		targetHealth = targetObj:GetHealthPercentage();
 
+		if (not targetObj:IsFleeing()) and (not targetObj:IsInLineOfSight()) then
+			PetFollow();
+		end
+
 		-- check line of sight
 		if (not targetObj:IsInLineOfSight()) or (targetObj:GetDistance() > 32) then
 			return 3;
@@ -294,6 +304,10 @@ function script_hunter:run(targetGUID)
 		if (self.hasPet) and (GetPet():GetDistance() <= 32) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then 
 			PetAttack();
 			targetObj:AutoAttack();
+		end
+
+		if (self.hasPet) and (GetPet() ~= 0) and (targetObj:IsFleeing()) and (targetObj:GetCreatureType() == 'Humanoid') then
+			PetFollow();
 		end
 	
 	-- not in combat do pull stuff
@@ -375,7 +389,7 @@ function script_hunter:run(targetGUID)
 			end
 		
 			-- move backwards if target too close for melee attacks
-			if (targetObj:GetDistance() < 0.50) then
+			if (targetObj:GetDistance() < 0.50) and (targetObj:IsInLineOfSight()) then
 				if (script_hunter:runBackwards(targetObj, 2)) then
 					self.waitTimer = GetTimeEX() + 1850;
 					return 0;
@@ -410,7 +424,7 @@ function script_hunter:run(targetGUID)
 		
 				-- use concussive shot
 				if (not IsSpellOnCD("Concussive Shot")) then
-					if (HasSpell("Concussive Shot")) and (targetObj:IsTargetingMe()) and (localMana > 25) then
+					if (HasSpell("Concussive Shot")) and (localMana > 25) and (targetObj:IsTargetingMe() or targetObj:IsFleeing()) then
 						CastSpellByName("Concussive Shot");
 						targetObj:FaceTarget();
 						return 0;
