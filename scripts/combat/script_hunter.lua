@@ -228,6 +228,10 @@ function script_hunter:run(targetGUID)
 	if (IsInCombat()) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) then
 		self.message = "No Target - stuck in combat! WAITING!";
 		return 4;
+	end
+
+	if (not targetObj:IsFleeing()) and (not targetObj:IsInLineOfSight()) then
+			PetFollow();
 	end	
 
 	-- set tick rate for script to run
@@ -283,7 +287,7 @@ function script_hunter:run(targetGUID)
 		end
 
 		-- Auto Attack
-		if (targetObj:GetDistance() < 35) then
+		if (targetObj:GetDistance() < 35) and (targetObj:IsInLineOfSight()) then
 			if (self.hasPet) then
 				PetAttack();
 			end
@@ -313,7 +317,7 @@ function script_hunter:run(targetGUID)
 	
 	-- not in combat do pull stuff
 
-		if (not IsInCombat()) and (targetObj:GetDistance() < 35) and (targetObj:GetDistance() > 12) then
+		if (not IsInCombat()) and (targetObj:GetDistance() < 35) and (targetObj:GetDistance() >= 12) and (targetObj:IsInLineOfSight()) then
 			script_hunter:hunterPull(targetObj);
 			targetObj:FaceTarget();
 			return;
@@ -323,7 +327,13 @@ function script_hunter:run(targetGUID)
 			-----------------------------
 
 		else
+			if (not targetObj:IsInLineOfSight()) then
+				return 3;
+			end
 
+			if (not targetObj:IsFleeing()) and (not targetObj:IsInLineOfSight()) then
+				PetFollow();
+			end
 			-- force auto shot if in combat
 			if (IsInCombat()) then
 				if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) and (targetObj:GetDistance() < 30) and (targetObj:IsInLineOfSight()) then
@@ -412,7 +422,7 @@ function script_hunter:run(targetGUID)
 				end
 			end
 
-			if (targetObj:GetDistance() > 12) and (targetObj:GetDistance() < 35) then
+			if (targetObj:GetDistance() > 14) and (targetObj:GetDistance() < 35) then
 
 				-- use Hunter's Mark first
 				if (self.useMark) then
@@ -470,9 +480,8 @@ function script_hunter:run(targetGUID)
 
 			-- Auto Attack
 			if (targetObj:GetDistance() <= self.meleeDistance) then
-				if (not targetObj:AutoAttack()) then
-					targetObj:AutoAttack();
-				end
+
+				targetObj:AutoAttack();
 
 				-- cast raptor strike
 				if (HasSpell("Raptor Strike")) and (not IsSpellOnCD("Raptor Strike")) and (localMana > 10) then
@@ -781,6 +790,14 @@ function script_hunter:hunterPull(targetObj)
 
 			local localMana = GetLocalPlayer():GetManaPercentage();
 
+			if (not targetObj:IsInLineOfSight()) then
+				return 3;
+			end
+
+			if (not targetObj:IsFleeing()) and (not targetObj:IsInLineOfSight()) and (GetPet():GetDistance() > 15) then
+				PetFollow();
+			end
+
 			if (self.hasPet) and (not IsMoving()) then
 				PetAttack();
 			end
@@ -840,7 +857,7 @@ function script_hunter:hunterPull(targetObj)
 			end
 
 			if (not self.hasPet) then
-				if (targetObj:GetDistance() < 10) then
+				if (targetObj:GetDistance() < 12) then
 					targetObj:AutoAttack();
 				else
 					return 3;

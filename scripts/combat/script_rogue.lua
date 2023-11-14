@@ -904,6 +904,9 @@ end
 
 function script_rogue:rest()
 
+	local localObj = GetLocalPlayer();
+	local localHealth = localObj:GetHealthPercentage();
+
 	if (localHealth < self.eatHealth) then
 		ClearTarget();
 	end
@@ -911,9 +914,6 @@ function script_rogue:rest()
 	if(not self.isSetup) then
 		script_rogue:setup();
 	end
-
-	local localObj = GetLocalPlayer();
-	local localHealth = localObj:GetHealthPercentage();
 
 	if (HasItem("Linen Bandage")) or 
 		(HasItem("Heavy Linen Bandage")) or 
