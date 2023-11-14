@@ -31,7 +31,7 @@ script_hunter = {
 	waitAfterCombat = 8,
 	useFeedPet = true,
 	meleeDistance = 5,
-	useCheetah = false,
+	useCheetah = true,
 }	
 
 function script_hunter:setup()
@@ -199,7 +199,7 @@ function script_hunter:run(targetGUID)
 	end
 
 	-- force bot to attack pets target
-	if (IsInCombat()) and (playerHasTarget == 0) then
+	if (IsInCombat()) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) then
 		if (petHasTarget ~= 0) then
 			GetPet():FaceTarget();
 			TargetNearestEnemy();
@@ -207,8 +207,9 @@ function script_hunter:run(targetGUID)
 			return 4;
 		end
 	end
-
-	if (IsInCombat()) and (playerHasTarget == 0) then
+	
+	-- stuck in combat
+	if (IsInCombat()) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) then
 		self.message = "No Target - stuck in combat! WAITING!";
 		return 4;
 	end	
@@ -254,6 +255,7 @@ function script_hunter:run(targetGUID)
 			return 3;
 		end
 
+		-- face target
 		if (targetObj:GetDistance() < 25) and (targetObj:IsInLineOfSight()) and (not IsMoving()) then
 			if (not targetObj:FaceTarget()) then
 				targetObj:FaceTarget();
@@ -287,7 +289,7 @@ function script_hunter:run(targetGUID)
 	
 		-- not in combat do pull stuff
 
-		if (not IsInCombat()) and (targetObj:GetDistance() < 35) and (targetObj:GetDistance() > 15) then
+		if (not IsInCombat()) and (targetObj:GetDistance() < 35) and (targetObj:GetDistance() > 12) then
 			script_hunter:hunterPull(targetObj);
 			targetObj:FaceTarget();
 			return;
@@ -381,7 +383,7 @@ function script_hunter:run(targetGUID)
 			end
 		end
 
-		if (targetObj:GetDistance() > 15) and (targetObj:GetDistance() < 35) then
+		if (targetObj:GetDistance() > 12) and (targetObj:GetDistance() < 35) then
 		-- use hunter's mark first
 		if (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) and (targetObj:IsInLineOfSight()) and (targetHealth >= 50) then
 			CastSpellByName("Hunter's Mark");
@@ -519,7 +521,7 @@ function script_hunter:rest()
 
 
 	-- Stop moving before we can rest
-	if(localHealth < self.eatHealth or localMana < self.drinkMana) then
+	if(localHealth < self.eatHealth) or (localMana < self.drinkMana) then
 		if (IsMoving()) then
 			StopMoving();
 			return true;
@@ -725,13 +727,9 @@ function script_hunter:rest()
 end
 
 function script_hunter:hunterPull(targetObj)
-	if (targetObj:GetDistance() > 30) or (not targetObj:IsInLineOfSight()) then
-				return 3;
-			end
 
 			if (self.hasPet) and (not IsMoving()) then
 				PetAttack();
-				self.waitTimer = GetTimeEX() + 250;
 			end
 
 			-- use hunters mark

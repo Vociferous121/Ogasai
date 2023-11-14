@@ -217,7 +217,6 @@ function script_hunterEX:menu()
 		end
 
 		if (GetLocalPlayer():GetLevel() >= 10) then
-			Text('Use Pet or not:');
 			wasClicked, script_hunter.hasPet = Checkbox("Use Pet", script_hunter.hasPet);
 		end
 
@@ -234,67 +233,88 @@ function script_hunterEX:menu()
 		Separator();
 
 		Text('Drink below mana percentage');
-		script_hunter.drinkMana = SliderFloat("M%", 1, 100, script_hunter.drinkMana);
+		script_hunter.drinkMana = SliderInt("M%", 1, 100, script_hunter.drinkMana);
+
 		Text('Eat below health percentage');
-		script_hunter.eatHealth = SliderFloat("H%", 1, 100, script_hunter.eatHealth);
+		script_hunter.eatHealth = SliderInt("H%", 1, 100, script_hunter.eatHealth);
+
 		Text('Use health potions below percentage');
-		script_hunter.potionHealth = SliderFloat("HP%", 1, 99, script_hunter.potionHealth);
+		script_hunter.potionHealth = SliderInt("HP%", 1, 99, script_hunter.potionHealth);
+
 		Text('Use mana potions below percentage');
-		script_hunter.potionMana = SliderFloat("MP%", 1, 99, script_hunter.potionMana);
+		script_hunter.potionMana = SliderInt("MP%", 1, 99, script_hunter.potionMana);
 
 		Separator();
 
-		Text('Vendor/Bag settings:');
-		wasClicked, script_hunter.useVendor = Checkbox("Vendor when full inventory", script_hunter.useVendor);	
+		if (CollapsingHeader("-- Vendor Settings -- These May Be Defunct")) then
+			Text('Vendor/Bag settings:');
+			wasClicked, script_hunter.useVendor = Checkbox("Vendor when full inventory", script_hunter.useVendor);	
+		
+			if (script_grind.useVendor) then
+				script_hunter.useVendor = true;
+			end
+			if (script_hunter.useVendor) then
+				script_grind.useVendor = true;
+			end
+			if (script_hunter.useVendor) or (script_grind.useVendor) then
+				script_hunter.stopWhenBagsFull = false;
+			end
+		end
 
-		if (script_grind.useVendor) then
-			script_hunter.useVendor = true;
+		if (CollapsingHeader("-- Buy Ammo")) then
+			wasClicked, script_hunter.buyWhenQuiverEmpty = Checkbox("Buy ammo when only 1 stack left.", script_hunter.buyWhenQuiverEmpty);
+
+			if (script_hunter.buyWhenQuiverEmpty) then
+				script_hunter.quiverBagNr = InputText("Bag# for quiver (2-5)", script_hunter.quiverBagNr);
+			end
 		end
-		if (script_hunter.useVendor) then
-			script_grind.useVendor = true;
-		end
-		if (self.useVendor) or (script_grind.useVendor) then
-			script_hunter.stopWhenBagsFull = false;
-		end
+
+		Separator();
+
+		if (CollapsingHeader("-- Feed Pet Options")) then
+			wasClicked, script_hunter.useFeedPet = Checkbox("Auto Feed Pet", script_hunter.useFeedPet);
 	
-		wasClicked, script_hunter.buyWhenQuiverEmpty = Checkbox("Buy ammo when only 1 stack left.", script_hunter.buyWhenQuiverEmpty);
+			if (script_hunter.hasPet) and (script_hunter.useFeedPet) then	
 
-		if (script_hunter.buyWhenQuiverEmpty) then
-			script_hunter.quiverBagNr = InputText("Bag# for quiver (2-5)", script_hunter.quiverBagNr);
-		end
+				Text('Always put the pet food in the last slot of the bag.');
 
-		Separator();
+				Text("Bag # with pet food (2-5)");
+				script_hunter.bagWithPetFood = InputText("BPF", script_hunter.bagWithPetFood);
+	
+				Text("Bagslot# with pet food (1-Maxslot)");
+				script_hunter.slotWithPetFood = InputText("SPF", script_hunter.slotWithPetFood);
 
-		wasClicked, script_hunter.useFeedPet = Checkbox("Auto Feed Pet", script_hunter.useFeedPet);
+				Text("Pet Food Name:");
+				script_hunter.foodName = InputText("PFN", script_hunter.foodName);
 
-		if (script_hunter.hasPet) and (script_hunter.useFeedPet) then	
-			Text("Bag# with pet food (2-5)");
-			script_hunter.bagWithPetFood = InputText("BPF", script_hunter.bagWithPetFood);
-
-			Text("Bagslot# with pet food (1-Maxslot)");
-			script_hunter.slotWithPetFood = InputText("SPF", script_hunter.slotWithPetFood);
-
-			Text('Always put the pet food in the last slot of the bag.');
-			Text("Pet Food Name:");
-			script_hunter.foodName = InputText("PFN", script_hunter.foodName);
-			Separator();
-		end
-
-		if (script_hunter.hsWhenStop) then
-			script_hunter.hsBag = InputText("Bag# for HS", script_hunter.hsBag);
-			script_hunter.hsSlot = InputText("Bag-slot (1-X) for HS", script_hunter.hsSlot);
+				Separator();
+			end
 		end
 
 		Separator();	
 		
-		Text('Stop settings:');
-		wasClicked, script_hunter.stopWhenBagsFull = Checkbox("Stop when bags are full", script_hunter.stopWhenBagsFull);
-		wasClicked, script_hunter.stopWhenQuiverEmpty = Checkbox("Stop when we run out of ammo", script_hunter.stopWhenQuiverEmpty);
+		if (CollapsingHeader("-- Stop Hunter Settings")) then
+
+			Text('Stop settings:');
+
+			wasClicked, script_hunter.stopWhenBagsFull = Checkbox("Stop when bags are full", script_hunter.stopWhenBagsFull);
+
+			wasClicked, script_hunter.stopWhenQuiverEmpty = Checkbox("Stop when we run out of ammo", script_hunter.stopWhenQuiverEmpty);
 		
-		if (script_hunter.hasPet) then
-			wasClicked, script_hunter.stopWhenNoPetFood = Checkbox("Stop when we run out of pet food", script_hunter.stopWhenNoPetFood);
+			if (script_hunter.hasPet) then
+
+				wasClicked, script_hunter.stopWhenNoPetFood = Checkbox("Stop when we run out of pet food", script_hunter.stopWhenNoPetFood);
+
+			end
+		
+			wasClicked, script_hunter.hsWhenStop = Checkbox("Use HS before stopping the bot, if not on CD", script_hunter.hsWhenStop);
+
+			if (script_hunter.hsWhenStop) then
+
+				script_hunter.hsBag = InputText("Bag# for HS", script_hunter.hsBag);
+
+				script_hunter.hsSlot = InputText("Bag-slot (1-X) for HS", script_hunter.hsSlot);
+			end
 		end
-		
-		wasClicked, script_hunter.hsWhenStop = Checkbox("Use HS before stopping the bot, if not on CD", script_hunter.hsWhenStop);
 	end
 end
