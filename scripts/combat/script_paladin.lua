@@ -285,9 +285,11 @@ function script_paladin:healAndBuff(localObj, localMana)
 		return 0;
 	end
 
+
+
 	-- flash of light not in combat
-	if (not IsInCombat()) and (localMana > self.drinkMana + 10) then
-		if (HasSpell("Flash of Light")) and (localMana >= 40) and (localHealth >= self.holyLightHealth) and (localHealth <= 85) and (not IsLooting()) and (script_grind.lootObj == nil) then
+	if (not IsInCombat()) and (localMana > self.drinkMana + 6) then
+		if (HasSpell("Flash of Light")) and (localHealth >= self.holyLightHealth) and (localHealth <= 85) and (not IsLooting()) and (script_grind.lootObj == nil) then
 			script_grind.tickRate = 100;
 			if (IsMoving()) then
 				StopMoving();
@@ -295,8 +297,8 @@ function script_paladin:healAndBuff(localObj, localMana)
 			CastHeal("Flash of Light", localObj);
 			ClearTarget();
 			self.waitTimer = GetTimeEX() + 1500;
-			return;
 		end
+		return;
 	end
 
 	local checkHealth = GetLocalPlayer():GetHealthPercentage();
@@ -323,9 +325,9 @@ function script_paladin:healAndBuff(localObj, localMana)
 			self.message = "Flash of Light enabled - Healing!";
 			if (localMana > 8) then
 				CastSpellByName("Flash of Light", localObj);
-			end
-			return;				
+			end			
 		end
+	return;	
 	end
 
 	--flash of light in combat very low health and mana
@@ -337,7 +339,7 @@ function script_paladin:healAndBuff(localObj, localMana)
 			CastHeal("Flash of Light", localObj);
 			self.waitTimer = GetTimeEX() + 1500;
 			self.message = "We are dying - trying to save!";
-			return 0;
+			return;
 	end
 
 return false;
