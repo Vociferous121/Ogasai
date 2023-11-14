@@ -885,7 +885,6 @@ function script_grind:doLoot(localObj)
 		end
 
 		-- If we reached the loot object, reset the nav path
-		script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
 		script_nav:resetNavigate();
 		self.waitTimer = GetTimeEX() + 550;
 		
