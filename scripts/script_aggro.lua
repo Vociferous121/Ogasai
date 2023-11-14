@@ -53,7 +53,7 @@ function script_aggro:safePull(target)
 
 	while currentObj ~= 0 do
  		if (typeObj == 3 and currentObj:GetGUID() ~= target:GetGUID()) then
-			aggro = currentObj:GetLevel() - localObj:GetLevel() + 25;
+			aggro = currentObj:GetLevel() - localObj:GetLevel() + 30;
 			cx, cy, cz = currentObj:GetPosition();
 			if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro then	
 				countUnitsInRange = countUnitsInRange + 1;

@@ -35,7 +35,7 @@ function script_hunterEX:chooseAspect(targetObj)
 				end 
 			end
 		end
-	elseif (hasCheetah and not IsInCombat() and targetObj == nil) then 
+	elseif (script_hunter.useCheetah) and (hasCheetah and not IsInCombat() and targetObj == nil) then 
 		if (not localObj:HasBuff('Aspect of the Cheetah')) then 
 			CastSpellByName('Aspect of the Cheetah'); 
 			return true;  
@@ -189,28 +189,24 @@ function script_hunterEX:checkPetFood()
 end
 
 function script_hunterEX:menu()
-	if (CollapsingHeader("Hunter Combat Options")) then
-	Text("Wait After Combat - Fixes Bug Stuck InCombat Phase");
-	script_hunter.waitAfterCombat = SliderInt("Seconds", 0, 10, script_hunter.waitAfterCombat);
-
 
 		local wasClicked = false;
 
-	if (HasItem("Linen Bandage")) or 
-		(HasItem("Heavy Linen Bandage")) or 
-		(HasItem("Wool Bandage")) or 
-		(HasItem("Heavy Wool Bandage")) or 
-		(HasItem("Silk Bandage")) or 
-		(HasItem("Heavy Silk Bandage")) or 
-		(HasItem("Mageweave Bandage")) or 
-		(HasItem("Heavy Mageweave Bandage")) or 
-		(HasItem("Runecloth Bandage")) or 
-		(HasItem("Heavy Runecloth Bandage")) then
+		if (HasItem("Linen Bandage")) or 
+			(HasItem("Heavy Linen Bandage")) or 
+			(HasItem("Wool Bandage")) or 
+			(HasItem("Heavy Wool Bandage")) or 
+			(HasItem("Silk Bandage")) or 
+			(HasItem("Heavy Silk Bandage")) or 
+			(HasItem("Mageweave Bandage")) or 
+			(HasItem("Heavy Mageweave Bandage")) or 
+			(HasItem("Runecloth Bandage")) or 
+			(HasItem("Heavy Runecloth Bandage")) then
 		
-		self.menuBandages = true;
-	else
-		self.menuBandages = false;
-	end
+			self.menuBandages = true;
+		else
+			self.menuBandages = false;
+		end
 		
 		if (self.menuBandages) or (GetLocalPlayer():GetLevel() >= 10) then
 			Separator();
@@ -223,6 +219,11 @@ function script_hunterEX:menu()
 		if (self.menuBandages) then
 			SameLine();
 			wasClicked, script_hunter.useBandage = Checkbox("Use Bandages", script_hunter.useBandage);
+		end
+
+		if (HasSpell("Aspect of the Cheetah")) then
+			SameLine();
+			wasClicked, script_hunter.useCheetah = Checkbox("Use Cheetah", script_hunter.useCheetah);
 		end
 
 		Separator();
@@ -269,5 +270,4 @@ function script_hunterEX:menu()
 			wasClicked, script_hunter.stopWhenNoPetFood = Checkbox("Stop when we run out of pet food", script_hunter.stopWhenNoPetFood);
 		end
 		wasClicked, script_hunter.hsWhenStop = Checkbox("Use HS before stopping the bot, if not on CD", script_hunter.hsWhenStop);
-	end
 end

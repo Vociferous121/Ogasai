@@ -31,7 +31,7 @@ script_hunter = {
 	waitAfterCombat = 8,
 	useFeedPet = true,
 	meleeDistance = 5,
-
+	useCheetah = false,
 }	
 
 function script_hunter:setup()
@@ -178,10 +178,13 @@ function script_hunter:run(targetGUID)
 
 	local pet = GetPet();
 	local petHP = 0;
+	local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
+
 	if (pet ~= nil and pet ~= 0) then
 		petHP = pet:GetHealthPercentage();
 		local petMana = GetPet():GetManaPercentage();
 		local petFocus = GetPet():GetFocus();
+		local petHasTarget = GetPet():GetUnitsTarget();
 	end
 
 	if (self.hasPet and not IsInCombat()) then
@@ -194,6 +197,21 @@ function script_hunter:run(targetGUID)
 	if (IsChanneling() or IsCasting() or self.waitTimer > GetTimeEX()) then
 		return 4;
 	end
+
+	-- force bot to attack pets target
+	if (IsInCombat()) and (playerHasTarget == 0) then
+		if (petHasTarget ~= 0) then
+			TargetNearestEnemy();
+		else
+			return 4;
+		end
+	end
+
+	if (IsInCombat()) and (playerHasTarget == 0) then
+		if (petHasTarget == 0) then
+			return 4;
+		end
+	end	
 
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
@@ -209,18 +227,18 @@ function script_hunter:run(targetGUID)
 		end
 	end
 
+	script_hunterEX:chooseAspect(targetObj);
+
 	--Valid Enemy
 	if (targetObj ~= 0 and targetObj ~= nil) then
+
+		self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 		
 		-- Cant Attack dead targets
 		if (targetObj:IsDead() or not targetObj:CanAttack()) then
 			self.waitTimer = GetTimeEX() + 1200;
 			return 0;
 		end
-		
-		--if (not IsStanding()) then
-		--	StopMoving();
-		--end
 
 		-- Don't attack if we should rest first
 		if (localHealth < self.eatHealth and not script_grind:isTargetingMe(targetObj)
@@ -229,21 +247,24 @@ function script_hunter:run(targetGUID)
 			return 4;
 		end
 
-		script_hunterEX:chooseAspect(targetObj);
-
 		targetHealth = targetObj:GetHealthPercentage();
 
-		if (not targetObj:IsInLineOfSight()) then
+		-- check line of sight
+		if (not targetObj:IsInLineOfSight()) or (targetObj:GetDistance() > 32) then
 			return 3;
 		end
 
-		-- force stop the bot after combat and waiting for pet to return - hangs in combat phase
-		if (self.hasPet) and (GetNumPartyMembers() > 0) then
-			if (IsInCombat()) and (GetPet():GetUnitsTarget() == 0) and (GetLocalPlayer():GetUnitsTarget() == 0) then
-				if (IsMoving()) then
-					StopMoving();
-				end
-			return 4;
+		if (targetObj:GetDistance() < 25) and (targetObj:IsInLineOfSight()) and (not IsMoving()) then
+			if (not targetObj:FaceTarget()) then
+				targetObj:FaceTarget();
+			end
+		end
+
+		-- Auto Attack
+		if (targetObj:GetDistance() < 42) then
+			targetObj:AutoAttack();
+			if (not IsMoving()) and (self.hasPet) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+				PetAttack();
 			end
 		end
 
@@ -255,64 +276,64 @@ function script_hunter:run(targetGUID)
 			end
 		end 
 
+		-- check pet range
 		if (self.hasPet) and (GetPet() ~= 0) then 
-			if (GetPet():GetDistance() > 34) and (GetLocalPlayer():GetUnitsTarget() == 0) then 
+			if (GetPet():GetDistance() > 30) and (GetLocalPlayer():GetUnitsTarget() == 0) then 
 				PetFollow();
 			end
-		elseif (GetPet():GetDistance() <= 34) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then 
+		elseif (self.hasPet) and (GetPet():GetDistance() <= 30) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then 
 			PetAttack();
 			targetObj:AutoAttack();
 		end
+	
+	-- not in combat do pull stuff
 
-		if (IsInCombat()) then
-			if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) and (targetObj:GetDistance() < 35) and (targetObj:IsInLineOfSight()) then
-			CastSpellByName("Auto Shot");
-			targetObj:FaceTarget();
-			return 0;
-			end
-		end
+	if (not IsInCombat()) and (targetObj:GetDistance() < 35) and (targetObj:GetDistance() > 15) then
 
-	-- Auto Attack
-		if (targetObj:GetDistance() < 46) then
-			targetObj:AutoAttack();
-			if (not IsMoving()) and (self.hasPet) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
-				PetAttack();
-			end
-		end
-		
-		if (not IsInCombat()) and (targetObj:GetDistance() < 36) and (targetObj:GetDistance() > self.meleeDistance) and (localHealth > self.eatHealth) and (script_grind.lootObj == nil) then
-
-	-- this above here is causing the bot to attack before looting
-
-		--do some random checks to stop fast targeting?
-
-			if (not targetObj:IsSpellInRange("Auto Shot")) or (not targetObj:IsInLineOfSight()) then
+			if (targetObj:GetDistance() > 30) or (not targetObj:IsInLineOfSight()) then
 				return 3;
 			end
 
-		if (targetObj:IsSpellInRange("Auto Shot")) and (targetObj:IsInLineOfSight()) and (not targetObj:IsFleeing()) then
-			if (IsMoving()) then
-				StopMoving();
-			end
-		end
-
-			if (self.hasPet) and (not IsMoving()) and (script_grind.lootObj == nil) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+			if (self.hasPet) and (not IsMoving()) then
 				PetAttack();
-				self.waitTimer = GetTimeEX() + 600;
+				self.waitTimer = GetTimeEX() + 250;
 			end
 
-			if (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) then
+			-- use hunters mark
+			if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (targetObj:CanAttack()) and (not targetObj:IsDead()) and (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) then
 				CastSpellByName("Hunter's Mark");
 				PetAttack();
 				targetObj:FaceTarget();
 				self.waitTimer = GetTimeEX() + 1500;
 				return 0;
 			end
-			if (script_hunter:doOpenerRoutine(targetGUID, pet)) then
-				self.waitTimer = GetTimeEX() + 1450;
-				return 4; -- return 0 bugs turning around cause of StopMoving();
-			else
-				return 3;
+
+			-- auto shot
+			if (not IsAutoCasting("Auto Shot")) and (targetObj:IsInLineOfSight()) then
+				CastSpellByName("Auto Shot");
+				targetObj:FaceTarget();
+				PetAttack();
+				return 0;
+			end
+
+			-- use concussive shot
+			if (HasSpell("Concussive Shot")) and (not IsSpellOnCD("Concussive Shot")) and (targetObj:IsInLineOfSight()) then
+				CastSpellByName("Concussive Shot");
+				PetAttack();
+				return 0;
+			end
+
+			-- use serpent sting
+			if (HasSpell("Serpent Sting")) and (not targetObj:HasDebuff("Serpent Sting")) and (targetObj:IsInLineOfSight()) then
+				CastSpellByName("Serpent Sting");
+				PetAttack();
+				return 0;
+			end
+	
+			-- use arcane shot
+			if (HasSpell("Arcane Shot")) and (not IsSpellOnCD("Arcane Shot")) and (targetObj:IsInLineOfSight()) then
+				CastSpellByName("Arcane Shot");
+				return 0;
 			end
 
 			if (not self.hasPet) then
@@ -323,103 +344,174 @@ function script_hunter:run(targetGUID)
 				end
 			end
 			
-		-- Combat
-		else				
-			-- Check: Use Healing Potion 
-			if (localHealth <= self.potionHealth) then 
-				if (script_helper:useHealthPotion()) then 
-					return 0; 
-				end 
-			end		
+		-- NOW IN COMBAT
+			-----------------------------
 
-			-- walk away from target if pet target guid is the same guid as target targeting me
-			if (targetObj:GetDistance() < 14) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) then
-				if (targetObj:GetUnitsTarget():GetGUID() == pet:GetGUID()) then
-					script_grind.tickRate = 100;
-					if (script_hunter:runBackwards(targetObj, 15)) then
-						PetAttack();
-						targetObj:FaceTarget();
-						self.message = "Moving away from target for range attacks...";
-						return 4;
-					end
-				end
-			end
-			
-			-- force stop the bot after combat and waiting for pet to return - hangs in combat phase
-			if (self.hasPet) and (GetNumPartyMembers() > 0) then
-				if (IsInCombat()) and (GetPet():GetUnitsTarget() == 0) and (GetLocalPlayer():GetUnitsTarget() == 0) then
-					if (IsMoving()) then
-						StopMoving();
-					end
-					script_grind.tickRate = 100;
-				return 4;
-				end
-			end
+		else	
 
-			-- Check: Use Mana Potion 
-			if (localMana <= self.potionMana) then 
-				if (script_helper:useManaPotion()) then 
-					return 0; 
-				end 
-			end
-
-			-- War Stomp Tauren Racial
-			if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) and (not IsMoving()) and (targetObj:GetDistance() <= 6) then
-				if (targetObj:IsCasting()) or (targetObj:IsFleeing()) or (localLevel < 10) and (IsAutoCasting("Auto Attack")) then
-					CastSpellByName("War Stomp");
-					self.waitTimer = GetTimeEX() + 200;
-					return 0;
-				end
-			end
-
-			if (script_hunter:mendPet(localMana, petHP)) then
-				self.waitTimer = GetTimeEX() + 1850;
+		-- force auto shot if in combat
+		if (IsInCombat()) then
+			if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) and (targetObj:GetDistance() < 30) and (targetObj:IsInLineOfSight()) then
+				CastSpellByName("Auto Shot");
+				targetObj:FaceTarget();
+				PetAttack();
 				return 0;
 			end
+		end
 
-			if (targetHealth < 95 and self.hasPet and petHP > 20 and HasSpell("Feign Death") 
-				and not IsSpellOnCD("Feign Death") and script_hunter:enemiesAttackingMe() >= 1) then
-				CastSpellByName("Feign Death");
-				self.waitTimer = GetTimeEX() + 3850;
+		-- Check: Use Healing Potion 
+		if (localHealth <= self.potionHealth) then 
+			if (script_helper:useHealthPotion()) then 
+				return 0; 
+			end 
+		end
+
+		-- Check: Use Mana Potion 
+		if (localMana <= self.potionMana) then 
+			if (script_helper:useManaPotion()) then 
+				return 0; 
+			end 
+		end
+
+		-- Check: Use Rapid Fire if we have adds
+		if (script_grind:enemiesAttackingUs() > 1 and HasSpell('Rapid Fire') and not IsSpellOnCD('Rapid Fire')) then
+			CastSpellByName('Rapid Fire');
+			return 0;
+		end
+
+		-- Check: If pet is stunned, feared etc use Bestial Wrath
+		if (self.hasPet and GetPet() ~= 0 and GetPet() ~= nil) then
+			if ((pet:IsStunned() or pet:IsConfused() or pet:IsFleeing()) and UnitExists("Pet") and HasSpell('Bestial Wrath')) then 
+				if (script_hunter:cast('Bestial Wrath', targetObj)) then 
+					return true; 
+				end
+			end
+		end
+
+		-- mend pet
+		if (script_hunter:mendPet(localMana, petHP)) then
+			self.waitTimer = GetTimeEX() + 3850;
+			return 0;
+		end
+
+		-- feign death if pet is dead
+		if (self.hasPet) and (petHP < 1) and (HasSpell("Feign Death")) and (not IsSpellOnCD("Feign Death")) and (script_hunter:enemiesAttackingMe() > 1) then
+			CastSpellByName("Feign Death");
+			self.waitTimer = GetTimeEX() + 3850;
+			return 0;
+		end
+
+		-- War Stomp Tauren Racial
+		if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) and (not IsMoving()) and (targetObj:GetDistance() <= 6) then
+			if (targetObj:IsCasting()) or (targetObj:IsFleeing()) or (localLevel < 10) and (IsAutoCasting("Auto Attack")) then
+				CastSpellByName("War Stomp");
+				self.waitTimer = GetTimeEX() + 200;
 				return 0;
 			end
-	
-			if (targetObj:GetDistance() < 0.50) then
-				if (script_hunter:runBackwards(targetObj, 2)) then
-					self.waitTimer = GetTimeEX() + 1850;
-					return 0;
-				end
-			end
-
-			-- Auto Attack
-			if (targetObj:GetDistance() <= 5) then
-				if (not targetObj:AutoAttack()) then
-					targetObj:AutoAttack();
-				end
-			end
+		end
 		
-			if (script_hunter:doInCombatRoutine(targetObj, localMana)) then
+		-- move backwards if target too close for melee attacks
+		if (targetObj:GetDistance() < 0.50) then
+			if (script_hunter:runBackwards(targetObj, 2)) then
 				self.waitTimer = GetTimeEX() + 1850;
 				return 0;
-			else
-				return 3;
+			end
+		end		
+
+		-- walk away from target if pet target guid is the same guid as target targeting me
+		if (targetObj:GetDistance() <= 14) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) then
+			if (targetObj:GetUnitsTarget():GetGUID() == pet:GetGUID()) then
+
+				script_grind.tickRate = 100;
+				local randomMoveBack = math.random(14, 18);
+
+				if (script_hunter:runBackwards(targetObj, randomMoveBack)) then
+					PetAttack();
+					self.message = "Moving away from target for range attacks...";
+					return 4;
+				end
+			end
+		end
+
+		if (targetObj:GetDistance() > 15) and (targetObj:GetDistance() < 35) then
+		-- use hunter's mark first
+		if (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) and (targetObj:IsInLineOfSight()) and (targetHealth >= 50) then
+			CastSpellByName("Hunter's Mark");
+			targetObj:FaceTarget();
+			return 0;
+		end
+	
+		-- use concussive shot
+		if (HasSpell("Concussive Shot")) and (not IsSpellOnCD("Concussive Shot")) and (targetObj:IsTargetingMe()) then
+			CastSpellByName("Concussive Shot");
+			targetObj:FaceTarget();
+			return 0;
+		end
+
+		-- use serpent sting
+		if (HasSpell("Serpent Sting")) and (not targetObj:HasDebuff("Serpent Sting")) and (targetObj:IsInLineOfSight()) then
+			CastSpellByName("Serpent Sting");
+			targetObj:FaceTarget();
+			return 0;
+		end
+	
+		-- use arcane shot
+		if (HasSpell("Arcane Shot")) and (not IsSpellOnCD("Arcane Shot")) and (targetObj:IsInLineOfSight()) then
+			CastSpellByName("Arcane Shot");
+			targetObj:FaceTarget();
+			return 0;
+		end
+
+		-- mend pet
+		if (script_hunter:mendPet(localMana, petHP)) then
+			self.waitTimer = GetTimeEX() + 3850;
+			return 0;
+		end
+
+		end
+
+		-- Auto Attack
+		if (targetObj:GetDistance() <= self.meleeDistance) then
+			if (not targetObj:AutoAttack()) then
+				targetObj:AutoAttack();
+			end
+
+			-- cast raptor strike
+			if (HasSpell("Raptor Strike")) and (not IsSpellOnCD("Raptor Strike")) and (localMana > 10) then
+				CastSpellByName("Raptor Strike");
+				return 0;
+			end
+					
+			-- cast wing clip
+			if (HasSpell("Wing Clip")) and (not IsSpellOnCD("Wing Clip")) and (localMana > 10) and (targetHealth < 35) then
+				CastSpellByName("Wing Clip");
+				return 0;
 			end
 		end
 	end
+	end			
+			
 end
 
 function script_hunter:mendPet(localMana, petHP)
 	local mendPet = HasSpell("Mend Pet");
-	if (mendPet and IsInCombat() and self.hasPet and petHP > 0) then
+	if (mendPet) and (IsInCombat()) and (self.hasPet) and (petHP > 0) then
 		if (GetPet():GetHealthPercentage() < 35) then
+
 			script_grind.tickRate = 100;
 			self.message = "Pet has lower than 35% HP, mending pet...";
+
 			-- Check: If in range to mend the pet 
-			if (GetPet():GetDistance() < 20 and localMana > 10 and GetPet():IsInLineOfSight()) then 
-				if (IsMoving()) then StopMoving(); return true; end 
+			if (GetPet():GetDistance() < 20) and (localMana > 10) and (GetPet():IsInLineOfSight()) then 
+				if (IsMoving()) then
+					StopMoving();
+					return true;
+				end 
+
 				CastSpellByName("Mend Pet"); 
 				self.waitTimer = GetTimeEX() + 3850;
 				return true;
+
 			elseif (localMana > 10) then 
 				script_nav:moveToTarget(GetLocalPlayer(), GetPet():GetPosition()); 
 				return true; 
@@ -431,7 +523,9 @@ function script_hunter:mendPet(localMana, petHP)
 end
 
 function script_hunter:rest()
+
 	local pet = GetPet();
+
 	if (not self.isSetup) then
 		script_hunter:setup();
 	end
@@ -573,8 +667,8 @@ function script_hunter:rest()
 
 	-- Check hunter bags if they are full
 	local inventoryFull = true;
-	-- Check bags 1-5, except the quiver bag (quiverBagNr)
-	for i=1,5 do 
+	-- Check bags 1-4, except the quiver bag (quiverBagNr)
+	for i=1,4 do 
 		if (i ~= self.quiverBagNr) then 
 			for y=1,GetContainerNumSlots(i-1) do 
 				local texture, itemCount, locked, quality, readable = GetContainerItemInfo(i-1,y);
@@ -679,303 +773,5 @@ function script_hunter:rest()
 		self.message = "Need to rest!";
 		return;
 	end
-	return false;
-end
-
-function script_hunter:doOpenerRoutine(targetGUID, pet) 
-	local targetObj = GetGUIDObject(targetGUID);
-	self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
-
-	-- force stop the bot after combat and waiting for pet to return - hangs in combat phase
-			if (self.hasPet) and (GetNumPartyMembers() > 0) then
-				if (IsInCombat()) and (GetPet():GetUnitsTarget() == 0) and (GetLocalPlayer():GetUnitsTarget() == 0) then
-					if (IsMoving()) then
-						StopMoving();
-					end
-					script_grind.tickRate = 100;
-					self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
-					self.message = ("waiting dead target line 660");
-					return 4;
-				end
-			end
-
-
-	-- Let pet loose early to get aggro (even before we are in range ourselves)
-	if (self.hasPet and targetObj:GetDistance() < 45) then 
-		if (pet:GetUnitsTarget() ~= nil and pet:GetUnitsTarget() ~= 0) then
-			if (pet:GetUnitsTarget():GetGUID() ~= targetObj:GetGUID()) then
-				PetFollow(); 
-			end
-		elseif (targetObj:GetDistance() < 35) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
-			PetAttack();
-		end
-	end	
-	
-	-- Check: If we can auto attack, before moving "in line of sight"
-	local canDoRangeAttacks = false;
-
-	-- Attack: Use Auto Shot
-	if (not IsAutoCasting('Auto Shot') and targetObj:GetDistance() < 35 and targetObj:GetDistance() > 13) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
-		CastSpellByName("Auto Shot");
-		targetObj:FaceTarget();
-		canDoRangeAttacks = true;
-	elseif (IsAutoCasting('Auto Shot')) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
-		targetObj:FaceTarget();
-		canDoRangeAttacks = true;
-	end
-	if (canDoRangeAttacks) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
-		script_hunter:doPullAttacks(targetObj, localMana);
-		targetObj:FaceTarget();
-		self.waitTimer = GetTimeEX() + 1750;
-		return true;
-	end
-	
-	-- Check: If we are already in meele range before pull, use Raptor Strike
-	if (targetObj:GetDistance() < 5) then
-		if (not script_hunter:cast('Raptor Strike', targetObj)) then
-			targetObj:FaceTarget(); 
-			return true; 
-		end 
-	end
-	
-	-- Move to the target if not in line of sight or not in range
-	if (not targetObj:IsInLineOfSight() or targetObj:GetDistance() > 35 or targetObj:GetDistance() < 14) then 
-		return false;
-	end 
-	
-	if (not IsInCombat()) then
-		if (script_hunter:doPullAttacks(targetObj)) then
-			targetObj:FaceTarget();
-		end
-	end
-
-	return true; -- return true so we dont move closer to the mob
-end
-
-function script_hunter:doPullAttacks(targetObj)
-
--- force stop the bot after combat and waiting for pet to return - hangs in combat phase
-			if (self.hasPet) and (GetNumPartyMembers() > 0) then
-				if (IsInCombat()) and (GetPet():GetUnitsTarget() == 0) and (GetLocalPlayer():GetUnitsTarget() == 0) then
-					if (IsMoving()) then
-						StopMoving();
-					end
-				ClearTarget();
-					script_grind.tickRate = 100;
-					self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
-					self.message = ("waiting dead target line 761");
-					return 4;
-				end
-			end
-
-if (not IsInCombat()) then
-		if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
-			CastSpellByName("Auto Shot");
-			targetObj:FaceTarget();
-			return 0;
-		end
-	end
-	-- Dismount
-	if (IsMounted()) then DisMount(); end
-
-	if (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) then
-		CastSpellByName("Hunter's Mark");
-		self.waitTimer = GetTimeEX() + 1500;
-		return 0;
-	end
-	-- Pull with Concussive Shot to make it easier for pet to get aggro
-	if (script_hunter:cast('Concussive Shot', targetObj)) then
-		self.waitTimer = GetTimeEX() + 250;
-		return true;
-	end
-	-- If no concussive shot pull with Serpent Sting
-	if (targetObj:GetCreatureType() ~= 'Elemental') then
-		if (script_hunter:cast('Serpent Sting', targetObj)) then return true; end
-	end
-	-- If no special attacks available for pull use Auto Shot
-	if (script_hunter:cast('Auto Shot', targetObj)) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
-		self.waitTimer = GetTimeEX() + 750;
-		targetObj:FaceTarget();
-		return true;
-	end
-	return false;
-end
-
-function script_hunter:doInCombatRoutine(targetObj, localMana) 
-	self.message = "Killing " .. targetObj:GetUnitName() .. "...";
-	local targetHealth = targetObj:GetHealthPercentage(); -- update target's HP
-	local pet = GetPet(); -- get pet
-
-	if (self.hasPet) and (IsInCombat()) then
-		if (GetLocalPlayer():GetUnitsTarget() == 0) and (GetPet():GetUnitsTarget() ~= 0) then
-			GetNearestEnemy();
-			targetObj:FaceTarget();
-			return 0;
-		end
-	end
-
-	if (IsInCombat()) then
-		if (not IsAutoCasting("Auto Shot")) and (targetObj:GetDistance() > 15) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
-			CastSpellByName("Auto Shot");
-			targetObj:FaceTarget();
-			return 0;
-		end
-	end
--- force stop the bot after combat and waiting for pet to return - hangs in combat phase
-			if (self.hasPet) and (GetNumPartyMembers() > 0) then
-				if (IsInCombat()) and (GetPet():GetUnitsTarget() == 0) and (GetLocalPlayer():GetUnitsTarget() == 0) then
-					if (IsMoving()) then
-						StopMoving();
-					end
-					script_grind.tickRate = 100;
-					self.waitTimer = GetTimeEX() + (self.waitAfterCombat * 1000);
-					self.message = ("waiting dead target line 761");
-					return 4;
-				end
-			end
-
-
-	-- Dismount
-	if (IsMounted()) then DisMount(); end
-
-	-- Check: If pet is too far away set it to follow us, else attack
-	if (self.hasPet and GetPet() ~= 0) then
-		if (pet:GetDistance() > 27) then 
-			PetFollow(); 
-		else 
-			if (pet:GetUnitsTarget() ~= nil and pet:GetUnitsTarget() ~= 0) then
-				if (pet:GetUnitsTarget():GetGUID() ~= targetObj:GetGUID()) then
-					PetFollow(); 
-				end
-			elseif (targetObj:GetDistance() < 34) and (IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
-				PetAttack();
-			end
-		end
-	end
-
-	-- Check: Use Rapid Fire if we have adds
-	if (script_grind:enemiesAttackingUs() > 1 and HasSpell('Rapid Fire') and not IsSpellOnCD('Rapid Fire')) then
-		CastSpellByName('Rapid Fire');
-		return 0;
-	end
-
-	-- Check: If pet is stunned, feared etc use Bestial Wrath
-	if (self.hasPet and GetPet() ~= 0 and GetPet() ~= nil) then
-		if ((pet:IsStunned() or pet:IsConfused() or pet:IsFleeing()) and 
-			UnitExists("Pet") and HasSpell('Bestial Wrath')) then 
-			if (script_hunter:cast('Bestial Wrath', targetObj)) then 
-				return true; 
-			end
-		end
-	end
-
-	-- Check: If in range, try to use range attacks before moving "in line of sight"
-	if (targetObj:GetDistance() < 35 and targetObj:GetDistance() > 13) then
-		if(script_hunter:doRangeAttack(targetObj, localMana)) then
-			return true;
-		end
-	end
-
-	if (not targetObj:IsInLineOfSight() or targetObj:GetDistance() > 35) then
-		return false;
-	elseif (targetObj:GetDistance() < 12 and targetObj:GetDistance() > 5) then
-		return false;
-	else
-		if(targetObj:IsInLineOfSight() and (targetObj:GetDistance() < 35 or targetObj:GetDistance() < 4)) then 
-			if (IsMoving()) then
-				StopMoving();
-			end
-		end
-	end
-
-	-- Check: If we are in meele range and have no pet or rotation use meele abilities
-	if (targetObj:GetDistance() < 5) then
-		-- Meele Skill: Raptor Strike
-		if (localMana > 10 and not IsSpellOnCD('Raptor Strike')) then 
-			if (script_hunter:cast('Raptor Strike', targetObj)) then 
-				targetObj:FaceTarget();
-				return true; 
-			end 
-		end
-		-- Meele Skill: Wing Clip (keeps the debuff up)
-		if (localMana > 10 and not targetObj:HasDebuff('Wing Clip') and HasSpell('Wing Clip')) then 
-			if (script_hunter:cast('Wing Clip', targetObj)) then 
-				return true; 
-			end 
-		end
-	end
-
-	if (not targetObj:IsInLineOfSight() or targetObj:GetDistance() > 35) then 
-		return false;
-	else 
-		if (IsMoving() and targetObj:GetDistance() > 15) then 
-			return true;
-		end
-	end
-
-	if (targetObj:GetDistance() < 5) then 
-		return true; -- so we dont walk around when we meele mobs
-	end
-
-	if (script_hunter:doRangeAttack(targetObj, localMana)) then
-		return true;
-	else
-		return false;
-	end
-end
-
-function script_hunter:doRangeAttack(targetObj, localMana)
-
-	if (not targetObj:IsInLineOfSight()) then
-		return 3;
-	end
-	-- Keep up the debuff: Hunter's Mark 
-	if (not targetObj:HasDebuff("Hunter's Mark") and not IsSpellOnCD("Hunter's Mark")) and (HasSpell("Concussive Shot")) and (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() > 20) then 
-			CastSpellByName("Hunter's Mark");
-			self.waitTimer = GetTimeEX() + 1500;
-			return 0;
-	end
-
-	-- Attack: Use Auto Shot 
-	if (not IsAutoCasting('Auto Shot')) and (IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
-		if (script_hunter:cast('Auto Shot', targetObj)) then
-			targetObj:FaceTarget();
-			self.waitTimer = GetTimeEX() + 600;
-			return true;
-		else
-			return false;
-		end
-	end
-	-- Check: Let pet get aggro, dont use special attacks before the mob has less than 95% HP
-	if (targetObj:GetHealthPercentage() > 95 and UnitExists("Pet")) then return true; end
-	-- Check: Intimidation is ready and mob HP high
-	if (not IsSpellOnCD('Intimidation') and targetObj:GetHealthPercentage() > 50) then 
-		if (script_hunter:cast('Intimidation', targetObj)) then return true; end end		
-	-- Special attack: Serpent Sting (Keep the DOT up!)
-	if (not targetObj:HasDebuff('Serpent Sting') and not IsSpellOnCD('Serpent Sting') and targetObj:GetCreatureType() ~= 'Elemental') then 
-		if (script_hunter:cast('Serpent Sting', targetObj)) then return true; end end
-	-- Special attack: Arcane Shot (Only when mana above 70% mana)
-	if (not IsSpellOnCD('Arcane Shot') and localMana > 70) then 
-		if (script_hunter:cast('Arcane Shot', targetObj)) then return true; end end
-	-- Check if we are able to attack
-	if (IsAutoCasting('Auto Shot')) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
-		targetObj:FaceTarget();
-		return true;
-	end
-end
-
-function script_hunter:mount()
-
-	if(not IsMounted() and not IsSwimming() and not IsIndoors() 
-		and not IsLooting() and not IsCasting() and not IsChanneling() 
-			and not IsDrinking() and not IsEating()) then
-		
-		if(IsMoving()) then
-			return true;
-		end
-		
-		return UseItem(self.mountName);
-	end
-	
 	return false;
 end
