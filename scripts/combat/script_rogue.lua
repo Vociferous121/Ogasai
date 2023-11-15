@@ -144,14 +144,12 @@ function script_rogue:checkPoisons()
 end
 
 function script_rogue:canRiposte()
-	for i=1,132 do 
-		local texture = GetActionTexture(i); 
-		if texture ~= nil and string.find(texture,"Ability_Warrior_Challenge") then
-			local isUsable, _ = IsUsableAction(i); 
-			if (isUsable == 1 and not IsSpellOnCD(Riposte)) then 
-				return true; 
-			end 
-		end
+	local texture = GetActionTexture(i); 
+	if texture ~= nil and string.find(texture,"Ability_Rogue_Riposte") then
+		local isUsable, _ = IsUsableAction(i); 
+		if (isUsable == 1 and not IsSpellOnCD(Riposte)) then 
+			return true; 
+		end 
 	end 
 	return false;
 end
@@ -161,7 +159,7 @@ function script_rogue:runBackwards(targetObj, range)
 	local localObj = GetLocalPlayer();
 	if targetObj ~= 0 then
  		local xT, yT, zT = targetObj:GetPosition();
- 		local xP, yP, zP = localObj:GetPosition();
+ 		local xP, yP, zP = localObj:GetPositin();
  		local distance = targetObj:GetDistance();
  		local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
  		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
@@ -319,7 +317,7 @@ function script_rogue:run(targetGUID)
 				end
 
 				-- Stealth in range if enabled
-				if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) and (not script_checkBuffs:hasPoison()) then
+				if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) and (not script_checkDebuffs:hasPoison()) then
 					if (not localObj:HasBuff("Stealth") and not IsSpellOnCD("Stealth")) then
 						CastSpellByName("Stealth");
 						return 3;
@@ -608,7 +606,7 @@ function script_rogue:run(targetGUID)
 				self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 			
 				-- Stealth in range if enabled
-				if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) and (not script_checkBuffs:hasPoison()) then
+				if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) and (not script_checkDebuffs:hasPoison()) then
 					if (not localObj:HasBuff("Stealth") and not IsSpellOnCD("Stealth")) then
 						CastSpellByName("Stealth");
 						return 3;
@@ -899,7 +897,7 @@ function script_rogue:rest()
 
 	-- if has bandage then use bandages
 	if (self.eatHealth >= 35) and (self.hasBandages) and (self.useBandage) and (not IsMoving()) and (localHealth < self.eatHealth) then
-		if (not script_checkBuffs:hasPoison()) and (not IsEating()) and (not localObj:HasDebuff("Recently Bandaged")) then
+		if (not script_checkDebuffs:hasPoison()) and (not IsEating()) and (not localObj:HasDebuff("Recently Bandaged")) then
 		if (IsMoving()) then
 			StopMoving();
 		end
@@ -951,7 +949,7 @@ function script_rogue:rest()
 			self.message = "No food! (or food not included in script_helper)";
 			ClearTarget();
 
-			if (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and not localObj:HasDebuff("Touch of Zanzil")) and (not script_checkBuffs:hasPoison()) then
+			if (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and not localObj:HasDebuff("Touch of Zanzil")) and (not script_checkDebuffs:hasPoison()) then
 				if (not localObj:HasBuff("Stealth")) then
 					CastSpellByName("Stealth");
 				end
@@ -961,7 +959,7 @@ function script_rogue:rest()
 	end
 
 	-- Stealth when we eat
-	if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (IsEating()) and (not localObj:HasDebuff("Touch of Zanzil")) and (not script_checkBuffs:hasPoison()) then
+	if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (IsEating()) and (not localObj:HasDebuff("Touch of Zanzil")) and (not script_checkDebuffs:hasPoison()) then
 		if (not localObj:HasBuff("Stealth")) then
 			CastSpellByName("Stealth");
 			return true;
