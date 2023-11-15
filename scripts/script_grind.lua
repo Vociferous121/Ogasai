@@ -51,7 +51,8 @@ script_grind = {
 	aggroLoaded = include("scripts\\script_aggro.lua"),
 	expExtra = include("scripts\\script_expChecker.lua"),
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
-	paranoiaLoaded = include("scripts\\script_unstuck.lua"),
+	SensitiveUnstuckLoaded = include("scripts\\script_unstuck_highSensitivity.lua"),
+	paranoiaLoaded = include("scripts\\script_paranoia.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
 	debuffCheck = include("scripts\\script_checkDebuffs.lua"),
 	nextToNodeDist = 5, -- (Set to about half your nav smoothness)
@@ -95,6 +96,7 @@ script_grind = {
 	logoutSetTime = GetTimeEX() / 1000,	-- set the logout time in seconds
 	logoutTime = 2,	-- logout time in hours
 	adjustTickRate = false,
+	useUnstuckTwo = true,
 }
 
 function script_grind:setup()
@@ -270,9 +272,16 @@ function script_grind:run()
 		return;
 	end
 
-	if (self.useUnstuck and IsMoving()) and (not self.pause) then
+	if (not self.useUnstuckTwo) and (self.useUnstuck and IsMoving()) and (not self.pause) then
 		if (not script_unstuck:pathClearAuto(2)) then
 			script_unstuck:unstuck();
+			return true;
+		end
+	end
+
+	if (self.useUnstuckTwo) and (self.useUnstuck and IsMoving()) then
+		if (not script_unstuck_highSensitivity:pathClearAuto(2)) then
+			script_unstuck_highSensitivity:unstuck();
 			return true;
 		end
 	end
@@ -329,12 +338,6 @@ function script_grind:run()
 				targetObj:FaceTarget();
 			end
 		end
-
-		-- Jump swimming
-		--local jumpSwimRandom = random(1, 100);
-		--if (jumpSwimRandom > 80) and (IsSwimming()) and (not IsMoving()) and (not localObj:IsCasting()) and (not IsAutoCasting("Wand")) then
-		--	JumpOrAscendStart();
-		--end
 
 		-- Gather
 		if (self.gather and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
@@ -419,7 +422,6 @@ function script_grind:run()
 			if (self.enemyObj ~= nil and self.enemyObj ~= 0) then
 				self.combatError = RunCombatScript(self.enemyObj:GetGUID());
 			end
-			script_grind:setWaitTimer(1500);
 		end
 
 		if(self.enemyObj ~= nil or IsInCombat()) then
@@ -450,12 +452,14 @@ function script_grind:run()
 				if (_x ~= 0 and x ~= 0) and (not IsInCombat()) then
 					local moveBufferY = math.random(-2, 2);
 					self.message = script_nav:moveToTarget(localObj, _x, _y+moveBufferY, _z);
-					script_grind:setWaitTimer(190);
-				end
-				if (_x ~= 0 and x ~= 0) and (IsInCombat()) then
-					self.message = script_nav:moveToTarget(localObj, _x, _y, _z);
 					script_grind:setWaitTimer(200);
 				end
+
+				if (_x ~= 0 and x ~= 0) and (IsInCombat()) then
+					self.message = script_nav:moveToTarget(localObj, _x, _y, _z);
+					script_grind:setWaitTimer(125);
+				end
+				
 				return;
 			end
 
@@ -482,15 +486,15 @@ function script_grind:run()
 		end
 
 		-- Pre checks before navigating
-		if (IsLooting() or IsCasting() or IsChanneling() or IsDrinking() or IsEating() or GetLocalPlayer():GetUnitsTarget() ~= 0) then
+		if (IsLooting() or IsCasting() or IsChanneling() or IsDrinking() or IsEating() or IsInCombat()) then
 			script_grind:setWaitTimer(1500);
 			return;
 		end
 
-		script_grind:setWaitTimer(1500);
-
 		-- Mount before we navigate through the path, error check to get around indoors
-		--if (script_grind:mountUp() and self.useMount) then return; end	
+		--if (script_grind:mountUp() and self.useMount) then return; end
+
+		script_grind:setWaitTimer(1500);	
 
 		-- Use auto pathing or walk paths
 		if (self.autoPath) then
@@ -800,11 +804,11 @@ function script_grind:drawStatus()
 	y = y + 20; DrawText('Combat script status: ', x, y, r+255, g+255, b+0); y = y + 15;
 	if (self.showClassOptions) then RunCombatDraw(); end
 	 y = y + 20;
-	--if (self.autoPath) then 
-	--	DrawText('Auto path: ON! Hotspot: ' .. script_nav:getHotSpotName(), x, y, r+255, g+22, b+122); y = y + 20;
-	--else
-	--	DrawText('Auto path: OFF!', x, y, r+255, g+22, b+122); y = y + 20;
-	--end
+	if (self.autoPath) then 
+		DrawText('Auto path: ON! Hotspot: ' .. script_nav:getHotSpotName(), x, y, 255, 255, 205); y = y + 20;
+	else
+		DrawText('Auto path: OFF!', x, y, 255, 255, 205); y = y + 20;
+	end
 
 	if (script_grind.useVendor) then
 		DrawText('Vendor - ' .. script_vendorMenu:getInfo(), x, y, r+255, g+255, b+0); y = y + 15;
@@ -876,11 +880,11 @@ function script_grind:doLoot(localObj)
 			return;
 		end
 		if (not LootTarget()) then
-			script_grind:setWaitTimer(1500);
+			script_grind:setWaitTimer(500);
 			return;
 		else
 			self.lootObj = nil;
-			script_grind:setWaitTimer(1000);
+			script_grind:setWaitTimer(500);
 			return;
 		end
 
@@ -959,7 +963,8 @@ function script_grind:lootAndSkin()
 		self.lootObj = script_grind:getSkinTarget(self.findLootDistance);
 		if (not AreBagsFull() and not self.bagsFull and self.lootObj ~= nil) then
 			script_grind:doLoot(localObj);
-			return true;
+			self.waitTimer = GetTimeEX() + 1200;
+			return;
 		end
 	end
 	return false;

@@ -168,8 +168,8 @@ function script_rogue:runBackwards(targetObj, range)
  		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
 		local moveX, moveY, moveZ = xT + xUV*5, yT + yUV*5, zT + zUV;		
  		if (distance < range) then 
- 			Move(moveX, moveY, moveZ);
-			self.waitTimer = GetTimeEX() + 1200;
+ 			script_nav:moveToTarget(localObj, moveX, moveY, moveZ);
+			self.waitTimer = GetTimeEX() + 900;
  			return true;
  		end
 	end
@@ -179,9 +179,9 @@ end
 function script_rogue:draw()
 	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
 	if (onScreen) then
-		DrawText(self.message, tX+75, tY+44, 255, 0, 0);
+		DrawText(self.message, tX+75, tY+44, 255, 250, 205);
 	else
-		DrawText(self.message, 25, 185, 0, 255, 255);
+		DrawText(self.message, 25, 185, 255, 250, 205);
 	end
 end
 
@@ -200,11 +200,6 @@ function script_rogue:run(targetGUID)
 		return 0; 
 	end
 
-	-- stop when target is dead and still in combat
-	if (IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() == 0) then
-		return 4;
-	end
-
 	-- Check: If Mainhand is broken stop bot
 	isMainHandBroken = GetInventoryItemBroken("player", 16);
 	
@@ -214,7 +209,7 @@ function script_rogue:run(targetGUID)
 	end
 
 	-- Assign the target 
-	targetObj =  GetGUIDObject(targetGUID);
+	targetObj = GetGUIDObject(targetGUID);
 
 	if(targetObj == 0 or targetObj == nil) then
 		return 2;
@@ -231,15 +226,6 @@ function script_rogue:run(targetGUID)
 			return 4;
 		end
 	end
-
-	-- force stealth all the time
-	--if (self.forceStealth) and (not localObj:HasBuff("Stealth")) then
-	--	if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not IsInCombat()) and (localHealth > self.eatHealth) then
-	--		CastSpellByName("Stealth");
-	--		return 0;
-	--	end
-	--return;
-	--end
 
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
@@ -277,36 +263,28 @@ function script_rogue:run(targetGUID)
 				JumpOrAscendStart();
 			end
 
-			-- Auto Attack
-			if (targetObj:GetDistance() < 40) and (not IsMoving()) then
-				targetObj:AutoAttack();
-			-- stops spamming auto attacking while moving to target
-			elseif (targetObj:GetDistance() <= 8) then
-				targetObj:AutoAttack();
-			end
-
 			-- pick pocket
-			if (HasSpell("Pick Pocket")) and (localObj:HasBuff("Stealth")) and (not IsInCombat()) and (not IsAutoCasting("Attack")) then
-				if (targetObj:GetCreatureType() == 'Humanoid') or (targetObj:GetCreatureType() == 'Undead') then
-					if (targetObj:GetDistance() <= 5) and (localObj:HasBuff("Stealth")) then
-						CastSpellByName("Pick Pocket");
-						if (IsLooting()) then
-							LootTarget();
-							script_grind.doLoot();
-							return;
-						end
-						return;
-					else
-						return 3;
-					end
-				end
-			end
+			--if (HasSpell("Pick Pocket")) and (localObj:HasBuff("Stealth")) and (not IsInCombat()) and (not IsAutoCasting("Attack")) then
+			--	if (targetObj:GetCreatureType() == 'Humanoid') or (targetObj:GetCreatureType() == 'Undead') then
+			--		if (targetObj:GetDistance() <= 5) and (localObj:HasBuff("Stealth")) then
+			--			CastSpellByName("Pick Pocket");
+			--			if (IsLooting()) then
+			--				LootTarget();
+			--				script_grind.doLoot();
+			--				return;
+			--			end
+			--			return;
+			--		else
+			--			return 3;
+			--		end
+			--	end
+			--end
 
 			targetHealth = targetObj:GetHealthPercentage();
 
 			-- Don't attack if we should rest first
 			if (localHealth < self.eatHealth and not script_grind:isTargetingMe(targetObj)
-				and targetHealth > 99 and not targetObj:IsStunned() and script_grind.lootobj == nil) then
+				and targetHealth > 99 and not targetObj:IsStunned()) then
 				self.message = "Need rest...";
 				return 4;
 			end
@@ -323,6 +301,14 @@ function script_rogue:run(targetGUID)
 			if (not IsInCombat()) then
 				self.targetObjGUID = targetObj:GetGUID();
 				self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
+
+				-- Auto Attack
+				if (targetObj:GetDistance() < 40) and (not IsMoving()) then
+					targetObj:AutoAttack();
+				-- stops spamming auto attacking while moving to target
+				elseif (targetObj:GetDistance() <= 8) then
+					targetObj:AutoAttack();
+				end
 
 				if (targetObj:IsInLineOfSight() and not IsMoving()) then
 					if (targetObj:GetDistance() <= 10) and (targetObj:IsInLineOfSight()) then
@@ -351,22 +337,6 @@ function script_rogue:run(targetGUID)
 						return 0;
 					end
 				end
-			
-				-- use throw if checked
-				if (not self.useStealth and self.throwOpener and script_rogue:equipThrow()) then
-					if (targetObj:GetDistance() > 30 or not targetObj:IsInLineOfSight()) then
-						return 3;
-					else
-						-- Dismount
-						if (IsMounted()) then 
-							DisMount();
-						end
-						if (Cast("Throw", targetObj)) then
-							self.waitTimer = GetTimeEX() + 4000;
-							return 0;
-						end
-					end
-				end
 
 				if (targetObj:IsInLineOfSight() and not IsMoving()) then
 					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
@@ -377,7 +347,7 @@ function script_rogue:run(targetGUID)
 				end
 
 				-- Check if we are in melee range
-				if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
+				if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
 					return 3;
 				end
 
@@ -399,7 +369,7 @@ function script_rogue:run(targetGUID)
 				end
 
 				-- Check if we are in melee range
-				if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
+				if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
 					return 3;
 				end
 
@@ -411,39 +381,22 @@ function script_rogue:run(targetGUID)
 					end
 				end
 
-				-- Gouge then bandage
-				-- bot won't release target. needs changed above autoattack()
-				--if (self.hasBandages) and (self.useBandage) and (script_helper:enemiesAttackingUs(10) < 2) and (HasSpell("Gouge")) and (localHealth <= 99) then
-				--	if (not IsSpellOnCD("Gouge")) and (not localObj:HasDebuff("Recently Bandaged")) then
-				--		if (CastSpellByName("Gouge")) then
-				--			script_helper:useBandage();
-				--			self.waitTimer = GetTimeEX() + 3000;
-				--			return 4;
-				--		end
+				-- Check: Do we have the right target (in UI) ??
+				--if (GetTarget() ~= 0 and GetTarget() ~= nil) then
+				--	if (GetTarget():GetGUID() ~= targetObj:GetGUID()) then
+				--		ClearTarget();
+				--		targetObj = 0;
+				--		return 0;
 				--	end
 				--end
-
-				-- Check: Do we have the right target (in UI) ??
-				if (GetTarget() ~= 0 and GetTarget() ~= nil) then
-					if (GetTarget():GetGUID() ~= targetObj:GetGUID()) then
-						ClearTarget();
-						targetObj = 0;
-						return 0;
-					end
-				end
 
 				local localCP = GetComboPoints("player", "target");
 
 				-- Run backwards if we are too close to the target
-				if (targetObj:GetDistance() < .5) then 
-					if (script_rogue:runBackwards(targetObj, 4)) then 
+				if (targetObj:GetDistance() < .2) then 
+					if (script_rogue:runBackwards(targetObj, 1)) then 
 						return 4; 
 					end 
-				end
-
-				-- Check if we are in melee range
-				if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
-					return 3;
 				end
 
 				if (targetObj:IsInLineOfSight() and not IsMoving() and targetHealth <= 99) then
@@ -490,6 +443,22 @@ function script_rogue:run(targetGUID)
 				if (HasSpell("Gouge")) and (not IsSpellOnCD("Gouge")) and (localEnergy >= 45) and (targetObj:IsCasting()) then
 					CastSpellByName("Gouge", targetObj);
 					return 0;
+				end
+
+				if (not IsAutoCasting("Attack")) and (targetObj:HasDebuff("Gouge")) then
+					targetObj:AutoAttack();
+				end
+
+				-- Gouge then bandage
+				if (self.useBandages) and (not localObj:HasDebuff("Recently Bandaged")) then
+					if (HasSpell("Gouge")) and (not IsSpellOnCD("Gouge")) and (localEnergy >= 45) and (localHealth < 35) and (script_grind:enemiesAttackingUs() < 2) then
+						CastSpellByName("Gouge", targetObj);
+						return 0;
+					end
+					if (not IsAutoCasting("Attack")) and (self.useBandages) and (targetObj:HasDebuff("Gouge")) and (not localObj:HasDebuff("Recently Bandaged")) then
+						script_helper:useBandage();
+						return;
+					end
 				end
 
 				-- Set available skills variables
@@ -904,16 +873,12 @@ end
 
 function script_rogue:rest()
 
-	local localObj = GetLocalPlayer();
-	local localHealth = localObj:GetHealthPercentage();
-
-	if (localHealth < self.eatHealth) then
-		ClearTarget();
-	end
-
 	if(not self.isSetup) then
 		script_rogue:setup();
 	end
+
+	local localObj = GetLocalPlayer();
+	local localHealth = localObj:GetHealthPercentage();
 
 	if (HasItem("Linen Bandage")) or 
 		(HasItem("Heavy Linen Bandage")) or 
@@ -933,15 +898,16 @@ function script_rogue:rest()
 	end
 
 	-- if has bandage then use bandages
-	if (self.eatHealth >= 35) and (self.hasBandages) and (self.useBandage) and (not IsMoving()) and (localHealth >= 35) then
-		if (not localObj:HasDebuff("Creeping Mold")) and (not IsEating()) and (localHealth <= self.eatHealth) and (not localObj:HasDebuff("Recently Bandaged")) and (not localObj:HasDebuff("Poison")) then
+	if (self.eatHealth >= 35) and (self.hasBandages) and (self.useBandage) and (not IsMoving()) and (localHealth < self.eatHealth) then
+		if (not localObj:HasDebuff("Creeping Mold")) and (not IsEating()) and (not localObj:HasDebuff("Recently Bandaged")) and (not localObj:HasDebuff("Poison")) then
 		if (IsMoving()) then
 			StopMoving();
 		end
 			self.waitTimer = GetTimeEX() + 1200;
 		if (IsStanding()) and (not IsInCombat()) and (not IsMoving()) and (not localObj:HasDebuff("Recently Bandaged")) then
-			script_helper:useBandage()		
-			self.waitTimer = GetTimeEX() + 6000;
+			if (script_helper:useBandage()) then	
+				self.waitTimer = GetTimeEX() + 6000;
+			end
 		end
 		return 0;
 		end
@@ -962,28 +928,20 @@ function script_rogue:rest()
 	end
 
 
-	if (localHealth <= self.eatHealth) and (not IsInCombat()) and (not IsMoving()) then
-		ClearTarget();
-	end
-
 	if (HasSpell("Cold Blood")) and (not IsSpellOnCD("Cold Blood")) and (not localObj:HasBuff("Cold Blood")) then
 		CastSpellByName("Cold Blood");
 		return 0;
 	end
 
 	-- Eat something
-	if (not IsEating() and localHealth <= self.eatHealth) then
+	if (not IsEating() and localHealth < self.eatHealth) then
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to eat...";
-
 		if (IsInCombat()) then
 			return false;
 		end
 			
-		if (IsMoving()) then
-			StopMoving();
-			return true;
-		end
+		if (IsMoving()) then StopMoving(); return true; end
 
 		if (script_helper:eat()) then 
 			self.message = "Eating..."; 
@@ -991,6 +949,7 @@ function script_rogue:rest()
 			return true; 
 		else 
 			self.message = "No food! (or food not included in script_helper)";
+			ClearTarget();
 
 			if (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and not localObj:HasDebuff("Touch of Zanzil")) and (not localObj:HasDebuff("Poison")) then
 				if (not localObj:HasBuff("Stealth")) then
@@ -1010,13 +969,13 @@ function script_rogue:rest()
 	end
 	
 	-- Continue eating until we are full
-	if (localHealth < 98) and (IsEating()) then
+	if(localHealth < 98 and IsEating()) then
 		self.message = "Resting up to full health...";
-		self.waitTimer = GetTimeEX() + 1000;
+		self.waitTimer = GetTimeEX() + 2000;
 		return true;
 	end
 		
-	if (not IsEating()) then
+	if (not IsDrinking()) and (not IsEating()) then
 		if (not IsStanding()) then
 			JumpOrAscendStart();
 		end

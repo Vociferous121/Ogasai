@@ -194,7 +194,7 @@ function script_hunterEX:menu()
 
 		local wasClicked = false;
 
-	if (CollapsingHeader("Combat Options")) then
+	if (CollapsingHeader("Hunter Combat Options")) then
 
 		if (HasItem("Linen Bandage")) or 
 			(HasItem("Heavy Linen Bandage")) or 

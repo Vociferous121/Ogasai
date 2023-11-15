@@ -43,7 +43,7 @@ function script_paranoia:checkParanoia()
 	end
 
 	-- if paranoid turned on then do....
-	if (not localObj:IsDead() and self.paranoidOn and not IsInCombat()) then 
+	if (not localObj:IsDead()) and (self.paranoidOn) and (not IsInCombat()) and (not IsLooting()) then 
 		
 		self.waitTimer = GetTimeEX() + 3500;
 
@@ -59,7 +59,7 @@ function script_paranoia:checkParanoia()
 		--end
 
 		-- if players in range
-		if (script_grind:playersWithinRange(script_grind.paranoidRange)) then
+		if (script_grind:playersWithinRange(script_grind.paranoidRange)) and (not IsLooting()) then
 			script_grind.message = "Player(s) within paranoid range, pausing...";
 			if IsMoving() then
 				StopMoving();

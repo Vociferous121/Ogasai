@@ -89,14 +89,12 @@ function script_rogueEX:menu()
 				end
 			end
 		
-			if (localObj:HasRangedWeapon()) then
 				if (CollapsingHeader("--Throwing Weapon Options")) then
 					wasClicked, script_rogue.throwOpener = Checkbox("Pull with throw (if stealth disabled)", script_rogue.throwOpener);	
 					Text("Throwing weapon");
 					script_rogue.throwName = InputText("TW", script_rogue.throwName);
 				end
-			end
-			
+
 			if (GetLocalPlayer():GetLevel() >= 20) then
 				if (CollapsingHeader("--Poisons Options")) then
 					wasClicked, script_rogue.usePoison = Checkbox("Use poison on weapons", script_rogue.usePoison);

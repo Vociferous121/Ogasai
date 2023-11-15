@@ -175,6 +175,9 @@ function script_grindMenu:menu()
 		
 		-- checkbox use unstuck script
 		wasClicked, script_grind.useUnstuck = Checkbox("Use Unstuck Feature (script_unstuck)", script_grind.useUnstuck);
+
+		wasClicked, script_grind.useUnstuckTwo = Checkbox("Increase Unstuck Sensitivity", script_grind.useUnstuckTwo);
+
 		Separator()
 		
 		-- ressurect distance
