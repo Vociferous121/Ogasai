@@ -804,11 +804,11 @@ function script_grind:drawStatus()
 	y = y + 20; DrawText('Combat script status: ', x, y, r+255, g+255, b+0); y = y + 15;
 	if (self.showClassOptions) then RunCombatDraw(); end
 	 y = y + 20;
-	if (self.autoPath) then 
-		DrawText('Auto path: ON! Hotspot: ' .. script_nav:getHotSpotName(), x, y, 255, 255, 205); y = y + 20;
-	else
-		DrawText('Auto path: OFF!', x, y, 255, 255, 205); y = y + 20;
-	end
+	--if (self.autoPath) then 
+	--	DrawText('Auto path: ON! Hotspot: ' .. script_nav:getHotSpotName(), x, y, 255, 255, 205); y = y + 20;
+	--else
+	--	DrawText('Auto path: OFF!', x, y, 255, 255, 205); y = y + 20;
+	--end
 
 	if (script_grind.useVendor) then
 		DrawText('Vendor - ' .. script_vendorMenu:getInfo(), x, y, r+255, g+255, b+0); y = y + 15;

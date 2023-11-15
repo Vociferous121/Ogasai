@@ -156,10 +156,10 @@ function script_paladin:draw()
 	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
 
 	if (onScreen) then
-		DrawText(self.message, tX+75, tY+44, 255, 255, 255);
+		DrawText(self.message, tX+75, tY+44, 255, 250, 205);
 
 	else
-		DrawText(self.message, 25, 185, 255, 0, 0);
+		DrawText(self.message, 25, 185, 255, 250, 205);
 	end
 end
 
