@@ -44,6 +44,25 @@ function script_checkDebuffs:hasDisease()
 	end
 end
 
+function script_checkDebuffs:hasMagic()
+
+
+	local player = GetLocalPlayer();
+
+	if (player:HasDebuff("Faerie Fire")) 
+
+	
+	then
+
+		return true;
+
+	else
+
+		return false;
+	end
+
+end
+
 function script_checkDebuffs:hasDisabledMovement()
 
 	local player = GetLocalPlayer();
@@ -61,6 +80,7 @@ function script_checkDebuffs:hasDisabledMovement()
 	end
 end
 
+-- pet debuff checks
 function script_checkDebuffs:petDebuff()
 
 	local pet = GetPet();

@@ -279,7 +279,7 @@ function script_grind:run()
 		end
 	end
 
-	if (self.useUnstuckTwo) and (self.useUnstuck and IsMoving()) then
+	if (self.useUnstuckTwo) and (self.useUnstuck and IsMoving()) and (not self.pause) then
 		if (not script_unstuck_highSensitivity:pathClearAuto(2)) then
 			script_unstuck_highSensitivity:unstuck();
 			return true;
@@ -354,9 +354,9 @@ function script_grind:run()
 			if (not (self.hotSpotTimer > GetTimeEX())) then
 				self.hotSpotTimer = GetTimeEX() + 20000;
 			end
-			if (script_grind:mountUp() and self.useMount) then
-				return; 
-			end
+			--if (script_grind:mountUp() and self.useMount) then
+			--	return; 
+			--end
 			-- Druid cat form is faster if you specc talents
 			--if (self.currentLevel < 40 and HasSpell('Cat Form') and not localObj:HasBuff('Cat Form')) then
 			--	CastSpellByName('Cat Form');
@@ -481,8 +481,6 @@ function script_grind:run()
 				StopBot();
 				return;
 			end
-
-			
 		end
 
 		-- Pre checks before navigating
@@ -492,7 +490,9 @@ function script_grind:run()
 		end
 
 		-- Mount before we navigate through the path, error check to get around indoors
-		--if (script_grind:mountUp() and self.useMount) then return; end
+		--if (script_grind:mountUp() and self.useMount) then
+		--	return;
+		--end
 
 		script_grind:setWaitTimer(1500);	
 
@@ -521,25 +521,25 @@ function script_grind:run()
 	end 
 end
 
-function script_grind:mountUp()
-	local __, lastError = GetLastError();
-	if (lastError ~= 75 and self.mountTimer < GetTimeEX() and self.useMount) then
-		if(GetLocalPlayer():GetLevel() >= 40 and not IsSwimming() and not IsIndoors() and not IsMounted() and self.lootObj == nil) then
-			self.message = "Mounting...";
-			if (not IsStanding()) then
-				StopMoving();
-			end
-			if (script_helper:useMount() and self.useMount) then
-				self.waitTimer = GetTimeEX() + 8000;
-				return true;
-			end
-		end
-	else
-		ClearLastError();
-		self.mountTimer = GetTimeEX() + 7000;
-		return false;
-	end
-end
+--function script_grind:mountUp()
+--	local __, lastError = GetLastError();
+--	if (lastError ~= 75 and self.mountTimer < GetTimeEX() and self.useMount) then
+--		if(GetLocalPlayer():GetLevel() >= 40 and not IsSwimming() and not IsIndoors() and not IsMounted()) then
+--			self.message = "Mounting...";
+--			if (not IsStanding()) then
+--				StopMoving();
+--			end
+--			if (script_helper:useMount() and self.useMount) then
+--				self.waitTimer = GetTimeEX() + 8000;
+--				return true;
+--			end
+--		end
+--	else
+--		ClearLastError();
+--		self.mountTimer = GetTimeEX() + 7000;
+--		return false;
+--	end
+--end
 
 function script_grind:getTarget()
 	return self.enemyObj;

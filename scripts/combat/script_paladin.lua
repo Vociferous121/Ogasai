@@ -10,12 +10,12 @@ script_paladin = {
 	waitTimer = 0,
 	eatHealth = 30,
 	drinkMana = 35,
-	shieldHealth = 13,
-	lohHealth = 9,
+	shieldHealth = 16,
+	lohHealth = 12,
 	holyLightHealth = 45,
 	flashOfLightHP = 70,
-	potionHealth = 10,
-	potionMana = 15,
+	potionHealth = 15,
+	potionMana = 20,
 	consecrationMana = 50,
 	meleeDistance = 3.4,
 	useSealOfCrusader = true,
@@ -204,7 +204,7 @@ function script_paladin:healAndBuff(localObj, localMana)
 		end
 	end
 
-	if (localObj:HasBuff("Judgement")) and (not IsSpellOnCD("Judgement")) and (localObj:HasBuff("Seal of Righteousness")) then
+	if (not IsInCombat()) and (localObj:HasBuff("Judgement")) and (not IsSpellOnCD("Judgement")) and (localObj:HasBuff("Seal of Righteousness")) then
 		CastSpellByName("Judgement");
 		self.waitTimer = GetTimeEX() + 1650;
 		return 0;
@@ -256,8 +256,8 @@ function script_paladin:healAndBuff(localObj, localMana)
 		end
 	end
 
-	-- Check: Remove desease or poison
-	if (script_checkDebuffs:hasPoison()) or (script_checkDebuffs:hasDisease()) then
+	-- cleanse
+	if (script_checkDebuffs:hasPoison()) or (script_checkDebuffs:hasDisease()) or (script_checkDebuffs:hasMagic()) then
 		if (HasSpell("Cleanse")) and (localMana > 40) then
 			if (Buff("Cleanse", localObj)) then 
 				self.message = "Cleansing..."; 
@@ -278,18 +278,15 @@ function script_paladin:healAndBuff(localObj, localMana)
 		end
 	end
 
-
 	-- Check: Remove movement disables with Freedom
-	if (localObj:IsMovementDisabed() and HasSpell("Blessing of Freedom")) then
+	if (localObj:IsMovementDisabed() or script_checkDebuffs:hasDisabledMovement()) and (HasSpell("Blessing of Freedom")) then
 		Buff("Blessing of Freedom", localObj);
 		return 0;
 	end
 
-
-
 	-- flash of light not in combat
-	if (not IsInCombat()) and (localMana > self.drinkMana + 6) then
-		if (HasSpell("Flash of Light")) and (localHealth >= self.holyLightHealth) and (localHealth <= 85) and (not IsLooting()) and (script_grind.lootObj == nil) then
+	if (not IsInCombat()) and (localMana > self.drinkMana + 6) and (GetLocalPlayer():GetUnitsTarget() == 0) then
+		if (HasSpell("Flash of Light")) and (localHealth >= self.holyLightHealth) and (localHealth <= 82) and (not IsLooting()) and (script_grind.lootObj == nil) then
 			script_grind.tickRate = 100;
 			if (IsMoving()) then
 				StopMoving();
@@ -332,14 +329,15 @@ function script_paladin:healAndBuff(localObj, localMana)
 
 	--flash of light in combat very low health and mana
 	if (HasSpell("Flash of Light")) and (IsInCombat()) and (localMana < 15) and (localMana > 5) and (localHealth < self.holyLightHealth) then
-			script_grind.tickRate = 100;
-			if (IsMoving()) then
-				StopMoving();
-			end
-			CastHeal("Flash of Light", localObj);
-			self.waitTimer = GetTimeEX() + 1500;
-			self.message = "We are dying - trying to save!";
-			return;
+		script_grind.tickRate = 100;
+		if (IsMoving()) then
+			StopMoving();
+		end
+
+		CastHeal("Flash of Light", localObj);
+		self.waitTimer = GetTimeEX() + 1500;
+		self.message = "We are dying - trying to save!";
+		return;
 	end
 
 return false;
@@ -549,6 +547,10 @@ function script_paladin:run(targetGUID)
 					self.waitTimer = GetTimeEX() + 1750;
 					return 0;
 				end
+			end
+
+			if (script_paladin:healAndBuff()) then
+				return;
 			end
 
 			-- dwarf stone form racial
@@ -768,7 +770,7 @@ function script_paladin:rest()
 	end
 
 	-- Stop moving before we can rest
-	if(localHealth < self.eatHealth or localMana < self.drinkMana) and (not IsEating()) and (not IsDrinking()) then
+	if (localHealth <= self.eatHealth or localMana <= self.drinkMana) and (not IsEating()) and (not IsDrinking()) then
 		if (IsMoving()) then
 			StopMoving();
 			return true;
@@ -821,6 +823,22 @@ function script_paladin:rest()
 		end	
 	end
 
+	if (IsDrinking()) and (not IsEating()) and (localHealth <= 65) then
+		if (script_helper:eat()) then 
+			self.message = "Eating..."; 
+			self.waitTimer = GetTimeEX() + 2000;
+			return true; 
+		end
+	end
+	if (IsEating()) and (not IsDrinking()) and (localMana <= 65) then
+		if (script_helper:drink()) then 
+			self.message = "Drinking..."; 
+			self.waitTimer = GetTimeEX() + 2000;
+			return true; 
+		end
+	end
+			
+	-- rest to full mana/health when eating/drinking
 	if ((localMana < 98 and IsDrinking()) or (localHealth < 98 and IsEating())) then
 		self.message = "Resting to full hp/mana...";
 		return true;

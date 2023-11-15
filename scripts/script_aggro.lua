@@ -53,7 +53,7 @@ function script_aggro:safePull(target)
 
 	while currentObj ~= 0 do
  		if (typeObj == 3 and currentObj:GetGUID() ~= target:GetGUID()) then
-			aggro = currentObj:GetLevel() - localObj:GetLevel() + 21;
+			aggro = currentObj:GetLevel() - localObj:GetLevel() +21.5;
 			cx, cy, cz = currentObj:GetPosition();
 			if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro then	
 				countUnitsInRange = countUnitsInRange + 1;
@@ -80,12 +80,12 @@ function script_aggro:safeRess(corpseX, corpseY, corpseZ, ressRadius)
 
 	while currentObj ~= 0 do
  		if typeObj == 3 then
-			aggro = currentObj:GetLevel() - localObj:GetLevel() + 21;
+			aggro = currentObj:GetLevel() - localObj:GetLevel() +21.5;
 			local range = aggro + 5;
 			if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range then	
 				if (closestEnemy == 0) then
 					closestEnemy = currentObj;
-					aggroClosest = currentObj:GetLevel() - localObj:GetLevel() + 21;
+					aggroClosest = currentObj:GetLevel() - localObj:GetLevel() +21.5;
 				else
 					local dist = currentObj:GetDistance();
 					if (dist < closestDist) then
@@ -123,12 +123,12 @@ function script_aggro:closeToBlacklistedTargets()
 	local aggroClosest = 0;
 
 	while currentObj ~= 0 do
-		aggro = currentObj:GetLevel() - localObj:GetLevel() + 21;
+		aggro = currentObj:GetLevel() - localObj:GetLevel() +21.5;
 		local range = aggro + 6;
 		if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range then	
 			if (closestEnemy == 0) then
 				closestEnemy = currentObj;
-				aggroClosest = currentObj:GetLevel() - localObj:GetLevel() + 21;
+				aggroClosest = currentObj:GetLevel() - localObj:GetLevel() +21.5;
 			else
 				local dist = currentObj:GetDistance();
 				if (dist < closestDist) then
@@ -164,7 +164,7 @@ function script_aggro:avoid(pointX,pointY,pointZ, radius, safeDist)
 	local closestPoint = 0;
 	local closestTargetPoint = 0;
 	local closestTargetDist = 999;
-	local quality = 130;
+	local quality = 160;
 
 	while theta <= 2*PI do
 		point = point + 1 -- get next table slot, starts at 0 
@@ -226,7 +226,7 @@ function script_aggro:avoid(pointX,pointY,pointZ, radius, safeDist)
 	
 	-- out of bound
 	if (moveToPoint > point or moveToPoint == 0) then
-		moveToPoint = 1;
+		moveToPoint = 3;
 	end
 
 	Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ);
@@ -240,7 +240,7 @@ function script_aggro:drawAggroCircles(maxRange)
 
 	while currentObj ~= 0 do
  		if typeObj == 3 and currentObj:GetDistance() < maxRange and not currentObj:IsDead() and currentObj:CanAttack() and not currentObj:IsCritter() then
-			local aggro = currentObj:GetLevel() - localObj:GetLevel() + 19.1;
+			local aggro = currentObj:GetLevel() - localObj:GetLevel() + 19.4;
 			local cx, cy, cz = currentObj:GetPosition();
 			script_aggro:DrawCircles(cx, cy, cz, aggro);
  		end

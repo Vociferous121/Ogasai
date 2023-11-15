@@ -77,8 +77,10 @@ function script_rotationMenu:menu()
 	end
 	if (CollapsingHeader("Script Tick Rate")) then
 		wasClicked, script_rotation.adjustTickRate = Checkbox("Adjust Tick Rate !! Caution !!", script_rotation.adjustTickRate);
-		Text('(ms) How Fast Bot Reacts');
-		script_rotation.tickRate = SliderInt("TR", 50, 2000, script_rotation.tickRate);
+		if (script_rotation.adjustTickRate) then
+			Text('(ms) How Fast Bot Reacts');
+			script_rotation.tickRate = SliderInt("TR", 50, 2000, script_rotation.tickRate);
+		end
 	end
 	if (script_rotation.drawAggro) then
 		Text("Aggro Circle Range");

@@ -46,6 +46,9 @@ function script_grindEX:doChecks()
 
 			-- Release body
 			if (not IsGhost()) then
+
+				self.waitTimer = GetTimeEX() + 2500;
+
 				RepopMe();
 				script_grindEX.deathCounter = script_grindEX.deathCounter + 1;
 				script_grind.message = "Walking to corpse...";
@@ -129,6 +132,7 @@ function script_grindEX:doChecks()
 		end
 
 		local vendorStatus = script_vendor:getStatus();
+
 		if (vendorStatus >= 1 and not IsInCombat()) then
 			if (script_grind:runRest()) then
 				return true;
@@ -144,6 +148,7 @@ function script_grindEX:doChecks()
 				end
 			end
 		end
+
 		if (not IsInCombat() or IsMounted()) then
 			if (vendorStatus == 1) then
 				script_grind.message = "Repairing at vendor...";

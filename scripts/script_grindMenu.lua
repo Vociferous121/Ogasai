@@ -2,7 +2,6 @@ script_grindMenu = {
 
 	selectedHotspotID = 0,
 	targetMenu = include("//scripts//script_targetMenu.lua"),
-	paranoiaMenu = include("scripts//script_paranoia.lua"),
 	mageMenu = include("scripts\\combat\\script_mageEX.lua"),
 	warlockMenu = include("scripts\\combat\\script_warlockEX.lua"),
 	priestMenu = include("scripts\\combat\\script_priestEX.lua"),
@@ -74,6 +73,11 @@ function script_grindMenu:menu()
 	end	
 	if (CollapsingHeader("Talents, Paranoia & Misc Options")) then
 
+		--if (GetLocalPlayer():GetLevel() >= 40) then
+		--	wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount); Text('Dismount range');
+		--	script_grind.disMountRange = SliderInt("DR (yd)", 1, 100, script_grind.disMountRange);
+		--	Separator();
+		--end
 
 		wasClicked, script_grind.autoTalent = Checkbox("Spend Talent Points  ", script_grind.autoTalent);
 		SameLine();
@@ -81,15 +85,13 @@ function script_grindMenu:menu()
 		if (script_grind.autoTalent) then
 			Text("Spending Next Talent Point In: " .. (script_talent:getNextTalentName() or " "));
 		end
-
-		--wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount); Text('Dismount range');
-		--script_grind.disMountRange = SliderInt("DR (yd)", 1, 100, script_grind.disMountRange); Separator();
+		
 		script_paranoia:menu();
 
 		wasClicked, script_grind.adjustTickRate = Checkbox("Adjust Script Speed !!CAUTION!!", script_grind.adjustTickRate);
-		--if (script_grind.adjustTickRate) then
+		if (script_grind.adjustTickRate) then
 			Text("Script Tick Rate - How Fast The Scripts Run"); script_grind.tickRate = SliderInt("TR (ms)", 0, 3000, script_grind.tickRate);	
-		--end
+		end
 
 	end
 
