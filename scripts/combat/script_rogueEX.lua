@@ -88,12 +88,19 @@ function script_rogueEX:menu()
 					script_rogue.adrenRushComboHP = SliderInt("Health below percent", 15, 75, script_rogue.adrenRushComboHP);
 				end
 			end
-		
-				if (CollapsingHeader("--Throwing Weapon Options")) then
-					wasClicked, script_rogue.throwOpener = Checkbox("Pull with throw (if stealth disabled)", script_rogue.throwOpener);	
-					Text("Throwing weapon");
-					script_rogue.throwName = InputText("TW", script_rogue.throwName);
+
+			if (HasSpell("Riposte")) then
+				if (CollapsingHeader("-- Riposte Skill Options")) then
+					script_rogue.riposteActionBarSlot = InputText("RS", script_rogue.riposteActionBarSlot);	-- riposte
+					Text("Action Bar Slots 1-12");
 				end
+			end
+		
+			if (CollapsingHeader("--Throwing Weapon Options")) then
+				wasClicked, script_rogue.throwOpener = Checkbox("Pull with throw (if stealth disabled)", script_rogue.throwOpener);	
+				Text("Throwing weapon");
+				script_rogue.throwName = InputText("TW", script_rogue.throwName);
+			end
 
 			if (GetLocalPlayer():GetLevel() >= 20) then
 				if (CollapsingHeader("--Poisons Options")) then
@@ -140,6 +147,13 @@ function script_rogueEX:menu()
 			script_rogue.eatHealth = SliderInt('EHP %', 1, 50, script_rogue.eatHealth);
 			Text("Potion below health percent");
 			script_rogue.potionHealth = SliderInt('PHP %', 1, 50, script_rogue.potionHealth);
+
+			if (HasSpell("Riposte")) then
+				if (CollapsingHeader("-- Riposte Skill Options")) then
+					script_rogue.riposteActionBarSlot = InputText("RS", script_rogue.riposteActionBarSlot);	-- riposte
+					Text("Action Bar Slots 1-12");
+				end
+			end
 
 			if (CollapsingHeader("--Combo Point Generator Options")) then
 				Text("Combo Point Generator Ability");

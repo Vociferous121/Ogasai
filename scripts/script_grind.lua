@@ -888,6 +888,7 @@ function script_grind:doLoot(localObj)
 			end
 			return;
 		else
+			self.lootCheckTime = 0;
 			self.lootObj = nil;
 			script_grind:setWaitTimer(500);
 			return;

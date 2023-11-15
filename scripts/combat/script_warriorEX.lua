@@ -79,7 +79,7 @@ function script_warriorEX:menu()
 					if (CollapsingHeader("-- Overpower Options")) then	-- overpower
 						Text("Overpower action bar slot");
 						script_warrior.overpowerActionBarSlot = InputText("OPS", script_warrior.overpowerActionBarSlot);
-						Text("72 is your action bar number.. slot 1 would be 73");
+						Text("73 is Battle Stance Action Slot 1");
 					end
 				end
 
@@ -116,7 +116,7 @@ function script_warriorEX:menu()
 			
 				if (CollapsingHeader("-- Revenge Skill Options")) then
 					script_warrior.revengeActionBarSlot = InputText("RS", script_warrior.revengeActionBarSlot);	-- revenge
-					Text("82 is spell bar number.. slot 1 would be 83");
+					Text("83 is Defensive Stance Action Slot 1");
 				end
 			end
 		end

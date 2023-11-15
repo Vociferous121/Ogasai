@@ -32,6 +32,7 @@ script_rogue = {
 	followTargetDistance = 35,
 	useBandage = true,
 	hasBandages = false,
+	riposteActionSlot = 8,
 }
 
 function script_rogue:setup()
@@ -143,13 +144,10 @@ function script_rogue:checkPoisons()
 	return false;
 end
 
-function script_rogue:canRiposte()
-	local texture = GetActionTexture(i); 
-	if texture ~= nil and string.find(texture,"Ability_Rogue_Riposte") then
-		local isUsable, _ = IsUsableAction(i); 
-		if (isUsable == 1 and not IsSpellOnCD(Riposte)) then 
-			return true; 
-		end 
+function script_rogue:canRiposte()	-- use Riposte function
+	local isUsable, _ = IsUsableAction(self.riposteActionBarSlot); 
+	if (isUsable == 1 and not IsSpellOnCD("Riposte")) then 
+		return true; 
 	end 
 	return false;
 end

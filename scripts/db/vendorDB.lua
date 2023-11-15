@@ -108,6 +108,17 @@ function vendorDB:setup()
 	vendorDB:addVendor('Himmik', 0, 1, 618, false, true, true, false, false, 6679.62, -4670.89, 721.71); -- Food + Drink Vendor
 	vendorDB:addVendor('Himmik', 1, 1, 618, false, true, true, false, false, 6679.62, -4670.89, 721.71); -- Food + Drink Vendor 
 
+
+
+
+
+	-- Add new additions here!!
+
+
+
+
+
+
 	DEFAULT_CHAT_FRAME:AddMessage('vendorDB: loaded...');
 end
 
