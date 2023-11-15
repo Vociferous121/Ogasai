@@ -97,6 +97,7 @@ script_grind = {
 	logoutTime = 2,	-- logout time in hours
 	adjustTickRate = false,
 	useUnstuckTwo = true,
+	lootCheckTime = 0,
 }
 
 function script_grind:setup()
@@ -880,7 +881,11 @@ function script_grind:doLoot(localObj)
 			return;
 		end
 		if (not LootTarget()) then
-			script_grind:setWaitTimer(500);
+				script_grind:setWaitTimer(500);
+				self.lootCheckTime = GetTimeEX() + 5000;
+			if (GetTimeEX() > self.lootCheckTime) then
+				script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
+			end
 			return;
 		else
 			self.lootObj = nil;
@@ -909,6 +914,7 @@ function script_grind:doLoot(localObj)
 	if (self.lootObj:GetDistance() < 3) then
 		self.waitTimer = GetTimeEX() + 450;
 	end
+		
 end
 
 function script_grind:getSkinTarget(lootRadius)
