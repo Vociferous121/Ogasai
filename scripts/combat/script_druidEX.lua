@@ -5,7 +5,7 @@ script_druidEX = {
 
 function script_druidEX:menu()
 
-	if (HasSpell("Bear Form")) then
+	if (HasSpell("Bear Form")) or (HasSpell("Dire Bear Form")) then
 		if (CollapsingHeader("Druid Form Options - Experimental!")) then
 			wasClicked, script_druid.useBear = Checkbox("Bear Form", script_druid.useBear);
 
@@ -30,6 +30,12 @@ function script_druidEX:menu()
 			
 		Text("Melee Range to target");
 		script_druid.meleeDistance = SliderFloat("Melee range", 1, 6, script_druid.meleeDistance);
+
+		if (HasSpell("Cat Form")) then
+			if (CollapsingHeader("|+| Cat Form Options")) then
+				wasClicked, script_druid.useStealth = Checkbox("Use Stealth", script_druid.useStealth);
+			end
+		end
 	end
 
 	if (CollapsingHeader("Heal Options")) then
