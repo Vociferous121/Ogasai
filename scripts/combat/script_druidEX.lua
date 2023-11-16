@@ -33,8 +33,15 @@ function script_druidEX:menu()
 
 		if (HasSpell("Bear Form") or HasSpell("Cat Form") or HasSpell("Dire Bear Form")) then
 			Text("Health to heal when shapeshifted");
-			script_druid.healthToShift = SliderInt("Shapeshift to heal HP%", 0, 75, script_druid.healthToShift);
+			script_druid.healthToShift = SliderInt("Shapeshift to heal HP%", 0, 65, script_druid.healthToShift);
+			wasClicked, script_druid.shiftToDrink = Checkbox("Leave Form To Drink", script_druid.shiftToDrink);
 			Separator();
+		end
+
+		if (HasSpell("Bear Form")) or (HasSpell("Dire Bear Form")) then
+			if (CollapsingHeader("|+| Bear Form Options")) then
+				Text("Stuff to do !");
+			end
 		end
 
 		if (HasSpell("Cat Form")) then

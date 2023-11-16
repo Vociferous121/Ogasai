@@ -7,7 +7,7 @@ script_druid = {
 	rejuvenationHealth = 80,	-- use rejuvenation below this health
 	regrowthHealth = 60,
 	healingTouchHealth = 45,
-	healthToShift = 47,
+	healthToShift = 50,
 	potionHealth = 12,
 	potionMana = 20,
 	isSetup = false,
@@ -21,6 +21,7 @@ script_druid = {
 	waitTimer = GetTimeEX(),
 	useStealth = true,
 	stealthOpener = "Ravage",
+	shiftToDrink = true,
 
 }
 
@@ -41,6 +42,10 @@ function script_druid:setup()
 		self.useBear = true;
 	elseif (HasSpell("Cat Form")) then
 		self.useCat = true;
+	end
+
+	if (HasSpell("Bear Form")) and (not HasSpell("Cat Form")) then
+		self.meleeDistance = 4.50;
 	end
 
 	if (not HasSpell("Ravage")) or (not HasSpell("Pounce")) then
@@ -153,8 +158,8 @@ function script_druid:healsAndBuffs()
 			CastHeal("Regrowth", localObj);
 			self.waitTimer = GetTimeEX() + 1500;
 			return 0;
-		end
-		if (CastSpellByName("Healing Touch", localObj)) then
+		else
+			CastSpellByName("Healing Touch", localObj);
 			self.waitTimer = GetTimeEX() + 2500;
 			return 0;
 		end
@@ -166,6 +171,7 @@ function script_druid:healsAndBuffs()
 		elseif (not localObj:HasBuff("Bear Form") and not HasSpell("Dire Bear Form")) then
 			CastSpellByName("Bear Form");
 			selfwaitTimer = GetTimeEX() + 1500;
+			return 0;
 		end
 	end
 
@@ -208,6 +214,13 @@ function script_druid:healsAndBuffs()
 		if (HasSpell("Rejuvenation")) and (not localObj:HasBuff("Rejuvenation")) and (localHealth <= self.healthToShift) and (localMana >= self.rejuvenationMana) then
 			if (CastHeal("Rejuvenation", localObj)) then
 				self.waitTimer = GetTimeEX() + 1500;
+				return 0;
+			end
+		end
+
+		if (HasSpell("Healing Touch")) and (localHealth <= self.healthToShift) and (localMana > 30) then
+			if (CastSpellByName("Healing Touch")) then
+				self.waitTimer = GetTimeEX() + 2500;
 				return 0;
 			end
 		end
@@ -406,7 +419,7 @@ function script_druid:run(targetGUID)
 
 			-- stay in form
 			-- not in bear form and conditions right then stay in bear form
-		if (not isBear) and (self.useBear) and (localHealth >= self.healthToShift) and (localMana >= self.drinkMana) then
+		if (not isBear) and (self.useBear) and (localHealth >= self.healthToShift) and (localMana >= self.drinkMana) and (localMana > 15) then
 			if (HasSpell("Dire Bear Form")) then
 				CastSpellByName("Dire Bear Form");
 				self.waitTimer = GetTimeEX() + 1500;
@@ -455,7 +468,7 @@ function script_druid:run(targetGUID)
 
 		-- stay in form
 		-- not in cat form and conditions right then stay in cat form
-		if (not isCat) and (self.useCat) and (localHealth >= self.healthToShift) and (localMana >= self.drinkMana) then
+		if (not isCat) and (self.useCat) and (localHealth >= self.healthToShift) and (localMana >= self.drinkMana) and (localMana > 15) then
 			if (HasSpell("Cat Form")) then
 				CastSpellByName("Cat Form");
 				self.waitTimer = GetTimeEX() + 1500;
@@ -566,9 +579,17 @@ function script_druid:run(targetGUID)
 			-- do these attacks only in bear form
 			if (self.useBear) and (isBear) and (not isCat) and (not self.useCat) then
 
+				if (not targetObj:IsInLineOfSight()) or (targetObj:GetDistance() > self.meleeDistance) then
+					return 3;
+				end
+				
+				if (targetObj:GetDistance() <= self.meleeDistance) then
+					targetObj:FaceTarget();
+				end
+
 				-- Run backwards if we are too close to the target
-				if (targetObj:GetDistance() <= .3) then 
-					if (script_druid:runBackwards(targetObj,2)) then 
+				if (targetObj:GetDistance() <= .4) then 
+					if (script_druid:runBackwards(targetObj,1)) then 
 						return 4; 
 					end 
 				end
@@ -606,6 +627,7 @@ function script_druid:run(targetGUID)
 				-- maul
 				if (HasSpell("Maul")) and (localRage > 15) then
 					if (Cast("Maul", targetObj)) then
+						targetObj:FaceTarget();
 						return 0;
 					end
 				end
@@ -819,6 +841,13 @@ function script_druid:rest()
 			script_grind.tickRate = tickRandom
 		elseif (IsInCombat()) and (not IsMoving()) then
 			script_grind.tickRate = tickRandom;
+		end
+	end
+
+	if (self.shiftToDrink) and (localMana <= self.drinkMana) and (isBear) and (self.useBear) and (not IsInCombat()) then
+		if (isBear) and (CastSpellByName("Bear Form")) then
+			self.waitTimer = GetTimeEX() + 1650;
+			return 0;
 		end
 	end
 
