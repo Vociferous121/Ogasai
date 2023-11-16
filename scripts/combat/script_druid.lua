@@ -324,6 +324,10 @@ function script_druid:run(targetGUID)
 			return 0;
 		end
 
+		if (IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() == 0) then
+			return 4;
+		end
+
 		-- stand up if sitting
 		if (not IsStanding()) then
 			JumpOrAscendStart();
@@ -365,10 +369,7 @@ function script_druid:run(targetGUID)
 			end
 
 			-- Auto Attack
-			if (targetObj:GetDistance() < 40) and (not IsMoving()) then
-				targetObj:AutoAttack();
-			-- stops spamming auto attacking while moving to target
-			elseif (targetObj:GetDistance() <= 8) then
+			if (targetObj:GetDistance() < 35) then
 				targetObj:AutoAttack();
 			end
 
@@ -502,6 +503,12 @@ function script_druid:run(targetGUID)
 				return 0; -- keep trying until cast
 			end
 
+			local randomWrath = math.random(1, 100);
+			if (randomWrath > 50) then
+				if (CastSpellByName("Wrath")) then
+					return 0;
+				end
+			end
 			-- use moonfire to pull if has spell
 			if (HasSpell("Moonfire")) and (localMana >= 35) and (not targetObj:HasDebuff("Moonfire")) then
 				CastSpellByName("Moonfire", targetObj);
@@ -707,7 +714,7 @@ function script_druid:run(targetGUID)
 				end	
 
 				if (targetObj:HasDebuff("Entangling Roots")) and (localMana > 25) then
-					if (script_druid:runBackwards(targetObj, 2)) then
+					if (script_druid:runBackwards(targetObj, 4)) then
 						self.waitTimer = GetTimeEX() + 900;
 					return 4;
 					end
