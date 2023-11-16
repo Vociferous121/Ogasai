@@ -8,6 +8,7 @@ script_paranoia = {
 	paranoidOn = true,		-- paranoid on true/false
 	--paranoidOnTargeted = false,	-- paranoid when targeted on/off
 	counted = 5,
+	ignoreTarget = "Player",
 }
 
 function script_paranoia:checkParanoia()
@@ -153,6 +154,10 @@ function script_paranoia:menu()
 		--timer to wait after paranoia
 		Text("Wait time after paranoid target leaves");
 		script_grind.paranoidSetTimer = SliderInt("Time in Sec", 0, 120, script_grind.paranoidSetTimer);
+
+		-- ignore target
+		Text("Ignore Player Using Paranoia");
+		script_paranoia.ignoreTarget = InputText("Player", script_paranoia.ignoreTarget);
 
 	end
 

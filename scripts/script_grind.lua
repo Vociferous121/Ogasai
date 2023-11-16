@@ -728,7 +728,7 @@ function script_grind:playersWithinRange(range)
 		if (typeObj == 4 and not currentObj:IsDead()) then
 			if (currentObj:GetDistance() < range) then 
 				local localObj = GetLocalPlayer();
-				if (localObj:GetGUID() ~= currentObj:GetGUID()) then
+				if (localObj:GetGUID() ~= currentObj:GetGUID()) and (currentObj:GetUnitName() ~= script_paranoia.ignoreTarget) then
 					if (self.useString) then
 						if (currentObj:GetDistance() < self.paranoidRange) and (typeObj == 4) then
 							local playerName = currentObj:GetUnitName();
