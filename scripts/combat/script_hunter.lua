@@ -209,7 +209,7 @@ function script_hunter:run(targetGUID)
 	end
 
 	-- force bot to attack pets target
-	if (IsInCombat()) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) then
+	if (IsInCombat()) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (hasPet) then
 		if (petHasTarget ~= 0) then
 			if (GetPet():GetDistance() > 10) then
 				GetPet():FaceTarget();
