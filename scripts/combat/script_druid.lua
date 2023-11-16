@@ -20,6 +20,7 @@ script_druid = {
 	useEntanglingRoots = true,
 	waitTimer = GetTimeEX(),
 	useStealth = true,
+	stealthOpener = "Ravage",
 
 }
 
@@ -40,6 +41,10 @@ function script_druid:setup()
 		self.useBear = true;
 	elseif (HasSpell("Cat Form")) then
 		self.useCat = true;
+	end
+
+	if (not HasSpell("Ravage")) or (not HasSpell("Pounce")) then
+		self.stealthOpener = "Shred";
 	end
 	
 	self.waitTimer = GetTimeEX();	
@@ -269,12 +274,30 @@ function script_druid:run(targetGUID)
 	local localHealth = localObj:GetHealthPercentage();
 	local localMana = localObj:GetManaPercentage();
 	local localLevel = localObj:GetLevel();
+
 	local localRage = GetLocalPlayer():GetRagePercentage();
 	local localEnergy = GetLocalPlayer():GetEnergyPercentage();
+	local localCP = GetComboPoints("player", "target");
+
 	local isBear = GetLocalPlayer():HasBuff("Bear Form");
 	local isCat = GetLocalPlayer():HasBuff("Cat Form");
 	if (GetLocalPlayer():GetLevel() >= 40) then
 		isBear = GetLocalPlayer():HasBuff("Dire Bear Form");
+	end
+
+
+	-- set tick rate for script to run
+	if (not script_grind.adjustTickRate) then
+
+		local tickRandom = random(550, 1100);
+
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom
+		elseif (IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+		end
 	end
 
 	if (localObj:IsDead()) then
@@ -335,19 +358,28 @@ function script_druid:run(targetGUID)
 		if (not IsInCombat()) then
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 
+			if (isCat) and (self.useCat) and (self.useStealth) and (localObj:HasBuff("Prowl")) then
+				if (HasSpell(self.stealthOpener)) and (not IsSpellOnCD(self.stealthOpener)) and (localEnergy >= 50) and (targetObj:GetDistance() <= 6) then
+					CastSpellByName(self.stealthOpener);
+				end
+			end
+
 			-- Auto Attack
-			if (targetObj:GetDistance() <= 40) and (not IsMoving()) then
+			if (targetObj:GetDistance() < 40) and (not IsMoving()) then
 				targetObj:AutoAttack();
-			elseif (targetObj:GetDistance() <= 30) and (targetObj:IsInLineOfSight()) then
+			-- stops spamming auto attacking while moving to target
+			elseif (targetObj:GetDistance() <= 8) then
 				targetObj:AutoAttack();
 			end
 
+			-- use prowl before spamming auto attack and move in range of target!
 			if (self.useCat) and (isCat) and (self.useStealth) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) then
 				CastSpellByName("Prowl");
 				self.waitTimer = GetTimeEX() + 1500;
 				return 0;
 			end
 
+			-- move to enemy target
 			if (not self.useBear) and (not self.useCat) and (not isBear) and (not isCat) and (targetObj:GetDistance() > 27) then
 				return 3;
 			end
@@ -385,6 +417,7 @@ function script_druid:run(targetGUID)
 			end
 		end
 		
+		-- if in bear form do these pulls
 		if (self.useBear) and (isBear) and (not self.useCat) and (not isCat) then
 
 			-- faerie fire
@@ -420,7 +453,7 @@ function script_druid:run(targetGUID)
 			------
 
 		-- stay in form
-		-- not in cat form and conditions right then stay in bear form
+		-- not in cat form and conditions right then stay in cat form
 		if (not isCat) and (self.useCat) and (localHealth >= self.healthToShift) and (localMana >= self.drinkMana) then
 			if (HasSpell("Cat Form")) then
 				CastSpellByName("Cat Form");
@@ -429,24 +462,25 @@ function script_druid:run(targetGUID)
 			end
 		end
 
-			
+		-- if in cat form do these pulls	
 		if (self.useCat) and (isCat) and (not self.useBear) and (not isBear) then
 
 			-- faerie fire
 			if (not self.useStealth) and (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire")) then
 				if Cast("Faerie Fire (Feral)", targetObj) then
+					self.waitTimer = GetTimeEX() + 1000;
+					return 0;
+				end
+			end
+
+			if (HasSpell("Tiger's Fury")) and (not localObj:HasBuff("Tiger's Fury")) and (not IsSpellOnCD("Tiger's Fury")) and (localEnergy >= 30) then
+				if (CastSpellByName("Tiger's Fury")) then
 					self.waitTimer = GetTimeEX() + 1500;
 					return 0;
 				end
 			end
-
-			if (HasSpell("Tiger's Fury")) and (not localObj:HasBuff("Tiger's Fury")) and (not IsSpellOnCD("Tiger's Fury")) and (localEnergy > 30) then
-				if (CastSpellByName("Tiger's Fury")) then
-					return 0;
-				end
-			end
+	
 		end
-
 
 
 	-- end of cat form pulling
@@ -599,21 +633,50 @@ function script_druid:run(targetGUID)
 				-- keep faerie fire up
 				if (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire (Feral)")) and (not IsSpellOnCD("Faerie Fire (Feral)")) then
 					if (Cast("Faerie Fire (Feral)", targetObj)) then
+						self.waitTimer = GetTimeEX() + 1600;
 						return 0;
 					end
 				end
 				
 				-- keep tiger's fury up
-				if (HasSpell("Tiger's Fury")) and (not localObj:HasBuff("Tiger's Fury")) and (not IsSpellOnCD("Tiger's Fury")) and (localEnergy > 30) then
-					if (CastSpellByName("Tiger's Fury")) then
+				--if (HasSpell("Tiger's Fury")) and (not localObj:HasBuff("Tiger's Fury")) and (not IsSpellOnCD("Tiger's Fury")) and (localEnergy >= 30) then
+				--	if (CastSpellByName("Tiger's Fury")) then
+				--		self.waitTimer = GetTimeEX() + 1600;
+				--		return 0;
+				--	end
+				--end
+
+				-- keep rake up
+				if (HasSpell("Rake")) and (not targetObj:HasDebuff("Rake")) and (targetHealth >= 30) and (localEnergy >= 35) then
+					if (not targetObj:HasDebuff("Rake")) and (CastSpellByName("Rake", targetObj)) then
+						self.waitTimer = GetTimeEX() + 2200;
 						return 0;
 					end
 				end
 
+				-- Ferocious Bite with 5 CPs
+				if (localCP > 4) and (localEnergy >= 35) then
+					CastSpellByName("Ferocious Bite", targetObj);
+					self.waitTimer = GetTimeEX() + 1600;
+					return 0;
+				end
 
-
-
-
+				-- Use Claw
+				if (targetHealth > (10*localCP)) and (localCP < 5) then
+					if (localEnergy >= 40) then
+						if (CastSpellByName("Claw")) then
+							self.waitTimer = GetTimeEX() + 1600;
+							return 0;
+						end
+					end
+				end
+			
+				-- Dynamic health check when using Ferocious Bite between 1 and 4 CP
+				if (targetHealth <= (10*localCP)) and (localEnergy >= 35) then
+					CastSpellByName("Ferocious Bite", targetObj);
+					self.waitTimer = GetTimeEX() + 1600;
+					return 0;
+				end
 			end
 
 
@@ -736,6 +799,20 @@ function script_druid:rest()
 
 	if (GetLocalPlayer():GetLevel() >= 40) then
 		isBear = GetLocalPlayer():HasBuff("Dire Bear Form");
+	end
+
+	-- set tick rate for script to run
+	if (not script_grind.adjustTickRate) then
+
+		local tickRandom = random(550, 1100);
+
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom
+		elseif (IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+		end
 	end
 
 	if (script_druid:healsAndBuffs()) then

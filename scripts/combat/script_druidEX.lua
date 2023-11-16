@@ -34,6 +34,8 @@ function script_druidEX:menu()
 		if (HasSpell("Cat Form")) then
 			if (CollapsingHeader("|+| Cat Form Options")) then
 				wasClicked, script_druid.useStealth = Checkbox("Use Stealth", script_druid.useStealth);
+				Text("Stealth Opener");
+				script_druid.stealthOpener = InputText("Opener", script_druid.stealthOpener);
 			end
 		end
 	end
@@ -41,29 +43,29 @@ function script_druidEX:menu()
 	if (CollapsingHeader("Heal Options")) then
 		Text('Rest options:');
 		script_druid.eatHealth = SliderInt("Eat below HP%", 1, 100, script_druid.eatHealth);
-		script_druid.drinkMana = SliderInt("Drink below Mana%", 30, 100, script_druid.drinkMana);
-		script_druid.potionHealth = SliderInt("Potion below HP%", 1, 99, script_druid.potionHealth);
-		script_druid.potionMana = SliderInt("Potion below Mana%", 1, 99, script_druid.potionMana);
+		script_druid.drinkMana = SliderInt("Drink below Mana%", 1, 100, script_druid.drinkMana);
+		script_druid.potionHealth = SliderInt("Potion below HP%", 5, 25, script_druid.potionHealth);
+		script_druid.potionMana = SliderInt("Potion below Mana%", 5, 25, script_druid.potionMana);
 		Text('You can add more food/drinks in script_helper.lua');
 
 		Separator();
 		if (HasSpell("Bear Form") or HasSpell("Cat Form") or HasSpell("Dire Bear Form")) then
-			script_druid.healthToShift = SliderInt("Shapeshift to heal HP%", 1, 75, script_druid.healthToShift);
+			script_druid.healthToShift = SliderInt("Shapeshift to heal HP%", 0, 75, script_druid.healthToShift);
 			Separator();
 		end
 
 		if (HasSpell("Rejuvenation")) then
 			Text("Rejuvenation below HP percentage");
-			script_druid.rejuvenationHealth = SliderInt("RHP%", 1, 99, script_druid.rejuvenationHealth);
+			script_druid.rejuvenationHealth = SliderInt("RHP%", 25, 99, script_druid.rejuvenationHealth);
 			Text("Rejuvenation above mana percentage");
-			script_druid.rejuvenationMana = SliderInt("RMP%", 1, 99, script_druid.rejuvenationMana);
+			script_druid.rejuvenationMana = SliderInt("RMP%", 10, 99, script_druid.rejuvenationMana);
 		end
 		if (HasSpell("Regrowth")) then
 			Text("Regrwoth below HP percentage");
-			script_druid.regrowthHealth = SliderInt("Regrowth below HP%", 1, 99, script_druid.regrowthHealth);
+			script_druid.regrowthHealth = SliderInt("Regrowth below HP%", 15, 99, script_druid.regrowthHealth);
 		end
 
 		Text("Healing Touch below HP percentage");
-		script_druid.healingTouchHealth = SliderInt("Healing Touch HP%", 1, 99, script_druid.healingTouchHealth);
+		script_druid.healingTouchHealth = SliderInt("Healing Touch HP%", 15, 99, script_druid.healingTouchHealth);
 	end
 end
