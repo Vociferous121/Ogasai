@@ -20,7 +20,7 @@ function script_druidEX:menu()
 		local wasClicked = false;
 		Text('Combat options:');
 		
-		if (HasSpell("Entangling Roots")) then
+		if (HasSpell("Entangling Roots")) and (not script_druid.useCat) and (not script_druid.useBear) then
 			wasClicked, script_druid.useEntanglingRoots = Checkbox("Attempt to root after pull", script_druid.useEntanglingRoots);
 		end
 		
@@ -34,6 +34,8 @@ function script_druidEX:menu()
 		if (HasSpell("Bear Form") or HasSpell("Cat Form") or HasSpell("Dire Bear Form")) then
 			Text("Health to heal when shapeshifted");
 			script_druid.healthToShift = SliderInt("Shapeshift to heal HP%", 0, 65, script_druid.healthToShift);
+			Separator();
+			Text("Controlled by drink mana percentage");
 			wasClicked, script_druid.shiftToDrink = Checkbox("Leave Form To Drink", script_druid.shiftToDrink);
 			Separator();
 		end

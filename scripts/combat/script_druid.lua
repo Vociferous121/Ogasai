@@ -186,8 +186,9 @@ function script_druid:healsAndBuffs()
 			CastHeal("Regrowth", localObj);
 			self.waitTimer = GetTimeEX() + 1500;
 			return 0;
-		end
-		if (CastSpellByName("Healing Touch", localObj)) then
+		
+	 	else
+			CastSpellByName("Healing Touch", localObj);
 			self.waitTimer = GetTimeEX() + 2500;
 			return 0;
 		end
@@ -273,6 +274,16 @@ function script_druid:healsAndBuffs()
 			end
 		end
 	end
+
+	-- if out of form and target is fleeing then cast moonfire
+	if (self.useBear and not isBear) or (self.useCat and not isCat) then
+		if (targetObj:IsFleeing() or targetObj:GetHealthPercentage() < 10) and (not targetObj:HasDebuff("Moonfire")) then
+			CastSpellByName("Moonfire");
+			self.waitTimer = GetTimeEX() + 1750;
+			return 0;
+		end	
+	end
+		
 				
 return false;
 end
@@ -311,6 +322,24 @@ function script_druid:run(targetGUID)
 		elseif (IsInCombat()) and (not IsMoving()) then
 			script_grind.tickRate = tickRandom;
 		end
+	end
+
+	if (not self.useBear) and (isBear) then
+		if (not HasSpell("Dire Bear Form")) then
+			CastSpellByName("Bear Form");
+			self.waitTimer = GetTimeEX() + 1650;
+			return 0;
+		end
+		if (HasSpell("Bear Form")) then
+			CastSpellByName("Bear Form");
+			self.waitTimer = GetTimeEX() + 1650;
+			return 0;
+		end
+	end
+	if (not self.useCat) and (isCat) then
+		CastSpellByName("Cat Form");
+		self.waitTimer = GetTimeEX() + 1650;
+		return 0;
 	end
 
 	if (localObj:IsDead()) then
@@ -382,7 +411,7 @@ function script_druid:run(targetGUID)
 			end
 
 			-- Auto Attack
-			if (targetObj:GetDistance() < 35) then
+			if (targetObj:GetDistance() < 35) and (not IsAutoCasting("Attack")) then
 				targetObj:AutoAttack();
 			end
 
@@ -443,7 +472,7 @@ function script_druid:run(targetGUID)
 			end
 
 			-- Enrage
-			if (HasSpell("Enrage")) and (not IsSpellOnCD("Enrage")) then
+			if (HasSpell("Enrage")) and (not IsSpellOnCD("Enrage")) and (targetObj:GetDistance() < 30) and (localHealth > 65) then
 				if (CastSpellByName("Enrage")) then
 					return 0;
 				end
@@ -625,10 +654,11 @@ function script_druid:run(targetGUID)
 				end
 
 				-- maul
-				if (HasSpell("Maul")) and (localRage > 15) then
+				if (HasSpell("Maul")) and (localRage > 15) and (not IsCasting()) and (not IsChanneling()) then
 					if (Cast("Maul", targetObj)) then
+						targetObj:AutoAttack();
 						targetObj:FaceTarget();
-						return 0;
+						DEFAULT_CHAT_FRAME:AddMessage("Test - Casting Maul - it is causing druid to stop. why??");
 					end
 				end
 

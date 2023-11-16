@@ -83,17 +83,21 @@ end
 -- pet debuff checks
 function script_checkDebuffs:petDebuff()
 
-	local pet = GetPet();
+		local class = UnitClass('player');
 
-	if (pet:HasDebuff("Web"))
-
-
-	then
-
-		return true;
+	if (class == 'Hunter') and (GetLocalPlayer():GetLevel() > 10) then
+		local pet = GetPet();
 	
-	else
-
-		return false;
+		if (pet:HasDebuff("Web"))
+	
+	
+		then
+	
+			return true;
+		
+		else
+	
+			return false;
+		end
 	end
 end

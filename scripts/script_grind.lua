@@ -454,11 +454,11 @@ function script_grind:run()
 					local moveBufferY = math.random(-2, 2);
 					self.message = script_nav:moveToTarget(localObj, _x, _y+moveBufferY, _z);
 					script_grind:setWaitTimer(200);
-				end
+				else
 
-				if (_x ~= 0 and x ~= 0) and (IsInCombat()) then
-					self.message = script_nav:moveToTarget(localObj, _x, _y, _z);
-					script_grind:setWaitTimer(125);
+						self.message = script_nav:moveToTarget(localObj, _x, _y, _z);
+						script_grind:setWaitTimer(80);
+					
 				end
 				
 				return;
