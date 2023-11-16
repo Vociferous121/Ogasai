@@ -7,11 +7,11 @@ function script_druidEX:menu()
 
 	if (HasSpell("Bear Form")) then
 		if (CollapsingHeader("Druid Form Options - Experimental!")) then
-			wasClicked, script_druid.bear = Checkbox("Bear Form", script_druid.bear);
+			wasClicked, script_druid.useBear = Checkbox("Bear Form", script_druid.useBear);
 
 			if (HasSpell("Cat Form")) then
 				SameLine();
-				wasClicked, script_druid.cat = Checkbox("Cat Form", script_druid.cat);
+				wasClicked, script_druid.useCat = Checkbox("Cat Form", script_druid.useCat);
 			end
 		end
 	end
@@ -42,7 +42,7 @@ function script_druidEX:menu()
 
 		Separator();
 		if (HasSpell("Bear Form") or HasSpell("Cat Form") or HasSpell("Dire Bear Form")) then
-			script_druid.healHealthWhenShifted = SliderInt("Shapeshift to heal HP%", 1, 99, script_druid.healHealthWhenShifted);
+			script_druid.healthToShift = SliderInt("Shapeshift to heal HP%", 1, 75, script_druid.healthToShift);
 			Separator();
 		end
 

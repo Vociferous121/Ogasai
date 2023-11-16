@@ -61,6 +61,7 @@ function script_paranoia:checkParanoia()
 		-- if players in range
 		if (script_grind:playersWithinRange(script_grind.paranoidRange)) and (not IsLooting()) then
 			script_grind.message = "Player(s) within paranoid range, pausing...";
+			ClearTarget();
 			if IsMoving() then
 				StopMoving();
 			end

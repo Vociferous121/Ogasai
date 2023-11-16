@@ -882,10 +882,6 @@ function script_grind:doLoot(localObj)
 		end
 		if (not LootTarget()) then
 				script_grind:setWaitTimer(500);
-				self.lootCheckTime = GetTimeEX() + 5000;
-			if (GetTimeEX() > self.lootCheckTime) then
-				script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
-			end
 			return;
 		else
 			self.lootCheckTime = 0;

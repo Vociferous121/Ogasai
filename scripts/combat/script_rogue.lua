@@ -32,18 +32,13 @@ script_rogue = {
 	followTargetDistance = 35,
 	useBandage = true,
 	hasBandages = false,
-	riposteActionSlot = 8,
+	riposteActionBarSlot = 8,
 }
 
 function script_rogue:setup()
 
 	-- no more bugs first time we run the bot
 	self.waitTimer = GetTimeEX(); 
-
-	-- Set Cheap Shot as default opener if we have it
-	if (HasSpell("Cheap Shot")) then
-		self.stealthOpener = "Cheap Shot";
-	end
 
 	-- Set Hemorrhage as default CP builder if we have it
 	if (HasSpell("Hemorrhage")) then
@@ -53,9 +48,17 @@ function script_rogue:setup()
 	--set backstab as opener
 	if (GetLocalPlayer():GetLevel() < 10) then
 		self.stealthOpener = "Backstab";
-	elseif (HasSpell("Garrote")) and (GetLocalPlayer():GetLevel() >= 10) then
+	elseif (not HasSpell("Ambush")) and (HasSpell("Garrote")) and (GetLocalPlayer():GetLevel() >= 10) then
 		self.stealthOpener = "Garrote";
+	elseif (HasSpell("Ambush")) then
+		self.stealthOpener = "Ambush";
 	end
+
+	-- Set Cheap Shot as default opener if we have it
+	if (HasSpell("Cheap Shot")) and (HasSpell("Riposte")) then
+		self.stealthOpener = "Cheap Shot";
+	end
+	
 
 	-- Set the energy cost for the CP builder ability (does not recognize talent e.g. imp. sinister strike)
 	_, _, _, _, self.cpGeneratorCost = GetSpellInfo(self.cpGenerator);
@@ -157,7 +160,7 @@ function script_rogue:runBackwards(targetObj, range)
 	local localObj = GetLocalPlayer();
 	if targetObj ~= 0 then
  		local xT, yT, zT = targetObj:GetPosition();
- 		local xP, yP, zP = localObj:GetPositin();
+ 		local xP, yP, zP = localObj:GetPosition();
  		local distance = targetObj:GetDistance();
  		local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
  		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
@@ -419,7 +422,7 @@ function script_rogue:run(targetGUID)
 
 				if (HasSpell("Ghostly Strike")) and (not IsSpellOnCD("Ghostly Strike")) and (localEnergy >= 40) then
 					CastSpellByName("Ghostly Strike", targetObj);
-					return 0;
+					return;
 				end
 
 				-- Check: Use Healing Potion 
@@ -451,8 +454,11 @@ function script_rogue:run(targetGUID)
 						CastSpellByName("Gouge", targetObj);
 						return 0;
 					end
-					if (not IsAutoCasting("Attack")) and (self.useBandages) and (targetObj:HasDebuff("Gouge")) and (not localObj:HasDebuff("Recently Bandaged")) then
-						script_helper:useBandage();
+
+					ClearTarget();
+
+					if (targetObj:HasDebuff("Gouge")) and (not localObj:HasDebuff("Recently Bandaged")) then
+					script_helper:useBandage();
 						return;
 					end
 				end
@@ -684,6 +690,11 @@ function script_rogue:run(targetGUID)
 						end
 					end
 
+					if (HasSpell("Ghostly Strike")) and (not IsSpellOnCD("Ghostly Strike")) and (localEnergy >= 40) then
+						CastSpellByName("Ghostly Strike", targetObj);
+						return;
+					end
+
 					-- check riposte
 					if (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) and (localEnergy >= 10) then
 						CastSpellByName("Riposte", targetObj);
@@ -818,6 +829,11 @@ function script_rogue:run(targetGUID)
 								
 							end
 						end
+					end
+
+					if (HasSpell("Ghostly Strike")) and (not IsSpellOnCD("Ghostly Strike")) and (localEnergy >= 40) then
+						CastSpellByName("Ghostly Strike", targetObj);
+						return;
 					end
 
 					-- Check: Use Riposte whenever we can
