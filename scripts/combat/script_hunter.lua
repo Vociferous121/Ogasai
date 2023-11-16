@@ -225,7 +225,7 @@ function script_hunter:run(targetGUID)
 	end
 	
 	-- stuck in combat
-	if (IsInCombat()) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) then
+	if (IsInCombat()) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
 		self.message = "No Target - stuck in combat! WAITING!";
 		return 4;
 	end

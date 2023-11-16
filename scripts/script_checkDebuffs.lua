@@ -67,7 +67,8 @@ function script_checkDebuffs:hasDisabledMovement()
 
 	local player = GetLocalPlayer();
 
-	if (player:HasDebuff("Web"))
+	if (player:HasDebuff("Web")) or
+	(player:HasDebuff("Net"))
 
 
 	then
