@@ -838,7 +838,7 @@ function script_grind:doLoot(localObj)
 	local _x, _y, _z = self.lootObj:GetPosition();
 	local dist = self.lootObj:GetDistance();
 	local localObj = GetLocalPlayer();
-
+	local blacklistLootTime = GetTimeEX()/1000;
 	
 	-- Loot checking/reset target
 	if (GetTimeEX() > self.lootCheck['timer']) then
@@ -858,6 +858,7 @@ function script_grind:doLoot(localObj)
 
 	if(dist <= self.lootDistance) then
 		self.message = "Looting...";
+		blacklistLootTime = GetTimeEX()/1000;
 		if(IsMoving() and not localObj:IsMovementDisabed()) then
 			StopMoving();
 			--self.waitTimer = GetTimeEX() + 950;
@@ -880,6 +881,11 @@ function script_grind:doLoot(localObj)
 			self.waitTimer = GetTimeEX() + 1850;
 			return;
 		end
+
+		if (IsLooting()) and (blacklistLootTime + 5000 > (GetTimeEX()/1000)) then
+			script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
+		end
+			
 		if (not LootTarget()) then
 				script_grind:setWaitTimer(500);
 			return;

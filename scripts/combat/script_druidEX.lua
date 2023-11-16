@@ -31,6 +31,12 @@ function script_druidEX:menu()
 		Text("Melee Range to target");
 		script_druid.meleeDistance = SliderFloat("Melee range", 1, 6, script_druid.meleeDistance);
 
+		if (HasSpell("Bear Form") or HasSpell("Cat Form") or HasSpell("Dire Bear Form")) then
+			Text("Health to heal when shapeshifted");
+			script_druid.healthToShift = SliderInt("Shapeshift to heal HP%", 0, 75, script_druid.healthToShift);
+			Separator();
+		end
+
 		if (HasSpell("Cat Form")) then
 			if (CollapsingHeader("|+| Cat Form Options")) then
 				wasClicked, script_druid.useStealth = Checkbox("Use Stealth", script_druid.useStealth);
@@ -38,6 +44,8 @@ function script_druidEX:menu()
 				script_druid.stealthOpener = InputText("Opener", script_druid.stealthOpener);
 			end
 		end
+
+
 	end
 
 	if (CollapsingHeader("Heal Options")) then
@@ -49,10 +57,6 @@ function script_druidEX:menu()
 		Text('You can add more food/drinks in script_helper.lua');
 
 		Separator();
-		if (HasSpell("Bear Form") or HasSpell("Cat Form") or HasSpell("Dire Bear Form")) then
-			script_druid.healthToShift = SliderInt("Shapeshift to heal HP%", 0, 75, script_druid.healthToShift);
-			Separator();
-		end
 
 		if (HasSpell("Rejuvenation")) then
 			Text("Rejuvenation below HP percentage");

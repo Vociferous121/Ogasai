@@ -567,7 +567,7 @@ function script_druid:run(targetGUID)
 			if (self.useBear) and (isBear) and (not isCat) and (not self.useCat) then
 
 				-- Run backwards if we are too close to the target
-				if (targetObj:GetDistance() <= .5) then 
+				if (targetObj:GetDistance() <= .3) then 
 					if (script_druid:runBackwards(targetObj,2)) then 
 						return 4; 
 					end 
