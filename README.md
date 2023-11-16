@@ -3,9 +3,7 @@
 
 Causes bans on turtle WoW - USE WITH CAUTION. There are much better places to play, anyways.
 
-Priest, Warlock, Warrior, Paladin, Rogue, Hunter - working the best
-
-Shaman, Druid - have issues :(
+Shaman has issues :(
 
 # Fixed several bugs affecting low level botting! Casters - please obtain a wand ASAP. Can be used level 5+.
 
