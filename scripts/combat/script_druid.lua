@@ -806,6 +806,7 @@ function script_druid:run(targetGUID)
 			if (self.useCat) and (not isCat) and (not self.useBear) and (not isBear) and (localHealth + 10 >= self.healthToShift) and (localMana > 33) then
 				script_grind.tickRate = 100;
 				script_rotation.tickRate = 100;
+
 				CastSpellByName("Cat Form");
 				self.waitTimer = GetTimeEX() + 1500;
 			end
