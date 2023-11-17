@@ -105,6 +105,8 @@ function script_paranoia:checkParanoia()
 					StopMoving();
 					self.waitTimer = GetTimeEX() + 2260;
 				end
+
+				-- afk when paranoid and sitting
 				if (IsStanding()) and (not IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() == 0) then
 				SitOrStand();
 					if (not IsStanding()) and (not IsInCombat()) then
