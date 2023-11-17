@@ -229,7 +229,7 @@ function script_druid:healsAndBuffs()
 		if (HasSpell("Healing Touch")) then
 			if (localHealth < self.healingTouchHealth) and (localMana > 25) then
 				if (CastHeal("Healing Touch", localObj)) then
-					self.waitTimer = GetTimeEX() + 1500;
+					self.waitTimer = GetTimeEX() + 2500;
 					return 0;
 				end
 			end
@@ -276,7 +276,7 @@ function script_druid:healsAndBuffs()
 	-- if out of form and target is low health then cast moonfire
 	if (self.useBear and not isBear) or (self.useCat and not isCat) then
 		if (targetObj:GetHealthPercentage() < 15) and (localMana > 15) then
-			CastSpellByName("Moonfire");
+			CastSpellByName("Moonfire", targetObj);
 			self.waitTimer = GetTimeEX() + 1750;
 			return 0;
 		end	
@@ -284,10 +284,10 @@ function script_druid:healsAndBuffs()
 
 
 	-- if out of form and not in combat yet then cast rejuvenation
-	if (not isBear) and (not isCat) and (localMana > 30) then
+	if (self.useBear or self.useCat) and (not isBear) and (not isCat) and (localMana > 30) and (not localObj:HasBuff("Rejuvenation")) then
 		if (HasSpell("Rejuvenation")) and (not localObj:HasBuff("Rejuvenation")) and (not IsInCombat()) and (IsStanding()) and (IsMoving()) then
 			CastSpellByName("Rejuvenation", localObj);
-			self.waitTimer = GetTimeEX() + 1500;
+			self.waitTimer = GetTimeEX() + 1800;
 			return;
 		end
 	end
