@@ -167,6 +167,7 @@ function script_druid:healsAndBuffs()
 		isBear = GetLocalPlayer():HasBuff("Dire Bear Form");
 	end
 
+	script_grind.tickRate = 1500;
 
 	-- target has Bash (stunned) and we can heal
 	if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (isBear) and (self.useBear) then 
@@ -330,8 +331,8 @@ function script_druid:healsAndBuffs()
 
 
 	-- if out of form and not in combat yet then cast rejuvenation
-	if (HasSpell("Rejuvenation")) then
-		if (not isBear) and (not isCat) and (localMana > 30) and (not localObj:HasBuff("Rejuvenation")) then
+	if (HasSpell("Rejuvenation")) and (not IsLooting()) then
+		if (not isBear) and (not isCat) and (localMana > 30) and (localHealth < 99) and (not localObj:HasBuff("Rejuvenation")) then
 			if (HasSpell("Rejuvenation")) and (not localObj:HasBuff("Rejuvenation")) and (not IsInCombat()) and (IsStanding()) and (IsMoving()) then
 				CastSpellByName("Rejuvenation", localObj);
 				self.waitTimer = GetTimeEX() + 1800;
@@ -339,6 +340,9 @@ function script_druid:healsAndBuffs()
 			end
 		end
 	end
+
+local tickRandomHeal = random(300, 800);
+script_grind.tickRate = tickRandomHeal;
 			
 return false;
 end
@@ -454,7 +458,7 @@ function script_druid:run(targetGUID)
 			end
 		end 
 
-		if (script_druid:healsAndBuffs()) and (not IsLooting()) then
+		if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) then
 			return;
 		end
 		
@@ -713,6 +717,13 @@ function script_druid:run(targetGUID)
 					targetObj:FaceTarget();
 				end
 
+				if (IsMoving()) then
+					local randomJumpBear = random(1, 100);
+					if (randomJumpBear >= 90) then
+						JumpOrAscendStart();
+					end
+				end
+
 				-- Run backwards if we are too close to the target
 				if (targetObj:GetDistance() <= .3) then 
 					if (script_druid:runBackwards(targetObj,2)) then 
@@ -787,13 +798,20 @@ function script_druid:run(targetGUID)
 					return 0;
 				end
 
+				-- IsFleeing() causes bot not to move
 				-- maul humanoids fleeing causes maul to lock up
-				if (HasSpell("Maul")) and (localRage > 15) and (not IsCasting()) and (not IsChanneling()) and (targetObj:GetCreatureType() == 'Humanoid') and (targetHealth > 30) and (not targetObj:IsFleeing()) and (targetObj:GetDistance() <= self.meleeDistance) and (not localObj:HasBuff("Frenzied Regeneration")) then
+				if (HasSpell("Maul")) and (localRage > 15) and (not IsCasting()) and (not IsChanneling()) and (targetObj:GetCreatureType() == 'Humanoid') and (targetHealth > 30) and (targetObj:GetDistance() <= self.meleeDistance) and (not localObj:HasBuff("Frenzied Regeneration")) then
 					CastSpellByName("Maul", targetObj);
 					targetObj:AutoAttack();
 					targetObj:FaceTarget();
 					self.waitTimer = GetTimeEX() + 600;
 					return 0;
+				end
+
+				-- move to target if it is fleeing no matter what
+				local _xX, _yY, _zZ = targetObj:GetPosition();
+				if (targetObj:GetDistance() > self.meleeDistance) then
+					self.message = script_nav:moveToTarget(localObj, _xX, _yY, _zZ);
 				end
 
 			end -- end of bear form in combat attacks
@@ -956,6 +974,10 @@ function script_druid:run(targetGUID)
 				end	
 
 			end -- end of if not bear or cat... no form attacks
+			
+			if (targetObj:IsFleeing()) then
+				script_grind.tickRate = 50;
+			end
 
 			-- auto attack condition for melee
 			if (localMana <= 30) or (self.useBear) or (self.useCat) or (isBear) or (isCat) then
@@ -964,7 +986,7 @@ function script_druid:run(targetGUID)
 						targetObj:FaceTarget();
 					end
 					targetObj:AutoAttack();
-				elseif (not targetObj:HasDebuff("Entangling Roots")) then
+				else
 					return 3;
 				end
 			end
@@ -1016,7 +1038,7 @@ function script_druid:rest()
 		end
 	end
 
-	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (not script_grind.lootObj ~= nil) then
+	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (script_grind.lootObj == nil) then
 		return;
 	end
 
