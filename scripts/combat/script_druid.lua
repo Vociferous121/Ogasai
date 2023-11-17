@@ -278,7 +278,7 @@ function script_druid:healsAndBuffs()
 
 
 	-- if out of form and target is low health then cast moonfire
-	if (self.useBear and not isBear) or (self.useCat and not isCat) then
+	if (self.useBear and not isBear) or (self.useCat and not isCat) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 		if (targetObj:GetHealthPercentage() < 15) and (localMana > 15) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 			CastSpellByName("Moonfire", targetObj);
 			self.waitTimer = GetTimeEX() + 1750;
@@ -563,6 +563,11 @@ function script_druid:run(targetGUID)
 
 		if (not self.useBear) and (not isBear) and (not self.useCat) and (not isCat) then
 
+			-- move into line of sight
+			if (targetObj:GetDistance() > 30) or (not targetObj:IsInLineOfSight()) then
+				return 3;
+			end
+
 			-- Wrath to pull if no moonfire spell
 			if (not HasSpell("Moonfire")) and (localMana >= 35) then
 				CastSpellByName("Wrath", targetObj);
@@ -591,11 +596,6 @@ function script_druid:run(targetGUID)
 						return 0;
 					end
 				end
-			end
-			
-			-- move into line of sight
-			if (targetObj:GetDistance() > 30) or (not targetObj:IsInLineOfSight()) then
-				return 3;
 			end
 		end
 
@@ -873,14 +873,14 @@ function script_druid:run(targetGUID)
 				end
 
 				-- keep moonfire up
-				if (localMana > 30) and (targetHealth > 5) and (not targetObj:HasDebuff("Moonfire")) then
+				if (localMana > 30) and (targetHealth > 5) and (not targetObj:HasDebuff("Moonfire")) and (HasSpell("Moonfire")) then
 					if (Cast("Moonfire", targetObj)) then
 						return 0;
 					end
 				end
 
 				-- spam moonfire until target is killed
-				if (localMana > 30) and (targetHealth < 10) and (not IsSpellOnCD("Moonfire")) then
+				if (localMana > 30) and (targetHealth < 10) and (not IsSpellOnCD("Moonfire")) and (HasSpell("Moonfire")) then
 					if (Cast("Moonfire", targetObj)) then
 						return 0;
 					end
@@ -894,13 +894,8 @@ function script_druid:run(targetGUID)
 				end	
 			end -- end of if not bear or cat... no form attacks
 
-			if (targetObj:HasDebuff("Entangling Roots")) and (localMana > 15) then
-				CastSpellByName("Wrath");
-				self.waitTimer = GetTimeEX() + 1200;
-			end
-
 			-- auto attack condition for melee
-			if (localMana <= 35) or (self.useBear) or (self.useCat) or (isBear) or (isCat) then
+			if (localMana <= 30) or (self.useBear) or (self.useCat) or (isBear) or (isCat) then
 				if (targetObj:GetDistance() <= self.meleeDistance) then
 					if (not targetObj:FaceTarget()) then
 						targetObj:FaceTarget();
