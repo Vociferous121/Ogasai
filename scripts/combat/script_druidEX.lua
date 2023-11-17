@@ -42,7 +42,9 @@ function script_druidEX:menu()
 
 		if (HasSpell("Bear Form")) or (HasSpell("Dire Bear Form")) then
 			if (CollapsingHeader("|+| Bear Form Options")) then
-				Text("Stuff to do !");
+				if (HasSpell("Charge")) then
+					wasClicked, script_druid.useCharge = Checkbox("Use Charge", script_druid.useCharge);
+				end
 			end
 		end
 

@@ -80,7 +80,7 @@ function script_aggro:safeRess(corpseX, corpseY, corpseZ, ressRadius)
 
 	while currentObj ~= 0 do
  		if typeObj == 3 then
-			aggro = currentObj:GetLevel() - localObj:GetLevel() +21.5;
+			aggro = currentObj:GetLevel() - localObj:GetLevel() + 21.5;
 			local range = aggro + 5;
 			if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range then	
 				if (closestEnemy == 0) then
@@ -123,12 +123,12 @@ function script_aggro:closeToBlacklistedTargets()
 	local aggroClosest = 0;
 
 	while currentObj ~= 0 do
-		aggro = currentObj:GetLevel() - localObj:GetLevel() +21.5;
+		aggro = currentObj:GetLevel() - localObj:GetLevel() + 21.5;
 		local range = aggro + 6;
 		if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range then	
 			if (closestEnemy == 0) then
 				closestEnemy = currentObj;
-				aggroClosest = currentObj:GetLevel() - localObj:GetLevel() +21.5;
+				aggroClosest = currentObj:GetLevel() - localObj:GetLevel() + 21.5;
 			else
 				local dist = currentObj:GetDistance();
 				if (dist < closestDist) then
