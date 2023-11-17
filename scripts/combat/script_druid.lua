@@ -275,7 +275,7 @@ function script_druid:healsAndBuffs()
 
 	-- if out of form and target is low health then cast moonfire
 	if (self.useBear and not isBear) or (self.useCat and not isCat) then
-		if (targetObj:GetHealthPercentage() < 15) and (localMana > 15) then
+		if (targetObj:GetHealthPercentage() < 15) and (localMana > 15) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 			CastSpellByName("Moonfire", targetObj);
 			self.waitTimer = GetTimeEX() + 1750;
 			return 0;
@@ -562,7 +562,7 @@ function script_druid:run(targetGUID)
 
 			local randomWrath = math.random(1, 100);
 			if (randomWrath > 50) then
-				if (CastSpellByName("Wrath")) then
+				if (CastSpellByName("Wrath", targetObj)) then
 					return 0;
 				end
 			end
