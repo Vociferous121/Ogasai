@@ -289,11 +289,11 @@ function script_druid:healsAndBuffs()
 
 	-- if out of form and not in combat yet then cast rejuvenation
 	if (HasSpell("Rejuvenation")) then
-		if (self.useBear or self.useCat) and (not isBear) and (not isCat) and (localMana > 30) and (not localObj:HasBuff("Rejuvenation")) then
+		if (not isBear) and (not isCat) and (localMana > 30) and (not localObj:HasBuff("Rejuvenation")) then
 			if (HasSpell("Rejuvenation")) and (not localObj:HasBuff("Rejuvenation")) and (not IsInCombat()) and (IsStanding()) and (IsMoving()) then
 				CastSpellByName("Rejuvenation", localObj);
 				self.waitTimer = GetTimeEX() + 1800;
-				return;
+				return 0;
 			end
 		end
 	end
@@ -593,7 +593,7 @@ function script_druid:run(targetGUID)
 			
 			-- Entangling roots when target is far enough away and we have enough mana
 			if (not self.useBear) and (not self.useCat) and (self.useEntanglingRoots) then
-				if (HasSpell("Entangling Roots")) and (not targetObj:HasDebuff("Enatangle Roots")) and (localMana > 45) then
+				if (HasSpell("Entangling Roots")) and (not targetObj:HasDebuff("Entangling Roots")) and (localMana > 45) then
 					if (Cast("Entangling Roots", targetObj)) then
 						return 0;
 					end
