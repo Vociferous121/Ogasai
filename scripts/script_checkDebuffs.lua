@@ -34,6 +34,7 @@ function script_checkDebuffs:hasDisease()
 		or (player:HasDebuff("Plague Mind"))
 		or (player:HasDebuff("Fevered Fatigue"))
 		or (player:HasDebuff("Tetanus")) 
+		or (player:HasDebuff("Creeping Mold"))
 	
 		then
 

@@ -145,6 +145,9 @@ function script_druid:healsAndBuffs()
 		isBear = GetLocalPlayer():HasBuff("Dire Bear Form");
 	end
 
+
+
+
 	-- shapeshift out of bear form to heal
 	if (self.useBear and isBear) and (localHealth <= self.healthToShift) and (localMana >= 25) then
 		if (localObj:HasBuff("Dire Bear Form")) then
@@ -167,6 +170,30 @@ function script_druid:healsAndBuffs()
 		end
 	end
 
+
+
+	-- shapeshift out of form to heal if mana is high enough and need healing - redundancy in case settings are set wrong
+	if (not IsInCombat()) and (isBear or isCat) and (localMana >= 80) and (localHealth <= self.healthToShift + 20) then
+		if (localObj:HasBuff("Dire Bear Form")) then
+			CastSpellByName("Dire Bear Form");
+			self.waitTimer = GetTimeEX() + 1500;
+		end
+		if (localObj:HasBuff("Bear Form")) then
+			CastSpellByName("Bear Form");
+			self.waitTimer = GetTimeEX() + 1500;
+		end
+
+
+		-- shapeshift out of cat form to heal
+		if (localObj:HasBuff("Cat Form")) then
+			CastSpellByName("Cat Form");
+			self.waitTimer = GetTimeEX() + 1500;
+		end
+	end
+
+
+
+
 	
 	-- redundancy check heals cat/bear checked but not is bear or not is cat HEALTH-TO-SHIFT CONTROL HEALS
 	if (self.useBear or self.useCat) and (not isBear or not isCat) then
@@ -188,14 +215,14 @@ function script_druid:healsAndBuffs()
 		end
 
 		if (HasSpell("Healing Touch")) and (localHealth <= self.healthToShift) and (localMana > 30) then
-			if (CastSpellByName("Healing Touch")) then
+			if (CastSpellByName("Healing Touch", localObj)) then
 				self.waitTimer = GetTimeEX() + 2500;
 				return 0;
 			end
 		end
 	end
 
-	-- if not is
+	-- if not isBear and not isCat
 	if (not isBear) and (not isCat) and (IsStanding()) and (not IsEating()) and (not IsDrinking()) then
 
 		-- Healing Touch
@@ -244,19 +271,22 @@ function script_druid:healsAndBuffs()
 		end
 	end
 
-	-- if out of form and target is fleeing then cast moonfire
+
+
+	-- if out of form and target is low health then cast moonfire
 	if (self.useBear and not isBear) or (self.useCat and not isCat) then
-		if (targetObj:GetHealthPercentage() < 15) and (not targetObj:HasDebuff("Moonfire")) then
+		if (targetObj:GetHealthPercentage() < 15) and (localMana > 15) then
 			CastSpellByName("Moonfire");
 			self.waitTimer = GetTimeEX() + 1750;
 			return 0;
 		end	
 	end
 
+
 	-- if out of form and not in combat yet then cast rejuvenation
 	if (not isBear) and (not isCat) and (localMana > 30) then
 		if (HasSpell("Rejuvenation")) and (not localObj:HasBuff("Rejuvenation")) and (not IsInCombat()) and (IsStanding()) and (IsMoving()) then
-			CastSpellByName("Rejuvenation");
+			CastSpellByName("Rejuvenation", localObj);
 			self.waitTimer = GetTimeEX() + 1500;
 			return;
 		end
@@ -658,11 +688,9 @@ function script_druid:run(targetGUID)
 				end
 
 				-- demo Roar
-				if (script_druid:enemiesAttackingUs(10) >= 2) then
-					if (HasSpell("Demoralizing Roar")) and (not targetObj:HasDebuff("Demoralizing Roar")) and (localRage > 10) then
-						if (CastSpellByName("Demoralizing Roar")) then
-							return 0;
-						end
+				if (HasSpell("Demoralizing Roar")) and (not targetObj:HasDebuff("Demoralizing Roar")) and (localRage > 10) then
+					if (CastSpellByName("Demoralizing Roar")) then
+						return 0;
 					end
 				end
 
