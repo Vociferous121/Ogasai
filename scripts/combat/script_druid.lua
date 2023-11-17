@@ -255,6 +255,7 @@ function script_druid:healsAndBuffs()
 			end
 		end
 		
+		
 		-- Mark of the Wild
 		if (not IsInCombat()) and (localMana > 40) then
 			if (HasSpell("Mark of the Wild")) and (not localObj:HasBuff("Mark of the Wild")) then
@@ -679,6 +680,14 @@ function script_druid:run(targetGUID)
 					end
 				end
 
+				-- bash
+				if (HasSpell("Bash")) and (not IsSpellOnCD("Bash")) and (localRage >= 10) and (targetObj:GetDistance() <= self.meleeDistance) then
+					if (targetObj:IsCasting()) or (localHealth <= self.healthToShift) then
+						CastSpellByName("Bash");
+						return;
+					end
+				end
+
 				-- frenzied regeneration
 				if (HasSpell("Frenzied Regeneration")) and (not IsSpellOnCD("Frenzied Regeneration")) and (localhealth < self.healthToShift + 15) and (localRage >= 15) and (localMana < 40) then
 					if (CastSpellByName("Frenzied Regeneration")) then
@@ -1032,6 +1041,7 @@ function script_druid:rest()
 				StopMoving();
 			end
 			self.message = "Waiting - low mana or health and shapeshifted! Change heal/drink!";
+			ClearTarget();
 			return true;
 		end
 	end

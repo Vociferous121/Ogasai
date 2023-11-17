@@ -42,6 +42,9 @@ function script_druidEX:menu()
 
 		if (HasSpell("Bear Form")) or (HasSpell("Dire Bear Form")) then
 			if (CollapsingHeader("|+| Bear Form Options")) then
+				if (not HasSpell("Charge")) then
+					Text("   Nothing here at your level!");
+				end
 				if (HasSpell("Charge")) then
 					wasClicked, script_druid.useCharge = Checkbox("Use Charge", script_druid.useCharge);
 				end
@@ -50,6 +53,9 @@ function script_druidEX:menu()
 
 		if (HasSpell("Cat Form")) then
 			if (CollapsingHeader("|+| Cat Form Options")) then
+				if (not HasSpell("Prowl")) then
+					Text("    Nothing here at your level!");
+				end
 				wasClicked, script_druid.useStealth = Checkbox("Use Stealth", script_druid.useStealth);
 				Text("Stealth Opener");
 				script_druid.stealthOpener = InputText("Opener", script_druid.stealthOpener);
