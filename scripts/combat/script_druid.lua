@@ -150,6 +150,8 @@ function script_druid:healsAndBuffs()
 
 	-- shapeshift out of bear form to heal
 	if (self.useBear and isBear) and (localHealth <= self.healthToShift) and (localMana >= 25) then
+			script_grind.tickRate = 135;
+			script_rotation.tickRate = 135;
 		if (localObj:HasBuff("Dire Bear Form")) then
 			CastSpellByName("Dire Bear Form");
 			self.waitTimer = GetTimeEX() + 1500;
@@ -164,6 +166,8 @@ function script_druid:healsAndBuffs()
 
 	-- shapeshift out of cat form to heal
 	if (self.useCat and isCat) and (localHealth <= self.healthToShift) and (localMana >= 25) then
+			script_grind.tickRate = 135;
+			script_rotation.tickRate = 135;
 		if (localObj:HasBuff("Cat Form")) then
 			CastSpellByName("Cat Form");
 			self.waitTimer = GetTimeEX() + 1500;
@@ -331,7 +335,10 @@ function script_druid:run(targetGUID)
 		end
 	end
 
+	-- stay in bear if bear form is selected
 	if (not self.useBear) and (isBear) and (localMana > self.drinkMana) then
+			script_grind.tickRate = 135;
+			script_rotation.tickRate = 135;
 		if (not HasSpell("Dire Bear Form")) then
 			CastSpellByName("Bear Form");
 			self.waitTimer = GetTimeEX() + 1650;
@@ -343,7 +350,11 @@ function script_druid:run(targetGUID)
 			return 0;
 		end
 	end
+	
+	-- stay in cat form if cat form is selected
 	if (not self.useCat) and (isCat) and (localMana > self.drinkMana) then
+		script_grind.tickRate = 135;
+		script_rotation.tickRate = 135;
 		CastSpellByName("Cat Form");
 		self.waitTimer = GetTimeEX() + 1650;
 		return 0;
@@ -714,7 +725,7 @@ function script_druid:run(targetGUID)
 					targetObj:AutoAttack();
 					targetObj:FaceTarget();
 					self.waitTimer = GetTimeEX() + 600;
-					return false;
+					return 0;
 				end
 
 				-- maul humanoids fleeing causes maul to lock up
@@ -723,7 +734,7 @@ function script_druid:run(targetGUID)
 					targetObj:AutoAttack();
 					targetObj:FaceTarget();
 					self.waitTimer = GetTimeEX() + 600;
-					return false;
+					return 0;
 				end
 
 			end -- end of bear form in combat attacks
@@ -855,7 +866,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- War Stomp Tauren Racial
-				if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) and (targetObj:IsCasting() or script_druid:enemiesAttackingUs(10) >= 2) and (not IsMoving()) then
+				if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) and (targetObj:IsCasting() or script_druid:enemiesAttackingUs(10) >= 2) and (not IsMoving()) and (targetObj:GetDistance() <= 8) then
 					CastSpellByName("War Stomp");
 					self.waitTimer = GetTimeEX() + 200;
 					return 0;

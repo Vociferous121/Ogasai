@@ -11,6 +11,7 @@ function script_checkDebuffs:hasPoison()
 		or (player:HasDebuff("Poison"))
 		or (player:HasDebuff("Corrosive Poison"))
 		or (player:HasDebuff("Slowing Poison"))
+		or (player:HasDebuff("Poisoned Shot"))
 
 
 		then

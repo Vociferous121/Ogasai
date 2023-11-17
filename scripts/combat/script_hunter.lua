@@ -209,25 +209,28 @@ function script_hunter:run(targetGUID)
 	end
 
 	-- force bot to attack pets target
-	if (IsInCombat()) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (hasPet) then
+	if (IsInCombat()) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (self.hasPet) then
 		if (petHasTarget ~= 0) then
 			if (GetPet():GetDistance() > 10) then
 				GetPet():FaceTarget();
+				PetFollow();
 			end
 
-			if (GetPet():GetDistance() > 10) then
+			if (GetPet():GetDistance() < 10) then
 				GetPet():FaceTarget();
 				TargetNearestEnemy();
+				script_grind.tickRate = 135;
+				script_rotation.tickRate = 135;
 			end
-		else
-			return 4;
 		end
 	end
 	
 	-- stuck in combat
-	if (IsInCombat()) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
-		self.message = "No Target - stuck in combat! WAITING!";
-		return 4;
+	if (self.hasPet) and (IsInCombat()) then
+		if (playerHasTarget == 0) and (petHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
+			self.message = "No Target - stuck in combat! WAITING!";
+			return 4;
+		end
 	end
 
 	if (not targetObj:IsFleeing()) and (not targetObj:IsInLineOfSight()) then
@@ -408,6 +411,8 @@ function script_hunter:run(targetGUID)
 		
 			-- move backwards if target too close for melee attacks
 			if (targetObj:GetDistance() < 0.50) then
+				script_grind.tickRate = 135;
+				script_rotation.tickRate = 135;
 				if (script_hunter:runBackwards(targetObj, 2)) then
 					self.waitTimer = GetTimeEX() + 1850;
 					return 0;
@@ -415,13 +420,12 @@ function script_hunter:run(targetGUID)
 			end		
 
 			-- walk away from target if pet target guid is the same guid as target targeting me
-			if (targetObj:GetDistance() <= 14) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) then
+			if (targetObj:GetDistance() <= 14) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) then
 				if (targetObj:GetUnitsTarget():GetGUID() == pet:GetGUID()) then
-	
-					script_grind.tickRate = 100;
-					local randomMoveBack = math.random(12, 20);
 
-					if (script_hunter:runBackwards(targetObj, randomMoveBack)) then
+					if (script_hunter:runBackwards(targetObj, 15)) then
+						script_grind.tickRate = 100;
+						script_rotation.tickRate = 135;
 						PetAttack();
 						self.message = "Moving away from target for range attacks...";
 						return 4;
@@ -585,6 +589,26 @@ function script_hunter:rest()
 	local localObj = GetLocalPlayer();
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
+	local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
+	local petHasTarget = GetPet():GetUnitsTarget();
+	
+	-- force bot to attack pets target
+	
+	if (IsInCombat()) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (self.hasPet) then
+		if (petHasTarget ~= 0) then
+			if (GetPet():GetDistance() > 10) then
+				GetPet():FaceTarget();
+				PetFollow();
+			end
+
+			if (GetPet():GetDistance() < 10) then
+				script_grind.tickRate = 135;
+				script_rotation.tickRate = 135;
+				GetPet():FaceTarget();
+				TargetNearestEnemy();
+			end
+		end
+	end
 
 
 	-- Stop moving before we can rest
@@ -862,6 +886,26 @@ function script_hunter:hunterPull(targetObj)
 					return 0;
 				end
 			end
+
+			local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
+			local petHasTarget = GetPet():GetUnitsTarget();
+
+			-- force bot to attack pets target
+	if (IsInCombat()) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (self.hasPet) then
+		if (petHasTarget ~= 0) then
+			if (GetPet():GetDistance() > 10) then
+				GetPet():FaceTarget();
+				PetFollow();
+			end
+
+			if (GetPet():GetDistance() < 10) then
+				GetPet():FaceTarget();
+				TargetNearestEnemy();
+				script_grind.tickRate = 135;
+				script_rotation.tickRate = 135;
+			end
+		end
+	end
 
 			if (not self.hasPet) then
 				if (targetObj:GetDistance() < 12) then
