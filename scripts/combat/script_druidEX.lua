@@ -6,7 +6,7 @@ script_druidEX = {
 function script_druidEX:menu()
 
 	if (HasSpell("Bear Form")) or (HasSpell("Dire Bear Form")) then
-		if (CollapsingHeader("Druid Form Options - Experimental!")) then
+		if (CollapsingHeader("Choose Form For Combat")) then
 			wasClicked, script_druid.useBear = Checkbox("Bear Form", script_druid.useBear);
 
 			if (HasSpell("Cat Form")) then
@@ -29,18 +29,23 @@ function script_druidEX:menu()
 		Separator();
 			
 		Text("Melee Range to target");
-		script_druid.meleeDistance = SliderFloat("Melee range", 1, 6, script_druid.meleeDistance);
+		script_druid.meleeDistance = SliderFloat("Melee range", 1, 8, script_druid.meleeDistance);
 
-		if (HasSpell("Bear Form") or HasSpell("Cat Form") or HasSpell("Dire Bear Form")) then
-			Text("Health to heal when shapeshifted");
-			script_druid.healthToShift = SliderInt("Shapeshift to heal HP%", 0, 65, script_druid.healthToShift);
-			Separator();
-			Text("Controlled by drink mana percentage");
-			wasClicked, script_druid.shiftToDrink = Checkbox("Leave Form To Drink", script_druid.shiftToDrink);
-			Separator();
+		Separator();
+
+		if (script_druid.useBear) or (script_druid.useCat) then
+			if (HasSpell("Bear Form") or HasSpell("Cat Form") or HasSpell("Dire Bear Form")) then
+				Text("Health to heal when shapeshifted");
+				script_druid.healthToShift = SliderInt("Shapeshift to heal HP%", 0, 65, script_druid.healthToShift);
+				Separator();
+				Text("Controlled by drink mana percentage");
+				wasClicked, script_druid.shiftToDrink = Checkbox("Leave Form To Drink", script_druid.shiftToDrink);
+				WasClicked, script_druid.useRest = Checkbox("Rest On Low Mana/HP - Shapeshifted", script_druid.useRest);
+				Separator();
+			end
 		end
 
-		if (HasSpell("Bear Form")) or (HasSpell("Dire Bear Form")) then
+		if (script_druid.useBear) and (HasSpell("Bear Form")) or (HasSpell("Dire Bear Form")) then
 			if (CollapsingHeader("|+| Bear Form Options")) then
 				if (not HasSpell("Charge")) then
 					Text("   Nothing here at your level!");
@@ -51,7 +56,7 @@ function script_druidEX:menu()
 			end
 		end
 
-		if (HasSpell("Cat Form")) then
+		if (script_druid.useBear) and (HasSpell("Cat Form")) then
 			if (CollapsingHeader("|+| Cat Form Options")) then
 				if (not HasSpell("Prowl")) then
 					Text("    Nothing here at your level!");

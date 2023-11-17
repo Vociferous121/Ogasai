@@ -23,8 +23,19 @@ script_druid = {
 	stealthOpener = "Ravage",
 	shiftToDrink = true,
 	useCharge = true,
-
+	useRest = true,
 }
+
+
+-- switch to bear form when in cat form
+-- adds >= 2 and when 1 dies switch back to cat form
+-- add conditional to main phases ' don't do this when x is true '
+-- if targets in combat = 2 then x = true else y
+-- mana > 50 % else stay in bear form
+-- switch when health is low and already out of form to heal then choose bear form over cat form
+-- stun target if we switch back to cat form - or return maul and waste all rage
+-- TELL CAT FORM TO ONLY BE USED WHEN <= 2 ADDS PROBABLY EASIEST SOLUTION
+
 
 function script_druid:setup()
 
@@ -52,7 +63,17 @@ function script_druid:setup()
 	if (not HasSpell("Ravage")) or (not HasSpell("Pounce")) then
 		self.stealthOpener = "Shred";
 	end
+
+	if (not HasSpell("Prowl")) then
+		useStealth = false;
+	end
 	
+	if (not HasSpell("Bear Form")) then
+		shiftToDrink = false;
+		useCharge = false;
+		useRest = false;
+	end
+
 	self.waitTimer = GetTimeEX();	
 
 	self.isSetup = true;
@@ -148,7 +169,7 @@ function script_druid:healsAndBuffs()
 
 
 	-- target has Bash (stunned) and we can heal
-	if (GetLocalPlayer():GetUnitsTarget() ~= 0) then 
+	if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (isBear) and (self.useBear) then 
 		if (targetObj:HasDebuff("Bash")) and (localMana >= 60) and (localHealth <= self.healthToShift + 15) then
 			-- shapeshift out of bear form to heal
 			if (self.useBear and isBear) and (localHealth <= self.healthToShift) and (localMana >= 25) then
@@ -298,8 +319,8 @@ function script_druid:healsAndBuffs()
 
 
 
-	-- if out of form and target is low health then cast moonfire
-	if (self.useBear and not isBear) or (self.useCat and not isCat) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+	-- if out of form and target is low health then cast moonfire only if 1 target is attacking us
+	if (self.useBear and not isBear) or (self.useCat and not isCat) and (GetLocalPlayer():GetUnitsTarget() ~= 0) and (script_grind:enemiesAttackingUs(10) < 2) then
 		if (targetObj:GetHealthPercentage() < 15) and (localMana > 15) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 			CastSpellByName("Moonfire", targetObj);
 			self.waitTimer = GetTimeEX() + 1750;
@@ -433,7 +454,7 @@ function script_druid:run(targetGUID)
 			end
 		end 
 
-		if (script_druid:healsAndBuffs()) then
+		if (script_druid:healsAndBuffs()) and (not IsLooting()) then
 			return;
 		end
 		
@@ -641,7 +662,7 @@ function script_druid:run(targetGUID)
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
 
-			if (script_druid:healsAndBuffs()) then
+			if (script_druid:healsAndBuffs()) and (not IsLooting()) then
 				return;
 			end
 
@@ -650,6 +671,9 @@ function script_druid:run(targetGUID)
 
 			-- stay in form
 			if (self.useBear) and (not isBear) and (not self.useCat) and (not isCat) and (localHealth + 10 >= self.healthToShift) and (localMana > 33) then
+					script_grind.tickRate = 100;
+					script_rotation.tickRate = 100;
+
 				if (GetLocalPlayer():GetLevel() >= 40) then
 					CastSpellByName("Dire Bear Form");
 					self.waitTimer = GetTimeEX() + 1500;
@@ -662,7 +686,11 @@ function script_druid:run(targetGUID)
 			end
 			
 			-- shift for debuff removal
-			if (self.useBear) and (isBear) and (script_checkDebuffs:hasDisabledMovement()) and (localMana > 55) then
+			if (self.useBear) and (isBear) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= 45) then
+
+					script_grind.tickRate = 100;
+					script_rotation.tickRate = 100;
+
 				if (GetLocalPlayer():GetLevel() >= 40) then
 					CastSpellByName("Dire Bear Form");
 					self.waitTimer = GetTimeEX() + 1500;
@@ -751,7 +779,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- maul non humanoids
-				if (HasSpell("Maul")) and (localRage > 15) and (not IsCasting()) and (not IsChanneling()) and (not targetObj:GetCreatureType() ~= 'Humanoid') and (targetObj:GetDistance() <= self.meleeDistance) and (not localObj:HasBuff("Frenzied Regeneration")) then
+				if (HasSpell("Maul")) and (localRage > 15) and (not IsCasting()) and (not IsChanneling()) and (targetObj:GetCreatureType() ~= 'Humanoid') and (targetObj:GetDistance() <= self.meleeDistance) and (not localObj:HasBuff("Frenzied Regeneration")) then
 					CastSpellByName("Maul", targetObj);
 					targetObj:AutoAttack();
 					targetObj:FaceTarget();
@@ -776,6 +804,8 @@ function script_druid:run(targetGUID)
 
 			--stay in form
 			if (self.useCat) and (not isCat) and (not self.useBear) and (not isBear) and (localHealth + 10 >= self.healthToShift) and (localMana > 33) then
+				script_grind.tickRate = 100;
+				script_rotation.tickRate = 100;
 				CastSpellByName("Cat Form");
 				self.waitTimer = GetTimeEX() + 1500;
 			end
@@ -892,7 +922,7 @@ function script_druid:run(targetGUID)
 					end 
 				end
 
-				if (script_druid:healsAndBuffs()) then
+				if (script_druid:healsAndBuffs()) and (not IsLooting()) then
 					return;
 				end
 
@@ -985,7 +1015,7 @@ function script_druid:rest()
 		end
 	end
 
-	if (script_druid:healsAndBuffs()) then
+	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (not script_grind.lootObj ~= nil) then
 		return;
 	end
 
@@ -1055,7 +1085,7 @@ function script_druid:rest()
 	end
 
 	-- rest in form
-	if (self.useBear and isBear) or (self.useCat and isCat) and (not self.shiftToDrink) and (not GetLocalPlayer():GetUnitsTarget() == 0) then
+	if (self.useRest) and (self.useBear and isBear) or (self.useCat and isCat) and (not self.shiftToDrink) and (not GetLocalPlayer():GetUnitsTarget() == 0) then
 		if (localMana <= 50 or localHealth <= 55) and (not IsInCombat()) then
 			ClearTarget();
 			if (IsMoving()) then

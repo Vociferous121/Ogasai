@@ -2,6 +2,31 @@ script_checkDebuffs = {
 
 }
 
+
+-- use script_checkDebuffs:functionName(); as a boolean true or false.
+-- returns true if player has debuff
+-- returns false if player does not has debuff
+
+
+
+function script_checkDebuffs:hasCurse()
+
+	local localplayer = GetLocalPlayer();
+
+	if (player:HasDebuff("Curse of Mending"))
+
+
+	then
+
+		return true;
+
+	else
+
+		return false;
+	end
+
+end
+
 function script_checkDebuffs:hasPoison()
 
 	local player = GetLocalPlayer();
@@ -70,7 +95,8 @@ function script_checkDebuffs:hasDisabledMovement()
 	local player = GetLocalPlayer();
 
 	if (player:HasDebuff("Web")) or
-	(player:HasDebuff("Net"))
+	(player:HasDebuff("Net")) or
+	(player:HasDebuff("Frost Nova"))
 
 
 	then
@@ -88,7 +114,7 @@ function script_checkDebuffs:petDebuff()
 
 		local class = UnitClass('player');
 
-	if (class == 'Hunter') and (GetLocalPlayer():GetLevel() > 10) then
+	if ((class == 'Hunter')) and (GetLocalPlayer():GetLevel() > 10) then
 		local pet = GetPet();
 	
 		if (pet:HasDebuff("Web"))

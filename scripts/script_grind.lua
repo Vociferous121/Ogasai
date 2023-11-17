@@ -1,5 +1,5 @@
 script_grind = {
-	jump = false,	-- jump on/off
+	jump = true,	-- jump on/off
 	jumpRandomFloat = 99,
 	useVendor = false,
 	repairWhenYellow = false,
@@ -877,17 +877,17 @@ function script_grind:doLoot(localObj)
 			return;
 		end
 
+		if (blacklistLootTime + 5000 >= (GetTimeEX()/1000)) then
+			script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
+		end
+
 		if(not self.lootObj:UnitInteract() and not IsLooting()) then
 			self.waitTimer = GetTimeEX() + 1850;
 			return;
 		end
 
-		self.waitTimer = GetTimeEX() + 2500;
-
-		if (IsLooting()) and (blacklistLootTime + 5000 > (GetTimeEX()/1000)) then
-			script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
-		end
-			
+		self.waitTimer = GetTimeEX() + 1500;
+	
 		if (not LootTarget()) then
 				script_grind:setWaitTimer(1900);
 			return;
