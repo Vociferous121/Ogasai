@@ -11,7 +11,7 @@ script_gather = {
 	numHerbs = 0,
 	minerals = {},
 	numMinerals = 0,
-	lootDistance = 3,
+	lootDistance = 2,
 	timer = 0,
 	nodeID = 0,
 	gatherAllPossible = true
@@ -253,13 +253,12 @@ function script_gather:gather()
 		else
 			if (_x ~= 0) then
 				script_nav:moveToNav(GetLocalPlayer(), _x, _y, _z);
-				self.timer = GetTimeEX() + 150;
+		
 			end
 		end
 
 		return true;
 	end
-
 	return false;
 end
 
@@ -271,7 +270,7 @@ function script_gather:menu()
 
 	local wasClicked = false;
 	
-	if (CollapsingHeader("[Gather options")) then
+	if (CollapsingHeader("Gather options")) then
 		wasClicked, script_grind.gather = Checkbox("Gather on/off", script_grind.gather);
 		
 		wasClicked, self.collectMinerals = Checkbox("Mining", self.collectMinerals);

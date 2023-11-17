@@ -240,10 +240,9 @@ function script_vendor:repair()
 				if (CanMerchantRepair()) then
 					RepairAllItems(); 
 					self.message = 'Finished repairing...';
-					-- sell
-					script_vendorMenu:sellLogic();
 					return true;
-				else
+				end
+				if (IsVendorWindowOpen()) then
 					-- sell
 					self.currentBag = 0;
 					self.currentSlot = 0;

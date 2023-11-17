@@ -7,7 +7,7 @@ script_paranoia = {
 	sitParanoid = false,		-- sit paranoid true/false
 	paranoidOn = true,		-- paranoid on true/false
 	--paranoidOnTargeted = false,	-- paranoid when targeted on/off
-	counted = 5,
+	counted = 10,
 	ignoreTarget = "Player",
 }
 
@@ -105,9 +105,14 @@ function script_paranoia:checkParanoia()
 					StopMoving();
 					self.waitTimer = GetTimeEX() + 2260;
 				end
-				if (not script_grind:playersWithinRange(150)) then
-					SitOrStand();
-					self.waitTimer = GetTimeEX() + 1820;
+				if (IsStanding()) and (not IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() == 0) then
+				SitOrStand();
+					if (not IsStanding()) and (not IsInCombat()) then
+						UseAction(script_grind.afkActionSlot, 0, 0);
+						self.waitTimer = GetTimeEX() + 2500;
+						script_grind:setWaitTimer(2500);
+						return true;
+					end
 				end
 			end
 		return true;
@@ -138,7 +143,15 @@ function script_paranoia:menu()
 
 		-- hide and disable sit if paranoid range > x
 		if (script_grind.paranoidRange >= 200) then
+			Separator();
 			wasClicked, script_paranoia.sitParanoid = Checkbox("Sit When Paranoid", script_paranoia.sitParanoid);
+			if (script_paranoia.sitParanoid) then
+				if (script_grind.afkActionSlot == "24") then
+					Text("DEFAULT! Add MACRO /afk to action slot 24 (= sign)");
+				end
+				script_grind.afkActionSlot = InputText("AFK Action Slot", script_grind.afkActionSlot);
+			end
+
 		end
 
 		-- paranoid on targeted button on/off

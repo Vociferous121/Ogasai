@@ -450,7 +450,7 @@ function script_nav:findClosestPathNode(localObj, currentIndex, pathType, maxHei
 			end
 		end
 	else
-		return pathSize-1;
+		return pathSize -1;
 	end
 	return bestIndex;
 end

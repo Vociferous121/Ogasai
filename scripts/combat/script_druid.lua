@@ -970,7 +970,7 @@ function script_druid:rest()
 	end
 
 	-- Drink something
-	if (not isBear) and (not isCat) then
+	if (not isBear) and (not isCat) and (not IsInCombat()) then
 		if (not IsDrinking() and localMana < self.drinkMana) then
 			self.waitTimer = GetTimeEX() + 3500;
 			self.message = "Need to drink...";
@@ -993,7 +993,7 @@ function script_druid:rest()
 	end
 
 	-- Eat something
-	if (not isBear) and (not isCat) then
+	if (not isBear) and (not isCat) and (not IsInCombat()) then
 		if (not IsEating() and localHealth < self.eatHealth) then
 			self.waitTimer = GetTimeEX() + 3500;
 			self.message = "Need to eat...";
@@ -1037,11 +1037,11 @@ function script_druid:rest()
 	-- rest in form
 	if (self.useBear and isBear) or (self.useCat and isCat) and (not self.shiftToDrink) and (not GetLocalPlayer():GetUnitsTarget() == 0) then
 		if (localMana <= 50 or localHealth <= 55) and (not IsInCombat()) then
+			ClearTarget();
 			if (IsMoving()) then
 				StopMoving();
 			end
 			self.message = "Waiting - low mana or health and shapeshifted! Change heal/drink!";
-			ClearTarget();
 			return true;
 		end
 	end

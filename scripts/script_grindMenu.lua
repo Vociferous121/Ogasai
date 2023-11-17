@@ -114,9 +114,12 @@ function script_grindMenu:menu()
 		local wasClicked = false;
 
 		-- checkbox use auto hotspots
+		if (script_grindMenu.useHotSpotArea) then
+			Text("Move to area - Click save current location - Click resume bot");
+		end
 		wasClicked, script_grindMenu.useHotSpotArea = Checkbox("Use Auto Hotspots", script_grindMenu.useHotSpotArea);
 
-		Text("Move to area - Click save current location - Click resume bot");
+		
 		
 		-- show auto hotspot button
 		if (script_grindMenu.useHotSpotArea) then

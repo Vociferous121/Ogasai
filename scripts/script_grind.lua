@@ -98,6 +98,7 @@ script_grind = {
 	adjustTickRate = false,
 	useUnstuckTwo = true,
 	lootCheckTime = 0,
+	afkActionSlot = "24",
 }
 
 function script_grind:setup()
@@ -861,7 +862,6 @@ function script_grind:doLoot(localObj)
 		blacklistLootTime = GetTimeEX()/1000;
 		if(IsMoving() and not localObj:IsMovementDisabed()) then
 			StopMoving();
-			--self.waitTimer = GetTimeEX() + 950;
 			return;
 		end
 		if(not IsStanding()) then
@@ -882,17 +882,19 @@ function script_grind:doLoot(localObj)
 			return;
 		end
 
+		self.waitTimer = GetTimeEX() + 2500;
+
 		if (IsLooting()) and (blacklistLootTime + 5000 > (GetTimeEX()/1000)) then
 			script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
 		end
 			
 		if (not LootTarget()) then
-				script_grind:setWaitTimer(500);
+				script_grind:setWaitTimer(1900);
 			return;
 		else
 			self.lootCheckTime = 0;
 			self.lootObj = nil;
-			script_grind:setWaitTimer(500);
+			script_grind:setWaitTimer(1500);
 			return;
 		end
 
