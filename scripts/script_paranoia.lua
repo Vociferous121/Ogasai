@@ -149,7 +149,7 @@ function script_paranoia:menu()
 			wasClicked, script_paranoia.sitParanoid = Checkbox("Sit When Paranoid", script_paranoia.sitParanoid);
 			if (script_paranoia.sitParanoid) then
 				if (script_grind.afkActionSlot == "24") then
-					Text("DEFAULT! Add MACRO /afk to action slot 24 (= sign)");
+					Text("Add MACRO /afk to page 2 action slot 24 (= sign)");
 				end
 				script_grind.afkActionSlot = InputText("AFK Action Slot", script_grind.afkActionSlot);
 			end

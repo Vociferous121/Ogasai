@@ -138,6 +138,7 @@ function script_druid:healsAndBuffs()
 	local localHealth = GetLocalPlayer():GetHealthPercentage();
 	local localMana = GetLocalPlayer():GetManaPercentage();
 	local localLevel = GetLocalPlayer():GetLevel();
+	local localRage = GetLocalPlayer():GetRagePercentage();
 	local localObj = GetLocalPlayer();
 	local isBear = GetLocalPlayer():HasBuff("Bear Form");
 	local isCat = GetLocalPlayer():HasBuff("Cat Form");
@@ -145,6 +146,25 @@ function script_druid:healsAndBuffs()
 		isBear = GetLocalPlayer():HasBuff("Dire Bear Form");
 	end
 
+
+	-- target has Bash (stunned) and we can heal
+	if (GetLocalPlayer():GetUnitsTarget() ~= 0) then 
+		if (targetObj:HasDebuff("Bash")) and (localMana >= 60) and (localHealth <= self.healthToShift + 15) then
+			-- shapeshift out of bear form to heal
+			if (self.useBear and isBear) and (localHealth <= self.healthToShift) and (localMana >= 25) then
+					script_grind.tickRate = 135;
+					script_rotation.tickRate = 135;
+				if (localObj:HasBuff("Dire Bear Form")) then
+					CastSpellByName("Dire Bear Form");
+					self.waitTimer = GetTimeEX() + 1500;
+				end
+				if (localObj:HasBuff("Bear Form")) then
+					CastSpellByName("Bear Form");
+					self.waitTimer = GetTimeEX() + 1500;
+				end
+			end
+		end
+	end
 
 
 
@@ -681,8 +701,8 @@ function script_druid:run(targetGUID)
 				end
 
 				-- bash
-				if (HasSpell("Bash")) and (not IsSpellOnCD("Bash")) and (localRage >= 10) and (targetObj:GetDistance() <= self.meleeDistance) then
-					if (targetObj:IsCasting()) or (localHealth <= self.healthToShift) then
+				if (HasSpell("Bash")) and (not IsSpellOnCD("Bash")) and (localRage >= 10) and (targetObj:GetDistance() <= self.meleeDistance) and (targetHealth >= 15) then
+					if (targetObj:IsCasting()) or (localHealth <= self.healthToShift + 15) then
 						CastSpellByName("Bash");
 						return;
 					end
