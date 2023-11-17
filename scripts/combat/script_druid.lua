@@ -260,7 +260,7 @@ function script_druid:healsAndBuffs()
 			if (HasSpell("Mark of the Wild")) and (not localObj:HasBuff("Mark of the Wild")) then
 				CastSpellByName("Mark of the Wild", localObj);
 				self.waitTimer = GetTimeEX() + 1700;
-				return 4;
+				return 0;
 	
 			end
 		end
@@ -270,7 +270,7 @@ function script_druid:healsAndBuffs()
 			if (HasSpell("Thorns")) and (not localObj:HasBuff("Thorns")) then
 				CastSpellByName("Thorns", localObj);
 				self.waitTimer = GetTimeEX() + 1500;
-				return 4;
+				return 0;
 			end
 		end
 	end
@@ -288,14 +288,16 @@ function script_druid:healsAndBuffs()
 
 
 	-- if out of form and not in combat yet then cast rejuvenation
-	if (self.useBear or self.useCat) and (not isBear) and (not isCat) and (localMana > 30) and (not localObj:HasBuff("Rejuvenation")) then
-		if (HasSpell("Rejuvenation")) and (not localObj:HasBuff("Rejuvenation")) and (not IsInCombat()) and (IsStanding()) and (IsMoving()) then
-			CastSpellByName("Rejuvenation", localObj);
-			self.waitTimer = GetTimeEX() + 1800;
-			return;
+	if (HasSpell("Rejuvenation")) then
+		if (self.useBear or self.useCat) and (not isBear) and (not isCat) and (localMana > 30) and (not localObj:HasBuff("Rejuvenation")) then
+			if (HasSpell("Rejuvenation")) and (not localObj:HasBuff("Rejuvenation")) and (not IsInCombat()) and (IsStanding()) and (IsMoving()) then
+				CastSpellByName("Rejuvenation", localObj);
+				self.waitTimer = GetTimeEX() + 1800;
+				return;
+			end
 		end
 	end
-				
+			
 return false;
 end
 
@@ -892,6 +894,7 @@ function script_druid:run(targetGUID)
 						return 0;
 					end
 				end	
+
 			end -- end of if not bear or cat... no form attacks
 
 			-- auto attack condition for melee
@@ -955,10 +958,6 @@ function script_druid:rest()
 
 	if (script_druid:healsAndBuffs()) then
 		return;
-	end
-	
-	if (not IsMoving()) and (not IsInCombat()) then
-		ClearTarget();
 	end
 
 	-- Drink something
