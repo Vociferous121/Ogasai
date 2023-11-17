@@ -212,22 +212,22 @@ function script_hunter:run(targetGUID)
 	if (IsInCombat()) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (self.hasPet) then
 		if (petHasTarget ~= 0) then
 			if (GetPet():GetDistance() > 10) then
-				GetPet():FaceTarget();
 				PetFollow();
 			end
 
 			if (GetPet():GetDistance() < 10) then
-				GetPet():FaceTarget();
 				TargetNearestEnemy();
 				script_grind.tickRate = 135;
 				script_rotation.tickRate = 135;
 			end
+		else
+			return 4;
 		end
 	end
 	
 	-- stuck in combat
 	if (self.hasPet) and (IsInCombat()) then
-		if (playerHasTarget == 0) and (petHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
+		if (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
 			self.message = "No Target - stuck in combat! WAITING!";
 			return 4;
 		end
@@ -324,10 +324,11 @@ function script_hunter:run(targetGUID)
 	
 	-- not in combat do pull stuff
 
-		if (not IsInCombat()) and (targetObj:GetDistance() < 35) and (targetObj:GetDistance() >= 12) and (targetObj:IsInLineOfSight()) then
-			script_hunter:hunterPull(targetObj);
-			targetObj:FaceTarget();
-			return;
+	
+			if (not IsInCombat()) and (targetObj:GetDistance() < 35) and (targetObj:GetDistance() >= 12) and (targetObj:IsInLineOfSight()) then
+				script_hunter:hunterPull(targetObj);
+				targetObj:FaceTarget();
+				return;
 			
 
 		-- NOW IN COMBAT
@@ -591,25 +592,6 @@ function script_hunter:rest()
 	local localHealth = localObj:GetHealthPercentage();
 	local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
 	local petHasTarget = GetPet():GetUnitsTarget();
-	
-	-- force bot to attack pets target
-	
-	if (IsInCombat()) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (self.hasPet) then
-		if (petHasTarget ~= 0) then
-			if (GetPet():GetDistance() > 10) then
-				GetPet():FaceTarget();
-				PetFollow();
-			end
-
-			if (GetPet():GetDistance() < 10) then
-				script_grind.tickRate = 135;
-				script_rotation.tickRate = 135;
-				GetPet():FaceTarget();
-				TargetNearestEnemy();
-			end
-		end
-	end
-
 
 	-- Stop moving before we can rest
 	if(localHealth < self.eatHealth) or (localMana < self.drinkMana) then
@@ -686,7 +668,6 @@ function script_hunter:rest()
 	end
 	
 	if(localMana < self.drinkMana or localHealth < self.eatHealth) then
-		self.waitTimer = GetTimeEX() + 1200;
 		if (IsMoving()) then
 			StopMoving();
 		end
@@ -889,23 +870,6 @@ function script_hunter:hunterPull(targetObj)
 
 			local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
 			local petHasTarget = GetPet():GetUnitsTarget();
-
-			-- force bot to attack pets target
-	if (IsInCombat()) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (self.hasPet) then
-		if (petHasTarget ~= 0) then
-			if (GetPet():GetDistance() > 10) then
-				GetPet():FaceTarget();
-				PetFollow();
-			end
-
-			if (GetPet():GetDistance() < 10) then
-				GetPet():FaceTarget();
-				TargetNearestEnemy();
-				script_grind.tickRate = 135;
-				script_rotation.tickRate = 135;
-			end
-		end
-	end
 
 			if (not self.hasPet) then
 				if (targetObj:GetDistance() < 12) then
