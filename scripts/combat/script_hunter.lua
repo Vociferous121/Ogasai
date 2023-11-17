@@ -233,12 +233,6 @@ function script_hunter:run(targetGUID)
 		end
 	end
 
-	if (not targetObj:IsFleeing()) and (not targetObj:IsInLineOfSight()) then
-		if (not script_checkDebuffs:petDebuff()) then
-			PetFollow();
-		end
-	end	
-
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
@@ -603,16 +597,16 @@ function script_hunter:rest()
 
 	-- if has bandage then use bandages
 	if (self.hasBandages) and (self.useBandage) and (not IsMoving()) then
-		if (not localObj:HasDebuff("Creeping Mold")) and (not IsEating()) and (localHealth <= self.eatHealth) and (not localObj:HasDebuff("Recently Bandaged")) and (not localObj:HasDebuff("Poison")) then
-		if (IsMoving()) then
-			StopMoving();
-		end
+		if (not script_checkDebuffs:hasPoison()) and (not IsEating()) and (localHealth <= self.eatHealth) and (not localObj:HasDebuff("Recently Bandaged")) then
+			if (IsMoving()) then
+				StopMoving();
+			end
 			self.waitTimer = GetTimeEX() + 1200;
-		if (IsStanding()) and (not IsInCombat()) and (not IsMoving()) and (not localObj:HasDebuff("Recently Bandaged")) then
-			script_helper:useBandage()		
-			self.waitTimer = GetTimeEX() + 6000;
-		end
-		return 0;
+			if (IsStanding()) and (not IsInCombat()) and (not IsMoving()) and (not localObj:HasDebuff("Recently Bandaged")) then
+				script_helper:useBandage()		
+				self.waitTimer = GetTimeEX() + 6000;
+			end
+			
 		end
 	end
 
@@ -629,26 +623,24 @@ function script_hunter:rest()
 
 	-- Eat and Drink
 	if (not IsDrinking() and localMana < self.drinkMana) then
+			self.waitTimer = GetTimeEX() + 3500;
+			self.message = "Need to drink...";
+			if (IsMoving()) then
+				StopMoving();
+				return true;
+			end
+				self.waitTimer = GetTimeEX() + 3500;
 
-		self.message = "We need to drink...";
-		if (IsMoving()) then
-			StopMoving();
-			return true;
+			if (script_helper:drinkWater()) then 
+				self.waitTimer = GetTimeEX() + 1500;
+				self.message = "Drinking..."; 
+				return true; 
+			else 
+				self.message = "No drinks! (or drink not included in script_helper)";
+				ClearTarget();
+				return true; 
+			end
 		end
-
-		if (localMana < self.drinkMana) or (localHealth < self.eatHealth) then
-			self.waitTimer = GetTimeEX() + 1422;
-			return true;
-		end
-
-		if (script_helper:drinkWater()) then 
-			self.message = "Drinking..."; 
-			return true; 
-		else 
-			self.message = "No drinks! (or drink not included in script_helper)";
-			return true; 
-		end
-	end
 
 	if (not IsEating() and localHealth < self.eatHealth) then	
 		self.message = "We need to eat...";
