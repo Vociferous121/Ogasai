@@ -27,6 +27,7 @@ function script_paladinEX:menu()
 		Separator();
 
 		script_paladin.meleeDistance = SliderFloat("Melee range", 1, 8, script_paladin.meleeDistance);
+		wasClicked, script_paladin.useBubbleHearth = Checkbox("Bubble/Hearth Enemy Player Combat", script_paladin.useBubbleHearth);
 
 		Separator();
 
@@ -42,7 +43,7 @@ function script_paladinEX:menu()
 			script_paladin.consecrationMana = SliderFloat("Consecration above Mana %", 1, 99, script_paladin.consecrationMana);
 		end
 
-		if (CollapsingHeader("-- Auras and Blessings")) then
+		if (CollapsingHeader("|+| Auras and Blessings")) then
 
 			Text("Aura and Blessing options:");
 			script_paladin.aura = InputText("Aura", script_paladin.aura);
@@ -50,7 +51,7 @@ function script_paladinEX:menu()
 
 		end
 
-		if (CollapsingHeader("-- Heal Options")) then
+		if (CollapsingHeader("|+| Heal Options")) then
 
 			Text("Heal Options:")
 

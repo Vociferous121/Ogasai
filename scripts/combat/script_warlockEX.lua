@@ -212,7 +212,7 @@ function script_warlockEX:menu()
 			end
 		end
 
-		if (CollapsingHeader("-- DoT Options")) then
+		if (CollapsingHeader("|+| DoT Options")) then
 				
 			if (HasSpell("Corruption")) and (script_warlock.enableCorruption) then
 				
@@ -249,14 +249,14 @@ function script_warlockEX:menu()
 
 		end		
 
-		if (CollapsingHeader("-- Curse Options")) then
+		if (CollapsingHeader("|+| Curse Options")) then
 			
 			Text("TODO! ?? maybe.. is it worth it?");
 		end
 
 		if (localObj:HasRangedWeapon()) and (script_warlock.useWand) then
 			
-			if (CollapsingHeader("-- Wand Options")) then
+			if (CollapsingHeader("|+| Wand Options")) then
 				
 				Text("Use Wand below target health percent");
 				
@@ -272,7 +272,7 @@ function script_warlockEX:menu()
 
 		if (HasSpell("Life Tap")) then
 			
-			if (CollapsingHeader("-- Life Tap Options")) then
+			if (CollapsingHeader("|+| Life Tap Options")) then
 				
 				Text("Use Life Tap above this percent health");
 				

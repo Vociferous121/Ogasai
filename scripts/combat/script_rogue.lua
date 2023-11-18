@@ -492,8 +492,8 @@ function script_rogue:run(targetGUID)
 					end
 				end 
 
-				 --If Blade Flurry then use Adrenaline Rush on Low HP
-				if (HasSpell('Evasion') and not IsSpellOnCD('Adrenaline Rush') and localHealth < self.adrenRushComboHP and (self.adrenRushCombo)) then 
+				 --Blade Flurry then use Adrenaline Rush on Low HP
+				if (HasSpell('Adrenaline Rush') and not IsSpellOnCD('Adrenaline Rush') and localHealth < self.adrenRushComboHP and (self.adrenRushCombo)) then 
 					if (targetObj:GetDistance() < 6) then 
 						CastSpellByName('Adrenaline Rush');
 						return 0;

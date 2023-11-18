@@ -1093,6 +1093,13 @@ function script_druid:rest()
 		end
 	end
 
+	if (IsEating()) or (IsDrinking()) and (not IsStanding()) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) then
+		if (CastSpellByName("Shadowmeld")) then
+			self.waitTimer = GetTimeEX() + 2000;
+			return 0;
+		end
+	end
+
 	-- Continue resting
 	if(localHealth < 98 and IsEating() or localMana < 98 and IsDrinking()) then
 		ClearTarget();

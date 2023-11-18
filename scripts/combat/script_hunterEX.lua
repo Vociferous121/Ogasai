@@ -263,7 +263,7 @@ function script_hunterEX:menu()
 		--	wasClicked, script_hunter.useScorpidSting = Checkbox("Scorpid Sting", script_hunter.useScorpidSting);
 		--end
 
-		if (CollapsingHeader("-- Vendor Settings -- These May Be Defunct")) then
+		if (CollapsingHeader("|+| Vendor Settings -- These May Be Defunct")) then
 			Text('Vendor/Bag settings:');
 			wasClicked, script_hunter.useVendor = Checkbox("Vendor when full inventory", script_hunter.useVendor);	
 		
@@ -278,7 +278,7 @@ function script_hunterEX:menu()
 			end
 		end
 
-		if (CollapsingHeader("-- Buy Ammo")) then
+		if (CollapsingHeader("|+| Buy Ammo")) then
 			wasClicked, script_hunter.buyWhenQuiverEmpty = Checkbox("Buy ammo when only 1 stack left.", script_hunter.buyWhenQuiverEmpty);
 
 			if (script_hunter.buyWhenQuiverEmpty) then
@@ -288,7 +288,7 @@ function script_hunterEX:menu()
 
 		Separator();
 
-		if (CollapsingHeader("-- Feed Pet Options")) then
+		if (CollapsingHeader("|+| Feed Pet Options")) then
 			wasClicked, script_hunter.useFeedPet = Checkbox("Auto Feed Pet", script_hunter.useFeedPet);
 	
 			if (script_hunter.hasPet) and (script_hunter.useFeedPet) then	
@@ -310,7 +310,7 @@ function script_hunterEX:menu()
 
 		Separator();	
 		
-		if (CollapsingHeader("-- Stop Hunter Settings")) then
+		if (CollapsingHeader("|+| Stop Hunter Settings")) then
 
 			Text('Stop settings:');
 

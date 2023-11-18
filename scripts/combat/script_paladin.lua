@@ -17,10 +17,11 @@ script_paladin = {
 	potionHealth = 15,
 	potionMana = 20,
 	consecrationMana = 50,
-	meleeDistance = 3.4,
+	meleeDistance = 3.85,
 	useSealOfCrusader = true,
 	useJudgement = true,
 	useFlashOfLightCombat = false,
+	useBubbleHearth = true,
 }
 
 function script_paladin:setup()
@@ -181,6 +182,8 @@ function script_paladin:healAndBuff(localObj, localMana)
 	local localHealth = GetLocalPlayer():GetHealthPercentage();
 	local localObj = GetLocalPlayer();
 
+	script_grind.tickRate = 1500;
+
 	if (not IsDrinking()) and (not IsEating()) then
 		if (not IsStanding()) then
 			JumpOrAscendStart();
@@ -216,6 +219,26 @@ function script_paladin:healAndBuff(localObj, localMana)
 			self.message = "Cast Lay on Hands...";
 			return 0;
 		end
+	end
+
+	-- bubble hearth on player engange
+
+	if (self.useBubbleHearth) and (HasSpell("Divine Shield")) and (not IsSpellOnCD("Divine Shield")) then
+		if (GetTarget() ~= nil) and (targetObj ~= nil) then
+			if (UnitIsPlayer(targetObj)) and (UnitIsPVP(targetObj)) and (GetTarget() ~= localObj) then
+				script_grind.tickRate = 50;
+				CastSpellByName("Divine Shield");
+				self.message = "Cast Divine Shield...";
+				return 0;
+			end
+		end
+	end
+
+	if (self.useBubbleHearth) and (localObj:HasBuff("Divine Shiel")) then
+		UseItem("Hearthstone");
+		self.waitTimer = GetTimeEX() + 12000;
+		StopBot();
+		return;
 	end
 			
 	-- Check: Divine Protection if BoP on CD
@@ -339,6 +362,9 @@ function script_paladin:healAndBuff(localObj, localMana)
 		self.message = "We are dying - trying to save!";
 		return;
 	end
+
+	local tickRandom = random(300, 600);
+	script_grind.tickRate = tickRandom;
 
 return false;
 end

@@ -450,16 +450,15 @@ function script_grind:run()
 
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
-	
-				if (_x ~= 0 and x ~= 0) and (not IsInCombat()) then
+
+				if (_x ~= 0 and x ~= 0) and (IsInCombat()) then
+					self.message = script_nav:moveToTarget(localObj, _x, _y, _z);
+					script_grind:setWaitTimer(80);
+				
+				else
 					local moveBufferY = math.random(-2, 2);
 					self.message = script_nav:moveToTarget(localObj, _x, _y+moveBufferY, _z);
 					script_grind:setWaitTimer(200);
-				else
-
-						self.message = script_nav:moveToTarget(localObj, _x, _y, _z);
-						script_grind:setWaitTimer(80);
-					
 				end
 				
 				return;

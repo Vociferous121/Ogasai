@@ -145,7 +145,7 @@ function script_mageEX:menu()
 			
 			if (localObj:HasRangedWeapon()) then
 				
-				if (CollapsingHeader("-- Wand Options")) then
+				if (CollapsingHeader("|+| Wand Options")) then
 
 					Text('Wand below self mana percent');
 					script_mage.useWandMana = SliderInt("WM%", 1, 100, script_mage.useWandMana);
@@ -160,7 +160,7 @@ function script_mageEX:menu()
 
 				if (script_mage.fireMage) and (HasSpell("Scorch")) and (GetLocalPlayer():GetLevel() >= 27) then
 
-					if (CollapsingHeader("-- Scorch Options")) then
+					if (CollapsingHeader("|+| Scorch Options")) then
 
 						Text("How many Scorch debuff stacks on target?");
 						script_mage.scorchStacks = SliderInt("ST", 1, 5, script_mage.scorchStacks);
@@ -173,7 +173,7 @@ function script_mageEX:menu()
 
 				if (HasSpell("Cone of Cold")) then
 
-					if (CollapsingHeader("-- Cone of Cold Options")) then
+					if (CollapsingHeader("|+| Cone of Cold Options")) then
 
 						Text('Cone of Cold above script_mage mana percent');
 						script_mage.coneOfColdMana = SliderInt("CCM", 20, 75, script_mage.coneOfColdMana);
@@ -187,7 +187,7 @@ function script_mageEX:menu()
 			
 			if (HasSpell("Evocation")) then	
 
-				if (CollapsingHeader("-- Evocation Options")) then
+				if (CollapsingHeader("|+| Evocation Options")) then
 
 					Text('Evocation above health percent');
 					script_mage.evocationHealth = SliderInt("EH%", 1, 90, script_mage.evocationHealth);
@@ -206,7 +206,7 @@ function script_mageEX:menu()
 
 			if (script_mage.frostMage) and (HasSpell("Ice Block")) then
 
-				if (CollapsingHeader("-- Ice Block Options")) then
+				if (CollapsingHeader("|+| Ice Block Options")) then
 
 					Text('Ice Block below health percent');
 					script_mage.iceBlockHealth = SliderInt("IBH%", 5, 90, script_mage.iceBlockHealth);
@@ -221,7 +221,7 @@ function script_mageEX:menu()
 
 				if (HasSpell("Mana Shield")) then
 
-					if (CollapsingHeader("-- Mana Shield Options")) then
+					if (CollapsingHeader("|+| Mana Shield Options")) then
 
 						Text('Mana Shield below script_mage health percent');
 						script_mage.manaShieldHealth = SliderInt("MS%", 5, 99, script_mage.manaShieldHealth);
@@ -235,7 +235,7 @@ function script_mageEX:menu()
 
 			if (HasSpell("Conjure Mana Gem")) then
 
-				if (CollapsingHeader("-- Mana Gem Options")) then
+				if (CollapsingHeader("|+| Mana Gem Options")) then
 
 					script_mage.manaGemMana = SliderInt("MG%", 1, 90, script_mage.manaGemMana);		
 

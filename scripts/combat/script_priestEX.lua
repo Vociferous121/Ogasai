@@ -86,7 +86,7 @@ function script_priestEX:menu()
 				if (localObj:HasRangedWeapon()) then
 
 					-- wand options menu
-					if (CollapsingHeader("-- Wand Options")) then
+					if (CollapsingHeader("|+| Wand Options")) then
 
 						Text('Wand options:');
 						wasClicked, script_priest.useWand = Checkbox("Use Wand", script_priest.useWand);

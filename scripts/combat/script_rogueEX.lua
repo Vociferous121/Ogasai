@@ -67,7 +67,7 @@ function script_rogueEX:menu()
 
 			Separator();
 
-			if (CollapsingHeader("-- Combo Point Generator")) then
+			if (CollapsingHeader("|+| Combo Point Generator")) then
 				Text("Combo Point ability");
 				script_rogue.cpGenerator = InputText("CPA", script_rogue.cpGenerator);
 				Text("Energy cost of CP-ability");
@@ -75,14 +75,14 @@ function script_rogueEX:menu()
 			end
 			
 			if (HasSpell("Stealth")) then
-				if(CollapsingHeader("-- Stealth Ability Opener")) then
+				if(CollapsingHeader("|+| Stealth Ability Opener")) then
 					Text("Stealth ability opener");
 					script_rogue.stealthOpener = InputText("STO", script_rogue.stealthOpener);
 				end
 			end
 
 			if (HasSpell("Adrenaline Rush")) and (HasSpell("Blade Flurry")) then
-				if (CollapsingHeader("-- Adrenaline Rush / Blade Flurry Options")) then
+				if (CollapsingHeader("|+| Adrenaline Rush / Blade Flurry Options")) then
 					Text("Use Adrenaline Rush with Blade Furry health percent");
 					wasClicked, script_rogue.adrenRushCombo = Checkbox("Use Adren Blade Flurry combo", script_rogue.adrenRushCombo);
 					script_rogue.adrenRushComboHP = SliderInt("Health below percent", 15, 75, script_rogue.adrenRushComboHP);
@@ -90,20 +90,20 @@ function script_rogueEX:menu()
 			end
 
 			if (HasSpell("Riposte")) then
-				if (CollapsingHeader("-- Riposte Skill Options")) then
+				if (CollapsingHeader("|+| Riposte Skill Options")) then
 					script_rogue.riposteActionBarSlot = InputText("RS", script_rogue.riposteActionBarSlot);	-- riposte
 					Text("Action Bar Slots 1 - 12");
 				end
 			end
 		
-			--if (CollapsingHeader("-- Throwing Weapon Options")) then
+			--if (CollapsingHeader("|+| Throwing Weapon Options")) then
 			--	wasClicked, script_rogue.throwOpener = Checkbox("Pull with throw (if stealth disabled)", script_rogue.throwOpener);	--
 	--			Text("Throwing weapon");
 	--			script_rogue.throwName = InputText("TW", script_rogue.throwName);
 	--		end
 
 			if (GetLocalPlayer():GetLevel() >= 20) then
-				if (CollapsingHeader("-- Poisons Options")) then
+				if (CollapsingHeader("|+| Poisons Options")) then
 					wasClicked, script_rogue.usePoison = Checkbox("Use poison on weapons", script_rogue.usePoison);
 					Text("Poison on Main Hand");
 					script_rogue.mainhandPoison = InputText("PMH", script_rogue.mainhandPoison);
@@ -149,20 +149,20 @@ function script_rogueEX:menu()
 			script_rogue.potionHealth = SliderInt('PHP %', 1, 50, script_rogue.potionHealth);
 
 			if (HasSpell("Riposte")) then
-				if (CollapsingHeader("-- Riposte Skill Options")) then
+				if (CollapsingHeader("|+| Riposte Skill Options")) then
 					script_rogue.riposteActionBarSlot = InputText("RS", script_rogue.riposteActionBarSlot);	-- riposte
 					Text("Action Bar Slots 1-12");
 				end
 			end
 
-			if (CollapsingHeader("--Combo Point Generator Options")) then
+			if (CollapsingHeader("|+|Combo Point Generator Options")) then
 				Text("Combo Point Generator Ability");
 				script_rogue.cpGenerator = InputText("CPA", script_rogue.cpGenerator);
 				Text("Energy cost of CP-ability");
 				script_rogue.cpGeneratorCost = SliderInt("Energy", 20, 50, script_rogue.cpGeneratorCost);
 			end
 
-			if (CollapsingHeader("--Stealth Opener Options")) then
+			if (CollapsingHeader("|+|Stealth Opener Options")) then
 				Text("Stealth ability opener");
 				script_rogue.stealthOpener = InputText("STO", script_rogue.stealthOpener);
 				Text("Stealth - Distance to target"); 
@@ -170,7 +170,7 @@ function script_rogueEX:menu()
 			end
 	
 			if (GetLocalPlayer():GetLevel() >= 20) then
-				if (CollapsingHeader("--Poison Options")) then
+				if (CollapsingHeader("|+|Poison Options")) then
 					Text("Poison on Main Hand");
 					script_rogue.mainhandPoison = InputText("PMH", script_rogue.mainhandPoison);
 					Text("Poison on Off Hand");
