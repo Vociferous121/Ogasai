@@ -340,7 +340,7 @@ function script_warlock:run(targetGUID)
 	
 	-- stuck in combat
 	if (IsInCombat()) and (GetPet() ~= 0 and self.hasPet) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
-		if (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
+		if (playerHasTarget == 0) and (petHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
 			self.message = "No Target - stuck in combat! WAITING!";
 			return 4;
 		end
@@ -349,7 +349,7 @@ function script_warlock:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(500, 1000);
+		local tickRandom = random(400, 900);
 
 		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
 			script_grind.tickRate = 135;
@@ -707,7 +707,7 @@ function script_warlock:run(targetGUID)
 			--end
 
 			-- Fear single Target
-			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) then
+			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) and (not targetObj:GetCreatureType() == 'Undead') then
 				if (Cast("Fear", targetObj)) then
 					self.waitTimer = GetTimeEX() + 1900;
 					return 0;
@@ -946,9 +946,11 @@ function script_warlock:run(targetGUID)
 			return 4;
 		end
 	end
+
+			local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
 		-- stuck in combat
 			if (IsInCombat()) and (GetPet() ~= 0 and self.hasPet) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
-				if (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
+				if (playerHasTarget == 0) and (petHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
 					self.message = "No Target - stuck in combat! WAITING!";
 					return 4;
 				end
@@ -972,7 +974,7 @@ function script_warlock:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(500, 1000);
+		local tickRandom = random(400, 900);
 
 		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
 			script_grind.tickRate = 135;
