@@ -410,8 +410,19 @@ function script_druid:healsAndBuffs()
 	end
 
 
-local tickRandomHeal = random(300, 800);
-script_grind.tickRate = tickRandomHeal;
+-- set tick rate for script to run
+	if (not script_grind.adjustTickRate) then
+
+		local tickRandom = random(300, 800);
+
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom
+		elseif (IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+		end
+	end
 			
 return false;
 end
@@ -505,11 +516,6 @@ function script_druid:run(targetGUID)
 			return 4;
 		end
 
-		if (IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() == 0) then
-			self.message = "Waiting! Stuck in combat phase!";
-			return 4;
-		end
-
 		-- stand up if sitting
 		if (not IsStanding()) then
 			JumpOrAscendStart();
@@ -534,6 +540,11 @@ function script_druid:run(targetGUID)
 
 		if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) then
 			return;
+		end
+
+		if (IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() == 0) then
+			self.message = "Waiting! Stuck in combat phase!";
+			return 4;
 		end
 		
 		----------

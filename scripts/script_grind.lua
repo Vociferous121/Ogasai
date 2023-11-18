@@ -452,8 +452,8 @@ function script_grind:run()
 				local localObj = GetLocalPlayer();
 
 				if (_x ~= 0 and x ~= 0) then
-					local moveBufferY = math.random(-2, 2);
-					self.message = script_nav:moveToTarget(localObj, _x, _y+moveBufferY, _z);
+					--local moveBufferY = math.random(-2, 2);
+					self.message = script_nav:moveToTarget(localObj, _x, _y, _z);
 					script_grind:setWaitTimer(80);
 				end
 				return;

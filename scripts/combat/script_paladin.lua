@@ -96,23 +96,7 @@ end
 
 -- Run backwards if the target is within range
 function script_paladin:runBackwards(targetObj, range) 
-	--local localObj = GetLocalPlayer();
- 	--if targetObj ~= 0 then
- 	--	local xT, yT, zT = targetObj:GetPosition();
- 	--	local xP, yP, zP = localObj:GetPosition();
- 	--	local distance = targetObj:GetDistance();
- 	--	local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
- 	--	local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
- 	--	local xUV, yUV, zUV = (1/vectorLength)*xV-1, (1/vectorLength)*yV-1, (1/vectorLength)*zV;		
- 	--	local moveX, moveY, moveZ = (xT) - xUV*1, (yT) - yUV*1, zT - zUV;		
- 	--	if (distance < range) then 
- 	--		Move(moveX, moveY, moveZ);
-	--		JumpOrAscendStart();
-	--		targetObj:FaceTarget();
- 	--		return true;
- 	--	end
-	--end
-	--return false;
+		localObj = GetLocalPlayer();
  	if targetObj ~= 0 then
  		local xT, yT, zT = targetObj:GetPosition();
  		local xP, yP, zP = localObj:GetPosition();
@@ -207,8 +191,8 @@ function script_paladin:healAndBuff(localObj, localMana)
 		end
 	end
 
-	if (not IsInCombat()) and (localObj:HasBuff("Judgement")) and (not IsSpellOnCD("Judgement")) and (localObj:HasBuff("Seal of Righteousness")) then
-		CastSpellByName("Judgement");
+	if (IsInCombat()) and (localObj:HasBuff("Judgement")) and (not IsSpellOnCD("Judgement")) and (localObj:HasBuff("Seal of Righteousness")) then
+		CastSpellByName("Judgement", targetObj);
 		self.waitTimer = GetTimeEX() + 1650;
 		return 0;
 	end
@@ -363,9 +347,21 @@ function script_paladin:healAndBuff(localObj, localMana)
 		return;
 	end
 
-	local tickRandom = random(300, 600);
-	script_grind.tickRate = tickRandom;
+	-- set tick rate for script to run
+	if (not script_grind.adjustTickRate) then
 
+		local tickRandom = random(300, 600);
+
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom
+		elseif (IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+		end
+	end
+	
+	
 return false;
 end
 
@@ -413,11 +409,16 @@ function script_paladin:run(targetGUID)
 		if (not IsInCombat()) then
 			ClearTarget();
 		end
-		return 4;
+		return;
 	end
 
 	-- Check: Do nothing if we are channeling or casting or wait timer
 	if (IsChanneling()) or (IsCasting()) or (self.waitTimer > GetTimeEX()) then
+		return 4;
+	end
+
+	if (IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() == 0) then
+		self.message = "Waiting! Stuck in combat phase!";
 		return 4;
 	end
 
@@ -490,7 +491,7 @@ function script_paladin:run(targetGUID)
 			 end
 
 			if (script_paladin:healAndBuff(localObj, localMana)) then
-				return 4;
+				return;
 			end
 
 			-- Check move into melee range
@@ -545,7 +546,7 @@ function script_paladin:run(targetGUID)
 
 			if (not targetObj:IsFleeing()) and (localMana > 8) then
 				if (script_paladin:healAndBuff(localObj, localMana)) then
-					return 4;
+					return;
 				end
 			end
 
@@ -622,7 +623,7 @@ function script_paladin:run(targetGUID)
 				
 				if (not targetObj:IsFleeing()) and (localMana > 8) then
 					if (script_paladin:healAndBuff(localObj, localMana)) then
-						return 4;
+						return;
 					end
 				end
 					
