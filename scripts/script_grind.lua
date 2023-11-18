@@ -486,7 +486,9 @@ function script_grind:run()
 		--	return;
 		--end
 
-		script_grind:setWaitTimer(1000);	
+		if (IsInCombat()) then
+			script_grind:setWaitTimer(1000);	
+		end
 
 		-- Use auto pathing or walk paths
 		if (self.autoPath) then
@@ -829,7 +831,6 @@ function script_grind:doLoot(localObj)
 	local _x, _y, _z = self.lootObj:GetPosition();
 	local dist = self.lootObj:GetDistance();
 	local localObj = GetLocalPlayer();
-	local blacklistLootTime = GetTimeEX()/1000;
 	
 	-- Loot checking/reset target
 	if (GetTimeEX() > self.lootCheck['timer']) then

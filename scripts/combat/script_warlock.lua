@@ -568,21 +568,18 @@ function script_warlock:run(targetGUID)
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
 			-- causes crashing after combat phase?
-			-- follow target if single target fear is active and moves out of spell range
-			local _xX, _yY, _zZ = targetObj:GetPosition();
-			local _pX, pY, _pZ = localObj:GetPosition();
-			if (self.followFeared) and (self.alwaysFear) and (targetObj:HasDebuff("Fear")) and (targetObj:GetDistance() > 16) then
+			-- follow target if single target fear is active and moves out of spell ranged
+			if (self.followFeared) and (self.alwaysFear) and (targetObj:HasDebuff("Fear")) and (targetObj:GetDistance() > 21) then
 				return 3;
 			end
 
 -- gather shards enabled
 			if (self.enableGatherShards) then
-				if (targetHealth <= 35) and (HasSpell("Drain Soul")) and (targetObj:GetDistance() <= 19) and (IsInCombat()) then
+				if (targetHealth <= 35) and (HasSpell("Drain Soul")) and (targetObj:GetDistance() <= 26) and (IsInCombat()) then
 						script_grind.tickRate = 135;
 						script_rotation.tickRate = 135;
 						CastSpellByName('Drain Soul', targetObj);
 						self.message = "Gathering Soulshards - bot will NOT stop";
-						self.waitTimer = GetTimeEX() + 500;
 						return;
 				end
 			end
@@ -723,10 +720,10 @@ function script_warlock:run(targetGUID)
 
 			-- Fear single Target
 			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) and (targetObj:GetCreatureType() ~= "Undead") then
-				script_grind.tickRate = 135;
-				script_rotation.tickRate = 135;
 				if (targetObj:GetCreatureType() ~= "Undead") and (not targetObj:HasDebuff("Fear")) then
 					CastSpellByName("Fear", targetObj);
+					script_grind.tickRate = 135;
+					script_rotation.tickRate = 135;
 					self.waitTimer = GetTimeEX() + 1900;
 					return;
 				end
@@ -741,7 +738,7 @@ function script_warlock:run(targetGUID)
 			if (targetObj ~= nil) and (self.fearAdds) and (script_grind:enemiesAttackingUs(5) > 1) and (HasSpell('Fear')) and (not self.addFeared) and (self.fearTimer < GetTimeEX()) then
 				self.message = "Fearing add...";
 				script_warlock:fearAdd(targetObj:GetGUID());
-			end 
+			end
 
 			-- Check: Sort target selection if add is feared
 			if (self.addFeared) then
@@ -925,10 +922,10 @@ function script_warlock:run(targetGUID)
 
 			-- Fear single Target
 			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) and (targetObj:GetCreatureType() ~= "Undead") then
-				script_grind.tickRate = 135;
-				script_rotation.tickRate = 135;
 				CastSpellByName("Fear", targetObj);
 					self.waitTimer = GetTimeEX() + 1900;
+					script_grind.tickRate = 135;
+					script_rotation.tickRate = 135;
 					return;
 			end
 
@@ -1379,9 +1376,8 @@ function script_warlock:summonPet()
 		end
 	end
 if (GetPet() ~= 0) and (self.hasPet) then
-	local tickingRandomly = random(400, 1000);
-	script_grind.tickRate = tickingRandomly;
-	script_rotation.tickRate = tickingRandomly;
+	script_grind.tickRate = 100;
+	script_rotation.tickRate = 100;
 end
 	return false;
 end
