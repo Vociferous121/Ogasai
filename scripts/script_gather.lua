@@ -222,46 +222,34 @@ function script_gather:gather()
 	
 	local tempNode = script_gather:GetNode();
 	local newNode = (self.nodeObj == tempNode);
-
 	self.nodeObj = script_gather:GetNode();
-
-	if (self.nodeObj == nil) then
-		return false;
-	end
-
-	self.nodeID = self.nodeObj:GetObjectDisplayID();
 		
 	if(self.nodeObj ~= nil and self.nodeObj ~= 0) then
 		
 		local _x, _y, _z = self.nodeObj:GetPosition();
-		local dist = self.nodeObj:GetDistance();		
+		local dist = self.nodeObj:GetDistance();	
+		self.nodeID = self.nodeObj:GetObjectDisplayID();	
 			
 		if(dist < self.lootDistance) then
 			if(IsMoving()) then
 				StopMoving();
-				self.timer = GetTimeEX() + 150;
+				self.timer = GetTimeEX() + 550;
 			end
-
-			--self.lootDistance = 6;
 
 			if(not IsLooting() and not IsChanneling()) then
 				self.nodeObj:GameObjectInteract();
-				self.timer = GetTimeEX() + 4250;
-				
+				self.timer = GetTimeEX() + 1250;
 			end
-			if (not LootTarget()) then
-				self.timer = GetTimeEX() +4250;
+
+			if (not LootTarget()) and (self.nodeObj:GameObjectInteract())  then
+				self.timer = GetTimeEX() + 3550;
 				return;
 			end
-			if (IsLooting()) then
-				self.waitTimer = GetTimeEX() + 4200;
-			end
-			if (self.nodeObj:UnitInteract()) then
-				self.waitTimer = GetTimeEX() + 4200;
-			end
+
 		else
 			if (_x ~= 0) then
-				script_nav:moveToNav(GetLocalPlayer(), _x, _y, _z);
+				MoveToTarget(_x, _y, _z);
+				self.timer = GetTimeEX() + 150;
 			end
 		end
 
