@@ -791,7 +791,6 @@ function script_warlock:run(targetGUID)
 -- use wand sliders
 			if (self.useWand) and (targetHealth <= self.useWandHealth -1) and (localMana <= self.useWandMana -1) and  (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 				if (not IsAutoCasting("Shoot")) then
-					self.message = "Using wand...";
 					script_warlock:petAttack();
 					targetObj:FaceTarget();
 					CastSpellByName("Shoot");
@@ -802,7 +801,6 @@ function script_warlock:run(targetGUID)
 
 			-- Wand if low mana
 			if (localMana <= 5 or targetHealth <= self.wandHealthPreset) and (localObj:HasRangedWeapon()) and (not self.enableGatherShards) and  (GetLocalPlayer():GetUnitsTarget() ~= 0) then
-				self.message = "Using wand...";
 				if (not IsAutoCasting("Shoot")) then
 					targetObj:FaceTarget();
 					targetObj:CastSpell("Shoot");
@@ -825,9 +823,9 @@ function script_warlock:run(targetGUID)
 			-- life tap in combat
 			if HasSpell("Life Tap") and not IsSpellOnCD("Life Tap") and localHealth > 35 and localMana < 15 then
 				if (CastSpellByName("Life Tap")) then
-					self.waitTimer = GetTimeEX() + 1500;
+					self.waitTimer = GetTimeEX() + 1600;
 					self.message = "Using Life Tap!";
-					return 0;
+					return;
 				end
 			end
 
@@ -1052,9 +1050,9 @@ function script_warlock:rest()
 		end
 		if (CastSpellByName("Life Tap")) then
 			self.waitTimer = GetTimeEX() + 1600;
-			return 0;
+			return;
 		end
-		return 0;
+		return;
 	end			
 		
 	-- Eat and Drink
@@ -1230,19 +1228,19 @@ end
 
 function script_warlock:summonPet()
 
-	if (GetPet() == 0) or (not self.hasPet) and (not IsLooting() or not script_grind.lootObj ~= nil)then
-		script_grind.tickRate = 12000;
-		script_rotation.tickRate = 15000;
-	else
-		script_grind.tickRate = 135;
-		script_rotation.tickRate = 135;
-	end
-
 	local localMana = GetLocalPlayer():GetManaPercentage();
 
 
 	-- Check: Summon our Demon if we are not in combat
 	if (not IsEating()) and (not self.hasPet) and (not IsDrinking()) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (HasSpell("Summon Imp")) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
+
+		if (GetPet() == 0) or (not self.hasPet) and (not IsLooting() or not script_grind.lootObj ~= nil)then
+			script_grind.tickRate = 12000;
+			script_rotation.tickRate = 15000;
+		else
+			script_grind.tickRate = 135;
+			script_rotation.tickRate = 135;
+		end
 		-- succubus	
 		if (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) and (self.useSuccubus) and (HasSpell("Summon Succubus")) and HasItem('Soul Shard') then
 			if (not IsStanding() or IsMoving()) then 
