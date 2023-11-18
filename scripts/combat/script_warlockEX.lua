@@ -118,8 +118,14 @@ function script_warlockEX:menu()
 
 		Text('Skills options:');
 
+		
+		if (script_warlock.alwaysFear) then
+			SameLine();
+			wasClicked, script_warlock.followFeared = Checkbox("Follow Feared Target", script_warlock.followFeared);
+		end
+
 		-- always fear
-		if (HasSpell("Fear")) then
+		if (HasSpell("Fear")) and (not script_warlock.enableGatherShards) then
 
 			wasClicked, script_warlock.alwaysFear = Checkbox("Fear Single Targets", script_warlock.alwaysFear);
 		

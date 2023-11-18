@@ -47,6 +47,7 @@ script_warlock = {
 	hasSacrificeSpell = false,
 	followTargetDistance = 100,
 	rangeDistance = 35,
+	followFeared = true,
 }
 
 function script_warlock:cast(spellName, target)
@@ -112,10 +113,12 @@ function script_warlock:fearAdd(targetObjGUID)
 				if (currentObj:GetGUID() ~= targetObjGUID and script_grind:isTargetingMe(currentObj)) then
 					if (not currentObj:HasDebuff("Fear") and currentObj:GetCreatureType() ~= 'Elemental' and not currentObj:IsCritter()) then
 						ClearTarget();
-						if (script_warlock:cast('Fear', currentObj)) then 
-							self.addFeared = true; 
-							fearTimer = GetTimeEX() + 8000;
-							return true; 
+						if (currentObj:IsInLineOfSight()) then
+							if (script_warlock:cast('Fear', currentObj)) then 
+								self.addFeared = true; 
+								fearTimer = GetTimeEX() + 8000;
+								return true; 
+							end
 						end
 					end 
 				end 
@@ -261,6 +264,10 @@ function script_warlock:run(targetGUID)
 	
 	if(not self.isSetup) then
 		script_warlock:setup();
+	end
+
+	if (self.enableGatherShards) then
+		self.alwaysFear = false;
 	end
 	
 	local localObj = GetLocalPlayer();
@@ -563,9 +570,29 @@ function script_warlock:run(targetGUID)
 			-- causes crashing after combat phase?
 			-- follow target if single target fear is active and moves out of spell range
 			local _xX, _yY, _zZ = targetObj:GetPosition();
-			if (self.alwaysFear) and (targetObj:HasDebuff("Fear")) and (targetObj:GetDistance() > 20) then
-				script_nav:moveToTarget(localObj, _xX, _yY, _zZ);
-				self.waitTimer = GetTimeEX() + 500;
+			local _pX, pY, _pZ = localObj:GetPosition();
+			if (self.followFeared) and (self.alwaysFear) and (targetObj:HasDebuff("Fear")) and (targetObj:GetDistance() > 16) then
+				return 3;
+			end
+
+-- gather shards enabled
+			if (self.enableGatherShards) then
+				if (targetHealth <= 35) and (HasSpell("Drain Soul")) and (targetObj:GetDistance() <= 19) and (IsInCombat()) then
+						script_grind.tickRate = 135;
+						script_rotation.tickRate = 135;
+						CastSpellByName('Drain Soul', targetObj);
+						self.message = "Gathering Soulshards - bot will NOT stop";
+						self.waitTimer = GetTimeEX() + 500;
+						return;
+				end
+			end
+
+-- stuck in combat
+			if (IsInCombat()) and (GetPet() ~= 0 and self.hasPet) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
+				if (playerHasTarget == 0) and (petHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
+					self.message = "No Target - stuck in combat! WAITING!";
+					return 4;
+				end
 			end
 
 
@@ -615,18 +642,6 @@ function script_warlock:run(targetGUID)
 				if (script_helper:useManaPotion()) then 
 					return 0; 
 				end 
-			end
-
-			-- use wand sliders
-			if (self.useWand) and (targetHealth <= self.useWandHealth) and (localMana <= self.useWandMana) and  (GetLocalPlayer():GetUnitsTarget() ~= 0) then
-				if (not IsAutoCasting("Shoot")) then
-					self.message = "Using wand...";
-					script_warlock:petAttack();
-					targetObj:FaceTarget();
-					CastSpellByName("Shoot");
-					self.waitTimer = GetTimeEX() + 250; 
-					return true;
-				end
 			end
 
 			-- death coil
@@ -707,10 +722,13 @@ function script_warlock:run(targetGUID)
 			--end
 
 			-- Fear single Target
-			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) and (not targetObj:GetCreatureType() == 'Undead') then
-				if (Cast("Fear", targetObj)) then
+			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) and (targetObj:GetCreatureType() ~= "Undead") then
+				script_grind.tickRate = 135;
+				script_rotation.tickRate = 135;
+				if (targetObj:GetCreatureType() ~= "Undead") and (not targetObj:HasDebuff("Fear")) then
+					CastSpellByName("Fear", targetObj);
 					self.waitTimer = GetTimeEX() + 1900;
-					return 0;
+					return;
 				end
 			end
 
@@ -773,6 +791,18 @@ function script_warlock:run(targetGUID)
 				PetFollow();
 			end
 
+-- use wand sliders
+			if (self.useWand) and (targetHealth <= self.useWandHealth -1) and (localMana <= self.useWandMana -1) and  (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+				if (not IsAutoCasting("Shoot")) then
+					self.message = "Using wand...";
+					script_warlock:petAttack();
+					targetObj:FaceTarget();
+					CastSpellByName("Shoot");
+					self.waitTimer = GetTimeEX() + 250; 
+					return true;
+				end
+			end
+
 			-- Wand if low mana
 			if (localMana <= 5 or targetHealth <= self.wandHealthPreset) and (localObj:HasRangedWeapon()) and (not self.enableGatherShards) and  (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 				self.message = "Using wand...";
@@ -798,29 +828,9 @@ function script_warlock:run(targetGUID)
 			-- life tap in combat
 			if HasSpell("Life Tap") and not IsSpellOnCD("Life Tap") and localHealth > 35 and localMana < 15 then
 				if (CastSpellByName("Life Tap")) then
+					self.waitTimer = GetTimeEX() + 1500;
 					self.message = "Using Life Tap!";
 					return 0;
-				end
-			end
-
-			-- gather shards enabled
-			if (self.enableGatherShards) then
-				self.message = "Gathering Soulshards - bot will NOT stop";
-				if (targetHealth <= 30 and targetHealth >= 6) and (HasSpell("Drain Soul")) then
-					if (IsAutoCasting("Shoot")) then
-						script_nav:moveToTarget(localObj, targetObj:GetPosition()); 
-						self.waitTimer = GetTimeEX() + 500;
-						return 0;
-					elseif (targetObj:GetDistance() <= 30) then
-						if (Cast('Drain Soul', targetObj)) then
-						self.waitTimer = GetTimeEX() + 500;
-						return 0;
-						end
-					else
-						script_nav:moveToTarget(localObj, targetObj:GetPosition()); 
-						self.waitTimer = GetTimeEX() + 500;
-						return 0;
-					end
 				end
 			end
 
@@ -905,28 +915,46 @@ function script_warlock:run(targetGUID)
 	
 			-- Check: Keep the Immolate DoT up (15 s duration)
 			if (self.enableImmolate) and (not targetObj:HasDebuff("Immolate")) and (localMana > 25) and (targetHealth > 20) and (targetObj:IsInLineOfSight()) then
+				if (not targetObj:HasDebuff("Immolate")) then
 				CastSpellByName("Immolate", targetObj);
 				targetObj:FaceTarget();
-				self.waitTimer = GetTimeEX() + 1750;
+				self.waitTimer = GetTimeEX() + 2350;
 				return 0;
+				end
 			end
 
-			if (self.useShadowBolt) then
+			-- Fear single Target
+			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) and (targetObj:GetCreatureType() ~= "Undead") then
+				script_grind.tickRate = 135;
+				script_rotation.tickRate = 135;
+				CastSpellByName("Fear", targetObj);
+					self.waitTimer = GetTimeEX() + 1900;
+					return;
+			end
+
+			if (self.useShadowBolt) and (not self.useWand) then
 				CastSpellByName('Shadow Bolt', targetObj);
 				targetObj:FaceTarget();
 				self.waitTimer = GetTimeEX() + 2000;
 				return 0;
+			end
 
 				-- wand instead
-			elseif (self.useWand) and (localHealth > self.drainLifeHealth or GetPet():GetHealthPercentage() > self.healPetHealth) and (not IsChanneling()) then
-				if (localObj:HasRangedWeapon()) then
-					self.message = "Using wand...";
-					if (not IsAutoCasting("Shoot")) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+			if (self.useWand) and (GetPet() ~= 0) and (localHealth > self.drainLifeHealth or GetPet():GetHealthPercentage() > self.healPetHealth) and (not IsChanneling()) and (targetHealth < 99) then
+				if (localObj:HasRangedWeapon()) and (not IsAutoCasting("Shoot")) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+						targetObj:FaceTarget();
+						if (CastSpellByName("Shoot", targetObj)) then
+							self.waitTimer = GetTimeEX() + 250; 
+							return true;
+						end
+				end
+			end
+			if (GetPet() == 0) and (self.useWand) then
+				if (localObj:HasRangedWeapon()) and (not IsAutoCasting("Shoot")) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 						targetObj:FaceTarget();
 						CastSpellByName("Shoot", targetObj);
 						self.waitTimer = GetTimeEX() + 250; 
 						return true;
-					end
 				end
 			end
 
@@ -1205,10 +1233,16 @@ end
 
 function script_warlock:summonPet()
 
-	if (GetPet() == 0) or (not self.hasPet) then
-	script_grind.tickRate = 2000;
+	if (GetPet() == 0) or (not self.hasPet) and (not IsLooting() or not script_grind.lootObj ~= nil)then
+		script_grind.tickRate = 12000;
+		script_rotation.tickRate = 15000;
+	else
+		script_grind.tickRate = 135;
+		script_rotation.tickRate = 135;
 	end
+
 	local localMana = GetLocalPlayer():GetManaPercentage();
+
 
 	-- Check: Summon our Demon if we are not in combat
 	if (not IsEating()) and (not self.hasPet) and (not IsDrinking()) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (HasSpell("Summon Imp")) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
@@ -1223,7 +1257,7 @@ function script_warlock:summonPet()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Succubus")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
-					self.waitTimer = GetTimeEX() + 17000;
+					self.waitTimer = GetTimeEX() + 3000;
 					self.message = "Summoning Succubus";
 					self.hasPet = true;
 					return 0; 
@@ -1239,7 +1273,7 @@ function script_warlock:summonPet()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Voidwalker")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
-					self.waitTimer = GetTimeEX() + 17000;
+					self.waitTimer = GetTimeEX() + 3000;
 					self.message = "Summoning Void Walker";
 					self.hasPet = true;
 					return 0; 
@@ -1255,7 +1289,7 @@ function script_warlock:summonPet()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Felhunter")) and (GetPet == 0) and (not self.hasPet) then
-					self.waitTimer = GetTimeEX() + 17000;
+					self.waitTimer = GetTimeEX() + 3000;
 					self.message = "Summoning Felhunter";
 					hasPet = true;
 					return 0; 
@@ -1266,7 +1300,7 @@ function script_warlock:summonPet()
 			if (localMana > 35) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
 				if (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
 					CastSpellByName("Summon Imp");
-					self.waitTimer = GetTimeEX() + 17000;
+					self.waitTimer = GetTimeEX() + 3000;
 					self.message = "Summoning Imp";
 					self.hasPet = true;
 					return 4;
@@ -1288,7 +1322,7 @@ function script_warlock:summonPet()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Succubus")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
-					self.waitTimer = GetTimeEX() + 17000;
+					self.waitTimer = GetTimeEX() + 3000;
 					self.message = "Summoning Succubus";
 					self.hasPet = true;
 					return 0; 
@@ -1304,7 +1338,7 @@ function script_warlock:summonPet()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Voidwalker")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
-					self.waitTimer = GetTimeEX() + 17000;
+					self.waitTimer = GetTimeEX() + 3000;
 					self.message = "Summoning Void Walker";
 					self.hasPet = true;
 					return 0; 
@@ -1320,7 +1354,7 @@ function script_warlock:summonPet()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Felhunter")) and (GetPet == 0) and (not self.hasPet) then
-					self.waitTimer = GetTimeEX() + 17000;
+					self.waitTimer = GetTimeEX() + 3000;
 					self.message = "Summoning Felhunter";
 					hasPet = true;
 					return 0; 
@@ -1336,7 +1370,7 @@ function script_warlock:summonPet()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Imp")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
-					self.waitTimer = GetTimeEX() + 17000;
+					self.waitTimer = GetTimeEX() + 3000;
 					self.message = "Summoning Imp";
 					self.hasPet = true;
 					return 0;
@@ -1344,6 +1378,10 @@ function script_warlock:summonPet()
 			end
 		end
 	end
-
-return false;
+if (GetPet() ~= 0) and (self.hasPet) then
+	local tickingRandomly = random(400, 1000);
+	script_grind.tickRate = tickingRandomly;
+	script_rotation.tickRate = tickingRandomly;
+end
+	return false;
 end
