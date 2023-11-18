@@ -47,10 +47,9 @@ function script_druidEX:menu()
 
 		if (script_druid.useBear) and (HasSpell("Bear Form")) or (HasSpell("Dire Bear Form")) then
 			if (CollapsingHeader("|+| Bear Form Options")) then
-				if (not HasSpell("Charge")) then
-					Text("   Nothing here at your level!");
-				end
-				if (HasSpell("Charge")) then
+				Text("Maul Rage Cost");
+				script_druid.maulRage = SliderInt("Rage", 10, 15, script_druid.maulRage);
+				if (HasSpell("Feral Charge")) then
 					wasClicked, script_druid.useCharge = Checkbox("Use Charge", script_druid.useCharge);
 				end
 			end

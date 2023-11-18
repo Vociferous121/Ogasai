@@ -374,7 +374,7 @@ function script_grind:run()
 		
 		-- Assign the next valid target to be killed within the pull range
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) and self.lootobj == nil then
-			self.waitTimer = GetTimeEX() + 800;
+			self.waitTimer = GetTimeEX() + 200;
 			self.lastTarget = self.enemyObj:GetGUID();
 		end
 
@@ -451,16 +451,11 @@ function script_grind:run()
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
 
-				if (_x ~= 0 and x ~= 0) and (IsInCombat()) then
-					self.message = script_nav:moveToTarget(localObj, _x, _y, _z);
-					script_grind:setWaitTimer(80);
-				
-				else
+				if (_x ~= 0 and x ~= 0) then
 					local moveBufferY = math.random(-2, 2);
 					self.message = script_nav:moveToTarget(localObj, _x, _y+moveBufferY, _z);
-					script_grind:setWaitTimer(200);
+					script_grind:setWaitTimer(80);
 				end
-				
 				return;
 			end
 
@@ -495,7 +490,7 @@ function script_grind:run()
 		--	return;
 		--end
 
-		script_grind:setWaitTimer(1500);	
+		--script_grind:setWaitTimer(1500);	
 
 		-- Use auto pathing or walk paths
 		if (self.autoPath) then
@@ -858,7 +853,6 @@ function script_grind:doLoot(localObj)
 
 	if(dist <= self.lootDistance) then
 		self.message = "Looting...";
-		blacklistLootTime = GetTimeEX()/1000;
 		if(IsMoving() and not localObj:IsMovementDisabed()) then
 			StopMoving();
 			return;
@@ -876,24 +870,19 @@ function script_grind:doLoot(localObj)
 			return;
 		end
 
-		if (blacklistLootTime + 5000 >= (GetTimeEX()/1000)) then
-			script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
-		end
-
 		if(not self.lootObj:UnitInteract() and not IsLooting()) then
-			self.waitTimer = GetTimeEX() + 1850;
+			self.waitTimer = GetTimeEX() + 850;
 			return;
 		end
 
-		self.waitTimer = GetTimeEX() + 1500;
+		--self.waitTimer = GetTimeEX() + 1000;
 	
 		if (not LootTarget()) then
-				script_grind:setWaitTimer(1900);
+			script_grind:setWaitTimer(800);
 			return;
 		else
 			self.lootCheckTime = 0;
 			self.lootObj = nil;
-			script_grind:setWaitTimer(1500);
 			return;
 		end
 
