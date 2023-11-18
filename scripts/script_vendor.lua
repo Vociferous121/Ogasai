@@ -213,6 +213,10 @@ function script_vendor:repair()
 		local vX, vY, vZ = vendor['pos']['x'], vendor['pos']['y'], vendor['pos']['z'];
 		
 		if (GetDistance3D(x, y, z, vX, vY, vZ) > 3.5) then
+			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) then
+				CastSpellByName("Stealth", localObj);
+				self.waitTimer = GetTimeEX() + 1200;
+			end
 			self.status = 1; -- moving to a repair vendor
 			script_nav:moveToTarget(localObj, vX, vY, vZ);
 			self.message = 'Moving to ' .. vendor['name'] .. '...';
@@ -302,6 +306,10 @@ function script_vendor:sell()
 		local vX, vY, vZ = vendor['pos']['x'], vendor['pos']['y'], vendor['pos']['z'];
 	
 		if (GetDistance3D(x, y, z, vX, vY, vZ) > 3.5) then
+			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) then
+				CastSpellByName("Stealth", localObj);
+				self.waitTimer = GetTimeEX() + 1200;
+			end
 			script_nav:moveToTarget(localObj, vX, vY, vZ);
 			self.status = 2; -- moving to sell at a vendor
 			self.message = 'Moving to ' .. vendor['name'] .. '...';
@@ -396,6 +404,10 @@ function script_vendor:buyAmmo(quiverBagSlot, ammoName, itemIsArrow)
 		
 		-- Move to vendor
 		if (GetDistance3D(x, y, z, vX, vY, vZ) > 3.5) then
+			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) then
+				CastSpellByName("Stealth", localObj);
+				self.waitTimer = GetTimeEX() + 1200;
+			end
 			script_nav:moveToTarget(localObj, vX, vY, vZ);
 			self.status = 3; -- moving to buy ammo at a vendor
 			self.message = 'Moving to ' .. vendor['name'] .. '...';
@@ -524,6 +536,11 @@ function script_vendor:buy(itemName, itemNum, isFood, isDrink)
 		
 		-- Move to vendor
 		if (GetDistance3D(x, y, z, vX, vY, vZ) > 3.5) then
+
+			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) then
+				CastSpellByName("Stealth", localObj);
+				self.waitTimer = GetTimeEX() + 1200;
+			end
 			script_nav:moveToTarget(localObj, vX, vY, vZ);
 			self.status = 4; 
 			self.message = 'Moving to ' .. vendor['name'] .. '...';

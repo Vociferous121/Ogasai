@@ -7,7 +7,7 @@ script_paranoia = {
 	sitParanoid = false,		-- sit paranoid true/false
 	paranoidOn = true,		-- paranoid on true/false
 	--paranoidOnTargeted = false,	-- paranoid when targeted on/off
-	counted = 10,
+	counted = 5,
 	ignoreTarget = "Player",
 }
 
@@ -113,6 +113,7 @@ function script_paranoia:checkParanoia()
 						UseAction(script_grind.afkActionSlot, 0, 0);
 						self.waitTimer = GetTimeEX() + 2500;
 						script_grind:setWaitTimer(2500);
+						script_grind.undoAFK = true;
 						return true;
 					end
 				end
@@ -202,7 +203,7 @@ function script_paranoia:menu()
 	wasClicked, script_paranoia.deathCounterExit = Checkbox("Exit Bot On "..script_paranoia.counted.." Deaths", script_paranoia.deathCounterExit);
 
 	-- death counter 
-	script_paranoia.counted = SliderInt("Deaths", 1, 9, script_paranoia.counted);
+	script_paranoia.counted = SliderInt("Deaths", 1, 25, script_paranoia.counted);
 		
 	Separator();
 

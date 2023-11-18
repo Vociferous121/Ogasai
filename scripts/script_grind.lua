@@ -308,6 +308,15 @@ function script_grind:run()
 			return;
 		end
 	end
+
+	if (self.undoAFK) and (IsStanding()) then
+		UseAction(script_grind.afkActionSlot, 0, 0);
+		self.waitTimer = GetTimeEX() + 2500;
+		script_grind:setWaitTimer(2500);
+		script_grind.undoAFK = false;
+		return true;
+	end
+		
 	
 	-- set tick rate for scripts
 	if (GetTimeEX() > self.timer) then
@@ -352,13 +361,18 @@ function script_grind:run()
 			if (not (self.hotSpotTimer > GetTimeEX())) then
 				self.hotSpotTimer = GetTimeEX() + 20000;
 			end
+
+			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) then
+				CastSpellByName("Stealth", localObj);
+				self.waitTimer = GetTimeEX() + 1200;
+			end
 			--if (script_grind:mountUp() and self.useMount) then
 			--	return; 
 			--end
 			-- Druid cat form is faster if you specc talents
-			--if (self.currentLevel < 40 and HasSpell('Cat Form') and not localObj:HasBuff('Cat Form')) then
-			--	CastSpellByName('Cat Form');
-			--end
+			if (self.currentLevel < 40 and HasSpell('Cat Form') and not localObj:HasBuff('Cat Form')) then
+				CastSpellByName('Cat Form');
+			end
 			-- Shaman Ghost Wolf 
 			if (self.currentLevel < 40 and HasSpell('Ghost Wolf') and not localObj:HasBuff('Ghost Wolf')) then
 				CastSpellByName('Ghost Wolf');
@@ -499,6 +513,10 @@ function script_grind:run()
 			else
 				self.message = script_nav:moveToSavedLocation(localObj, self.minLevel, self.maxLevel, self.staticHotSpot);
 				script_grind:setWaitTimer(50);
+				if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) then
+					CastSpellByName("Stealth", localObj);
+					self.waitTimer = GetTimeEX() + 1200;
+				end
 			end
 		else
 			-- Check: Load/Refresh the walk path
@@ -875,7 +893,7 @@ function script_grind:doLoot(localObj)
 		--self.waitTimer = GetTimeEX() + 1000;
 	
 		if (not LootTarget()) then
-			script_grind:setWaitTimer(800);
+			script_grind:setWaitTimer(1200);
 			return;
 		else
 			self.lootCheckTime = 0;

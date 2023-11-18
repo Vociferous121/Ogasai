@@ -48,6 +48,8 @@ script_warlock = {
 	followTargetDistance = 100,
 	rangeDistance = 35,
 	followFeared = true,
+	useCurseOfWeakness = false,
+	useCurseOfTongues = false,
 }
 
 function script_warlock:cast(spellName, target)
@@ -110,7 +112,7 @@ function script_warlock:fearAdd(targetObjGUID)
 	while currentObj ~= 0 do 
 		if typeObj == 3 then
 			if (currentObj:CanAttack() and not currentObj:IsDead()) then
-				if (currentObj:GetGUID() ~= targetObjGUID and script_grind:isTargetingMe(currentObj)) then
+				if (currentObj:GetGUID() ~= targetObjGUID) and (script_grind:isTargetingMe(currentObj) or script_grind:isTargetingPet(currentObj)) then
 					if (not currentObj:HasDebuff("Fear") and currentObj:GetCreatureType() ~= 'Elemental' and not currentObj:IsCritter()) then
 						ClearTarget();
 						if (currentObj:IsInLineOfSight()) then
@@ -345,13 +347,7 @@ function script_warlock:run(targetGUID)
 		end
 	end
 	
-	-- stuck in combat
-	if (IsInCombat()) and (GetPet() ~= 0 and self.hasPet) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
-		if (playerHasTarget == 0) and (petHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
-			self.message = "No Target - stuck in combat! WAITING!";
-			return 4;
-		end
-	end
+	
 
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
@@ -584,13 +580,6 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
--- stuck in combat
-			if (IsInCombat()) and (GetPet() ~= 0 and self.hasPet) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
-				if (playerHasTarget == 0) and (petHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
-					self.message = "No Target - stuck in combat! WAITING!";
-					return 4;
-				end
-			end
 
 
 		if (IsInCombat()) and (HasSpell("Fel Domination")) and (not IsSpellOnCD("Fel Domination")) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (localMana > 25) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
@@ -918,6 +907,22 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
+			-- keep curse of weakness up
+			if (self.useCurseOfWeakness) and (HasSpell("Curse of Weakness")) and (not targetObj:HasDebuff("Curse of Weakness")) and (localMana > 25) then
+				if (CastSpellByName("Curse of Weakness", targetObj)) then
+					self.waitTimer = GetTimeEX() + 1600;
+					return 0;
+				end
+			end 
+
+			-- keep curse of tongues up
+			if (self.useCurseOfTongues) and (HasSpell("Curse of Tongues")) and (not targetObj:HasDebuff("Curse of Tongues")) and (localMana > 25) then
+				if (CastSpellByName("Curse of Tongues", targetObj)) then
+					self.waitTimer = GetTimeEX() + 1600;
+					return 0;
+				end
+			end 
+		
 			-- Fear single Target
 			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) and (targetObj:GetCreatureType() ~= "Undead") then
 				CastSpellByName("Fear", targetObj);
@@ -970,14 +975,7 @@ function script_warlock:run(targetGUID)
 		end
 	end
 
-			local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
-		-- stuck in combat
-			if (IsInCombat()) and (GetPet() ~= 0 and self.hasPet) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
-				if (playerHasTarget == 0) and (petHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
-					self.message = "No Target - stuck in combat! WAITING!";
-					return 4;
-				end
-			end	
+			
 		end
 	end
 end

@@ -244,6 +244,11 @@ function script_warlockEX:menu()
 			if (HasSpell("Curse of Agony")) then
 				
 				wasClicked, script_warlock.enableCurseOfAgony = Checkbox("Curse of Agony On/Off", script_warlock.enableCurseOfAgony);
+
+				if (script_warlock.useCurseOfAgony) then
+					script_warlock.useCurseOfWeakness = false;
+					script_warlock.useCurseOfTongues = false;
+				end
 				
 				SameLine();
 			end
@@ -257,7 +262,24 @@ function script_warlockEX:menu()
 
 		if (CollapsingHeader("|+| Curse Options")) then
 			
-			Text("TODO! ?? maybe.. is it worth it?");
+			if (HasSpell("Curse of Weakness")) then
+				wasClicked, script_warlock.useCurseOfWeakness = Checkbox("Weakness", script_warlock.useCurseOfWeakness);
+				
+				if (script_warlock.useCurseOfWeakness) then
+					script_warlock.useCurseOfAgony = false;
+					script_warlock.useCurseOfTongues = false;
+				end
+			end
+
+			if (HasSpell("Curse of Tongues")) then
+				wasClicked, script_warlock.useCurseOfTongues = Checkbox("Tongues", script_warlock.useCurseOfTongues);
+				
+				if (script_warlock.useCuroseOfTongues) then
+					script_warlock.useCurseOfAgony = false;
+					script_warlock.useCurseOfWeakness = false;
+				end
+			end
+			
 		end
 
 		if (localObj:HasRangedWeapon()) and (script_warlock.useWand) then

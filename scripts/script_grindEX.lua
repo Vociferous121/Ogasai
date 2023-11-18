@@ -44,6 +44,12 @@ function script_grindEX:doChecks()
 
 			script_grind.message = "Waiting to ressurect...";
 
+			-- use soul stone
+			--if (localObj:HasBuff("Soul Stone")) and (localObj:IsDead()) and (not IsGhost()) then
+				--accept text
+			--return
+			--end
+
 			-- Release body
 			if (not IsGhost()) then
 
