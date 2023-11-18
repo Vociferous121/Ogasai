@@ -552,6 +552,82 @@ function script_warlock:run(targetGUID)
 			--	self.waitTimer = GetTimeEX() + 500;
 			--end
 
+		if (IsInCombat()) and (HasSpell("Fel Domination")) and (not IsSpellOnCD("Fel Domination")) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (localMana > 25) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
+			CastSpellByName("Fel Domination");
+			self.waitTimer = GetTimeEX() + 1500;
+			return 0;
+		end
+
+-- Check: Summon our Demon if we have fel domination
+	if (localObj:HasBuff("Fel Domination")) and (not self.hasPet) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (HasSpell("Summon Imp")) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
+		-- succubus	
+		if (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) and (self.useSuccubus) and (HasSpell("Summon Succubus")) and HasItem('Soul Shard') then
+			if (not IsStanding() or IsMoving()) then 
+				StopMoving();
+			end
+			-- summon succubus
+			if (localMana > 35) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
+				if (not IsStanding() or IsMoving()) then
+					StopMoving();
+				end
+				if (CastSpellByName("Summon Succubus")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
+					self.waitTimer = GetTimeEX() + 17000;
+					self.message = "Summoning Succubus";
+					self.hasPet = true;
+					return 0; 
+				end
+			end
+		elseif (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (self.useVoid) and (HasSpell("Summon Voidwalker")) and (HasItem('Soul Shard')) and (not self.hasPet) then
+			if (not IsStanding() or IsMoving()) then 
+				StopMoving();
+			end
+			-- summon voidwalker
+			if (localMana > 35) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
+				if (not IsStanding() or IsMoving()) then
+					StopMoving();
+				end
+				if (CastSpellByName("Summon Voidwalker")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
+					self.waitTimer = GetTimeEX() + 17000;
+					self.message = "Summoning Void Walker";
+					self.hasPet = true;
+					return 0; 
+				end
+			end
+		elseif (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (self.useFelhunter) and (HasSpell("Summon Felhunter")) and (HasItem('Soul Shard')) and (not self.hasPet) then
+			if (not IsStanding() or IsMoving()) then 
+				StopMoving();
+			end
+			-- summon Felhunter
+			if (localMana > 35) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
+				if (not IsStanding() or IsMoving()) then
+					StopMoving();
+				end
+				if (CastSpellByName("Summon Felhunter")) and (GetPet == 0) and (not self.hasPet) then
+					self.waitTimer = GetTimeEX() + 17000;
+					self.message = "Summoning Felhunter";
+					hasPet = true;
+					return 0; 
+				end
+			end
+		elseif (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (HasSpell("Summon Imp")) and (self.useImp) and (not IsChanneling()) and (not self.hasPet) then
+			if (not IsStanding() or IsMoving()) then
+				StopMoving();
+			end
+			-- summon Imp
+			if (localMana > 35) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
+				if (not IsStanding() or IsMoving()) then
+					StopMoving();
+				end
+				if (CastSpellByName("Summon Imp")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not self.hasPet) then
+					self.waitTimer = GetTimeEX() + 17000;
+					self.message = "Summoning Imp";
+					self.hasPet = true;
+					return 0;
+				end
+			end
+		end
+	end
+
 			-- recall pet if too far > 30
 			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetDistance() > 25) then
 				self.message = "Recalling Pet - too far!";
