@@ -435,7 +435,7 @@ function script_warlock:run(targetGUID)
 
 		-- nav move to target causing crashes on follower
 		-- move to cancel Health Funnel when payer has low HP
-		if (GetNumPartyMembers() < 1) then
+		if (GetNumPartyMembers() < 1) and (HasSpell("Health Funnel")) then
 			if (GetPet() ~= 0 and self.hasPet) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
 				if (GetPet():HasBuff("Health Funnel") and localHealth < 40) then
 					local _x, _y, _z = localObj:GetPosition();
@@ -568,14 +568,6 @@ function script_warlock:run(targetGUID)
 				self.waitTimer = GetTimeEX() + 500;
 			end
 
-			-- stuck in combat
-			if (IsInCombat()) and (GetPet() ~= 0 and self.hasPet) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
-				if (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
-					self.message = "No Target - stuck in combat! WAITING!";
-					return 4;
-				end
-			end
-
 
 		if (IsInCombat()) and (HasSpell("Fel Domination")) and (not IsSpellOnCD("Fel Domination")) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (localMana > 25) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
 			CastSpellByName("Fel Domination");
@@ -595,14 +587,6 @@ function script_warlock:run(targetGUID)
 			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetHealthPercentage() >= 1) and (targetObj:GetDistance() < 35) and (targetHealth < 99 or targetObj:HasDebuff("Curse of Agony") or 
 				targetObj:HasDebuff("Corruption")) or (script_grind:isTargetingMe(targetObj)) and (not targetObj:HasDebuff("Fear")) then
 				script_warlock:petAttack();
-			end
-
--- stuck in combat
-			if (IsInCombat()) and (GetPet() ~= 0 and self.hasPet) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
-				if (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
-					self.message = "No Target - stuck in combat! WAITING!";
-					return 4;
-				end
 			end
 
 			-- check pet
@@ -682,14 +666,6 @@ function script_warlock:run(targetGUID)
 			else
 				if (GetPet() == 0) or (GetPet():GetHealthPercentage() < 1) then
 					self.hasPet = false;
-				end
-			end
-
-			-- stuck in combat
-			if (IsInCombat()) and (GetPet() ~= 0 and self.hasPet) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
-				if (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
-					self.message = "No Target - stuck in combat! WAITING!";
-					return 4;
 				end
 			end
 
@@ -795,14 +771,6 @@ function script_warlock:run(targetGUID)
 			-- if pet goes too far then recall
 			if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetDistance() > 40) then
 				PetFollow();
-			end
-
-			-- stuck in combat
-			if (IsInCombat()) and (GetPet() ~= 0 and self.hasPet) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
-				if (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
-					self.message = "No Target - stuck in combat! WAITING!";
-					return 4;
-				end
 			end
 
 			-- Wand if low mana
@@ -913,14 +881,6 @@ function script_warlock:run(targetGUID)
 					end
 					CastSpellByName("Health Funnel"); 
 					return 0;
-				end
-			end
-
-			-- stuck in combat
-			if (IsInCombat()) and (GetPet() ~= 0 and self.hasPet) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
-				if (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
-					self.message = "No Target - stuck in combat! WAITING!";
-					return 4;
 				end
 			end
 
@@ -1188,7 +1148,7 @@ function script_warlock:rest()
 	end
 
 	-- Check: Health funnel on the pet or wait for it to regen if lower than 70%
-	if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
+	if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (HasSpell("Health Funnel")) then
 		if (GetPet():GetHealthPercentage() < 50) and (localHealth > 60) then
 			if (GetPet():GetDistance() > 8) then
 				PetFollow();
@@ -1243,8 +1203,9 @@ end
 
 function script_warlock:summonPet()
 
+	if (GetPet() == 0) or (not self.hasPet) then
 	script_grind.tickRate = 2000;
-
+	end
 	local localMana = GetLocalPlayer():GetManaPercentage();
 
 	-- Check: Summon our Demon if we are not in combat
