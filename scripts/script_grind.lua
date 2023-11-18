@@ -334,10 +334,6 @@ function script_grind:run()
 			local jumpRandom = random(1, 100);
 			if (jumpRandom > self.jumpRandomFloat and IsMoving() and not IsInCombat()) then
 				JumpOrAscendStart();
-				targetObj:FaceTarget();
-			elseif (jumpRandom > self.jumpRandomFloat) and (IsMoving()) and (IsInCombat()) and (not IsChanneling()) and (not localObj:IsCasting()) and (targetObj:GetDistance() > 8) then
-				JumpOrAscendStart();
-				targetObj:FaceTarget();
 			end
 		end
 
@@ -490,7 +486,7 @@ function script_grind:run()
 		--	return;
 		--end
 
-		--script_grind:setWaitTimer(1500);	
+		script_grind:setWaitTimer(1000);	
 
 		-- Use auto pathing or walk paths
 		if (self.autoPath) then
