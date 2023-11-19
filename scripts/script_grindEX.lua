@@ -40,7 +40,10 @@ function script_grindEX:doChecks()
 		end
 		
 
-		if(localObj:IsDead()) and (not script_paranoia:checkParanoia()) then
+		if(localObj:IsDead()) then
+		if (script_paranoia:checkParanoia()) then
+				return;
+		else
 
 			script_grind.message = "Waiting to ressurect...";
 
@@ -52,8 +55,9 @@ function script_grindEX:doChecks()
 
 			-- Release body
 			if (not IsGhost()) then
+				local randomRelease = math.random(3000, 6500);
 
-				self.waitTimer = GetTimeEX() + 2500;
+				self.waitTimer = GetTimeEX() + randomRelease;
 
 				RepopMe();
 				script_grindEX.deathCounter = script_grindEX.deathCounter + 1;
@@ -83,6 +87,7 @@ function script_grindEX:doChecks()
 				RetrieveCorpse();
 			end
 			return true;
+		end
 		end
 
 		if (script_grind:getTargetAttackingUs() == nil) then

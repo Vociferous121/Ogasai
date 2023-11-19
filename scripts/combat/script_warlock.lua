@@ -350,7 +350,12 @@ function script_warlock:run(targetGUID)
 		end
 	end
 	
-	
+	if (GetPet() ~= 0) then
+		if (IsInCombat()) and (not targetObj:IsInLineOfSight() or not GetPet():IsInLineOfSight()) then
+			PetFollow();
+			return 3;
+		end
+	end
 
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
@@ -476,13 +481,16 @@ function script_warlock:run(targetGUID)
 		end
 
 		-- walk away from target if pet target guid is the same guid as target targeting me
-			if (targetObj:GetDistance() <= 10) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) then
+			if (targetObj:GetDistance() <= 10) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) and (targetObj:IsInLineOfSight()) then
 				if (targetObj:GetUnitsTarget():GetGUID() == GetPet():GetGUID()) then
 
-					if (script_warlock:runBackwards(targetObj, 13)) then
+					if (script_warlock:runBackwards(targetObj, 15)) then
 						script_grind.tickRate = 100;
 						script_rotation.tickRate = 135;
 						PetAttack();
+						if (targetObj:GetDistance() >= 14) then
+							targetObj:FaceTarget();
+						end
 						self.message = "Moving away from target for range attacks...";
 						return 4;
 					end
@@ -584,7 +592,7 @@ function script_warlock:run(targetGUID)
 
 			-- causes crashing after combat phase?
 			-- follow target if single target fear is active and moves out of spell ranged
-			if (self.followFeared) and (self.alwaysFear) and (targetObj:HasDebuff("Fear")) and (targetObj:GetDistance() > 21) then
+			if (self.followFeared) and (self.alwaysFear) and (targetObj:HasDebuff("Fear")) and (not targetObj:IsSpellInRange("Shoot")) then
 				return 3;
 			end
 
@@ -743,14 +751,14 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Check: Fear add
-			if (targetObj ~= nil) and (self.fearAdds) and (script_grind:enemiesAttackingUs(5) > 1) and (HasSpell('Fear')) and (not self.addFeared) and (self.fearTimer < GetTimeEX()) then
+			if (targetObj ~= nil) and (self.fearAdds) and (script_grind:enemiesAttackingUs(10) > 1) and (HasSpell('Fear')) and (not self.addFeared) and (self.fearTimer < GetTimeEX()) then
 				self.message = "Fearing add...";
 				script_warlock:fearAdd(targetObj:GetGUID());
 			end
 
 			-- Check: Sort target selection if add is feared
 			if (self.addFeared) then
-				if(script_grind:enemiesAttackingUs() >= 1 and targetObj:HasDebuff('Fear')) then
+				if(script_grind:enemiesAttackingUs(10) >= 1 and targetObj:HasDebuff('Fear')) then
 					ClearTarget();
 					targetObj = script_warlock:getTargetNotFeared();
 					targetObj:AutoAttack();
@@ -758,7 +766,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Howling Terror Fear
-			if (HasSpell("Howling Terror")) and (not IsSpellOnCD("Howling Terror")) and (script_grind:enemiesAttackingUs(5) >= 3) then
+			if (HasSpell("Howling Terror")) and (not IsSpellOnCD("Howling Terror")) and (script_grind:enemiesAttackingUs(10) >= 3) then
 				if (localHealth > 25) then
 					CastSpellByName("Howling Terror");
 					self.waitTimer = GetTimeEX() + 1500;
@@ -909,7 +917,7 @@ function script_warlock:run(targetGUID)
 			end
 	
 			-- Check: Keep the Corruption DoT up (15 s duration)
-			if (self.enableCorruption) and (not targetObj:HasDebuff("Corruption")) and (targetHealth >= 20) and (targetObj:IsInLineOfSight()) then
+			if (not IsMoving()) and (self.enableCorruption) and (not targetObj:HasDebuff("Corruption")) and (targetHealth >= 20) and (targetObj:IsInLineOfSight()) then
 				CastSpellByName('Corruption', targetObj);
 				targetObj:FaceTarget();
 				self.waitTimer = GetTimeEX() + 1500 + (self.corruptionCastTime * 100); 
@@ -917,7 +925,7 @@ function script_warlock:run(targetGUID)
 			end
 	
 			-- Check: Keep the Immolate DoT up (15 s duration)
-			if (self.enableImmolate) and (not targetObj:HasDebuff("Immolate")) and (localMana > 25) and (targetHealth > 20) and (targetObj:IsInLineOfSight()) then
+			if (not IsMoving()) and (self.enableImmolate) and (not targetObj:HasDebuff("Immolate")) and (localMana > 25) and (targetHealth > 20) and (targetObj:IsInLineOfSight()) then
 				if (not targetObj:HasDebuff("Immolate")) then
 				CastSpellByName("Immolate", targetObj);
 				targetObj:FaceTarget();
@@ -927,7 +935,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- keep curse of weakness up
-			if (self.useCurseOfWeakness) and (HasSpell("Curse of Weakness")) and (not targetObj:HasDebuff("Curse of Weakness")) and (localMana > 25) then
+			if (not IsMoving()) and (self.useCurseOfWeakness) and (HasSpell("Curse of Weakness")) and (not targetObj:HasDebuff("Curse of Weakness")) and (localMana > 25) then
 				if (CastSpellByName("Curse of Weakness", targetObj)) then
 					self.waitTimer = GetTimeEX() + 1600;
 					return 0;
@@ -935,7 +943,7 @@ function script_warlock:run(targetGUID)
 			end 
 
 			-- keep curse of tongues up
-			if (self.useCurseOfTongues) and (HasSpell("Curse of Tongues")) and (not targetObj:HasDebuff("Curse of Tongues")) and (localMana > 25) then
+			if (not IsMoving()) and (self.useCurseOfTongues) and (HasSpell("Curse of Tongues")) and (not targetObj:HasDebuff("Curse of Tongues")) and (localMana > 25) then
 				if (CastSpellByName("Curse of Tongues", targetObj)) then
 					self.waitTimer = GetTimeEX() + 1600;
 					return 0;
@@ -985,7 +993,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			if (GetPet():GetDistance() < 10) then
-				TargetNearestEnemy();
+				AssistUnit("pet");				
 				script_grind.tickRate = 135;
 				script_rotation.tickRate = 135;
 			end

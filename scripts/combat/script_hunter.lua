@@ -209,7 +209,7 @@ function script_hunter:run(targetGUID)
 	end
 
 	-- force bot to attack pets target
-	if (IsInCombat()) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (self.hasPet) then
+	if (IsInCombat()) and (GetPet() ~= 0) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (self.hasPet) then
 		if (petHasTarget ~= 0) then
 			if (GetPet():GetDistance() > 10) then
 				PetFollow();
@@ -417,7 +417,7 @@ function script_hunter:run(targetGUID)
 			end		
 
 			-- walk away from target if pet target guid is the same guid as target targeting me
-			if (targetObj:GetDistance() <= 14) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) then
+			if (targetObj:GetDistance() <= 14) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) and (targetObj:IsInLineOfSight()) then
 				if (targetObj:GetUnitsTarget():GetGUID() == pet:GetGUID()) then
 
 					if (script_hunter:runBackwards(targetObj, 15)) then
