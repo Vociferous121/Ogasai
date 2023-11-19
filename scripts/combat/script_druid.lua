@@ -171,11 +171,13 @@ function script_druid:healsAndBuffs()
 	if (GetLocalPlayer():GetLevel() >= 40) then
 		isBear = GetLocalPlayer():HasBuff("Dire Bear Form");
 	end
+	local hasRejuv = GetLocalPlayer():HasBuff("Rejuvenation"); 
+	local hasRegrowth = GetLocalPlayer():HasBuff("Regrowth");
 
 	script_grind.tickRate = 1500;
 
 	-- target has Bash (stunned) and we can heal
-	if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (isBear) and (self.useBear) and (not localObj:HasBuff("Regrowth")) and (not localObj:HasBuff("Rejuvenation")) then 
+	if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (isBear) and (self.useBear) and (not hasRejuv) and (not hasRegrowth) then 
 		if (targetObj:HasDebuff("Bash")) and (localMana >= 60) and (localHealth <= self.healthToShift + 1) then
 			-- shapeshift out of bear form to heal
 			if (self.useBear and isBear) and (localHealth <= self.healthToShift) and (localMana >= 25) then
@@ -198,7 +200,7 @@ function script_druid:healsAndBuffs()
 --------------
 
 	-- shapeshift out of bear form to heal
-	if (self.useBear and isBear) and (localHealth <= self.healthToShift) and (localMana >= 25) and (not localObj:HasBuff("Rejuvenation")) then
+	if (self.useBear and isBear) and (localHealth <= self.healthToShift) and (localMana >= 35) and (not hasRejuv) and (not hasRegrowth) then
 			script_grind.tickRate = 135;
 			script_rotation.tickRate = 135;
 		if (localObj:HasBuff("Dire Bear Form")) then
@@ -214,7 +216,7 @@ function script_druid:healsAndBuffs()
 
 
 	-- shapeshift out of cat form to heal
-	if (self.useCat and isCat) and (localHealth <= self.healthToShift) and (localMana >= 25) and (not localObj:HasBuff("Rejuvenation")) then
+	if (self.useCat and isCat) and (localHealth <= self.healthToShift) and (localMana >= 35) and (not hasRejuv) and (not hasRegrowth) then
 			script_grind.tickRate = 135;
 			script_rotation.tickRate = 135;
 		if (localObj:HasBuff("Cat Form")) then
@@ -228,7 +230,7 @@ function script_druid:healsAndBuffs()
 
 
 	-- shapeshift out of bear form to heal higher health if 2 or more targets
-	if (self.useBear and isBear) and (localHealth <= self.healthToShift + 10) and (localMana >= 25) and (script_grind:enemiesAttackingUs(8) >= 2) then
+	if (self.useBear and isBear) and (localHealth <= self.healthToShift + 10) and (localMana >= 35) and (script_grind:enemiesAttackingUs(8) >= 2) and (not hasRejuv) and (not hasRegrowth) and (localMana > 55) then
 			script_grind.tickRate = 135;
 			script_rotation.tickRate = 135;
 		if (localObj:HasBuff("Dire Bear Form")) then
@@ -243,7 +245,7 @@ function script_druid:healsAndBuffs()
 	end
 
 	-- shapeshift out of cat form to heal higher health if 2 or more targets
-	if (self.useCat and isCat) and (localHealth <= self.healthToShift + 10) and (localMana >= 25) and (script_grind:enemiesAttackingUs(8) >= 2) then
+	if (self.useCat and isCat) and (localHealth <= self.healthToShift + 10) and (localMana >= 35) and (script_grind:enemiesAttackingUs(8) >= 2) and (not hasRejuv) and (not hasRegrowth) and (localMana > 55) then
 			script_grind.tickRate = 135;
 			script_rotation.tickRate = 135;
 		if (localObj:HasBuff("Cat Form")) then
@@ -257,7 +259,7 @@ function script_druid:healsAndBuffs()
 
 
 	-- shapeshift out of form to heal if mana is high enough and need healing - redundancy in case settings are set wrong
-	if (not IsInCombat()) and (isBear or isCat) and (localMana >= 80) and (localHealth <= self.healthToShift + 20) then
+	if (not IsInCombat()) and (isBear or isCat) and (localMana >= 80) and (localHealth <= self.healthToShift + 20) and (not hasRejuv) and (not hasRegrowth) then
 		if (localObj:HasBuff("Dire Bear Form")) then
 			CastSpellByName("Dire Bear Form");
 			self.waitTimer = GetTimeEX() + 1500;
@@ -275,11 +277,38 @@ function script_druid:healsAndBuffs()
 		end
 	end
 
+------------------------------------
+
+	-- shapeshift if has rejuv and regrowth and mana is high enough and health is low enough
+	if (self.useBear and isBear) and (localHealth <= self.healthToShift - 15) and (localMana >= 25) and (hasRejuv) and (hasRegrowth) and (localMana >= 55) then
+			script_grind.tickRate = 135;
+			script_rotation.tickRate = 135;
+		if (localObj:HasBuff("Dire Bear Form")) then
+			CastSpellByName("Dire Bear Form");
+			self.waitTimer = GetTimeEX() + 1500;
+		end
+		if (localObj:HasBuff("Bear Form")) then
+			CastSpellByName("Bear Form", localObj);
+			self.waitTimer = GetTimeEX() + 1500;
+		end
+		
+	end
+
+	-- shapeshift out of cat form to heal
+	if (self.useCat and isCat) and (localHealth <= self.healthToShift - 10) and (localMana >= 55) and (hasRejuv) and (hasRegrowth) then
+			script_grind.tickRate = 135;
+			script_rotation.tickRate = 135;
+		if (localObj:HasBuff("Cat Form")) then
+			CastSpellByName("Cat Form");
+			self.waitTimer = GetTimeEX() + 1500;
+		end
+	end
+
 
 ------------------------
 
 	-- War Stomp Tauren Racial
-	if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) and (targetObj:IsCasting() or script_druid:enemiesAttackingUs(10) >= 2) and (not IsMoving()) and (targetObj:GetDistance() <= 8) then
+	if (not IsBear) and (not IsCat) and (GetLocalPlayer():GetUnitsTarget() ~= 0) and (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) and (targetObj:IsCasting() or script_druid:enemiesAttackingUs(10) >= 2) and (not IsMoving()) and (targetObj:GetDistance() <= 8) then
 		CastSpellByName("War Stomp");
 		self.waitTimer = GetTimeEX() + 200;
 		return 0;
@@ -1109,10 +1138,6 @@ function script_druid:rest()
 		end
 	end
 
-	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (script_grind.lootObj == nil) then
-		return;
-	end
-
 	-- Drink something
 	if (not isBear) and (not isCat) and (not IsInCombat()) then
 		if (not IsDrinking() and localMana < self.drinkMana) then
@@ -1183,6 +1208,11 @@ function script_druid:rest()
 	    and localMana > 98 and (IsDrinking() or not IsStanding())) then
 		StopMoving();
 		return false;
+	end
+
+
+	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (script_grind.lootObj == nil) then
+		return;
 	end
 
 	-- rest in form
