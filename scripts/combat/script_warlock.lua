@@ -1068,17 +1068,14 @@ function script_warlock:rest()
 	end
 
 	-- Cast: Life Tap if conditions are right, see the function
-	if (localMana < localHealth and HasSpell("Life Tap") and localHealth > self.lifeTapHealth 
-		and localMana < self.lifeTapMana and not IsInCombat() and (not IsEating() and not IsDrinking())) then
-		if (not IsStanding()) then
-			JumpOrAscendStart();
+	if (localMana < localHealth) and (HasSpell("Life Tap")) and (localHealth > self.lifeTapHealth) and (localMana < self.lifeTapMana) then
+		if (not IsInCombat()) and (not IsEating()) and (not IsDrinking()) and (not IsMoving()) and (not IsLooting()) and (IsStanding()) then
+			if (not IsSpellOnCD("Life Tap")) then
+				CastSpellByName("Life Tap", localObj);
+				self.waitTimer = GetTimeEX() + 1550;
+				return 0;
+			end
 		end
-		if (CastSpellByName("Life Tap")) then
-			script_grind.tickRate = 100;
-			self.waitTimer = GetTimeEX() + 1600;
-			return;
-		end
-		return;
 	end			
 		
 	-- Eat and Drink
