@@ -216,7 +216,7 @@ function script_hunter:run(targetGUID)
 			end
 
 			if (GetPet():GetDistance() < 10) then
-				TargetNearestEnemy();
+				AssistUnit("pet");
 				script_grind.tickRate = 135;
 				script_rotation.tickRate = 135;
 			end
@@ -229,6 +229,7 @@ function script_hunter:run(targetGUID)
 	if (self.waitAfterCombat)and (self.hasPet) and (IsInCombat()) then
 		local petHasTarget = GetPet():GetUnitsTarget();
 		if (playerHasTarget == 0) and (petHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
+			AssistUnit("pet");
 			self.message = "No Target - stuck in combat! WAITING!";
 			return 4;
 		end

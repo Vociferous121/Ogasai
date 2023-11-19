@@ -219,6 +219,8 @@ function script_gather:gather()
 	if (self.timer > GetTimeEX()) then
 		return true;
 	end
+
+	script_grind.useUnstuckTwo = false;
 	
 	local tempNode = script_gather:GetNode();
 	local newNode = (self.nodeObj == tempNode);
@@ -238,7 +240,7 @@ function script_gather:gather()
 
 			if(not IsLooting() and not IsChanneling()) and (not IsMoving()) then
 				self.nodeObj:GameObjectInteract();
-				self.timer = GetTimeEX() + 1250;
+				self.timer = GetTimeEX() + 1650;
 			end
 
 			if (not LootTarget()) and (self.nodeObj:GameObjectInteract()) and (not IsMoving()) then
@@ -249,11 +251,11 @@ function script_gather:gather()
 				LootTarget();
 				self.waitTimer = GetTimeEX() + 1200;
 			end
-			return;
+			self.waitTimer = GetTimeEX() + 250;
 		else
 			if (_x ~= 0) then
 				MoveToTarget(_x, _y, _z);
-				self.timer = GetTimeEX() + 150;
+				self.timer = GetTimeEX() + 250;
 			end
 		end
 

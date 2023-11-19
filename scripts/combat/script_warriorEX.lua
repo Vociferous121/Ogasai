@@ -28,7 +28,7 @@ function script_warriorEX:menu()
 		script_warrior.message = "Select a Warrior Stance!";
 	end
 
-	if (CollapsingHeader("Choose Stance - Experimental")) then -- stance menu
+	if (CollapsingHeader("Choose Stance For Combat")) then -- stance menu
 		Text("Choose Stance - ");
 		SameLine();
 		Text("You must enable stance in-game!");
@@ -57,7 +57,7 @@ function script_warriorEX:menu()
 		if (script_warrior.battleStance) then -- batle stance menu
 
 			wasClicked = true;
-			if (CollapsingHeader("-- Battle Stance Options")) then
+			if (CollapsingHeader("|+| Battle Stance Options")) then
 
 				-- rend
 				if (HasSpell("Rend")) then
@@ -76,7 +76,7 @@ function script_warriorEX:menu()
 					script_warrior.sunderStacks = SliderInt("Sunder Stacks", 0, 5, script_warrior.sunderStacks);					end
 				
 				if (HasSpell("Overpower")) then
-					if (CollapsingHeader("-- Overpower Options")) then	-- overpower
+					if (CollapsingHeader("|+| Overpower Options")) then	-- overpower
 						Text("Overpower action bar slot");
 						script_warrior.overpowerActionBarSlot = InputText("OPS", script_warrior.overpowerActionBarSlot);
 						Text("73 is Battle Stance Action Slot 1");
@@ -84,7 +84,7 @@ function script_warriorEX:menu()
 				end
 
 				if (HasSpell("Mocking Blow")) then
-					if (CollapsingHeader("-- Mocking Blow Options")) then
+					if (CollapsingHeader("|+| Mocking Blow Options")) then
 						Text("Mocking Blow action bar slot");
 						wasClicked, script_warrior.useMockingBlow = Checkbox("Use Mocking Blow", script_warrior.useMockingBlow);
 						script_warrior.mockingBlowActionBarSlot = InputText("MBS", script_warrior.mockingBlowActionBarSlot);
@@ -97,7 +97,7 @@ function script_warriorEX:menu()
 			Separator();
 
 		if (script_warrior.defensiveStance) then -- defensive stance menu
-			if (CollapsingHeader("Defensive Stance Options")) then	-- defensive stance
+			if (CollapsingHeader("|+| Defensive Stance Options")) then	-- defensive stance
 				Text("Face Target off for easier manual control");
 				wasClicked, script_warrior.enableFaceTarget = Checkbox("Face Target On/Off", script_warrior.enableFaceTarget);	-- facing target
 					SameLine();
@@ -114,18 +114,20 @@ function script_warriorEX:menu()
 					script_warrior.demoShoutRage = SliderInt("Demo shout above % rage", 10, 50, script_warrior.demoShoutRage);
 					script_warrior.challengingShoutAdds = SliderInt("Challenging Shout Add Count", 3, 10, script_warrior.challengingShoutAdds);
 			
-				if (CollapsingHeader("-- Revenge Skill Options")) then
+				if (CollapsingHeader("|+| Revenge Skill Options")) then
 					script_warrior.revengeActionBarSlot = InputText("RS", script_warrior.revengeActionBarSlot);	-- revenge
 					Text("83 is Defensive Stance Action Slot 1");
 				end
 			end
 		end
 		if (script_warrior.berserkerStance) then -- berserker stance menu
-			if (CollapsingHeader("Berserker Stance Options")) then
-						Text("TODO!");	
+			if (CollapsingHeader("|+| Berserker Stance Options")) then
+						Text("TO DO!");	
 			end
 		end
 	end
+
+if (script_warrior.battleStance) or (script_warrior.defensiveStance) or (script_warrior.berserkerStance) then
 	if (CollapsingHeader("Warrior Combat Options")) then -- grind menu plans to hide this menu once rotation is complete
 		Separator();
 		
@@ -164,4 +166,5 @@ function script_warriorEX:menu()
 		Text("Melee Range Distance");
 		script_warrior.meleeDistance = SliderFloat("MR (yd)", 1, 8, script_warrior.meleeDistance);	-- melee distance range
 	end
+end
 end

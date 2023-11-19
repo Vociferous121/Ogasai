@@ -149,6 +149,26 @@ function script_warrior:runBackwards(targetObj, range)
 	return false;
 end
 
+-- Run Forwards if the target is within range
+function script_warrior:runForwards(targetObj, range) 
+	local localObj = GetLocalPlayer();
+ 	if targetObj ~= 0 then
+ 		local xT, yT, zT = targetObj:GetPosition();
+ 		local xP, yP, zP = localObj:GetPosition();
+ 		local distance = targetObj:GetDistance();
+ 		local xV, yV, zV = xP + xT, yP + yT, zP + zT;	
+ 		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
+ 		local xUV, yUV, zUV = (4/vectorLength)*xV, (4/vectorLength)*yV, (1/vectorLength)*zV;		
+ 		local moveX, moveY, moveZ = xT + xUV-5, yT + yUV-5, zT + zUV;		
+ 		if (distance <= range) then 
+ 			Move(moveX, moveY, moveZ);
+			self.waitTimer = GetTimeEX() + 750;
+ 			return true;
+ 		end
+	end
+	return false;
+end
+
 function script_warrior:draw()	-- draw warrior window and status text
 	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
 	if (onScreen) then
@@ -215,7 +235,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(500, 1000);
+		local tickRandom = random(300, 800);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -295,6 +315,10 @@ function script_warrior:run(targetGUID)	-- main content of script
 			targetObj:AutoAttack();
 		end
 
+		if (not IsInCombat()) and (not self.runOnce) and (targetObj:GetManaPercentage() < 1) then
+			self.runOnce = true;
+		end
+
 			-- Check: Charge if possible in battle stance
 			if (self.enableCharge and self.battleStance) then
 				if (HasSpell("Charge")) and (not IsSpellOnCD("Charge")) and (targetObj:IsSpellInRange("Charge")) 
@@ -354,7 +378,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 					return 4; 
 				end 
 			end
-
+	
 			if (not IsAutoCasting("Attack")) then
 				targetObj:AutoAttack();
 			end
@@ -612,7 +636,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			if (GetNumPartyMembers() <= 1) then
 				if (not IsSpellOnCD('Bloodrage') and HasSpell('Bloodrage') and localHealth >= self.bloodRageHealth) then 
 					CastSpellByName('Bloodrage'); 
-					return 0;
+					return;
 				end
 			end
 
@@ -620,12 +644,16 @@ function script_warrior:run(targetGUID)	-- main content of script
 			if (not localObj:HasBuff("Battle Shout")) then 
 				if (localRage >= 10 and HasSpell("Battle Shout")) then 
 					CastSpellByName('Battle Shout'); 
-					return 0; 
+					return; 
 				end 
 			end
 
 	-- Check: If we are in melee range, do melee attacks
 			if (targetObj:GetDistance() <= self.meleeDistance) then
+
+				if (not targetObj:FaceTarget()) then
+					targetObj:FaceTarget();
+				end
 		
 				if (localObj:IsCasting()) and (not IsAutoCasting("Attack")) then
 					targetObj:AutoAttack();
@@ -662,7 +690,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 				if (self.battleStance) then
 					if (script_warrior:canOverpower() and localRage >= 5 and not IsSpellOnCD('Overpower')) then 
 						if (Cast("Overpower", targetObj)) then
-							return 0;
+							return;
 						end
 					end  
 				end
@@ -694,6 +722,10 @@ function script_warrior:run(targetGUID)	-- main content of script
 							return 0; 
 						end 
 					end 
+				end
+
+				if (targetObj:GetDistance() <= 8) then
+					targetObj:FaceTarget();
 				end
 
 				-- melee Skill: Rend if we got more than 10 rage battle or bersker stance
@@ -806,24 +838,6 @@ function script_warrior:rest()
 		end
 	end
 
-	--if (script_grind:doLoot(localObj)) then
-	--	if (targetObj:UnitInteract() and IsLooting()) then
-	--		self.waitTimer = GetTimeEX() + 1850;
-	--		return;
-	--	end
-	--	if (LootTarget()) then
-	--		self.waitTimer = GetTimeEX() + 1550;
-	--		return;
-	--	else
-	--		script_grind.lootObj = nil;
-	--		self.waitTimer = GetTimeEX() + 1550;
-	--		return;
-	--	end
-	--	if (not IsLooting()) then
-	--		self.waitTimer = GetTimeEX() + 2500;
-	--	end
-	--end
-
 	-- eat if not bandages
 	if (not IsEating() and localHealth <= self.eatHealth) and (not IsInCombat()) and (not IsMoving()) then
 		self.message = "Need to eat...";	
@@ -859,7 +873,7 @@ function script_warrior:rest()
 		end
 	end
 
-	if (localHealth < 98 and IsEating()) then
+	if (localHealth < 95 and IsEating()) then
 		self.message = "Resting to full hp/mana...";
 		return true;
 	end
@@ -872,7 +886,7 @@ function script_warrior:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(500, 1000);
+		local tickRandom = random(300, 850);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;

@@ -84,6 +84,8 @@ function hotspotDB:setup()
 	hotspotDB:addHotspot("The Barrens 14 - 16", "Horde", 14, 16, -309.52, -3747.47, 30.29);
 	hotspotDB:addHotspot("The Barrens 15 - 17", "Horde", 15, 17, -1106.34, -3334.29, 92.16);
 	hotspotDB:addHotspot("Moonwell 23 - 25", "ALL", 23, 25, 1871.35, -1755.21, 60.01);
+	hotspotDB:addHotspot("Felfire Hill 31 - 33", "ALL", 31, 33, 2047.21, -2992.9, 106.93);
+
 
 	-- Add new paths here
 	
