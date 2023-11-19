@@ -50,6 +50,7 @@ function hotspotDB:setup()
 	hotspotDB:addHotspot("Duskwood 20", 'Alliance', 19, 25, -10811, 522.47, 35.07);
 	hotspotDB:addHotspot("Duskwood 22", 'Alliance', 21, 25, -10029.30, -783.62, 33.81);
 	hotspotDB:addHotspot("Duskwood 23", 'Alliance', 23, 26, -10937.13, 1251.42, 49.95);
+	hotspotDB:addHotspot("Duskwood 22 - 24", "Alliance", 22, 24, -11077.7, 370.85, 29.51);
 	hotspotDB:addHotspot("Wetlands 22", 'Alliance', 22, 26, -3313.56, -964.93, 9.24);
 	hotspotDB:addHotspot("Wetlands 24", 'Alliance', 23, 28, -2874.95, -2257.74, 26.42);
 	hotspotDB:addHotspot("Wetlands 25 - 28", ALL, 25, 28, -3462.16, -1414.47, 9.38);
@@ -80,6 +81,9 @@ function hotspotDB:setup()
 	hotspotDB:addHotspot("Plaguewood East 58 - 60", 'ALL', 58, 60, 3015.03, -3756.41, 129.21);
 	hotspotDB:addHotspot("Plaguewood West 58 - 60", 'ALL', 58, 60, 2796.4, -3338.75, 96.86);
 	hotspotDB:addHotspot("Frostsaber Rock 58 - 61", 'ALL', 58, 61, 8088, -3899.37, 697.41);
+	hotspotDB:addHotspot("The Barrens 14 - 16", "Horde", 14, 16, -309.52, -3747.47, 30.29);
+	hotspotDB:addHotspot("The Barrens 15 - 17", "Horde", 15, 17, -1106.34, -3334.29, 92.16);
+	hotspotDB:addHotspot("Moonwell 23 - 25", "ALL", 23, 25, 1871.35, -1755.21, 60.01);
 
 	-- Add new paths here
 	

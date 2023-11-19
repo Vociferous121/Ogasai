@@ -55,7 +55,7 @@ script_grind = {
 	paranoiaLoaded = include("scripts\\script_paranoia.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
 	debuffCheck = include("scripts\\script_checkDebuffs.lua"),
-	nextToNodeDist = 5, -- (Set to about half your nav smoothness)
+	nextToNodeDist = 3.8, -- (Set to about half your nav smoothness)
 	blacklistedTargets = {},
 	blacklistedNum = 0,
 	isSetup = false,
@@ -455,16 +455,17 @@ function script_grind:run()
 			-- Move in range: combat script return 3
 			if (self.combatError == 3) and (not localObj:IsMovementDisabed()) then
 				self.message = "Moving to target...";
-				if (self.enemyObj:GetDistance() < self.disMountRange) then
-				end
+				--if (self.enemyObj:GetDistance() < self.disMountRange) then
+				--end
 
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
 
 				if (_x ~= 0 and x ~= 0) then
-					--local moveBufferY = math.random(-2, 2);
-					self.message = script_nav:moveToTarget(localObj, _x, _y, _z);
+					local moveBuffer = math.random(-2, 2);
+					self.message = script_nav:moveToTarget(localObj, _x+moveBuffer, _y+moveBuffer, _z);
 					script_grind:setWaitTimer(80);
+					return;
 				end
 				return;
 			end
@@ -886,16 +887,15 @@ function script_grind:doLoot(localObj)
 		end
 
 		if(not self.lootObj:UnitInteract() and not IsLooting()) then
-			self.waitTimer = GetTimeEX() + 850;
+			self.waitTimer = GetTimeEX() + 1050;
 			return;
 		end
-
-		--self.waitTimer = GetTimeEX() + 1000;
 	
 		if (not LootTarget()) then
 			script_grind:setWaitTimer(1200);
 			return;
 		else
+			self.waitTimer = GetTimeEX() + 500;
 			self.lootCheckTime = 0;
 			self.lootObj = nil;
 			return;
@@ -920,7 +920,7 @@ function script_grind:doLoot(localObj)
 	--script_grind:setWaitTimer(300);
 
 	if (self.lootObj:GetDistance() < 3) then
-		self.waitTimer = GetTimeEX() + 450;
+		self.waitTimer = GetTimeEX() + 750;
 	end
 		
 end

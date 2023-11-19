@@ -1,6 +1,6 @@
 script_nav = {
 	useNavMesh = true,
-	nextNavNodeDistance = 1, -- for mobs and loot
+	nextNavNodeDistance = 1.2, -- for mobs and loot
 	nextPathNodeDistance = 2.7, -- for walking paths
 	lastPathIndex = -1,
 	navPosition = {},
@@ -120,7 +120,7 @@ function script_nav:saveTargetLocation(target, mobLevel)
 	if (self.numSavedLocation > 0) then
 		for i = 0,self.numSavedLocation-1 do
 			local dist = math.sqrt((_tx-self.savedLocations[i]['x'])^2+(_ty-self.savedLocations[i]['y'])^2);
-			if (dist < 60) then
+			if (dist < 40) then
 				saveLocation = false;
 			end
 		end

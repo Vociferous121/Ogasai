@@ -226,10 +226,12 @@ function script_hunterEX:menu()
 		end
 
 		if (HasSpell("Aspect of the Cheetah")) then
-			SameLine();
+			Separator();
 			wasClicked, script_hunter.useCheetah = Checkbox("Use Cheetah", script_hunter.useCheetah);
 		end
 
+		SameLine();
+		wasClicked, script_hunter.waitAfterCombat = Checkbox("Wait After Combat", script_hunter.waitAfterCombat);
 		Separator();
 
 		Text('Drink below mana percentage');

@@ -68,7 +68,7 @@ function script_talent:setup()
 			"2;Sharpened Claws", "2;Sharpened Claws", "2;Sharpened Claws",
 			"2;Blood Frenzy", "2;Blood Frenzy",
 			"2;Predatory Strikes", "2;Predatory Strikes", "2;Predatory Strikes",
-			"2;Faerie Fire (Feral)",
+		"2;Faerie Fire (Feral)",
 			"2;Savage Fury", "2;Savage Fury",
 			"2;Heart of the Wild", "2;Heart of the Wild", "2;Heart of the Wild", "2;Heart of the Wild", "2;Heart of the Wild",
 			"2;Leader of the Pack"
@@ -76,18 +76,26 @@ function script_talent:setup()
 		
 		-- Priest talent points in order 1-31
 		self.priestTalents = {
+
 			"1;Wand Specialization", "1;Wand Specialization", "1;Wand Specialization", "1;Wand Specialization", "1;Wand Specialization", 
+			
 			"3;Spirit Tap", "3;Spirit Tap", "3;Spirit Tap", "3;Spirit Tap", "3;Spirit Tap",
-			"1;Improved Power Word: Shield", "1;Improved Power Word: Shield", "1;Improved Power Word: Shield",
-			"1;Improved Power Word: Fortitude", "1;Improved Power Word: Fortitude", 
-			"1;Inner Focus",
-			"1;Meditation", "1;Meditation", "1;Meditation",
+
+			"3;Improved Shadow Word: Pain", "3;Improved Shadow Word: Pain", "3;Shadow Focus", "3;Shadow Focus ", "3;Shadow Focus", 
+
+			"3;Mind Flay", "3;Improved Mind Blast","3;Improved Mind Blast","3;Improved Mind Blast","3;Improved Mind Blast",
+
 			"3;Shadow Weaving", "3;Shadow Weaving", "3;Shadow Weaving", "3;Shadow Weaving", "3;Shadow Weaving", 
-			"3;Vampiric Embrace",
-			"3;Improved Vampiric Embrace", "3;Improved Vampiric Embrace", 
-			"3;Shadow Focus", "3;Shadow Focus", 
+
+			"3;Vampiric Embrace", "3;Improved Vampiric Embrace", "3;Improved Vampiric Embrace", "3;Shadow Focus", "3;Shadow Focus", 
+
 			"3;Darkness", "3;Darkness", "3;Darkness", "3;Darkness", "3;Darkness", 
-			"3;Shadowform"
+
+			"3;Shadowform", "3;Shadow Reach", "3;Shadow Reach", "3;Shadow Reach"
+
+
+
+			
 		}
 		
 		-- Mage frost talent points in order 1-31

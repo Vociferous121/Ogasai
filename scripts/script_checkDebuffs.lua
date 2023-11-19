@@ -61,6 +61,7 @@ function script_checkDebuffs:hasDisease()
 		or (player:HasDebuff("Fevered Fatigue"))
 		or (player:HasDebuff("Tetanus")) 
 		or (player:HasDebuff("Creeping Mold"))
+		or (player:HasDebuff("Diseased Slime"))
 	
 		then
 
@@ -77,6 +78,8 @@ function script_checkDebuffs:hasMagic()
 	local player = GetLocalPlayer();
 
 	if (player:HasDebuff("Faerie Fire")) 
+	or (player:HasDebuff("Sleep"))
+	or (player:HasDebuff("Sap Might"))
 
 	
 	then
@@ -94,9 +97,9 @@ function script_checkDebuffs:hasDisabledMovement()
 
 	local player = GetLocalPlayer();
 
-	if (player:HasDebuff("Web")) or
-	(player:HasDebuff("Net")) or
-	(player:HasDebuff("Frost Nova"))
+	if (player:HasDebuff("Web"))
+	or (player:HasDebuff("Net"))
+	or (player:HasDebuff("Frost Nova"))
 
 
 	then

@@ -27,8 +27,9 @@ function script_paladinEX:menu()
 		Separator();
 
 		script_paladin.meleeDistance = SliderFloat("Melee range", 1, 8, script_paladin.meleeDistance);
-		wasClicked, script_paladin.useBubbleHearth = Checkbox("Bubble/Hearth Enemy Player Combat", script_paladin.useBubbleHearth);
-
+		if (HasSpell("Divine Shield")) then
+			wasClicked, script_paladin.useBubbleHearth = Checkbox("Bubble/Hearth Enemy Player Combat", script_paladin.useBubbleHearth);
+		end
 		Separator();
 
 		wasClicked, script_paladin.useJudgement = Checkbox("Use Judgement", script_paladin.useJudgement);

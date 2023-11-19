@@ -54,12 +54,12 @@ function script_priestEX:menu()
 
 			-- hide spell if not obtained yet
 			if (HasSpell("Psychic Scream")) then
-				wasClicked, script_priest.useScream = Checkbox("Fear On/Off", script_priest.useScream);
+				wasClicked, script_priest.useScream = Checkbox("Use Fear", script_priest.useScream);
 			end
 
 			SameLine();
 
-			wasClicked, script_priest.useSmite = Checkbox("Smite On/Off", script_priest.useSmite);
+			wasClicked, script_priest.useSmite = Checkbox("Use Smite", script_priest.useSmite);
 			
 			-- mind flay appears in menu if has the spell
 			if (HasSpell("Mind Flay")) then

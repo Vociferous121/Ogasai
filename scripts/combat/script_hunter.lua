@@ -28,7 +28,6 @@ script_hunter = {
 	followTargetDistance = 38,
 	useBandage = false,
 	hasBandages = false,
-	waitAfterCombat = 8,
 	useFeedPet = true,
 	meleeDistance = 5,
 	useCheetah = true,
@@ -36,6 +35,7 @@ script_hunter = {
 	useMark = true,
 	useMultiShot = false,
 	--useScorpidSting = false,
+	waitAfterCombat = true,
 
 }	
 
@@ -226,8 +226,9 @@ function script_hunter:run(targetGUID)
 	end
 	
 	-- stuck in combat
-	if (self.hasPet) and (IsInCombat()) then
-		if (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
+	if (self.waitAfterCombat)and (self.hasPet) and (IsInCombat()) then
+		local petHasTarget = GetPet():GetUnitsTarget();
+		if (playerHasTarget == 0) and (petHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
 			self.message = "No Target - stuck in combat! WAITING!";
 			return 4;
 		end
@@ -525,12 +526,12 @@ function script_hunter:mendPet(localMana, petHP)
 				end 
 
 				CastSpellByName("Mend Pet"); 
-				self.waitTimer = GetTimeEX() + 3850;
+				self.waitTimer = GetTimeEX() + 1850;
 				return true;
 
-			elseif (localMana > 10) then 
-				script_nav:moveToTarget(GetLocalPlayer(), GetPet():GetPosition()); 
-				return true; 
+			elseif (GetPet():GetDistance() > 20) and (localMana > 10) then 
+				script_nav:moveToNav(GetLocalPlayer(), GetPet():GetPosition()); 
+				return; 
 			end 
 			
 		end
@@ -585,7 +586,10 @@ function script_hunter:rest()
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
 	local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
-	local petHasTarget = GetPet():GetUnitsTarget();
+
+	if (GetPet() ~= 0) or (self.hasPet) then
+		local petHasTarget = GetPet():GetUnitsTarget();
+	end
 
 	-- Stop moving before we can rest
 	if(localHealth < self.eatHealth) or (localMana < self.drinkMana) then

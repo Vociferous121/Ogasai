@@ -57,6 +57,11 @@ function script_paladin:setup()
 		self.holyLightHealth = 66;
 	end
 
+	-- set bubble hearth false if no divine shield
+	if (not HasSpell("Divine Shield")) then
+		self.useBubbleHearth = false;
+	end
+
 	self.waitTimer = GetTimeEX();
 
 	self.isSetup = true;
