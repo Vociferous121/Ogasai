@@ -99,6 +99,7 @@ script_grind = {
 	useUnstuckTwo = true,
 	lootCheckTime = 0,
 	afkActionSlot = "24",
+	playerParanoidDistance = 0,
 }
 
 function script_grind:setup()
@@ -747,6 +748,7 @@ function script_grind:playersWithinRange(range)
 						if (currentObj:GetDistance() < self.paranoidRange) and (typeObj == 4) then
 							local playerName = currentObj:GetUnitName();
 							local playerDistance = currentObj:GetDistance();
+							self.playerParanoidDistance = currentObj:GetDistance();
 							local playerTime = GetTimeStamp();
 							local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance (yds) "..playerDistance.. " - added to log file for further implementation of paranoia."
 							DEFAULT_CHAT_FRAME:AddMessage(string);

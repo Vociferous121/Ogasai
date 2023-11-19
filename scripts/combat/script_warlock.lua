@@ -419,7 +419,9 @@ function script_warlock:run(targetGUID)
 						script_warlock:petAttack();
 					end
 		
-					targetObj:FaceTarget();
+					if (not IsMoving()) then
+						targetObj:FaceTarget();
+					end
 					if (not targetObj:HasDebuff("Immolate")) and (not IsMoving()) then
 						CastSpellByName("Immolate");
 						self.waitTimer = GetTimeEX() + 2500;
@@ -1047,6 +1049,7 @@ function script_warlock:rest()
 			JumpOrAscendStart();
 		end
 		if (CastSpellByName("Life Tap")) then
+			script_grind.tickRate = 100;
 			self.waitTimer = GetTimeEX() + 1600;
 			return;
 		end

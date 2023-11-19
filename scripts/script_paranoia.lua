@@ -99,7 +99,7 @@ function script_paranoia:checkParanoia()
 			end
 
 			-- sit when paranoid if enabled
-			if (self.sitParanoid) and (IsStanding()) and (not IsInCombat()) then
+			if (self.sitParanoid) and (IsStanding()) and (not IsInCombat()) and (script_grind.playerParanoidDistance >= 200) then
 				self.waitTimer = GetTimeEX() + 2521;
 				if (IsMoving()) then
 					StopMoving();
