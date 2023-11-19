@@ -134,16 +134,19 @@ end
 -- Run backwards if the target is within range
 function script_warlock:runBackwards(targetObj, range) 
 	local localObj = GetLocalPlayer();
- 	if targetObj ~= 0 then
+ 	if (targetObj ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) then
  		local xT, yT, zT = targetObj:GetPosition();
  		local xP, yP, zP = localObj:GetPosition();
  		local distance = targetObj:GetDistance();
  		local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
  		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
  		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
- 		local moveX, moveY, moveZ = xT + xUV*10, yT + yUV*10, zT + zUV*10;		
- 		if (distance < range and targetObj:IsInLineOfSight()) then 
+ 		local moveX, moveY, moveZ = xT + xUV*20, yT + yUV*20, zT + zUV;		
+ 		if (distance < range and targetObj:IsInLineOfSight()) then
  			script_nav:moveToTarget(localObj, moveX, moveY, moveZ);
+			if (IsMoving()) then
+				JumpOrAscendStart();
+			end
  			return true;
  		end
 	end
@@ -471,6 +474,20 @@ function script_warlock:run(targetGUID)
 				end
 			end
 		end
+
+		-- walk away from target if pet target guid is the same guid as target targeting me
+			if (targetObj:GetDistance() <= 10) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) then
+				if (targetObj:GetUnitsTarget():GetGUID() == GetPet():GetGUID()) then
+
+					if (script_warlock:runBackwards(targetObj, 13)) then
+						script_grind.tickRate = 100;
+						script_rotation.tickRate = 135;
+						PetAttack();
+						self.message = "Moving away from target for range attacks...";
+						return 4;
+					end
+				end
+			end
 
 		-- START OF COMBAT PHASE
 
