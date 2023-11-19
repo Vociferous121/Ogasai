@@ -316,7 +316,7 @@ function script_druid:healsAndBuffs()
 
 	
 	-- redundancy check heals cat/bear checked but not is bear or not is cat HEALTH-TO-SHIFT CONTROL HEALS
-	if (self.useBear or self.useCat) and (not isBear and not isCat) then
+	if (self.useBear or self.useCat) and (not isBear and not isCat) and (not IsLooting()) then
 
 		-- Regrowth
 		if (HasSpell("Regrowth")) and (not localObj:HasBuff("Regrowth")) and (localHealth <= self.healthToShift) and (localMana >= 40) then
@@ -347,7 +347,7 @@ function script_druid:healsAndBuffs()
 
 
 	-- if not isBear and not isCat
-	if (not isBear) and (not isCat) and (IsStanding()) and (not IsEating()) and (not IsDrinking()) then
+	if (not isBear) and (not isCat) and (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) then
 
 		-- Healing Touch
 		if (HasSpell("Healing Touch")) then
@@ -394,7 +394,6 @@ function script_druid:healsAndBuffs()
 				return 0;
 			end
 		end
-	end
 
 		-- Check: Use Healing Potion 
 		if (localHealth < self.potionHealth) then 
@@ -409,6 +408,7 @@ function script_druid:healsAndBuffs()
 				return 0; 
 			end 
 		end
+	end
 
 
 --------------------------
@@ -439,7 +439,7 @@ function script_druid:healsAndBuffs()
 	end
 
 
--- set tick rate for script to run
+	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
 		local tickRandom = random(300, 800);
@@ -774,7 +774,11 @@ function script_druid:run(targetGUID)
 	-- IN COMBAT
 
 
+
+
 		else	
+
+
 
 
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
@@ -783,6 +787,8 @@ function script_druid:run(targetGUID)
 			if (script_druid:healsAndBuffs()) and (not IsLooting()) then
 				return;
 			end
+
+
 
 
 	-- attacks in bear form IN COMBAT PHASE
