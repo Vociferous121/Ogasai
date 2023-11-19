@@ -493,7 +493,7 @@ function script_druid:run(targetGUID)
 	end
 
 	-- stay in bear if bear form is selected
-	if (not self.useBear) and (isBear) and (localMana > self.drinkMana) then
+	if (not self.useBear) and (isBear) and (localMana > self.drinkMana) and (localHealth >= self.healthToShift - 5) then
 			script_grind.tickRate = 135;
 			script_rotation.tickRate = 135;
 		if (not HasSpell("Dire Bear Form")) then
@@ -509,7 +509,7 @@ function script_druid:run(targetGUID)
 	end
 	
 	-- stay in cat form if cat form is selected
-	if (not self.useCat) and (isCat) and (localMana > self.drinkMana) then
+	if (not self.useCat) and (isCat) and (localMana > self.drinkMana) and (localHealth >= self.healthToShift -5) then
 		script_grind.tickRate = 135;
 		script_rotation.tickRate = 135;
 		CastSpellByName("Cat Form");
@@ -636,7 +636,7 @@ function script_druid:run(targetGUID)
 
 			-- stay in form
 			-- not in bear form and conditions right then stay in bear form
-		if (not isBear) and (self.useBear) and (localHealth >= self.healthToShift) and (localMana >= self.drinkMana) and (localMana > 15) then
+		if (not isBear) and (self.useBear) and (localHealth >= self.healthToShift - 5) and (localMana > 33) then
 			if (HasSpell("Dire Bear Form")) then
 				CastSpellByName("Dire Bear Form");
 				self.waitTimer = GetTimeEX() + 1500;
@@ -685,7 +685,7 @@ function script_druid:run(targetGUID)
 
 		-- stay in form
 		-- not in cat form and conditions right then stay in cat form
-		if (not isCat) and (self.useCat) and (localHealth >= self.healthToShift) and (localMana >= self.drinkMana) and (localMana > 15) then
+		if (not isCat) and (self.useCat) and (localHealth >= self.healthToShift) and (localMana > 33) then
 			if (HasSpell("Cat Form")) then
 				CastSpellByName("Cat Form");
 				self.waitTimer = GetTimeEX() + 1500;
