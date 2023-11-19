@@ -678,7 +678,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- death coil pet low health
-			if (HasSpell("Death Coil")) and (not IsSpellOnCD("Death Coil")) and (GetPet():GetHealthPercentage() <= 35) then
+			if (GetPet() ~=0) and (HasSpell("Death Coil")) and (not IsSpellOnCD("Death Coil")) and (GetPet():GetHealthPercentage() <= 35) then
 				if (CastSpellByName("Death Coil", targetObj)) then
 					self.waitTimer = GetTimeEC() + 1500;
 					return 0;

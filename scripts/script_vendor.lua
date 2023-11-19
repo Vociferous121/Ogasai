@@ -292,11 +292,10 @@ function script_vendor:sell()
 	if (self.sellVendor ~= 0) then
 		vendor = self.sellVendor;
 	else
-		local vendorID = vendorDB:GetVendor(factionID, GetContinentID(), GetMapID(), false, false, false, false, false, x, y, z);
+		local vendorID = vendorDB:GetVendor(factionID, GetContinentID(), GetMapID(), true, false, false, false, false, x, y, z);
 	
 		if (vendorID ~= -1) then
-			vendor = vendorDB:GetVendorByID(vendorID);
-		else
+		
 			self.message = "No vendor found, see scripts\\VendorDB.lua...";
 			return false;
 		end
@@ -342,6 +341,7 @@ function script_vendor:sell()
 					script_vendorMenu:sellLogic();
 					return true;
 				else
+					RepairAllItems();
 					script_vendorMenu:sellLogic();
 					return true;
 				end

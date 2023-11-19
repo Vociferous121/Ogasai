@@ -44,11 +44,6 @@ function vendorDB:setup()
 		--Winterspring
 	vendorDB:addVendor("Syurana", 0, 1, 618, false, false, false, false, false, 7122.5, -3977.65, 745.61);
 
-	--new for both faction
-		--Shimmering Flats
-	vendorDB:addVendor("Brivelthwerp", 0, 1, 400, false, true, false, false, false, -6225.8, -3835.31, -58.75);
-     vendorDB:addVendor("Brivelthwerp", 1, 1, 400, false, true, false, false, false, -6225.8, -3835.31, -58.75);
-
 	  -- Eeastern Plaguelands
 	  vendorDB:addVendor("Jase Farlane", 0, 0, 139, true, false, false, false, false, 2313.87, -5305, 81.99);
 	   vendorDB:addVendor("Jase Farlane", 1, 0, 139, true, false, false, false, false, 2313.87, -5305, 81.99);
@@ -110,6 +105,10 @@ function vendorDB:setup()
 
 
 
+	--new for both faction
+		--Shimmering Flats
+	vendorDB:addVendor("Brivelthwerp", 0, 1, 400, false, true, false, false, false, -6225.8, -3835.31, -58.75);
+    	vendorDB:addVendor("Brivelthwerp", 1, 1, 400, false, true, false, false, false, -6225.8, -3835.31, -58.75);
 
 
 	-- Add new additions here!!

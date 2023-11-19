@@ -308,10 +308,12 @@ function script_druid:healsAndBuffs()
 ------------------------
 
 	-- War Stomp Tauren Racial
-	if (not IsBear) and (not IsCat) and (GetLocalPlayer():GetUnitsTarget() ~= 0) and (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) and (targetObj:IsCasting() or script_druid:enemiesAttackingUs(10) >= 2) and (not IsMoving()) and (targetObj:GetDistance() <= 8) then
-		CastSpellByName("War Stomp");
-		self.waitTimer = GetTimeEX() + 200;
-		return 0;
+	if (not IsBear) and (not IsCat) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+		if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) and (targetObj:IsCasting() or script_druid:enemiesAttackingUs(10) >= 2) and (not IsMoving()) and (targetObj:GetDistance() <= 8) then
+			CastSpellByName("War Stomp");
+			self.waitTimer = GetTimeEX() + 200;
+			return 0;
+		end
 	end
 
 	
@@ -387,11 +389,21 @@ function script_druid:healsAndBuffs()
 		end
 
 		-- Thorns
-		if  (localMana > 30) then
+		if (localMana > 30) then
 			if (HasSpell("Thorns")) and (not localObj:HasBuff("Thorns")) then
 				CastSpellByName("Thorns", localObj);
 				self.waitTimer = GetTimeEX() + 1500;
 				return 0;
+			end
+		end
+
+		-- cure poison
+		if (script_checkDebuffs:hasPoison()) then
+			if (HasSpell("Cure Poison")) and (localMana > 30) then
+				if (CastSpellByName("Cure Poison", localObj)) then 
+					self.waitTimer = GetTimeEX() + 1750; 
+					return 0; 
+				end
 			end
 		end
 
