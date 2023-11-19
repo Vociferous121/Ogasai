@@ -50,6 +50,7 @@ script_warlock = {
 	followFeared = true,
 	useCurseOfWeakness = false,
 	useCurseOfTongues = false,
+	runOnce = false,
 }
 
 function script_warlock:cast(spellName, target)
@@ -274,6 +275,13 @@ function script_warlock:run(targetGUID)
 	if (self.enableGatherShards) then
 		self.alwaysFear = false;
 	end
+
+	if (GetLocalPlayer():GetUnitsTarget() == 0) and (self.runeOnce) then
+		local pX, pY, pZ = GetLocalPlayer():GetPosition();
+		self.message = script_nav:moveToNav(pX+3, pY+3, pZ);
+		self.waitTimer = GetTimeEX() + 1000;
+		self.runOnce = false;
+	end
 	
 	local localObj = GetLocalPlayer();
 	local localMana = localObj:GetManaPercentage();
@@ -373,6 +381,10 @@ function script_warlock:run(targetGUID)
 
 	--Valid Enemy
 	if (targetObj ~= 0 and targetObj ~= nil) and (not localObj:IsStunned()) then
+
+		if (not self.runeOnce) then
+			self.runOnce = true;
+		end
 		
 		-- Cant Attack dead targets
 		if (targetObj:IsDead() or not targetObj:CanAttack()) then
@@ -657,8 +669,16 @@ function script_warlock:run(targetGUID)
 				end 
 			end
 
-			-- death coil
-			if (HasSpell("Death Coil")) and (not IsSpellOnCD("Death Coil")) and (localHealth < 65) and (localMana > 20) then
+			-- death coil target targeting you
+			if (HasSpell("Death Coil")) and (not IsSpellOnCD("Death Coil")) and (script_grind:isTargetingMe(targetObj)) then
+				if (CastSpellByName("Death Coil", targetObj)) then
+					self.waitTimer = GetTimeEC() + 1500;
+					return 0;
+				end
+			end
+
+			-- death coil pet low health
+			if (HasSpell("Death Coil")) and (not IsSpellOnCD("Death Coil")) and (GetPet():GetHealthPercentage() <= 35) then
 				if (CastSpellByName("Death Coil", targetObj)) then
 					self.waitTimer = GetTimeEC() + 1500;
 					return 0;
