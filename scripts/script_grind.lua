@@ -1001,6 +1001,25 @@ function script_grind:runRest()
 		self.message = "Resting...";
 		self.newTargetTime = GetTimeEX();
 
+		-- auto delete items
+		if (HasItem("OOX-22/FE Distress Beacon")) then
+                	DeleteItem("OOX-22/FE Distress Beacon");
+                	self.waitTimer = GetTimeEX() + 1500;
+                	return 0;
+            	end
+		-- auto delete items
+		if (HasItem("OOX-17/TN Distress Beacon")) then
+                	DeleteItem("OOX-17/TN Distress Beacon");
+                	self.waitTimer = GetTimeEX() + 1500;
+                	return 0;
+            	end
+		-- auto delete items
+		if (HasItem("OOX-09/HL Distress Beacon")) then
+                	DeleteItem("OOX-09/HL Distress Beacon");
+                	self.waitTimer = GetTimeEX() + 1500;
+                	return 0;
+            	end
+
 		if (isCat) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not isProwl) then
 			CastSpellByName("Prowl", localObj);
 			self.waitTimer = GetTimeEX() + 1000;
