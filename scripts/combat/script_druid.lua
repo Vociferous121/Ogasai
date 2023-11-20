@@ -225,56 +225,56 @@ function script_druid:healsAndBuffs()
 
 
 	-- shapeshift out of bear form to heal higher health if 2 or more targets
-	if (self.useBear and isBear) and (localHealth <= self.healthToShift + 10) and (localMana >= 30) and (script_grind:enemiesAttackingUs(8) >= 2) and (not hasRejuv) and (not hasRegrowth) and (localMana > 55) then
-		if (not script_grind.adjustTickRate) then
-			script_grind.tickRate = 135;
-			script_rotation.tickRate = 135;
-		end
-		if (localObj:HasBuff("Dire Bear Form")) then
-			CastSpellByName("Dire Bear Form");
-			self.waitTimer = GetTimeEX() + 1500;
-		end
-		if (localObj:HasBuff("Bear Form")) then
-			CastSpellByName("Bear Form", localObj);
-			self.waitTimer = GetTimeEX() + 1500;
-		end
-		
-	end
+	--if (self.useBear and isBear) and (localHealth <= self.healthToShift + 10) and (localMana >= 30) and (script_grind:enemiesAttackingUs(8) >= 2) and (not hasRejuv) and (not hasRegrowth) and (localMana > 55) then
+	--	if (not script_grind.adjustTickRate) then
+	--		script_grind.tickRate = 135;
+	--		script_rotation.tickRate = 135;
+	--	end
+	--	if (localObj:HasBuff("Dire Bear Form")) then
+	--		CastSpellByName("Dire Bear Form");
+	--		self.waitTimer = GetTimeEX() + 1500;
+	--	end
+	--	if (localObj:HasBuff("Bear Form")) then
+	--		CastSpellByName("Bear Form", localObj);
+	--		self.waitTimer = GetTimeEX() + 1500;
+	--	end
+	--	
+	--end
 
 	-- shapeshift out of cat form to heal higher health if 2 or more targets
-	if (self.useCat and isCat) and (localHealth <= self.healthToShift + 10) and (localMana >= 30) and (script_grind:enemiesAttackingUs(8) >= 2) and (not hasRejuv) and (not hasRegrowth) and (localMana > 55) then
-		if (not script_grind.adjustTickRate) then
-			script_grind.tickRate = 135;
-			script_rotation.tickRate = 135;
-		end
-		if (localObj:HasBuff("Cat Form")) then
-			CastSpellByName("Cat Form");
-			self.waitTimer = GetTimeEX() + 1500;
-		end
-	end
+	--if (self.useCat and isCat) and (localHealth <= self.healthToShift + 10) and (localMana >= 30) and (script_grind:enemiesAttackingUs(8) >= 2) and (not hasRejuv) and (not hasRegrowth) and (localMana > 55) then
+	--	if (not script_grind.adjustTickRate) then
+	--		script_grind.tickRate = 135;
+	--		script_rotation.tickRate = 135;
+	--	end
+	--	if (localObj:HasBuff("Cat Form")) then
+	--		CastSpellByName("Cat Form");
+	--		self.waitTimer = GetTimeEX() + 1500;
+	--	end
+	--end
 
 
 ----------------------
 
 
 	-- shapeshift out of form to heal if mana is high enough and need healing - redundancy in case settings are set wrong
-	if (not IsInCombat()) and (isBear or isCat) and (localMana >= 80) and (localHealth <= self.healthToShift + 10) and (not hasRejuv) and (not hasRegrowth) then
-		if (localObj:HasBuff("Dire Bear Form")) then
-			CastSpellByName("Dire Bear Form");
-			self.waitTimer = GetTimeEX() + 1500;
-		end
-		if (localObj:HasBuff("Bear Form")) then
-			CastSpellByName("Bear Form", localObj);
-			self.waitTimer = GetTimeEX() + 1500;
-		end
-
-
-		-- shapeshift out of cat form to heal
-		if (localObj:HasBuff("Cat Form")) then
-			CastSpellByName("Cat Form");
-			self.waitTimer = GetTimeEX() + 1500;
-		end
-	end
+	--if (not IsInCombat()) and (isBear or isCat) and (localMana >= 80) and (localHealth <= self.healthToShift + 10) and (not hasRejuv) and (not hasRegrowth) then
+	--	if (localObj:HasBuff("Dire Bear Form")) then
+	--		CastSpellByName("Dire Bear Form");
+	--		self.waitTimer = GetTimeEX() + 1500;
+	--	end
+	--	if (localObj:HasBuff("Bear Form")) then
+	--		CastSpellByName("Bear Form", localObj);
+	--		self.waitTimer = GetTimeEX() + 1500;
+	--	end
+--
+--
+--		-- shapeshift out of cat form to heal
+--		if (localObj:HasBuff("Cat Form")) then
+--			CastSpellByName("Cat Form");
+--			self.waitTimer = GetTimeEX() + 1500;
+--		end
+--	end
 
 ------------------------------------
 
@@ -623,8 +623,8 @@ function script_druid:run(targetGUID)
 			end
 
 			-- enrage if has charge
-			if (self.useBear) and (isBear) and (HasSpell("Feral Charge")) and (HasSpell("Enrage")) and (not IsSpellOnCD("Enrage")) and (not IsSpellOnCD("Feral Charge")) then
-				if (targetObj:GetDistance() <= 35) then
+			if (self.useBear) and (isBear) and (HasSpell("Feral Charge")) and (HasSpell("Enrage")) and (not IsSpellOnCD("Enrage")) and (not IsSpellOnCD("Feral Charge")) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+				if (targetObj:GetDistance() <= 50) then
 					CastSpellByName("Enrage", localObj);
 					self.waitTimer = GetTimeEX() + 750;
 					return 0;
@@ -896,6 +896,8 @@ function script_druid:run(targetGUID)
 					end
 				end
 
+				-- back away from enemy if charge is not on CD and use charge in combat??
+
 				-- use charge in bear form
 				if (self.useCharge) and (HasSpell("Feral Charge")) and (not IsSpellOnCD("Feral Charge")) and (localRage >= 5) then
 					if (self.useBear) and (isBear) and (targetObj:GetDistance() < 26) and (targetObj:GetDistance() > 10) then
@@ -905,7 +907,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- growl in group
-				if (GetNumPartyMembers() >= 2) and (not targetObj:IsTargetingMe()) and (localObj:GetDistance() <= 10) then
+				if (GetNumPartyMembers() >= 2) and (not targetObj:IsTargetingMe()) and (targetObj:GetDistance() <= 10) then
 					if (not IsSpellOnCD("Growl")) then
 						CastSpellByName("Growl", targetObj);
 						self.waitTimer = GetTimeEX() + 800;
