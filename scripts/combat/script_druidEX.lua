@@ -5,14 +5,29 @@ script_druidEX = {
 
 function script_druidEX:menu()
 
-	if (HasSpell("Bear Form")) or (HasSpell("Dire Bear Form")) then
-		if (CollapsingHeader("Choose Form For Combat")) then
-			wasClicked, script_druid.useBear = Checkbox("Bear Form", script_druid.useBear);
 
-			if (HasSpell("Cat Form")) then
+	if (script_grind.useBear) then
+		script_druid.useCat = false
+	end
+	if (script_grind.useCat) then
+		script_druid.useBear = false;
+	end
+
+	if (HasSpell("Bear Form")) or (HasSpell("Dire Bear Form")) then
+
+		if (CollapsingHeader("Choose Form For Combat")) then
+Separator();
+
+			if (not script_druid.useCat) and (HasSpell("Bear Form")) then
+				wasClicked, script_druid.useBear = Checkbox("Bear Form", script_druid.useBear);
+			end
+
+
+			if (not script_druid.useBear) and (HasSpell("Cat Form")) then
 				SameLine();
 				wasClicked, script_druid.useCat = Checkbox("Cat Form", script_druid.useCat);
 			end
+
 		end
 	end
 
@@ -55,11 +70,8 @@ function script_druidEX:menu()
 			end
 		end
 
-		if (script_druid.useBear) and (HasSpell("Cat Form")) then
+		if (script_druid.useCat) and (HasSpell("Cat Form")) then
 			if (CollapsingHeader("|+| Cat Form Options")) then
-				if (not HasSpell("Prowl")) then
-					Text("    Nothing here at your level!");
-				end
 				wasClicked, script_druid.useStealth = Checkbox("Use Stealth", script_druid.useStealth);
 				Text("Stealth Opener");
 				script_druid.stealthOpener = InputText("Opener", script_druid.stealthOpener);
