@@ -179,7 +179,7 @@ function script_followEX:menu()
 				Separator();
 			end
 
-			if (CollapsingHeader("-- Loot Options")) then
+			if (CollapsingHeader("|+| Loot Options")) then
 				Text("Loot options:");
 				wasClicked, script_follow.skipLooting = Checkbox("Skip Looting", script_follow.skipLooting);
 				SameLine();

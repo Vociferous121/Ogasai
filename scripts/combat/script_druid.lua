@@ -51,16 +51,15 @@ function script_druid:setup()
 		self.useEntanglingRoots = false;
 	end
 
-	if (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) and (GetLocalPlayer():GetLevel() < 20) then
-		self.useBear = true;
-	end
-
 	if (HasSpell("Bear Form")) and (not HasSpell("Cat Form")) then
 		self.meleeDistance = 4.50;
 	end
 
 	if (not HasSpell("Ravage")) or (not HasSpell("Pounce")) then
 		self.stealthOpener = "Shred";
+	end
+	if (not HasSpell("Shred")) then
+		self.stealthOpener = "Claw";
 	end
 
 	if (not HasSpell("Prowl")) then
@@ -75,6 +74,15 @@ function script_druid:setup()
 
 	if (HasSpell("Feral Charge")) or (GetLocalPlayer():GetLevel() >= 15) then
 		self.maulRage = 10;
+	end
+
+	-- remove forms when bot starts
+	if (not self.useBear) and (isBear) then
+		CastSpellByName("Cat Form");
+	end
+
+	if (not self.useCat) and (isCat) then
+		CastSpellByName("Cat Form");
 	end
 
 	self.waitTimer = GetTimeEX();	
@@ -614,13 +622,6 @@ function script_druid:run(targetGUID)
 				targetObj:AutoAttack();
 			end
 
-			-- use prowl before spamming auto attack and move in range of target!
-			if (self.useCat) and (isCat) and (self.useStealth) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) then
-				CastSpellByName("Prowl");
-				self.waitTimer = GetTimeEX() + 1500;
-				return 0;
-			end
-
 			-- enrage if has charge
 			if (self.useBear) and (isBear) and (HasSpell("Feral Charge")) and (HasSpell("Enrage")) and (not IsSpellOnCD("Enrage")) and (not IsSpellOnCD("Feral Charge")) then
 				if (targetObj:GetDistance() <= 35) then
@@ -638,6 +639,13 @@ function script_druid:run(targetGUID)
 					CastSpellByName("Feral Charge");
 					return 4;
 				end
+			end
+
+			-- use prowl before spamming auto attack and move in range of target!
+			if (self.useCat) and (isCat) and (self.useStealth) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (script_grind.lootObj == nil) then
+				CastSpellByName("Prowl");
+				self.waitTimer = GetTimeEX() + 1500;
+				return 0;
 			end
 
 			-- move to enemy target
@@ -1136,7 +1144,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- starfire
-				if (HasSpell("Starfire")) and (localMana > 60) and (not script_grind:enemiesAttackingUs(10) > 1) then
+				if (HasSpell("Starfire")) and (localMana > 60) and (script_grind:enemiesAttackingUs(10) < 2) then
 					CastSpellByName("Starfire", targetObj);
 					self.waitTimer = GetTimeEX() + 4000;
 				end
@@ -1285,7 +1293,7 @@ function script_druid:rest()
 		return true;
 	end
 
-	if (IsEating()) or (IsDrinking()) and (not IsStanding()) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) then
+	if (IsEating()) or (IsDrinking()) and (not IsStanding()) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not isCat) and (not isBear) then
 		if (CastSpellByName("Shadowmeld")) then
 			self.waitTimer = GetTimeEX() + 2000;
 			return 0;
@@ -1310,6 +1318,15 @@ function script_druid:rest()
 	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (script_grind.lootObj == nil) then
 		return;
 	end
+	
+	if (self.useRest) and (isCat) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) then
+		if (not GetLocalPlayer():GetUnitsTarget() == 0) then
+			if (localMana <= 55 or localHealth <= 55) and (not IsInCombat()) then
+				CastSpellByName("Prowl", localObj);
+				self.waitTimer = GetTimeEX() + 1000;
+			end
+		end
+	end		
 
 	-- rest in form
 	if (isBear or isCat) and (self.useRest) then

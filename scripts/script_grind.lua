@@ -989,9 +989,33 @@ function script_grind:lootAndSkin()
 end
 
 function script_grind:runRest()
+
+		local localObj = GetLocalPlayer();
+		local isCat = localObj:HasBuff("Cat Form");
+		local isBear = localObj:HasBuff("Bear Form");
+		local isStealth = localObj:HasBuff("Stealth");
+		local isShadowmeld = localObj:HasBuff("Shadowmeld");
+		local isProwl = localObj:HasBuff("Prowl");
+
 	if(RunRestScript()) then
 		self.message = "Resting...";
 		self.newTargetTime = GetTimeEX();
+
+		if (isCat) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not isProwl) then
+			CastSpellByName("Prowl", localObj);
+			self.waitTimer = GetTimeEX() + 1000;
+		end	
+
+		if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not isStealth) then
+			CastSpellByName("Stealth", localObj);
+			self.waitTimer = GetTimeEX() + 1000;
+		end
+		
+		
+		if (not isCat) and (not isProwl) and (not isStealth) and (not isShadowmeld) and (not isBear) and (not isCat) then
+			CastSpellByName("Shadowmeld", localObj);
+			self.waitTimer = GetTimeEX() + 1000;
+		end
 
 		-- Stop moving
 		if (IsMoving()) and (not localObj:IsMovementDisabed()) then

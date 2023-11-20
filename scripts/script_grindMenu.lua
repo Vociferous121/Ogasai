@@ -217,7 +217,7 @@ function script_grindMenu:menu()
 
 		wasClicked, script_grind.drawAggro = Checkbox('Display Aggro Range', script_grind.drawAggro);
 
-		if (CollapsingHeader("Draw Radar")) then
+		if (CollapsingHeader("|+| Draw Radar")) then
 		local wasClicked = false;
 				script_radar:menu()
 		end

@@ -47,7 +47,7 @@ function script_targetMenu:menu()
 
 		Separator();
 		
-		if (CollapsingHeader("-- Skip Creature By Type")) then
+		if (CollapsingHeader("|+| Skip Creature By Type")) then
 
 			wasClicked, script_grind.skipElites = Checkbox("Skip Elite", script_grind.skipElites);
 			SameLine(); wasClicked, script_grind.skipHumanoid = Checkbox("Skip Humanoid", script_grind.skipHumanoid);
