@@ -53,8 +53,6 @@ function script_druid:setup()
 
 	if (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) and (GetLocalPlayer():GetLevel() < 20) then
 		self.useBear = true;
-	elseif (GetLocalPlayer():GetLevel() >= 20) and (HasSpell("Cat Form")) then
-		self.useCat = true;
 	end
 
 	if (HasSpell("Bear Form")) and (not HasSpell("Cat Form")) then
@@ -425,7 +423,7 @@ function script_druid:healsAndBuffs()
 
 
 	-- if out of form and target is low health then cast moonfire only if 1 target is attacking us
-	if (self.useBear and not isBear) or (self.useCat and not isCat) and (GetLocalPlayer():GetUnitsTarget() ~= 0) and (script_grind:enemiesAttackingUs(10) < 2) then
+	if (self.useBear and not isBear) and (self.useCat and not isCat) and (GetLocalPlayer():GetUnitsTarget() ~= 0) and (script_grind:enemiesAttackingUs(10) < 2) then
 		if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (targetObj:GetHealthPercentage() < 8) and (not targetObj:IsDead()) and (localMana > 15) then
 			CastSpellByName("Moonfire", targetObj);
 			self.waitTimer = GetTimeEX() + 1750;
@@ -434,7 +432,7 @@ function script_druid:healsAndBuffs()
 	end
 
 	-- if out of form use faerie fire
-	if (self.useBear and not isBear) or (self.useCat and not isCat) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+	if (self.useBear and not isBear) and (self.useCat and not isCat) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 		if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (targetObj:GetHealthPercentage() > 20) and (not targetObj:IsDead()) and (localMana > 25) and (not targetObj:HasDebuff("Faerie Fire")) then
 			CastSpellByName("Faerie Fire", targetObj);
 			self.waitTimer = GetTimeEX() + 1750;
@@ -624,7 +622,7 @@ function script_druid:run(targetGUID)
 			end
 
 			-- enrage if has charge
-			if (HasSpell("Charge")) and (HasSpell("Enrage")) and (not IsSpellOnCD("Enrage")) and (not IsSpellOnCD("Charge")) then
+			if (self.useBear) and (isBear) and (HasSpell("Feral Charge")) and (HasSpell("Enrage")) and (not IsSpellOnCD("Enrage")) and (not IsSpellOnCD("Feral Charge")) then
 				if (targetObj:GetDistance() <= 35) then
 					CastSpellByName("Enrage", localObj);
 					self.waitTimer = GetTimeEX() + 750;
@@ -635,7 +633,7 @@ function script_druid:run(targetGUID)
 			end
 
 			-- use charge in bear form
-			if (self.useCharge) and (HasSpell("Feral Charge")) and (not IsSpellOnCD("Feral Charge")) and (localRage >= 5) then
+			if (self.useBear) and (isBear) and (self.useCharge) and (HasSpell("Feral Charge")) and (not IsSpellOnCD("Feral Charge")) and (localRage >= 5) then
 				if (self.useBear) and (isBear) and (targetObj:GetDistance() < 26) and (targetObj:GetDistance() > 10) then
 					CastSpellByName("Feral Charge");
 					return 4;
@@ -890,6 +888,14 @@ function script_druid:run(targetGUID)
 					end
 				end
 
+				-- use charge in bear form
+				if (self.useCharge) and (HasSpell("Feral Charge")) and (not IsSpellOnCD("Feral Charge")) and (localRage >= 5) then
+					if (self.useBear) and (isBear) and (targetObj:GetDistance() < 26) and (targetObj:GetDistance() > 10) then
+						CastSpellByName("Feral Charge");
+						return 4;
+					end
+				end
+
 				-- growl in group
 				if (GetNumPartyMembers() >= 2) and (not targetObj:IsTargetingMe()) and (localObj:GetDistance() <= 10) then
 					if (not IsSpellOnCD("Growl")) then
@@ -1000,7 +1006,9 @@ function script_druid:run(targetGUID)
 				-- keep auto attack on
 				if (not IsAutoCasting("Attack")) then
 					targetObj:AutoAttack();
-					targetObj:FaceTarget();
+					if (not IsMoving()) then
+						targetObj:FaceTarget();
+					end
 				end
 
 				-- keep faerie fire up
@@ -1128,7 +1136,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- starfire
-				if (HasSpell("Starfire")) and (localMana > 60) then
+				if (HasSpell("Starfire")) and (localMana > 60) and (not script_grind:enemiesAttackingUs(10) > 1) then
 					CastSpellByName("Starfire", targetObj);
 					self.waitTimer = GetTimeEX() + 4000;
 				end
@@ -1149,7 +1157,7 @@ function script_druid:run(targetGUID)
 			-- auto attack condition for melee
 			if (localMana <= 30) or (self.useBear) or (self.useCat) or (isBear) or (isCat) then
 				if (targetObj:GetDistance() <= self.meleeDistance) then
-					if (not targetObj:FaceTarget()) then
+					if (not IsMoving()) then
 						targetObj:FaceTarget();
 					end
 					targetObj:AutoAttack();
