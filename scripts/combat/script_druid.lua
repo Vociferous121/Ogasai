@@ -26,6 +26,7 @@ script_druid = {
 	useRest = true,
 	maulRage = 15,
 	wasInCombat = false,
+	runOnce = false,
 }
 
 
@@ -244,12 +245,13 @@ function script_druid:healsAndBuffs()
 
 	-- shapeshift out of cat form to use bear form 2 or more targets
 	if (self.useCat and isCat) and (localMana >= 45) and (script_grind:enemiesAttackingUs(12) >= 2) then
-			self.wasInCombat = true;
 		if (not script_grind.adjustTickRate) then
-			script_grind.tickRate = 135;
-			script_rotation.tickRate = 135;
+			script_grind.tickRate = 50;
+			script_rotation.tickRate = 50;
 		end
 		if (localObj:HasBuff("Cat Form")) then
+			self.wasInCombat = true;
+			self.runOnce = true;
 			CastSpellByName("Cat Form");
 			self.waitTimer = GetTimeEX() + 1500;
 		end
@@ -590,7 +592,6 @@ function script_druid:run(targetGUID)
 		-- Opener
 		if (not IsInCombat()) then
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
-			runOnce = true;
 
 			if (isCat) and (self.useCat) and (self.useStealth) and (localObj:HasBuff("Prowl")) then
 				if (HasSpell(self.stealthOpener)) and (not IsSpellOnCD(self.stealthOpener)) and (localEnergy >= 50) and (targetObj:GetDistance() <= 6) then
@@ -846,6 +847,12 @@ function script_druid:run(targetGUID)
 
 			-- do these attacks only in bear form
 			if (isBear) and (not isCat) then
+
+				if (self.wasInCombat) and (self.runOnce) then
+					script_grind.tickRate = 50;
+					script_rotation.tickRate = 50;
+					self.runOnce = false;
+				end
 
 				if (not targetObj:IsInLineOfSight()) then
 					return 3;

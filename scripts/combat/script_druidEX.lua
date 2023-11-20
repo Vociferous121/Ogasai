@@ -50,7 +50,7 @@ Separator();
 
 		if (script_druid.useBear) or (script_druid.useCat) then
 			if (HasSpell("Bear Form") or HasSpell("Cat Form") or HasSpell("Dire Bear Form")) then
-				Text("Health to heal when shapeshifted");
+				Text("Health perecent to heal when shapeshifted");
 				script_druid.healthToShift = SliderInt("Shapeshift to heal HP%", 0, 65, script_druid.healthToShift);
 				Separator();
 				Text("Controlled by drink mana percentage");
