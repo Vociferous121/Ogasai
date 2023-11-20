@@ -68,21 +68,6 @@ function script_paladin:setup()
 
 end
 
-function script_paladin:spellAttack(spellName, target)
-	if (HasSpell(spellName)) then
-		if (target:IsSpellInRange(spellName)) then
-			if (not IsSpellOnCD(spellName)) then
-				if (not IsAutoCasting(spellName)) then
-					target:FaceTarget();
-					--target:TargetEnemy();
-					return target:CastSpell(spellName);
-				end
-			end
-		end
-	end
-	return false;
-end
-
 function script_paladin:enemiesAttackingUs(range) -- returns number of enemies attacking us within range
     local unitsAttackingUs = 0; 
     local currentObj, typeObj = GetFirstObject(); 
@@ -514,7 +499,7 @@ function script_paladin:run(targetGUID)
 				end
 			end
 
-			if (targetObj:GetDistance() <= self.meleeDistance) then
+			if (targetObj:GetDistance() <= self.meleeDistance) and (not IsMoving()) then
 				targetObj:AutoAttack();
 				targetObj:FaceTarget();
 			end
@@ -755,8 +740,11 @@ function script_paladin:run(targetGUID)
  						return 0;	
 					end
 				end
+
+				if (targetObj:IsFleeing()) and (not script_grind.adjustTickRate) then
+					script_grind.tickRate = 50;
+				end
 			end
-			return 0;
 		end
 	end
 end

@@ -40,7 +40,7 @@ script_grind = {
 	skipGiant = false,
 	skipMechanical = false,
 	skipElites = true,
-	paranoidRange = 137,
+	paranoidRange = 55,
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
 	helperLoaded = include("scripts\\script_helper.lua"),
 	talentLoaded = include("scripts\\script_talent.lua"),
@@ -89,7 +89,7 @@ script_grind = {
 	blacklistAdds = 1,
 	blacklistedNameNum = 0,
 	useExpChecker = true,
-	paranoidSetTimer = 16,
+	paranoidSetTimer = 47,
 	useString = true,	-- message to send to log players in range run once
 	useOtherString = true,	-- message to send to log players targeting us run once
 	useLogoutTimer = false,	-- use logout timer true/false
@@ -371,9 +371,9 @@ function script_grind:run()
 			--	return; 
 			--end
 			-- Druid cat form is faster if you specc talents
-			if (self.currentLevel < 40 and HasSpell('Cat Form') and not localObj:HasBuff('Cat Form')) and (not localObj:IsDead()) then
-				CastSpellByName('Cat Form');
-			end
+			--if (self.currentLevel < 40 and HasSpell('Cat Form') and not localObj:HasBuff('Cat Form')) and (not localObj:IsDead()) then
+			--	CastSpellByName('Cat Form');
+			--end
 			-- Shaman Ghost Wolf 
 			if (self.currentLevel < 40 and HasSpell('Ghost Wolf') and not localObj:HasBuff('Ghost Wolf')) and (not localObj:IsDead()) then
 				CastSpellByName('Ghost Wolf');

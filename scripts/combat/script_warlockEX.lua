@@ -199,6 +199,8 @@ function script_warlockEX:menu()
 
 		if (HasSpell("Health Funnel")) then
 			
+			Separator();		
+	
 			Text("Heal Pet below pet health percent");
 			
 			script_warlock.healPetHealth = SliderInt("HPH", 1, 80, script_warlock.healPetHealth);

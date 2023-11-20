@@ -549,7 +549,11 @@ function script_rogue:run(targetGUID)
 						return 0;
 					end
 				end
-			return 0;
+
+				if (targetObj:IsFleeing()) and (not script_grind.adjustTickRate) then
+					script_grind.tickRate = 50;
+				end
+			
 			end
 		end
 	end -- end of if self.enablegrind
@@ -759,6 +763,10 @@ function script_rogue:run(targetGUID)
 							end
 						end
 					end
+
+					if (targetObj:IsFleeing()) and (not script_grind.adjustTickRate) then
+						script_grind.tickRate = 50;
+					end
 				end
 
 				-- Combat rotation 1
@@ -875,6 +883,10 @@ function script_rogue:run(targetGUID)
 						if (script_rogue:spellAttack(self.cpGenerator, targetObj)) then
 							return 0;
 						end
+					end
+
+					if (targetObj:IsFleeing()) and (not script_grind.adjustTickRate) then
+						script_grind.tickRate = 50;
 					end
 				end
 			return 0;

@@ -26,9 +26,9 @@ script_follow = {
 	acceptTimer = GetTimeEX(),
 	followLeaderDistance = 26,
 	followTimer = GetTimeEX(),
-	assistInCombat = true,
+	assistInCombat = false,
 	isChecked = true,
-	pause = false,
+	pause = true,
 	autoGhost = false,
 	message = "Starting the follower...",
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
@@ -130,7 +130,7 @@ end
 function script_follow:run()
 		script_follow:window();
 		
-		if (IsUsingNavmesh()) then
+		if (IsUsingNavmesh()) and (self.drawPath) then
 			script_nav:drawPath();
 		end
 
@@ -312,6 +312,13 @@ function script_follow:run()
 				return;
 			end
 		end
+
+		-- Healer check: heal/buff the party
+		if (script_followHealsAndBuffs:healAndBuff()) and (HasSpell("Smite") or HasSpell("Rejuvenation") or HasSpell("Healing Wave") or HasSpell("Holy Light")) then
+			self.message = "Healing/buffing the party...";
+			ClearTarget();
+			return;
+		end
 				
 		-- Check if anything is attacking us Paladin
 		if (script_follow:enemiesAttackingUs() >= 2) then
@@ -427,7 +434,14 @@ function script_follow:run()
 				return;
 			end
 		end
-	end 
+
+		-- Healer check: heal/buff the party
+		if (script_followHealsAndBuffs:healAndBuff()) and (HasSpell("Smite") or HasSpell("Rejuvenation") or HasSpell("Healing Wave") or HasSpell("Holy Light")) then
+			self.message = "Healing/buffing the party...";
+			ClearTarget();
+			return;
+		end
+end -- end of function 
 
 function script_follow:getTarget()
 	return self.enemyObj;

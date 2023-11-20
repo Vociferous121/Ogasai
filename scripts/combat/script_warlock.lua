@@ -50,7 +50,6 @@ script_warlock = {
 	followFeared = true,
 	useCurseOfWeakness = false,
 	useCurseOfTongues = false,
-	runOnce = false,
 }
 
 function script_warlock:cast(spellName, target)
@@ -117,6 +116,10 @@ function script_warlock:fearAdd(targetObjGUID)
 					if (not currentObj:HasDebuff("Fear") and currentObj:GetCreatureType() ~= 'Elemental' and not currentObj:IsCritter()) then
 						ClearTarget();
 						if (currentObj:IsInLineOfSight()) then
+							if (not script_grind.adjustTickRate) then
+								script_grind.tickRate = 100;
+								script_rotation.tickRate = 100;
+							end
 							if (script_warlock:cast('Fear', currentObj)) then 
 								self.addFeared = true; 
 								fearTimer = GetTimeEX() + 8000;
@@ -182,6 +185,10 @@ function script_warlock:setup()
 	self.waitTimer = GetTimeEX();
 	self.fearTimer = GetTimeEX();
 	self.cooldownTimer = GetTimeEX();
+
+	if (not localObj:HasRangedWeapon()) then
+		self.useWand = false;
+	end
 
 
 -- issue with hasPet and not having pet low level causing the bot to stop
@@ -276,13 +283,6 @@ function script_warlock:run(targetGUID)
 		self.alwaysFear = false;
 	end
 
-	if (GetLocalPlayer():GetUnitsTarget() == 0) and (self.runeOnce) then
-		local pX, pY, pZ = GetLocalPlayer():GetPosition();
-		self.message = script_nav:moveToNav(pX+3, pY+3, pZ);
-		self.waitTimer = GetTimeEX() + 1000;
-		self.runOnce = false;
-	end
-	
 	local localObj = GetLocalPlayer();
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
@@ -381,10 +381,6 @@ function script_warlock:run(targetGUID)
 
 	--Valid Enemy
 	if (targetObj ~= 0 and targetObj ~= nil) and (not localObj:IsStunned()) then
-
-		if (not self.runeOnce) then
-			self.runOnce = true;
-		end
 		
 		-- Cant Attack dead targets
 		if (targetObj:IsDead() or not targetObj:CanAttack()) then
@@ -570,7 +566,7 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
-			if (HasSpell("Curse of Agony")) and (self.enableCurseOfAgony) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+			if (HasSpell("Curse of Agony")) and (self.enableCurseOfAgony) and (GetLocalPlayer():GetUnitsTarget() ~= 0) and (not self.useCurseOfWeakness) and (not self.useCurseOfTongues) then
 				targetObj:FaceTarget();
 				script_warlock:petAttack();
 				self.message = "Stacking DoT's";
@@ -608,7 +604,14 @@ function script_warlock:run(targetGUID)
 				return 3;
 			end
 
--- gather shards enabled
+			if (HasSpell("Will of the Forsaken")) and (script_checkDebuffs:undeadForsaken()) then
+				if (not IsSpellOnCD("Will of the Forsaken")) then
+					CastSpellByName("Cure Disease", localObj);
+					self.waitTimer = GetTimeEX() + 1750;
+					return 0;
+				end
+			end
+			-- gather shards enabled
 			if (self.enableGatherShards) then
 				if (targetHealth <= 35) and (HasSpell("Drain Soul")) and (targetObj:GetDistance() <= 26) and (IsInCombat()) then
 						script_grind.tickRate = 135;
@@ -774,11 +777,19 @@ function script_warlock:run(targetGUID)
 			if (targetObj ~= nil) and (self.fearAdds) and (script_grind:enemiesAttackingUs(10) > 1) and (HasSpell('Fear')) and (not self.addFeared) and (self.fearTimer < GetTimeEX()) then
 				self.message = "Fearing add...";
 				script_warlock:fearAdd(targetObj:GetGUID());
+				if (not script_grind.adjustTickRate) then
+					script_grind.tickRate = 100;
+					script_rotation.tickRate = 100;
+				end
 			end
 
 			-- Check: Sort target selection if add is feared
 			if (self.addFeared) then
 				if(script_grind:enemiesAttackingUs(10) >= 1 and targetObj:HasDebuff('Fear')) then
+					if (not script_grind.adjustTickRate) then
+						script_grind.tickRate = 100;
+						script_rotation.tickRate = 100;
+					end
 					ClearTarget();
 					targetObj = script_warlock:getTargetNotFeared();
 					targetObj:AutoAttack();
@@ -925,9 +936,26 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
+			-- keep curse of weakness up
+			if (not IsMoving()) and (self.useCurseOfWeakness) and (HasSpell("Curse of Weakness")) and (not targetObj:HasDebuff("Curse of Weakness")) and (not targetObj:HasDebuff("Curse of Toungues")) and (not targetObj:HasDebuff("Curse of Agony")) and (localMana > 25) then
+				if (CastSpellByName("Curse of Weakness", targetObj)) then
+					self.waitTimer = GetTimeEX() + 1600;
+					return 0;
+				end
+			end 
+
+			-- keep curse of tongues up
+			if (not IsMoving()) and (self.useCurseOfTongues) and (HasSpell("Curse of Tongues")) and (not targetObj:HasDebuff("Curse of Tongues")) and (localMana > 25) and (not targetObj:HasDebuff("Curse of Agony")) and (not targetObj:HasDebuff("Curse of Weakness")) then
+				if (CastSpellByName("Curse of Tongues", targetObj)) then
+					self.waitTimer = GetTimeEX() + 1600;
+					return 0;
+				end
+			end 
+		
+
 -- Check: Keep the Curse of Agony up (24 s duration)
 			if (self.enableCurseOfAgony) then
-				if (not targetObj:HasDebuff("Curse of Agony") and targetHealth > 20) then
+				if (not targetObj:HasDebuff("Curse of Agony") and targetHealth > 20) and (not targetObj:HasDebuff("Curse of Weakness")) and (not targetObj:HasDebuff("Curse of Tongues")) then
 					if (Cast('Curse of Agony', targetObj)) then
 						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 1600;
@@ -954,22 +982,6 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
-			-- keep curse of weakness up
-			if (not IsMoving()) and (self.useCurseOfWeakness) and (HasSpell("Curse of Weakness")) and (not targetObj:HasDebuff("Curse of Weakness")) and (localMana > 25) then
-				if (CastSpellByName("Curse of Weakness", targetObj)) then
-					self.waitTimer = GetTimeEX() + 1600;
-					return 0;
-				end
-			end 
-
-			-- keep curse of tongues up
-			if (not IsMoving()) and (self.useCurseOfTongues) and (HasSpell("Curse of Tongues")) and (not targetObj:HasDebuff("Curse of Tongues")) and (localMana > 25) then
-				if (CastSpellByName("Curse of Tongues", targetObj)) then
-					self.waitTimer = GetTimeEX() + 1600;
-					return 0;
-				end
-			end 
-		
 			-- Fear single Target
 			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) and (targetObj:GetCreatureType() ~= "Undead") then
 				CastSpellByName("Fear", targetObj);

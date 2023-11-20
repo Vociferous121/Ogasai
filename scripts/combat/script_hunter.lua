@@ -318,7 +318,8 @@ function script_hunter:run(targetGUID)
 			PetFollow();
 		end
 	
-	-- not in combat do pull stuff
+
+	-- NOT    in combat ---  do pull stuff
 
 	
 			if (not IsInCombat()) and (targetObj:GetDistance() < 35) and (targetObj:GetDistance() >= 12) and (targetObj:IsInLineOfSight()) then
@@ -417,7 +418,7 @@ function script_hunter:run(targetGUID)
 			end		
 
 			-- walk away from target if pet target guid is the same guid as target targeting me
-			if (targetObj:GetDistance() <= 14) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) and (targetObj:IsInLineOfSight()) then
+			if (GetPet() ~= 0) and (self.hasPet) and (targetObj:GetDistance() <= 14) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) and (targetObj:IsInLineOfSight()) then
 				if (targetObj:GetUnitsTarget():GetGUID() == pet:GetGUID()) then
 
 					if (script_hunter:runBackwards(targetObj, 15)) then
@@ -491,6 +492,10 @@ function script_hunter:run(targetGUID)
 
 				targetObj:AutoAttack();
 
+				if (targetObj:GetDistance() > self.meleeDistance) then
+					return 3;
+				end
+
 				-- cast raptor strike
 				if (HasSpell("Raptor Strike")) and (not IsSpellOnCD("Raptor Strike")) and (localMana > 10) then
 					CastSpellByName("Raptor Strike");
@@ -501,6 +506,10 @@ function script_hunter:run(targetGUID)
 				if (HasSpell("Wing Clip")) and (not IsSpellOnCD("Wing Clip")) and (localMana > 10) and (targetHealth < 35) then
 					CastSpellByName("Wing Clip");
 					return 0;
+				end
+
+				if (targetObj:IsFleeing()) and (not script_grind.adjustTickRate) then
+					script_grind.tickRate = 50;
 				end
 
 			end -- melee auto attack
@@ -588,7 +597,7 @@ function script_hunter:rest()
 	local localHealth = localObj:GetHealthPercentage();
 	local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
 
-	if (GetPet() ~= 0) or (self.hasPet) then
+	if (GetPet() ~= 0) and (self.hasPet) then
 		local petHasTarget = GetPet():GetUnitsTarget();
 	end
 
@@ -803,7 +812,7 @@ function script_hunter:hunterPull(targetObj)
 				return 3;
 			end
 
-			if (not targetObj:IsFleeing()) and (not targetObj:IsInLineOfSight()) and (GetPet():GetDistance() > 15) then
+			if (GetPet() ~= 0) and (self.hasPet) and (not targetObj:IsFleeing()) and (not targetObj:IsInLineOfSight()) and (GetPet():GetDistance() > 15) then
 				PetFollow();
 			end
 
@@ -826,7 +835,10 @@ function script_hunter:hunterPull(targetObj)
 			if (not IsAutoCasting("Auto Shot")) and (targetObj:IsInLineOfSight()) then
 				CastSpellByName("Auto Shot");
 				targetObj:FaceTarget();
+				if (GetPet() ~= 0) and (self.hasPet) then
 				PetAttack();
+				end
+				self.waitTimer = GetTimeEX() + 900;
 				return 0;
 			end
 
@@ -866,7 +878,9 @@ function script_hunter:hunterPull(targetObj)
 			end
 
 			local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
-			local petHasTarget = GetPet():GetUnitsTarget();
+			if (GetPet() ~= 0) and (self.hasPet) then
+				local petHasTarget = GetPet():GetUnitsTarget();
+			end
 
 			if (not self.hasPet) then
 				if (targetObj:GetDistance() < 12) then

@@ -651,6 +651,10 @@ function script_warrior:run(targetGUID)	-- main content of script
 	-- Check: If we are in melee range, do melee attacks
 			if (targetObj:GetDistance() <= self.meleeDistance) then
 
+				if (targetObj:IsFleeing()) and (not script_grind.adjustTickRate) then
+					script_grind.tickRate = 50;
+				end
+
 				if (not targetObj:FaceTarget()) then
 					targetObj:FaceTarget();
 				end

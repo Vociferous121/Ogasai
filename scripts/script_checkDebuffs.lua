@@ -78,8 +78,10 @@ function script_checkDebuffs:hasMagic()
 	local player = GetLocalPlayer();
 
 	if (player:HasDebuff("Faerie Fire")) 
-	or (player:HasDebuff("Sleep"))
-	or (player:HasDebuff("Sap Might"))
+		or (player:HasDebuff("Sleep"))
+		or (player:HasDebuff("Sap Might"))
+		or (player:HasDebuff("Frost Nova"))
+		or (player:HasDebuff("Fear"))
 
 	
 	then
@@ -98,8 +100,8 @@ function script_checkDebuffs:hasDisabledMovement()
 	local player = GetLocalPlayer();
 
 	if (player:HasDebuff("Web"))
-	or (player:HasDebuff("Net"))
-	or (player:HasDebuff("Frost Nova"))
+		or (player:HasDebuff("Net"))
+		or (player:HasDebuff("Frost Nova"))
 
 
 	then
@@ -117,7 +119,7 @@ function script_checkDebuffs:petDebuff()
 
 		local class = UnitClass('player');
 
-	if ((class == 'Hunter')) and (GetLocalPlayer():GetLevel() > 10) then
+	if (class == 'Hunter' or class == 'Warlock') and (GetLocalPlayer():GetLevel() >= 10) then
 		local pet = GetPet();
 	
 		if (pet:HasDebuff("Web"))
@@ -132,4 +134,25 @@ function script_checkDebuffs:petDebuff()
 			return false;
 		end
 	end
+end
+
+-- undead will of the forsaken
+function script_checkDebuffs:undeadForsaken()
+		
+		local player = GetLocalPlayer();
+	
+	if (player:HasDebuff("Sleep"))
+		or (player:HasDebuff("Fear"))
+		or (player:HasDebuff("Mind Control"))
+
+	then
+
+		return true;
+
+	else
+
+		return false;
+
+	end
+
 end

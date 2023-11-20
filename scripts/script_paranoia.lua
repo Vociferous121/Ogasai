@@ -3,7 +3,7 @@ script_paranoia = {
 	stopOnLevel = false,		-- stop bot on level up on/off
 	exitBot = false,		-- exit bot on level up
 	targetedLevel = GetLocalPlayer():GetLevel() + 1,	-- target level to stop bot when we level up.
-	deathCounterExit = true,	-- death counter until exit
+	deathCounterExit = false,	-- death counter until exit
 	sitParanoid = false,		-- sit paranoid true/false
 	paranoidOn = true,		-- paranoid on true/false
 	--paranoidOnTargeted = false,	-- paranoid when targeted on/off
@@ -61,6 +61,10 @@ function script_paranoia:checkParanoia()
 
 		-- if players in range
 		if (script_grind:playersWithinRange(script_grind.paranoidRange)) and (not IsLooting()) then
+
+			self.waitTimer = GetTimeEX() + 4100;
+			script_grind:setWaitTimer(2700);
+
 			script_grind.message = "Player(s) within paranoid range, pausing...";
 			ClearTarget();
 			if IsMoving() then
@@ -203,7 +207,7 @@ function script_paranoia:menu()
 	wasClicked, script_paranoia.deathCounterExit = Checkbox("Exit Bot On "..script_paranoia.counted.." Deaths", script_paranoia.deathCounterExit);
 
 	-- death counter 
-	script_paranoia.counted = SliderInt("Deaths", 1, 25, script_paranoia.counted);
+	script_paranoia.counted = SliderInt("Deaths", 1, 10, script_paranoia.counted);
 		
 	Separator();
 

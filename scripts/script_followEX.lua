@@ -141,14 +141,12 @@ function script_followEX:menu()
 
 		-- follower script tick rates
 
-		Text("Tick Rate");
-		script_follow.tickRate = SliderInt("Tick Rate", 500, 1500, script_follow.tickRate);
+		Text("Reaction Time (Tick Rate)");
+		script_follow.tickRate = SliderInt("Tick Rate", 200, 1500, script_follow.tickRate);
 		
 	Separator();
 
 			Text("Assist in combat? ")
-			
-			SameLine();
 			
 			wasClicked, script_follow.assistInCombat = Checkbox("Assist Party Leader - best under 30 (yd)", script_follow.assistInCombat);
 			
@@ -168,6 +166,9 @@ function script_followEX:menu()
 			SameLine();
 
 			wasClicked, script_follow.followMember = Checkbox("Follow Party Member", script_follow.followMember);
+
+			wasClicked, script_follow.useUnStuck = Checkbox("Turn On/Off Buggy unStuck Script", script_follow.useUnStuck);
+
 			
 			Separator();
 			
@@ -182,7 +183,6 @@ function script_followEX:menu()
 				Text("Loot options:");
 				wasClicked, script_follow.skipLooting = Checkbox("Skip Looting", script_follow.skipLooting);
 				SameLine();
-				wasClicked, script_follow.useUnStuck = Checkbox("Turn On/Off Buggy unStuck Script", script_follow.useUnStuck);
 				script_follow.findLootDistance = SliderInt("Find Loot Distance (yd)", 5, 40, script_follow.findLootDistance);	
 				script_follow.lootDistance = SliderInt("Loot Distance (yd)", 1, 6, script_follow.lootDistance);
 			end
@@ -200,7 +200,7 @@ function script_followEX:menu()
 		script_warlockEX:menu();
 	elseif (class == 'Paladin') then
 		script_paladinEX:menu();
-	elseif (class == 'Druid') then
+	elseif (class == 'Druid') and (script_follow.assistInCombat) then
 		script_druidEX:menu();
 	elseif (class == 'Priest') then
 		script_priestEX:menu();
@@ -290,21 +290,21 @@ function script_followEX:menu()
 		-- Healing Touch
 		Text("Healing Touch Options -"); SameLine();
 		wasClicked, script_druidFollowerHeals.clickHealingTouch = Checkbox("Healing Touch On/Off", script_druidFollowerHeals.clickHealingTouch);
-		script_druidFollowerHeals.healingTouchMana = SliderInt("Healing Touch Mana%", 1, 99, script_druidFollowerHeals.healingTouchMana);
-		script_druidFollowerHeals.healingTouchHealth = SliderInt("Healing Touch Health%", 1, 99, script_druidFollowerHeals.healingTouchHealth);
+		script_druidFollowerHeals.healingTouchMana = SliderInt("HT Mana%", 1, 99, script_druidFollowerHeals.healingTouchMana);
+		script_druidFollowerHeals.healingTouchHealth = SliderInt("HT Health%", 1, 99, script_druidFollowerHeals.healingTouchHealth);
 		Separator();
 
 		-- Regrowth
 		Text("Regrwoth Options -"); SameLine();
 		wasClicked, script_druidFollowerHeals.clickRegrowth = Checkbox("Regrowth On/Off", script_druidFollowerHeals.clickRegrowth);
-		script_druidFollowerHeals.regrowthMana = SliderInt("Regrowth Mana%", 1, 99, script_druidFollowerHeals.regrowthMana);
-		script_druidFollowerHeals.regrowthHealth = SliderInt("Regrowth Health%", 1, 99, script_druidFollowerHeals.regrowthHealth);
+		script_druidFollowerHeals.regrowthMana = SliderInt("Re Mana%", 1, 99, script_druidFollowerHeals.regrowthMana);
+		script_druidFollowerHeals.regrowthHealth = SliderInt("Re Health%", 1, 99, script_druidFollowerHeals.regrowthHealth);
 		Separator();
 
 		-- Rejuvenation
 		Text("Rejuvenation Options -");
-		script_druidFollowerHeals.rejuvenationMana = SliderInt("Rejuvenation Mana%", 1, 99, script_druidFollowerHeals.rejuvenationMana);
-		script_druidFollowerHeals.rejuvenationHealth = SliderInt("Rejuvenation Health%", 1, 99, script_druidFollowerHeals.rejuvenationHealth);
+		script_druidFollowerHeals.rejuvenationMana = SliderInt("R Mana%", 1, 99, script_druidFollowerHeals.rejuvenationMana);
+		script_druidFollowerHeals.rejuvenationHealth = SliderInt("R Health%", 1, 99, script_druidFollowerHeals.rejuvenationHealth);
 		Separator();	
 
 		-- Swiftmend
@@ -352,5 +352,6 @@ function script_followEX:menu()
 		end
 		wasClicked, script_followEX.drawUnits = Checkbox("Show unit info on screen", script_followEX.drawUnits);
 		wasClicked, script_aggro.drawAggro = Checkbox('Show aggro range', script_aggro.drawAggro);
+		wasClicked, script_follow.drawPath = Checkbox("Draw Move Path", script_follow.drawPath);
 	end
 end
