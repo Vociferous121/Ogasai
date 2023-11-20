@@ -496,7 +496,7 @@ function script_druid:run(targetGUID)
 	end
 
 	-- stay in bear if bear form is selected
-	if (self.useBear and not isBear and not isCat and localMana > self.drinkMana and localHealth >= self.healthToShift) or script_grind.enemiesAttackingUs(12) >= 2 and not isCat and not isBear and localMana > self.drinkMana then
+	if (self.useBear and not isBear and not isCat and localMana > self.drinkMana and localHealth >= self.healthToShift) or (script_grind.enemiesAttackingUs(12) >= 2 and not isCat and not isBear and localMana > self.drinkMana and localHealth >= self.healthToShift) then
 		if (not script_grind.adjustTickRate) then
 			script_grind.tickRate = 135;
 			script_rotation.tickRate = 135;
@@ -1196,15 +1196,17 @@ function script_druid:rest()
 	end
 
 	-- shapeshift into cat form after bear form
-	if (self.wasInCombat) and (not IsInCombat()) and (isBear) and (self.useCat) then
-		if (GetLocalPlayer():GetLevel() < 40) then
-			CastSpellByName("Bear Form");
-			self.wasInCombat = false;
+	if (not IsInCombat()) then
+		if (self.wasInCombat) and (isBear) and (self.useCat) then
+			if (GetLocalPlayer():GetLevel() < 40) then
+				CastSpellByName("Bear Form");
+				self.wasInCombat = false;
 
-		end
-		if (GetLocalPlayer():GetLevel() >= 40) then
-			CastSpellByName("Dire Bear Form");
-			self.wasInCombat = false;
+			end
+			if (GetLocalPlayer():GetLevel() >= 40) then
+				CastSpellByName("Dire Bear Form");
+				self.wasInCombat = false;
+			end
 		end
 	end
 
