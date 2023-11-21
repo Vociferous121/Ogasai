@@ -380,8 +380,19 @@ function script_warlock:run(targetGUID)
 		end
 	end
 
+	-- check for silence and use wand
+	if (targetObj ~= 0 and targetObj ~= nil) and (not localObj:IsStunned()) and (script_checkDebuffs:hasSilence()) and (localObj:HasRangedWeapon()) and (IsInCombat()) then
+		if (not IsAutoCasting("Shoot")) then
+			script_warlock:petAttack();
+			targetObj:FaceTarget();
+			CastSpellByName("Shoot");
+			self.waitTimer = GetTimeEX() + 250; 
+			return true;
+		end
+	end
+
 	--Valid Enemy
-	if (targetObj ~= 0 and targetObj ~= nil) and (not localObj:IsStunned()) then
+	if (targetObj ~= 0 and targetObj ~= nil) and (not localObj:IsStunned()) and (not script_checkDebuffs:hasSilence()) then
 		
 		-- Cant Attack dead targets
 		if (targetObj:IsDead() or not targetObj:CanAttack()) then
@@ -604,18 +615,6 @@ function script_warlock:run(targetGUID)
 		else	
 
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
-
-
-			-- check for silence and use wand
-			if (script_checkDebuffs:hasSilence()) and (localObj:HasRangedWeapon()) then
-				if (not IsAutoCasting("Shoot")) then
-					script_warlock:petAttack();
-					targetObj:FaceTarget();
-					CastSpellByName("Shoot");
-					self.waitTimer = GetTimeEX() + 250; 
-					return true;
-				end
-			end
 
 			-- causes crashing after combat phase?
 			-- follow target if single target fear is active and moves out of spell ranged

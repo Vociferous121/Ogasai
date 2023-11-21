@@ -340,6 +340,16 @@ function script_mage:run(targetGUID)
 		end
 	end
 
+
+		-- check silence and use wand
+	if (targetObj ~= 0) and (targetObj ~= nil) and (not localObj:IsStunned()) and (script_checkDebuffs:hasSilence()) and (localObj:HasRangedWeapon()) and (IsInCombat()) then
+		if (not IsAutoCasting("Shoot")) then
+			targetObj:FaceTarget();
+			targetObj:CastSpell("Shoot");
+			return true;
+		end
+	end
+
 	--Valid Enemy
 	if (targetObj ~= 0) and (targetObj ~= nil) and (not localObj:IsStunned()) and (not localObj:IsMovementDisabed()) then
 		
@@ -420,15 +430,6 @@ function script_mage:run(targetGUID)
 			-- Dismount
 			if (IsMounted()) then
 				DisMount();
-			end
-
-			-- check silence and use wand
-			if (script_checkDebuffs:hasSilence()) and (localObj:HasRangedWeapon()) then
-				if (not IsAutoCasting("Shoot")) then
-					targetObj:FaceTarget();
-					targetObj:CastSpell("Shoot");
-					return true;
-				end
 			end
 
 			-- blink on movement stop debuffs

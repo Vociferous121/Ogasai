@@ -407,9 +407,25 @@ function script_priest:run(targetGUID)
 			script_grind.tickRate = tickRandom;
 		end
 	end
+
+	-- wand cast if silenced
+	if (targetObj ~= 0) and (targetObj ~= nil) and (not localObj:IsStunned()) and (script_checkDebuffs:hasSilence()) and (localObj:HasRangedWeapon()) and (IsInCombat()) then
+		if (not IsAutoCasting("Shoot")) and (self.useWand) then
+			self.message = "Using wand...";
+			if (not targetObj:FaceTarget()) then
+				targetObj:FaceTarget();
+			end
+			targetObj:CastSpell("Shoot");
+			self.waitTimer = GetTimeEX() + 250; 
+			return true; -- return true - if not AutoCasting then false
+		end
+		if (script_priest:healAndBuff(localObj, localMana)) then
+			return;
+		end
+	end
 	
 	--Valid Enemy
-	if (targetObj ~= 0) and (targetObj ~= nil) then
+	if (targetObj ~= 0) and (targetObj ~= nil) and (not localObj:IsStunned()) and (not script_checkDebuffs:hasSilence()) then
 		
 		-- Cant Attack dead targets
 		if (targetObj:IsDead()) or (not targetObj:CanAttack()) then
@@ -633,22 +649,6 @@ function script_priest:run(targetGUID)
 					self.waitTimer = GetTimeEX() + 1000; -- timer to stop spam drinking
 					return 0; -- keep trying until cast
 				end 
-			end
-
-			-- wand cast if silenced
-			if (script_checkDebuffs:hasSilence()) and (localObj:HasRangedWeapon()) then
-				if (not IsAutoCasting("Shoot")) and (self.useWand) then
-					self.message = "Using wand...";
-					if (not targetObj:FaceTarget()) then
-						targetObj:FaceTarget();
-					end
-					targetObj:CastSpell("Shoot");
-					self.waitTimer = GetTimeEX() + 250; 
-					return true; -- return true - if not AutoCasting then false
-				end
-				if (script_priest:healAndBuff(localObj, localMana)) then
-					return;
-				end
 			end
 
 			-- Silence

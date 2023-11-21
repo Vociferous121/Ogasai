@@ -128,11 +128,12 @@ function script_grindEX:doChecks()
 			--end
 		end
 
-		if (localObj:HasBuff("Vanish")) then if (script_nav:runBackwards(1, 30)) then 
-			ClearTarget();
-			script_grind.message = "Moving away from enemies...";
-			return true;
-			end 
+		if (localObj:HasBuff("Vanish")) then
+			if (script_nav:runBackwards(1, 30)) then 
+				ClearTarget();
+				script_grind.message = "Moving away from enemies...";
+				return 4;
+			end
 		end
 		
 		local rest = true;
