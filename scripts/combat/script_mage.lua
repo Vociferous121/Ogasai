@@ -616,15 +616,16 @@ function script_mage:run(targetGUID)
 				end
 			end
 
+			-- stop casting wand to cast fireblast... works on priest.. should work here
+			if (IsAutoCasting("Shoot")) and (not IsSpellOnCD("Fireblast")) and (localMana > 5) and (targetObj:GetDistance() < 20) then
+				local _xX, _yY, _zZ = localObj:GetPosition();
+				self.message = script_nav:moveToTarget(localObj, _xX+.1, _yY+.1, _zZ);
+				self.waitTimer = GetTimeEX() + 1500;
+			end
 			-- Fire blast
-			if (self.useFireBlast) and (targetObj:GetDistance() < 20) and (HasSpell("Fire Blast")) and (not IsSpellOnCD("Fire Blast")) then
-				if (localMana > 8) and (targetHealth >= self.useWandHealth) and (not IsSpellOnCD("Fire Blast")) then
-					if (not targetObj:IsInLineOfSight()) then
-						return 3;
-					end	
-					if (CastSpellByName("Fire Blast", targetObj)) then
-						return;
-					end
+			if (self.useFireBlast) and (targetObj:GetDistance() < 20) and (HasSpell("Fire Blast")) and (not IsSpellOnCD("Fire Blast")) and (localMana > 6) then	
+				if (CastSpellByName("Fire Blast", targetObj)) then
+					return;
 				end
 			end
 
