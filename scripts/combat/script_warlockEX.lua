@@ -161,6 +161,14 @@ function script_warlockEX:menu()
 			end
 		end
 
+		if (HasSpell("Death Coil")) then
+		
+			SameLine();
+
+			wasClicked, script_warlock.useDeathCoil = Checkbox("Use Coil", script_warlock.useDeathCoil);
+	
+		end
+
 		-- shadowbolt
 		wasClicked, script_warlock.useShadowBolt = Checkbox("Shadowbolt instead of wand", script_warlock.useShadowBolt);
 		

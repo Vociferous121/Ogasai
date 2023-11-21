@@ -11,6 +11,8 @@ script_helper = {
 	numManaPotion = 0,
 	bandage = {},
 	numBandage = 0,
+	items = {},
+	numItems = 0,
 	
 }
 
@@ -310,6 +312,18 @@ function script_helper:setup()
 	script_helper:addMount("Reins of the Striped Frostsaber");
 	script_helper:addMount("Reins of the Striped Nightsaber");
 
+
+
+	-- add new items here that need to be deleted
+
+	script_helper:addItem("OOX-22/FE Distress Beacon");
+	script_helper:addItem("OOX-17/TN Distress Beacon");
+	script_helper:addItem("OOX-09/HL Distress Beacon");
+	script_helper:addItem("Mangled Journal");
+
+
+
+
 	DEFAULT_CHAT_FRAME:AddMessage("script_helper: loaded...");
 	return true;
 end
@@ -338,6 +352,29 @@ function script_helper:drinkWater()
 	end
 	self.waitTimer = GetTimeEX() + 1200;
 	return false;
+end
+
+function script_helper:addItem()
+	self.items[self.numItems] = name;
+	self.numItems = self.numItems +1;
+end
+
+function script_helper:deleteItem()
+
+	---- Search for items
+	local itemIndex = -1;
+	for i=0,self.numItems do
+		if (HasItem(self.items[i])) then
+			itemIndex = i;
+			break;
+		end
+	end
+		
+	if(HasItem(self.items[itemIndex])) then
+		if (DeleteItem(self.items[itemIndex])) then
+			return true;
+		end
+	end
 end
 
 --function script_helper:useMount()

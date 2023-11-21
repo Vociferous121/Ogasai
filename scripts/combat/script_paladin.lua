@@ -86,7 +86,7 @@ end
 
 -- Run backwards if the target is within range
 function script_paladin:runBackwards(targetObj, range) 
-		localObj = GetLocalPlayer();
+		local localObj = GetLocalPlayer();
  	if targetObj ~= 0 then
  		local xT, yT, zT = targetObj:GetPosition();
  		local xP, yP, zP = localObj:GetPosition();
@@ -94,10 +94,10 @@ function script_paladin:runBackwards(targetObj, range)
  		local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
  		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
  		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
- 		local moveX, moveY, moveZ = xT + xUV*10, yT + yUV*10, zT + zUV;		
- 		if (distance < range and targetObj:IsInLineOfSight()) then 
- 			--script_nav:moveToTarget(localObj, moveX, moveY, moveZ);
-			Move(moveX, moveY, moveZ);
+ 		local moveX, moveY, moveZ = xT + xUV*5, yT + yUV*5, zT + zUV;		
+ 		if (distance <= range) then 
+ 			Move(moveX, moveY, moveZ);
+			self.waitTimer = GetTimeEX() + 750;
  			return true;
  		end
 	end

@@ -300,9 +300,19 @@ function script_grind:run()
 			return;
 		end
 	end
+
+	-- delete items
+	if (HasItem("Small Barnacled Clam")) then
+		UseItem("Small Barnacled Clam");
+		LootTarget();
+		self.waitTimer = GetTimeEX() + 1500;
+	end
+	if (script_helper:deleteItem()) then
+		self.waitTimer = GetTimeEX() + 1500;
+		return;
+	end
 	
-	-- check paranoia
-		
+	-- check paranoia	
 	if (not IsInCombat()) and (not IsLooting()) then
 		if (script_paranoia:checkParanoia()) then
 			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 2000;
@@ -317,7 +327,10 @@ function script_grind:run()
 		script_grind.undoAFK = false;
 		return true;
 	end
-		
+
+	if (script_helper:deleteItem()) then
+		return;
+	end	
 	
 	-- set tick rate for scripts
 	if (GetTimeEX() > self.timer) then
@@ -363,7 +376,7 @@ function script_grind:run()
 				self.hotSpotTimer = GetTimeEX() + 20000;
 			end
 
-			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) then
+			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
 				CastSpellByName("Stealth", localObj);
 				self.waitTimer = GetTimeEX() + 1200;
 			end
@@ -504,10 +517,6 @@ function script_grind:run()
 		--	return;
 		--end
 
-		if (IsInCombat()) then
-			script_grind:setWaitTimer(1000);	
-		end
-
 		-- Use auto pathing or walk paths
 		if (self.autoPath) then
 			if (script_nav:getDistanceToHotspot() < 10 and not self.hotspotReached) then
@@ -517,7 +526,7 @@ function script_grind:run()
 			else
 				self.message = script_nav:moveToSavedLocation(localObj, self.minLevel, self.maxLevel, self.staticHotSpot);
 				script_grind:setWaitTimer(50);
-				if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) then
+				if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
 					CastSpellByName("Stealth", localObj);
 					self.waitTimer = GetTimeEX() + 1200;
 				end
@@ -980,9 +989,10 @@ function script_grind:lootAndSkin()
 		self.lootObj = nil;
 		self.lootObj = script_grind:getSkinTarget(self.findLootDistance);
 		if (not AreBagsFull() and not self.bagsFull and self.lootObj ~= nil) then
-			script_grind:doLoot(localObj);
-			self.waitTimer = GetTimeEX() + 1200;
-			return;
+			if (script_grind:doLoot(localObj)) then
+				self.waitTimer = GetTimeEX() + 1200;
+				return;
+			end
 		end
 	end
 	return false;
@@ -1001,37 +1011,18 @@ function script_grind:runRest()
 		self.message = "Resting...";
 		self.newTargetTime = GetTimeEX();
 
-		-- auto delete items
-		if (HasItem("OOX-22/FE Distress Beacon")) then
-                	DeleteItem("OOX-22/FE Distress Beacon");
-                	self.waitTimer = GetTimeEX() + 1500;
-                	return 0;
-            	end
-		-- auto delete items
-		if (HasItem("OOX-17/TN Distress Beacon")) then
-                	DeleteItem("OOX-17/TN Distress Beacon");
-                	self.waitTimer = GetTimeEX() + 1500;
-                	return 0;
-            	end
-		-- auto delete items
-		if (HasItem("OOX-09/HL Distress Beacon")) then
-                	DeleteItem("OOX-09/HL Distress Beacon");
-                	self.waitTimer = GetTimeEX() + 1500;
-                	return 0;
-            	end
-
 		if (isCat) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not isProwl) then
 			CastSpellByName("Prowl", localObj);
 			self.waitTimer = GetTimeEX() + 1000;
 		end	
 
-		if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not isStealth) then
+		if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not isStealth) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
 			CastSpellByName("Stealth", localObj);
 			self.waitTimer = GetTimeEX() + 1000;
 		end
 		
 		
-		if (not isCat) and (not isProwl) and (not isStealth) and (not isShadowmeld) and (not isBear) and (not isCat) then
+		if (not isCat) and (not isProwl) and (not isStealth) and (not isShadowmeld) and (not isBear) and (not isCat) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
 			CastSpellByName("Shadowmeld", localObj);
 			self.waitTimer = GetTimeEX() + 1000;
 		end

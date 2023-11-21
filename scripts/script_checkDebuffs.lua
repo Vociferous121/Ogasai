@@ -83,6 +83,7 @@ function script_checkDebuffs:hasMagic()
 		or (player:HasDebuff("Frost Nova"))
 		or (player:HasDebuff("Fear"))
 		or (player:HasDebuff("Entangling Roots"))
+		or (player:HasDebuff("Sonic Burst"))
 
 	
 	then
@@ -157,4 +158,21 @@ function script_checkDebuffs:undeadForsaken()
 
 	end
 
+end
+
+function script_checkDebuffs:hasSilence()
+	
+	local player = GetLocalPlayer();
+	
+	if (player:HasDebuff("Silence"))
+		or (player:HasDebuff("Sonic Burst"))
+
+	
+	then
+		return true;
+	
+	else
+
+		return false;
+	end
 end

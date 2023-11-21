@@ -635,6 +635,22 @@ function script_priest:run(targetGUID)
 				end 
 			end
 
+			-- wand cast if silenced
+			if (script_checkDebuffs:hasSilence()) and (localObj:HasRangedWeapon()) then
+				if (not IsAutoCasting("Shoot")) and (self.useWand) then
+					self.message = "Using wand...";
+					if (not targetObj:FaceTarget()) then
+						targetObj:FaceTarget();
+					end
+					targetObj:CastSpell("Shoot");
+					self.waitTimer = GetTimeEX() + 250; 
+					return true; -- return true - if not AutoCasting then false
+				end
+				if (script_priest:healAndBuff(localObj, localMana)) then
+					return;
+				end
+			end
+
 			-- Silence
 			if (HasSpell("Silence")) and (targetObj:IsCasting()) and (localMana >= 15) and (targetHealth >= 25) then
 				if (Cast("Silence", targetObj)) then

@@ -1,5 +1,5 @@
 script_mage = {
-	message = 'Frostbite - Mage Combat Script',
+	message = 'Mage Combat Script',
 	mageMenu = include("scripts\\combat\\script_mageEX.lua"),
 	drinkMana = 40,	-- drink at this mana %
 	eatHealth = 51,	-- eat at this health %
@@ -386,7 +386,7 @@ function script_mage:run(targetGUID)
 			return 3;
 		end
 
-		if (targetObj:GetDistance() < 30) then
+		if (targetObj:GetDistance() < 30) and (not IsMoving()) then
 			targetObj:FaceTarget();
 		end
 		--	START OF COMBAT PHASE
@@ -420,6 +420,15 @@ function script_mage:run(targetGUID)
 			-- Dismount
 			if (IsMounted()) then
 				DisMount();
+			end
+
+			-- check silence and use wand
+			if (script_checkDebuffs:hasSilence()) and (localObj:HasRangedWeapon()) then
+				if (not IsAutoCasting("Shoot")) then
+					targetObj:FaceTarget();
+					targetObj:CastSpell("Shoot");
+					return true;
+				end
 			end
 
 			-- blink on movement stop debuffs
@@ -482,18 +491,20 @@ function script_mage:run(targetGUID)
 			end
 			
 			-- Check: Move backwards if the target is affected by Frost Nova or Frost Bite
-			if (GetNumPartyMembers() < 1) or (self.useFrostNova) then
-				if (targetHealth > 20) and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (not localObj:HasBuff('Evocation')) and 
-					(targetObj ~= 0 and IsInCombat()) and (self.useFrostNova) and (not localObj:HasDebuff("Web")) and (not localObj:HasDebuff("Encasing Webs")) then
-					script_grind.tickRate = 100;
-					script_rotation.tickRate = 100;
-					if (script_mage:runBackwards(targetObj, 7)) then -- Moves if the target is closer than 7 yards
+			if (GetNumPartyMembers() < 1) and (self.useFrostNova) then
+				if (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (targetHealth > 20) and (not localObj:HasBuff('Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) then
+					script_grind.tickRate = 50;
+					script_rotation.tickRate = 50;
+					if (script_mage:runBackwards(targetObj, 9)) then -- Moves if the target is closer than 7 yards
 						self.message = "Moving away from target...";
 						if (not IsSpellOnCD("Frost Nova")) then
 							CastSpellByName("Frost Nova");
-							return 0;
+							return;
 						end
-					return 4; 
+					if (targetObj:GetDistance() > 7) and (not IsMoving()) then
+						targetObj:FaceTarget();
+					end
+					return 4;
 					end 
 				end	
 			end
@@ -558,7 +569,7 @@ function script_mage:run(targetGUID)
 			end
 
 			-- Check: Polymorph add
-			if (targetObj ~= nil and self.polymorphAdds and script_grind:enemiesAttackingUs(5) > 1 and HasSpell('Polymorph') and not self.addPolymorphed and self.polyTimer < GetTimeEX()) then
+			if (targetObj ~= nil and self.polymorphAdds and script_grind:enemiesAttackingUs(5) > 1 and HasSpell('Polymorph') and not self.addPolymorphed and self.polyTimer < GetTimeEX()) and (targetObj:GetDistance() < 25) then
 				script_grind.tickRate = 50;
 				script_rotation.tickRate = 50;
 				self.message = "Polymorphing add...";
@@ -578,8 +589,8 @@ function script_mage:run(targetGUID)
 
 			-- Check: Frostnova when the target is close, but not when we polymorhped one enemy or the target is affected by Frostbite
 			if (not self.addPolymorphed) and (targetObj:GetDistance() < 5 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova then
-				script_grind.tickRate = 325;
-				script_grind.tickRate = 290;
+				script_grind.tickRate = 100;
+				script_grind.tickRate = 100;
 				self.message = "Frost nova the target(s)...";
 				CastSpellByName("Frost Nova");
 				return 0;
@@ -616,16 +627,19 @@ function script_mage:run(targetGUID)
 				end
 			end
 
-			-- stop casting wand to cast fireblast... works on priest.. should work here
-			if (IsAutoCasting("Shoot")) and (not IsSpellOnCD("Fireblast")) and (localMana > 5) and (targetObj:GetDistance() < 20) then
-				local _xX, _yY, _zZ = localObj:GetPosition();
-				self.message = script_nav:moveToTarget(localObj, _xX+.1, _yY+.1, _zZ);
-				self.waitTimer = GetTimeEX() + 1500;
-			end
 			-- Fire blast
-			if (self.useFireBlast) and (targetObj:GetDistance() < 20) and (HasSpell("Fire Blast")) and (not IsSpellOnCD("Fire Blast")) and (localMana > 6) then	
-				if (CastSpellByName("Fire Blast", targetObj)) then
-					return;
+			if (self.useFireBlast) and (targetObj:GetDistance() < 20) and (HasSpell("Fire Blast")) and (not IsSpellOnCD("Fire Blast")) and (localMana > 6) and (not IsMoving()) then	
+	
+				if (IsAutoCasting("Shoot")) then
+					local px, py, pz = targetObj:GetPosition();
+					self.message = script_nav:moveToTarget(localObj, pX+.5, pY+.5, pZ);
+					return 0;
+				end
+				if (not IsSpellOnCD("Fire Blast")) then
+					CastSpellByName("Fire Blast", targetObj);
+					targetObj:FaceTarget();
+					self.waitTimer = GetTimeEX() + 1500;
+					return 0;
 				end
 			end
 
@@ -643,6 +657,15 @@ function script_mage:run(targetGUID)
 					return 4; 
 					end 
 				end	
+			end
+
+			
+			if (targetHealth > 20) and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (not localObj:HasBuff('Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) then
+			if (script_mage:runBackwards(targetObj, 9)) then -- Moves if the target is closer than 7 yards
+				script_grind.tickRate = 100;
+				script_rotation.tickRate = 100;
+				self.message = "Moving away from target...";
+			end
 			end
 
 			-- scorch
@@ -677,32 +700,26 @@ function script_mage:run(targetGUID)
 				end
 			end
 
-			if (IsSpellOnCD("Frostbolt")) then
-				CastSpellByName("Fireball", targetObj);
-				self.waitTimer = GetTimeEX() + 1500;
-			end
-			if (IsSpellOnCD("Fireball")) then
-				CastSpellByName("Frostbolt", targetObj);
-				self.waitTimer = GetTimeEX() + 1500;
-			end
 			
 			-- Main damage source if all above conditions cannot be run
 			-- frost mage spells
-			if (HasSpell("Frostbolt")) and (self.frostMage) and (not IsChanneling()) then
-				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth - 5) then
+			if (HasSpell("Frostbolt")) and (self.frostMage) and (not IsChanneling()) and (not IsMoving()) then
+				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
 			
 					-- check range
 					if(not targetObj:IsSpellInRange("Frostbolt")) or (not targetObj:IsInLineOfSight()) then
 						return 3;
 					else
 						CastSpellByName("Frostbolt", targetObj);
+						self.waitTimer = GetTimeEX() + 1500;
 						return 0;
 					end
 			
 				end	
+			end
 
 				-- fire mage spells
-			elseif (self.fireMage) and (not IsChanneling()) then
+			if(self.fireMage) and (not IsChanneling()) and (not IsMoving()) then
 
 				-- use these spells if not using wand
 				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
@@ -723,10 +740,11 @@ function script_mage:run(targetGUID)
 						end
 					end
 
-				end	
+				end
+			end	
 			
-				-- this is here to check for low level "frost Mage" not having frostbolt yet
-			elseif (self.frostMage) and (not HasSpell("Frostbolt")) then				
+			-- this is here to check for low level "frost Mage" not having frostbolt yet
+			if (self.frostMage) and (not HasSpell("Frostbolt")) and (not IsMoving()) then				
 		
 				-- else if not has frostbolt then use fireball as range check
 				if (not targetObj:IsSpellInRange("Fireball")) or (not targetObj:IsInLineOfSight()) then
@@ -737,8 +755,9 @@ function script_mage:run(targetGUID)
 				if (CastSpellByName("Fireball", targetObj)) then
 					return 0;
 				end
+			end
 
-			end	
+				
 		end
 	end
 end
@@ -1036,7 +1055,8 @@ function script_mage.frostMagePull(targetObj)
 		if (IsMoving()) then
 			StopMoving();
 		end
-		if (CastSpellByName("Frostbolt", targetObj)) then
+		if (not IsMoving()) and (CastSpellByName("Frostbolt", targetObj)) then
+			self.waitTimer = GetTimeEX() + 500;
 			targetObj:FaceTarget();
 			return true;
 		end

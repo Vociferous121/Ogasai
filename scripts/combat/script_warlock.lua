@@ -50,6 +50,7 @@ script_warlock = {
 	followFeared = true,
 	useCurseOfWeakness = false,
 	useCurseOfTongues = false,
+	useDeathCoil = false,
 }
 
 function script_warlock:cast(spellName, target)
@@ -591,12 +592,30 @@ function script_warlock:run(targetGUID)
 				self.message = "Moving into Line of Sight of target";
 				return 3;
 			end
+
+
+
+
+
 			
 			-- IN COMBAT
 
 			-- Combat
 		else	
+
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
+
+
+			-- check for silence and use wand
+			if (script_checkDebuffs:hasSilence()) and (localObj:HasRangedWeapon()) then
+				if (not IsAutoCasting("Shoot")) then
+					script_warlock:petAttack();
+					targetObj:FaceTarget();
+					CastSpellByName("Shoot");
+					self.waitTimer = GetTimeEX() + 250; 
+					return true;
+				end
+			end
 
 			-- causes crashing after combat phase?
 			-- follow target if single target fear is active and moves out of spell ranged
@@ -673,7 +692,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- death coil target targeting you
-			if (HasSpell("Death Coil")) and (not IsSpellOnCD("Death Coil")) and (script_grind:isTargetingMe(targetObj)) then
+			if (self.useDeathCoil) and (HasSpell("Death Coil")) and (not IsSpellOnCD("Death Coil")) and (script_grind:isTargetingMe(targetObj)) then
 				if (CastSpellByName("Death Coil", targetObj)) then
 					self.waitTimer = GetTimeEC() + 1500;
 					return 0;

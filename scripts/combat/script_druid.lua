@@ -409,7 +409,6 @@ function script_druid:healsAndBuffs()
 		end
 	end
 
-
 --------------------------
 
 
@@ -561,10 +560,8 @@ function script_druid:run(targetGUID)
 			JumpOrAscendStart();
 		end
 	
-		if (not IsMoving() and targetObj:GetDistance() <= self.meleeDistance) and (not IsMoving()) then
-			if (not targetObj:FaceTarget()) then
+		if (not IsMoving() and targetObj:GetDistance() <= self.meleeDistance + 1) then
 				targetObj:FaceTarget();
-			end
 		end
 
 		-- assign target health
@@ -628,15 +625,15 @@ function script_druid:run(targetGUID)
 			-- use prowl before spamming auto attack and move in range of target!
 			if (self.useCat) and (isCat) and (self.useStealth) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (script_grind.lootObj == nil) then
 				CastSpellByName("Prowl");
-				self.waitTimer = GetTimeEX() + 1500;
 				return 0;
+			end
+
+			if (isBear or isCat) and (self.useBear or self.useCat) and (targetObj:GetDistance() > self.meleeDistance) then
+				return 3;
 			end
 
 			-- move to enemy target
 			if (not self.useBear) and (not self.useCat) and (not isBear) and (not isCat) and (targetObj:GetDistance() > 27) then
-				return 3;
-			end
-			if (isBear or isCat) and (self.useBear or self.useCat) and (targetObj:GetDistance() > self.meleeDistance) then
 				return 3;
 			end
 
@@ -720,6 +717,11 @@ function script_druid:run(targetGUID)
 		-- if in cat form do these pulls	
 		if (isCat) and (not isBear) then
 
+			if (targetObj:GetDistance() <= self.meleeDistance + 2) then
+				targetObj:FaceTarget();
+			end
+		
+
 			-- faerie fire
 			if (not self.useStealth) and (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire")) then
 				if Cast("Faerie Fire (Feral)", targetObj) then
@@ -733,6 +735,10 @@ function script_druid:run(targetGUID)
 					self.waitTimer = GetTimeEX() + 1500;
 					return 0;
 				end
+			end
+
+			if (targetObj:GetDistance() > self.meleeDistance) then
+				return 3;
 			end
 	
 		end
@@ -864,7 +870,7 @@ function script_druid:run(targetGUID)
 					return 3;
 				end
 				
-				if (targetObj:GetDistance() <= self.meleeDistance) and (not IsMoving()) then
+				if (targetObj:GetDistance() <= self.meleeDistance + 1) and (not IsMoving()) then
 					targetObj:FaceTarget();
 				end
 
@@ -885,7 +891,7 @@ function script_druid:run(targetGUID)
 				-- keep auto attack on
 				if (not IsAutoCasting("Attack")) then
 					targetObj:AutoAttack();
-					if (targetObj:GetDistance() <= self.meleeDistance) and (not IsMoving()) then
+					if (targetObj:GetDistance() <= self.meleeDistance + 1) and (not IsMoving()) then
 						targetObj:FaceTarget();
 					end
 				end
@@ -980,6 +986,10 @@ function script_druid:run(targetGUID)
 					return 3;
 				end
 
+				if (targetObj:GetDistance() <= self.meleeDistance + 1) then
+					targetObj:FaceTarget();
+				end
+
 			end -- end of bear form in combat attacks
 
 
@@ -1030,6 +1040,10 @@ function script_druid:run(targetGUID)
 					if (not IsMoving()) then
 						targetObj:FaceTarget();
 					end
+				end
+
+				if (targetObj:GetDistance() <= self.meleeDistance + 1) then
+					targetObj:FaceTarget();
 				end
 
 				-- keep faerie fire up
@@ -1085,12 +1099,11 @@ function script_druid:run(targetGUID)
 				end
 
 				-- Use Claw
-				if (localCP < 5) then
-					if (localEnergy >= 40) then
-						if (CastSpellByName("Claw")) then
-							self.waitTimer = GetTimeEX() + 1600;
-							return 0;
-						end
+				if (localCP < 5) and (localEnergy >= 40) then
+					if (CastSpellByName("Claw")) then
+						targetObj:FaceTarget();
+						self.waitTimer = GetTimeEX() + 1600;
+						return 0;
 					end
 				end
 			end
@@ -1379,7 +1392,7 @@ function script_druid:rest()
 	end
 	
 	if (self.useRest) and (isCat) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) then
-		if (not GetLocalPlayer():GetUnitsTarget() == 0) then
+		if (not GetLocalPlayer():GetUnitsTarget() == 0) and (not script_checkDebuffs:hasPoison()) then
 			if (localMana <= 55 or localHealth <= 55) and (not IsInCombat()) then
 				CastSpellByName("Prowl", localObj);
 				self.waitTimer = GetTimeEX() + 1000;
