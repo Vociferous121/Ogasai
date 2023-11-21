@@ -40,7 +40,7 @@ script_mage = {
 	isChecked = true,	-- set up
 	useDampenMagic = false,	-- use dampen magic yes/no
 	fireMage = false,	-- is fire spec yes/no
-	frostMage = false,	-- is frost spec yes/no
+	frostMage = true,	-- is frost spec yes/no
 	scorchStacks = 2,	-- scorch debuff stacks on target
 	useScorch = true,	-- use  yes/no
 	followTargetDistance = 100,	-- new follow/face target distance here to debug melee
@@ -225,6 +225,7 @@ function script_mage:setup()
 	-- set spec below level 4
 	if (not HasSpell("Frostbolt")) then
 		self.fireMage = true;
+		self.frostMage = false;
 	end
 
 	if (GetLocalPlayer():GetLevel() < 10) and (localObj:HasRangedWeapon()) then
@@ -671,24 +672,26 @@ function script_mage:run(targetGUID)
 				if (not IsAutoCasting("Shoot")) then
 					targetObj:FaceTarget();
 					targetObj:CastSpell("Shoot");
-					self.waitTimer = GetTimeEX() + 250; 
 					return true;
 				end
+			end
+
+			if (IsSpellOnCD("Frostbolt")) then
+				CastSpellByName("Fireball", targetObj);
+				self.waitTimer = GetTimeEX() + 1500;
+			end
+			if (IsSpellOnCD("Fireball")) then
+				CastSpellByName("Frostbolt", targetObj);
+				self.waitTimer = GetTimeEX() + 1500;
 			end
 			
 			-- Main damage source if all above conditions cannot be run
 			-- frost mage spells
 			if (HasSpell("Frostbolt")) and (self.frostMage) and (not IsChanneling()) then
 				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth - 5) then
-				
-					-- face target if in line of sight
-					if (targetObj:IsInLineOfSight()) then
-						targetObj:FaceTarget();
-					end
 			
 					-- check range
-					if(not targetObj:IsSpellInRange("Frostbolt")) then
-						self.message = "Frostbolt Main Damage Source!";
+					if(not targetObj:IsSpellInRange("Frostbolt")) or (not targetObj:IsInLineOfSight()) then
 						return 3;
 					else
 						CastSpellByName("Frostbolt", targetObj);
@@ -702,21 +705,6 @@ function script_mage:run(targetGUID)
 
 				-- use these spells if not using wand
 				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
-				
-					-- else if not has frostbolt then use fireball as range check
-					if(not targetObj:IsSpellInRange("Fireball")) then
-						return 3;
-					end
-
-					-- check line of sight
-					if (not targetObj:IsInLineOfSight()) then
-						return 3;
-					end	
-
-					-- face target
-					if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
-						targetObj:FaceTarget();
-					end
 
 					-- cast pyroblast
 					if (targetObj:GetDistance() > 30) and (targetObj:GetManaPercentage() > 1) and (targetHealth > 50) then
@@ -1027,12 +1015,10 @@ function script_mage:rest()
 		end
 
 		-- remove curse
-		if (HasSpell("Remove Lesser Curse")) and (localMana > 10) then
-			if (localObj:HasDebuff("Curse of the Shadowhorn")) then
-				if (CastSpellByName("Remove Lesser Curse", localObj)) then
-					self.waitTimer = GetTimeEX() + 1800;
-					return;
-				end
+		if (HasSpell("Remove Lesser Curse")) and (script_checkDebuffs:hasCurse()) and (localMana > 10) then
+			if (CastSpellByName("Remove Lesser Curse", localObj)) then
+				self.waitTimer = GetTimeEX() + 1800;
+				return;
 			end
 		end
 	end	
@@ -1051,7 +1037,6 @@ function script_mage.frostMagePull(targetObj)
 		end
 		if (CastSpellByName("Frostbolt", targetObj)) then
 			targetObj:FaceTarget();
-			self.waitTimer = GetTimeEX() + 150;
 			return true;
 		end
 	end
@@ -1070,13 +1055,11 @@ function script_mage.fireMagePull(targetObj)
 		if (HasSpell("Pyroblast")) then
 			if (CastSpellByName("Pyroblast", targetObj)) then
 				targetObj:FaceTarget();
-				self.waitTimer = GetTimeEX() + 2550;
 				return true;
 			end
 		else
 			if (CastSpellByName("Fireball", targetObj)) then
 				targetObj:FaceTarget();
-				self.waitTimer = GetTimeEX() + 150;
 				return true;
 			end
 		end
