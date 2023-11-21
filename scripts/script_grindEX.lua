@@ -21,6 +21,7 @@ function script_grindEX:doChecks()
 		localObj = GetLocalPlayer();
 		if (script_grind.avoidElite and not localObj:IsDead()) then 
 			if (script_nav:avoidElite(script_grind.avoidRange)) then
+				self.message = script_nav:runBackwards(1, 30);
 				script_grind.message = "Elite within " .. script_grind.avoidRange .. " yd. running away...";
 				return true; 
 			end 

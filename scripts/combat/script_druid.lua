@@ -128,7 +128,7 @@ function script_druid:runBackwards(targetObj, range)
  		local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
  		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
  		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
- 		local moveX, moveY, moveZ = xT + xUV*10, yT + yUV*10, zT + zUV;		
+ 		local moveX, moveY, moveZ = xT + xUV*16, yT + yUV*16, zT + zUV;		
  		if (distance < range and targetObj:IsInLineOfSight()) then 
 			Move(moveX, moveY, moveZ);
  			return true;
@@ -230,7 +230,7 @@ function script_druid:healsAndBuffs()
 	end
 
 	-- shapeshift out of cat form to use bear form 2 or more targets
-	if (self.useCat and isCat) and (localMana >= self.shapeshiftMana) and (script_grind:enemiesAttackingUs(12) >= 2) and (localHealth <= self.healthToShift + 10) then
+	if (self.useCat and isCat) and (localMana >= self.shapeshiftMana) and (script_grind:enemiesAttackingUs(12) >= 2) then
 		if (not script_grind.adjustTickRate) then
 			script_grind.tickRate = 50;
 			script_rotation.tickRate = 50;
@@ -246,7 +246,7 @@ function script_druid:healsAndBuffs()
 ----------------------
 
 	-- heal 2 or more enemies higher health
-	if (script_grind:enemiesAttackingUs(12) >= 2) and (not isBear) and (not isCat) and (localHealth <= self.healthToShift + 10) then
+	if (script_grind:enemiesAttackingUs(12) >= 2) and (not isBear) and (not isCat) and (localHealth <= self.healthToShift + 20) then
 
 		-- Healing Touch
 		if (HasSpell("Healing Touch")) then
@@ -259,7 +259,7 @@ function script_druid:healsAndBuffs()
 		end
 
 		-- Regrowth
-		if (HasSpell("Regrowth")) and (not localObj:HasBuff("Regrowth")) and (localHealth <= self.regrowthHealth + 10) and (localMana >= 40) then
+		if (HasSpell("Regrowth")) and (not localObj:HasBuff("Regrowth")) and (localHealth <= self.regrowthHealth + 20) and (localMana >= 40) then
 			if (CastHeal("Regrowth", localObj)) then
 				self.waitTimer = GetTimeEX() + 3500;
 				return 0;
@@ -760,6 +760,17 @@ function script_druid:run(targetGUID)
 				return 3;
 			end
 
+			if (targetObj:GetDistance() <= 30) and (not IsMoving()) then
+				targetObj:FaceTarget();
+			end
+
+			--pull with starfire
+			if (HasSpell("Starfire")) and (localMana >= 45) then
+				CastSpellByName("Starfire", targetObj);
+				targetObj:FaceTarget();
+				return 0;
+			end
+
 			-- Wrath to pull if no moonfire spell
 			if (not HasSpell("Moonfire")) and (localMana >= 35) then
 				CastSpellByName("Wrath", targetObj);
@@ -767,6 +778,7 @@ function script_druid:run(targetGUID)
 				self.message = "Casting Wrath!";
 				return 0; -- keep trying until cast
 			end
+			
 
 			local randomWrath = math.random(1, 100);
 			if (randomWrath > 50) then
@@ -1114,7 +1126,11 @@ function script_druid:run(targetGUID)
 
 		-- no bear form or cat form
 
-			if (not self.useBear) and (not isBear) and (not self.useCat) and (not isCat) then
+			if ( (not self.useBear) and (not isBear) and (not self.useCat) and (not isCat) ) or (isMoonkin and self.useMoonkin) then
+
+				if (targetObj:GetDistance() < 30) and (not IsMoving()) then
+					targetObj:FaceTarget();
+				end
 			
 				-- Run backwards if we are too close to the target
 				if (targetObj:GetDistance() <= .5) then 
@@ -1127,19 +1143,21 @@ function script_druid:run(targetGUID)
 				if (self.useEntanglingRoots) then
 					if (not targetObj:HasDebuff("Entangling Roots")) and (not localObj:HasDebuff("Web")) and (not localObj:HasDebuff("Encasing Webs")) and (localMana > 65) and (targetHealth >= 35) then
 						if (not script_grind.adjustTickRate) then
-							script_grind.tickRate = 287;
-							script_rotation.tickRate = 269;
+							script_grind.tickRate = 100;
+							script_rotation.tickRate = 100;
 						end
 						if (not targetObj:HasDebuff("Entangling Roots")) then
-							CastSpellByName("Entangling Roots");
-							return 4;
+							if (CastSpellByName("Entangling Roots")) then
+								self.waitTimer = GetTimeEX() + 300;
+								return 4;
+							end
 						end
 					end 
 				end	
 
 				if (targetObj:HasDebuff("Entangling Roots")) and (localMana > 25) then
-					if (script_druid:runBackwards(targetObj, 4)) then
-						self.waitTimer = GetTimeEX() + 900;
+					if (script_druid:runBackwards(targetObj, 12)) then
+						self.waitTimer = GetTimeEX() + 1500;
 					return 4;
 					end
 				end
@@ -1158,6 +1176,7 @@ function script_druid:run(targetGUID)
 				-- keep moonfire up
 				if (localMana > 30) and (targetHealth > 5) and (not targetObj:HasDebuff("Moonfire")) and (HasSpell("Moonfire")) then
 					if (Cast("Moonfire", targetObj)) then
+						targetObj:FaceTarget();
 						return 0;
 					end
 				end
@@ -1165,19 +1184,23 @@ function script_druid:run(targetGUID)
 				-- spam moonfire until target is killed
 				if (localMana > 30) and (targetHealth < 10) and (not IsSpellOnCD("Moonfire")) and (HasSpell("Moonfire")) then
 					if (Cast("Moonfire", targetObj)) then
+						targetObj:FaceTarget();
 						return 0;
 					end
 				end
 
 				-- starfire
-				if (HasSpell("Starfire")) and (localMana > 60) and (script_grind:enemiesAttackingUs(10) < 2) then
-					CastSpellByName("Starfire", targetObj);
-					self.waitTimer = GetTimeEX() + 4000;
+				if (HasSpell("Starfire")) and (localMana > 60) and (script_grind:enemiesAttackingUs(10) < 2) and (not IsMoving()) then
+					if (CastSpellByName("Starfire", targetObj)) then
+						targetObj:FaceTarget();
+						self.waitTimer = GetTimeEX() + 800;
+					end
 				end
 
 				-- Wrath
 				if (localMana > 30) and (targetHealth > 15) then
 					if (Cast("Wrath", targetObj)) then
+						targetObj:FaceTarget();
 						return 0;
 					end
 				end	

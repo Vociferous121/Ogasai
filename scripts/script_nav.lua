@@ -518,7 +518,8 @@ function script_nav:runBackwards(count, range) -- Run backwards if there is atle
  			local xP, yP, zP = localObj:GetPosition();
  			local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
  			local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
- 			local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
+ 			local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;	
+			local moveX, moveY, moveZ = xT + xUV*35, yT + yUV*35, zT + zUV;		
  		if countUnitsInRange >= count then
 			script_nav:moveToTarget(localObj, moveX, moveY, moveZ);
 			return true;
