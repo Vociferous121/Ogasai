@@ -464,7 +464,7 @@ function script_grind:run()
 			end
 			-- Invalid target: combat script return 2
 			if(self.combatError == 2) then
-				-- TODO: add blacklist GUID here
+				script_grind.addTargetToBlacklist(self.enemyObj:GetGUID());
 				self.enemyObj = nil;
 				ClearTarget();
 				return;

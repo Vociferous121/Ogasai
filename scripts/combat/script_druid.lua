@@ -187,11 +187,11 @@ function script_druid:healsAndBuffs()
 		end
 		if (localObj:HasBuff("Dire Bear Form")) then
 			CastSpellByName("Dire Bear Form");
-			self.waitTimer = GetTimeEX() + 500;
+			self.waitTimer = GetTimeEX() + 700;
 		end
 		if (localObj:HasBuff("Bear Form")) then
 			CastSpellByName("Bear Form", localObj);
-			self.waitTimer = GetTimeEX() + 500;
+			self.waitTimer = GetTimeEX() + 700;
 		end
 		
 	end
@@ -205,6 +205,7 @@ function script_druid:healsAndBuffs()
 		end
 		if (localObj:HasBuff("Cat Form")) then
 			CastSpellByName("Cat Form");
+			self.waitTimer = GetTimeEX() + 700;
 		end
 	end
 
@@ -213,25 +214,26 @@ function script_druid:healsAndBuffs()
 
 
 	-- shapeshift out of bear form to heal higher health if 2 or more targets
-	if (self.useBear and isBear) and (localHealth <= self.healthToShift + 10) and (localMana >= self.shapeshiftMana) and (script_grind:enemiesAttackingUs(8) >= 2) and (not hasRejuv) and (not hasRegrowth) then
-		if (not script_grind.adjustTickRate) then
-			script_grind.tickRate = 135;
-			script_rotation.tickRate = 135;
-		end
-		if (localObj:HasBuff("Dire Bear Form")) then
-			CastSpellByName("Dire Bear Form");
-			self.waitTimer = GetTimeEX() + 500;
-		end
-		if (localObj:HasBuff("Bear Form")) then
-			CastSpellByName("Bear Form", localObj);
-			self.waitTimer = GetTimeEX() + 500;
-		end
-		
-	end
+	--if (self.useBear and isBear) and (localHealth <= self.healthToShift + 10) and (localMana >= self.shapeshiftMana) and (script_grind:enemiesAttackingUs(8) >= 2) and (not hasRejuv) and (not hasRegrowth) then
+	--	if (not script_grind.adjustTickRate) then
+	--		script_grind.tickRate = 135;
+	--		script_rotation.tickRate = 135;
+	--	end
+	--	if (localObj:HasBuff("Dire Bear Form")) then
+	--		CastSpellByName("Dire Bear Form");
+	--		self.waitTimer = GetTimeEX() + 500;
+	--	end
+	--	if (localObj:HasBuff("Bear Form")) then
+	--		CastSpellByName("Bear Form", localObj);
+	--		self.waitTimer = GetTimeEX() + 500;
+	--	end
+	--	
+	--end
 
 	-- shapeshift out of cat form to use bear form 2 or more targets
-	if (self.useCat and isCat) and (localMana >= self.shapeshiftMana) and (script_grind:enemiesAttackingUs(12) >= 2) then
+	if (self.useCat and isCat) and (localMana >= self.shapeshiftMana) and (script_grind:enemiesAttackingUs(12) >= 2) and (localHealth <= self.healthToShift) and (GetNumPartyMembers() < 2) then
 		if (not script_grind.adjustTickRate) then
+			DEFAULT_CHAT_FRAME:AddMessage(" --- Shifted - attacked by adds");
 			script_grind.tickRate = 50;
 			script_rotation.tickRate = 50;
 		end
@@ -496,10 +498,11 @@ function script_druid:run(targetGUID)
 		end
 	end
 
-	-- stay in bear if bear form is selected -- cast bear form
-	if ( (self.useBear) and (not isBear) and (not isCat) and (localMana > self.drinkMana) and (localHealth >= self.healthToShift) )
+	-- stay in form bear if bear form is selected -- cast bear form
+	if ( (self.useBear) and (not isBear) and (not isCat) and (localMana > self.drinkMana) and (localHealth >= self.healthToShift)
+		and (IsStanding()) )
 	or ( (script_grind.enemiesAttackingUs(12) >= 2) and (not isCat) and (not isBear) and (localMana > self.drinkMana)
-	and (localHealth >= self.healthToShift) )
+		and (localHealth >= self.healthToShift + 15) and (IsStanding()) )
 	then
 		if (not script_grind.adjustTickRate) then
 			script_grind.tickRate = 135;
@@ -517,8 +520,8 @@ function script_druid:run(targetGUID)
 		end
 	end
 	
-	-- stay in cat form if cat form is selected -- cast cat form
-	if (self.useCat) and (not isCat) and (not self.useBear) and (not isBear) and (localMana > self.drinkMana) and (localHealth > self.healthToShift) and (script_grind.enemiesAttackingUs(12) < 2) then
+	-- stay in form cat if cat form is selected -- cast cat form
+	if (script_grind.enemiesAttackingUs(12) < 2) and (self.useCat) and (not isCat) and (not self.useBear) and (not isBear) and (localMana > self.drinkMana) and (localHealth > self.healthToShift) and (IsStanding()) then
 		if (not script_grind.adjustTickRate) then
 			script_grind.tickRate = 135;
 			script_rotation.tickRate = 135;
@@ -595,6 +598,7 @@ function script_druid:run(targetGUID)
 			if (isCat) and (self.useCat) and (self.useStealth) and (localObj:HasBuff("Prowl")) then
 				if (HasSpell(self.stealthOpener)) and (not IsSpellOnCD(self.stealthOpener)) and (localEnergy >= 50) and (targetObj:GetDistance() <= 6) then
 					CastSpellByName(self.stealthOpener);
+					self.waitTimer = GetTimeEX() + 500;
 				end
 			end
 
@@ -655,7 +659,10 @@ function script_druid:run(targetGUID)
 
 			-- stay in form
 			-- not in bear form and conditions right then stay in bear form
-		if (not isBear and self.useBear and not isCat and localHealth > self.healthToShift and localMana >= self.shapeshiftMana) or script_grind.enemiesAttackingUs(12) >= 2 and not isBear and not isCat and localMana > 30 and localHealth > self.healthToShift then
+		if ( (not isBear) and (self.useBear) and (not isCat) and (localHealth > self.healthToShift) and (localMana >= self.shapeshiftMana)
+			and (IsStanding()) )
+		or ( (script_grind.enemiesAttackingUs(12) >= 2) and (not isBear) and (not isCat) and (localMana > 30) and (localHealth > self.healthToShift)
+			and (IsStanding()) ) then
 			if (HasSpell("Dire Bear Form")) then
 				CastSpellByName("Dire Bear Form");
 				self.waitTimer = GetTimeEX() + 1500;
@@ -707,7 +714,7 @@ function script_druid:run(targetGUID)
 
 		-- stay in form
 		-- not in cat form and conditions right then stay in cat form
-		if (not isCat) and (self.useCat) and (not self.useBear) and (not isBear) and (localHealth >= self.healthToShift) and (localMana >= self.shapeshiftMana) and (script_grind.enemiesAttackingUs(12) < 2) then
+		if (script_grind.enemiesAttackingUs(12) < 2) and (not isCat) and (self.useCat) and (not self.useBear) and (not isBear) and (localHealth >= self.healthToShift) and (localMana >= self.shapeshiftMana) and (IsStanding()) then
 			if (HasSpell("Cat Form")) then
 				CastSpellByName("Cat Form");
 				return 0;
@@ -831,9 +838,9 @@ function script_druid:run(targetGUID)
 
 			-- stay in form
 			if ( (self.useBear) and (not isBear) and (not isCat) and (localHealth > self.healthToShift)
-			and (localMana >= self.shapeshiftMana) )
+				and (localMana >= self.shapeshiftMana) and (IsStanding()) )
 			or ( (script_grind.enemiesAttackingUs(12) >= 2) and (not isBear) and (localMana >= self.shapeshiftMana)
-			and (not isCat) and (localHealth > self.healthToShift) )
+				and (not isCat) and (localHealth > self.healthToShift+15) and (IsStanding()) )
 			then
 				if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 100;
@@ -851,9 +858,10 @@ function script_druid:run(targetGUID)
 				end
 			end
 			
-			-- shift for debuff removal
-			if (isBear or not IsBear) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) then
+			-- shift for debuff removal self use bear form
+			if (isBear or not IsBear) and (not isCat and not self.useCat) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
 				if (not script_grind.adjustTickRate) then
+					DEFAULT_CHAT_FRAME:AddMessage(" --- Shifted out of form to remove disabled movement debuff!");
 					script_grind.tickRate = 100;
 					script_rotation.tickRate = 100;
 				end
@@ -868,6 +876,21 @@ function script_druid:run(targetGUID)
 					return 0;
 				end
 			end
+
+			-- shift for debuff removal self use cat form
+			if (isCat or not isCat) and (not isBear and not self.useBear) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
+				if (not script_grind.adjustTickRate) then
+					DEFAULT_CHAT_FRAME:AddMessage(" --- Shifted out of form to remove disabled movement debuff!");
+					script_grind.tickRate = 100;
+					script_rotation.tickRate = 100;
+				end
+				if (HasSpell("Cat Form")) then
+					CastSpellByName("Cat Form");
+					self.waitTimer = GetTimeEX() + 1500;
+					return 0;
+				end
+			end
+
 
 			-- do these attacks only in bear form
 			if (isBear) and (not isCat) then
@@ -1009,8 +1032,9 @@ function script_druid:run(targetGUID)
 	-- attacks in cat form IN COMBAT PHASE
 
 			-- shift for debuff removal
-			if (self.useCat) and (isCat or not isCat) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) then
+			if (self.useCat) and (isCat or not isCat) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
 				if (not script_grind.adjustTickRate) then
+					DEFAULT_CHAT_FRAME:AddMessage(" --- Shifted out of form to remove movement disabled debuff!");
 					script_grind.tickRate = 100;
 					script_rotation.tickRate = 100;
 				end
@@ -1022,7 +1046,7 @@ function script_druid:run(targetGUID)
 			end
 
 			--stay in form
-			if (self.useCat and not isCat) and (not self.useBear and not isBear) and (localHealth > self.healthToShift) and (localMana >= self.shapeshiftMana) and (script_grind.enemiesAttackingUs(12) < 2) then	
+			if (script_grind.enemiesAttackingUs(12) < 2) and (self.useCat and not isCat) and (not self.useBear and not isBear) and (localHealth > self.healthToShift) and (localMana >= self.shapeshiftMana) and (IsStanding()) then	
 				if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 100;
 					script_rotation.tickRate = 100;
@@ -1278,8 +1302,9 @@ function script_druid:rest()
 	end
 
 	-- shift for debuff removal
-	if (self.useCat) and (isCat or not isCat) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) then
+	if (self.useCat) and (isCat or not isCat) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
 		if (not script_grind.adjustTickRate) then
+			DEFAULT_CHAT_FRAME:AddMessage(" --- Shifted out of form to remove movement disabled debuff!");
 			script_grind.tickRate = 100;
 			script_rotation.tickRate = 100;
 		end
@@ -1291,8 +1316,9 @@ function script_druid:rest()
 	end
 
 	-- shift for debuff removal
-	if (isBear or not IsBear) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) then
+	if (isBear or not IsBear) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
 		if (not script_grind.adjustTickRate) then
+			DEFAULT_CHAT_FRAME:AddMessage(" --- Shifted out of form to remove movement disabled debuff!");
 			script_grind.tickRate = 100;
 			script_rotation.tickRate = 100;
 		end

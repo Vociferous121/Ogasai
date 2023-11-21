@@ -292,7 +292,7 @@ function script_rogue:run(targetGUID)
 			if (GetTarget() ~= nil and targetObj ~= nil) then
 				if (UnitPlayerControlled("target") and GetTarget() ~= localObj) then 
 					script_grind:addTargetToBlacklist(targetObj:GetGUID());
-					return 5; 
+					return 2;
 				end
 			end 
 		
