@@ -7,10 +7,12 @@ function script_druidEX:menu()
 
 
 	if (script_grind.useBear) then
-		script_druid.useCat = false
+		script_druid.useCat = false;
+		script_druid.useMoonkin = false;
 	end
 	if (script_grind.useCat) then
 		script_druid.useBear = false;
+		script_druid.useMoonkin = false;
 	end
 
 	if (HasSpell("Bear Form")) or (HasSpell("Dire Bear Form")) then
@@ -18,14 +20,19 @@ function script_druidEX:menu()
 		if (CollapsingHeader("Choose Form For Combat")) then
 Separator();
 
-			if (not script_druid.useCat) and (HasSpell("Bear Form")) then
+			if (not script_druid.useCat) and (not script_druid.useMoonkin) and (HasSpell("Bear Form")) then
 				wasClicked, script_druid.useBear = Checkbox("Bear Form", script_druid.useBear);
 			end
 
 
-			if (not script_druid.useBear) and (HasSpell("Cat Form")) then
+			if (not script_druid.useBear) and (not script_druid.useMoonkin) and (HasSpell("Cat Form")) then
 				SameLine();
 				wasClicked, script_druid.useCat = Checkbox("Cat Form", script_druid.useCat);
+			end
+
+			if (not script_druid.useBear) and (not script_druid.useCat) and (HasSpell("Cat Form")) then
+				SameLine();
+				wasClicked, script_druid.useMoonkin = Checkbox("Moonkin Form", script_druid.useMoonkin);
 			end
 
 		end
@@ -57,6 +64,8 @@ Separator();
 				wasClicked, script_druid.shiftToDrink = Checkbox("Leave Form To Drink", script_druid.shiftToDrink);
 				WasClicked, script_druid.useRest = Checkbox("Rest On Low Mana/HP - Shapeshifted", script_druid.useRest);
 				Separator();
+				Text("Cost of Shapeshift - Mana Percent");
+				script_druid.shapeshiftMana = SliderInt("SSMP%", 15, 35, script_druid.shapeshiftMana);
 			end
 		end
 
@@ -78,6 +87,12 @@ Separator();
 			end
 		end
 
+		if (script_druid.useMoonkin) and (HasSpell("Moonkin Form")) then
+				if (CollapsingHeader("|+| Moonkin Form Options")) then
+					Text("Nothing here yet!");
+					Text("To DO!");
+				end
+		end
 
 	end
 
