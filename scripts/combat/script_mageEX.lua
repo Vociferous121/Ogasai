@@ -15,22 +15,11 @@ function script_mageEX:menu()
 	end
 
 	if (CollapsingHeader("Choose Talent Spec")) then
+		wasClicked, script_mage.frostMage = Checkbox("Frost Spec", script_mage.frostMage);
 
-		if (not script_mage.fireMage) then
-
-			wasClicked, script_mage.frostMage = Checkbox("Frost Spec", script_mage.frostMage);
-			
 			SameLine();
 
-		end
-
-		if (not script_mage.frostMage) then
-
-			wasClicked, script_mage.fireMage = Checkbox("Fire Spec", script_mage.fireMage);
-			
-			SameLine();
-
-		end
+		wasClicked, script_mage.fireMage = Checkbox("Fire Spec", script_mage.fireMage);
 	end
 
 	Separator();

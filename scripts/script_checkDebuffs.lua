@@ -82,6 +82,7 @@ function script_checkDebuffs:hasMagic()
 		or (player:HasDebuff("Sap Might"))
 		or (player:HasDebuff("Frost Nova"))
 		or (player:HasDebuff("Fear"))
+		or (player:HasDebuff("Entangling Roots"))
 
 	
 	then
@@ -102,6 +103,7 @@ function script_checkDebuffs:hasDisabledMovement()
 	if (player:HasDebuff("Web"))
 		or (player:HasDebuff("Net"))
 		or (player:HasDebuff("Frost Nova"))
+		or (player:HasDebuff("Entangling Roots"))
 
 
 	then
