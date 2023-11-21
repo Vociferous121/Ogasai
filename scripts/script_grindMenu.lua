@@ -208,7 +208,15 @@ function script_grindMenu:menu()
 	if (CollapsingHeader('Display Options')) then
 
 		local wasClicked = false;
+
 		wasClicked, script_grind.drawEnabled = Checkbox('Display Status Window', script_grind.drawEnabled);
+
+			if (script_grind.drawEnabled) then
+				if (CollapsingHeader("|+| Move Status Window")) then
+					script_grind.adjustX = SliderInt("adjust X scale", -300, 300, script_grind.adjustX);
+					script_grind.adjustY = SliderInt("adjust Y scale", -300, 300, script_grind.adjustY);
+				end
+			end
 		
 		if (GetLocalPlayer():GetLevel() < 60) then
 		

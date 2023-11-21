@@ -100,6 +100,9 @@ script_grind = {
 	lootCheckTime = 0,
 	afkActionSlot = "24",
 	playerParanoidDistance = 0,
+	adjustText = true,
+	adjustY = 0,
+	adjustX = 0,
 }
 
 function script_grind:setup()
@@ -820,6 +823,11 @@ function script_grind:drawStatus()
 	-- info
 	if (not self.pause) then
 
+	if (self.adjustText) and (self.drawEnabled) then
+		x = x + self.adjustX;
+		y = y + self.adjustY;
+	end
+
 	--DrawRect(x - 10, y - 7, x + width, y + 140, 255, 255, 0, 10, 77, 0);
 	--DrawRectFilled(x - 10, y - 7, x + width, y + 140, 0, 0, 0, 80, 10, 77);
 	DrawText('Grinder - Pull range: ' .. math.floor(self.pullDistance) .. ' yd. ' .. 
@@ -850,7 +858,14 @@ function script_grind:drawStatus()
 		DrawText('Blacklist-timer: ' .. self.enemyObj:GetUnitName() .. ': ' .. time .. ' s.', x, y+20, 0, 255, 120); 
 		DrawText('Blacklisting target after ' .. self.blacklistTime .. " s. (If above 92% HP.)", x, y+35, 0, 255, 120);
 	end
+
 	else
+
+		if (self.adjustText) and (self.drawEnabled) then
+			x = x + self.adjustX;
+			y = y + self.adjustY;
+		end
+
 		DrawText('Grinder paused by user...', x-5, y-4, r+255, g+122, b+122);
 	end
 end

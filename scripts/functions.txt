@@ -88,7 +88,7 @@ GetMapID() [number]
 GetCorpsePosition() [number] x, [number] y, [number] z
 FaceAngle([number] angle)
 	-- turn towards that angle, angle is not relative 
-in rad not degree, if you want to face 90° you need to convert to rad first
+in rad not degree, if you want to face 90  you need to convert to rad first
 x = math.rad(90)
 FaceAngle(x)
 GetSpellInfoX([string] spellName) [number] CastTime, [number] MaxRange, [number] MinRange,
@@ -170,8 +170,24 @@ DrawPoints([bool] onORoff)
 	-- draws walk path nodes
 NewTheme([bool] onORoff)
 	-- disabled new theme, makes menu look like the old one
+
 GetLastError() [number] spellId, [number] errorCode
+
 ClearLastError()
+
+
+-- error codes
+spell not ready yet = 60
+target not in range = 89
+cant use item = 89
+cant use action = 89
+spell not ready already casting = 35
+stopped spell casting moving = 35
+not while sitting = 62
+cant do while moving = 46
+double poly = 5
+item not ready yet = 40
+cannot cast player is silenced = 141
 
 
 [Pathing]
