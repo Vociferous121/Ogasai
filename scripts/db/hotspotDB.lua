@@ -282,7 +282,7 @@ function hotspotDB:setup()
 	-- stonetalon mountains
 		
 	hotspotDB:addHotspot("Stonetalon Peak 26 - 28", "Horde", 26, 28, 2729.55, 1291.17, 291.03);
-	hotspotDB:addHotspot("Mirkfallon Lake 21 - 23", "Horde", 21, 23, 1720.85, 760.17, 137.51);
+	hotspotDB:addHotspot("Mirkfallon Lake 23 - 24", "Horde", 21, 23, 1720.85, 760.17, 137.51);
 	hotspotDB:addHotspot("The Charred Vale 27 - 29", "Horde", 27, 29, 549.68, 1480.34, -2);
 	hotspotDB:addHotspot("Windshear Crag 17 - 19", "Horde", 17, 19, 991.04, 186.08, 19.27);
 	hotspotDB:addHotspot("Windshear Crag 20 - 22", "Horde", 20, 22, 1062.03, -215.35, 4.48);
@@ -542,12 +542,15 @@ function hotspotDB:getHotspotID(race, level)
 
 	for i=0, self.numHotspots - 1 do
 		if (level >= self.hotspotList[i]['minLevel'] and level <= self.hotspotList[i]['maxLevel']) then
+			local myX, myY, myZ = GetLocalPlayer():GetPosition();
 			
+			if (myX - 500 <= self.hotspotList[i]['pos']['x']) and (myY - 500 <= self.hotspotList[i]['pos']['y']) then
 			-- Race specific or ALL races or faction
 			if (self.hotspotList[i]['race'] == race or 
 				self.hotspotList[i]['race'] == "ALL" or
 				self.hotspotList[i]['race'] == UnitFactionGroup("player") ) then
 				hotspotID = i;
+			end
 			end
 		end
 	end

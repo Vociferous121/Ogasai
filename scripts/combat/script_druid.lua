@@ -1,3 +1,10 @@
+-- change health to shift when 2 or more enemies attacking
+
+
+
+
+
+
 script_druid = {
 	message = 'Druid',
 	menuIncluded = include("scripts\\combat\\script_druidEX.lua"),
@@ -257,7 +264,7 @@ function script_druid:healsAndBuffs()
 ------------------------------------
 
 	-- shapeshift if has rejuv and regrowth and mana is high enough and health is low enough
-	if (self.useBear and isBear) and (localHealth <= self.healthToShift - 25) and (localMana >= 55) and (hasRejuv) and (hasRegrowth) then
+	if (self.useBear and isBear) and (localHealth <= self.healthToShift - 25) and (localMana >= 65) and (hasRejuv) and (hasRegrowth) then
 		if (not script_grind.adjustTickRate) then
 			script_grind.tickRate = 135;
 			script_rotation.tickRate = 135;
@@ -274,7 +281,7 @@ function script_druid:healsAndBuffs()
 	end
 
 	-- shapeshift out of cat form to heal - already have rejuve and regrowth
-	if (self.useCat and isCat) and (localHealth <= self.healthToShift - 20) and (localMana >= 55) and (hasRejuv) and (hasRegrowth) then
+	if (self.useCat and isCat) and (localHealth <= self.healthToShift - 20) and (localMana >= 65) and (hasRejuv) and (hasRegrowth) then
 		if (not script_grind.adjustTickRate) then	
 			script_grind.tickRate = 135;
 			script_rotation.tickRate = 135;
