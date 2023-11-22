@@ -278,7 +278,9 @@ function script_grind:run()
 		return;
 	end
 
-	if (not self.useUnstuckTwo) and (self.useUnstuck and IsMoving()) and (not self.pause) then
+
+	--and (not self.pause) 
+	if (not self.useUnstuckTwo) and (self.useUnstuck and IsMoving()) then
 		if (not script_unstuck:pathClearAuto(2)) then
 			script_unstuck:unstuck();
 			return true;
