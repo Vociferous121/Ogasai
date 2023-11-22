@@ -150,6 +150,7 @@ function script_warlock:runBackwards(targetObj, range)
  			script_nav:moveToTarget(localObj, moveX, moveY, moveZ);
 			if (IsMoving()) then
 				JumpOrAscendStart();
+				self.waitTimer = GetTimeEX() + 250;
 			end
  			return true;
  		end
@@ -841,7 +842,7 @@ function script_warlock:run(targetGUID)
 
 -- use wand sliders
 			if (self.useWand) and (targetHealth <= self.useWandHealth -1) and (localMana <= self.useWandMana -1) and  (GetLocalPlayer():GetUnitsTarget() ~= 0) then
-				if (not IsAutoCasting("Shoot")) then
+				if (not IsAutoCasting("Shoot")) and (not IsMoving()) then
 					script_warlock:petAttack();
 					targetObj:FaceTarget();
 					CastSpellByName("Shoot");
@@ -852,7 +853,7 @@ function script_warlock:run(targetGUID)
 
 			-- Wand if low mana
 			if (localMana <= 5 or targetHealth <= self.wandHealthPreset) and (localObj:HasRangedWeapon()) and (not self.enableGatherShards) and  (GetLocalPlayer():GetUnitsTarget() ~= 0) then
-				if (not IsAutoCasting("Shoot")) then
+				if (not IsAutoCasting("Shoot")) and (not IsMoving()) then
 					targetObj:FaceTarget();
 					targetObj:CastSpell("Shoot");
 					self.waitTimer = GetTimeEX() + 250; 
@@ -1004,7 +1005,7 @@ function script_warlock:run(targetGUID)
 
 				-- wand instead
 			if (self.useWand) and (GetPet() ~= 0) and (localHealth > self.drainLifeHealth or GetPet():GetHealthPercentage() > self.healPetHealth) and (not IsChanneling()) and (targetHealth < 99) then
-				if (localObj:HasRangedWeapon()) and (not IsAutoCasting("Shoot")) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+				if (localObj:HasRangedWeapon()) and (not IsAutoCasting("Shoot")) and (GetLocalPlayer():GetUnitsTarget() ~= 0) and (not IsMoving()) then
 						targetObj:FaceTarget();
 						if (CastSpellByName("Shoot", targetObj)) then
 							self.waitTimer = GetTimeEX() + 250; 
