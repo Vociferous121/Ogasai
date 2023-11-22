@@ -1023,11 +1023,11 @@ function script_grind:runRest()
 		local isShadowmeld = localObj:HasBuff("Shadowmeld");
 		local isProwl = localObj:HasBuff("Prowl");
 
-	if(RunRestScript()) then
+	if(RunRestScript()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
 		self.message = "Resting...";
 		self.newTargetTime = GetTimeEX();
 
-		if (isCat) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not isProwl) then
+		if (isCat) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not isProwl) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
 			CastSpellByName("Prowl", localObj);
 			self.waitTimer = GetTimeEX() + 1000;
 		end	
@@ -1057,7 +1057,6 @@ function script_grind:runRest()
 
 		-- Add 2500 ms timer to the rest script rotations (timer could be set already)
 		if ((self.waitTimer - GetTimeEX()) < 2500) then
-			self.waitTimer = GetTimeEX() + 2500;
 		end
 	return true;	
 	end

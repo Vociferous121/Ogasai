@@ -414,11 +414,7 @@ function script_warlock:run(targetGUID)
 			end
 		end
 
-		if (not targetObj:IsFleeing()) and (not targetObj:IsInLineOfSight()) then
-			if (not script_checkDebuffs:petDebuff()) then
-				PetFollow();
-			end
-		end
+	
 
 		-- check line of sight
 		if (not targetObj:IsInLineOfSight()) or (targetObj:GetDistance() > 32) then
@@ -458,13 +454,16 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
-		-- Check: if we target player pets/totems
-		if (GetTarget() ~= nil and targetObj ~= nil) then
-			if (UnitPlayerControlled("target") and GetTarget() ~= localObj) then 
-				script_grind:addTargetToBlacklist(targetObj:GetGUID());
-				return 5; 
+				-- level 1 - 4
+			if (not HasSpell("Summon Imp")) and (localMana > 25) then
+				CastSpellByName('Shadow Bolt', targetObj);
+				return 0;
 			end
-		end 
+			if (HasSpell("Summon Imp")) and (not HasSpell("Corruption")) then
+				Cast('Immolate', targetObj);
+				return 0;
+			end
+
 
 		-- nav move to target causing crashes on follower
 		-- move to cancel Health Funnel when payer has low HP
@@ -527,16 +526,6 @@ function script_warlock:run(targetGUID)
 				
 			if (not targetObj:IsSpellInRange("Shadow Bolt")) or (not targetObj:IsInLineOfSight()) then
 				return 3;
-			end
-
-			-- level 1 - 4
-			if (not HasSpell("Summon Imp")) and (localMana > 25) then
-				Cast('Shadow Bolt', targetObj);
-				return 0;
-			end
-			if (HasSpell("Summon Imp")) and (not HasSpell("Corruption")) then
-				Cast('Immolate', targetObj);
-				return 0;
 			end
 
 			-- if pet goes too far then recall
@@ -603,8 +592,6 @@ function script_warlock:run(targetGUID)
 				self.message = "Moving into Line of Sight of target";
 				return 3;
 			end
-
-
 
 
 

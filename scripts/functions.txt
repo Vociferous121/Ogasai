@@ -1,3 +1,35 @@
+GetLastError() [number] spellId, [number] errorCode
+
+ClearLastError()
+
+
+
+	local __, lastError = GetLastError();
+	if (lastError ~= -1) then
+		DEFAULT_CHAT_FRAME:AddMessage(lastError);
+	end	
+
+
+-- error codes
+spell not ready yet = 60
+target not in range = 89
+cant use item = 89
+cant use action = 89
+spell not ready already casting = 35
+stopped spell casting moving = 35
+not while sitting = 62
+cant do while moving = 46
+double poly = 5
+item not ready yet = 40
+cannot cast player is silenced = 141
+cant do that yet = 18
+not enough rage = 77
+cant do that yet = 77
+can only use while swimming = 88
+you are in shapeshift form = 61
+missing regeant = 92
+no permission to loot corpse = 51
+
 Wow APIs:
 https://wowwiki-archive.fandom.com/wiki/World_of_Warcraft_API?oldid=293138
 http://darkenedlinux.com/ogasai/showthread.php?tid=196
@@ -170,24 +202,6 @@ DrawPoints([bool] onORoff)
 	-- draws walk path nodes
 NewTheme([bool] onORoff)
 	-- disabled new theme, makes menu look like the old one
-
-GetLastError() [number] spellId, [number] errorCode
-
-ClearLastError()
-
-
--- error codes
-spell not ready yet = 60
-target not in range = 89
-cant use item = 89
-cant use action = 89
-spell not ready already casting = 35
-stopped spell casting moving = 35
-not while sitting = 62
-cant do while moving = 46
-double poly = 5
-item not ready yet = 40
-cannot cast player is silenced = 141
 
 
 [Pathing]
