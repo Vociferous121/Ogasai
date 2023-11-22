@@ -167,7 +167,7 @@ function script_grind:window()
 end
 
 function script_grind:setWaitTimer(ms)
-	self.waitTimer = (GetTimeEX() + ms);
+	self.waitTimer = (GetTimeEX() + (ms));
 end
 
 function script_grind:addTargetToBlacklist(targetGUID)
