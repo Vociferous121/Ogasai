@@ -10,7 +10,7 @@ script_vendor = {
 	currentBag = 0,
 	currentSlot = 0,
 	sellPoor = true,
-	sellCommon = false,
+	sellCommon = true,
 	sellUncommon = false,
 	sellRare = false,
 	sellEpic = false,
@@ -189,7 +189,7 @@ function script_vendor:repair()
 	local x, y, z = localObj:GetPosition();
 	local factionID = 1; -- horde
 	local factionNr = GetFaction();
-	if (factionNr == 1 or factionNr == 3 or factionNr == 4 or factionNr == 115 or factionNr == 1610 or factionNr == 614) then
+	if (factionNr == 1 or factionNr == 3 or factionNr == 4 or factionNr == 115) then
 		factionID = 0; -- alliance
 	end
 	
@@ -213,10 +213,6 @@ function script_vendor:repair()
 		local vX, vY, vZ = vendor['pos']['x'], vendor['pos']['y'], vendor['pos']['z'];
 		
 		if (GetDistance3D(x, y, z, vX, vY, vZ) > 3.5) then
-			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) then
-				CastSpellByName("Stealth", localObj);
-				self.waitTimer = GetTimeEX() + 1200;
-			end
 			self.status = 1; -- moving to a repair vendor
 			script_nav:moveToTarget(localObj, vX, vY, vZ);
 			self.message = 'Moving to ' .. vendor['name'] .. '...';
@@ -244,9 +240,10 @@ function script_vendor:repair()
 				if (CanMerchantRepair()) then
 					RepairAllItems(); 
 					self.message = 'Finished repairing...';
+					-- sell
+					script_vendorMenu:sellLogic();
 					return true;
-				end
-				if (IsVendorWindowOpen()) then
+				else
 					-- sell
 					self.currentBag = 0;
 					self.currentSlot = 0;
@@ -292,10 +289,11 @@ function script_vendor:sell()
 	if (self.sellVendor ~= 0) then
 		vendor = self.sellVendor;
 	else
-		local vendorID = vendorDB:GetVendor(factionID, GetContinentID(), GetMapID(), true, false, false, false, false, x, y, z);
+		local vendorID = vendorDB:GetVendor(factionID, GetContinentID(), GetMapID(), false, false, false, false, false, x, y, z);
 	
 		if (vendorID ~= -1) then
-		
+			vendor = vendorDB:GetVendorByID(vendorID);
+		else
 			self.message = "No vendor found, see scripts\\VendorDB.lua...";
 			return false;
 		end
@@ -305,10 +303,6 @@ function script_vendor:sell()
 		local vX, vY, vZ = vendor['pos']['x'], vendor['pos']['y'], vendor['pos']['z'];
 	
 		if (GetDistance3D(x, y, z, vX, vY, vZ) > 3.5) then
-			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) then
-				CastSpellByName("Stealth", localObj);
-				self.waitTimer = GetTimeEX() + 1200;
-			end
 			script_nav:moveToTarget(localObj, vX, vY, vZ);
 			self.status = 2; -- moving to sell at a vendor
 			self.message = 'Moving to ' .. vendor['name'] .. '...';
@@ -341,7 +335,6 @@ function script_vendor:sell()
 					script_vendorMenu:sellLogic();
 					return true;
 				else
-					RepairAllItems();
 					script_vendorMenu:sellLogic();
 					return true;
 				end
@@ -404,10 +397,6 @@ function script_vendor:buyAmmo(quiverBagSlot, ammoName, itemIsArrow)
 		
 		-- Move to vendor
 		if (GetDistance3D(x, y, z, vX, vY, vZ) > 3.5) then
-			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) then
-				CastSpellByName("Stealth", localObj);
-				self.waitTimer = GetTimeEX() + 1200;
-			end
 			script_nav:moveToTarget(localObj, vX, vY, vZ);
 			self.status = 3; -- moving to buy ammo at a vendor
 			self.message = 'Moving to ' .. vendor['name'] .. '...';
@@ -536,11 +525,6 @@ function script_vendor:buy(itemName, itemNum, isFood, isDrink)
 		
 		-- Move to vendor
 		if (GetDistance3D(x, y, z, vX, vY, vZ) > 3.5) then
-
-			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) then
-				CastSpellByName("Stealth", localObj);
-				self.waitTimer = GetTimeEX() + 1200;
-			end
 			script_nav:moveToTarget(localObj, vX, vY, vZ);
 			self.status = 4; 
 			self.message = 'Moving to ' .. vendor['name'] .. '...';
