@@ -280,7 +280,7 @@ function script_grind:run()
 
 
 	--and (not self.pause) 
-	if (not self.useUnstuckTwo) and (self.useUnstuck and IsMoving()) then
+	if (not self.useUnstuckTwo) and (self.useUnstuck and IsMoving()) and (not self.pause) then
 		if (not script_unstuck:pathClearAuto(2)) then
 			script_unstuck:unstuck();
 			return true;
@@ -378,23 +378,21 @@ function script_grind:run()
 			self.hotspotReached = true;
 		end
 		-- Auto path: keep us inside the distance to the current hotspot, if mounted keep running even if in combat
-		if ((not IsInCombat() or IsMounted()) and self.autoPath and script_vendor:getStatus() == 0 and
+		if ((not IsInCombat()) and (self.autoPath) and (script_vendor:getStatus() == 0) and
 			(script_nav:getDistanceToHotspot() > self.distToHotSpot or self.hotSpotTimer > GetTimeEX())) then
 			if (not (self.hotSpotTimer > GetTimeEX())) then
 				self.hotSpotTimer = GetTimeEX() + 20000;
 			end
 
+			-- Druid cat form is faster if you specc talents
+			if (HasSpell("Cat Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
+				CastSpellByName("Cat Form");
+				self.waitTimer = GetTimeEX() + 500;
+			end
 			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
 				CastSpellByName("Stealth", localObj);
 				self.waitTimer = GetTimeEX() + 1200;
 			end
-			--if (script_grind:mountUp() and self.useMount) then
-			--	return; 
-			--end
-			-- Druid cat form is faster if you specc talents
-			--if (self.currentLevel < 40 and HasSpell('Cat Form') and not localObj:HasBuff('Cat Form')) and (not localObj:IsDead()) then
-			--	CastSpellByName('Cat Form');
-			--end
 			-- Shaman Ghost Wolf 
 			if (self.currentLevel < 40 and HasSpell('Ghost Wolf') and not localObj:HasBuff('Ghost Wolf')) and (not localObj:IsDead()) then
 				CastSpellByName('Ghost Wolf');

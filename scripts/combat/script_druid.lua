@@ -678,7 +678,7 @@ function script_druid:run(targetGUID)
 			and (IsStanding()) )
 		or ( (script_grind.enemiesAttackingUs(12) >= 2) and (not isBear) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift)
 			and (IsStanding()) ) 
-		or ( (script_grind.enemyObj:GetLevel() > (GetLocalPlayer():GetLevel() + 2)) and (not isBear) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift)
+		or ( (targetObj:GetLevel() > (GetLocalPlayer():GetLevel() + 2)) and (not isBear) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift)
 			and (IsStanding()) )
 		then
 			if (HasSpell("Dire Bear Form")) then
@@ -854,12 +854,15 @@ function script_druid:run(targetGUID)
 
 	-- attacks in bear form IN COMBAT PHASE
 
+			local isBear = GetLocalPlayer():HasBuff("Bear Form");
+			local isCat = GetLocalPlayer():HasBuff("Cat Form");
+
 			-- stay in form
 			if ( (self.useBear) and (not isBear) and (not isCat) and (localHealth > self.healthToShift)
 				and (localMana >= self.shapeshiftMana) and (IsStanding()) )
 			or ( (script_grind.enemiesAttackingUs(12) >= 2) and (not isBear) and (localMana >= self.shapeshiftMana)
 				and (not isCat) and (localHealth > self.healthToShift+15) and (IsStanding()) )
-			or ( (script_grind.enemyObj:GetLevel() > (GetLocalPlayer():GetLevel() + 2)) and (not isBear) and (localMana >= self.shapeshiftMana)
+			or ( (targetObj:GetLevel() > (GetLocalPlayer():GetLevel() + 2)) and (not isBear) and (localMana >= self.shapeshiftMana)
 				and (not isCat) and (localHealth > self.healthToShift) and (IsStanding()) )
 
 			then

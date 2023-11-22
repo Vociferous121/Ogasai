@@ -103,7 +103,23 @@ end
 function script_nav:moveToHotspot(localObj)
 	if (self.currentHotSpotName ~= 0) then
 		script_nav:moveToTarget(localObj, self.currentHotSpotX, self.currentHotSpotY, self.currentHotSpotZ); 
-		return "Moving to hotspot " .. self.currentHotSpotName .. '...';
+		
+			-- Druid cat form is faster if you specc talents
+			if (HasSpell("Cat Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
+				CastSpellByName("Cat Form");
+				self.waitTimer = GetTimeEX() + 500;
+			end
+			if (localObj:HasBuff("Cat Form")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) then
+				CastSpellByName("Prowl");
+				self.waitTimer = GetTimeEX() + 500;
+			end
+			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
+				CastSpellByName("Stealth", localObj);
+				self.waitTimer = GetTimeEX() + 500;
+			end
+
+
+			return "Moving to hotspot " .. self.currentHotSpotName .. '...';
 	else
 		return "No hotspot has been loaded...";
 	end
@@ -539,10 +555,11 @@ function script_nav:avoidElite(range) -- Runs away if there is atleast one elite
  				local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
  				local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
  				local moveX, moveY, moveZ = xT + xUV*100, yT + yUV*100, zT + zUV;			
-				script_nav:moveToTarget(localObj, moveX, moveY, moveZ);
-				script_grind.setWaitTimer(5000);
+				script_nav:moveToNav(localObj, moveX, moveY, moveZ);
+				script_grind:setWaitTimer(15000);
 			return;
  			end
+		script_nav:moveToSavedLocation(localObj, minLevel, maxLevel, useStaticHotSpot);
  		end
  		currentObj, typeObj = GetNextObject(currentObj);
  	end
