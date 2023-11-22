@@ -5,7 +5,7 @@ script_druid = {
 	drinkMana = 50,
 	rejuvenationMana = 18,	-- use rejuvenation above this mana
 	rejuvenationHealth = 80,	-- use rejuvenation below this health
-	regrowthHealth = 55,
+	regrowthHealth = 70,
 	healingTouchHealth = 45,
 	healthToShift = 50,
 	potionHealth = 18,
@@ -179,7 +179,8 @@ function script_druid:healsAndBuffs()
 --------------
 
 	-- shapeshift out of bear form to heal
-	if (isBear) and (localHealth <= self.healthToShift) and (localMana >= self.shapeshiftMana) and (not hasRejuv) and (not hasRegrowth) then
+	if ( (isBear) and (localHealth <= self.healthToShift) and (localMana >= self.shapeshiftMana) and (not hasRejuv) and (not hasRegrowth) and (script_grind.enemiesAttackingUs(12) < 2) )
+	or ( (isBear) and (localHealth <= healthToShift + 10) and (localMana >= self.shapeshiftMana + 10) and (not hasRejuv) and (not hasRegrowth) and (script_grind.enemiesAttackingUs(12) >= 2) )then
 		if (not script_grind.adjustTickRate) then
 			script_grind.tickRate = 135;
 			script_rotation.tickRate = 135;
@@ -234,6 +235,15 @@ function script_druid:healsAndBuffs()
 	-- heal 2 or more enemies higher health
 	if (script_grind:enemiesAttackingUs(12) >= 2) and (not isBear) and (not isCat) and (localHealth <= self.healthToShift + 20) then
 
+		-- Regrowth
+		if (HasSpell("Regrowth")) and (not localObj:HasBuff("Regrowth")) and (localHealth <= self.regrowthHealth + 20) and (localMana >= 40) then
+			if (CastHeal("Regrowth", localObj)) then
+				self.waitTimer = GetTimeEX() + 3500;
+				return 0;
+			end
+		end
+	end
+
 		-- Healing Touch
 		if (HasSpell("Healing Touch")) then
 			if (localHealth < self.healingTouchHealth + 10) and (localMana > 25) then
@@ -244,19 +254,10 @@ function script_druid:healsAndBuffs()
 			end
 		end
 
-		-- Regrowth
-		if (HasSpell("Regrowth")) and (not localObj:HasBuff("Regrowth")) and (localHealth <= self.regrowthHealth + 20) and (localMana >= 40) then
-			if (CastHeal("Regrowth", localObj)) then
-				self.waitTimer = GetTimeEX() + 3500;
-				return 0;
-			end
-		end
-	end
-
 ------------------------------------
 
 	-- shapeshift if has rejuv and regrowth and mana is high enough and health is low enough
-	if (self.useBear and isBear) and (localHealth <= self.healthToShift - 20) and (localMana >= 55) and (hasRejuv) and (hasRegrowth) then
+	if (self.useBear and isBear) and (localHealth <= self.healthToShift - 25) and (localMana >= 55) and (hasRejuv) and (hasRegrowth) then
 		if (not script_grind.adjustTickRate) then
 			script_grind.tickRate = 135;
 			script_rotation.tickRate = 135;
@@ -320,21 +321,14 @@ function script_druid:healsAndBuffs()
 
 --------------------------
 
+	local isBear = GetLocalPlayer():HasBuff("Bear Form");
+	local isCat = GetLocalPlayer():HasBuff("Cat Form");
+
 
 	-- if not isBear and not isCat
 	if (not isBear) and (not isCat) and (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) then
 
-		-- Healing Touch
-		if (HasSpell("Healing Touch")) then
-			if (localHealth < self.healingTouchHealth) and (localMana > 25) then
-				if (CastHeal("Healing Touch", localObj)) then
-					self.waitTimer = GetTimeEX() + 2700;
-					return 0;
-				end
-			end
-		end
-
-		-- Regrowth
+	-- Regrowth
 		if (HasSpell("Regrowth")) and (not localObj:HasBuff("Regrowth")) and (localHealth <= self.regrowthHealth) and (localMana >= 40) then
 			if (CastHeal("Regrowth", localObj)) then
 				self.waitTimer = GetTimeEX() + 3500;
@@ -350,6 +344,16 @@ function script_druid:healsAndBuffs()
 			end
 		end
 		
+
+		-- Healing Touch
+		if (HasSpell("Healing Touch")) then
+			if (localHealth < self.healingTouchHealth) and (localMana > 25) then
+				if (CastHeal("Healing Touch", localObj)) then
+					self.waitTimer = GetTimeEX() + 2700;
+					return 0;
+				end
+			end
+		end
 		
 		-- Mark of the Wild
 		if (not IsInCombat()) and (localMana > 40) then
@@ -485,9 +489,11 @@ function script_druid:run(targetGUID)
 
 		if ( (self.useBear) and (not isBear) and (not isCat) and (localMana > self.drinkMana) and (localHealth >= self.healthToShift)
 			and (IsStanding()) )
-		or ( (script_grind.enemiesAttackingUs(12) >= 2) and (not isCat) and (not isBear) and (localMana > self.drinkMana)
-			and (localHealth >= self.healthToShift) and (IsStanding()) )
-		or ( (targetObj:GetLevel() > (localObj:GetLevel() + 2)) and (not isCat) and (not isBear) and (localMana > self.shapeshiftMana) and (localHealth >= self.healthToShift) and (IsStanding()) )
+
+		or ( (script_grind.enemiesAttackingUs(12) >= 2) and (not isCat) and (not isBear) and (localMana > self.shapeshiftMana)
+			and (localHealth >= self.healthToShift) and (IsStanding()) and (hasRegrowth) )
+
+		or ( (targetObj:GetLevel() > (localObj:GetLevel() + 2)) and (not isCat) and (not isBear) and (localMana > self.shapeshiftMana) and (localHealth >= self.healthToShift) and (IsStanding()) and (hasRegrowth) )
 		then
 			if (not script_grind.adjustTickRate) then
 				script_grind.tickRate = 135;
@@ -555,7 +561,7 @@ function script_druid:run(targetGUID)
 		-- assign target health
 		targetHealth = targetObj:GetHealthPercentage();
 
-	-- shapeshift out of cat form to use bear form 2 or more targets
+	-- shapeshift out of cat form to use bear form 2 or more targets - leave form
 
 		if ( (self.useCat) and (isCat) and (localMana >= self.shapeshiftMana) and (script_grind:enemiesAttackingUs(12) >= 2) and
 			(localHealth <= self.healthToShift) and (GetNumPartyMembers() < 2) )
