@@ -7,7 +7,7 @@ script_shaman = {
 	potionHealth = 10,
 	potionMana = 20,
 	isSetup = false,
-	meeleDistance = 4,
+	meleeDistance = 4,
 	waitTimer = 0,
 	stopIfMHBroken = true,
 	enhanceWeapon = 'Rockbiter Weapon',
@@ -46,7 +46,7 @@ function script_shaman:setup()
 
 end
 
--- Checks and apply enhancement on the meele weapon
+-- Checks and apply enhancement on the melee weapon
 function script_shaman:checkEnhancement()
 	if (not IsInCombat() and not IsEating() and not IsDrinking()) then
 		hasMainHandEnchant, _, _, _, _, _ = GetWeaponEnchantInfo();
@@ -126,7 +126,7 @@ function script_shaman:draw()
 	--script_shaman:window();
 	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
 	if (onScreen) then
-		DrawText(self.message, tX+75, tY+44, 255, 0, 0);
+		DrawText(self.message, tX+75, tY+40, 0, 255, 255);
 	else
 		DrawText(self.message, 25, 185, 0, 255, 255);
 	end
@@ -175,6 +175,10 @@ function script_shaman:run(targetGUID)
 		return 4;
 	end
 
+	--Valid Enemy
+	if (targetObj ~= 0) then
+
+
 	if (not script_grind.adjustTickRate) then
 		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
 			script_grind.tickRate = 100;
@@ -183,8 +187,6 @@ function script_shaman:run(targetGUID)
 		end
 	end
 	
-	--Valid Enemy
-	if (targetObj ~= 0) then
 		
 		-- Cant Attack dead targets
 		if (targetObj:IsDead() or not targetObj:CanAttack()) then
@@ -239,8 +241,8 @@ function script_shaman:run(targetGUID)
 				return 0;
 			end
 			
-			-- Check move into meele range
-			if (targetObj:GetDistance() > self.meeleDistance or not targetObj:IsInLineOfSight()) then
+			-- Check move into melee range
+			if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
 				return 3;
 			end
 
@@ -261,8 +263,8 @@ function script_shaman:run(targetGUID)
 				end 
 			end
 
-			-- Check if we are in meele range
-			if (targetObj:GetDistance() > self.meeleDistance or not targetObj:IsInLineOfSight()) then
+			-- Check if we are in melee range
+			if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
 				return 3;
 			else
 				if (IsMoving()) then StopMoving(); end
@@ -306,8 +308,8 @@ function script_shaman:run(targetGUID)
 				end
 			end
 
-			-- Check: If we are in meele range, do meele attacks
-			if (targetObj:GetDistance() < self.meeleDistance and targetObj:IsInLineOfSight()) then
+			-- Check: If we are in melee range, do melee attacks
+			if (targetObj:GetDistance() < self.meleeDistance and targetObj:IsInLineOfSight()) then
 				targetObj:FaceTarget();
 
 				-- Totem
