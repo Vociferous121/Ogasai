@@ -321,6 +321,16 @@ function script_hunter:run(targetGUID)
 
 	-- NOT    in combat ---  do pull stuff
 
+			if (GetLocalPlayer():GetLevel() < 10) then
+				if (targetObj:GetDistance() > 11) and (targetObj:GetDistance() < 35) then
+					script_hunter:hunterPull(targetObj);
+				elseif (targetObj:GetDistance() <= 11) then
+					if (targetObj:GetDistance() > 4) then
+						return 3;
+					end
+				end
+			end
+						
 	
 			if (not IsInCombat()) and (targetObj:GetDistance() < 35) and (targetObj:GetDistance() >= 12) and (targetObj:IsInLineOfSight()) then
 				script_hunter:hunterPull(targetObj);
