@@ -115,7 +115,6 @@ function script_warlock:fearAdd(targetObjGUID)
 			if (currentObj:CanAttack() and not currentObj:IsDead()) then
 				if (currentObj:GetGUID() ~= targetObjGUID) and (script_grind:isTargetingMe(currentObj) or script_grind:isTargetingPet(currentObj)) then
 					if (not currentObj:HasDebuff("Fear") and currentObj:GetCreatureType() ~= 'Elemental' and not currentObj:IsCritter()) then
-						ClearTarget();
 						if (currentObj:IsInLineOfSight()) then
 							if (not script_grind.adjustTickRate) then
 								script_grind.tickRate = 100;
@@ -369,7 +368,7 @@ function script_warlock:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(400, 900);
+		local tickRandom = random(200, 900);
 
 		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
 			script_grind.tickRate = 135;
@@ -825,7 +824,7 @@ function script_warlock:run(targetGUID)
 						self.message = "Healing pet!";
 						local _xXX, _yYY, _zZZ = GetPet():GetPosition();
 						script_nav:moveToTarget(localObj, _xXX, _yYY, _zZZ); 
-						self.waitTimer = GetTimeEX() + 2000;
+						self.waitTimer = GetTimeEX() + 600;
 						return 0;
 					else
 						StopMoving();
@@ -910,7 +909,7 @@ function script_warlock:run(targetGUID)
 					end
 				else
 					script_nav:moveToTarget(localObj, targetObj:GetPosition()); 
-					self.waitTimer = GetTimeEX() + 2000;
+					self.waitTimer = GetTimeEX() + 600;
 					return 0;
 				end
 			end
@@ -931,7 +930,7 @@ function script_warlock:run(targetGUID)
 					self.message = "Healing pet with Health Funnel";
 					if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) then
 						script_nav:moveToTarget(localObj, GetPet():GetPosition()); 
-						self.waitTimer = GetTimeEX() + 2000;
+						self.waitTimer = GetTimeEX() + 600;
 						return 0;
 					else
 						StopMoving();
@@ -973,7 +972,7 @@ function script_warlock:run(targetGUID)
 			if (not IsMoving()) and (self.enableCorruption) and (not targetObj:HasDebuff("Corruption")) and (targetHealth >= 20) and (targetObj:IsInLineOfSight()) then
 				CastSpellByName('Corruption', targetObj);
 				targetObj:FaceTarget();
-				self.waitTimer = GetTimeEX() + 1500 + (self.corruptionCastTime * 100); 
+				self.waitTimer = GetTimeEX() + 1550 + (self.corruptionCastTime * 100); 
 				return 0;				
 			end
 	
@@ -1059,7 +1058,7 @@ function script_warlock:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(400, 900);
+		local tickRandom = random(300, 900);
 
 		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
 			script_grind.tickRate = 135;
@@ -1237,7 +1236,7 @@ function script_warlock:rest()
 		if (GetPet():GetHealthPercentage() < 50) and (localHealth > 60) then
 			if (GetPet():GetDistance() > 8) then
 				PetFollow();
-				self.waitTimer = GetTimeEX() + 1850; 
+				self.waitTimer = GetTimeEX() + 500; 
 				return true;
 			end
 			if (GetPet():GetDistance() < 20 and localMana > 10) then
@@ -1245,7 +1244,7 @@ function script_warlock:rest()
 					self.message = "Pet has lower than 70% HP, using health funnel...";
 					if (IsMoving() or not IsStanding()) then StopMoving(); return true; end
 					if (HasSpell('Health Funnel')) then CastSpellByName('Health Funnel'); end
-					self.waitTimer = GetTimeEX() + 1850; 
+					self.waitTimer = GetTimeEX() + 600; 
 					return true;
 				end
 			end

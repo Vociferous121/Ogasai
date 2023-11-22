@@ -174,7 +174,7 @@ function script_unstuck:pathClearAuto(yardsInfront)
 				-- Path isn't clear
 				self.message = "Path not clear, turning left...";
 				--DEFAULT_CHAT_FRAME:AddMessage('script_unstuck: Turning left.');
-				script_unstuck:turn(3.14/2);
+				script_unstuck:turn(.03);
 				return false;
 			end
 
@@ -182,7 +182,7 @@ function script_unstuck:pathClearAuto(yardsInfront)
 				-- Path isn't clear
 				self.message = "Path not clear, turning right...";
 				--DEFAULT_CHAT_FRAME:AddMessage('script_unstuck: Turning right.');
-				script_unstuck:turn(-3.14/2);
+				script_unstuck:turn(-.03);
 				return false;
 			end
 
@@ -190,7 +190,7 @@ function script_unstuck:pathClearAuto(yardsInfront)
 				-- Path isn't clear
 				self.message = "Path not clear, turning left..."
 				--DEFAULT_CHAT_FRAME:AddMessage('script_unstuck: Turning left.');
-				script_unstuck:turn(0.5);
+				script_unstuck:turn(0.03);
 				return false;
 			end
 
@@ -198,7 +198,7 @@ function script_unstuck:pathClearAuto(yardsInfront)
 				-- Path isn't clear
 				self.message = "Path not clear, turning right..."
 				--DEFAULT_CHAT_FRAME:AddMessage('script_unstuck: Turning right.');
-				script_unstuck:turn(-0.5);
+				script_unstuck:turn(-0.03);
 				return false;
 			end
 			

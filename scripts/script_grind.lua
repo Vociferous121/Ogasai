@@ -371,7 +371,10 @@ function script_grind:run()
 				return;
 			end
 		end
-		
+
+		if (script_nav:getDistanceToHotspot() <= 45) then
+			self.hotspotReached = true;
+		end
 		-- Auto path: keep us inside the distance to the current hotspot, if mounted keep running even if in combat
 		if ((not IsInCombat() or IsMounted()) and self.autoPath and script_vendor:getStatus() == 0 and
 			(script_nav:getDistanceToHotspot() > self.distToHotSpot or self.hotSpotTimer > GetTimeEX())) then
@@ -426,6 +429,10 @@ function script_grind:run()
 			end
 		end
 
+		if (script_nav:getDistanceToHotspot() <= 45) then
+			self.hotspotReached = true;
+		end
+
 		-- Dont pull mobs before we reached our hotspot
 		if (not IsInCombat() and not self.hotspotReached) then
 			self.enemyObj = nil;
@@ -475,7 +482,7 @@ function script_grind:run()
 				--if (self.enemyObj:GetDistance() < self.disMountRange) then
 				--end
 
-				script_grind.tickRate = 100;
+				script_grind.tickRate = 50;
 
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
@@ -522,7 +529,7 @@ function script_grind:run()
 
 		-- Use auto pathing or walk paths
 		if (self.autoPath) then
-			if (script_nav:getDistanceToHotspot() < 10 and not self.hotspotReached) then
+			if (script_nav:getDistanceToHotspot() < 20 and not self.hotspotReached) then
 				self.message = "Hotspot reached... (No targets around?)";
 				self.hotspotReached = true;
 				return;

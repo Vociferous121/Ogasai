@@ -36,7 +36,7 @@ function hotspotDB:setup()
 
 	-- Teldrassil
 
-	hotspotDB:addHotspot("Shadowglen 1 - 3", "Night Elf", 1, 3, 10463.98, 979.26, 1321.49);
+	hotspotDB:addHotspot("Shadowglen 1 - 2", "Night Elf", 1, 3, 10463.98, 979.26, 1321.49);
 	hotspotDB:addHotspot("Shadowglen 2 - 3", "Night Elf", 1, 3, 10540.92, 627.82, 1328.61);
 	hotspotDB:addHotspot("Shadowglen 3 - 5", "Night Elf", 3, 5, 10729.28, 922.62, 1331.32);
 	hotspotDB:addHotspot("Teldrassil 6 - 8", "Night Elf", 6, 8, 9873.64, 721.59, 1305.96);
@@ -45,9 +45,9 @@ function hotspotDB:setup()
 	hotspotDB:addHotspot("Teldrassil 7 - 9", "Night Elf", 7, 9, 9268.52, 1507.39, 1288.18);
 	hotspotDB:addHotspot("Teldrassil 7 - 10", "Night Elf", 7, 9, 9877.98, 1856.31, 1317.36);
 	hotspotDB:addHotspot("Teldrassil 9 - 11", "Night Elf", 9, 11, 10709.71, 1425.11, 1325.13);
-	hotspotDB:addHotspot("Teldrassil 9 - 10", "Night Elf", 9, 10, 9411.51, 1121.82, 1249.81); 
+	hotspotDB:addHotspot("Teldrassil 9 - 11", "Night Elf", 9, 10, 9411.51, 1121.82, 1249.81); 
 	hotspotDB:addHotspot("The Oracle Glade 10 - 12", "Night Elf", 10, 12, 10888.36, 1739.92, 1318.92);
-	hotspotDB:addHotspot("Teldrassil 11 - 12", "Night Elf", 11, 12, 9428.69, 1693.50, 1304.38);
+	hotspotDB:addHotspot("Teldrassil 10 - 12", "Night Elf", 11, 12, 9428.69, 1693.50, 1304.38);
 
 
 	-- Darkshore

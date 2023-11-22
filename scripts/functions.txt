@@ -35,6 +35,7 @@ https://wowwiki-archive.fandom.com/wiki/World_of_Warcraft_API?oldid=293138
 http://darkenedlinux.com/ogasai/showthread.php?tid=196
 oGasai APIs:
 [WoWUnits]
+FacePosition( ??? check unstuck script) -- presumably works like FaceAngle()
 WoWUnits:FaceTarget([bool] skipCheck = false)
 WoWUnits:GetDistance() [number] distance
 WoWUnits:HasDebuff([string] spellName) [bool]
