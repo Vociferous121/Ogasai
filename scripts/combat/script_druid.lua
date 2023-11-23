@@ -127,10 +127,13 @@ function script_druid:runBackwards(targetObj, range)
  		local distance = targetObj:GetDistance();
  		local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
  		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
- 		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
+ 		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;	
  		local moveX, moveY, moveZ = xT + xUV*16, yT + yUV*16, zT + zUV;		
  		if (distance < range and targetObj:IsInLineOfSight()) then 
-			Move(moveX, moveY, moveZ);
+			script_nav:moveToTarget(localObj, moveX, moveY, moveZ);
+			if (IsMoving()) then
+				JumpOrAscendStart();
+			end
  			return true;
  		end
 	end
@@ -374,7 +377,7 @@ function script_druid:healsAndBuffs()
 
 	-- if out of form and target is low health then cast moonfire only if 1 target is attacking us
 	if (self.useBear and not isBear) and (self.useCat and not isCat) and (GetLocalPlayer():GetUnitsTarget() ~= 0) and (script_grind:enemiesAttackingUs(10) < 2) then
-		if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (targetObj:GetHealthPercentage() < 8) and (not targetObj:IsDead()) and (localMana > 15) then
+		if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (targetObj:GetHealthPercentage() < 8) and (not targetObj:IsDead()) and (localMana > 10) then
 			CastSpellByName("Moonfire", targetObj);
 			self.waitTimer = GetTimeEX() + 1750;
 			return 0;
@@ -452,7 +455,7 @@ function script_druid:run(targetGUID)
 	-- stay in form bear if bear form is selected
 		if (self.useBear) or ( script_grind.enemiesAttackingUs(12) >= 2 and HasSpell("Bear Form") )
 		or ( targetObj:GetLevel() > localObj:GetLevel() + 2 and HasSpell("Bear Form") ) and (not IsDrinking()) and (not IsEating()) then
-			if (not isBear) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth >= self.healthToShift or hasRegrowth) and (IsStanding()) then
+			if (not isBear) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth >= self.healthToShift) and (IsStanding()) then
 				if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 135;
 					script_rotation.tickRate = 135;
@@ -471,7 +474,7 @@ function script_druid:run(targetGUID)
 		end
 	
 	-- stay in form cat if cat form is selected -- cast cat form
-	if (script_grind.enemiesAttackingUs(12) < 2) and (self.useCat) and (not isCat) and (not self.useBear) and (not isBear) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift or hasRegrowth) and (IsStanding()) and (not IsDrinking()) and (not IsEating()) then
+	if (script_grind.enemiesAttackingUs(12) < 2) and (self.useCat) and (not isCat) and (not self.useBear) and (not isBear) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift) and (IsStanding()) and (not IsDrinking()) and (not IsEating()) then
 		if (not script_grind.adjustTickRate) then
 			script_grind.tickRate = 135;
 			script_rotation.tickRate = 135;
@@ -789,6 +792,7 @@ function script_druid:run(targetGUID)
 			if (not HasSpell("Moonfire")) and (localMana >= 35) and (not IsMoving()) and (targetObj:GetDistance() <= 30) then
 				if (CastSpellByName("Wrath", targetObj)) then
 					targetObj:FaceTarget();
+					self.waitTimer = GetTimeEX() + 1550;
 					self.message = "Casting Wrath!";
 					return 0; -- keep trying until cast
 				end
@@ -796,15 +800,18 @@ function script_druid:run(targetGUID)
 			
 			-- use moonfire to pull if has spell
 			if (HasSpell("Moonfire")) and (localMana >= 35) and (not targetObj:HasDebuff("Moonfire")) then
-				CastSpellByName("Moonfire", targetObj);
-				targetObj:FaceTarget();
-				return 0;
+				if (CastSpellByName("Moonfire", targetObj)) then
+					self.waitTimer = GetTimeEX() + 1550;
+					targetObj:FaceTarget();
+					return 0;
+				end
 			end
 			
 			-- Entangling roots when target is far enough away and we have enough mana
-			if (not self.useBear) and (not self.useCat) and (self.useEntanglingRoots) then
+			if (not self.useBear) and (not self.useCat) and (self.useEntanglingRoots) and (not IsMoving()) then
 				if (HasSpell("Entangling Roots")) and (not targetObj:HasDebuff("Entangling Roots")) and (localMana > 45) then
 					if (Cast("Entangling Roots", targetObj)) then
+						self.waitTimer = GetTimeEX() + 1550;
 						return 0;
 					end
 				end
@@ -1196,9 +1203,9 @@ function script_druid:run(targetGUID)
 					end 
 				end	
 
-				if (targetObj:HasDebuff("Entangling Roots")) and (localMana > 25) then
+				if (targetObj:HasDebuff("Entangling Roots")) and (localMana > 36) then
 					if (script_druid:runBackwards(targetObj, 12)) then
-						self.waitTimer = GetTimeEX() + 1500;
+						self.waitTimer = GetTimeEX() + 500;
 					return 4;
 					end
 				end
@@ -1253,7 +1260,7 @@ function script_druid:run(targetGUID)
 			end
 
 			-- auto attack condition for melee
-			if (localMana <= 30 or self.useBear or self.useCat or isBear or isCat) and (not targetObj:HasDebuff("Entangling Roots")) then
+			if (localMana <= 30 or self.useBear or self.useCat or isBear or isCat) then
 				if (targetObj:GetDistance() <= self.meleeDistance) then
 					if (not IsMoving()) then
 						targetObj:FaceTarget();
@@ -1370,7 +1377,8 @@ function script_druid:rest()
 		if (not IsDrinking() and localMana <= self.drinkMana) then
 		
 			self.message = "Need to drink...";
-			self.waitTimer = GetTimeEX() + 2200;
+			self.waitTimer = GetTimeEX() + 2850;
+
 	
 			-- Dismount
 			if(IsMounted()) then 
@@ -1381,8 +1389,8 @@ function script_druid:rest()
 				StopMoving();
 				return true;
 			end
-	
-			if (script_helper:drinkWater()) then 
+
+			if (script_helper:drinkWater()) and (not IsInCombat()) then 
 				ClearTarget();
 				self.message = "Drinking..."; 
 				self.waitTimer = GetTimeEX() + 1200;
@@ -1397,19 +1405,20 @@ function script_druid:rest()
 	-- eat
 	if (not isBear) and (not isCat) then
 		if (not IsEating() and localHealth < self.eatHealth) then
+
+			self.message = "Need to eat...";	
+			self.waitTimer = GetTimeEX() + 2850;
+
 			-- Dismount
 			if(IsMounted()) then
 				DisMount();
 			end
-			self.message = "Need to eat...";	
 			if (IsMoving()) then
-				self.waitTimer = GetTimeEX() + 900;
 				StopMoving();
 				return true;
 			end
 			
-			if (script_helper:eat()) then 
-				ClearTarget();
+			if (script_helper:eat()) and (not IsInCombat()) then 
 				self.message = "Eating..."; 
 				self.waitTimer = GetTimeEX() + 800;
 				return true; 
