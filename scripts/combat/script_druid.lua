@@ -595,8 +595,10 @@ function script_druid:run(targetGUID)
 
 			if (isCat) and (self.useCat) and (self.useStealth) and (localObj:HasBuff("Prowl")) then
 				if (HasSpell(self.stealthOpener)) and (not IsSpellOnCD(self.stealthOpener)) and (localEnergy >= 50) and (targetObj:GetDistance() <= 6) then
-					CastSpellByName(self.stealthOpener);
-					self.waitTimer = GetTimeEX() + 500;
+					if (CastSpellByName(self.stealthOpener)) then
+						self.waitTimer = GetTimeEX() + 300;
+						return 0;
+					end
 				end
 			end
 
@@ -1165,7 +1167,7 @@ function script_druid:run(targetGUID)
 
 		-- no bear form or cat form
 
-			if ( (not self.useBear) and (not isBear) and (not self.useCat) and (not isCat) ) or (isMoonkin and self.useMoonkin) then
+			if (not isBear) and (not isCat) then
 
 				if (targetObj:GetDistance() < 30) and (not IsMoving()) then
 					targetObj:FaceTarget();
