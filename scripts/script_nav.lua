@@ -109,7 +109,7 @@ function script_nav:moveToHotspot(localObj)
 				CastSpellByName("Cat Form");
 				self.waitTimer = GetTimeEX() + 500;
 			end
-			if (localObj:HasBuff("Cat Form")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (not script_checksDebuffs:hasPoison()) then
+			if (localObj:HasBuff("Cat Form")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (not script_checkDebuffs:hasPoison()) then
 				CastSpellByName("Prowl");
 				self.waitTimer = GetTimeEX() + 500;
 			end

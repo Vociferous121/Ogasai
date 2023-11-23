@@ -11,7 +11,7 @@ script_checkDebuffs = {
 
 function script_checkDebuffs:hasCurse()
 
-	local localplayer = GetLocalPlayer();
+	local player = GetLocalPlayer();
 
 	if (player:HasDebuff("Curse of Mending"))
 		or (player:HasDebuff("Curse of the Shadowhorn"))
