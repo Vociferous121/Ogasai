@@ -56,7 +56,7 @@ function script_druid:setup()
 	end
 
 	if (HasSpell("Bear Form")) and (not HasSpell("Cat Form")) then
-		self.meleeDistance = 4.50;
+		self.meleeDistance = 4.80;
 	end
 
 	if (not HasSpell("Ravage")) or (not HasSpell("Pounce")) then
@@ -626,6 +626,8 @@ function script_druid:run(targetGUID)
 			if (not IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance) then
 				if (IsMoving()) then
 					StopMoving();
+					targetObj:FaceTarget();
+					self.waitTimer = GetTimeEX() + 800;
 				end
 			end
 
@@ -672,8 +674,6 @@ function script_druid:run(targetGUID)
 			-- Enrage
 			if (HasSpell("Enrage")) and (not IsSpellOnCD("Enrage")) and (targetObj:GetDistance() < 30) and (localHealth > 65) then
 				if (CastSpellByName("Enrage")) then
-					script_druid:moveAround(targetObj, self.meleeDistance)
-
 					return 0;
 				end
 			end
@@ -828,7 +828,7 @@ function script_druid:run(targetGUID)
 			if ( (self.useBear) and (not isBear) and (not isCat) and (localHealth > self.healthToShift)
 				and (localMana >= self.shapeshiftMana) and (IsStanding()) )
 			or ( (script_grind.enemiesAttackingUs(12) >= 2) and (not isBear) and (localMana >= self.shapeshiftMana)
-				and (not isCat) and (localHealth > self.healthToShift+15) and (IsStanding()) and (HasSpell("Bear Form")) )
+				and (not isCat) and (localHealth > self.healthToShift+5) and (IsStanding()) and (HasSpell("Bear Form")) )
 			or ( (targetObj:GetLevel() > (GetLocalPlayer():GetLevel() + 2)) and (not isBear) and (localMana >= self.shapeshiftMana)
 				and (not isCat) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form")) )
 
@@ -1233,13 +1233,13 @@ function script_druid:run(targetGUID)
 			end
 
 			-- auto attack condition for melee
-			if (localMana <= 30 or self.useBear or self.useCat or isBear or isCat) then
+			if (localMana <= 30 or self.useBear or self.useCat) then
 				if (targetObj:GetDistance() <= self.meleeDistance) then
 					if (not IsMoving()) then
 						targetObj:FaceTarget();
 					end
 					targetObj:AutoAttack();
-				elseif (isBear or isCat) then
+				else
 					return 3;
 				end
 			end
