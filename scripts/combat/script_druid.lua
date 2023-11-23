@@ -448,7 +448,7 @@ function script_druid:run(targetGUID)
 	end
 -- stay in form bear if bear form is selected
 
-		if (self.useBear) or (script_grind.enemiesAttackingUs(12) >= 2) or (targetObj:GetLevel() > localObj:GetLevel() + 2) and (not IsDrinking()) and (not IsEating()) then
+		if (self.useBear) or ( script_grind.enemiesAttackingUs(12) >= 2 and HasSpell("Bear Form") ) or ( targetObj:GetLevel() > localObj:GetLevel() + 2 and HasSpell("Bear Form") ) and (not IsDrinking()) and (not IsEating()) then
 			if (not isBear) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth >= self.healthToShift) and (IsStanding()) then
 				if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 135;
@@ -638,10 +638,8 @@ function script_druid:run(targetGUID)
 			-- not in bear form and conditions right then stay in bear form
 		if ( (not isBear) and (self.useBear) and (not isCat) and (localHealth > self.healthToShift) and (localMana >= self.shapeshiftMana)
 			and (IsStanding()) and (not IsDrinking()) and (not IsEating()) )
-		or ( (script_grind.enemiesAttackingUs(12) >= 2) and (not isBear) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift)
-			and (IsStanding()) ) 
-		or ( (targetObj:GetLevel() > (GetLocalPlayer():GetLevel() + 2)) and (not isBear) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift)
-			and (IsStanding()) )
+		or ( (script_grind.enemiesAttackingUs(12) >= 2) and (not isBear) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form")) ) 
+		or ( (targetObj:GetLevel() > (GetLocalPlayer():GetLevel() + 2)) and (not isBear) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form")) )
 		then
 			if (HasSpell("Dire Bear Form")) then
 				CastSpellByName("Dire Bear Form");
@@ -820,9 +818,9 @@ function script_druid:run(targetGUID)
 			if ( (self.useBear) and (not isBear) and (not isCat) and (localHealth > self.healthToShift)
 				and (localMana >= self.shapeshiftMana) and (IsStanding()) )
 			or ( (script_grind.enemiesAttackingUs(12) >= 2) and (not isBear) and (localMana >= self.shapeshiftMana)
-				and (not isCat) and (localHealth > self.healthToShift+15) and (IsStanding()) )
+				and (not isCat) and (localHealth > self.healthToShift+15) and (IsStanding()) and (HasSpell("Bear Form")) )
 			or ( (targetObj:GetLevel() > (GetLocalPlayer():GetLevel() + 2)) and (not isBear) and (localMana >= self.shapeshiftMana)
-				and (not isCat) and (localHealth > self.healthToShift) and (IsStanding()) )
+				and (not isCat) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form")) )
 
 			then
 				if (not script_grind.adjustTickRate) then

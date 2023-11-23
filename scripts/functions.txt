@@ -30,6 +30,15 @@ you are in shapeshift form = 61
 missing regeant = 92
 no permission to loot corpse = 51
 
+	-- send debuffs on player to log file
+	for i=1,40 do
+		local D = UnitDebuff("player",i);
+		if (D) then
+			local string = (i.."="..D);
+			ToFile(string);
+		end
+	end
+
 Wow APIs:
 https://wowwiki-archive.fandom.com/wiki/World_of_Warcraft_API?oldid=293138
 http://darkenedlinux.com/ogasai/showthread.php?tid=196

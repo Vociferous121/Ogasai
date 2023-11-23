@@ -489,6 +489,7 @@ function script_grind:run()
 		end
 
 		if(self.enemyObj ~= nil or IsInCombat()) then
+
 			self.message = "Running the combat script...";
 			-- In range: attack the target, combat script returns 0
 			if(self.combatError == 0) then
