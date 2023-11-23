@@ -292,6 +292,12 @@ function script_druid:healsAndBuffs()
 				self.waitTimer = GetTimeEX() + 3500;
 				return 0;
 			end
+			if (not hasRejuve) then
+				if (CastSpellByName("Rejuvenation", localObj)) then
+					self.waitTimer = GetTimeEX() + 1550;
+					return 0;
+				end
+			end
 		end
 
 		-- Rejuvenation
@@ -299,6 +305,12 @@ function script_druid:healsAndBuffs()
 			if (CastSpellByName("Rejuvenation", localObj)) then
 				self.waitTimer = GetTimeEX() + 1600;
 				return 0;
+			end
+			if (not HasRegrowth) and (HasSpell("Regrowth")) then
+				if (CastSpellByName("Regrowth", localObj)) then
+					self.waitTimer = GetTimeEX() + 3500;
+					return 0;
+				end
 			end
 		end
 		
