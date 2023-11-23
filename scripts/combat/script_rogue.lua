@@ -292,7 +292,7 @@ function script_rogue:run(targetGUID)
 			if (GetTarget() ~= nil and targetObj ~= nil) then
 				if (UnitPlayerControlled("target") and GetTarget() ~= localObj) then 
 					script_grind:addTargetToBlacklist(targetObj:GetGUID());
-					return 2;
+					return 5;
 				end
 			end 
 		
@@ -321,7 +321,7 @@ function script_rogue:run(targetGUID)
 				if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) and (not script_checkDebuffs:hasPoison()) then
 					if (not localObj:HasBuff("Stealth") and not IsSpellOnCD("Stealth")) then
 						CastSpellByName("Stealth");
-						return 3;
+						return 0;
 					end
 					-- Use sprint (when stealthed for pull)
 					if (HasSpell("Sprint")) and (not IsSpellOnCD("Sprint")) and (localObj:HasBuff("Stealth")) then
