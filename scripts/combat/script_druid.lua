@@ -604,7 +604,7 @@ function script_druid:run(targetGUID)
 			end
 
 			-- use prowl before spamming auto attack and move in range of target!
-			if (self.useCat) and (isCat) and (self.useStealth) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (script_grind.lootObj == nil) then
+			if (self.useCat) and (isCat) and (self.useStealth) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (script_grind.lootObj == nil) and (not script_checkDebuffs:hasPoison()) then
 				CastSpellByName("Prowl");
 				return 0;
 			end
@@ -767,13 +767,6 @@ function script_druid:run(targetGUID)
 				end
 			end
 			
-
-			local randomWrath = math.random(1, 100);
-			if (randomWrath > 50) and (localMana >= 30) and (not IsMoving()) then
-				if (CastSpellByName("Wrath", targetObj)) then
-					return 0;
-				end
-			end
 			-- use moonfire to pull if has spell
 			if (HasSpell("Moonfire")) and (localMana >= 35) and (not targetObj:HasDebuff("Moonfire")) then
 				CastSpellByName("Moonfire", targetObj);
@@ -796,6 +789,9 @@ function script_druid:run(targetGUID)
 
 
 
+		if (IsMoving()) then
+			StopMoving();
+		end
 
 	-- Combat -- start of combat phase! in combat!
 
@@ -1216,7 +1212,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- Wrath
-				if (localMana > 30) and (targetHealth > 15) and (not IsMoving()) then
+				if (localMana > 30) and (targetHealth > 15) then
 					if (Cast("Wrath", targetObj)) then
 						targetObj:FaceTarget();
 						return 0;
@@ -1345,9 +1341,7 @@ function script_druid:rest()
 	-- Drink something
 	if (not isBear) and (not isCat) and (not IsInCombat()) then
 		if (not IsDrinking() and localMana <= self.drinkMana) then
-	
-			ClearTarget();
-	
+		
 			self.message = "Need to drink...";
 			self.waitTimer = GetTimeEX() + 2200;
 	
@@ -1362,6 +1356,7 @@ function script_druid:rest()
 			end
 	
 			if (script_helper:drinkWater()) then 
+				ClearTarget();
 				self.message = "Drinking..."; 
 				self.waitTimer = GetTimeEX() + 1200;
 				return true; 
@@ -1387,6 +1382,7 @@ function script_druid:rest()
 			end
 			
 			if (script_helper:eat()) then 
+				ClearTarget();
 				self.message = "Eating..."; 
 				self.waitTimer = GetTimeEX() + 800;
 				return true; 
@@ -1415,7 +1411,6 @@ function script_druid:rest()
 
 	-- Continue resting
 	if(localHealth < 98 and IsEating() or localMana < 98 and IsDrinking()) then
-		ClearTarget();
 		self.message = "Resting up to full HP/Mana...";
 		return true;
 	end
@@ -1445,7 +1440,6 @@ function script_druid:rest()
 	if (isBear or isCat) and (self.useRest) and (script_grind.lootObj == nil) then
 		if (GetLocalPlayer():GetUnitsTarget() == 0) then
 			if (localMana <= 55 or localHealth <= 55) and (not IsInCombat()) then
-				ClearTarget();
 				self.message = "Waiting - low mana or health and shapeshifted! Change heal/drink!";
 				return;
 			end

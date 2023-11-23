@@ -417,7 +417,7 @@ function script_grind:run()
 				CastSpellByName("Cat Form");
 				self.waitTimer = GetTimeEX() + 500;
 			end
-			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
+			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (not script_checkDebuffs:hasPoison()) then
 				CastSpellByName("Stealth", localObj);
 				self.waitTimer = GetTimeEX() + 1200;
 			end
@@ -565,7 +565,7 @@ function script_grind:run()
 				self.message = script_nav:moveToSavedLocation(localObj, self.minLevel, self.maxLevel, self.staticHotSpot);
 				script_grind:setWaitTimer(50);
 
-				if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
+				if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
 					CastSpellByName("Stealth", localObj);
 					self.waitTimer = GetTimeEX() + 1200;
 				end
@@ -1062,17 +1062,17 @@ function script_grind:runRest()
 		self.message = "Resting...";
 		self.newTargetTime = GetTimeEX();
 
-		if (isCat) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not isProwl) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
+		if (isCat) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not isProwl) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not script_checkDebuffs:hasPoison()) then
 			CastSpellByName("Prowl", localObj);
 			self.waitTimer = GetTimeEX() + 1000;
 		end	
 
-		if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not isStealth) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
+		if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not isStealth) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not script_checkDebuffs:hasPoison()) then
 			CastSpellByName("Stealth", localObj);
 			self.waitTimer = GetTimeEX() + 1000;
 		end
 		
-		if (not isCat) and (not isProwl) and (not isStealth) and (not isShadowmeld) and (not isBear) and (not isCat) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
+		if (not isCat) and (not isProwl) and (not isStealth) and (not isShadowmeld) and (not isBear) and (not isCat) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not script_checkDebuffs:hasPoison()) then
 			CastSpellByName("Shadowmeld", localObj);
 			self.waitTimer = GetTimeEX() + 1000;
 		end
