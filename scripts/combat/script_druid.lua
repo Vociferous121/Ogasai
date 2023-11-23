@@ -623,7 +623,7 @@ function script_druid:run(targetGUID)
 				return 4; 
 			end
 
-			if (not IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance + 1) then
+			if (not IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance) then
 				if (IsMoving()) then
 					StopMoving();
 				end
