@@ -88,6 +88,10 @@ function script_druid:setup()
 		self.useBear = true;
 	end
 
+	if (not HasSpell("Regrowth")) and (HasSpell("Bear Form")) then
+		self.healingTouchHealth = 60;
+	end
+
 	self.waitTimer = GetTimeEX();	
 
 	self.isSetup = true;
@@ -479,7 +483,7 @@ function script_druid:run(targetGUID)
 			JumpOrAscendStart();
 		end
 	
-		if (not IsMoving() and targetObj:GetDistance() <= self.meleeDistance + 1) then
+		if (not IsMoving() and targetObj:GetDistance() <= self.meleeDistance) then
 				targetObj:FaceTarget();
 		end
 
@@ -617,6 +621,12 @@ function script_druid:run(targetGUID)
 			if (IsMounted()) and (targetObj:GetDistance() < 25) then 
 				DisMount(); 
 				return 4; 
+			end
+
+			if (not IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance + 1) then
+				if (IsMoving()) then
+					StopMoving();
+				end
 			end
 
 			----
@@ -772,7 +782,7 @@ function script_druid:run(targetGUID)
 			end
 			
 			-- Entangling roots when target is far enough away and we have enough mana
-			if (not self.useBear) and (not self.useCat) and (self.useEntanglingRoots) and (not IsMoving()) and (localMana >= self.drinkMana) then
+			if (not self.useBear) and (not self.useCat) and (self.useEntanglingRoots) and (not IsInCombat()) and (not IsMoving()) and (localMana >= self.drinkMana) then
 				if (HasSpell("Entangling Roots")) and (not targetObj:HasDebuff("Entangling Roots")) then
 					if (Cast("Entangling Roots", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1650;
@@ -882,7 +892,7 @@ function script_druid:run(targetGUID)
 					self.runOnce = false;
 				end
 
-				if (targetObj:GetDistance() <= self.meleeDistance + 1) then
+				if (targetObj:GetDistance() <= self.meleeDistance) then
 					targetObj:FaceTarget();
 				end
 
@@ -890,7 +900,7 @@ function script_druid:run(targetGUID)
 					return 3;
 				end
 				
-				if (targetObj:GetDistance() <= self.meleeDistance + 1) and (not IsMoving()) then
+				if (targetObj:GetDistance() <= self.meleeDistance + 2) and (not IsMoving()) then
 					targetObj:FaceTarget();
 				end
 
@@ -911,7 +921,7 @@ function script_druid:run(targetGUID)
 				-- keep auto attack on
 				if (not IsAutoCasting("Attack")) then
 					targetObj:AutoAttack();
-					if (targetObj:GetDistance() <= self.meleeDistance + 1) and (not IsMoving()) then
+					if (targetObj:GetDistance() <= self.meleeDistance) and (not IsMoving()) then
 						targetObj:FaceTarget();
 					end
 				end
@@ -1001,7 +1011,7 @@ function script_druid:run(targetGUID)
 				
 				end
 
-				if (targetObj:GetDistance() <= self.meleeDistance + 1) and (isBear) then
+				if (targetObj:GetDistance() <= self.meleeDistance) and (isBear) then
 					targetObj:FaceTarget();
 				end
 
@@ -1058,7 +1068,7 @@ function script_druid:run(targetGUID)
 					end
 				end
 
-				if (targetObj:GetDistance() <= self.meleeDistance + 1) then
+				if (targetObj:GetDistance() <= self.meleeDistance) then
 					targetObj:FaceTarget();
 				end
 
@@ -1151,7 +1161,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- Check: Move backwards if the target is affected by Entangling Root
-				if (self.useEntanglingRoots) then
+				if (self.useEntanglingRoots) and (not self.useBear) and (not self.useCat) then
 					if (not targetObj:HasDebuff("Entangling Roots")) and (not localObj:HasDebuff("Web")) and (not localObj:HasDebuff("Encasing Webs")) and (localMana > 65) and (targetHealth >= 35) then
 						if (not script_grind.adjustTickRate) then
 							script_grind.tickRate = 100;

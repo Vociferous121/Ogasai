@@ -559,8 +559,8 @@ function script_nav:avoidElite(range) -- Runs away if there is atleast one elite
 				script_grind:setWaitTimer(15000);
 			return;
  			end
-		script_nav:moveToSavedLocation(localObj, minLevel, maxLevel, useStaticHotSpot);
- 		end
+	script_nav:updateHotSpot(currentLevel, factionNr, useStaticHotSpot);
+	 		end
  		currentObj, typeObj = GetNextObject(currentObj);
  	end
 	return false;

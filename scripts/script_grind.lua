@@ -65,7 +65,7 @@ script_grind = {
 	drawPath = false,
 	autoPath = true,
 	drawAutoPath = true,
-	distToHotSpot = 325,
+	distToHotSpot = 500,
 	staticHotSpot = true,
 	hotSpotTimer = GetTimeEX(),
 	currentLevel = GetLocalPlayer():GetLevel(),
@@ -308,7 +308,7 @@ function script_grind:run()
 
 
 	--and (not self.pause) 
-	if (not self.useUnstuckTwo) and (self.useUnstuck and IsMoving()) and (not self.pause) then
+	if (not self.useUnstuckTwo) and (self.useUnstuck and IsMoving()) then
 		if (not script_unstuck:pathClearAuto(2)) then
 			script_unstuck:unstuck();
 			return true;
@@ -1040,7 +1040,7 @@ function script_grind:lootAndSkin()
 	if (HasSpell('Skinning') and self.skinning and HasItem('Skinning Knife')) then
 		self.lootObj = nil;
 		self.lootObj = script_grind:getSkinTarget(self.findLootDistance);
-		if (not AreBagsFull() and not self.bagsFull and self.lootObj ~= nil) then
+		if (not AreBagsFull() and not self.bagsFull and self.lootObj ~= nil) and (not IsMoving()) then
 			if (script_grind:doLoot(localObj)) then
 				self.waitTimer = GetTimeEX() + 1200;
 				return;
