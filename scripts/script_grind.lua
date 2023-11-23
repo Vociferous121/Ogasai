@@ -121,25 +121,49 @@ function script_grind:setup()
 		self.vendorRefill = false;
 	end
 
+	-- don't refill water or food on start of bot
 	if (GetLocalPlayer():GetLevel() < 3) then
 		self.vendorRefill = false;
 	end
 
+	-- don't skip hard pulls when we are at starter zones
 	if (GetLocalPlayer():GetLevel() < 8) then
 		self.skipHardPull = false;
 	end
 
+	-- don't skip humanoids when we are at starter zones
+	if (GetLocalPlayer():GetLevel() < 10) then
+		self.skipHumanoids = true;
+	end
+
+	-- enable drawing unit info on screen
 	self.drawEnabled = true;
+	
+	-- setup helper script
 	script_helper:setup();
+	
+	-- setup talent script
 	script_talent:setup();
+
+	-- setup vendor script
 	script_vendor:setup();
+
+	-- setup gather script
 	script_gather:setup();
-	DEFAULT_CHAT_FRAME:AddMessage('script_grind: loaded...');
+
+	-- vendor database script loaded
 	vendorDB:setup();
+
+	-- hotspot database script loaded
 	hotspotDB:setup();
+
+	-- auto load sell vendors
 	vendorDB:loadDBVendors();
+
+	-- navigation script loaded
 	script_nav:setup();
 
+	-- we are setup don't reload these items here
 	self.isSetup = true;
 
 	-- safer min level for low level botting
@@ -156,6 +180,10 @@ function script_grind:setup()
 	if (HasSpell("Skinning")) then
 		self.skinning = true;
 	end
+
+
+	-- add chat frame message grinder is loaded
+	DEFAULT_CHAT_FRAME:AddMessage('script_grind: loaded...');
 		
 end
 
@@ -1034,18 +1062,17 @@ function script_grind:runRest()
 		self.message = "Resting...";
 		self.newTargetTime = GetTimeEX();
 
-		if (isCat) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not isProwl) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
+		if (isCat) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not isProwl) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
 			CastSpellByName("Prowl", localObj);
 			self.waitTimer = GetTimeEX() + 1000;
 		end	
 
-		if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not isStealth) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
+		if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not isStealth) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
 			CastSpellByName("Stealth", localObj);
 			self.waitTimer = GetTimeEX() + 1000;
 		end
 		
-		
-		if (not isCat) and (not isProwl) and (not isStealth) and (not isShadowmeld) and (not isBear) and (not isCat) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
+		if (not isCat) and (not isProwl) and (not isStealth) and (not isShadowmeld) and (not isBear) and (not isCat) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
 			CastSpellByName("Shadowmeld", localObj);
 			self.waitTimer = GetTimeEX() + 1000;
 		end
