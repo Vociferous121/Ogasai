@@ -104,11 +104,8 @@ function vendorDB:setup()
 	vendorDB:addVendor('Himmik', 1, 1, 618, false, true, true, false, false, 6679.62, -4670.89, 721.71); -- Food + Drink Vendor 
 
 
-
-	--new for both faction
-		--Shimmering Flats
-	vendorDB:addVendor("Brivelthwerp", 0, 1, 400, false, true, false, false, false, -6225.8, -3835.31, -58.75);
-    	vendorDB:addVendor("Brivelthwerp", 1, 1, 400, false, true, false, false, false, -6225.8, -3835.31, -58.75);
+	vendorDB:addVendor("Uthrok", 1, 1, 17, false, false, false, false, false, -351.19, -2556.52, 95.78);
+	vendorDB:addVendor("Uthrok", 1, 1, 17, true, false, false, false, false, -351.19, -2556.52, 95.78);
 
 
 	-- Add new additions here!!

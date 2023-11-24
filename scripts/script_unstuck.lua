@@ -19,7 +19,10 @@ script_unstuck = {
 	_zpr = 0,
 	_angle = 0,
 	unstuckAngle = 0,
-	unstuckTime = GetTimeEX()
+	unstuckTime = GetTimeEX(),
+	turnSensitivity = .1,
+	
+	
 }
 
 function script_unstuck:DeBugInfo()
@@ -174,7 +177,7 @@ function script_unstuck:pathClearAuto(yardsInfront)
 				-- Path isn't clear
 				self.message = "Path not clear, turning left...";
 				--DEFAULT_CHAT_FRAME:AddMessage('script_unstuck: Turning left.');
-				script_unstuck:turn(.1); -- 3.14/2
+				script_unstuck:turn( - self.turnSensitivity); -- 3.14/2
 				return false;
 			end
 
@@ -182,7 +185,7 @@ function script_unstuck:pathClearAuto(yardsInfront)
 				-- Path isn't clear
 				self.message = "Path not clear, turning right...";
 				--DEFAULT_CHAT_FRAME:AddMessage('script_unstuck: Turning right.');
-				script_unstuck:turn(-.1); -- -3.14/2
+				script_unstuck:turn( - self.turnSensitivity); -- -3.14/2
 				return false;
 			end
 
@@ -190,7 +193,7 @@ function script_unstuck:pathClearAuto(yardsInfront)
 				-- Path isn't clear
 				self.message = "Path not clear, turning left..."
 				--DEFAULT_CHAT_FRAME:AddMessage('script_unstuck: Turning left.');
-				script_unstuck:turn(0.1); -- .-5
+				script_unstuck:turn( - self.turnSensitivity); -- .-5
 				return false;
 			end
 
@@ -198,7 +201,7 @@ function script_unstuck:pathClearAuto(yardsInfront)
 				-- Path isn't clear
 				self.message = "Path not clear, turning right..."
 				--DEFAULT_CHAT_FRAME:AddMessage('script_unstuck: Turning right.');
-				script_unstuck:turn(-0.1); -- .-5
+				script_unstuck:turn( - self.turnSensitivity); -- .-5
 				return false;
 			end
 			

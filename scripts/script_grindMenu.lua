@@ -183,6 +183,11 @@ function script_grindMenu:menu()
 
 		wasClicked, script_grind.useUnstuckTwo = Checkbox("Increase Unstuck Sensitivity", script_grind.useUnstuckTwo);
 
+		if (not script_grind.useUnstuckTwo) and (script_grind.useUnstuck) then
+			Text("Adjust Unstuck Sensitivity");
+			script_unstuck.turnSensitivity = SliderFloat("Sensitivity", .01, 3, script_unstuck.turnSensitivity);
+		end
+
 		Separator()
 		
 		-- ressurect distance

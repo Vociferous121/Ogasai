@@ -194,7 +194,7 @@ function script_follow:run()
 			self.message = "Loading the nav mesh... ";
 			return; 
 		end
-
+		
 		-- Corpse-walk if we are dead
 		if(localObj:IsDead()) then
 

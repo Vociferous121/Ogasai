@@ -960,7 +960,7 @@ function script_grind:doLoot(localObj)
 			script_grind:setWaitTimer(1200);
 			return;
 		else
-			self.waitTimer = GetTimeEX() + 500;
+			self.waitTimer = GetTimeEX() + 100;
 			self.lootCheckTime = 0;
 			self.lootObj = nil;
 			return;
@@ -1037,12 +1037,16 @@ function script_grind:lootAndSkin()
 		return false;
 	end
 	-- Skin if there is anything skinnable within the loot radius
-	if (HasSpell('Skinning') and self.skinning and HasItem('Skinning Knife')) then
+	if (HasSpell('Skinning') and self.skinning and HasItem('Skinning Knife')) and (not IsDrinking()) and (not IsEating()) and (IsStanding()) then
 		self.lootObj = nil;
 		self.lootObj = script_grind:getSkinTarget(self.findLootDistance);
 		if (not AreBagsFull() and not self.bagsFull and self.lootObj ~= nil) and (not IsMoving()) then
 			if (script_grind:doLoot(localObj)) then
-				self.waitTimer = GetTimeEX() + 1200;
+				local __, lastError = GetLastError();
+				if (lastError ~= 77) then
+					self.waitTimer = GetTimeEX() + 1200;
+					return false;
+				end
 				return;
 			end
 		end
