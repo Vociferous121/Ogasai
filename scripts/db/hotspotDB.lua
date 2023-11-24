@@ -546,9 +546,10 @@ function hotspotDB:getHotspotID(race, level)
 			local myX, myY, myZ = GetLocalPlayer():GetPosition();
  			
 			local distanceX = (self.hotspotList[i]['pos']['x'] - myX); 
-			local distanceY = (self.hotspotList[i]['pos']['y'] - myY); 
+			local distanceY = (self.hotspotList[i]['pos']['y'] - myY);
+			local distanceZ = (self.hotspotList[i]['pos']['y'] - myZ); 
  			
-			if (distanceX < 1000) and (distanceY < 1000) then			
+			if (distanceX < 1000) and (distanceY < 1000) and (distanceZ < 1000) then			
 			--if (myX - myX >= self.hotspotList[i]['pos']['x']) and (myY - myY >= self.hotspotList[i]['pos']['y'])
 			--or (myX <= self.hotspotList[i]['pos']['x']) and (myY <= self.hotspotList[i]['pos']['y'])
 			--then
