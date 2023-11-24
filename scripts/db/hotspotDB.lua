@@ -544,11 +544,14 @@ function hotspotDB:getHotspotID(race, level)
 		if (level >= self.hotspotList[i]['minLevel'] and level <= self.hotspotList[i]['maxLevel']) then
 
 			local myX, myY, myZ = GetLocalPlayer():GetPosition();
- 
-			
-			if (myX - myX >= self.hotspotList[i]['pos']['x']) and (myY - myY >= self.hotspotList[i]['pos']['y'])
-			or (myX <= self.hotspotList[i]['pos']['x']) and (myY <= self.hotspotList[i]['pos']['y'])
-			then
+ 			
+			local distanceX = (self.hotspotList[i]['pos']['x'] - myX); 
+			local distanceY = (self.hotspotList[i]['pos']['y'] - myY); 
+ 			
+			if (distanceX < 1000) and (distanceY < 1000) then			
+			--if (myX - myX >= self.hotspotList[i]['pos']['x']) and (myY - myY >= self.hotspotList[i]['pos']['y'])
+			--or (myX <= self.hotspotList[i]['pos']['x']) and (myY <= self.hotspotList[i]['pos']['y'])
+			--then
 
 				-- Race specific or ALL races or faction
 				if (self.hotspotList[i]['race'] == race or 

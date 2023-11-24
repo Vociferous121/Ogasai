@@ -224,7 +224,7 @@ function script_druid:healsAndBuffs()
 				self.waitTimer = GetTimeEX() + 3500;
 				return 0;
 			end
-			if (not hasRejuv) then
+			if (not localObj:HasBuff("Rejuvenation")) then
 				if (CastHeal("Rejuvenation", localObj)) then
 					self.waitTimer = GetTimeEX() + 1550;
 					return 0;
@@ -317,7 +317,7 @@ function script_druid:healsAndBuffs()
 				self.waitTimer = GetTimeEX() + 3500;
 				return 0;
 			end
-			if (not hasRejuv) and (not IsLooting()) then
+			if (not localObj:HasBuff("Rejuvenation")) and (not IsLooting()) then
 				if (CastSpellByName("Rejuvenation", localObj)) then
 					self.waitTimer = GetTimeEX() + 1550;
 					return 0;
@@ -331,7 +331,7 @@ function script_druid:healsAndBuffs()
 				self.waitTimer = GetTimeEX() + 1600;
 				return 0;
 			end
-			if (not HasRegrowth) and (HasSpell("Regrowth")) and (not IsLooting()) then
+			if (not localObj:HasBuff("Regrowth")) and (HasSpell("Regrowth")) and (not IsLooting()) then
 				if (CastSpellByName("Regrowth", localObj)) then
 					self.waitTimer = GetTimeEX() + 3500;
 					return 0;
@@ -818,12 +818,6 @@ function script_druid:run(targetGUID)
 	-- end of pulling not in combat phase
 
 
-
-
-		if (IsMoving()) then
-			StopMoving();
-		end
-
 	-- Combat -- start of combat phase! in combat!
 
 	-- IN COMBAT
@@ -1015,22 +1009,26 @@ function script_druid:run(targetGUID)
 
 				-- maul non humanoids
 				if (HasSpell("Maul")) and (localRage >= self.maulRage) and (not IsCasting()) and (not IsChanneling()) and (targetObj:GetCreatureType() ~= 'Humanoid') and (targetObj:GetDistance() <= self.meleeDistance) and (not localObj:HasBuff("Frenzied Regeneration")) then
-					CastSpellByName("Maul", targetObj);
+						targetObj:FaceTarget();
+					if (CastSpellByName("Maul", targetObj)) then
 						targetObj:AutoAttack();
 						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 200;
 						return 0;
+					end
 				
 				end
 
 				-- IsFleeing() causes bot not to move
 				-- maul humanoids fleeing causes maul to lock up
 				if (HasSpell("Maul")) and (localRage >= self.maulRage) and (not IsCasting()) and (not IsChanneling()) and (targetObj:GetCreatureType() == 'Humanoid') and (targetHealth > 30) and (targetObj:GetDistance() <= self.meleeDistance) and (not localObj:HasBuff("Frenzied Regeneration")) then
-					CastSpellByName("Maul", targetObj);
+						targetObj:FaceTarget();
+					if (CastSpellByName("Maul", targetObj)) then
 						targetObj:AutoAttack();
 						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 200;
 						return 0;
+					end
 				
 				end
 
