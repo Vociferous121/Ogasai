@@ -287,7 +287,7 @@ function script_druid:healsAndBuffs()
 		-- Mark of the Wild
 		if (not IsInCombat()) and (localMana > 75) and (HasSpell("Mark of the Wild")) and (not localObj:HasBuff("Mark of the Wild")) then
 			if (CastSpellByName("Mark of the Wild", localObj)) then
-				self.waitTimer = GetTimeEX() + 1700;
+				self.waitTimer = GetTimeEX() + 1800;
 				return 0;
 			end
 		end
@@ -295,7 +295,7 @@ function script_druid:healsAndBuffs()
 		-- Thorns
 		if (localMana > 30) and (HasSpell("Thorns")) and (not localObj:HasBuff("Thorns")) and (localHealth >= self.healthToShift) then
 			if (CastSpellByName("Thorns", localObj)) then
-				self.waitTimer = GetTimeEX() + 1650;
+				self.waitTimer = GetTimeEX() + 1850;
 				return 0;
 			end
 		end
@@ -308,7 +308,7 @@ function script_druid:healsAndBuffs()
 	-- Regrowth
 		if (HasSpell("Regrowth")) and (not localObj:HasBuff("Regrowth")) and (localHealth <= self.regrowthHealth) and (localMana >= 40) and (not IsMoving()) and (not IsLooting()) then
 			if (CastHeal("Regrowth", localObj)) then
-				self.waitTimer = GetTimeEX() + 3500;
+				self.waitTimer = GetTimeEX() + 3750;
 				return 0;
 			end
 		end
@@ -331,14 +331,14 @@ function script_druid:healsAndBuffs()
 			end
 		end
 
-		if (localObj:HasBuff("Regrowth")) and (not localObj:HasBuff("Rejuvenation")) then
+		if (localObj:HasBuff("Regrowth")) and (not localObj:HasBuff("Rejuvenation")) and (localMana >= 15) then
 			if (CastSpellByName("Rejuvenation", targetObj)) then
-				self.waitTimer = GetTimeEX() + 1600;
+				self.waitTimer = GetTimeEX() + 3750;
 				return 0;
 			end
 		end
 
-		if (localObj:HasBuff("Rejuvenation")) and (not localObj:HasBuff("Regrowth")) then
+		if (localObj:HasBuff("Rejuvenation")) and (not localObj:HasBuff("Regrowth")) and (localMana >= 40) then
 			if (CastSpellByName("Regrowth", localObj)) then
 				self.waitTimer = GetTimeEX() + 1600;
 			end
@@ -390,7 +390,7 @@ function script_druid:healsAndBuffs()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(350, 500);
+		local tickRandom = random(450, 750);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -427,7 +427,7 @@ function script_druid:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(350, 500);
+		local tickRandom = random(450, 750);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -442,12 +442,12 @@ function script_druid:run(targetGUID)
 		return 0; 
 	end
 
-	-- Assign the target 
-	targetObj = GetGUIDObject(targetGUID);
-
 	if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) then
 		return;
 	end
+
+	-- Assign the target 
+	targetObj = GetGUIDObject(targetGUID);
 
 -- stay in form bear if bear form is selected
 		if (self.useBear) or ( script_grind.enemiesAttackingUs(12) >= 2 and HasSpell("Bear Form") and (not IsDrinking()) and (not IsEating()) )
@@ -561,7 +561,7 @@ function script_druid:run(targetGUID)
 
 		-- War Stomp Tauren Racial
 		if (not isBear) and (not isCat) and (IsInCombat()) then
-			if (targetObj:IsCasting() or script_druid:enemiesAttackingUs(6) >= 2)and (GetNumPartyMembers() < 2) and (not targetObj:HasDebuff("Entangling Roots")) then
+			if (targetObj:IsCasting() or script_druid:enemiesAttackingUs(6) >= 2) and (GetNumPartyMembers() < 2) and (not targetObj:HasDebuff("Entangling Roots")) and (targetObj:GetDistance() <= 8) then
 				if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) and (not IsMoving()) then
 					CastSpellByName("War Stomp", localObj);
 					self.waitTimer = GetTimeEX() + 200;
@@ -793,7 +793,7 @@ function script_druid:run(targetGUID)
 			if (not HasSpell("Moonfire")) and (localMana >= self.drinkMana) and (not IsMoving()) and (targetObj:GetDistance() <= 30) then
 				if (CastSpellByName("Wrath", targetObj)) then
 					targetObj:FaceTarget();
-					self.waitTimer = GetTimeEX() + 1550;
+					self.waitTimer = GetTimeEX() + 1650;
 					self.message = "Casting Wrath!";
 					return 0; -- keep trying until cast
 				end
@@ -802,14 +802,14 @@ function script_druid:run(targetGUID)
 			-- use moonfire to pull if has spell
 			if (HasSpell("Moonfire")) and (localMana >= self.drinkMana) and (not targetObj:HasDebuff("Moonfire")) then
 				if (CastSpellByName("Moonfire", targetObj)) then
-					self.waitTimer = GetTimeEX() + 1550;
+					self.waitTimer = GetTimeEX() + 1650;
 					targetObj:FaceTarget();
 					return 0;
 				end
 			end
 			
 			-- Entangling roots when target is far enough away and we have enough mana
-			if (not self.useBear) and (not self.useCat) and (self.useEntanglingRoots) and (not IsInCombat()) and (not IsMoving()) and (localMana >= self.drinkMana) then
+			if (not self.useBear) and (not self.useCat) and (self.useEntanglingRoots) and (not IsInCombat()) and (not IsMoving()) and (localMana >= self.drinkMana) and (not targetObj:IsCasting()) then
 				if (HasSpell("Entangling Roots")) and (not targetObj:HasDebuff("Entangling Roots")) then
 					if (Cast("Entangling Roots", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1650;
@@ -1197,7 +1197,7 @@ function script_druid:run(targetGUID)
 							script_grind.tickRate = 100;
 							script_rotation.tickRate = 100;
 						end
-						if (not targetObj:HasDebuff("Entangling Roots")) then
+						if (not targetObj:HasDebuff("Entangling Roots")) and (not targetObj:IsCasting()) then
 							if (CastSpellByName("Entangling Roots")) then
 								self.waitTimer = GetTimeEX() + 300;
 								return 4;
@@ -1227,6 +1227,7 @@ function script_druid:run(targetGUID)
 				-- keep moonfire up
 				if (localMana > 30) and (targetHealth > 5) and (not targetObj:HasDebuff("Moonfire")) and (HasSpell("Moonfire")) then
 					if (Cast("Moonfire", targetObj)) then
+						self.waitTimer = GetTimeEX() + 1650;
 						targetObj:FaceTarget();
 						return 0;
 					end
@@ -1235,6 +1236,7 @@ function script_druid:run(targetGUID)
 				-- spam moonfire until target is killed
 				if (localMana > 30) and (targetHealth < 10) and (not IsSpellOnCD("Moonfire")) and (HasSpell("Moonfire")) then
 					if (Cast("Moonfire", targetObj)) then
+						self.waitTimer = GetTimeEX() + 1650;
 						targetObj:FaceTarget();
 						return 0;
 					end
@@ -1251,6 +1253,7 @@ function script_druid:run(targetGUID)
 				-- Wrath
 				if (localMana > 30) and (targetHealth > 15) then
 					if (Cast("Wrath", targetObj)) then
+						self.waitTimer = GetTimeEX() + 1650;
 						targetObj:FaceTarget();
 						return 0;
 					end
@@ -1302,7 +1305,7 @@ function script_druid:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(350, 500);
+		local tickRandom = random(450, 750);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
