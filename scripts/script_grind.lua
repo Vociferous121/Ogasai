@@ -266,8 +266,8 @@ function script_grind:run()
 	end
 
 		localObj = GetLocalPlayer();
-	-- sprint
-	if (localObj:HasBuff("Sprint")) or (localObj:HasBuff("Aspect of the Cheetah")) then
+	-- sprint or dash or aspect of cheetah
+	if (localObj:HasBuff("Sprint")) or (localObj:HasBuff("Aspect of the Cheetah")) or (localObj:HasBuff("Dash")) then
 		script_nav:setNextToNodeDist(8); NavmeshSmooth(24);
 	else
 		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*4);

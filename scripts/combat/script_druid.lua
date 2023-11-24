@@ -224,12 +224,6 @@ function script_druid:healsAndBuffs()
 				self.waitTimer = GetTimeEX() + 3500;
 				return 0;
 			end
-			if (not localObj:HasBuff("Rejuvenation")) then
-				if (CastHeal("Rejuvenation", localObj)) then
-					self.waitTimer = GetTimeEX() + 1550;
-					return 0;
-				end
-			end
 		end
 
 		-- Healing Touch
@@ -317,12 +311,6 @@ function script_druid:healsAndBuffs()
 				self.waitTimer = GetTimeEX() + 3500;
 				return 0;
 			end
-			if (not localObj:HasBuff("Rejuvenation")) and (not IsLooting()) then
-				if (CastSpellByName("Rejuvenation", localObj)) then
-					self.waitTimer = GetTimeEX() + 1550;
-					return 0;
-				end
-			end
 		end
 
 		-- Rejuvenation
@@ -331,15 +319,8 @@ function script_druid:healsAndBuffs()
 				self.waitTimer = GetTimeEX() + 1600;
 				return 0;
 			end
-			if (not localObj:HasBuff("Regrowth")) and (HasSpell("Regrowth")) and (not IsLooting()) then
-				if (CastSpellByName("Regrowth", localObj)) then
-					self.waitTimer = GetTimeEX() + 3500;
-					return 0;
-				end
-			end
 		end
 		
-
 		-- Healing Touch
 		if (HasSpell("Healing Touch")) and (not IsLooting()) then
 			if (localHealth < self.healingTouchHealth) and (localMana > 25) then
@@ -350,18 +331,29 @@ function script_druid:healsAndBuffs()
 			end
 		end
 
-		if (localObj:HasBuff("Regrowth")) and (not localObj:HasBuff("Rejuventation")) then
+		if (localObj:HasBuff("Regrowth")) and (not localObj:HasBuff("Rejuvenation")) then
 			if (CastSpellByName("Rejuvenation", targetObj)) then
 				self.waitTimer = GetTimeEX() + 1600;
 				return 0;
 			end
 		end
 
+		if (localObj:HasBuff("Rejuvenation")) and (not localObj:HasBuff("Regrowth")) then
+			if (CastSpellByName("Regrowth", localObj)) then
+				self.waitTimer = GetTimeEX() + 1600;
+			end
+		end
+
 		-- cure poison
-		if (HasSpell("Cure Poison")) and (script_checkDebuffs:hasPoison()) and (localMana >= 45) then
+		if (not HasSpell("Abolish Poison")) and (HasSpell("Cure Poison")) and (script_checkDebuffs:hasPoison()) and (localMana >= 45) then
 			if (CastSpellByName("Cure Poison", localObj)) then 
 				self.waitTimer = GetTimeEX() + 1750; 
 				return 0; 
+			end
+		elseif (HasSpell("Abolish Poison")) and (not localObj:HasBuff("Abolish Poison")) and (script_checkDebuffs:hasPoison()) and (localMana >= 45) then
+			if (CastSpellByName("Abolish Poison", targetObj)) then
+				self.waitTimer = GetTimeEX() + 1750;
+				return 0;
 			end
 		end
 
@@ -453,6 +445,10 @@ function script_druid:run(targetGUID)
 	-- Assign the target 
 	targetObj = GetGUIDObject(targetGUID);
 
+	if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) then
+		return;
+	end
+
 -- stay in form bear if bear form is selected
 		if (self.useBear) or ( script_grind.enemiesAttackingUs(12) >= 2 and HasSpell("Bear Form") and (not IsDrinking()) and (not IsEating()) )
 		or ( targetObj:GetLevel() > localObj:GetLevel() + 2 and HasSpell("Bear Form") and (not IsDrinking()) and (not IsEating()) ) then
@@ -494,7 +490,7 @@ function script_druid:run(targetGUID)
 	end
 
 	-- use prowl before spamming auto attack and move in range of target!
-	if (not IsInCombat()) and (self.useCat) and (isCat) and (self.useStealth) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not script_checkDebuffs:hasPoison()) then
+	if (not IsInCombat()) and (self.useCat) and (isCat) and (self.useStealth) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not script_checkDebuffs:hasPoison()) and (IsStanding()) then
 		CastSpellByName("Prowl");
 		return 0;
 	end
@@ -610,6 +606,14 @@ function script_druid:run(targetGUID)
 			-- Auto Attack
 			if (targetObj:GetDistance() < 35) and (not IsAutoCasting("Attack")) and (localMana >= self.drinkMana) then
 				targetObj:AutoAttack();
+			end
+
+			-- use dash if stealthed
+			if (HasSpell("Dash")) and (isCat) and (not IsSpellOnCD("Dash")) and (targetObj:GetDistance() >= 20) and (localObj:HasBuff("Prowl")) then
+				if (CastSpellByName("Dash", localObj)) then
+					self.waitTimer = GetTimeEX() + 300;
+					return 0;
+				end
 			end
 
 			-- enrage if has charge
@@ -1008,7 +1012,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- maul non humanoids
-				if (HasSpell("Maul")) and (localRage >= self.maulRage) and (not IsCasting()) and (not IsChanneling()) and (targetObj:GetCreatureType() ~= 'Humanoid') and (targetObj:GetDistance() <= self.meleeDistance) and (not localObj:HasBuff("Frenzied Regeneration")) then
+				if (HasSpell("Maul")) and (localRage >= self.maulRage) and (not IsCasting()) and (not IsChanneling())and (not IsMoving()) and (targetObj:GetCreatureType() ~= 'Humanoid') and (targetObj:GetDistance() <= self.meleeDistance) and (not localObj:HasBuff("Frenzied Regeneration")) then
 						targetObj:FaceTarget();
 					if (CastSpellByName("Maul", targetObj)) then
 						targetObj:AutoAttack();
@@ -1021,7 +1025,7 @@ function script_druid:run(targetGUID)
 
 				-- IsFleeing() causes bot not to move
 				-- maul humanoids fleeing causes maul to lock up
-				if (HasSpell("Maul")) and (localRage >= self.maulRage) and (not IsCasting()) and (not IsChanneling()) and (targetObj:GetCreatureType() == 'Humanoid') and (targetHealth > 30) and (targetObj:GetDistance() <= self.meleeDistance) and (not localObj:HasBuff("Frenzied Regeneration")) then
+				if (HasSpell("Maul")) and (localRage >= self.maulRage) and (not IsCasting()) and (not IsChanneling()) and (not IsMoving()) and (targetObj:GetCreatureType() == 'Humanoid') and (targetHealth > 30) and (targetObj:GetDistance() <= self.meleeDistance) and (not localObj:HasBuff("Frenzied Regeneration")) then
 						targetObj:FaceTarget();
 					if (CastSpellByName("Maul", targetObj)) then
 						targetObj:AutoAttack();
@@ -1111,7 +1115,7 @@ function script_druid:run(targetGUID)
 
 				-- keep rake up
 				if (HasSpell("Rake")) and (not targetObj:HasDebuff("Rake")) and (targetHealth >= 30) and (localEnergy >= 35) then
-					if (not targetObj:HasDebuff("Rake")) and (CastSpellByName("Rake", targetObj)) then
+					if (CastSpellByName("Rake", targetObj)) then
 						self.waitTimer = GetTimeEX() + 2200;
 						return 0;
 					end
@@ -1119,37 +1123,42 @@ function script_druid:run(targetGUID)
 
 				-- rip if we are about to shapeshift to heal
 				if (localCP >= 2) and (localHealth <= self.healthToShift + 25) and (localEnergy >= 35) and (not HasSpell("Ferocious Bite")) and (not targetObj:HasDebuff("Rip"))then
-					CastSpellByName("Rip", targetObj);
-					self.waitTimer = GetTimeEX() + 1250;
-					return 0;
+					if (CastSpellByName("Rip", targetObj)) then
+						self.waitTimer = GetTimeEX() + 1250;
+						return 0;
+					end
 				end
 
 				-- Ferocious Bite with 5 CPs
 				if (localCP > 4) and (localEnergy >= 35) and (HasSpell("Ferocious Bite")) then
-					CastSpellByName("Ferocious Bite", targetObj);
-					self.waitTimer = GetTimeEX() + 1600;
-					return 0;
+					if (CastSpellByName("Ferocious Bite", targetObj)) then
+						self.waitTimer = GetTimeEX() + 1600;
+						return 0;
+					end
 				end
 
 				-- Rip with 5 CPs
 				if (localCP > 4) and (localEnergy >= 30) and (not HasSpell("Ferocious Bite")) and (not targetObj:HasDebuff("Rip")) then
-					CastSpellByName("Rip", targetObj);
-					self.waitTimer = GetTimeEX() + 1600;
-					return 0;
+					if (CastSpellByName("Rip", targetObj)) then
+						self.waitTimer = GetTimeEX() + 1600;
+						return 0;
+					end
 				end
 
 				-- Rip with 3 CPs
 				if (localCP >= 3) and (targetHealth <= 50) and (localEnergy >= 30) and (not HasSpell("Ferocious Bite")) and (not targetObj:HasDebuff("Rip")) then
-					CastSpellByName("Rip", targetObj);
-					self.waitTimer = GetTimeEX() + 1600;
-					return 0;
+					if (CastSpellByName("Rip", targetObj)) then
+						self.waitTimer = GetTimeEX() + 1600;
+						return 0;
+					end
 				end
 			
 				-- Dynamic health check when using Ferocious Bite between 1 and 4 CP
 				if (targetHealth <= (10*localCP)) and (localEnergy >= 35) and (HasSpell("Ferocious Bite")) then
-					CastSpellByName("Ferocious Bite", targetObj);
-					self.waitTimer = GetTimeEX() + 1600;
-					return 0;
+					if (CastSpellByName("Ferocious Bite", targetObj)) then
+						self.waitTimer = GetTimeEX() + 1600;
+						return 0;
+					end
 				end
 
 				-- Use Claw
@@ -1386,7 +1395,7 @@ function script_druid:rest()
 			if (script_helper:drinkWater()) and (not IsInCombat()) then 
 				ClearTarget();
 				self.message = "Drinking..."; 
-				self.waitTimer = GetTimeEX() + 1500;
+				self.waitTimer = GetTimeEX() + 2500;
 				return true; 
 			else 
 				self.message = "No drinks! (or drink not included in script_helper)";
@@ -1455,7 +1464,7 @@ function script_druid:rest()
 	end
 	
 	if (self.useRest) and (isCat) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) then
-		if (GetLocalPlayer():GetUnitsTarget() == 0) and (not script_checkDebuffs:hasPoison()) and (script_grind.lootObj == nil) then
+		if (GetLocalPlayer():GetUnitsTarget() == 0) and (not script_checkDebuffs:hasPoison()) and (script_grind.lootObj == nil) and (IsStanding()) then
 			if (localMana <= 55 or localHealth <= 55) and (not IsInCombat()) then
 				CastSpellByName("Prowl", localObj);
 				self.waitTimer = GetTimeEX() + 1000;

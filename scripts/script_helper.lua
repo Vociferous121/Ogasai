@@ -320,6 +320,10 @@ function script_helper:setup()
 	script_helper:addItem("OOX-17/TN Distress Beacon");
 	script_helper:addItem("OOX-09/HL Distress Beacon");
 	script_helper:addItem("Mangled Journal");
+	script_helper:addItem("Vulture Gizzard");
+	script_helper:addItem("Blasted Boar Lung");
+	script_helper:addItem("Snickerfang Jowl");
+	script_helper:addItem("Imperfect Draenethyst Fragment");
 
 
 

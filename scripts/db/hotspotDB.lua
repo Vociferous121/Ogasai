@@ -547,18 +547,21 @@ function hotspotDB:getHotspotID(race, level)
  			
 			local distanceX = (self.hotspotList[i]['pos']['x'] - myX); 
 			local distanceY = (self.hotspotList[i]['pos']['y'] - myY);
+			local distanceX2 = (myX - self.hotspotList[i]['pos']['x']); 
+			local distanceY2 = (myY - self.hotspotList[i]['pos']['y']);
  			
 			-- go to closest location if possible
-			if (distanceX < 1000) and (distanceY < 1000) then			
-				hotspotID = i;
-
-				-- Race specific or ALL races or faction
-				if (self.hotspotList[i]['race'] == race or 
-					self.hotspotList[i]['race'] == "ALL" or
-					self.hotspotList[i]['race'] == UnitFactionGroup("player") ) then
+			if (myX < 0) then
+				if (distanceX < 1000 and distanceY < 1000) then			
+					hotspotID = i;
+				end
+			elseif (myX > 0) then
+				if (distanceX2 < 1000 and distanceY2 < 1000) then
 					hotspotID = i;
 				end
 			end
+				
+			
 		end
 	end
 
