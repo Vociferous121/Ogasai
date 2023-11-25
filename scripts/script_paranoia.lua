@@ -11,6 +11,8 @@ script_paranoia = {
 	ignoreTarget = "Player",
 	currentTime2 = GetTimeEX() / 1000,
 	currentTime = 0,
+	doEmote = true,
+	didEmote = false,
 }
 
 function script_paranoia:checkParanoia()
@@ -46,7 +48,7 @@ function script_paranoia:checkParanoia()
 	end
 
 	-- if paranoid turned on then do....
-	if (self.paranoidOn) and (not IsInCombat()) and (not IsLooting()) then 
+	if (self.paranoidOn) and (not IsInCombat()) and (not IsLooting()) then
 
 		self.waitTimer = GetTimeEX() + 3500;
 
@@ -64,13 +66,20 @@ function script_paranoia:checkParanoia()
 		-- if players in range
 		if (script_grind:playersWithinRange(script_grind.paranoidRange)) and (not IsLooting()) then
 
+			-- do wave emote. had to double check the variables or it was casting twice
+			if (script_grind.paranoidTargetDistance <= 25) and (self.doEmote) and (not self.didEmote) then
+				DoEmote("Wave", script_grind.paranoidTargetName);
+				self.doEmote = false;
+				self.didEmote = true;
+			end
+
 			self.currentTime = GetTimeEX() / 1000;
 			
 			self.waitTimer = GetTimeEX() + 4100;
 			script_grind:setWaitTimer(2700);
 
 			script_grind.message = "Player(s) within paranoid range, pausing...";
-			ClearTarget();
+				ClearTarget();
 			if IsMoving() then
 				StopMoving();
 			end

@@ -103,7 +103,7 @@ script_grind = {
 	adjustText = true,
 	adjustY = 0,
 	adjustX = 0,
-	doString = false,
+	paranoidTarget = "",
 }
 
 function script_grind:setup()
@@ -351,15 +351,13 @@ function script_grind:run()
 	-- check paranoia	
 	if (not IsInCombat()) and (not IsLooting()) then	
 		if (script_paranoia:checkParanoia()) then
-			if (script_paranoia.currentTime >= script_paranoia.currentTime2 + 214) then
+			if (script_paranoia.currentTime >= script_paranoia.currentTime2 + 1) then
 				script_paranoia.currentTime = 0;
-				if (not Logout()) then
-					self.waitTimer = GetTimeEX() + 20000;
-					return;
-				end
+				Logout();
+				return 4;
 			end
 			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 2000;
-			return;
+			return true;
 		end
 	end
 
@@ -783,7 +781,7 @@ function script_grind:playersTargetingUs() -- returns number of players attackin
 					local playerDistance = currentObj:GetDistance();
 					local playerName = currentObj:GetUnitName();
 					local playerTime = GetTimeStamp();
-					local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance(yds) "..playerDistance.. " - Targeted Us! - added to log file for further implementation of paranoia. Logout Timer has been set!";
+					local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance(yds) "..playerDistance.. " - Targeted Us! - added to log file for further implementation of paranoia.";
 					DEFAULT_CHAT_FRAME:AddMessage(string);
 					ToFile(string);
 					self.useOtherString = false;
@@ -803,13 +801,15 @@ function script_grind:playersWithinRange(range)
 			if (currentObj:GetDistance() < range) then 
 				local localObj = GetLocalPlayer();
 				if (localObj:GetGUID() ~= currentObj:GetGUID()) and (currentObj:GetUnitName() ~= script_paranoia.ignoreTarget) then
+						self.paranoidTargetDistance = currentObj:GetDistance();
+						self.paranoidTargetName = currentObj:GetUnitName();
 					if (self.useString) then
 						if (currentObj:GetDistance() < self.paranoidRange) and (typeObj == 4) then
 							local playerName = currentObj:GetUnitName();
 							local playerDistance = currentObj:GetDistance();
 							self.playerParanoidDistance = currentObj:GetDistance();
 							local playerTime = GetTimeStamp();
-							local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance (yds) "..playerDistance.. " - added to log file for further implementation of paranoia."
+							local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance (yds) "..playerDistance.. " - added to log file for further implementation of paranoia. Logout Timer has been set!"
 							DEFAULT_CHAT_FRAME:AddMessage(string);
 							ToFile(string);
 							self.useString = false;
