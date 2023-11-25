@@ -87,7 +87,7 @@ function script_druid:setup()
 	if (GetLocalPlayer():GetLevel() >= 10) and (not HasSpell("Cat Form")) then
 		self.useBear = true;
 	end
-	if (GetLocalPlayer():GetLevel() > 20) and (HasSpell("Cat Form")) then
+	if (GetLocalPlayer():GetLevel() >= 20) and (HasSpell("Cat Form")) then
 		self.useBear = false;
 		self.useCat = true;
 	end
@@ -284,19 +284,24 @@ function script_druid:healsAndBuffs()
 
 	-- moving buffs hierarchy up
 	if (not isBear) and (not isCat) and (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) and (script_grind.lootObj == 0 or script_grind.lootObj == nil) then
+
 		-- Mark of the Wild
-		if (not IsInCombat()) and (localMana > 75) and (HasSpell("Mark of the Wild")) and (not localObj:HasBuff("Mark of the Wild")) then
-			if (CastSpellByName("Mark of the Wild", localObj)) then
-				self.waitTimer = GetTimeEX() + 1800;
-				return 0;
+		if (not IsInCombat()) and (localMana > 75) and (HasSpell("Mark of the Wild")) then
+			if (not localObj:HasBuff("Mark of the Wild")) then
+				if (CastSpellByName("Mark of the Wild", localObj)) then
+					self.waitTimer = GetTimeEX() + 2500;
+					return 0;
+				end
 			end
 		end
 	
 		-- Thorns
-		if (localMana > 30) and (HasSpell("Thorns")) and (not localObj:HasBuff("Thorns")) and (localHealth >= self.healthToShift) then
-			if (CastSpellByName("Thorns", localObj)) then
-				self.waitTimer = GetTimeEX() + 1850;
-				return 0;
+		if (localMana > 30) and (HasSpell("Thorns")) and (not localObj:HasBuff("Thorns")) then
+			if (localHealth >= self.healthToShift) then
+				if (CastSpellByName("Thorns", localObj)) then
+					self.waitTimer = GetTimeEX() + 2550;
+					return 0;
+				end
 			end
 		end
 	end
@@ -340,7 +345,7 @@ function script_druid:healsAndBuffs()
 
 		if (localObj:HasBuff("Rejuvenation")) and (not localObj:HasBuff("Regrowth")) and (localMana >= 40) then
 			if (CastSpellByName("Regrowth", localObj)) then
-				self.waitTimer = GetTimeEX() + 1600;
+				self.waitTimer = GetTimeEX() + 3750;
 			end
 		end
 
@@ -390,7 +395,7 @@ function script_druid:healsAndBuffs()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(450, 750);
+		local tickRandom = random(550, 950);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -427,7 +432,7 @@ function script_druid:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(450, 750);
+		local tickRandom = random(550, 950);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -989,7 +994,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- Enrage
-				if (HasSpell("Enrage")) and (not IsSpellOnCD("Enrage")) and (targetObj:GetDistance() < 30) and (localHealth > 65) then
+				if (HasSpell("Enrage")) and (not IsSpellOnCD("Enrage")) and (targetObj:GetDistance() < 30) and (localHealth > 65) and (targetHealth >= 40) then
 					if (CastSpellByName("Enrage")) then
 						return 0;
 					end
@@ -1012,7 +1017,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- maul non humanoids
-				if (HasSpell("Maul")) and (localRage >= self.maulRage) and (not IsCasting()) and (not IsChanneling())and (not IsMoving()) and (targetObj:GetCreatureType() ~= 'Humanoid') and (targetObj:GetDistance() <= self.meleeDistance) and (not localObj:HasBuff("Frenzied Regeneration")) then
+				if (HasSpell("Maul")) and (not IsCasting()) and (not IsChanneling())and (not IsMoving()) and (targetObj:GetCreatureType() ~= 'Humanoid') and (targetObj:GetDistance() <= self.meleeDistance) and (not localObj:HasBuff("Frenzied Regeneration")) and ( (script_grind.enemiesAttackingUs(12) >= 2 and localRage >= 20) or (script_grind.enemiesAttackingUs < 2 and localRage >= self.maulRage) ) then
 						targetObj:FaceTarget();
 					if (CastSpellByName("Maul", targetObj)) then
 						targetObj:AutoAttack();
@@ -1025,7 +1030,13 @@ function script_druid:run(targetGUID)
 
 				-- IsFleeing() causes bot not to move
 				-- maul humanoids fleeing causes maul to lock up
-				if (HasSpell("Maul")) and (localRage >= self.maulRage) and (not IsCasting()) and (not IsChanneling()) and (not IsMoving()) and (targetObj:GetCreatureType() == 'Humanoid') and (targetHealth > 30) and (targetObj:GetDistance() <= self.meleeDistance) and (not localObj:HasBuff("Frenzied Regeneration")) then
+				if (HasSpell("Maul")) and (not IsCasting()) and (not IsChanneling()) and (not IsMoving())
+					and (targetObj:GetCreatureType() == 'Humanoid') and (targetHealth > 30)
+					and (targetObj:GetDistance() <= self.meleeDistance) and (not localObj:HasBuff("Frenzied Regeneration"))
+						and ( (script_grind.enemiesAttackingUs(12) >= 2 and localRage >= 20 and HasSpell("Swipe"))
+						or (script_grind.enemiesAttackingUs < 2 and localRage >= self.maulRage)
+						or (script_grind.enemiesAttackingUs >= 2 and not HasSpell("Swipe") and localRage >= self.maulRage) )
+				then
 						targetObj:FaceTarget();
 					if (CastSpellByName("Maul", targetObj)) then
 						targetObj:AutoAttack();
@@ -1306,7 +1317,7 @@ function script_druid:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(450, 750);
+		local tickRandom = random(550, 950);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
