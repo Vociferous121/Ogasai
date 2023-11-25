@@ -104,6 +104,7 @@ script_grind = {
 	adjustY = 0,
 	adjustX = 0,
 	paranoidTarget = "",
+	currentTime2 = GetTimeEX() / 1000,
 }
 
 function script_grind:setup()
@@ -351,13 +352,16 @@ function script_grind:run()
 	-- check paranoia	
 	if (not IsInCombat()) and (not IsLooting()) then	
 		if (script_paranoia:checkParanoia()) then
-			if (script_paranoia.currentTime >= script_paranoia.currentTime2 + 10) then
+			if (script_paranoia.currentTime >= script_grind.currentTime2 + 213) then
 				script_paranoia.currentTime = 0;
 				Logout();
 				return 4;
 			end
 			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 2000;
 			return true;
+		else
+			script_paranoia.currentTime = 0;
+			script_grind.currentTime2 = GetTimeEX() / 1000;
 		end
 	end
 

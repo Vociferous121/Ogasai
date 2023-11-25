@@ -9,7 +9,6 @@ script_paranoia = {
 	--paranoidOnTargeted = false,	-- paranoid when targeted on/off
 	counted = 5,
 	ignoreTarget = "Player",
-	currentTime2 = GetTimeEX() / 1000,
 	currentTime = 0,
 	doEmote = true,
 	didEmote = false,
@@ -73,9 +72,7 @@ function script_paranoia:checkParanoia()
 				self.didEmote = true;
 			end
 
-			if (self.currentTime == 0) then
-				self.currentTime = GetTimeEX() / 1000;
-			end
+			script_paranoia.currentTime = GetTimeEX() / 1000;
 			
 			self.waitTimer = GetTimeEX() + 4100;
 			script_grind:setWaitTimer(2700);
