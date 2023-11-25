@@ -974,11 +974,12 @@ function script_grind:doLoot(localObj)
 			return;
 		end
 	
-		if (not LootTarget()) then
+		if (not LootTarget()) and (not IsMoving()) then
 			script_grind:setWaitTimer(400);
-			self.waitTimer = GetTimeEX() + 150;
+			self.waitTimer = GetTimeEX() + 450;
 			return;
 		else
+			self.waitTimer = GetTimeEX() + 600;
 			self.lootCheckTime = 0;
 			self.lootObj = nil;
 			return;

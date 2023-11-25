@@ -106,16 +106,19 @@ function script_nav:moveToHotspot(localObj)
 		
 			-- Druid cat form is faster if you specc talents
 			if (HasSpell("Cat Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
-				CastSpellByName("Cat Form");
-				self.waitTimer = GetTimeEX() + 500;
+				if (CastSpellByName("Cat Form")) then
+					self.waitTimer = GetTimeEX() + 500;
+				end
 			end
 			if (localObj:HasBuff("Cat Form")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (not script_checkDebuffs:hasPoison()) then
-				CastSpellByName("Prowl");
-				self.waitTimer = GetTimeEX() + 500;
+				if (CastSpellByName("Prowl")) then
+					self.waitTimer = GetTimeEX() + 500;
+				end
 			end
 			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (not script_checkDebuffs:hasPoison()) then
-				CastSpellByName("Stealth", localObj);
-				self.waitTimer = GetTimeEX() + 500;
+				if (CastSpellByName("Stealth", localObj)) then
+					self.waitTimer = GetTimeEX() + 500;
+				end
 			end
 
 
