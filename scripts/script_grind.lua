@@ -357,6 +357,7 @@ function script_grind:run()
 		if (script_paranoia:checkParanoia()) then
 			if (script_paranoia.currentTime >= script_grind.currentTime2 + 213) then
 				script_paranoia.currentTime = 0;
+				StopBot();
 				Logout();
 				return 4;
 			end

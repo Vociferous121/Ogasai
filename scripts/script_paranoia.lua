@@ -78,7 +78,6 @@ function script_paranoia:checkParanoia()
 			script_grind:setWaitTimer(2700);
 
 			script_grind.message = "Player(s) within paranoid range, pausing...";
-				ClearTarget();
 			if IsMoving() then
 				StopMoving();
 			end
