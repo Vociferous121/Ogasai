@@ -9,6 +9,8 @@ script_paranoia = {
 	--paranoidOnTargeted = false,	-- paranoid when targeted on/off
 	counted = 5,
 	ignoreTarget = "Player",
+	currentTime2 = GetTimeEX() / 1000,
+	currentTime = 0,
 }
 
 function script_paranoia:checkParanoia()
@@ -45,7 +47,7 @@ function script_paranoia:checkParanoia()
 
 	-- if paranoid turned on then do....
 	if (self.paranoidOn) and (not IsInCombat()) and (not IsLooting()) then 
-		
+
 		self.waitTimer = GetTimeEX() + 3500;
 
 		-- players targeting us
@@ -62,6 +64,8 @@ function script_paranoia:checkParanoia()
 		-- if players in range
 		if (script_grind:playersWithinRange(script_grind.paranoidRange)) and (not IsLooting()) then
 
+			self.currentTime = GetTimeEX() / 1000;
+			
 			self.waitTimer = GetTimeEX() + 4100;
 			script_grind:setWaitTimer(2700);
 

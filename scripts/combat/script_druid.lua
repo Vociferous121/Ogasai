@@ -1273,6 +1273,7 @@ function script_druid:run(targetGUID)
 					end
 					targetObj:AutoAttack();
 				else
+					script_grind.tickRate = 50;
 					return 3;
 				end
 			end

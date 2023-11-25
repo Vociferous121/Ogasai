@@ -39,7 +39,8 @@ script_vendor = {
 	bulletName = "",
 	bulletNr = 7,
 	menu = include("scripts\\script_vendorMenu.lua"),
-	dontBuyTime = 0
+	dontBuyTime = 0,
+
 }
 
 function script_vendor:setSellQuality(sellPoor, sellCommon, sellUncommon, sellRare, sellEpic)

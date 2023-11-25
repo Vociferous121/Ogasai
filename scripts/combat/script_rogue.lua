@@ -229,7 +229,7 @@ function script_rogue:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(400, 900);
+		local tickRandom = random(456, 1111);
 
 		if (IsMoving()) or (not IsInCombat()) or (targetObj:IsFleeing()) then
 			script_grind.tickRate = 135;
@@ -289,12 +289,12 @@ function script_rogue:run(targetGUID)
 			end
 
 			-- Check: if we target player pets/totems
-			if (GetTarget() ~= nil and targetObj ~= nil) then
-				if (UnitPlayerControlled("target") and GetTarget() ~= localObj) then 
-					script_grind:addTargetToBlacklist(targetObj:GetGUID());
-					return 5;
-				end
-			end 
+			--if (GetTarget() ~= nil and targetObj ~= nil) then
+			--	if (UnitPlayerControlled("target") and GetTarget() ~= localObj) then 
+			--		script_grind:addTargetToBlacklist(targetObj:GetGUID());
+			--		return 5;
+			--	end
+			--end 
 		
 			-- Opener
 			if (not IsInCombat()) then
@@ -369,6 +369,7 @@ function script_rogue:run(targetGUID)
 
 				-- Check if we are in melee range
 				if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
+					script_grind.tickRate = 75;
 					return 3;
 				end
 
@@ -394,6 +395,7 @@ function script_rogue:run(targetGUID)
 				-- Run backwards if we are too close to the target
 				if (targetObj:GetDistance() < .2) then 
 					if (script_rogue:runBackwards(targetObj, 1)) then 
+						script_grind.tickRate = 80;
 						return 4; 
 					end 
 				end
@@ -434,14 +436,18 @@ function script_rogue:run(targetGUID)
 
 				-- Check: Kick if the target is casting
 				if (HasSpell("Kick")) and (targetObj:IsCasting()) and (not IsSpellOnCD("Kick")) and (localEnergy >= 25) then
-					CastSpellByName("Kick", targetObj);
-					return 0;
+					if (CastSpellByName("Kick", targetObj)) then
+						self.waitTimer = GetTimeEX() + 900;
+						return 0;
+					end
 				end
 
 				-- Gouge if target casting
 				if (HasSpell("Gouge")) and (not IsSpellOnCD("Gouge")) and (localEnergy >= 45) and (targetObj:IsCasting()) then
-					CastSpellByName("Gouge", targetObj);
-					return 0;
+					if (CastSpellByName("Gouge", targetObj)) then
+						self.waitTimer = GetTimeEX() + 250;
+						return 0;
+					end
 				end
 
 				if (not IsAutoCasting("Attack")) and (targetObj:HasDebuff("Gouge")) then
@@ -472,8 +478,10 @@ function script_rogue:run(targetGUID)
 
 				-- Check: Use Riposte whenever we can
 				if (HasSpell("Riposte")) and (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) and (localEnergy >= 10) then 
-				CastSpellByName("Riposte", targetObj);
-					return 0; -- return until we cast Riposte
+					if (CastSpellByName("Riposte", targetObj)) then
+						self.waitTimer = GetTimeEX() + 1500;
+						return 0; -- return until we cast Riposte
+					end
 				end
 			
 				-- Check: Use Evasion if low HP or more than one enemy attack us
@@ -524,8 +532,10 @@ function script_rogue:run(targetGUID)
 
 				-- Keep Slice and Dice up
 				if (self.useSliceAndDice) and (not localObj:HasBuff('Slice and Dice')) and (targetHealth > 50) and (localCP > 0) and (localEnergy >= 25) then
-					CastSpellByName("Slice and Dice", targetObj);
-					return 0;	
+					if (CastSpellByName("Slice and Dice", targetObj)) then
+						self.waitTimer = GetTimeEX() + 1100;
+						return 0;
+					end	
 				end
 
 				-- Use CP generator attack 
@@ -695,15 +705,18 @@ function script_rogue:run(targetGUID)
 					end
 
 					if (HasSpell("Ghostly Strike")) and (not IsSpellOnCD("Ghostly Strike")) and (localEnergy >= 40) then
-						CastSpellByName("Ghostly Strike", targetObj);
-						return;
+						if (CastSpellByName("Ghostly Strike", targetObj)) then
+							self.waitTimer = GetTimeEX() + 1200;
+							return 0;
+						end
 					end
 
 					-- check riposte
 					if (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) and (localEnergy >= 10) then
-						CastSpellByName("Riposte", targetObj);
-						self.message = "Using Riposte Combat Rotation 2";
-						return 0;
+						if (CastSpellByName("Riposte", targetObj)) then
+							self.message = "Using Riposte Combat Rotation 2";
+							return 0;
+						end
 					end
 
 					-- Use Blade Flurry on CD targets > 1
@@ -940,7 +953,7 @@ function script_rogue:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(400, 900);
+		local tickRandom = random(406, 1092);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;

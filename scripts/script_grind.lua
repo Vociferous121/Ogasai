@@ -103,11 +103,13 @@ script_grind = {
 	adjustText = true,
 	adjustY = 0,
 	adjustX = 0,
+	doString = false,
 }
 
 function script_grind:setup()
 	self.lootCheck['target'] = 0;
 	self.lootCheck['timer'] = GetTimeEX();
+
 
 	-- Classes that don't use mana
 	local class, classFileName = UnitClass("player");
@@ -234,6 +236,7 @@ end
 
 function script_grind:run()
 	script_grind:window();
+
 	
 	if (script_radar.showRadar) then
 		script_radar:draw()
@@ -247,7 +250,7 @@ function script_grind:run()
 	if (self.useLogoutTimer) then
 
 		-- set logout time
-		local currentTime = GetTimeEX()/ 1000;
+		local currentTime = GetTimeEX() / 1000;
 
 		if (currentTime >= self.logoutSetTime + self.logoutTime * 3600) then
 			Exit();
@@ -344,10 +347,17 @@ function script_grind:run()
 		self.waitTimer = GetTimeEX() + 1500;
 		return;
 	end
-	
+
 	-- check paranoia	
-	if (not IsInCombat()) and (not IsLooting()) then
+	if (not IsInCombat()) and (not IsLooting()) then	
 		if (script_paranoia:checkParanoia()) then
+			if (script_paranoia.currentTime >= script_paranoia.currentTime2 + 214) then
+				script_paranoia.currentTime = 0;
+				if (not Logout()) then
+					self.waitTimer = GetTimeEX() + 20000;
+					return;
+				end
+			end
 			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 2000;
 			return;
 		end
@@ -773,7 +783,7 @@ function script_grind:playersTargetingUs() -- returns number of players attackin
 					local playerDistance = currentObj:GetDistance();
 					local playerName = currentObj:GetUnitName();
 					local playerTime = GetTimeStamp();
-					local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance(yds) "..playerDistance.. " - Targeted Us! - added to log file for further implementation of paranoia."
+					local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance(yds) "..playerDistance.. " - Targeted Us! - added to log file for further implementation of paranoia. Logout Timer has been set!";
 					DEFAULT_CHAT_FRAME:AddMessage(string);
 					ToFile(string);
 					self.useOtherString = false;
@@ -823,6 +833,7 @@ function script_grind:getDistanceDif()
 end
 
 function script_grind:drawStatus()
+
 	if (self.drawAggro) then
 		script_aggro:drawAggroCircles(45);
 	end

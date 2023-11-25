@@ -340,7 +340,7 @@ function script_paladin:healAndBuff(localObj, localMana)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(300, 600);
+		local tickRandom = random(550, 1100);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -415,7 +415,7 @@ function script_paladin:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(300, 600);
+		local tickRandom = random(550, 1000);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -762,7 +762,7 @@ function script_paladin:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(300, 700);
+		local tickRandom = random(500, 1100);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
