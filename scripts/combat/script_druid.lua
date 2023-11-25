@@ -1479,7 +1479,7 @@ function script_druid:rest()
 	end
 	
 	if (self.useRest) and (isCat) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) then
-		if (GetLocalPlayer():GetUnitsTarget() == 0) and (not script_checkDebuffs:hasPoison()) and (script_grind.lootObj == nil) and (IsStanding()) then
+		if (GetLocalPlayer():GetUnitsTarget() == 0) and (not script_checkDebuffs:hasPoison()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (IsStanding()) then
 			if (localMana <= 55 or localHealth <= 55) and (not IsInCombat()) then
 				CastSpellByName("Prowl", localObj);
 				self.waitTimer = GetTimeEX() + 1000;
