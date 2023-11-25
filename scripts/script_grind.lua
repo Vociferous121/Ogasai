@@ -361,6 +361,17 @@ function script_grind:run()
 				Logout();
 				return 4;
 			end
+
+			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:HasBuff("Stealth")) and (not IsInCombat()) and (script_paranoia.currentTime < script_grind.currentTime2 - 190) then
+				CastSpellByName("Stealth");
+				return 0;
+			end
+
+			if (HasSpell("Cat Form")) and (localObj:HasBuff("Cat Form")) and (HasSpell("Prowl")) and (not localObj:HasBuff("Prowl")) and (not IsSpellOnCD("Prowl")) and (not IsInCombat()) and (script_paranoia.currentTime < script_grind.currentTime2 - 190) then
+				CastSpellByName("Prowl");
+				return 0;
+			end
+
 			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 2000;
 			return true;
 		else
