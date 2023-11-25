@@ -103,7 +103,7 @@ script_grind = {
 	adjustText = true,
 	adjustY = 0,
 	adjustX = 0,
-	paranoidTargetName = "",
+	paranoidTarget = "",
 }
 
 function script_grind:setup()
@@ -351,15 +351,11 @@ function script_grind:run()
 	-- check paranoia	
 	if (not IsInCombat()) and (not IsLooting()) then	
 		if (script_paranoia:checkParanoia()) then
-
-			self.newTargetTime = -1;
-
-			if (script_paranoia.currentTime >= script_paranoia.currentTime2 + 214) then
+			if (script_paranoia.currentTime >= script_paranoia.currentTime2 + 10) then
 				script_paranoia.currentTime = 0;
 				Logout();
 				return 4;
 			end
-
 			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 2000;
 			return true;
 		end
@@ -782,10 +778,10 @@ function script_grind:playersTargetingUs() -- returns number of players attackin
 			if (script_grind:isTargetingMe(currentObj)) then 
                 	nrPlayersTargetingUs = nrPlayersTargetingUs + 1;
 				if (self.useOtherString) then
-					self.paranoidDistance = currentObj:GetDistance();
-					self.paranoidTargetName = currentObj:GetUnitName();
+					local playerDistance = currentObj:GetDistance();
+					local playerName = currentObj:GetUnitName();
 					local playerTime = GetTimeStamp();
-					local string ="" ..playerTime.. " - Player Name ("..self.paranoidTargetName.. ") - Distance(yds) "..self.self.paranoidDistance.. " - Targeted Us! - added to log file for further implementation of paranoia.";
+					local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance(yds) "..playerDistance.. " - Targeted Us! - added to log file for further implementation of paranoia.";
 					DEFAULT_CHAT_FRAME:AddMessage(string);
 					ToFile(string);
 					self.useOtherString = false;
@@ -805,12 +801,15 @@ function script_grind:playersWithinRange(range)
 			if (currentObj:GetDistance() < range) then 
 				local localObj = GetLocalPlayer();
 				if (localObj:GetGUID() ~= currentObj:GetGUID()) and (currentObj:GetUnitName() ~= script_paranoia.ignoreTarget) then
+						self.paranoidTargetDistance = currentObj:GetDistance();
+						self.paranoidTargetName = currentObj:GetUnitName();
 					if (self.useString) then
 						if (currentObj:GetDistance() < self.paranoidRange) and (typeObj == 4) then
-							self.paranoidTargetName = currentObj:GetUnitName();
+							local playerName = currentObj:GetUnitName();
+							local playerDistance = currentObj:GetDistance();
 							self.playerParanoidDistance = currentObj:GetDistance();
 							local playerTime = GetTimeStamp();
-							local string ="" ..playerTime.. " - Player Name ("..self.paranoidTargetName.. ") - Distance (yds) "..self.self.paranoidDistance.. " - added to log file for further implementation of paranoia. Logout Timer has been set!"
+							local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance (yds) "..playerDistance.. " - added to log file for further implementation of paranoia. Logout Timer has been set!"
 							DEFAULT_CHAT_FRAME:AddMessage(string);
 							ToFile(string);
 							self.useString = false;
@@ -1078,18 +1077,6 @@ function script_grind:runRest()
 	if(RunRestScript()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
 		self.message = "Resting...";
 		self.newTargetTime = GetTimeEX();
-
-		
-
-		if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not isStealth) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not script_checkDebuffs:hasPoison()) then
-			CastSpellByName("Stealth", localObj);
-			self.waitTimer = GetTimeEX() + 1000;
-		end
-		
-		if (not isCat) and (not isProwl) and (not isStealth) and (not isShadowmeld) and (not isBear) and (not isCat) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not script_checkDebuffs:hasPoison()) then
-			CastSpellByName("Shadowmeld", localObj);
-			self.waitTimer = GetTimeEX() + 1000;
-		end
 
 		-- Stop moving
 		if (IsMoving()) and (not localObj:IsMovementDisabed()) then

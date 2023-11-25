@@ -1482,7 +1482,8 @@ function script_druid:rest()
 		if (GetLocalPlayer():GetUnitsTarget() == 0) and (not script_checkDebuffs:hasPoison()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (IsStanding()) then
 			if (localMana <= 55 or localHealth <= 55) and (not IsInCombat()) then
 				CastSpellByName("Prowl", localObj);
-				self.waitTimer = GetTimeEX() + 8000;
+				self.waitTimer = GetTimeEX() + 10000;
+				return;
 			end
 
 			if (localMana <= 80 or localHealth <= 80) then
