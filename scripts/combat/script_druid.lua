@@ -174,10 +174,6 @@ function script_druid:healsAndBuffs()
 	local hasRejuv = GetLocalPlayer():HasBuff("Rejuvenation"); 
 	local hasRegrowth = GetLocalPlayer():HasBuff("Regrowth");
 
-	if (not script_grind.adjustTickRate) then
-		script_grind.tickRate = 1500;
-	end
-
 --------------
 
 	-- shapeshift out of bear form to heal
@@ -212,38 +208,6 @@ function script_druid:healsAndBuffs()
 	end
 
 
-
-----------------------
-
-	-- heal 2 or more enemies higher health
-	if (script_grind:enemiesAttackingUs(12) >= 2) and (not isBear) and (not isCat) and (localHealth <= self.healthToShift + 20) then
-
-		-- Regrowth
-		if (HasSpell("Regrowth")) and (not localObj:HasBuff("Regrowth")) and (localHealth <= self.regrowthHealth + 20) and (localMana >= 35) then
-			if (CastHeal("Regrowth", localObj)) then
-				self.waitTimer = GetTimeEX() + 3500;
-				return 0;
-			end
-		end
-
-		-- Healing Touch
-		if (HasSpell("Healing Touch")) then
-			if (localHealth <= self.healingTouchHealth + 10) and (localMana > 25) then
-				if (CastHeal("Healing Touch", localObj)) then
-					self.waitTimer = GetTimeEX() + 2700;
-					return 0;
-				end
-			end
-		end
-
-		-- Rejuvenation
-		if (HasSpell("Rejuvenation")) and (not localObj:HasBuff("Rejuvenation")) and (localHealth <= self.rejuvenationHealth) and (localMana >= 10) then
-			if (CastSpellByName("Rejuvenation", localObj)) then
-				self.waitTimer = GetTimeEX() + 1600;
-				return 0;
-			end
-		end
-	end
 
 ------------------------------------
 
@@ -400,7 +364,7 @@ function script_druid:healsAndBuffs()
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
 		elseif (not IsInCombat()) and (not IsMoving()) then
-			script_grind.tickRate = tickRandom
+			script_grind.tickRate = tickRandom;
 		elseif (IsInCombat()) and (not IsMoving()) then
 			script_grind.tickRate = tickRandom;
 		end
@@ -448,7 +412,6 @@ function script_druid:run(targetGUID)
 	end
 
 	if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) then
-		self.waitTimer = GetTimeEX() + 1500;
 		return;
 	end
 
@@ -584,7 +547,6 @@ function script_druid:run(targetGUID)
 		end	
 
 		if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) then
-			self.waitTimer = GetTimeEX() + 1500;
 			return;
 		end
 
@@ -638,7 +600,7 @@ function script_druid:run(targetGUID)
 			if (isBear) and (self.useCharge) and (HasSpell("Feral Charge")) and (not IsSpellOnCD("Feral Charge")) and (localRage >= 5) then
 				if (self.useBear) and (isBear) and (targetObj:GetDistance() < 26) and (targetObj:GetDistance() > 10) then
 					CastSpellByName("Feral Charge");
-					return 4;
+					return 0;
 				end
 			end
 
@@ -844,7 +806,6 @@ function script_druid:run(targetGUID)
 
 
 			if (script_druid:healsAndBuffs()) and (not IsLooting()) then
-				self.waitTimer = GetTimeEX() + 1500;
 				return;
 			end
 
@@ -978,7 +939,7 @@ function script_druid:run(targetGUID)
 				if (HasSpell("Bash")) and (not IsSpellOnCD("Bash")) and (localRage >= 10) and (targetObj:GetDistance() <= self.meleeDistance) and (targetHealth >= 15) then
 					if (targetObj:IsCasting()) or (localHealth <= self.healthToShift + 15) then
 						CastSpellByName("Bash");
-						return;
+						return 0;
 					end
 				end
 
@@ -1087,8 +1048,6 @@ function script_druid:run(targetGUID)
 			if (isCat) and (not isBear) then
 
 				if (targetObj:GetDistance() > self.meleeDistance) and (isCat) then
-					script_grind.tickRate = 50;
-					script_rotation.tickRate = 50;
 					return 3;
 				end
 
@@ -1228,7 +1187,6 @@ function script_druid:run(targetGUID)
 				end
 
 				if (script_druid:healsAndBuffs()) and (not IsLooting()) then
-					self.waitTimer = GetTimeEX() + 1500;
 					return;
 				end
 
@@ -1288,7 +1246,6 @@ function script_druid:run(targetGUID)
 					end
 					targetObj:AutoAttack();
 				else
-					script_grind.tickRate = 50;
 					return 3;
 				end
 			end
@@ -1478,7 +1435,6 @@ function script_druid:rest()
 
 
 	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (script_grind.lootObj == nil) and (not IsDrinking()) and (not IsEating()) then
-			self.waitTimer = GetTimeEX() + 1500;
 		return;
 	end	
 
