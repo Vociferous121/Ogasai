@@ -101,6 +101,9 @@ function vendorDB:setup()
 
 
 
+	-- Ashenvale - Horde
+	vendorDB:addVendor("Wik'Tar", 1, 1, 331, false, false, false, false, false, 3362.22, 1024.83, 2.87);
+
 
 	--alliance	
 		--Blasted Lands

@@ -494,12 +494,6 @@ function script_druid:run(targetGUID)
 		return 4;
 	end
 
-	-- use prowl before spamming auto attack and move in range of target!
-	if (not IsInCombat()) and (self.useCat) and (isCat) and (self.useStealth) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not script_checkDebuffs:hasPoison()) and (IsStanding()) then
-		CastSpellByName("Prowl");
-		return 0;
-	end
-
 	--Valid Enemy
 	if (targetObj ~= 0) and (not localObj:IsStunned()) then
 		
@@ -511,6 +505,12 @@ function script_druid:run(targetGUID)
 		-- stand up if sitting
 		if (not IsStanding()) then
 			JumpOrAscendStart();
+		end
+
+		-- use prowl before spamming auto attack and move in range of target!
+		if (not IsInCombat()) and (self.useCat) and (isCat) and (self.useStealth) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not script_checkDebuffs:hasPoison()) and (IsStanding()) then
+			CastSpellByName("Prowl");
+			return 0;
 		end
 	
 		if (not IsMoving() and targetObj:GetDistance() <= self.meleeDistance) then
@@ -1017,7 +1017,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- maul non humanoids
-				if (HasSpell("Maul")) and (not IsCasting()) and (not IsChanneling())and (not IsMoving()) and (targetObj:GetCreatureType() ~= 'Humanoid') and (targetObj:GetDistance() <= self.meleeDistance) and (not localObj:HasBuff("Frenzied Regeneration")) and ( (script_grind.enemiesAttackingUs(12) >= 2 and localRage >= 20) or (script_grind.enemiesAttackingUs < 2 and localRage >= self.maulRage) ) then
+				if (HasSpell("Maul")) and (not IsCasting()) and (not IsChanneling())and (not IsMoving()) and (targetObj:GetCreatureType() ~= 'Humanoid') and (targetObj:GetDistance() <= self.meleeDistance) and (not localObj:HasBuff("Frenzied Regeneration")) and ( (script_grind.enemiesAttackingUs(12) >= 2 and localRage >= 20) or (script_grind.enemiesAttackingUs(12) < 2 and localRage >= self.maulRage) ) then
 						targetObj:FaceTarget();
 					if (CastSpellByName("Maul", targetObj)) then
 						targetObj:AutoAttack();
@@ -1034,8 +1034,8 @@ function script_druid:run(targetGUID)
 					and (targetObj:GetCreatureType() == 'Humanoid') and (targetHealth > 30)
 					and (targetObj:GetDistance() <= self.meleeDistance) and (not localObj:HasBuff("Frenzied Regeneration"))
 						and ( (script_grind.enemiesAttackingUs(12) >= 2 and localRage >= 20 and HasSpell("Swipe"))
-						or (script_grind.enemiesAttackingUs < 2 and localRage >= self.maulRage)
-						or (script_grind.enemiesAttackingUs >= 2 and not HasSpell("Swipe") and localRage >= self.maulRage) )
+						or (script_grind.enemiesAttackingUs(12) < 2 and localRage >= self.maulRage)
+						or (script_grind.enemiesAttackingUs(12) >= 2 and not HasSpell("Swipe") and localRage >= self.maulRage) )
 				then
 						targetObj:FaceTarget();
 					if (CastSpellByName("Maul", targetObj)) then
@@ -1482,7 +1482,11 @@ function script_druid:rest()
 		if (GetLocalPlayer():GetUnitsTarget() == 0) and (not script_checkDebuffs:hasPoison()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (IsStanding()) then
 			if (localMana <= 55 or localHealth <= 55) and (not IsInCombat()) then
 				CastSpellByName("Prowl", localObj);
-				self.waitTimer = GetTimeEX() + 1000;
+				self.waitTimer = GetTimeEX() + 8000;
+			end
+
+			if (localMana <= 80 or localHealth <= 80) then
+				return;
 			end
 		end
 	end		
