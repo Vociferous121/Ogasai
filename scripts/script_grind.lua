@@ -351,7 +351,7 @@ function script_grind:run()
 	-- check paranoia	
 	if (not IsInCombat()) and (not IsLooting()) then	
 		if (script_paranoia:checkParanoia()) then
-			if (script_paranoia.currentTime >= script_paranoia.currentTime2 + 1) then
+			if (script_paranoia.currentTime >= script_paranoia.currentTime2 + 214) then
 				script_paranoia.currentTime = 0;
 				Logout();
 				return 4;
