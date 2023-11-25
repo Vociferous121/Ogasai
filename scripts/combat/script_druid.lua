@@ -178,7 +178,9 @@ function script_druid:healsAndBuffs()
 
 	-- shapeshift out of bear form to heal
 	if ( (isBear) and (localHealth <= self.healthToShift) and (localMana >= self.shapeshiftMana) and (not hasRejuv) and (not hasRegrowth) and (script_grind.enemiesAttackingUs(12) < 2) )
-	or ( (isBear) and (localHealth <= self.healthToShift) and (localMana >= self.shapeshiftMana + 5) and (not hasRejuv) and (not hasRegrowth) and (script_grind.enemiesAttackingUs(12) >= 2) )then
+	or ( (isBear) and (localHealth <= self.healthToShift) and (localMana >= self.shapeshiftMana + 5) and (not hasRejuv) and (not hasRegrowth) and (script_grind.enemiesAttackingUs(12) >= 2) )
+	or ( (isBear) and (localHealth <= 65) and (not IsInCombat()) and (localMana >= 75) and (not hasRejuv) and (not hasRegrowth) )
+	then
 		if (not script_grind.adjustTickRate) then
 			script_grind.tickRate = 135;
 			script_rotation.tickRate = 135;
@@ -196,7 +198,10 @@ function script_druid:healsAndBuffs()
 
 
 	-- shapeshift out of cat form to heal
-	if (isCat) and (localHealth <= self.healthToShift) and (localMana >= self.shapeshiftMana) and (not hasRejuv) and (not hasRegrowth) then
+	if ( (isCat) and (localHealth <= self.healthToShift) and (localMana >= self.shapeshiftMana) and (not hasRejuv) and (not hasRegrowth) )
+	or ( (isCat) and (localHealth <= 65) and (not IsInCombat()) and (localMana >= 75) and (not hasRejuv) and (not hasRegrowth) )
+	then
+
 		if (not script_grind.adjustTickRate) then
 			script_grind.tickRate = 135;
 			script_rotation.tickRate = 135;
@@ -208,6 +213,13 @@ function script_druid:healsAndBuffs()
 	end
 
 
+	-- heal - we left form out of combat
+	if (not IsInCombat()) and (not isBear) and (not isCat) and (localHealth <= 65) and (localMana >= 75) and (not hasRejuv) and (not hasRegrowth) then
+		if (CastSpellByName("Rejuvenation", localObj)) then
+			self.waitTimer = GetTimeEX() + 1650;
+			return 0;
+		end
+	end
 
 ------------------------------------
 
@@ -472,8 +484,9 @@ function script_druid:run(targetGUID)
 		end
 
 		-- use prowl before spamming auto attack and move in range of target!
-		if (not IsInCombat()) and (self.useCat) and (isCat) and (self.useStealth) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not script_checkDebuffs:hasPoison()) and (IsStanding()) then
+		if (not IsInCombat()) and (self.useCat) and (isCat) and (self.useStealth) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not script_checkDebuffs:hasPoison()) and (IsStanding()) and (IsMoving()) then
 			CastSpellByName("Prowl");
+			JumpOrAscendStart();
 			return 0;
 		end
 	

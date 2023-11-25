@@ -453,7 +453,7 @@ function script_grind:run()
 				CastSpellByName('Ghost Wolf');
 			end
 			self.message = script_nav:moveToHotspot(localObj);
-			script_grind:setWaitTimer(80);
+			script_grind:setWaitTimer(140);
 			return;
 		end
 		
@@ -538,15 +538,17 @@ function script_grind:run()
 				--if (self.enemyObj:GetDistance() < self.disMountRange) then
 				--end
 
-				script_grind.tickRate = 50;
-
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
+
+				if (IsInCombat()) then
+					script_grind.tickRate = 50;
+				end
 
 				if (_x ~= 0 and x ~= 0) then
 					local moveBuffer = math.random(-2, 2);
 					self.message = script_nav:moveToTarget(localObj, _x+moveBuffer, _y+moveBuffer, _z);
-					script_grind:setWaitTimer(140);
+					script_grind:setWaitTimer(220);
 					return;
 				end
 				return;
@@ -591,7 +593,7 @@ function script_grind:run()
 				return;
 			else
 				self.message = script_nav:moveToSavedLocation(localObj, self.minLevel, self.maxLevel, self.staticHotSpot);
-				script_grind:setWaitTimer(50);
+				script_grind:setWaitTimer(110);
 
 				if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
 					CastSpellByName("Stealth", localObj);
