@@ -40,7 +40,7 @@ script_grind = {
 	skipGiant = false,
 	skipMechanical = false,
 	skipElites = true,
-	paranoidRange = 55,
+	paranoidRange = 75,
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
 	helperLoaded = include("scripts\\script_helper.lua"),
 	talentLoaded = include("scripts\\script_talent.lua"),
@@ -89,7 +89,7 @@ script_grind = {
 	blacklistAdds = 1,
 	blacklistedNameNum = 0,
 	useExpChecker = true,
-	paranoidSetTimer = 47,
+	paranoidSetTimer = 22,
 	useString = true,	-- message to send to log players in range run once
 	useOtherString = true,	-- message to send to log players targeting us run once
 	useLogoutTimer = false,	-- use logout timer true/false
@@ -339,10 +339,13 @@ function script_grind:run()
 	end
 
 	-- delete items
-	if (HasItem("Small Barnacled Clam")) then
-		UseItem("Small Barnacled Clam");
-		LootTarget();
-		self.waitTimer = GetTimeEX() + 1500;
+	if (not IsLooting()) and (HasItem("Small Barnacled Clam")) and (not localObj:HasBuff("Stealth")) and (not localObj:HasBuff("Prowl")) and (not localObj:IsCasting()) and (not IsInCombat()) then
+		if (UseItem("Small Barnacled Clam")) then
+			if (not LootTarget()) then
+				self.waitTimer = GetTimeEX() + 1500;
+				return;
+			end
+		end
 	end
 	if (script_helper:deleteItem()) then
 		self.waitTimer = GetTimeEX() + 1500;
@@ -972,10 +975,10 @@ function script_grind:doLoot(localObj)
 		end
 	
 		if (not LootTarget()) then
-			script_grind:setWaitTimer(1200);
+			script_grind:setWaitTimer(400);
+			self.waitTimer = GetTimeEX() + 150;
 			return;
 		else
-			self.waitTimer = GetTimeEX() + 100;
 			self.lootCheckTime = 0;
 			self.lootObj = nil;
 			return;
@@ -1094,9 +1097,6 @@ function script_grind:runRest()
 			return true;
 		end
 
-		-- Add 2500 ms timer to the rest script rotations (timer could be set already)
-		if ((self.waitTimer - GetTimeEX()) < 2500) then
-		end
 	return true;	
 	end
 

@@ -395,7 +395,7 @@ function script_druid:healsAndBuffs()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(550, 950);
+		local tickRandom = random(750, 1150);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -432,7 +432,7 @@ function script_druid:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(550, 950);
+		local tickRandom = random(750, 1150);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -448,6 +448,7 @@ function script_druid:run(targetGUID)
 	end
 
 	if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) then
+		self.waitTimer = GetTimeEX() + 1500;
 		return;
 	end
 
@@ -532,8 +533,8 @@ function script_druid:run(targetGUID)
 			if (script_grind:enemiesAttackingUs(12) >= 2) or (targetObj:GetLevel() > GetLocalPlayer():GetLevel() + 2) then
 		
 				if (not script_grind.adjustTickRate) then
-					script_grind.tickRate = 50;
-					script_rotation.tickRate = 50;
+					script_grind.tickRate = 125;
+					script_rotation.tickRate = 125;
 				end
 				if (localObj:HasBuff("Cat Form")) then
 					if (CastSpellByName("Cat Form")) then
@@ -583,6 +584,7 @@ function script_druid:run(targetGUID)
 		end	
 
 		if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) then
+			self.waitTimer = GetTimeEX() + 1500;
 			return;
 		end
 
@@ -842,6 +844,7 @@ function script_druid:run(targetGUID)
 
 
 			if (script_druid:healsAndBuffs()) and (not IsLooting()) then
+				self.waitTimer = GetTimeEX() + 1500;
 				return;
 			end
 
@@ -913,8 +916,8 @@ function script_druid:run(targetGUID)
 			if (isBear) and (not isCat) then
 
 				if (self.wasInCombat) and (self.runOnce) then
-					script_grind.tickRate = 50;
-					script_rotation.tickRate = 50;
+					script_grind.tickRate = 125;
+					script_rotation.tickRate = 125;
 					self.runOnce = false;
 				end
 
@@ -1125,7 +1128,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- keep rake up
-				if (HasSpell("Rake")) and (not targetObj:HasDebuff("Rake")) and (targetHealth >= 30) and (localEnergy >= 35) then
+				if (HasSpell("Rake")) and (not targetObj:HasDebuff("Rake")) and (targetHealth >= 30) and (localEnergy >= 35) and (not targetObj:GetCreatureType() == "Elemental") then
 					if (CastSpellByName("Rake", targetObj)) then
 						self.waitTimer = GetTimeEX() + 2200;
 						return 0;
@@ -1133,7 +1136,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- rip if we are about to shapeshift to heal
-				if (localCP >= 2) and (localHealth <= self.healthToShift + 25) and (localEnergy >= 35) and (not HasSpell("Ferocious Bite")) and (not targetObj:HasDebuff("Rip"))then
+				if (localCP >= 2) and (localHealth <= self.healthToShift + 25) and (localEnergy >= 35) and (not HasSpell("Ferocious Bite")) and (not targetObj:HasDebuff("Rip")) and (not targetObj:GetCreatureType() == "Elemental") then
 					if (CastSpellByName("Rip", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1250;
 						return 0;
@@ -1149,7 +1152,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- Rip with 5 CPs
-				if (localCP > 4) and (localEnergy >= 30) and (not HasSpell("Ferocious Bite")) and (not targetObj:HasDebuff("Rip")) then
+				if (localCP > 4) and (localEnergy >= 30) and (not HasSpell("Ferocious Bite")) and (not targetObj:HasDebuff("Rip")) and (not targetObj:GetCreatureType() == "Elemental") then
 					if (CastSpellByName("Rip", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1600;
 						return 0;
@@ -1157,7 +1160,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- Rip with 3 CPs
-				if (localCP >= 3) and (targetHealth <= 50) and (localEnergy >= 30) and (not HasSpell("Ferocious Bite")) and (not targetObj:HasDebuff("Rip")) then
+				if (localCP >= 3) and (targetHealth <= 50) and (localEnergy >= 30) and (not HasSpell("Ferocious Bite")) and (not targetObj:HasDebuff("Rip")) and (not targetObj:GetCreatureType() == "Elemental") then
 					if (CastSpellByName("Rip", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1600;
 						return 0;
@@ -1225,6 +1228,7 @@ function script_druid:run(targetGUID)
 				end
 
 				if (script_druid:healsAndBuffs()) and (not IsLooting()) then
+					self.waitTimer = GetTimeEX() + 1500;
 					return;
 				end
 
@@ -1273,7 +1277,7 @@ function script_druid:run(targetGUID)
 			end -- end of if not bear or cat... no form attacks
 			
 			if (targetObj:IsFleeing()) and (not script_grind.adjustTickRate) then
-				script_grind.tickRate = 50;
+				script_grind.tickRate = 125;
 			end
 
 			-- auto attack condition for melee
@@ -1317,7 +1321,7 @@ function script_druid:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(550, 950);
+		local tickRandom = random(750, 1150);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -1474,10 +1478,20 @@ function script_druid:rest()
 
 
 	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (script_grind.lootObj == nil) and (not IsDrinking()) and (not IsEating()) then
-			self.waitTimer = GetTimeEX() + 500;
+			self.waitTimer = GetTimeEX() + 1500;
 		return;
+	end	
+
+	-- rest in form
+	if (isBear or isCat) and (self.useRest) and (script_grind.lootObj == nil) then
+		if (GetLocalPlayer():GetUnitsTarget() == 0) then
+			if (localMana <= 55 or localHealth <= 55) and (not IsInCombat()) then
+				self.message = "Waiting - low mana or health and shapeshifted! Change heal/drink!";
+				return;
+			end
+		end		
 	end
-	
+
 	if (self.useRest) and (isCat) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) then
 		if (GetLocalPlayer():GetUnitsTarget() == 0) and (not script_checkDebuffs:hasPoison()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (IsStanding()) then
 			if (localMana <= 55 or localHealth <= 55) and (not IsInCombat()) then
@@ -1490,17 +1504,7 @@ function script_druid:rest()
 				return;
 			end
 		end
-	end		
-
-	-- rest in form
-	if (isBear or isCat) and (self.useRest) and (script_grind.lootObj == nil) then
-		if (GetLocalPlayer():GetUnitsTarget() == 0) then
-			if (localMana <= 55 or localHealth <= 55) and (not IsInCombat()) then
-				self.message = "Waiting - low mana or health and shapeshifted! Change heal/drink!";
-				return;
-			end
-		end		
-	end
+	end	
 
 	-- Don't need to rest
 	return false;

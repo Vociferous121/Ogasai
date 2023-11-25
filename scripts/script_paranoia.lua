@@ -66,7 +66,7 @@ function script_paranoia:checkParanoia()
 		if (script_grind:playersWithinRange(script_grind.paranoidRange)) and (not IsLooting()) then
 
 			-- do wave emote. had to double check the variables or it was casting twice
-			if (script_grind.playerParanoidDistance <= 25) and (self.doEmote) and (not self.didEmote) then
+			if (script_grind.playerParanoidDistance <= 15) and (self.doEmote) and (not self.didEmote) then
 				DoEmote("Wave", script_grind.paranoidTargetName);
 				self.doEmote = false;
 				self.didEmote = true;
@@ -154,7 +154,7 @@ function script_paranoia:menu()
 		
 	-- paranoid on/off button
 	wasClicked, script_paranoia.paranoidOn = Checkbox("Enable Paranoia", script_paranoia.paranoidOn);
-	
+		
 	SameLine();
 		
 	-- if paranoid on then show rest of paranoia features

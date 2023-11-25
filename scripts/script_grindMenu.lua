@@ -49,6 +49,9 @@ function script_grindMenu:menu()
 		StopBot();
 	end
 
+	SameLine();
+	Text(""..GetTimeStamp());
+
 	local wasClicked = false;
 	-- Load combat menu by class
 	local class = UnitClass("player");
