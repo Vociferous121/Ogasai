@@ -17,7 +17,7 @@ script_grind = {
 	avoidElite = true,
 	avoidRange = 40,
 	findLootDistance = 60,
-	lootDistance = 3.5,
+	lootDistance = 2.7,
 	skipLooting = false,
 	lootCheck = {},
 	minLevel = GetLocalPlayer():GetLevel()-5,
@@ -55,7 +55,7 @@ script_grind = {
 	paranoiaLoaded = include("scripts\\script_paranoia.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
 	debuffCheck = include("scripts\\script_checkDebuffs.lua"),
-	nextToNodeDist = 3.1, -- (Set to about half your nav smoothness)
+	nextToNodeDist = 4.4, -- (Set to about half your nav smoothness)
 	blacklistedTargets = {},
 	blacklistedNum = 0,
 	isSetup = false,
@@ -269,11 +269,11 @@ function script_grind:run()
 	end
 
 		localObj = GetLocalPlayer();
-	-- sprint or dash or aspect of cheetah
-	if (localObj:HasBuff("Sprint")) or (localObj:HasBuff("Aspect of the Cheetah")) or (localObj:HasBuff("Dash")) then
+	-- sprint or dash or aspect or cheetah or cat form
+	if (localObj:HasBuff("Sprint")) or (localObj:HasBuff("Aspect of the Cheetah")) or (localObj:HasBuff("Dash")) or (localObj:HasBuff("Cat Form")) then
 		script_nav:setNextToNodeDist(8); NavmeshSmooth(24);
 	else
-		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*4);
+		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*3);
 	end
 
 	-- night elf whisp
@@ -442,19 +442,26 @@ function script_grind:run()
 
 			-- Druid cat form is faster if you specc talents
 			if (HasSpell("Cat Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
-				CastSpellByName("Cat Form");
-				self.waitTimer = GetTimeEX() + 500;
+				if (CastSpellByName("Cat Form")) then
+					self.waitTimer = GetTimeEX() + 500;
+					return 0;
+				end
 			end
 			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (not script_checkDebuffs:hasPoison()) then
-				CastSpellByName("Stealth", localObj);
-				self.waitTimer = GetTimeEX() + 1200;
+				if (CastSpellByName("Stealth", localObj)) then
+					self.waitTimer = GetTimeEX() + 1200;
+					return 0;
+				end
 			end
 			-- Shaman Ghost Wolf 
 			if (self.currentLevel < 40 and HasSpell('Ghost Wolf') and not localObj:HasBuff('Ghost Wolf')) and (not localObj:IsDead()) then
-				CastSpellByName('Ghost Wolf');
+				if (CastSpellByName('Ghost Wolf')) then
+					self.waitTimer = GetTimeEX() + 1500;
+					return 0;
+				end
 			end
 			self.message = script_nav:moveToHotspot(localObj);
-			script_grind:setWaitTimer(140);
+			script_grind:setWaitTimer(65);
 			return;
 		end
 		
@@ -549,7 +556,7 @@ function script_grind:run()
 				if (_x ~= 0 and x ~= 0) then
 					local moveBuffer = math.random(-2, 2);
 					self.message = script_nav:moveToTarget(localObj, _x+moveBuffer, _y+moveBuffer, _z);
-					script_grind:setWaitTimer(90);
+					script_grind:setWaitTimer(85);
 					return;
 				end
 				return;
@@ -577,7 +584,7 @@ function script_grind:run()
 
 		-- Pre checks before navigating
 		if (IsLooting() or IsCasting() or IsChanneling() or IsDrinking() or IsEating() or IsInCombat()) then
-			script_grind:setWaitTimer(1500);
+			--script_grind:setWaitTimer(1500);
 			return;
 		end
 
@@ -594,7 +601,7 @@ function script_grind:run()
 				return;
 			else
 				self.message = script_nav:moveToSavedLocation(localObj, self.minLevel, self.maxLevel, self.staticHotSpot);
-				script_grind:setWaitTimer(110);
+				script_grind:setWaitTimer(85);
 
 				if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
 					CastSpellByName("Stealth", localObj);

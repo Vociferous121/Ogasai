@@ -175,6 +175,20 @@ function script_druid:healsAndBuffs()
 	local hasRejuv = GetLocalPlayer():HasBuff("Rejuvenation"); 
 	local hasRegrowth = GetLocalPlayer():HasBuff("Regrowth");
 
+-- set tick rate for script to run
+	if (not script_grind.adjustTickRate) then
+
+		local tickRandom = random(850, 1250);
+
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+		elseif (IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+		end
+	end
+
 --------------
 
 	-- shapeshift out of bear form to heal
@@ -207,8 +221,8 @@ function script_druid:healsAndBuffs()
 	then
 
 		if (not script_grind.adjustTickRate) then
-			script_grind.tickRate = 135;
-			script_rotation.tickRate = 135;
+			script_grind.tickRate = 335;
+			script_rotation.tickRate = 335;
 		end
 		if (localCP >= 1) and (localEnergy >= 30) and (not HasSpell("Ferocious Bite")) and (HasSpell("Rip")) then
 			if (CastSpellByName("Rip")) then
@@ -236,8 +250,8 @@ function script_druid:healsAndBuffs()
 	-- shapeshift if has rejuv and regrowth and mana is high enough and health is low enough
 	if (self.useBear and isBear) and (localHealth <= self.healthToShift - 35) and (localMana >= 65) and (hasRejuv) and (hasRegrowth) then
 		if (not script_grind.adjustTickRate) then
-			script_grind.tickRate = 135;
-			script_rotation.tickRate = 135;
+			script_grind.tickRate = 335;
+			script_rotation.tickRate = 335;
 		end
 		if (localObj:HasBuff("Dire Bear Form")) then
 			CastSpellByName("Dire Bear Form");
@@ -253,8 +267,8 @@ function script_druid:healsAndBuffs()
 	-- shapeshift out of cat form to heal - already have rejuve and regrowth
 	if (self.useCat and isCat) and (localHealth <= self.healthToShift - 25) and (localMana >= 65) and (hasRejuv) and (hasRegrowth) then
 		if (not script_grind.adjustTickRate) then	
-			script_grind.tickRate = 135;
-			script_rotation.tickRate = 135;
+			script_grind.tickRate = 335;
+			script_rotation.tickRate = 335;
 		end
 		if (localObj:HasBuff("Cat Form")) then
 			CastSpellByName("Cat Form");
@@ -451,8 +465,8 @@ function script_druid:run(targetGUID)
 		or ( targetObj:GetLevel() > localObj:GetLevel() + 2 and HasSpell("Bear Form") and (not IsDrinking()) and (not IsEating()) ) then
 			if (not isBear) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth >= self.healthToShift + 5) and (IsStanding()) then
 				if (not script_grind.adjustTickRate) then
-					script_grind.tickRate = 135;
-					script_rotation.tickRate = 135;
+					script_grind.tickRate = 335;
+					script_rotation.tickRate = 335;
 				end
 				if (HasSpell("Dire Bear Form")) then
 					CastSpellByName("Dire Bear Form", localObj);
@@ -470,8 +484,8 @@ function script_druid:run(targetGUID)
 	-- stay in form cat if cat form is selected -- cast cat form
 	if (script_grind.enemiesAttackingUs(12) < 2) and (HasSpell("Cat Form")) and (self.useCat) and (not isCat) and (not self.useBear) and (not isBear) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift + 5) and (IsStanding()) and (not IsDrinking()) and (not IsEating()) then
 		if (not script_grind.adjustTickRate) then
-			script_grind.tickRate = 135;
-			script_rotation.tickRate = 135;
+			script_grind.tickRate = 335;
+			script_rotation.tickRate = 335;
 		end
 		CastSpellByName("Cat Form");
 		return 0;
@@ -1294,6 +1308,20 @@ function script_druid:run(targetGUID)
 				end
 			end
 		end -- end of else combat phase
+
+		-- set tick rate for script to run
+		if (not script_grind.adjustTickRate) then
+	
+			local tickRandom = random(850, 1250);
+		
+			if (IsMoving()) or (not IsInCombat()) then
+				script_grind.tickRate = 135;
+			elseif (not IsInCombat()) and (not IsMoving()) then
+				script_grind.tickRate = tickRandom;
+			elseif (IsInCombat()) and (not IsMoving()) then
+				script_grind.tickRate = tickRandom;
+			end
+		end
 	end -- end valid target
 end -- end of function
 
@@ -1494,6 +1522,20 @@ function script_druid:rest()
 	if (localHealth > 98 and (IsEating() or not IsStanding())) and (localMana > 98 and (IsDrinking() or not IsStanding())) then
 		StopMoving();
 		return false;
+	end
+
+-- set tick rate for script to run
+	if (not script_grind.adjustTickRate) then
+
+		local tickRandom = random(850, 1250);
+
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+		elseif (IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+		end
 	end
 
 	-- Don't need to rest
