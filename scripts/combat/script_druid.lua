@@ -28,6 +28,7 @@ script_druid = {
 	wasInCombat = false,
 	runOnce = false,
 	shapeshiftMana = 33,
+	hasDrinks = true,
 }
 
 
@@ -327,15 +328,12 @@ function script_druid:healsAndBuffs()
 		end
 
 		if (localObj:HasBuff("Regrowth")) and (not localObj:HasBuff("Rejuvenation")) and (localMana >= 15) and (not IsMoving()) then
+				if (IsMoving()) then
+					StopMoving();
+				end
 			if (CastSpellByName("Rejuvenation", targetObj)) then
 				self.waitTimer = GetTimeEX() + 3750;
 				return 0;
-			end
-		end
-
-		if (localObj:HasBuff("Rejuvenation")) and (not localObj:HasBuff("Regrowth")) and (localMana >= 40) and (not IsMoving()) then
-			if (CastSpellByName("Regrowth", localObj)) then
-				self.waitTimer = GetTimeEX() + 3750;
 			end
 		end
 
@@ -854,7 +852,7 @@ function script_druid:run(targetGUID)
 			end
 			
 			-- shift for debuff removal self use bear form
-			if (isBear or not IsBear) and (not isCat and not self.useCat) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) and (script_grind.enemiesAttackingUs(12) < 2) then
+			if (self.hasDrinks) and (isBear or not IsBear) and (not isCat and not self.useCat) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) and (script_grind.enemiesAttackingUs(12) < 2) then
 				if (not script_grind.adjustTickRate) then
 					DEFAULT_CHAT_FRAME:AddMessage(" --- Shifted out of form to remove disabled movement debuff!");
 					script_grind.tickRate = 100;
@@ -873,7 +871,7 @@ function script_druid:run(targetGUID)
 			end
 
 			-- shift for debuff removal self use cat form
-			if (isCat or not isCat) and (not isBear and not self.useBear) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
+			if (self.hasDrinks) and (isCat or not isCat) and (not isBear and not self.useBear) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
 				if (not script_grind.adjustTickRate) then
 					DEFAULT_CHAT_FRAME:AddMessage(" --- Shifted out of form to remove disabled movement debuff!");
 					script_grind.tickRate = 100;
@@ -1036,7 +1034,7 @@ function script_druid:run(targetGUID)
 	-- attacks in cat form IN COMBAT PHASE
 
 			-- shift for debuff removal
-			if (self.useCat) and (isCat or not isCat) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
+			if (self.hasDrinks) and (self.useCat) and (isCat or not isCat) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
 				if (not script_grind.adjustTickRate) then
 					DEFAULT_CHAT_FRAME:AddMessage(" --- Shifted out of form to remove movement disabled debuff!");
 					script_grind.tickRate = 100;
@@ -1317,7 +1315,7 @@ function script_druid:rest()
 	end
 
 	-- shift for debuff removal
-	if (self.useCat) and (isCat or not isCat) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
+	if (self.hasDrinks) and (self.useCat) and (isCat or not isCat) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
 		if (not script_grind.adjustTickRate) then
 			DEFAULT_CHAT_FRAME:AddMessage(" --- Shifted out of form to remove movement disabled debuff!");
 			script_grind.tickRate = 100;
@@ -1331,7 +1329,7 @@ function script_druid:rest()
 	end
 
 	-- shift for debuff removal
-	if (isBear or not IsBear) and (HasSpell("Bear Form")) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
+	if (self.hasDrinks) and (isBear or not IsBear) and (HasSpell("Bear Form")) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
 		if (not script_grind.adjustTickRate) then
 			DEFAULT_CHAT_FRAME:AddMessage(" --- Shifted out of form to remove movement disabled debuff!");
 			script_grind.tickRate = 100;
@@ -1389,6 +1387,8 @@ function script_druid:rest()
 			else 
 				self.message = "No drinks! (or drink not included in script_helper)";
 				self.shapeshiftMana = 50;
+				self.shitToDrink = false;
+				self.hasDrinks = false;
 				return true; 
 			end
 		end
