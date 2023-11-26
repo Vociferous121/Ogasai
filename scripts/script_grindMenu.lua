@@ -29,7 +29,7 @@ end
 
 function script_grindMenu:menu()
 
-local time = script_grind.currentTime2 - script_paranoia.currentTime;
+local time = (script_grind.currentTime2 - script_paranoia.currentTime) + 213;
 	if (script_paranoia.paranoiaUsed) then
 		Text("Paranoia Logout Timer  -  ");
 		SameLine();

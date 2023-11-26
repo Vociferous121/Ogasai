@@ -68,8 +68,6 @@ function script_paranoia:checkParanoia()
 
 			if (script_grind:playersWithinRange(script_grind.paranoidRange)) then
 				self.paranoiaUsed = true;
-			else
-				self.paranoidUsed = false;
 			end
 
 			-- do wave emote. had to double check the variables or it was casting twice
