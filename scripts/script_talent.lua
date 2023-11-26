@@ -63,8 +63,8 @@ function script_talent:setup()
 		-- Druid feral talent points in order 1-31
 		self.druidTalents = {
 			"2;Ferocity", "2;Ferocity", "2;Ferocity", "2;Ferocity", "2;Ferocity",
-			"2;Feral Aggression", "2;Feral Aggression", "2;Feral Aggression", "2;Feral Aggression", "2;Feral Aggression", 
-			"2;Feline Swiftness", "2;Feline Swiftness",
+			"2;Feral Instinct", "2;Feral Instinct", "2;Feral Instinct", "2;Feral Instinct", "2;Feral Instinct", 
+			"2;Feline Swiftness", "2;Feline Swiftness", "2;Feral Charge",
 			"2;Sharpened Claws", "2;Sharpened Claws", "2;Sharpened Claws",
 			"2;Blood Frenzy", "2;Blood Frenzy",
 			"2;Predatory Strikes", "2;Predatory Strikes", "2;Predatory Strikes",

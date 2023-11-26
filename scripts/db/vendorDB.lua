@@ -103,6 +103,11 @@ function vendorDB:setup()
 
 	-- Ashenvale - Horde
 	vendorDB:addVendor("Wik'Tar", 1, 1, 331, false, false, false, false, false, 3362.22, 1024.83, 2.87);
+	vendorDB:addVendor("Burkrum", 1, 1, 331, true, false, false, false, false, 2354.76, -2540.69, 102.81);
+	vendorDB:addVendor("Burkrum", 1, 1, 331, false, false, false, false, false, 2354.76, -2540.69, 102.81);
+	vendorDB:addVendor("Innkeeper Kaylisk", 1, 1, 331, false, true, false, false, false, 2341.86, -2566.99, 102.77);
+	vendorDB:addVendor("Innkeeper Kaylisk", 1, 1, 331, false, false, true, false, false, 2341.86, -2566.99, 102.77);
+
 
 
 	--alliance	

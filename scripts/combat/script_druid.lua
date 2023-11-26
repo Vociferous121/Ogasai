@@ -286,68 +286,6 @@ function script_druid:healsAndBuffs()
 	-- if not isBear and not isCat
 	if (not isBear) and (not isCat) and (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) and (script_grind.lootObj == 0 or script_grind.lootObj == nil) and (not localObj:IsStunned()) then
 
-	-- Regrowth
-		if (HasSpell("Regrowth")) and (not localObj:HasBuff("Regrowth")) and (localHealth <= self.regrowthHealth) and (localMana >= 40) and (not IsMoving()) and (not IsLooting()) then
-			if (CastHeal("Regrowth", localObj)) then
-				self.waitTimer = GetTimeEX() + 3750;
-				return 0;
-			end
-		end
-
-		-- Rejuvenation
-		if (HasSpell("Rejuvenation")) and (not localObj:HasBuff("Rejuvenation")) and (localHealth <= self.rejuvenationHealth) and (localMana >= self.rejuvenationMana) and (not IsLooting()) then
-			if (CastSpellByName("Rejuvenation", localObj)) then
-				self.waitTimer = GetTimeEX() + 1600;
-				return 0;
-			end
-		end
-		
-		-- Healing Touch
-		if (HasSpell("Healing Touch")) and (not IsLooting()) then
-			if (localHealth < self.healingTouchHealth) and (localMana > 25) then
-				if (CastHeal("Healing Touch", localObj)) then
-					self.waitTimer = GetTimeEX() + 2700;
-					return 0;
-				end
-			end
-		end
-
-		if (localObj:HasBuff("Regrowth")) and (not localObj:HasBuff("Rejuvenation")) and (localMana >= 15) then
-			if (CastSpellByName("Rejuvenation", targetObj)) then
-				self.waitTimer = GetTimeEX() + 3750;
-				return 0;
-			end
-		end
-
-		if (localObj:HasBuff("Rejuvenation")) and (not localObj:HasBuff("Regrowth")) and (localMana >= 40) then
-			if (CastSpellByName("Regrowth", localObj)) then
-				self.waitTimer = GetTimeEX() + 3750;
-			end
-		end
-
-		-- cure poison
-		if (not HasSpell("Abolish Poison")) and (HasSpell("Cure Poison")) and (script_checkDebuffs:hasPoison()) and (localMana >= 45) then
-			if (CastSpellByName("Cure Poison", localObj)) then 
-				self.waitTimer = GetTimeEX() + 1750; 
-				return 0; 
-			end
-		elseif (HasSpell("Abolish Poison")) and (not localObj:HasBuff("Abolish Poison")) and (script_checkDebuffs:hasPoison()) and (localMana >= 45) then
-			if (CastSpellByName("Abolish Poison", targetObj)) then
-				self.waitTimer = GetTimeEX() + 1750;
-				return 0;
-			end
-		end
-
-		-- remove curse
-		if (HasSpell("Remove Curse")) and (script_checkDebuffs:hasCurse()) then
-			if (localMana >= 30) then
-				if (CastSpellByName("Remove Curse", localObj)) then
-					self.waitTimer = GetTimeEX() + 1750;
-					return 0;
-				end
-			end
-		end
-
 		-- Check: Use Healing Potion 
 		if (localHealth < self.potionHealth) then 
 			if (script_helper:useHealthPotion()) then 
@@ -360,6 +298,68 @@ function script_druid:healsAndBuffs()
 			if (script_helper:useManaPotion()) then 
 				return 0; 
 			end 
+		end
+
+		-- Regrowth
+		if (HasSpell("Regrowth")) and (not localObj:HasBuff("Regrowth")) and (localHealth <= self.regrowthHealth) and (localMana >= 40) and (not IsMoving()) and (not IsLooting()) then
+			if (CastHeal("Regrowth", localObj)) then
+				self.waitTimer = GetTimeEX() + 3750;
+				return 0;
+			end
+		end
+
+		-- Rejuvenation
+		if (HasSpell("Rejuvenation")) and (not localObj:HasBuff("Rejuvenation")) and (localHealth <= self.rejuvenationHealth) and (localMana >= self.rejuvenationMana) and (not IsLooting()) and (not IsMoving()) then
+			if (CastSpellByName("Rejuvenation", localObj)) then
+				self.waitTimer = GetTimeEX() + 1600;
+				return 0;
+			end
+		end
+		
+		-- Healing Touch
+		if (HasSpell("Healing Touch")) and (not IsLooting()) and (not IsMoving()) then
+			if (localHealth < self.healingTouchHealth) and (localMana > 25) then
+				if (CastHeal("Healing Touch", localObj)) then
+					self.waitTimer = GetTimeEX() + 2700;
+					return 0;
+				end
+			end
+		end
+
+		if (localObj:HasBuff("Regrowth")) and (not localObj:HasBuff("Rejuvenation")) and (localMana >= 15) and (not IsMoving()) then
+			if (CastSpellByName("Rejuvenation", targetObj)) then
+				self.waitTimer = GetTimeEX() + 3750;
+				return 0;
+			end
+		end
+
+		if (localObj:HasBuff("Rejuvenation")) and (not localObj:HasBuff("Regrowth")) and (localMana >= 40) and (not IsMoving()) then
+			if (CastSpellByName("Regrowth", localObj)) then
+				self.waitTimer = GetTimeEX() + 3750;
+			end
+		end
+
+		-- cure poison
+		if (not HasSpell("Abolish Poison")) and (HasSpell("Cure Poison")) and (script_checkDebuffs:hasPoison()) and (localMana >= 45) and (not IsMoving()) then
+			if (CastSpellByName("Cure Poison", localObj)) then 
+				self.waitTimer = GetTimeEX() + 1750; 
+				return 0; 
+			end
+		elseif (HasSpell("Abolish Poison")) and (not localObj:HasBuff("Abolish Poison")) and (script_checkDebuffs:hasPoison()) and (localMana >= 45) and (not IsMoving()) then
+			if (CastSpellByName("Abolish Poison", targetObj)) then
+				self.waitTimer = GetTimeEX() + 1750;
+				return 0;
+			end
+		end
+
+		-- remove curse
+		if (HasSpell("Remove Curse")) and (script_checkDebuffs:hasCurse()) and (not IsMoving()) then
+			if (localMana >= 30) then
+				if (CastSpellByName("Remove Curse", localObj)) then
+					self.waitTimer = GetTimeEX() + 1750;
+					return 0;
+				end
+			end
 		end
 	end
 
@@ -553,10 +553,11 @@ function script_druid:run(targetGUID)
 		end
 
 		-- if out of form use faerie fire
-		if (IsInCombat()) and (not isBear) and (not isCat) and (targetObj:GetHealthPercentage() > 20) and (not targetObj:IsDead()) and (localMana > 50) and (not targetObj:HasDebuff("Faerie Fire")) and (HasSpell("Faerie Fire")) then
-			CastSpellByName("Faerie Fire", targetObj);
-			self.waitTimer = GetTimeEX() + 1750;
-			return 0;
+		if (IsInCombat()) and (not isBear) and (not isCat) and (targetObj:GetHealthPercentage() > 20) and (not targetObj:IsDead()) and (localMana > 65) and (not targetObj:HasDebuff("Faerie Fire")) and (HasSpell("Faerie Fire")) then
+			if (CastSpellByName("Faerie Fire", targetObj)) then 
+				self.waitTimer = GetTimeEX() + 1750;
+				return 0;
+			end
 		end	
 
 		if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) then
@@ -1382,7 +1383,6 @@ function script_druid:rest()
 			end
 
 			if (script_helper:drinkWater()) and (not IsInCombat()) then 
-				ClearTarget();
 				self.message = "Drinking..."; 
 				self.waitTimer = GetTimeEX() + 2500;
 				return true; 
@@ -1418,7 +1418,24 @@ function script_druid:rest()
 			end	
 		end
 
-	if(localMana < self.drinkMana or localHealth < self.eatHealth) then
+	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (script_grind.lootObj == nil) and (not IsDrinking()) and (not IsEating()) then
+		return;
+	end	
+
+	-- rest in form
+	if (isBear or isCat) and (self.useRest) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
+		if (GetLocalPlayer():GetUnitsTarget() == 0) then
+			if (localMana <= 60 or localHealth <= 60) and (not IsInCombat()) then
+				if (isCat) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (not script_checkDebuffs:hasPoison()) then
+					CastSpellByName("Prowl", localObj);
+				end
+				self.message = "Waiting - low mana or health and shapeshifted! Change heal/drink!";
+				return true;
+			end
+		end		
+	end	
+
+	if (localMana < self.drinkMana or localHealth < self.eatHealth) then
 		if (IsMoving()) then
 			StopMoving();
 			self.waitTimer = GetTimeEX() + 500;
@@ -1432,34 +1449,24 @@ function script_druid:rest()
 			return 0;
 		end
 	end
+		
+	-- Stand up if we are rested
+	if (localHealth > 98 and (IsEating() or not IsStanding())) and (localMana > 98 and (IsDrinking() or not IsStanding())) then
+		StopMoving();
+		return false;
+	end
+
+	if (localHealth < self.eatHealth) or (localMana < self.drinkMana) and (not isCat) and (not isBear) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) then
+		if (CastSpellByName("Shadowmeld")) then
+			return 0;
+		end
+	end
 
 	-- Continue resting
 	if(localHealth < 98 and IsEating() or localMana < 98 and IsDrinking()) then
 		self.message = "Resting up to full HP/Mana...";
 		return true;
 	end
-		
-	-- Stand up if we are rested
-	if (localHealth > 98 and (IsEating() or not IsStanding()) 
-	    and localMana > 98 and (IsDrinking() or not IsStanding())) then
-		StopMoving();
-		return false;
-	end
-
-
-	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (script_grind.lootObj == nil) and (not IsDrinking()) and (not IsEating()) then
-		return;
-	end	
-
-	-- rest in form
-	if (isBear or isCat) and (self.useRest) and (script_grind.lootObj == nil) then
-		if (GetLocalPlayer():GetUnitsTarget() == 0) then
-			if (localMana <= 55 or localHealth <= 55) and (not IsInCombat()) then
-				self.message = "Waiting - low mana or health and shapeshifted! Change heal/drink!";
-				return true;
-			end
-		end		
-	end	
 
 	-- Don't need to rest
 	return false;

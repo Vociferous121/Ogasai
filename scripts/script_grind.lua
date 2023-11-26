@@ -55,7 +55,7 @@ script_grind = {
 	paranoiaLoaded = include("scripts\\script_paranoia.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
 	debuffCheck = include("scripts\\script_checkDebuffs.lua"),
-	nextToNodeDist = 3.5, -- (Set to about half your nav smoothness)
+	nextToNodeDist = 3.1, -- (Set to about half your nav smoothness)
 	blacklistedTargets = {},
 	blacklistedNum = 0,
 	isSetup = false,
@@ -237,7 +237,6 @@ end
 
 function script_grind:run()
 	script_grind:window();
-
 	
 	if (script_radar.showRadar) then
 		script_radar:draw()
@@ -312,7 +311,7 @@ function script_grind:run()
 
 
 	--and (not self.pause) 
-	if (not self.useUnstuckTwo) and (self.useUnstuck and IsMoving()) then
+	if (not self.useUnstuckTwo) and (self.useUnstuck and IsMoving()) and (not self.pause) then
 		if (not script_unstuck:pathClearAuto(2)) then
 			script_unstuck:unstuck();
 			return true;
@@ -473,7 +472,7 @@ function script_grind:run()
 			-- Fix bug, when not targeting correctly
 			if (self.lastTarget ~= self.enemyObj:GetGUID()) then
 				self.newTargetTime = GetTimeEX() + 1000;
-				ClearTarget();
+				--ClearTarget();
 			elseif (self.lastTarget == self.enemyObj:GetGUID() and not IsStanding() and not IsInCombat()) then
 				self.newTargetTime = GetTimeEX(); -- reset time if we rest
 			-- blacklist the target if we had it for a long time and hp is high
@@ -548,7 +547,7 @@ function script_grind:run()
 				if (_x ~= 0 and x ~= 0) then
 					local moveBuffer = math.random(-2, 2);
 					self.message = script_nav:moveToTarget(localObj, _x+moveBuffer, _y+moveBuffer, _z);
-					script_grind:setWaitTimer(220);
+					script_grind:setWaitTimer(120);
 					return;
 				end
 				return;
@@ -1095,6 +1094,9 @@ function script_grind:runRest()
 		local isStealth = localObj:HasBuff("Stealth");
 		local isShadowmeld = localObj:HasBuff("Shadowmeld");
 		local isProwl = localObj:HasBuff("Prowl");
+		local hasProwl = HasSpell("Prowl");
+		local hasStealth = HasSpell("Stealth");
+		local hasShadowmeld = HasSpell("Shadowmeld");
 
 	if(RunRestScript()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
 		self.message = "Resting...";
@@ -1109,6 +1111,11 @@ function script_grind:runRest()
 		-- Dismount
 		if (IsMounted()) then
 			DisMount();
+			return true;
+		end
+
+		if (isCat) and (HasProwl) and (not IsSpellOnCD("Prowl")) and (not isProwl) and (not script_checkDebuffs:hasPoison()) then
+			CastSpellByName("Prowl", localObj);
 			return true;
 		end
 
