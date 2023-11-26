@@ -371,7 +371,7 @@ function script_druid:healsAndBuffs()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(750, 1150);
+		local tickRandom = random(850, 1250);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -408,7 +408,7 @@ function script_druid:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(750, 1150);
+		local tickRandom = random(850, 1250);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -1292,7 +1292,7 @@ function script_druid:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(750, 1150);
+		local tickRandom = random(850, 1250);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -1388,6 +1388,7 @@ function script_druid:rest()
 				return true; 
 			else 
 				self.message = "No drinks! (or drink not included in script_helper)";
+				self.shapeshiftMana = 50;
 				return true; 
 			end
 		end

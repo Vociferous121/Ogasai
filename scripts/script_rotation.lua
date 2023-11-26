@@ -12,7 +12,6 @@ script_rotation = {
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
 	helperLoaded = include("scripts\\script_helper.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
-	radarLoaded = include("scripts\\script_radar.lua"),
 	menuLoaded = include("scripts\\script_rotationMenu.lua"),
 	expExtra = include("scripts\\script_expChecker.lua"),
 	drawEnabled = false,

@@ -58,7 +58,7 @@ function script_rotationMenu:menu()
 	Separator();
 
 	if (CollapsingHeader('Display options')) then
-		if (CollapsingHeader("-- Radar - EXPERIMENTAL")) then
+		if (CollapsingHeader("|+| Radar - EXPERIMENTAL")) then
 			script_radar:menu();
 		end
 
@@ -86,26 +86,5 @@ function script_rotationMenu:menu()
 		Text("Aggro Circle Range");
 		script_rotation.aggroRangeTank = SliderInt("AR", 36, 300, script_rotation.aggroRangeTank);
 	end
-	
-	if (HasItem("Unlit Poor Torch")) then
-			Separator();
-			wasClicked, script_survivalProf.useTorch = Checkbox("Use Torches to level Survival", script_survivalProf.useTorch);
-		if (script_survivalProf.useTorch) then
-			Text("Please open the trade skill window");
-			script_survivalProf:openMenu();
-		end
-	end	
-
-	if (HasSpell("Bright Campfire")) and (HasItem("Simple Wood")) and (HasItem("Flint and Tinder")) then
-		wasClicked, script_survivalProf.useCampfire = Checkbox("Use Campfires", script_survivalProf.useCampfire);
-	end
-
-	-- FIRST AID WORKS PLANS TO IMPLEMENT MAKE BANADAGES WHILE BOTTING AND USE THEM
-	--if (HasSpell("First Aid")) then
-	--	Text("IN PROGRESS");
-	--	wasClicked, script_firstAid.showFirstAid = Checkbox("Show First Aid Skill", script_firstAid.showFirstAid);
-	--end
-	--if (script_firstAid.showFirstAid) then
-	--	script_firstAid:Menu();
-	--end
+		
 end

@@ -108,7 +108,14 @@ function vendorDB:setup()
 	vendorDB:addVendor("Innkeeper Kaylisk", 1, 1, 331, false, true, false, false, false, 2341.86, -2566.99, 102.77);
 	vendorDB:addVendor("Innkeeper Kaylisk", 1, 1, 331, false, false, true, false, false, 2341.86, -2566.99, 102.77);
 
-
+	-- Stonetalon - Horde
+	vendorDB:addVendor("Innkeeper Jayka", 1, 1, 406, false, false, true, false, false, 893.65, 927.94, 106.25);
+	vendorDB:addVendor("Innkeeper Jayka", 1, 1, 406, false, true, false, false, false, 893.65, 927.94, 106.25);
+	vendorDB:addVendor("Borand", 1, 1, 406, true, false, false, false, false, 992.18, 1030.95, 105.58);
+	vendorDB:addVendor("Borand", 1, 1, 406, false, false, false, false, false, 992.18, 1030.95, 105.58);
+	vendorDB:addVendor("Borand", 1, 1, 406, false, false, false, true, false, 992.18, 1030.95, 105.58);
+	vendorDB:addVendor("Denni'ka", 1, 1, 406, false, false, false, false, false, -188.43, -347.65, 8.79);
+	vendorDB:addVendor("Denni'ka", 1, 1, 406, false, true, false, false, false, -188.43, -347.65, 8.79);
 
 	--alliance	
 		--Blasted Lands
