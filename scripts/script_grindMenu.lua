@@ -28,6 +28,14 @@ function script_grindMenu:printHotspot()
 end
 
 function script_grindMenu:menu()
+
+local time = script_grind.currentTime2 - script_paranoia.currentTime;
+	if (script_paranoia.paranoiaUsed) then
+		Text("Paranoia Logout Timer  -  ");
+		SameLine();
+		Text(""..time);
+		Separator();
+	end
 	if (not script_grind.pause) then
 		if (Button("Pause Bot")) then
 			script_grind.pause = true;
@@ -48,9 +56,6 @@ function script_grindMenu:menu()
 	if (Button("Exit Bot")) then
 		StopBot();
 	end
-
-	SameLine();
-	Text(""..GetTimeStamp());
 
 	local wasClicked = false;
 	-- Load combat menu by class

@@ -17,7 +17,7 @@ script_grind = {
 	avoidElite = true,
 	avoidRange = 40,
 	findLootDistance = 60,
-	lootDistance = 3.25,
+	lootDistance = 3.5,
 	skipLooting = false,
 	lootCheck = {},
 	minLevel = GetLocalPlayer():GetLevel()-5,
@@ -547,7 +547,7 @@ function script_grind:run()
 				if (_x ~= 0 and x ~= 0) then
 					local moveBuffer = math.random(-2, 2);
 					self.message = script_nav:moveToTarget(localObj, _x+moveBuffer, _y+moveBuffer, _z);
-					script_grind:setWaitTimer(120);
+					script_grind:setWaitTimer(150);
 					return;
 				end
 				return;

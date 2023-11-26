@@ -12,6 +12,7 @@ script_paranoia = {
 	currentTime = 0,
 	doEmote = true,
 	didEmote = false,
+	paranoiaUsed = false,
 }
 
 function script_paranoia:checkParanoia()
@@ -64,6 +65,12 @@ function script_paranoia:checkParanoia()
 
 		-- if players in range
 		if (script_grind:playersWithinRange(script_grind.paranoidRange)) and (not IsLooting()) then
+
+			if (script_grind:playersWithinRange(script_grind.paranoidRange)) then
+				self.paranoiaUsed = true;
+			else
+				self.paranoidUsed = false;
+			end
 
 			-- do wave emote. had to double check the variables or it was casting twice
 			if (script_grind.playerParanoidDistance <= 15) and (self.doEmote) and (not self.didEmote) then
