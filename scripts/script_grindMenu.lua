@@ -29,13 +29,15 @@ end
 
 function script_grindMenu:menu()
 
-local time = (script_grind.currentTime2 - script_paranoia.currentTime) + 213;
+	-- display time above menu and logout timer when paranoid
+	local time = (script_grind.currentTime2 - script_paranoia.currentTime) + 213;
 	if (script_paranoia.paranoiaUsed) then
 		Text("Paranoia Logout Timer  -  ");
 		SameLine();
 		Text(""..time);
 		Separator();
 	end
+
 	if (not script_grind.pause) then
 		if (Button("Pause Bot")) then
 			script_grind.pause = true;
@@ -56,6 +58,9 @@ local time = (script_grind.currentTime2 - script_paranoia.currentTime) + 213;
 	if (Button("Exit Bot")) then
 		StopBot();
 	end
+
+	SameLine();
+	Text(""..GetTimeStamp());
 
 	local wasClicked = false;
 	-- Load combat menu by class

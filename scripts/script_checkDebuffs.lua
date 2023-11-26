@@ -15,6 +15,7 @@ function script_checkDebuffs:hasCurse()
 
 	if (player:HasDebuff("Curse of Mending"))
 		or (player:HasDebuff("Curse of the Shadowhorn"))
+		or (player:HasDebuff("Curse of Recklessness"))
 
 
 	then

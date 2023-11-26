@@ -197,6 +197,9 @@ function script_druid:healsAndBuffs()
 		
 	end
 
+	local localCP = GetComboPoints("player", "target");
+	local localEnergy = GetLocalPlayer():GetEnergyPercentage();
+
 
 	-- shapeshift out of cat form to heal
 	if ( (isCat) and (localHealth <= self.healthToShift) and (localMana >= self.shapeshiftMana) and (not hasRejuv) and (not hasRegrowth) )
@@ -206,6 +209,12 @@ function script_druid:healsAndBuffs()
 		if (not script_grind.adjustTickRate) then
 			script_grind.tickRate = 135;
 			script_rotation.tickRate = 135;
+		end
+		if (localCP >= 1) and (localEnergy >= 30) and (not HasSpell("Ferocious Bite")) and (HasSpell("Rip")) then
+			if (CastSpellByName("Rip")) then
+				self.waitTimer = GetTimeEX() + 500;
+				return 0;
+			end
 		end
 		if (localObj:HasBuff("Cat Form")) then
 			CastSpellByName("Cat Form");
@@ -303,7 +312,7 @@ function script_druid:healsAndBuffs()
 
 		-- Regrowth
 		if (HasSpell("Regrowth")) and (not localObj:HasBuff("Regrowth")) and (localHealth <= self.regrowthHealth) and (localMana >= 40) and (not IsMoving()) and (not IsLooting()) then
-			if (CastHeal("Regrowth", localObj)) then
+			if (CastSpellByName("Regrowth", localObj)) then
 				self.waitTimer = GetTimeEX() + 3750;
 				return 0;
 			end
@@ -327,12 +336,13 @@ function script_druid:healsAndBuffs()
 			end
 		end
 
+		-- cast rejuvenation if we have regrowth
 		if (localObj:HasBuff("Regrowth")) and (not localObj:HasBuff("Rejuvenation")) and (localMana >= 15) and (not IsMoving()) then
 				if (IsMoving()) then
 					StopMoving();
 				end
 			if (CastSpellByName("Rejuvenation", targetObj)) then
-				self.waitTimer = GetTimeEX() + 3750;
+				self.waitTimer = GetTimeEX() + 1750;
 				return 0;
 			end
 		end
@@ -417,11 +427,13 @@ function script_druid:run(targetGUID)
 		end
 	end
 
+	-- don't attack dead objects
 	if (localObj:IsDead()) then
 		return 0; 
 	end
 
-	if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) then
+	-- check heals and buffs
+	if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) and (not localObj:HasBuff("Frenzied Regeneration")) then
 		return;
 	end
 
@@ -459,6 +471,7 @@ function script_druid:run(targetGUID)
 		return 0;
 	end
 	
+	-- check for a valid target
 	if(targetObj == 0 or targetObj == nil) then
 		return 2;
 	end
@@ -488,21 +501,16 @@ function script_druid:run(targetGUID)
 			return 0;
 		end
 	
+		-- face target
 		if (not IsMoving() and targetObj:GetDistance() <= self.meleeDistance) then
 				targetObj:FaceTarget();
-		end
-
-		-- 
-		if (localMana < self.drinkMana) and (not IsInCombat()) and (GetLocalPlayer():GetLevel() < 10) then
-			self.waitTimer = GetTimeEX() + 2500;
-			return 4;
 		end
 
 		-- assign target health
 		targetHealth = targetObj:GetHealthPercentage();
 
-	-- shapeshift out of cat form to use bear form 2 or more targets - leave form
 
+	-- shapeshift out of cat form to use bear form 2 or more targets - leave form
 		if (self.useCat) and (isCat) and (localMana >= self.shapeshiftMana) and (localHealth <= self.healthToShift) and (GetNumPartyMembers() < 2) then
 			if (script_grind:enemiesAttackingUs(12) >= 2) or (targetObj:GetLevel() > GetLocalPlayer():GetLevel() + 2) then
 		
@@ -558,10 +566,12 @@ function script_druid:run(targetGUID)
 			end
 		end	
 
-		if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) then
+		-- check heals and buffs
+		if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) and (not localObj:HasBuff("Frenzied Regeneration")) then
 			return;
 		end
 
+		-- stop bot from moving target to target when stuck in combat and we need to rest
 		if (IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() == 0) then
 			self.message = "Waiting! Stuck in combat phase!";
 			return 4;
@@ -601,9 +611,8 @@ function script_druid:run(targetGUID)
 			if (isBear) and (HasSpell("Feral Charge")) and (HasSpell("Enrage")) and (not IsSpellOnCD("Enrage")) and (not IsSpellOnCD("Feral Charge")) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 				if (targetObj:GetDistance() <= 50) then
 					CastSpellByName("Enrage", localObj);
-					self.waitTimer = GetTimeEX() + 750;
 					return 0;
-				elseif (HasSpell("Bear Form")) then
+				elseif (localObj:HasBuff("Bear Form")) then
 					return 3;
 				end
 			end
@@ -611,11 +620,15 @@ function script_druid:run(targetGUID)
 			-- use charge in bear form
 			if (isBear) and (self.useCharge) and (HasSpell("Feral Charge")) and (not IsSpellOnCD("Feral Charge")) and (localRage >= 5) then
 				if (self.useBear) and (isBear) and (targetObj:GetDistance() < 26) and (targetObj:GetDistance() > 10) then
-					CastSpellByName("Feral Charge");
-					return 0;
+						targetObj:FaceTarget();
+					if (CastSpellByName("Feral Charge")) then
+						targetObj:FaceTarget();
+						return 0;
+					end
 				end
 			end
 
+			-- check melee distance
 			if (isBear or isCat) and (targetObj:GetDistance() > self.meleeDistance) then
 				return 3;
 			end
@@ -631,6 +644,7 @@ function script_druid:run(targetGUID)
 				return 4; 
 			end
 
+			-- stop moving if we get close enough to target and not in combat yet
 			if (not IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance) then
 				if (IsMoving()) then
 					StopMoving();
@@ -715,6 +729,7 @@ function script_druid:run(targetGUID)
 		-- if in cat form do these pulls	
 		if (isCat) and (not isBear) then
 
+			-- face target
 			if (targetObj:GetDistance() <= self.meleeDistance + 2) then
 				targetObj:FaceTarget();
 			end
@@ -728,6 +743,7 @@ function script_druid:run(targetGUID)
 				end
 			end
 
+			-- cast tigers fury if we have time
 			if (HasSpell("Tiger's Fury")) and (not localObj:HasBuff("Tiger's Fury")) and (not IsSpellOnCD("Tiger's Fury")) and (localEnergy >= 30) then
 				if (CastSpellByName("Tiger's Fury")) then
 					self.waitTimer = GetTimeEX() + 1550;
@@ -735,6 +751,7 @@ function script_druid:run(targetGUID)
 				end
 			end
 
+			-- check range
 			if (targetObj:GetDistance() > self.meleeDistance) and (isCat) then
 				return 3;
 			end
@@ -758,6 +775,7 @@ function script_druid:run(targetGUID)
 				return 3;
 			end
 
+			-- face target
 			if (targetObj:GetDistance() <= 30) and (not IsMoving()) then
 				targetObj:FaceTarget();
 			end
@@ -816,8 +834,8 @@ function script_druid:run(targetGUID)
 
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
-
-			if (script_druid:healsAndBuffs()) and (not IsLooting()) then
+			-- check heals and buffs
+			if (script_druid:healsAndBuffs()) and (not IsLooting()) and (not localObj:HasBuff("Frenzied Regeneration")) then
 				return;
 			end
 
@@ -826,7 +844,7 @@ function script_druid:run(targetGUID)
 			local isBear = GetLocalPlayer():HasBuff("Bear Form");
 			local isCat = GetLocalPlayer():HasBuff("Cat Form");
 
-			-- stay in form
+			-- stay in form - bear form conditions
 			if ( (self.useBear) and (not isBear) and (not isCat) and (localHealth > self.healthToShift + 5)
 				and (localMana >= self.shapeshiftMana) and (IsStanding()) )
 			or ( (script_grind.enemiesAttackingUs(12) >= 2) and (not isBear) and (localMana >= self.shapeshiftMana)
@@ -870,7 +888,7 @@ function script_druid:run(targetGUID)
 				end
 			end
 
-			-- shift for debuff removal self use cat form
+			-- shift for debuff removal self use cat form - cat form
 			if (self.hasDrinks) and (isCat or not isCat) and (not isBear and not self.useBear) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
 				if (not script_grind.adjustTickRate) then
 					DEFAULT_CHAT_FRAME:AddMessage(" --- Shifted out of form to remove disabled movement debuff!");
@@ -888,20 +906,24 @@ function script_druid:run(targetGUID)
 			-- do these attacks only in bear form
 			if (isBear) and (not isCat) then
 
+				-- if we are switching froms from cat to bear then speed up script tick rate
 				if (self.wasInCombat) and (self.runOnce) then
 					script_grind.tickRate = 125;
 					script_rotation.tickRate = 125;
 					self.runOnce = false;
 				end
 
+				-- face target
 				if (targetObj:GetDistance() <= self.meleeDistance) then
 					targetObj:FaceTarget();
 				end
 
+				-- check line of sight and move to target
 				if (not targetObj:IsInLineOfSight()) and (isBear) then
 					return 3;
 				end
 				
+				-- face target redundancy
 				if (targetObj:GetDistance() <= self.meleeDistance + 2) and (not IsMoving()) then
 					targetObj:FaceTarget();
 				end
@@ -1004,8 +1026,7 @@ function script_druid:run(targetGUID)
 				
 				end
 
-				-- IsFleeing() causes bot not to move
-				-- maul humanoids fleeing causes maul to lock up
+				-- maul humanoids fleeing conditions
 				if (HasSpell("Maul")) and (not IsCasting()) and (not IsChanneling()) and (not IsMoving())
 					and (targetObj:GetCreatureType() == 'Humanoid') and (targetHealth > 30)
 					and (targetObj:GetDistance() <= self.meleeDistance) and (not localObj:HasBuff("Frenzied Regeneration"))
@@ -1023,6 +1044,7 @@ function script_druid:run(targetGUID)
 				
 				end
 
+				-- face target
 				if (targetObj:GetDistance() <= self.meleeDistance) and (isBear) then
 					targetObj:FaceTarget();
 				end
@@ -1033,7 +1055,7 @@ function script_druid:run(targetGUID)
 
 	-- attacks in cat form IN COMBAT PHASE
 
-			-- shift for debuff removal
+			-- shift for debuff removal - cat form
 			if (self.hasDrinks) and (self.useCat) and (isCat or not isCat) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
 				if (not script_grind.adjustTickRate) then
 					DEFAULT_CHAT_FRAME:AddMessage(" --- Shifted out of form to remove movement disabled debuff!");
@@ -1078,6 +1100,7 @@ function script_druid:run(targetGUID)
 					end
 				end
 
+				-- face target
 				if (targetObj:GetDistance() <= self.meleeDistance) then
 					targetObj:FaceTarget();
 				end
@@ -1164,6 +1187,7 @@ function script_druid:run(targetGUID)
 
 			if (not isBear) and (not isCat) then
 
+				-- face target
 				if (targetObj:GetDistance() < 30) and (not IsMoving()) then
 					targetObj:FaceTarget();
 				end
@@ -1190,7 +1214,7 @@ function script_druid:run(targetGUID)
 						end
 					end 
 				end	
-
+					-- run backwards if target is entangled
 				if (targetObj:HasDebuff("Entangling Roots")) and (localMana > 36) then
 					if (script_druid:runBackwards(targetObj, 12)) then
 						self.waitTimer = GetTimeEX() + 500;
@@ -1198,7 +1222,8 @@ function script_druid:run(targetGUID)
 					end
 				end
 
-				if (script_druid:healsAndBuffs()) and (not IsLooting()) then
+				-- check heals and buffs
+				if (script_druid:healsAndBuffs()) and (not IsLooting()) and (not localObj:HasBuff("Frenzied Regeneration")) then
 					return;
 				end
 
@@ -1246,6 +1271,7 @@ function script_druid:run(targetGUID)
 
 			end -- end of if not bear or cat... no form attacks
 			
+			-- speed up script if target is moving
 			if (targetObj:IsFleeing()) and (not script_grind.adjustTickRate) then
 				script_grind.tickRate = 125;
 			end
@@ -1314,7 +1340,7 @@ function script_druid:rest()
 		end
 	end
 
-	-- shift for debuff removal
+	-- shift for debuff removal - cat form
 	if (self.hasDrinks) and (self.useCat) and (isCat or not isCat) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
 		if (not script_grind.adjustTickRate) then
 			DEFAULT_CHAT_FRAME:AddMessage(" --- Shifted out of form to remove movement disabled debuff!");
@@ -1328,7 +1354,7 @@ function script_druid:rest()
 		end
 	end
 
-	-- shift for debuff removal
+	-- shift for debuff removal - bear form
 	if (self.hasDrinks) and (isBear or not IsBear) and (HasSpell("Bear Form")) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
 		if (not script_grind.adjustTickRate) then
 			DEFAULT_CHAT_FRAME:AddMessage(" --- Shifted out of form to remove movement disabled debuff!");
@@ -1347,7 +1373,7 @@ function script_druid:rest()
 		end
 	end
 
-	-- shift to drink bear
+	-- shift to drink - in bear form
 	if (self.shiftToDrink) and (localMana <= self.drinkMana - 20) and (isBear) and (not IsInCombat()) then
 		if (isBear) and (CastSpellByName("Bear Form")) then
 			self.waitTimer = GetTimeEX() + 1650;
@@ -1355,7 +1381,7 @@ function script_druid:rest()
 		end
 	end
 
-	-- shift to drink cat
+	-- shift to drink - in cat form
 	if (self.shiftToDrink) and (localMana <= self.drinkMana - 20) and (isCat) and (not IsInCombat()) then
 		if (isCat) and (CastSpellByName("Cat Form")) then
 			self.waitTimer = GetTimeEX() + 1650;
@@ -1363,11 +1389,10 @@ function script_druid:rest()
 		end
 	end
 
-	-- Drink something
+	-- Drink something if not in form
 	if (not isBear) and (not isCat) and (not IsInCombat()) and (not IsDrinking()) and (localMana <= self.drinkMana) then
 		
 			self.message = "Need to drink...";
-			self.waitTimer = GetTimeEX() + 2850;
 
 	
 			-- Dismount
@@ -1393,11 +1418,10 @@ function script_druid:rest()
 			end
 		end
 	
-	-- eat
+	-- eat if not in form
 	if (not isBear) and (not isCat) and (not IsInCombat()) and (not IsEating() and localHealth < self.eatHealth) then
 
 			self.message = "Need to eat...";	
-			self.waitTimer = GetTimeEX() + 2850;
 
 			-- Dismount
 			if(IsMounted()) then
@@ -1419,7 +1443,8 @@ function script_druid:rest()
 			end	
 		end
 
-	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (script_grind.lootObj == nil) and (not IsDrinking()) and (not IsEating()) then
+	-- check heals and buffs
+	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (script_grind.lootObj == nil) and (not IsDrinking()) and (not IsEating()) and (not localObj:HasBuff("Frenzied Regeneration"))  then
 		return;
 	end	
 
@@ -1436,7 +1461,8 @@ function script_druid:rest()
 		end		
 	end	
 
-	if (localMana < self.drinkMana or localHealth < self.eatHealth) then
+	-- stop bot to rest if we need to rest
+	if (self.useRest) and (localMana < self.drinkMana or localHealth < self.eatHealth) then
 		if (IsMoving()) then
 			StopMoving();
 			self.waitTimer = GetTimeEX() + 500;
@@ -1444,29 +1470,24 @@ function script_druid:rest()
 		return true;
 	end
 
+	-- cast shadowmeld if eating and has shadowmeld
 	if (IsEating()) or (IsDrinking()) and (not IsStanding()) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not isCat) and (not isBear) then
 		if (CastSpellByName("Shadowmeld")) then
 			self.waitTimer = GetTimeEX() + 2000;
 			return 0;
 		end
 	end
-		
-	-- Stand up if we are rested
-	if (localHealth > 98 and (IsEating() or not IsStanding())) and (localMana > 98 and (IsDrinking() or not IsStanding())) then
-		StopMoving();
-		return false;
-	end
-
-	if (localHealth < self.eatHealth) or (localMana < self.drinkMana) and (not isCat) and (not isBear) and (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not localObj:HasBuff("Shadowmeld")) then
-		if (CastSpellByName("Shadowmeld")) then
-			return 0;
-		end
-	end
-
+	
 	-- Continue resting
 	if(localHealth < 98 and IsEating() or localMana < 98 and IsDrinking()) then
 		self.message = "Resting up to full HP/Mana...";
 		return true;
+	end
+
+	-- Stand up if we are rested
+	if (localHealth > 98 and (IsEating() or not IsStanding())) and (localMana > 98 and (IsDrinking() or not IsStanding())) then
+		StopMoving();
+		return false;
 	end
 
 	-- Don't need to rest
