@@ -7,27 +7,27 @@ script_druid = {
 	rejuvenationHealth = 80,	-- use rejuvenation below this health
 	regrowthHealth = 70,
 	healingTouchHealth = 45,
-	healthToShift = 55,
+	healthToShift = 55,	-- health to shapeshift
 	potionHealth = 18,
 	potionMana = 20,
 	isSetup = false,
 	meleeDistance = 3.9,
 	waitTimer = 0,
 	stopIfMHBroken = true,
-	useCat = false,	-- is cat form selected
+	useCat = false,		-- is cat form selected
 	useBear = false,	-- is bear form selected
 	isChecked = true,
 	useEntanglingRoots = true,
 	waitTimer = GetTimeEX(),
 	useStealth = true,
 	stealthOpener = "Ravage",
-	shiftToDrink = true,
+	shiftToDrink = true,	-- shapeshift out of form to drink
 	useCharge = true,
-	useRest = true,
+	useRest = true,		-- rest in shapeshift form
 	maulRage = 15,
-	wasInCombat = false,
+	wasInCombat = false,	-- was in combat used to adjust tick rate
 	runOnce = false,
-	shapeshiftMana = 33,
+	shapeshiftMana = 33,	-- cost of shapeshift mana
 	hasDrinks = true,
 }
 
@@ -312,6 +312,9 @@ function script_druid:healsAndBuffs()
 
 		-- Regrowth
 		if (HasSpell("Regrowth")) and (not localObj:HasBuff("Regrowth")) and (localHealth <= self.regrowthHealth) and (localMana >= 40) and (not IsMoving()) and (not IsLooting()) then
+			if (IsMoving()) then
+				StopMoving();
+			end
 			if (CastSpellByName("Regrowth", localObj)) then
 				self.waitTimer = GetTimeEX() + 3750;
 				return 0;
@@ -319,7 +322,10 @@ function script_druid:healsAndBuffs()
 		end
 
 		-- Rejuvenation
-		if (HasSpell("Rejuvenation")) and (not localObj:HasBuff("Rejuvenation")) and (localHealth <= self.rejuvenationHealth) and (localMana >= self.rejuvenationMana) and (not IsLooting()) and (not IsMoving()) then
+		if (HasSpell("Rejuvenation")) and (not localObj:HasBuff("Rejuvenation")) and (localHealth <= self.rejuvenationHealth) and (localMana >= self.rejuvenationMana) and (not IsLooting()) then
+			if (IsMoving()) then
+				StopMoving();
+			end
 			if (CastSpellByName("Rejuvenation", localObj)) then
 				self.waitTimer = GetTimeEX() + 1600;
 				return 0;

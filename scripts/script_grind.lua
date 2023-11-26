@@ -474,7 +474,7 @@ function script_grind:run()
 			-- Fix bug, when not targeting correctly
 			if (self.lastTarget ~= self.enemyObj:GetGUID()) then
 				self.newTargetTime = GetTimeEX() + 1000;
-				--ClearTarget();
+				ClearTarget();
 			elseif (self.lastTarget == self.enemyObj:GetGUID() and not IsStanding() and not IsInCombat()) then
 				self.newTargetTime = GetTimeEX(); -- reset time if we rest
 			-- blacklist the target if we had it for a long time and hp is high
@@ -549,7 +549,7 @@ function script_grind:run()
 				if (_x ~= 0 and x ~= 0) then
 					local moveBuffer = math.random(-2, 2);
 					self.message = script_nav:moveToTarget(localObj, _x+moveBuffer, _y+moveBuffer, _z);
-					script_grind:setWaitTimer(150);
+					script_grind:setWaitTimer(90);
 					return;
 				end
 				return;
