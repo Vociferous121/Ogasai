@@ -30,7 +30,7 @@ end
 function script_grindMenu:menu()
 
 	-- display time above menu and logout timer when paranoid
-	local time = (script_grind.currentTime2 - script_paranoia.currentTime) + 213;
+	local time = (script_grind.currentTime2 - script_paranoia.currentTime) + script_grind.setParanoidTimer;
 	if (script_paranoia.paranoiaUsed) then
 		Text("Paranoia Logout Timer  -  ");
 		SameLine();

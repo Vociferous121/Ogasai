@@ -238,7 +238,10 @@ function script_druid:healsAndBuffs()
 
 
 	-- heal - we left form out of combat
-	if (not IsInCombat()) and (not isBear) and (not isCat) and (localHealth <= 65) and (localMana >= 75) and (not hasRejuv) and (not hasRegrowth) then
+	if (not IsInCombat()) and (not isBear) and (not isCat) and (localHealth <= 65) and (localMana >= 75) and (not hasRejuv) and (not hasRegrowth) and (not IsMoving()) then
+			if (IsMoving()) then
+				StopMoving();
+			end
 		if (CastSpellByName("Rejuvenation", localObj)) then
 			self.waitTimer = GetTimeEX() + 1650;
 			return 0;
@@ -454,6 +457,7 @@ function script_druid:run(targetGUID)
 
 	-- check heals and buffs
 	if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) and (not localObj:HasBuff("Frenzied Regeneration")) then
+		self.waitTimer = GetTimeEX() + 250;
 		return;
 	end
 
@@ -467,6 +471,9 @@ function script_druid:run(targetGUID)
 				if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 335;
 					script_rotation.tickRate = 335;
+				end
+				if (IsMoving()) then
+					StopMoving();
 				end
 				if (HasSpell("Dire Bear Form")) then
 					CastSpellByName("Dire Bear Form", localObj);
@@ -487,7 +494,12 @@ function script_druid:run(targetGUID)
 			script_grind.tickRate = 335;
 			script_rotation.tickRate = 335;
 		end
-		CastSpellByName("Cat Form");
+		if (IsMoving()) then
+			StopMoving();
+		end
+		if (CastSpellByName("Cat Form")) then
+			return 0;
+		end
 		return 0;
 	end
 	
@@ -588,14 +600,15 @@ function script_druid:run(targetGUID)
 
 		-- check heals and buffs
 		if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) and (not localObj:HasBuff("Frenzied Regeneration")) then
+			self.waitTimer = GetTimeEX() + 250;
 			return;
 		end
 
 		-- stop bot from moving target to target when stuck in combat and we need to rest
-		if (IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() == 0) then
-			self.message = "Waiting! Stuck in combat phase!";
-			return 4;
-		end
+		--if (IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() == 0) then
+		--	self.message = "Waiting! Stuck in combat phase!";
+		--	return 4;
+		--end
 		
 		----------
 		----- OPENER 
@@ -856,6 +869,7 @@ function script_druid:run(targetGUID)
 
 			-- check heals and buffs
 			if (script_druid:healsAndBuffs()) and (not IsLooting()) and (not localObj:HasBuff("Frenzied Regeneration")) then
+				self.waitTimer = GetTimeEX() + 250;
 				return;
 			end
 
@@ -1019,7 +1033,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- demo Roar
-				if (HasSpell("Demoralizing Roar")) and (not targetObj:HasDebuff("Demoralizing Roar")) and (localRage > 10) then
+				if (HasSpell("Demoralizing Roar")) and (not targetObj:HasDebuff("Demoralizing Roar")) and (localRage >= 10) then
 					if (CastSpellByName("Demoralizing Roar")) then
 						return 0;
 					end
@@ -1027,7 +1041,7 @@ function script_druid:run(targetGUID)
 
 				-- Swipe
 				if (script_druid:enemiesAttackingUs(10) >= 2) and (not localObj:HasBuff("Frenzied Regeneration")) then
-					if (HasSpell("Swipe")) and (not targetObj:HasDebuff("Swipe")) and (localRage > 15) then
+					if (HasSpell("Swipe")) and (not targetObj:HasDebuff("Swipe")) and (localRage >= 15) then
 						if (CastSpellByName("Swipe")) then
 							return 0;
 						end
@@ -1244,6 +1258,7 @@ function script_druid:run(targetGUID)
 
 				-- check heals and buffs
 				if (script_druid:healsAndBuffs()) and (not IsLooting()) and (not localObj:HasBuff("Frenzied Regeneration")) then
+					self.waitTimer = GetTimeEX() + 250;
 					return;
 				end
 
@@ -1479,6 +1494,7 @@ function script_druid:rest()
 
 	-- check heals and buffs
 	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (script_grind.lootObj == nil) and (not IsDrinking()) and (not IsEating()) and (not localObj:HasBuff("Frenzied Regeneration"))  then
+		self.waitTimer = GetTimeEX() + 250;
 		return;
 	end	
 
@@ -1501,6 +1517,8 @@ function script_druid:rest()
 			StopMoving();
 			self.waitTimer = GetTimeEX() + 500;
 		end
+		return true;
+	elseif (IsDrinking() and localMana < self.drinkMana) or (IsEating() and localHealth < self.eatHealth) then
 		return true;
 	end
 

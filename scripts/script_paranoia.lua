@@ -191,6 +191,10 @@ function script_paranoia:menu()
 		Text("Wait time after paranoid target leaves");
 		script_grind.paranoidSetTimer = SliderInt("Time in Sec", 0, 120, script_grind.paranoidSetTimer);
 
+		--logout timer
+		Text("Logout Timer When Paranoid - 600 = 10 mintues!");
+		script_grind.setParanoidTimer = SliderInt("Seconds", 10, 600, script_grind.setParanoidTimer);
+
 		-- ignore target
 		Text("Ignore Player Using Paranoia");
 		script_paranoia.ignoreTarget = InputText("Player", script_paranoia.ignoreTarget);

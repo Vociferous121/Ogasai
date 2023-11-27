@@ -89,7 +89,7 @@ script_grind = {
 	blacklistAdds = 1,
 	blacklistedNameNum = 0,
 	useExpChecker = true,
-	paranoidSetTimer = 22,
+	paranoidSetTimer = 22,	-- time to wait after paranoia has needed
 	useString = true,	-- message to send to log players in range run once
 	useOtherString = true,	-- message to send to log players targeting us run once
 	useLogoutTimer = false,	-- use logout timer true/false
@@ -103,8 +103,9 @@ script_grind = {
 	adjustText = true,
 	adjustY = 0,
 	adjustX = 0,
-	paranoidTarget = "",
-	currentTime2 = GetTimeEX() / 1000,
+	paranoidTarget = "",	-- name of paranoid players
+	currentTime2 = GetTimeEX() / 1000,	-- paranoia logout timer
+	setParanoidTimer = 213,		-- time added to paranoid logout timer
 }
 
 function script_grind:setup()
@@ -184,6 +185,18 @@ function script_grind:setup()
 		self.skinning = true;
 	end
 
+	-- change some values to random
+	local randomLogout = math.random(180, 300);
+	self.setParanoidTimer = randomLogout;
+
+	local randomHotspot = math.random(350, 550);
+	self.distToHotSpot = randomHotspot;
+
+	local randomSetTimer = math.random(9, 25);
+	self.paranoidSetTimer = randomSetTimer;
+
+	local randomRange = math.random(45, 100);
+	self.paranoidRange = randomRange;
 
 	-- add chat frame message grinder is loaded
 	DEFAULT_CHAT_FRAME:AddMessage('script_grind: loaded...');
@@ -355,7 +368,7 @@ function script_grind:run()
 	if (not IsInCombat()) and (not IsLooting()) then	
 		if (script_paranoia:checkParanoia()) then
 				script_paranoia.paranoiaUsed = true;
-			if (script_paranoia.currentTime >= script_grind.currentTime2 + 213) then
+			if (script_paranoia.currentTime >= script_grind.currentTime2 + script_grind.setParanoiaTimer) then
 				script_paranoia.currentTime = 0;
 				StopBot();
 				Logout();
@@ -502,7 +515,7 @@ function script_grind:run()
 		end
 
 		-- Dont pull if more than 1 add will be pulled
-		if (self.enemyObj ~= nil and self.enemyObj ~= 0 and self.skipHardPull) and (UnitReaction("targetObj", "player") == 2) then
+		if (self.enemyObj ~= nil and self.enemyObj ~= 0 and self.skipHardPull) then
 			if (not script_aggro:safePull(self.enemyObj) and not IsInCombat()) then
 				script_grind:addTargetToBlacklist(self.enemyObj:GetGUID());
 				DEFAULT_CHAT_FRAME:AddMessage('script_grind: Blacklisting ' .. self.enemyObj:GetUnitName() .. ', too many adds...');
