@@ -238,7 +238,7 @@ function script_druid:healsAndBuffs()
 
 
 	-- heal - we left form out of combat
-	if (not IsInCombat()) and (not isBear) and (not isCat) and (localHealth <= 65) and (localMana >= 75) and (not hasRejuv) and (not hasRegrowth) and (not IsMoving()) then
+	if (not IsInCombat()) and (not isBear) and (not isCat) and (localHealth <= 65) and (localMana >= 75) and (not hasRejuv) and (not hasRegrowth) and (not IsMoving()) and (IsStanding()) then
 			if (IsMoving()) then
 				StopMoving();
 			end
@@ -332,14 +332,15 @@ function script_druid:healsAndBuffs()
 			if (IsMoving()) then
 				StopMoving();
 			end
+			self.waitTimer = GetTimeEX() + 300;
 			if (CastSpellByName("Regrowth", localObj)) then
-				self.waitTimer = GetTimeEX() + 3750;
-				return 0;
+				self.waitTimer = GetTimeEX() + 3550;
+				return 4;
 			end
 		end
 
 		-- Rejuvenation
-		if (HasSpell("Rejuvenation")) and (not localObj:HasBuff("Rejuvenation")) and (localHealth <= self.rejuvenationHealth) and (localMana >= self.rejuvenationMana) and (not IsLooting()) then
+		if (HasSpell("Rejuvenation")) and (not localObj:HasBuff("Rejuvenation")) and (localHealth <= self.rejuvenationHealth) and (localMana >= self.rejuvenationMana) and (not IsLooting()) and (IsStanding()) then
 			if (IsMoving()) then
 				StopMoving();
 			end
@@ -350,7 +351,7 @@ function script_druid:healsAndBuffs()
 		end
 		
 		-- Healing Touch
-		if (HasSpell("Healing Touch")) and (not IsLooting()) and (not IsMoving()) then
+		if (HasSpell("Healing Touch")) and (not IsLooting()) and (not IsMoving()) and (IsStanding()) then
 			if (localHealth < self.healingTouchHealth) and (localMana > 25) then
 				if (CastHeal("Healing Touch", localObj)) then
 					self.waitTimer = GetTimeEX() + 2700;
@@ -360,7 +361,7 @@ function script_druid:healsAndBuffs()
 		end
 
 		-- cast rejuvenation if we have regrowth
-		if (localObj:HasBuff("Regrowth")) and (not localObj:HasBuff("Rejuvenation")) and (localMana >= 15) and (not IsMoving()) then
+		if (localObj:HasBuff("Regrowth")) and (not localObj:HasBuff("Rejuvenation")) and (localMana >= 15) and (not IsMoving()) and (IsStanding()) then
 				if (IsMoving()) then
 					StopMoving();
 				end
@@ -371,12 +372,12 @@ function script_druid:healsAndBuffs()
 		end
 
 		-- cure poison
-		if (not HasSpell("Abolish Poison")) and (HasSpell("Cure Poison")) and (script_checkDebuffs:hasPoison()) and (localMana >= 45) and (not IsMoving()) then
+		if (not HasSpell("Abolish Poison")) and (HasSpell("Cure Poison")) and (script_checkDebuffs:hasPoison()) and (localMana >= 45) and (not IsMoving()) and (IsStanding()) then
 			if (CastSpellByName("Cure Poison", localObj)) then 
 				self.waitTimer = GetTimeEX() + 1750; 
 				return 0; 
 			end
-		elseif (HasSpell("Abolish Poison")) and (not localObj:HasBuff("Abolish Poison")) and (script_checkDebuffs:hasPoison()) and (localMana >= 45) and (not IsMoving()) then
+		elseif (HasSpell("Abolish Poison")) and (not localObj:HasBuff("Abolish Poison")) and (script_checkDebuffs:hasPoison()) and (localMana >= 45) and (not IsMoving()) and (IsStanding()) then
 			if (CastSpellByName("Abolish Poison", targetObj)) then
 				self.waitTimer = GetTimeEX() + 1750;
 				return 0;
@@ -384,7 +385,7 @@ function script_druid:healsAndBuffs()
 		end
 
 		-- remove curse
-		if (HasSpell("Remove Curse")) and (script_checkDebuffs:hasCurse()) and (not IsMoving()) then
+		if (HasSpell("Remove Curse")) and (script_checkDebuffs:hasCurse()) and (not IsMoving()) and (IsStanding()) then
 			if (localMana >= 30) then
 				if (CastSpellByName("Remove Curse", localObj)) then
 					self.waitTimer = GetTimeEX() + 1750;

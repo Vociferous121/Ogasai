@@ -52,17 +52,6 @@ function script_paranoia:checkParanoia()
 
 		self.waitTimer = GetTimeEX() + 3500;
 
-		-- players targeting us
-		--if (self.paranoidOnTargeted and script_grind:playersTargetingUs() > 0) then
-			--script_grind.message = "Player(s) targeting us, pausing...";
-			--self.waitTimer = GetTimeEX() + 2000;
-			--if IsMoving() then
-			--	StopMoving();
-			--end
-			--self.waitTimer = GetTimeEX() + 19324;
-			--return true;
-		--end
-
 		-- if players in range
 		if (script_grind:playersWithinRange(script_grind.paranoidRange)) and (not IsLooting()) then
 
@@ -111,7 +100,12 @@ function script_paranoia:checkParanoia()
 				end
 			end
 
-			-- druid stealth while paranoid
+			-- druid cat form and stealth while paranoid
+			if (not localObj:HasBuff("Cat Form")) and (not localObj:HasBuff("Bear Form")) and (HasSpell("Cat Form")) and (GetLocalPlayer():GetManaPercentage() >= 40) and (IsStanding()) then
+				if (CastSpellByName("Cat Form")) then
+					return 0;
+				end
+			end
 			if (localObj:HasBuff("Cat Form")) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) then
 				if (CastSpellByName("Prowl")) then
 					return 0;
