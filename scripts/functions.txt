@@ -31,6 +31,7 @@ can only use while swimming = 88
 you are in shapeshift form = 61
 missing regeant = 92
 no permission to loot corpse = 51
+must be behind target = 51
 
 	-- send debuffs on player to log file
 	for i=1,40 do

@@ -117,6 +117,14 @@ function vendorDB:setup()
 	vendorDB:addVendor("Denni'ka", 1, 1, 406, false, false, false, false, false, -188.43, -347.65, 8.79);
 	vendorDB:addVendor("Denni'ka", 1, 1, 406, false, true, false, false, false, -188.43, -347.65, 8.79);
 
+	-- Arathi Highlands - Horde
+	vendorDB:addVendor("Mu'uta", 1, 0, 45, true, false, false, false, false, -933.85, -3477.47, 51.3);
+	vendorDB:addVendor("Mu'uta", 1, 0, 45, false, false, false, false, false, -933.85, -3477.47, 51.3);
+	vendorDB:addVendor("Mu'uta", 1, 0, 45, false, false, false, true, false, -933.85, -3477.47, 51.3);
+	vendorDB:addVendor("Innkeeper Adegwa", 1, 0, 45, false, false, true, false, false, -912.38, -3524.92, 72.68);
+	vendorDB:addVendor("Innkeeper Adegwa", 1, 0, 45, false, true, false, false, false, -912.38, -3524.92, 72.68);
+	vendorDB:addVendor("Graud", 1, 0, 45, false, false, false, false, true, -910.29, -3534.86, 72.72);
+
 	--alliance	
 		--Blasted Lands
 	 vendorDB:addVendor("Strumner Flintheel	", 0, 0, 4, true, false, false, false, false, -10952.76, -3454.93, 66.73);
@@ -142,6 +150,14 @@ function vendorDB:setup()
 	vendorDB:addVendor("Sanuye Runetotem", 1, 1, 17, false, false, false, false, false, -2374.27, -1948.8, 96.08);
 	vendorDB:addVendor("Innkeeper Byula", 1, 1, 17, false, true, false, false, false, -2376.28, -1995.74, 96.7);
 	vendorDB:addVendor("Innkeeper Byula", 1, 1, 17, false, false, true, false, false, -2376.28, -1995.74, 96.7);
+
+
+	-- Hillsbrad Foothills - Horde
+	vendorDB:addVendor("Ott", 1, 0, 267, false, false, false, false, false, -158.53, -867.18, 56.89);
+	vendorDB:addVendor("Ott", 1, 0, 267, true, false, false, false, false, -158.53, -867.18, 56.89);
+	vendorDB:addVendor("Innkeeper Shay", 1, 0, 267, false, true, false, false, false, -5.74, -942.02, 57.16);
+	vendorDB:addVendor("Innkeeper Shay", 1, 0, 267, false, false, true, false, false, -5.74, -942.02, 57.16);
+
 	
 	-- Ally: Night Elf
 	vendorDB:addVendor("Keina", 0, 1, 141, true, false, false, true, false, 10436.70, 794.83, 1322.7); -- Repair, Arrows vendor

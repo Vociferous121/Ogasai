@@ -468,7 +468,7 @@ function script_druid:run(targetGUID)
 -- stay in form bear if bear form is selected
 		if (self.useBear) or ( script_grind.enemiesAttackingUs(12) >= 2 and HasSpell("Bear Form") and (not IsDrinking()) and (not IsEating()) )
 		or ( targetObj:GetLevel() > localObj:GetLevel() + 2 and HasSpell("Bear Form") and (not IsDrinking()) and (not IsEating()) ) then
-			if (not isBear) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth >= self.healthToShift + 5) and (IsStanding()) then
+			if (not isBear) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth >= self.healthToShift) and (IsStanding()) then
 				if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 335;
 					script_rotation.tickRate = 335;
@@ -571,15 +571,6 @@ function script_druid:run(targetGUID)
 			end
 		end
 
-
-		-- Check: if we target player pets/totems
-		if (GetTarget() ~= nil and targetObj ~= nil) then
-			if (UnitPlayerControlled("target") and GetTarget() ~= localObj) then 
-				script_grind:addTargetToBlacklist(targetObj:GetGUID());
-				return 5; 
-			end
-		end 
-
 		-- War Stomp Tauren Racial
 		if (not isBear) and (not isCat) and (IsInCombat()) then
 			if (targetObj:IsCasting() or script_druid:enemiesAttackingUs(6) >= 2) and (GetNumPartyMembers() < 2) and (not targetObj:HasDebuff("Entangling Roots")) and (targetObj:GetDistance() <= 8) then
@@ -619,15 +610,18 @@ function script_druid:run(targetGUID)
 		if (not IsInCombat()) then
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 
-			if (isCat) and (self.useCat) and (self.useStealth) and (localObj:HasBuff("Prowl")) then
-				if (HasSpell(self.stealthOpener)) and (not IsSpellOnCD(self.stealthOpener)) and (localEnergy >= 50) and (targetObj:GetDistance() <= 6) then
-					if (CastSpellByName(self.stealthOpener)) then
-						self.waitTimer = GetTimeEX() + 300;
-						return 0;
+			local __, lastError = GetLastError();
+			if (lastError ~= 51) then
+				if (isCat) and (self.useCat) and (self.useStealth) and (localObj:HasBuff("Prowl")) then
+					if (HasSpell(self.stealthOpener)) and (not IsSpellOnCD(self.stealthOpener)) and (localEnergy >= 50) and (targetObj:GetDistance() <= 6) then
+						if (CastSpellByName(self.stealthOpener)) then
+							self.waitTimer = GetTimeEX() + 300;
+							return 0;
+						end
 					end
 				end
 			end
-
+							
 			-- Auto Attack
 			if (targetObj:GetDistance() < 35) and (not IsAutoCasting("Attack")) and (localMana >= self.drinkMana) then
 				targetObj:AutoAttack();
@@ -880,12 +874,12 @@ function script_druid:run(targetGUID)
 			local isCat = GetLocalPlayer():HasBuff("Cat Form");
 
 			-- stay in form - bear form conditions
-			if ( (self.useBear) and (not isBear) and (not isCat) and (localHealth > self.healthToShift + 5)
+			if ( (self.useBear) and (not isBear) and (not isCat) and (localHealth > self.healthToShift)
 				and (localMana >= self.shapeshiftMana) and (IsStanding()) )
 			or ( (script_grind.enemiesAttackingUs(12) >= 2) and (not isBear) and (localMana >= self.shapeshiftMana)
-				and (not isCat) and (localHealth > self.healthToShift + 5) and (IsStanding()) and (HasSpell("Bear Form")) )
+				and (not isCat) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form")) )
 			or ( (targetObj:GetLevel() > (GetLocalPlayer():GetLevel() + 2)) and (not isBear) and (localMana >= self.shapeshiftMana)
-				and (not isCat) and (localHealth > self.healthToShift + 5) and (IsStanding()) and (HasSpell("Bear Form")) )
+				and (not isCat) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form")) )
 
 			then
 				if (not script_grind.adjustTickRate) then
@@ -1220,7 +1214,7 @@ function script_druid:run(targetGUID)
 
 		-- no bear form or cat form
 
-			if (not isBear) and (not isCat) then
+			if (not isBear) and (not isCat) and (not self.useBear and not self.useCat) then
 
 				-- face target
 				if (targetObj:GetDistance() < 30) and (not IsMoving()) then

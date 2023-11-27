@@ -330,6 +330,9 @@ function script_grind:run()
 	end
 
 	if (self.pause) then self.message = "Paused by user...";
+		script_paranoia.currentTime = 0;
+		script_grind.currentTime2 = GetTimeEX() / 1000;
+		script_paranoia.paranoiaUsed = false;
 		return;
 	end
 
