@@ -368,7 +368,7 @@ function script_grind:run()
 	if (not IsInCombat()) and (not IsLooting()) then	
 		if (script_paranoia:checkParanoia()) then
 				script_paranoia.paranoiaUsed = true;
-			if (script_paranoia.currentTime >= script_grind.currentTime2 + script_grind.setParanoiaTimer) then
+			if (script_paranoia.currentTime >= script_grind.currentTime2 + script_grind.setParanoidTimer) then
 				script_paranoia.currentTime = 0;
 				StopBot();
 				Logout();
