@@ -51,7 +51,6 @@ script_grind = {
 	aggroLoaded = include("scripts\\script_aggro.lua"),
 	expExtra = include("scripts\\script_expChecker.lua"),
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
-	SensitiveUnstuckLoaded = include("scripts\\script_unstuck_highSensitivity.lua"),
 	paranoiaLoaded = include("scripts\\script_paranoia.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
 	debuffCheck = include("scripts\\script_checkDebuffs.lua"),
@@ -96,7 +95,6 @@ script_grind = {
 	logoutSetTime = GetTimeEX() / 1000,	-- set the logout time in seconds
 	logoutTime = 2,	-- logout time in hours
 	adjustTickRate = false,
-	useUnstuckTwo = false,
 	lootCheckTime = 0,
 	afkActionSlot = "24",
 	playerParanoidDistance = 0,
@@ -324,16 +322,9 @@ function script_grind:run()
 
 
 	--and (not self.pause) 
-	if (not self.useUnstuckTwo) and (self.useUnstuck and IsMoving()) and (not self.pause) then
+	if (self.useUnstuck and IsMoving()) and (not self.pause) then
 		if (not script_unstuck:pathClearAuto(2)) then
 			script_unstuck:unstuck();
-			return true;
-		end
-	end
-
-	if (self.useUnstuckTwo) and (self.useUnstuck and IsMoving()) and (not self.pause) then
-		if (not script_unstuck_highSensitivity:pathClearAuto(2)) then
-			script_unstuck_highSensitivity:unstuck();
 			return true;
 		end
 	end

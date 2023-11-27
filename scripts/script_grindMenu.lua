@@ -194,9 +194,7 @@ function script_grindMenu:menu()
 		-- checkbox use unstuck script
 		wasClicked, script_grind.useUnstuck = Checkbox("Use Unstuck Feature (script_unstuck)", script_grind.useUnstuck);
 
-		wasClicked, script_grind.useUnstuckTwo = Checkbox("Increase Unstuck Sensitivity", script_grind.useUnstuckTwo);
-
-		if (not script_grind.useUnstuckTwo) and (script_grind.useUnstuck) then
+		if (script_grind.useUnstuck) then
 			Text("Adjust Unstuck Sensitivity");
 			script_unstuck.turnSensitivity = SliderFloat("Sensitivity", .01, 3, script_unstuck.turnSensitivity);
 		end
