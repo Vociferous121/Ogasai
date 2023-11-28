@@ -13,6 +13,7 @@ script_paranoia = {
 	doEmote = true,
 	didEmote = false,
 	paranoiaUsed = false,
+	waitTimer = GetTimeEX(),
 }
 
 function script_paranoia:checkParanoia()
@@ -34,7 +35,7 @@ function script_paranoia:checkParanoia()
 			selfLevel = GetLocalPlayer():GetLevel();
 		if (selfLevel >= script_paranoia.targetedLevel) and (not IsInCombat()) then
 			StopBot();
-			script_paranoia.targetedLevel = self.targetedLevel + 1;
+			script_paranoia.targetedLevel = script_paranoia.targetedLevel + 1;
 			if (script_paranoia.exitBot) then
 				Exit();
 			end
@@ -50,7 +51,7 @@ function script_paranoia:checkParanoia()
 	-- if paranoid turned on then do....
 	if (script_paranoia.paranoidOn) and (not IsInCombat()) and (not IsLooting()) then
 
-		self.waitTimer = GetTimeEX() + 3500;
+		script_paranoia.waitTimer = GetTimeEX() + 3500;
 
 		-- if players in range
 		if (script_grind:playersWithinRange(script_grind.paranoidRange)) and (not IsLooting()) then
@@ -68,7 +69,7 @@ function script_paranoia:checkParanoia()
 
 			script_paranoia.currentTime = GetTimeEX() / 1000;
 			
-			self.waitTimer = GetTimeEX() + 4100;
+			script_paranoia.waitTimer = GetTimeEX() + 4100;
 			script_grind:setWaitTimer(2700);
 
 			script_grind.message = "Player(s) within paranoid range, pausing...";
@@ -114,10 +115,10 @@ function script_paranoia:checkParanoia()
 
 			-- sit when paranoid if enabled
 			if (script_paranoia.sitParanoid) and (IsStanding()) and (not IsInCombat()) and (script_grind.playerParanoidDistance >= 180) then
-				self.waitTimer = GetTimeEX() + 2521;
+				script_paranoia.waitTimer = GetTimeEX() + 2521;
 				if (IsMoving()) then
 					StopMoving();
-					self.waitTimer = GetTimeEX() + 2260;
+					script_paranoia.waitTimer = GetTimeEX() + 2260;
 				end
 
 				-- afk when paranoid and sitting
@@ -125,7 +126,7 @@ function script_paranoia:checkParanoia()
 				SitOrStand();
 					if (not IsStanding()) and (not IsInCombat()) then
 						UseAction(script_grind.afkActionSlot, 0, 0);
-						self.waitTimer = GetTimeEX() + 2500;
+						script_paranoia.waitTimer = GetTimeEX() + 2500;
 						script_grind:setWaitTimer(2500);
 						script_grind.undoAFK = true;
 						return true;

@@ -679,9 +679,8 @@ function script_druid:run(targetGUID)
 			end
 
 			-- enrage if has charge
-			if (isBear) and (HasSpell("Feral Charge")) and (HasSpell("Enrage")) and (not IsSpellOnCD("Enrage")) and (not IsSpellOnCD("Feral Charge")) and (localObj:GetUnitsTarget() ~= 0) then
-				if (targetObj:GetDistance() <= 50) then
-					CastSpellByName("Enrage", localObj);
+			if (isBear) and (HasSpell("Feral Charge")) and (HasSpell("Enrage")) and (not IsSpellOnCD("Enrage")) and (not IsSpellOnCD("Feral Charge")) and (targetObj:GetDistance() <= 40) then
+				if (CastSpellByName("Enrage", localObj)) then
 					return 0;
 				elseif (localObj:HasBuff("Bear Form")) then
 					return 3;
