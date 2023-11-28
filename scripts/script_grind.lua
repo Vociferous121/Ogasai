@@ -492,7 +492,7 @@ function script_grind:run()
 			elseif (self.lastTarget == self.enemyObj:GetGUID() and not IsStanding() and not IsInCombat()) then
 				self.newTargetTime = GetTimeEX(); -- reset time if we rest
 			-- blacklist the target if we had it for a long time and hp is high
-			elseif (((GetTimeEX()-self.newTargetTime)/1000) > self.blacklistTime and self.enemyObj:GetHealthPercentage() > 92) then 
+			elseif (((GetTimeEX()-self.newTargetTime)/1000) > self.blacklistTime and self.enemyObj:GetHealthPercentage() > 92) and (not script_paranoia.checkParanoia()) then 
 				script_grind:addTargetToBlacklist(self.enemyObj:GetGUID());
 				ClearTarget();
 				return;
@@ -1028,6 +1028,9 @@ function script_grind:doLoot(localObj)
 			return;
 		end
 	end
+		if (IsMoving()) then
+			script_grind.tickRate = 65;
+		end
 	self.message = "Moving to loot...";		
 	script_nav:moveToTarget(localObj, _x, _y, _z);	
 	--script_grind:setWaitTimer(300);

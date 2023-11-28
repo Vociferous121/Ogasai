@@ -1,6 +1,6 @@
 script_nav = {
 	useNavMesh = true,
-	nextNavNodeDistance = 1.5, -- for mobs and loot
+	nextNavNodeDistance = 2.5, -- for mobs and loot
 	nextPathNodeDistance = 2.9, -- for walking paths
 	lastPathIndex = -1,
 	navPosition = {},
@@ -105,12 +105,12 @@ function script_nav:moveToHotspot(localObj)
 		script_nav:moveToTarget(localObj, self.currentHotSpotX, self.currentHotSpotY, self.currentHotSpotZ); 
 		
 			-- Druid cat form is faster if you specc talents
-			if (HasSpell("Cat Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
+			if (not HasSpell("Travel Form")) and (HasSpell("Cat Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
 				if (CastSpellByName("Cat Form")) then
 					self.waitTimer = GetTimeEX() + 500;
 				end
 			end
-			if (localObj:HasBuff("Cat Form")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (not script_checkDebuffs:hasPoison()) then
+			if (not HasSpell("Travel Form")) and (localObj:HasBuff("Cat Form")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (not script_checkDebuffs:hasPoison()) then
 				if (CastSpellByName("Prowl")) then
 					self.waitTimer = GetTimeEX() + 500;
 				end
@@ -120,7 +120,6 @@ function script_nav:moveToHotspot(localObj)
 					self.waitTimer = GetTimeEX() + 500;
 				end
 			end
-
 
 			return "Moving to hotspot " .. self.currentHotSpotName .. '...';
 	else
