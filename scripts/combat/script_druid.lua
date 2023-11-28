@@ -332,6 +332,14 @@ function script_druid:healsAndBuffs()
 	-- moving buffs hierarchy up
 	if (not isBear) and (not isCat) and (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) and (script_grind.lootObj == 0 or script_grind.lootObj == nil) then
 
+		-- Innervate
+		if (not IsInCombat()) and (HasSpell("Innervate")) and (not IsSpellOnCD("Innervate")) and (not localObj:HasBuff("Innervate")) and (localMana <= self.shapeshiftMana) then
+			if (CastSpellByName("Innervate", localObj)) then
+				self.waitTimer = GetTimeEX() + 3500;
+				return 0;
+			end
+		end
+
 		-- Mark of the Wild
 		if (not IsInCombat()) and (localMana > 75) and (HasSpell("Mark of the Wild")) then
 			if (not localObj:HasBuff("Mark of the Wild")) then
@@ -352,7 +360,6 @@ function script_druid:healsAndBuffs()
 			end
 		end
 	end
-
 
 	-- if not isBear and not isCat
 	if (not isBear) and (not isCat) and (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) and (script_grind.lootObj == 0 or script_grind.lootObj == nil) and (not localObj:IsStunned()) then
@@ -484,6 +491,7 @@ function script_druid:run(targetGUID)
 	if (localObj:GetLevel() >= 40) then
 		isBear = localObj:HasBuff("Dire Bear Form");
 	end
+	local isMoonkin = localObj:HasBuff("Moonkin Form");
 
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
@@ -569,6 +577,7 @@ function script_druid:run(targetGUID)
 			script_grind.tickRate = 335;
 		end
 		if (CastSpellByName("Cat Form")) then
+			self.waitTimer = GetTimeEX() + 1200;
 			return 0;
 		end
 		return 0;
@@ -629,7 +638,7 @@ function script_druid:run(targetGUID)
 		end
 
 		-- if out of form use faerie fire
-		if (IsInCombat()) and (not isBear) and (not isCat) and (targetObj:GetHealthPercentage() > 20) and (not targetObj:IsDead()) and (localMana > 65) and (not targetObj:HasDebuff("Faerie Fire")) and (not targetObj:HasDebuff("Faerie Fire (Feral)")) and (HasSpell("Faerie Fire")) and (not targetObj:GetCreatureType() == "Elemental") then
+		if (IsInCombat()) and (not isBear) and (not isCat) and (targetObj:GetHealthPercentage() > 20) and (not targetObj:IsDead()) and (localMana > 65) and (not targetObj:HasDebuff("Faerie Fire")) and (not targetObj:HasDebuff("Faerie Fire (Feral)()")) and (HasSpell("Faerie Fire")) and (not targetObj:GetCreatureType() == "Elemental") then
 			if (CastSpellByName("Faerie Fire", targetObj)) then 
 				self.waitTimer = GetTimeEX() + 1750;
 				return 0;
@@ -687,14 +696,6 @@ function script_druid:run(targetGUID)
 					return 0;
 				elseif (localObj:HasBuff("Bear Form")) then
 					return 3;
-				end
-			end
-
-			-- faerie fire
-			if (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire (Feral)")) and (targetObj:GetDistance() <= 30) and (targetObj:IsInLineOfSight()) and (not targetObj:GetCreatureType() == "Elemental") then
-				if CastSpellByName("Faerie Fire (Feral)", targetObj) then
-					self.waitTimer = GetTimeEX() + 1500;
-					return 0;
 				end
 			end
 
@@ -766,14 +767,6 @@ function script_druid:run(targetGUID)
 		-- if in bear form do these pulls
 		if (isBear) and (not isCat) then
 
-			-- faerie fire
-			if (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire (Feral)")) and (targetObj:GetDistance() <= 30) and (targetObj:IsInLineOfSight()) and (not targetObj:GetCreatureType() == "Elemental") then
-				if CastSpellByName("Faerie Fire (Feral)", targetObj) then
-					self.waitTimer = GetTimeEX() + 1500;
-					return 0;
-				end
-			end
-
 			-- Enrage
 			if (HasSpell("Enrage")) and (not IsSpellOnCD("Enrage")) and (targetObj:GetDistance() < 45) and (localHealth > self.healthToShift + 25) then
 				if (CastSpellByName("Enrage")) then
@@ -816,12 +809,11 @@ function script_druid:run(targetGUID)
 			end
 		
 
-			-- faerie fire
-			if (not self.useStealth) and (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire (Feral)")) and (not targetObj:GetCreatureType() == "Elemental") then
-				if Cast("Faerie Fire (Feral)", targetObj) then
-					self.waitTimer = GetTimeEX() + 1000;
-					return 0;
-				end
+			-- keep faerie fire up
+			if HasSpell("Faerie Fire (Feral)") and not IsSpellOnCD("Faerie Fire (Feral)") and not targetObj:HasDebuff("Faerie Fire (Feral)") then
+				CastSpellByName("Faerie Fire (Feral)()");
+				self.waitTimer = GetTimeEX() + 1600;
+				return 0;
 			end
 
 			-- cast tigers fury if we have time
@@ -849,7 +841,7 @@ function script_druid:run(targetGUID)
 	-- or level less than 10
 			----
 
-		if (not isBear) and (not isCat) then
+		if (not isBear and not isCat) or (isMoonkin) then
 
 			-- move into line of sight
 			if (targetObj:GetDistance() > 28) or (not targetObj:IsInLineOfSight()) and (localMana >= self.drinkMana) then
@@ -891,7 +883,7 @@ function script_druid:run(targetGUID)
 			-- Entangling roots when target is far enough away and we have enough mana
 			if (not self.useBear) and (not self.useCat) and (self.useEntanglingRoots) and (not IsInCombat()) and (not IsMoving()) and (localMana >= self.drinkMana) and (not targetObj:IsCasting()) then
 				if (HasSpell("Entangling Roots")) and (not targetObj:HasDebuff("Entangling Roots")) then
-					if (Cast("Entangling Roots", targetObj)) then
+					if (CastSpellByName("Entangling Roots", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1650;
 						return 0;
 					end
@@ -1063,10 +1055,10 @@ function script_druid:run(targetGUID)
 				end
 
 				-- keep faerie fire up
-				if (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire (Feral)")) and (not IsSpellOnCD("Faerie Fire (Feral)")) and (not targetObj:GetCreatureType() == "Elemental") then
-					if (Cast("Faerie Fire (Feral)", targetObj)) then
-						return 0;
-					end
+				if HasSpell("Faerie Fire (Feral)") and not IsSpellOnCD("Faerie Fire (Feral)") and not targetObj:HasDebuff("Faerie Fire (Feral)") then
+					CastSpellByName("Faerie Fire (Feral)()");
+					self.waitTimer = GetTimeEX() + 1600;
+					return 0;
 				end
 
 				-- Enrage
@@ -1182,11 +1174,10 @@ function script_druid:run(targetGUID)
 				end
 
 				-- keep faerie fire up
-				if (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire (Feral)")) and (not IsSpellOnCD("Faerie Fire (Feral)")) and (not targetObj:GetCreatureType() == "Elemental") then
-					if (Cast("Faerie Fire (Feral)", targetObj)) then
-						self.waitTimer = GetTimeEX() + 1600;
-						return 0;
-					end
+				if HasSpell("Faerie Fire (Feral)") and not IsSpellOnCD("Faerie Fire (Feral)") and not targetObj:HasDebuff("Faerie Fire (Feral)") then
+					CastSpellByName("Faerie Fire (Feral)()");
+					self.waitTimer = GetTimeEX() + 1600;
+					return 0;
 				end
 
 		-- Ferocious Bite with 5 CPs
@@ -1200,15 +1191,15 @@ function script_druid:run(targetGUID)
 				-- Rip with 3 CPs
 				if (localCP >= 3) and (targetHealth <= 50) and (localEnergy >= 30) and (not HasSpell("Ferocious Bite")) and (not targetObj:HasDebuff("Rip")) and (not targetObj:GetCreatureType() == "Elemental") then
 					if (CastSpellByName("Rip", targetObj)) then
-						self.waitTimer = GetTimeEX() + 1600;
+						self.waitTimer = GetTimeEX() + 1000;
 						return;
 					end
 				end
 			
 				-- Dynamic health check when using Ferocious Bite between 1 and 4 CP
-				if (targetHealth <= (10*localCP)) and (localEnergy >= 35) and (HasSpell("Ferocious Bite")) then
+				if (targetHealth <= (10 * localCP)) and (localEnergy >= 35) and (HasSpell("Ferocious Bite")) then
 					if (CastSpellByName("Ferocious Bite", targetObj)) then
-						self.waitTimer = GetTimeEX() + 1600;
+						self.waitTimer = GetTimeEX() + 1000;
 						return;
 					end
 				end
@@ -1245,7 +1236,7 @@ function script_druid:run(targetGUID)
 
 		-- no bear form or cat form
 
-			if (not isBear) and (not isCat) and (not self.useBear and not self.useCat) then
+			if ( (not isBear) and (not isCat) and (not self.useBear) and (not self.useCat) ) or (isMoonkin) then
 
 				-- face target
 				if (targetObj:GetDistance() < 30) and (not IsMoving()) then
@@ -1296,7 +1287,7 @@ function script_druid:run(targetGUID)
 
 				-- keep moonfire up
 				if (localMana > 30) and (targetHealth > 5) and (not targetObj:HasDebuff("Moonfire")) and (HasSpell("Moonfire")) then
-					if (Cast("Moonfire", targetObj)) then
+					if (CastSpellByName("Moonfire", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1650;
 						targetObj:FaceTarget();
 						return 0;
@@ -1305,7 +1296,7 @@ function script_druid:run(targetGUID)
 
 				-- spam moonfire until target is killed
 				if (localMana > 30) and (targetHealth < 10) and (not IsSpellOnCD("Moonfire")) and (HasSpell("Moonfire")) then
-					if (Cast("Moonfire", targetObj)) then
+					if (CastSpellByName("Moonfire", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1650;
 						targetObj:FaceTarget();
 						return 0;
@@ -1322,7 +1313,7 @@ function script_druid:run(targetGUID)
 
 				-- Wrath
 				if (localMana > 30) and (targetHealth > 15) then
-					if (Cast("Wrath", targetObj)) then
+					if (CastSpellByName("Wrath", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1650;
 						targetObj:FaceTarget();
 						return 0;
@@ -1458,7 +1449,7 @@ function script_druid:rest()
 	end
 
 	-- Drink something if not in form
-	if (not isBear) and (not isCat) and (not IsInCombat()) and (not IsDrinking()) and (localMana <= self.drinkMana) then
+	if (not isBear) and (not isCat) and (not IsInCombat()) and (not IsDrinking()) and (localMana <= self.drinkMana) and (not localObj:HasBuff("Innervate")) then
 		
 			self.message = "Need to drink...";
 
