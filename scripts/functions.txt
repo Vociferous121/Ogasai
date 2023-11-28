@@ -1,3 +1,14 @@
+-- some spells have different conditions that need to follow - including using a parenthesis in the spell name like
+-- Create Healthstone (Major)
+-- Faeire Fire (Feral)
+-- UseItem(Scroll of Spirit IV)
+if HasSpell("Faerie Fire (Feral)") and not IsSpellOnCD("Faerie Fire (Feral)") and not targetObj:HasDebuff("Faerie Fire (Feral") then
+	CastSpellByName("Faerie Fire (Feral)()");
+	self.waitTimer = GetTimeEX() + 1600;
+	return 0;				
+end
+
+
 GetLastError() [number] spellId, [number] errorCode
 
 ClearLastError()
