@@ -545,7 +545,7 @@ function script_nav:runBackwards(count, range) -- Run backwards if there is atle
 	end
 end
 
-function script_nav:avoidElite(range) -- Runs away if there is atleast one elite within range
+function script_nav:avoidElite() -- Runs away if there is atleast one elite within range
 	local currentObj, typeObj = GetFirstObject();
 	local localObj = GetLocalPlayer();
 	while currentObj ~= 0 do
@@ -561,8 +561,7 @@ function script_nav:avoidElite(range) -- Runs away if there is atleast one elite
 				script_grind:setWaitTimer(15000);
 			return;
  			end
-	script_nav:updateHotSpot(currentLevel, factionNr, useStaticHotSpot);
-	 		end
+	 	end
  		currentObj, typeObj = GetNextObject(currentObj);
  	end
 	return false;

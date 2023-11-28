@@ -160,6 +160,38 @@ end
 
 
 
+function script_druid:travelForm()
+
+		localObj = GetLocalPlayer();
+	if (HasSpell("Travel Form")) then
+		if (localObj:HasBuff("Bear Form")) then
+			if (CastSpellName("Bear Form")) then
+				self.waitTimer = GetTimeEX() + 1500;
+				return 0;
+			end
+		end
+		if (localObj:HasBuff("Dire Bear Form")) then
+			if (CastSpellByName("Dire Bear Form")) then
+				self.waitTimer = GetTimeEX() + 1500;
+			end
+		end
+		if (localObj:HasBuff("Cat Form")) then
+			if (CastSpellByName("Cat Form")) then
+				self.waitTimer = GetTimeEX() + 1500;
+				return 0;
+			end
+		end
+	end
+
+	if (HasSpell("Travel Form")) and (not localObj:HasBuff("Travel Form")) then
+		if (CastSpellByName("Travel Form")) then
+			self.waitTimer = GetTimeEX() + 1500;
+			return 0;
+		end
+	end
+		
+return true;
+end
 
 function script_druid:healsAndBuffs()
 
@@ -189,12 +221,12 @@ function script_druid:healsAndBuffs()
 		end
 	end
 
-	if (localObj:HasBuff("Travel Form")) then
-		if (CastSpellByName("Travel Form")) then
-			self.waitTimer = GetTimeEX() + 1500;
-			return 0;
-		end
-	end
+	--if (localObj:HasBuff("Travel Form")) then
+	--	if (CastSpellByName("Travel Form")) then
+	--		self.waitTimer = GetTimeEX() + 1500;
+	--		return 0;
+	--	end
+	--end
 
 --------------
 
@@ -331,17 +363,16 @@ function script_druid:healsAndBuffs()
 		end
 
 		-- Regrowth
-		if (HasSpell("Regrowth")) and (not localObj:HasBuff("Regrowth")) and (localHealth <= self.regrowthHealth) and (localMana >= 40) and (not IsMoving()) and (not IsLooting()) then
+		if (HasSpell("Regrowth")) and (not localObj:HasBuff("Regrowth")) and (localHealth <= self.regrowthHealth) and (localMana >= 40) and (not IsMoving()) and (not IsLooting()) and (not IsChanneling()) and (not IsCasting()) then
 			if (IsMoving()) then
 				StopMoving();
 			end
 			if (not script_grind.adjustTickRate) then
-				script_grind.tickRate = 550;
+				script_grind.tickRate = 1150;
 			end
-			self.waitTimer = GetTimeEX() + 300;
 			if (CastSpellByName("Regrowth", localObj)) then
 				self.waitTimer = GetTimeEX() + 3550;
-				return 4;
+				return 0;
 			end
 		end
 
@@ -464,7 +495,7 @@ function script_druid:run(targetGUID)
 
 	-- check heals and buffs
 	if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) and (not localObj:HasBuff("Frenzied Regeneration")) then
-		self.waitTimer = GetTimeEX() + 250;
+		self.waitTimer = GetTimeEX() + 1550;
 		return;
 	end
 
@@ -587,7 +618,7 @@ function script_druid:run(targetGUID)
 		end
 
 		-- if out of form use faerie fire
-		if (IsInCombat()) and (not isBear) and (not isCat) and (targetObj:GetHealthPercentage() > 20) and (not targetObj:IsDead()) and (localMana > 65) and (not targetObj:HasDebuff("Faerie Fire")) and (HasSpell("Faerie Fire")) then
+		if (IsInCombat()) and (not isBear) and (not isCat) and (targetObj:GetHealthPercentage() > 20) and (not targetObj:IsDead()) and (localMana > 65) and (not targetObj:HasDebuff("Faerie Fire")) and (HasSpell("Faerie Fire")) and (not targetObj:GetCreatureType() == "Elemental") then
 			if (CastSpellByName("Faerie Fire", targetObj)) then 
 				self.waitTimer = GetTimeEX() + 1750;
 				return 0;
@@ -596,7 +627,7 @@ function script_druid:run(targetGUID)
 
 		-- check heals and buffs
 		if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) and (not localObj:HasBuff("Frenzied Regeneration")) then
-			self.waitTimer = GetTimeEX() + 250;
+			self.waitTimer = GetTimeEX() + 1550;
 			return;
 		end
 
@@ -718,7 +749,7 @@ function script_druid:run(targetGUID)
 		if (isBear) and (not isCat) then
 
 			-- faerie fire
-			if (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire")) and (targetObj:GetDistance() <= 20) and (targetObj:IsInLineOfSight()) then
+			if (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire")) and (targetObj:GetDistance() <= 20) and (targetObj:IsInLineOfSight()) and (not targetObj:GetCreatureType() == "Elemental") then
 				if Cast("Faerie Fire (Feral)", targetObj) then
 					self.waitTimer = GetTimeEX() + 1500;
 					return 0;
@@ -768,7 +799,7 @@ function script_druid:run(targetGUID)
 		
 
 			-- faerie fire
-			if (not self.useStealth) and (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire")) then
+			if (not self.useStealth) and (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire")) and (not targetObj:GetCreatureType() == "Elemental") then
 				if Cast("Faerie Fire (Feral)", targetObj) then
 					self.waitTimer = GetTimeEX() + 1000;
 					return 0;
@@ -868,7 +899,7 @@ function script_druid:run(targetGUID)
 
 			-- check heals and buffs
 			if (script_druid:healsAndBuffs()) and (not IsLooting()) and (not localObj:HasBuff("Frenzied Regeneration")) then
-				self.waitTimer = GetTimeEX() + 250;
+				self.waitTimer = GetTimeEX() + 1550;
 				return;
 			end
 
@@ -1014,7 +1045,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- keep faerie fire up
-				if (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire (Feral)")) and (not IsSpellOnCD("Faerie Fire (Feral)")) then
+				if (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire (Feral)")) and (not IsSpellOnCD("Faerie Fire (Feral)")) and (not targetObj:GetCreatureType() == "Elemental") then
 					if (Cast("Faerie Fire (Feral)", targetObj)) then
 						return 0;
 					end
@@ -1133,7 +1164,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- keep faerie fire up
-				if (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire (Feral)")) and (not IsSpellOnCD("Faerie Fire (Feral)")) then
+				if (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire (Feral)")) and (not IsSpellOnCD("Faerie Fire (Feral)")) and (not targetObj:GetCreatureType() == "Elemental") then
 					if (Cast("Faerie Fire (Feral)", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1600;
 						return 0;
@@ -1250,7 +1281,7 @@ function script_druid:run(targetGUID)
 
 				-- check heals and buffs
 				if (script_druid:healsAndBuffs()) and (not IsLooting()) and (not localObj:HasBuff("Frenzied Regeneration")) then
-					self.waitTimer = GetTimeEX() + 250;
+					self.waitTimer = GetTimeEX() + 1550;
 					return;
 				end
 
@@ -1480,7 +1511,7 @@ function script_druid:rest()
 
 	-- check heals and buffs
 	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (script_grind.lootObj == nil) and (not IsDrinking()) and (not IsEating()) and (not localObj:HasBuff("Frenzied Regeneration"))  then
-		self.waitTimer = GetTimeEX() + 1550;
+		self.waitTimer = GetTimeEX() + 2550;
 		return;
 	end	
 

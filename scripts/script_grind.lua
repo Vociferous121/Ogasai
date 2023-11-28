@@ -16,7 +16,7 @@ script_grind = {
 	pullDistance = 225,
 	avoidElite = true,
 	avoidRange = 40,
-	findLootDistance = 60,
+	findLootDistance = 45,
 	lootDistance = 2.7,
 	skipLooting = false,
 	lootCheck = {},
@@ -330,8 +330,6 @@ function script_grind:run()
 	end
 
 	if (self.pause) then self.message = "Paused by user...";
-		script_paranoia.currentTime = 0;
-		script_grind.currentTime2 = GetTimeEX() / 1000;
 		script_paranoia.paranoiaUsed = false;
 		return;
 	end
@@ -360,7 +358,7 @@ function script_grind:run()
 
 	-- check paranoia	
 	if (not IsInCombat()) and (not IsLooting()) then	
-		if (script_paranoia:checkParanoia()) then
+		if (script_paranoia:checkParanoia()) and (not self.pause) then
 				script_paranoia.paranoiaUsed = true;
 			if (script_paranoia.currentTime >= script_grind.currentTime2 + script_grind.setParanoidTimer) then
 				script_paranoia.currentTime = 0;
@@ -448,7 +446,13 @@ function script_grind:run()
 			end
 
 			-- Druid cat form is faster if you specc talents
-			if (HasSpell("Cat Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
+
+			if (HasSpell("Travel Form")) and (not localObj:HasBuff("Travel Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Dire Bear Form")) then
+				if (CastSpellByName("Travel Form")) then
+					self.waitTimer = GetTimeEX() + 500;
+				end
+			end
+			if (not HasSpell("Travel Form")) and (HasSpell("Cat Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
 				if (CastSpellByName("Cat Form")) then
 					self.waitTimer = GetTimeEX() + 500;
 					return 0;

@@ -38,7 +38,7 @@ function script_targetMenu:menu()
 
 		Separator();
 			
-		wasClicked, script_grind.avoidElite = Checkbox("Avoid Elites", script_grind.avoidElite);
+		wasClicked, script_nav.avoidElite = Checkbox("Avoid Elites", script_nav.avoidElite);
 		
 		if (script_grind.avoidElite) then
 			Text("Avoid Elite Range"); 
