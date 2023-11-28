@@ -104,7 +104,11 @@ function script_nav:moveToHotspot(localObj)
 	if (self.currentHotSpotName ~= 0) then
 		script_nav:moveToTarget(localObj, self.currentHotSpotX, self.currentHotSpotY, self.currentHotSpotZ); 
 		
-			-- Druid cat form is faster if you specc talents
+			if (not script_paranoia.checkParanoia()) then
+				if (script_druid:travelForm()) then
+					self.waitTimer = GetTimeEX() + 1200;
+				end
+			end
 			if (not HasSpell("Travel Form")) and (HasSpell("Cat Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
 				if (CastSpellByName("Cat Form")) then
 					self.waitTimer = GetTimeEX() + 500;

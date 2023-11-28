@@ -21,7 +21,7 @@ function script_paranoia:checkParanoia()
 
 	localObj = GetLocalPlayer();
 
-	if (script_grindEX.deathCounter >= self.counted) and (script_grindEX.deathCounter >= script_paranoia.counted) then
+	if (script_grindEX.deathCounter >= script_paranoia.counted) and (script_grindEX.deathCounter >= script_paranoia.counted) then
 		StopBot();
 		script_grindEX.deathCounter = 0;
 		if (script_paranoia.deathCounterExit) then
@@ -32,10 +32,10 @@ function script_paranoia:checkParanoia()
 	-- logout if level reached
 	if (script_paranoia.stopOnLevel) then
 			selfLevel = GetLocalPlayer():GetLevel();
-		if (selfLevel >= self.targetedLevel) and (not IsInCombat()) then
+		if (selfLevel >= script_paranoia.targetedLevel) and (not IsInCombat()) then
 			StopBot();
-			self.targetedLevel = self.targetedLevel + 1;
-			if (self.exitBot) then
+			script_paranoia.targetedLevel = self.targetedLevel + 1;
+			if (script_paranoia.exitBot) then
 				Exit();
 			end
 			return;
@@ -44,11 +44,11 @@ function script_paranoia:checkParanoia()
 
 	-- don't allow sitting when paranoia range is too low
 	if (script_grind.paranoidRange <= 200) then
-		self.sitParanoid = false;
+		script_paranoia.sitParanoid = false;
 	end
 
 	-- if paranoid turned on then do....
-	if (self.paranoidOn) and (not IsInCombat()) and (not IsLooting()) then
+	if (script_paranoia.paranoidOn) and (not IsInCombat()) and (not IsLooting()) then
 
 		self.waitTimer = GetTimeEX() + 3500;
 
@@ -56,14 +56,14 @@ function script_paranoia:checkParanoia()
 		if (script_grind:playersWithinRange(script_grind.paranoidRange)) and (not IsLooting()) then
 
 			if (script_grind:playersWithinRange(script_grind.paranoidRange)) then
-				self.paranoiaUsed = true;
+				script_paranoia.paranoiaUsed = true;
 			end
 
 			-- do wave emote. had to double check the variables or it was casting twice
-			if (script_grind.playerParanoidDistance <= 15) and (self.doEmote) and (not self.didEmote) then
+			if (script_grind.playerParanoidDistance <= 15) and (script_paranoia.doEmote) and (not script_paranoia.didEmote) then
 				DoEmote("Wave", script_grind.paranoidTargetName);
-				self.doEmote = false;
-				self.didEmote = true;
+				script_paranoia.doEmote = false;
+				script_paranoia.didEmote = true;
 			end
 
 			script_paranoia.currentTime = GetTimeEX() / 1000;
@@ -113,7 +113,7 @@ function script_paranoia:checkParanoia()
 			end
 
 			-- sit when paranoid if enabled
-			if (self.sitParanoid) and (IsStanding()) and (not IsInCombat()) and (script_grind.playerParanoidDistance >= 180) then
+			if (script_paranoia.sitParanoid) and (IsStanding()) and (not IsInCombat()) and (script_grind.playerParanoidDistance >= 180) then
 				self.waitTimer = GetTimeEX() + 2521;
 				if (IsMoving()) then
 					StopMoving();

@@ -216,7 +216,7 @@ function script_druid:healsAndBuffs()
 -- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(450, 850);
+		local tickRandom = random(750, 1150);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -448,7 +448,7 @@ function script_druid:healsAndBuffs()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(450, 850);
+		local tickRandom = random(750, 1150);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -485,7 +485,7 @@ function script_druid:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(450, 850);
+		local tickRandom = random(750, 1150);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -1345,7 +1345,7 @@ function script_druid:run(targetGUID)
 		-- set tick rate for script to run
 		if (not script_grind.adjustTickRate) then
 	
-			local tickRandom = random(450, 850);
+			local tickRandom = random(750, 1150);
 		
 			if (IsMoving()) or (not IsInCombat()) then
 				script_grind.tickRate = 135;
@@ -1383,7 +1383,7 @@ function script_druid:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(450, 850);
+		local tickRandom = random(750, 1150);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -1562,7 +1562,7 @@ function script_druid:rest()
 -- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(450, 850);
+		local tickRandom = random(750, 1150);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;

@@ -447,11 +447,12 @@ function script_grind:run()
 
 			-- Druid cat form is faster if you specc talents
 
-			if (HasSpell("Travel Form")) and (not localObj:HasBuff("Travel Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Dire Bear Form")) then
-				if (CastSpellByName("Travel Form")) then
-					self.waitTimer = GetTimeEX() + 500;
+			if (not script_paranoia:checkParanoia()) then
+				if (script_druid:travelForm()) then
+					self.waitTimer = GetTimeEX() + 1000;
 				end
 			end
+
 			if (not HasSpell("Travel Form")) and (HasSpell("Cat Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
 				if (CastSpellByName("Cat Form")) then
 					self.waitTimer = GetTimeEX() + 500;
