@@ -129,6 +129,12 @@ function vendorDB:setup()
 	vendorDB:addVendor("Riznek", 1, 1, 400, false, false, false, false, false, -6204.33, -3955.97, -58.75);
 	vendorDB:addVendor("Riznek", 1, 1, 400, false, false, true, false, false, -6204.33, -3955.97, -58.75);
 
+
+	-- Stranglethorn Vale - Horde
+	vendorDB:addVendor("Jaquilina Dramet", 1, 0, 33, true, false, false, false, false, -11622.1, -60.62, 10.95);
+	vendorDB:addVendor("Jaquilina Dramet", 1, 0, 33, false, false, false, false, false, -11622.1, -60.62, 10.95);
+
+
 	--alliance	
 		--Blasted Lands
 	 vendorDB:addVendor("Strumner Flintheel	", 0, 0, 4, true, false, false, false, false, -10952.76, -3454.93, 66.73);

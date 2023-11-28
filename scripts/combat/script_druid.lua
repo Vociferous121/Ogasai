@@ -61,8 +61,11 @@ function script_druid:setup()
 		self.meleeDistance = 4.80;
 	end
 
-	if (not HasSpell("Ravage")) or (not HasSpell("Pounce")) then
+	if (not HasSpell("Ravage")) then
 		self.stealthOpener = "Shred";
+	end
+	if (HasSpell("Pounce")) then
+		self.stealthOpener = "Pounce";
 	end
 	if (not HasSpell("Shred")) then
 		self.stealthOpener = "Claw";
@@ -626,7 +629,7 @@ function script_druid:run(targetGUID)
 		end
 
 		-- if out of form use faerie fire
-		if (IsInCombat()) and (not isBear) and (not isCat) and (targetObj:GetHealthPercentage() > 20) and (not targetObj:IsDead()) and (localMana > 65) and (not targetObj:HasDebuff("Faerie Fire")) and (HasSpell("Faerie Fire")) and (not targetObj:GetCreatureType() == "Elemental") then
+		if (IsInCombat()) and (not isBear) and (not isCat) and (targetObj:GetHealthPercentage() > 20) and (not targetObj:IsDead()) and (localMana > 65) and (not targetObj:HasDebuff("Faerie Fire")) and (not targetObj:HasDebuff("Faerie Fire (Feral)")) and (HasSpell("Faerie Fire")) and (not targetObj:GetCreatureType() == "Elemental") then
 			if (CastSpellByName("Faerie Fire", targetObj)) then 
 				self.waitTimer = GetTimeEX() + 1750;
 				return 0;
@@ -679,11 +682,19 @@ function script_druid:run(targetGUID)
 			end
 
 			-- enrage if has charge
-			if (isBear) and (HasSpell("Feral Charge")) and (HasSpell("Enrage")) and (not IsSpellOnCD("Enrage")) and (not IsSpellOnCD("Feral Charge")) and (targetObj:GetDistance() <= 40) then
+			if (isBear) and (HasSpell("Feral Charge")) and (HasSpell("Enrage")) and (not IsSpellOnCD("Enrage")) and (not IsSpellOnCD("Feral Charge")) and (targetObj:GetDistance() <= 45) then
 				if (CastSpellByName("Enrage", localObj)) then
 					return 0;
 				elseif (localObj:HasBuff("Bear Form")) then
 					return 3;
+				end
+			end
+
+			-- faerie fire
+			if (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire (Feral)")) and (targetObj:GetDistance() <= 30) and (targetObj:IsInLineOfSight()) and (not targetObj:GetCreatureType() == "Elemental") then
+				if CastSpellByName("Faerie Fire (Feral)", targetObj) then
+					self.waitTimer = GetTimeEX() + 1500;
+					return 0;
 				end
 			end
 
@@ -756,15 +767,15 @@ function script_druid:run(targetGUID)
 		if (isBear) and (not isCat) then
 
 			-- faerie fire
-			if (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire")) and (targetObj:GetDistance() <= 20) and (targetObj:IsInLineOfSight()) and (not targetObj:GetCreatureType() == "Elemental") then
-				if Cast("Faerie Fire (Feral)", targetObj) then
+			if (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire (Feral)")) and (targetObj:GetDistance() <= 30) and (targetObj:IsInLineOfSight()) and (not targetObj:GetCreatureType() == "Elemental") then
+				if CastSpellByName("Faerie Fire (Feral)", targetObj) then
 					self.waitTimer = GetTimeEX() + 1500;
 					return 0;
 				end
 			end
 
 			-- Enrage
-			if (HasSpell("Enrage")) and (not IsSpellOnCD("Enrage")) and (targetObj:GetDistance() < 30) and (localHealth > self.healthToShift + 25) then
+			if (HasSpell("Enrage")) and (not IsSpellOnCD("Enrage")) and (targetObj:GetDistance() < 45) and (localHealth > self.healthToShift + 25) then
 				if (CastSpellByName("Enrage")) then
 					return 0;
 				end
@@ -806,7 +817,7 @@ function script_druid:run(targetGUID)
 		
 
 			-- faerie fire
-			if (not self.useStealth) and (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire")) and (not targetObj:GetCreatureType() == "Elemental") then
+			if (not self.useStealth) and (HasSpell("Faerie Fire (Feral)")) and (not targetObj:HasDebuff("Faerie Fire (Feral)")) and (not targetObj:GetCreatureType() == "Elemental") then
 				if Cast("Faerie Fire (Feral)", targetObj) then
 					self.waitTimer = GetTimeEX() + 1000;
 					return 0;
@@ -974,6 +985,11 @@ function script_druid:run(targetGUID)
 			-- do these attacks only in bear form
 			if (isBear) and (not isCat) then
 
+				-- face target
+				if (targetObj:GetDistance() <= self.meleeDistance) then
+					targetObj:FaceTarget();
+				end
+
 				-- if we are switching froms from cat to bear then speed up script tick rate
 				if (self.wasInCombat) and (self.runOnce) then
 					script_grind.tickRate = 125;
@@ -988,11 +1004,6 @@ function script_druid:run(targetGUID)
 				-- check line of sight and move to target
 				if (not targetObj:IsInLineOfSight()) and (isBear) then
 					return 3;
-				end
-				
-				-- face target redundancy
-				if (targetObj:GetDistance() <= self.meleeDistance + 2) and (not IsMoving()) then
-					targetObj:FaceTarget();
 				end
 
 				if (IsMoving()) then
@@ -1177,36 +1188,12 @@ function script_druid:run(targetGUID)
 						return 0;
 					end
 				end
-				
-				-- keep tiger's fury up
-				if (HasSpell("Tiger's Fury")) and (not localObj:HasBuff("Tiger's Fury")) and (not IsSpellOnCD("Tiger's Fury")) and (localEnergy >= 30) then
-					if (CastSpellByName("Tiger's Fury")) then
-						self.waitTimer = GetTimeEX() + 1600;
-						return 0;
-					end
-				end
 
-				-- keep rake up
-				if (HasSpell("Rake")) and (not targetObj:HasDebuff("Rake")) and (targetHealth >= 30) and (localEnergy >= 35) and (not targetObj:GetCreatureType() == "Elemental") then
-					if (CastSpellByName("Rake", targetObj)) then
-						self.waitTimer = GetTimeEX() + 2200;
-						return 0;
-					end
-				end
-
-				-- Ferocious Bite with 5 CPs
+		-- Ferocious Bite with 5 CPs
 				if (localCP > 4) and (localEnergy >= 35) and (HasSpell("Ferocious Bite")) then
 					if (CastSpellByName("Ferocious Bite", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1600;
 						return 0;
-					end
-				end
-
-				-- Rip with 5 CPs
-				if (localCP > 4) and (localEnergy >= 30) and (not HasSpell("Ferocious Bite")) and (not targetObj:HasDebuff("Rip")) and (not targetObj:GetCreatureType() == "Elemental") then
-					if (CastSpellByName("Rip", targetObj)) then
-						self.waitTimer = GetTimeEX() + 1600;
-						return;
 					end
 				end
 
@@ -1223,6 +1210,22 @@ function script_druid:run(targetGUID)
 					if (CastSpellByName("Ferocious Bite", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1600;
 						return;
+					end
+				end
+				
+				-- keep tiger's fury up
+				if (HasSpell("Tiger's Fury")) and (not localObj:HasBuff("Tiger's Fury")) and (not IsSpellOnCD("Tiger's Fury")) and (localEnergy >= 30) then
+					if (CastSpellByName("Tiger's Fury")) then
+						self.waitTimer = GetTimeEX() + 1600;
+						return 0;
+					end
+				end
+
+				-- keep rake up
+				if (HasSpell("Rake")) and (not targetObj:HasDebuff("Rake")) and (targetHealth >= 30) and (localEnergy >= 35) and (not targetObj:GetCreatureType() == "Elemental") then
+					if (CastSpellByName("Rake", targetObj)) then
+						self.waitTimer = GetTimeEX() + 2200;
+						return 0;
 					end
 				end
 
