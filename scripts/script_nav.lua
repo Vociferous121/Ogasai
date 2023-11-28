@@ -549,20 +549,20 @@ function script_nav:avoidElite() -- Runs away if there is atleast one elite with
 	local currentObj, typeObj = GetFirstObject();
 	local localObj = GetLocalPlayer();
 	while currentObj ~= 0 do
- 		if typeObj == 3 and (currentObj:GetClassification() == 1 or currentObj:GetClassification() == 2) then
-			if currentObj:CanAttack() and currentObj:GetDistance() <= range and not currentObj:IsDead() then	
+ 		if (typeObj == 3) and (currentObj:GetClassification() == 1 or currentObj:GetClassification() == 2) then
+			if (currentObj:CanAttack()) and (currentObj:GetDistance() <= script_grind.avoidRange) and (not currentObj:IsDead()) then	
 				local xT, yT, zT = currentObj:GetPosition();
  				local xP, yP, zP = localObj:GetPosition();
  				local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
  				local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
  				local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
- 				local moveX, moveY, moveZ = xT + xUV*100, yT + yUV*100, zT + zUV;			
+ 				local moveX, moveY, moveZ = xT + xUV*40, yT + yUV*40, zT + zUV;			
 				script_nav:moveToNav(localObj, moveX, moveY, moveZ);
 				script_grind:setWaitTimer(15000);
 			return;
  			end
 	 	end
- 		currentObj, typeObj = GetNextObject(currentObj);
+ 	currentObj, typeObj = GetNextObject(currentObj);
  	end
-	return false;
+return false;
 end

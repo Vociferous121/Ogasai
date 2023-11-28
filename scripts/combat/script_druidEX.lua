@@ -109,8 +109,6 @@ Separator();
 		if (HasSpell("Rejuvenation")) then
 			Text("Rejuvenation below HP percentage");
 			script_druid.rejuvenationHealth = SliderInt("RHP%", 25, 100, script_druid.rejuvenationHealth);
-			Text("Rejuvenation above mana percentage");
-			script_druid.rejuvenationMana = SliderInt("RMP%", 10, 99, script_druid.rejuvenationMana);
 		end
 		if (HasSpell("Regrowth")) then
 			Text("Regrwoth below HP percentage");
