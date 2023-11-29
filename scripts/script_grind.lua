@@ -360,7 +360,7 @@ function script_grind:run()
 	if (not IsInCombat()) and (not IsLooting()) then	
 		if (script_paranoia:checkParanoia()) and (not self.pause) then
 				script_paranoia.paranoiaUsed = true;
-			if (script_paranoia.currentTime >= script_grind.currentTime2 + script_grind.setParanoidTimer) then
+			if (script_paranoia.currentTime >= script_grind.currentTime2 + script_grind.setParanoidTimer) and (not IsInCombat()) then
 				script_paranoia.currentTime = 0;
 				StopBot();
 				Logout();
@@ -742,14 +742,14 @@ function script_grind:isTargetingPet(i)
 end
 
 function script_grind:isTargetingGroup(y) 
-	for i = 1, GetNumPartyMembers() do
-		local partyMember = GetPartyMember(i);
-		if (partyMember ~= nil and partyMember ~= 0 and not partyMember:IsDead()) then
-			if (y:GetUnitsTarget() ~= nil and y:GetUnitsTarget() ~= 0 and not script_grind:isTargetingPet(y)) then
-				return y:GetUnitsTarget():GetGUID() == partyMember:GetGUID();
-			end
-		end
-	end
+	--for i = 1, GetNumPartyMembers() do
+	--	local partyMember = GetPartyMember(i);
+	--	if (partyMember ~= nil and partyMember ~= 0 and not partyMember:IsDead()) then
+	--		if (y:GetUnitsTarget() ~= nil and y:GetUnitsTarget() ~= 0 and not script_grind:isTargetingPet(y)) then
+	--			return y:GetUnitsTarget():GetGUID() == partyMember:GetGUID();
+	--		end
+	--	end
+	--end
 
 	return false;
 end
