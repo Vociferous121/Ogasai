@@ -59,6 +59,7 @@ function script_targetMenu:menu()
 			SameLine(); wasClicked, script_grind.skipDragonkin = Checkbox("Skip Dragonkin", script_grind.skipDragonkin);
 			wasClicked, script_grind.skipGiant = Checkbox("Skip Giant", script_grind.skipGiant);
 			SameLine(); wasClicked, script_grind.skipMechanical = Checkbox("Skip Mechanical", script_grind.skipMechanical);
+			wasClicked, script_grind.skipUnknown = Checkbox("Skip Not specified", script_grind.skipUnknown);
 		end
 	end
 end

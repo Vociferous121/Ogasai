@@ -2,6 +2,66 @@ script_druidEX = {
 
 }
 
+function script_druidEX:travelForm()
+
+	localObj = GetLocalPlayer();
+
+	if (HasSpell("Travel Form")) then
+		if (localObj:HasBuff("Bear Form")) then
+			if (CastSpellName("Bear Form")) then
+				self.waitTimer = GetTimeEX() + 1500;
+				return 0;
+			end
+		end
+		if (localObj:HasBuff("Dire Bear Form")) then
+			if (CastSpellByName("Dire Bear Form")) then
+				self.waitTimer = GetTimeEX() + 1500;
+			end
+		end
+		if (localObj:HasBuff("Cat Form")) then
+			if (CastSpellByName("Cat Form")) then
+				self.waitTimer = GetTimeEX() + 1500;
+				return 0;
+			end
+		end
+	end
+
+	if (HasSpell("Travel Form")) and (not localObj:HasBuff("Travel Form")) then
+		if (CastSpellByName("Travel Form")) then
+			self.waitTimer = GetTimeEX() + 1500;
+			return 0;
+		end
+	end
+		
+return true;
+end
+
+
+function script_druidEX:bearForm()
+
+	local localObj = GetLocalPlayer();
+	local locallevel = localObj:GetLevel();
+	
+	if (not HasSpell("Dire Bear Form")) then
+		if (HasSpell("Bear Form")) then
+			if (CastSpellByName("Bear Form")) then
+				self.waitTimer = GetTimeEX() + 1500;
+				return 0;
+			end
+		end
+	elseif (HasSpell("Dire Bear Form")) then
+		if (CastSpellByName("Dire Bear Form")) then
+			self.waitTimer = GetTimeEX() + 1500;
+			return 0;
+		end
+	end
+return true;
+end	
+
+function script_druidEX:moonkinForm()
+
+return true;
+end
 
 function script_druidEX:menu()
 

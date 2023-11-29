@@ -508,8 +508,14 @@ function script_hunter:run(targetGUID)
 
 				-- cast raptor strike
 				if (HasSpell("Raptor Strike")) and (not IsSpellOnCD("Raptor Strike")) and (localMana > 10) then
-					CastSpellByName("Raptor Strike");
-					return 0;
+						targetObj:FaceTarget();
+					if (not IsSpellOnCD("Raptor Strike")) then
+						targetObj:FaceTarget();
+						if (CastSpellByName("Raptor Strike")) then
+							targetObj:FaceTarget();
+							return 0;
+						end
+					end
 				end
 					
 				-- cast wing clip

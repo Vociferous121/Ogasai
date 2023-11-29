@@ -125,10 +125,19 @@ function vendorDB:setup()
 	vendorDB:addVendor("Innkeeper Adegwa", 1, 0, 45, false, true, false, false, false, -912.38, -3524.92, 72.68);
 	vendorDB:addVendor("Graud", 1, 0, 45, false, false, false, false, true, -910.29, -3534.86, 72.72);
 
-	-- Thousand Needles Shimmering Flats - Both
+	-- Thousand Needles Shimmering Flats - Horde
 	vendorDB:addVendor("Riznek", 1, 1, 400, false, false, false, false, false, -6204.33, -3955.97, -58.75);
 	vendorDB:addVendor("Riznek", 1, 1, 400, false, false, true, false, false, -6204.33, -3955.97, -58.75);
+	vendorDB:addVendor("Synge", 1, 1, 400, true, false, false, false, false, -6225.51, -3970.79, -58.75);
+	vendorDB:addVendor("Synge", 1, 1, 400, false, false, false, false, false, -6225.51, -3970.79, -58.75);
+	vendorDB:addVendor("Synge", 1, 1, 400, false, false, false, false, true, -6225.51, -3970.79, -58.75);
 
+	-- Thousand Needles Shimmering Flats - Alliance
+	vendorDB:addVendor("Riznek", 0, 1, 400, false, false, false, false, false, -6204.33, -3955.97, -58.75);
+	vendorDB:addVendor("Riznek", 0, 1, 400, false, false, true, false, false, -6204.33, -3955.97, -58.75);
+	vendorDB:addVendor("Synge", 0, 1, 400, true, false, false, false, false, -6225.51, -3970.79, -58.75);
+	vendorDB:addVendor("Synge", 0, 1, 400, false, false, false, false, false, -6225.51, -3970.79, -58.75);
+	vendorDB:addVendor("Synge", 0, 1, 400, false, false, false, false, true, -6225.51, -3970.79, -58.75);
 
 	-- Stranglethorn Vale - Horde
 	vendorDB:addVendor("Jaquilina Dramet", 1, 0, 33, true, false, false, false, false, -11622.1, -60.62, 10.95);

@@ -105,7 +105,7 @@ function script_nav:moveToHotspot(localObj)
 		script_nav:moveToTarget(localObj, self.currentHotSpotX, self.currentHotSpotY, self.currentHotSpotZ); 
 		
 			if (not script_paranoia.checkParanoia()) then
-				if (script_druid:travelForm()) then
+				if (script_druidEX:travelForm()) then
 					self.waitTimer = GetTimeEX() + 1200;
 				end
 			end

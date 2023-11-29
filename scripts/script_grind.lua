@@ -30,6 +30,7 @@ script_grind = {
 	myZ = 0,
 	myTime = GetTimeEX(),
 	message = 'Starting the grinder...',
+	skipUnknown = true, -- skip not specified npc
 	skipHumanoid = true,
 	skipElemental = false,
 	skipUndead = false,
@@ -448,7 +449,7 @@ function script_grind:run()
 			-- Druid cat form is faster if you specc talents
 
 			if (not script_paranoia:checkParanoia()) then
-				if (script_druid:travelForm()) then
+				if (script_druidEX:travelForm()) then
 					self.waitTimer = GetTimeEX() + 1000;
 				end
 			end
@@ -778,6 +779,7 @@ function script_grind:enemyIsValid(i)
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
 			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
 			and (not script_grind:isTargetBlacklisted(i:GetGUID()) and not script_grind:isTargetingMe(i)) 
+			and not (self.skipUnknown and i:GetCreatureType() == 'Not specified')
 			and not (self.skipHumanoid and i:GetCreatureType() == 'Humanoid')
 			and not (self.skipDemon and i:GetCreatureType() == 'Demon')
 			and not (self.skipBeast and i:GetCreatureType() == 'Beast')
