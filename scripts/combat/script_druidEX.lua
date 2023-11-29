@@ -8,7 +8,7 @@ function script_druidEX:travelForm()
 
 	if (HasSpell("Travel Form")) then
 		if (localObj:HasBuff("Bear Form")) then
-			if (CastSpellName("Bear Form")) then
+			if (CastSpellByName("Bear Form")) then
 				self.waitTimer = GetTimeEX() + 1500;
 				return 0;
 			end

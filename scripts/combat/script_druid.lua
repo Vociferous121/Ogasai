@@ -628,7 +628,7 @@ function script_druid:run(targetGUID)
 			end
 
 			-- keep faerie fire up
-			if isCat and not self.useStealth and targetObj:GetDistance() <= 30 then
+			if not self.useStealth and targetObj:GetDistance() <= 30 then
 				if HasSpell("Faerie Fire (Feral)") then
 					CastSpellByName("Faerie Fire (Feral)()");
 					self.waitTimer = GetTimeEX() + 1600;
@@ -901,6 +901,10 @@ function script_druid:run(targetGUID)
 			-- do these attacks only in bear form
 			if (isBear) and (not isCat) then
 
+				if (targetObj:GetDistance() > self.meleeDistance) then
+					return 3;
+				end
+
 				-- face target
 				if (targetObj:GetDistance() <= self.meleeDistance) then
 					targetObj:FaceTarget();
@@ -939,8 +943,10 @@ function script_druid:run(targetGUID)
 				-- keep auto attack on
 				if (not IsAutoCasting("Attack")) then
 					targetObj:AutoAttack();
-					if (targetObj:GetDistance() <= self.meleeDistance) and (not IsMoving()) then
+					if (targetObj:GetDistance() < self.meleeDistance) then
 						targetObj:FaceTarget();
+					elseif (targetObj:GetDistance() > self.meleeDistance) then
+						return 3;
 					end
 				end
 
@@ -978,10 +984,13 @@ function script_druid:run(targetGUID)
 					end
 				end
 
+				if (targetObj:GetDistance() > self.meleeDistance) then
+					return 3;
+				end
+
 				-- keep faerie fire up
 				if HasSpell("Faerie Fire (Feral)") and not IsSpellOnCD("Faerie Fire (Feral)") and not targetObj:HasDebuff("Faerie Fire (Feral)") then
 					CastSpellByName("Faerie Fire (Feral)()");
-					self.waitTimer = GetTimeEX() + 1600;
 					return 0;
 				end
 
@@ -1415,6 +1424,9 @@ function script_druid:rest()
 
 	-- check heals and buffs
 	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (script_grind.lootObj == nil) and (not IsDrinking()) and (not IsEating()) and (not localObj:HasBuff("Frenzied Regeneration"))  then
+		if (IsMoving()) then
+			StopMoving();
+		end
 		self.waitTimer = GetTimeEX() + 2550;
 	return true;
 	end	
