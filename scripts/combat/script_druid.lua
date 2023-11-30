@@ -68,9 +68,9 @@ function script_druid:setup()
 	if (not HasSpell("Ravage")) then
 		self.stealthOpener = "Shred";
 	end
-	if (HasSpell("Pounce")) then
-		self.stealthOpener = "Pounce";
-	end
+	--if (HasSpell("Pounce")) then
+	--	self.stealthOpener = "Pounce";
+	--end
 	if (not HasSpell("Shred")) then
 		self.stealthOpener = "Claw";
 	end
@@ -343,7 +343,7 @@ function script_druid:healsAndBuffs()
 				script_grind.tickRate = 1550;
 			end
 			if (CastSpellByName("Regrowth", localObj)) then
-				self.waitTimer = GetTimeEX() + 3550;
+				self.waitTimer = GetTimeEX() + 4250;
 				return 0;
 			end
 		end
@@ -617,6 +617,7 @@ function script_druid:run(targetGUID)
 
 			local __, lastError = GetLastError();
 			if (lastError ~= 51) then
+					local tX, tY, tZ = targetObj:GetPosition();
 				if (isCat) and (self.useCat) and (self.useStealth) and (localObj:HasBuff("Prowl")) then
 					if (HasSpell(self.stealthOpener)) and (not IsSpellOnCD(self.stealthOpener)) and (localEnergy >= 50) and (targetObj:GetDistance() <= 6) then
 						if (CastSpellByName(self.stealthOpener)) then
@@ -986,7 +987,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- frenzied regeneration
-				if (HasSpell("Frenzied Regeneration")) and (not IsSpellOnCD("Frenzied Regeneration")) and (localhealth < self.healthToShift + 15) and (localRage >= 15) and (localMana < 40) then
+				if (HasSpell("Frenzied Regeneration")) and (not IsSpellOnCD("Frenzied Regeneration")) and (localhealth < 50) and (localRage >= 15) and (localMana < 40) then
 					if (CastSpellByName("Frenzied Regeneration")) then
 						self.waitTimer = GetTimeEX() + 1000;
 					end
@@ -1436,7 +1437,6 @@ function script_druid:rest()
 			StopMoving();
 		end
 		self.waitTimer = GetTimeEX() + 2550;
-	return true;
 	end	
 
 	-- rest in form
