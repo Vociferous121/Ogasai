@@ -189,16 +189,16 @@ function script_grind:setup()
 	end
 
 	-- change some values to random
-	local randomLogout = math.random(100, 220);
+	local randomLogout = math.random(30, 65);
 	self.setParanoidTimer = randomLogout;
 
 	local randomHotspot = math.random(350, 550);
 	self.distToHotSpot = randomHotspot;
 
-	local randomSetTimer = math.random(2, 15);
+	local randomSetTimer = math.random(2, 9);
 	self.paranoidSetTimer = randomSetTimer;
 
-	local randomRange = math.random(20, 40);
+	local randomRange = math.random(35, 70);
 	self.paranoidRange = randomRange;
 
 	-- add chat frame message grinder is loaded
@@ -351,6 +351,12 @@ function script_grind:run()
 				if (GetLocalPlayer():GetUnitsTarget() == 0) then	
 					TargetByName(script_grind.playerName);
 				end
+			end
+
+			if (IsInCombat()) and (script_grind.playerParanoidDistance <= 8) then
+				local pX, pY, pZ = script_grind.playerPos;
+				FacePosition(pX, pY, pZ);
+			return;
 			end
 	
 			if (script_paranoia.currentTime >= script_grind.currentTime2 + script_grind.setParanoidTimer) then

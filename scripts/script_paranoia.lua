@@ -120,7 +120,6 @@ function script_paranoia:checkParanoia()
 			end
 
 			script_paranoia.currentTime = GetTimeEX() / 1000;
-
 			script_grind.message = "Player(s) within paranoid range, pausing...";
 
 			-- rogue stealth while paranoid
