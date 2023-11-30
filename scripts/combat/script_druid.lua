@@ -482,6 +482,14 @@ function script_druid:run(targetGUID)
 		return 2;
 	end
 
+	-- Check: if we target player pets/totems
+	if (GetTarget() ~= nil and targetObj ~= nil) then
+		if (UnitPlayerControlled("target") and GetTarget() ~= localObj) then 
+			script_grind:addTargetToBlacklist(targetObj:GetGUID());
+			return 5; 
+		end
+	end 
+
 	-- Check: Do nothing if we are channeling or casting or wait timer
 	if (IsChanneling() or IsCasting() or (self.waitTimer > GetTimeEX())) then
 		return 4;
@@ -906,7 +914,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- face target
-				if (targetObj:GetDistance() <= self.meleeDistance) then
+				if (targetObj:GetDistance() <= self.meleeDistance) and (not IsMoving()) then
 					targetObj:FaceTarget();
 				end
 
@@ -917,7 +925,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- face target
-				if (targetObj:GetDistance() <= self.meleeDistance) then
+				if (targetObj:GetDistance() <= self.meleeDistance) and (not IsMoving()) then
 					targetObj:FaceTarget();
 				end
 
@@ -1048,7 +1056,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- face target
-				if (targetObj:GetDistance() <= self.meleeDistance) and (isBear) then
+				if (targetObj:GetDistance() <= self.meleeDistance) and (isBear) and (not IsMoving()) then
 					targetObj:FaceTarget();
 				end
 

@@ -20,6 +20,7 @@ ClearLastError()
 		DEFAULT_CHAT_FRAME:AddMessage(lastError);
 	end	
 
+SendChatMessage(" ");
 
 -- error codes
 spell not ready yet = 60

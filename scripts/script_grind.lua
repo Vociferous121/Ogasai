@@ -1,5 +1,19 @@
 script_grind = {
-	jump = true,	-- jump on/off
+	navFunctionsLoaded = include("scripts\\script_nav.lua"),
+	helperLoaded = include("scripts\\script_helper.lua"),
+	talentLoaded = include("scripts\\script_talent.lua"),
+	vendorLoaded = include("scripts\\script_vendor.lua"),
+	gatherLoaded = include("scripts\\script_gather.lua"),
+	grindExtra = include("scripts\\script_grindEX.lua"),
+	grindMenu = include("scripts\\script_grindMenu.lua"),
+	aggroLoaded = include("scripts\\script_aggro.lua"),
+	expExtra = include("scripts\\script_expChecker.lua"),
+	unstuckLoaded = include("scripts\\script_unstuck.lua"),
+	paranoiaLoaded = include("scripts\\script_paranoia.lua"),
+	paranoiaMenuLoaded = include("scripts\\script_paranoiaMenu.lua"),
+	radarLoaded = include("scripts\\script_radar.lua"),
+	debuffCheck = include("scripts\\script_checkDebuffs.lua"),
+	jump = true,
 	jumpRandomFloat = 99,
 	useVendor = false,
 	repairWhenYellow = false,
@@ -42,19 +56,6 @@ script_grind = {
 	skipMechanical = false,
 	skipElites = true,
 	paranoidRange = 75,
-	navFunctionsLoaded = include("scripts\\script_nav.lua"),
-	helperLoaded = include("scripts\\script_helper.lua"),
-	talentLoaded = include("scripts\\script_talent.lua"),
-	vendorLoaded = include("scripts\\script_vendor.lua"),
-	gatherLoaded = include("scripts\\script_gather.lua"),
-	grindExtra = include("scripts\\script_grindEX.lua"),
-	grindMenu = include("scripts\\script_grindMenu.lua"),
-	aggroLoaded = include("scripts\\script_aggro.lua"),
-	expExtra = include("scripts\\script_expChecker.lua"),
-	unstuckLoaded = include("scripts\\script_unstuck.lua"),
-	paranoiaLoaded = include("scripts\\script_paranoia.lua"),
-	radarLoaded = include("scripts\\script_radar.lua"),
-	debuffCheck = include("scripts\\script_checkDebuffs.lua"),
 	nextToNodeDist = 4.4, -- (Set to about half your nav smoothness)
 	blacklistedTargets = {},
 	blacklistedNum = 0,
@@ -105,6 +106,9 @@ script_grind = {
 	paranoidTarget = "",	-- name of paranoid players
 	currentTime2 = GetTimeEX() / 1000,	-- paranoia logout timer
 	setParanoidTimer = 213,		-- time added to paranoid logout timer
+	playerName = "",
+	otherName = player,
+	playerPos = 0,
 }
 
 function script_grind:setup()
@@ -185,16 +189,16 @@ function script_grind:setup()
 	end
 
 	-- change some values to random
-	local randomLogout = math.random(180, 300);
+	local randomLogout = math.random(100, 220);
 	self.setParanoidTimer = randomLogout;
 
 	local randomHotspot = math.random(350, 550);
 	self.distToHotSpot = randomHotspot;
 
-	local randomSetTimer = math.random(9, 25);
+	local randomSetTimer = math.random(2, 15);
 	self.paranoidSetTimer = randomSetTimer;
 
-	local randomRange = math.random(45, 100);
+	local randomRange = math.random(20, 40);
 	self.paranoidRange = randomRange;
 
 	-- add chat frame message grinder is loaded
@@ -228,24 +232,6 @@ function script_grind:isTargetBlacklisted(targetGUID)
 	end
 	return false;
 end
-
---IS TARGET BLACKLISTED BY NAME - thank you Coin
---function script_grind:isTargetNameBlacklisted(name) 
---	for i=0,self.blacklistedNameNum do
---		if (name == self.blacklistedNameTargets[i]) then
---			return true;
---		end
---	end
---	return false;
---end
-
---ADD BLACKLIST BY NAME - thank you Coin
---function script_grind:addTargetToNameBlacklist(name) 
---	if (name ~= nil and name ~= 0 and name ~= '') then	
---		self.blacklistedNameTargets[self.blacklistedNameNum] = name;
---		self.blacklistedNameNum = self.blacklistedNameNum + 1;
---	end
---end
 
 function script_grind:run()
 	script_grind:window();
@@ -321,7 +307,6 @@ function script_grind:run()
 		return;
 	end
 
-
 	--and (not self.pause) 
 	if (self.useUnstuck and IsMoving()) and (not self.pause) then
 		if (not script_unstuck:pathClearAuto(2)) then
@@ -358,10 +343,17 @@ function script_grind:run()
 	end
 
 	-- check paranoia	
-	if (not IsInCombat()) and (not IsLooting()) then	
+	if (not IsLooting()) and (not IsInCombat()) then	
 		if (script_paranoia:checkParanoia()) and (not self.pause) then
 				script_paranoia.paranoiaUsed = true;
-			if (script_paranoia.currentTime >= script_grind.currentTime2 + script_grind.setParanoidTimer) and (not IsInCombat()) then
+				script_grind.tickRate = 50;
+			if (script_grind.playerParanoidDistance <= 30) and (script_grind:playersTargetingUs() >= 1) and (not IsInCombat()) then
+				if (GetLocalPlayer():GetUnitsTarget() == 0) then	
+					TargetByName(script_grind.playerName);
+				end
+			end
+	
+			if (script_paranoia.currentTime >= script_grind.currentTime2 + script_grind.setParanoidTimer) then
 				script_paranoia.currentTime = 0;
 				StopBot();
 				Logout();
@@ -378,12 +370,14 @@ function script_grind:run()
 				return 0;
 			end
 
-			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 2000;
-			return true;
+		self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 2000;
+		return true;
 		else
 			script_paranoia.currentTime = 0;
 			script_grind.currentTime2 = GetTimeEX() / 1000;
 			script_paranoia.paranoiaUsed = false;
+			script_paranoia.doEmote = true;
+			script_paranoia.didEmote = false;
 		end
 	end
 
@@ -448,7 +442,7 @@ function script_grind:run()
 
 			-- Druid cat form is faster if you specc talents
 
-			if (not script_paranoia:checkParanoia()) then
+			if (not script_paranoia:checkParanoia()) and (not IsSwimming()) then
 				if (script_druidEX:travelForm()) then
 					self.waitTimer = GetTimeEX() + 1000;
 				end
@@ -583,7 +577,7 @@ function script_grind:run()
 			-- Target player pet/totem: pause for 5 seconds, combat script should add target to blacklist
 			if(self.combatError == 5) then
 				self.message = "Targeted a player pet pausing 5s...";
-				ClearTarget(); self.waitTimer = GetTimeEX()+5000; return;
+				ClearTarget(); self.waitTimer = GetTimeEX()+15000; return;
 			end
 			
 			-- Stop bot, request from a combat script
@@ -819,21 +813,11 @@ function script_grind:playersTargetingUs() -- returns number of players attackin
 	while currentObj ~= 0 do 
 		if typeObj == 4 then
 			if (script_grind:isTargetingMe(currentObj)) then 
-                	nrPlayersTargetingUs = nrPlayersTargetingUs + 1;
-				if (self.useOtherString) then
-					local playerDistance = currentObj:GetDistance();
-					local playerName = currentObj:GetUnitName();
-					local playerTime = GetTimeStamp();
-					local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance(yds) "..playerDistance.. " - Targeted Us! - added to log file for further implementation of paranoia.";
-					DEFAULT_CHAT_FRAME:AddMessage(string);
-					ToFile(string);
-					self.useOtherString = false;
-				end
+                		nrPlayersTargetingUs = nrPlayersTargetingUs + 1;
 			end 
 		end
 		currentObj, typeObj = GetNextObject(currentObj); 
 	end
-	self.useOtherString = true;
 	return nrPlayersTargetingUs;
 end
 
@@ -848,6 +832,10 @@ function script_grind:playersWithinRange(range)
 						self.paranoidTargetName = currentObj:GetUnitName();
 					if (self.useString) then
 						if (currentObj:GetDistance() < self.paranoidRange) and (typeObj == 4) then
+							self.otherName = currentObj;
+							local playerString = ""..script_grind.playerName.."";
+							self.playerName = currentObj:GetUnitName();
+							self.playerPos = currentObj:GetPosition();
 							local playerName = currentObj:GetUnitName();
 							local playerDistance = currentObj:GetDistance();
 							self.playerParanoidDistance = currentObj:GetDistance();

@@ -104,9 +104,8 @@ function script_nav:moveToHotspot(localObj)
 	if (self.currentHotSpotName ~= 0) then
 		script_nav:moveToTarget(localObj, self.currentHotSpotX, self.currentHotSpotY, self.currentHotSpotZ); 
 		
-			if (not script_paranoia.checkParanoia()) then
+			if (not script_paranoia.checkParanoia()) and (not IsSwimming()) then
 				if (script_druidEX:travelForm()) then
-					self.waitTimer = GetTimeEX() + 1200;
 				end
 			end
 			if (not HasSpell("Travel Form")) and (HasSpell("Cat Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then

@@ -99,7 +99,7 @@ function script_grindMenu:menu()
 			Text("Spending Next Talent Point In: " .. (script_talent:getNextTalentName() or " "));
 		end
 		
-		script_paranoia:menu();
+		script_paranoiaMenu:menu();
 
 		wasClicked, script_grind.adjustTickRate = Checkbox("Adjust Script Speed !!CAUTION!!", script_grind.adjustTickRate);
 		if (script_grind.adjustTickRate) then
