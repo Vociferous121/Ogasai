@@ -1,5 +1,5 @@
 script_shaman = {
-	message = 'Shaman Combat Script',
+	message = "Shaman Combat Script",
 	shamanMenu = include("scripts\\combat\\script_shamanEX.lua"),
 	eatHealth = 70,
 	drinkMana = 50,
@@ -10,34 +10,47 @@ script_shaman = {
 	meleeDistance = 4,
 	waitTimer = 0,
 	stopIfMHBroken = true,
-	enhanceWeapon = 'Rockbiter Weapon',
-	totem = 'no totem yet',
-	totemBuff = '',
-	healingSpell = 'Healing Wave',
-	isChecked = true
+	enhanceWeapon = "Rockbiter Weapon",
+	totem = "no totem yet",
+	totemBuff = "",
+	healingSpell = "Healing Wave",
+	isChecked = true,
+
+
+	lightningBoltMana = 80,
 }
+
+-- needed in menu
+-- need self.totem
+-- need self.ligntningboltmana
 
 function script_shaman:setup()
 
 	-- Set weapon enhancement
-	if (HasSpell('Windfury Weapon')) then
-		self.enhanceWeapon = 'Windfury Weapon';
-	elseif (HasSpell('Flametongue Weapon')) then
-		self.enhanceWeapon = 'Flametongue Weapon';
+	if (HasSpell("Windfury Weapon")) then
+		self.enhanceWeapon = "Windfury Weapon";
+	elseif (HasSpell("Flametongue Weapon")) then
+		self.enhanceWeapon = "Flametongue Weapon";
+	elseif (HasSpell("Rockbiter Weapon")) then
+		self.enchanceWeapon = "Rockbiter Weapon";
 	end
 
 	-- Set totem
-	if (HasSpell('Strength of Earth Totem') and HasItem('Earth Totem')) then
-		self.totem = 'Strength of Earth Totem';
-		self.totemBuff = 'Strength of Earth';
-	elseif (HasSpell('Grace of Air Totem') and HasItem('Air Totem')) then
-		self.totem = 'Grace of Air Totem';
-		self.totemBuff = 'Grace of Air';
+	if (HasSpell("Stoneskin Totem")) and (not HasSpell("Strength of Earth Totem")) and (HasItem("Earth Totem")) then
+		self.totem = "Stoneskin Totem";
+		self.totemBuff = "Stoneskin";
+	end
+	if (HasSpell("Strength of Earth Totem") and HasItem("Earth Totem")) then
+		self.totem = "Strength of Earth Totem";
+		self.totemBuff = "Strength of Earth";
+	elseif (HasSpell("Grace of Air Totem") and HasItem("Air Totem")) then
+		self.totem = "Grace of Air Totem";
+		self.totemBuff = "Grace of Air";
 	end
 
 	-- Set healing spell
-	if (HasSpell('Lesser Healing Wave')) then
-		self.healingSpell = 'Lesser Healing Wave';
+	if (HasSpell("Lesser Healing Wave")) then
+		self.healingSpell = "Lesser Healing Wave";
 	end
 
 	self.waitTimer = GetTimeEX();
@@ -151,6 +164,20 @@ function script_shaman:run(targetGUID)
 	local localHealth = localObj:GetHealthPercentage();
 	local localLevel = localObj:GetLevel();
 
+	-- set tick rate for script to run
+	if (not script_grind.adjustTickRate) then
+
+		local tickRandom = random(750, 1150);
+
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+		elseif (IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+		end
+	end
+
 	if (localObj:IsDead()) then
 		return 0; 
 	end
@@ -177,17 +204,7 @@ function script_shaman:run(targetGUID)
 
 	--Valid Enemy
 	if (targetObj ~= 0) then
-
-
-	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
-		end
-	end
 	
-		
 		-- Cant Attack dead targets
 		if (targetObj:IsDead() or not targetObj:CanAttack()) then
 			return 0;
@@ -197,7 +214,7 @@ function script_shaman:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		if (not IsMoving() and targetObj:GetDistance() < 10 and targetObj:IsInLineOfSight()) then
+		if (not IsMoving() and targetObj:GetDistance() <= 10 and targetObj:IsInLineOfSight()) then
 			targetObj:FaceTarget();
 		end
 
@@ -225,24 +242,19 @@ function script_shaman:run(targetGUID)
 			if (IsMounted() and targetObj:GetDistance() < 25) then DisMount(); return 0; end
 
 			-- Check: Not in range
-			if (not targetObj:IsSpellInRange('Lightning Bolt')) then
+			if (not targetObj:IsSpellInRange("Lightning Bolt")) then
 				return 3;
 			end
 
-			-- Check: If in range and in line of sight stop moving
-			if (targetObj:IsInLineOfSight() and IsMoving()) then
-				StopMoving(); 
-				return 0;
+			-- Pull with: Lighting Bolt
+			if (localMana >= self.drinkMana) and (targetObj:IsInLineOfSight()) then
+				CastSpellByName("Lightning Bolt", targetObj);
+				targetObj:FaceTarget();
+				
 			end
 
-			-- Pull with: Lighting Bolt
-			if (Cast("Lightning Bolt", targetObj)) then
-				self.waitTimer = GetTimeEX() + 4000;
-				return 0;
-			end
-			
 			-- Check move into melee range
-			if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
+			if (IsInCombat()) and (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
 				return 3;
 			end
 
@@ -252,7 +264,7 @@ function script_shaman:run(targetGUID)
 			-- Dismount
 			if (IsMounted()) then DisMount(); end
 
-			if (not targetObj:FaceTarget() and targetObj:IsInLineOfSight()) then
+			if (targetObj:GetDistance() <= 30) and (not IsMoving()) and (targetObj:IsInLineOfSight()) then
 				targetObj:FaceTarget();
 			end
 			
@@ -267,7 +279,10 @@ function script_shaman:run(targetGUID)
 			if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
 				return 3;
 			else
-				if (IsMoving()) then StopMoving(); end
+				if (IsMoving()) then
+					StopMoving();
+					targetObj:FaceTarget();
+				end
 			end
 
 			targetObj:AutoAttack();
@@ -281,8 +296,8 @@ function script_shaman:run(targetGUID)
 			end
 
 			-- Check: Lightning Shield
-			if (not localObj:HasBuff('Lightning Shield')) then
-				if (Buff("Lightning Shield", localObj)) then
+			if (HasSpell("Lightning Shield")) and (localMana >= 20) and (not localObj:HasBuff("Lightning Shield")) then
+				if (CastSpellByName("Lightning Shield", localObj)) then
 					return 0;
 				end
 			end
@@ -301,16 +316,35 @@ function script_shaman:run(targetGUID)
 				end 
 			end
 
+			if (targetObj:GetDistance() <= 30) and (not IsMoving()) and (targetObj:IsInLineOfSight()) then
+				targetObj:FaceTarget();
+			end
+
 			-- Earth Shock
-			if (targetObj:IsCasting()) then
-				if (Cast("Earth Shock", targetObj)) then
+			if (targetObj:IsCasting() or targetHealth >= 30) and (targetObj:GetDistance() <= 20) then
+				if (not IsSpellOnCD("Earth Shock")) and (HasSpell("Earth Shock")) then
+					if (CastSpellByName("Earth Shock", targetObj)) then
+						targetObj:FaceTarget();
+						JumpOrAscendStart();
+						return 0;
+					end
+				end
+			end
+
+			-- cast lightning bolt in combat
+			if (localMana >= self.lightningBoltMana) and (targetHealth >= 20) and (not IsMoving()) then
+				if (CastSpellByName("Lightning Bolt", targetObj)) then
+					targetObj:FaceTarget();
+					self.waitTimer = GetTimeEX() + 1850;
 					return 0;
 				end
 			end
 
 			-- Check: If we are in melee range, do melee attacks
 			if (targetObj:GetDistance() < self.meleeDistance and targetObj:IsInLineOfSight()) then
-				targetObj:FaceTarget();
+				if (not IsMoving()) then
+					targetObj:FaceTarget();
+				end
 
 				-- Totem
 				if (HasSpell(self.totem) and not localObj:HasBuff(self.totemBuff)) then
@@ -319,7 +353,7 @@ function script_shaman:run(targetGUID)
 				end
 
 				-- Stormstrike
-				if (HasSpell('Stormstrike') and not IsSpellOnCD('Stormstrike')) then
+				if (HasSpell("Stormstrike") and not IsSpellOnCD("Stormstrike")) then
 					if (Cast("Stormstrike", targetObj)) then
 						return 0;
 					end
@@ -329,6 +363,20 @@ function script_shaman:run(targetGUID)
 			return 0;
 		end
 	end
+
+		if (not script_grind.adjustTickRate) then
+
+		local tickRandom = random(750, 1150);
+
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+		elseif (IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+		end
+	end
+
 end
 
 function script_shaman:rest()
@@ -342,12 +390,18 @@ function script_shaman:rest()
 	local localMana = localObj:GetManaPercentage();
 
 	if (not script_grind.adjustTickRate) then
-		if (not IsInCombat()) or (targetObj:GetDistance() > self.meleeDistance) then
-			script_grind.tickRate = 100;
-		elseif (IsInCombat()) then
-			script_grind.tickRate = 750;
+
+		local tickRandom = random(750, 1150);
+
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+		elseif (IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
 		end
 	end
+
 
 	-- Stop moving before we can rest
 	if(localHealth < self.eatHealth or localMana < self.drinkMana) then
@@ -359,7 +413,7 @@ function script_shaman:rest()
 
 	-- Heal up
 	if (localHealth < self.eatHealth and localMana > 20) then 
-		if (Cast("Healing Wave", localObj)) then
+		if (CastSpellByName("Healing Wave", localObj)) then
 			script_grind:setWaitTimer(5000);
 			return true;
 		end
@@ -419,13 +473,27 @@ function script_shaman:rest()
 	end
 
 	-- Keep us buffed: Lightning Shield
-	if (Buff("Lightning Shield", localObj)) then
+	if (CastSpellByName("Lightning Shield", localObj)) then
 		return true;
 	end
 
 	if (script_shaman:checkEnhancement()) then
 		return true;
 	end
+
+	if (not script_grind.adjustTickRate) then
+
+		local tickRandom = random(750, 1150);
+
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+		elseif (IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+		end
+	end
+
 
 	-- Don't need to rest
 	return false;
