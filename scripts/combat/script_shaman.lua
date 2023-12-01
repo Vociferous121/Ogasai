@@ -3,18 +3,22 @@ script_shaman = {
 	shamanMenu = include("scripts\\combat\\script_shamanEX.lua"),
 	eatHealth = 70,
 	drinkMana = 50,
-	healHealth = 60,
+	healHealth = 65,
 	potionHealth = 10,
 	potionMana = 20,
 	isSetup = false,
-	meleeDistance = 4,
+	meleeDistance = 4.5,
 	waitTimer = 0,
 	stopIfMHBroken = true,
 	enhanceWeapon = "Rockbiter Weapon",
-	totem = "no totem yet",
-	totemBuff = "",
+	totem = "no totem yet",	-- used for totem1
+	totemBuff = "",		-- used for totem1
+	totem2 = "no totem yet",	-- used for totem2
+	totemUsed = false,		-- used for totem2
+	
 	healingSpell = "Healing Wave",
 	isChecked = true,
+	
 
 
 	lightningBoltMana = 80,
@@ -52,6 +56,10 @@ function script_shaman:setup()
 	elseif (HasSpell("Grace of Air Totem") and HasItem("Air Totem")) then
 		self.totem = "Grace of Air Totem";
 		self.totemBuff = "Grace of Air";
+	end
+
+	if (HasSpell("Searing Totem")) and (HasItem("Fire Totem")) then
+		self.totem2 = "Searing Totem";
 	end
 
 	-- Set healing spell
@@ -263,8 +271,8 @@ function script_shaman:run(targetGUID)
 			-- Check: Not in range
 			if (not targetObj:IsSpellInRange("Lightning Bolt")) or (not targetObj:IsInLineOfSight()) then
 				return 3;
-			else
-			-- Pull with: Lighting Bolt
+			elseif (not IsMoving()) and (targetObj:IsInLineOfSight()) and (targetObj:IsSpellInRange("Lightning Bolt")) then
+				-- Pull with: Lighting Bolt
 				if (IsMoving()) then
 					StopMoving();
 				end
@@ -274,12 +282,39 @@ function script_shaman:run(targetGUID)
 
 			-- Totem
 			if (targetObj:GetDistance() <= 20) and (localMana >= self.lightningBoltMana + 10) and (HasSpell(self.totem)) and (not localObj:HasBuff(self.totemBuff)) then
-				CastSpellByName(self.totem);
-				self.waitTimer = GetTimeEX() + 1500;
+				if (CastSpellByName(self.totem)) then
+					self.waitTimer = GetTimeEX() + 1500;
+				end
 			end
+
+			-- stop moving if we get close enough to target and not in combat yet
+			if (not IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance) then
+				if (IsMoving()) then
+					StopMoving();
+				end
+				if (not IsMoving()) then
+					targetObj:FaceTarget();
+				end
+			self.waitTimer = GetTimeEX() + 800;
+			end
+
 
 		-- Combat
 		else	
+
+
+
+			-- stop moving if we get close enough to target
+			if (not IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance) and (targetHealth >= 90) then
+				if (IsMoving()) then
+					StopMoving();
+				end
+				if (not IsMoving()) then
+					targetObj:FaceTarget();
+				end
+			self.waitTimer = GetTimeEX() + 800;
+			end
+
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 			-- Dismount
 			if (IsMounted()) then DisMount(); end
@@ -290,13 +325,19 @@ function script_shaman:run(targetGUID)
 
 			-- Totem
 			if (targetObj:GetDistance() <= 12) and (HasSpell(self.totem)) and (not localObj:HasBuff(self.totemBuff)) then
-				CastSpellByName(self.totem);
-				self.waitTimer = GetTimeEX() + 1500;
+				if (CastSpellByName(self.totem)) then
+					self.waitTimer = GetTimeEX() + 1700;
+				end
 			end
-			
+
+			if (not script_shaman.totemUsed) and (HasSpell(self.totem2)) and (localMana >= 25) and (localObj:HasBuff(self.totemBuff)) and (targetObj:GetDistance() <= 10) then
+				CastSpellByName(self.totem2);
+				script_shaman.totemUsed = true;
+			end
+		
 			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() < .2) then 
-				if (script_shaman:runBackwards(targetObj,3)) then 
+			if (targetObj:GetDistance() < .8) then 
+				if (script_shaman:runBackwards(targetObj,2)) then 
 					return 4; 
 				end 
 			end
@@ -395,7 +436,7 @@ function script_shaman:run(targetGUID)
 			end
 
 			-- Check: If we are in melee range, do melee attacks
-			if (targetObj:GetDistance() < self.meleeDistance and targetObj:IsInLineOfSight()) then
+			if (targetObj:GetDistance() <= self.meleeDistance and targetObj:IsInLineOfSight()) then
 				if (not IsMoving()) and (targetObj:IsInLineOfSight()) then
 					targetObj:FaceTarget();
 				end
@@ -414,11 +455,10 @@ function script_shaman:run(targetGUID)
 				end
 			end
 
-			return 0;
 		end
 	end
 
-		if (not script_grind.adjustTickRate) then
+	if (not script_grind.adjustTickRate) then
 
 		local tickRandom = random(750, 1150);
 
@@ -456,6 +496,11 @@ function script_shaman:rest()
 		end
 	end
 
+	
+	-- reset fire totem
+	if (not IsInCombat()) and (script_shaman.totemUsed) then
+		script_shaman.totemUsed = false;
+	end
 
 	-- Stop moving before we can rest
 	if(localHealth < self.eatHealth or localMana < self.drinkMana) then
@@ -474,7 +519,7 @@ function script_shaman:rest()
 	end
 
 	-- Eat something
-	if (not IsEating() and localHealth < self.eatHealth) then
+	if (not IsEating() and localHealth < self.eatHealth) and (not IsMoving()) and (not IsInCombat()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to eat...";
 		if (IsInCombat()) then
@@ -496,7 +541,7 @@ function script_shaman:rest()
 	end
 
 	-- Drink something
-	if (not IsDrinking() and localMana < self.drinkMana) then
+	if (not IsDrinking() and localMana < self.drinkMana) and (not IsMoving()) and (not IsInCombat()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to drink...";
 		if (IsMoving()) then

@@ -337,22 +337,38 @@ function script_grind:run()
 	end
 
 	-- check paranoia	
+		-- jump when targeted in combat
+	if (IsInCombat()) and (script_grind:playersTargetingUs() >= 1) and (script_paranoiaCheck:playersWithinRange(40)) then
+		if (not IsCasting()) and (not IsChanneling()) and (not IsMoving()) then
+			local moreJumping = math.random(0, 100);
+			if (moreJumping >= 92) then
+				JumpOrAscendStart();
+			end
+			self.waitTimer = GetTimeEX() + 800;
+		end
+	end
+	-- do paranoia
 	if (not IsLooting()) and (not IsInCombat()) then	
 		if (script_paranoia:checkParanoia()) and (not self.pause) then
 				script_paranoia.paranoiaUsed = true;
 				script_grind.tickRate = 50;
+			
+			-- if player is within distance <= 30 then do this
 			if (script_grind.playerParanoidDistance <= 30) and (script_grind:playersTargetingUs() >= 1) and (not IsInCombat()) then
+				-- target player targeting us
 				if (GetLocalPlayer():GetUnitsTarget() == 0) then	
 					TargetByName(script_grind.playerName);
 				end
 			end
 
+			-- try to target player if they are attacking you
 			if (IsInCombat()) and (script_grind.playerParanoidDistance <= 8) then
 				local pX, pY, pZ = script_grind.playerPos;
 				FacePosition(pX, pY, pZ);
 			return;
 			end
 	
+			-- logout timer reached then logout
 			if (script_paranoia.currentTime >= script_grind.currentTime2 + script_grind.setParanoidTimer) then
 				script_paranoia.currentTime = 0;
 				StopBot();
@@ -360,10 +376,14 @@ function script_grind:run()
 				return 4;
 			end
 
+			-- do stealth
 			script_paranoiaEX:checkStealth();
 
-		self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 2000;
+			-- set timer to stop after paranoid player leaves
+			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 2000;
 		return true;
+
+			-- else reset all conditions
 		else
 			script_paranoia.currentTime = 0;
 			script_grind.currentTime2 = GetTimeEX() / 1000;
@@ -373,6 +393,7 @@ function script_grind:run()
 		end
 	end
 
+	-- undo /afk when pressed during paranoid and sitting
 	if (self.undoAFK) and (IsStanding()) and (not localObj:IsDead()) and (localHealth >= 85) then
 		UseAction(script_grind.afkActionSlot, 0, 0);
 		self.waitTimer = GetTimeEX() + 2500;
@@ -381,6 +402,7 @@ function script_grind:run()
 		return true;
 	end
 
+	-- delete items 
 	if (script_helper:deleteItem()) then
 		return;
 	end	
