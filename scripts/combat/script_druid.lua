@@ -190,7 +190,7 @@ function script_druid:healsAndBuffs()
 	local hasRejuv = localObj:HasBuff("Rejuvenation"); 
 	local hasRegrowth = localObj:HasBuff("Regrowth");
 
--- set tick rate for script to run
+	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
 		local tickRandom = random(750, 1150);
@@ -207,7 +207,7 @@ function script_druid:healsAndBuffs()
 
 	-- shapeshift out of bear form to heal
 	if ( (isBear) and (localHealth <= self.healthToShift) and (localMana >= self.shapeshiftMana) and (not hasRejuv) and (not hasRegrowth) and (script_grind.enemiesAttackingUs(12) == 1 ) )
-	or ( (isBear) and (localHealth <= self.healthToShift) and (localMana >= self.shapeshiftMana + 5) and (not hasRejuv) and (not hasRegrowth) and (script_grind.enemiesAttackingUs(12) >= 2) )
+	or ( (isBear) and (localHealth <= self.healthToShift) and (localMana >= self.shapeshiftMana) and (not hasRejuv) and (not hasRegrowth) and (script_grind.enemiesAttackingUs(12) >= 2) )
 	or ( (isBear) and (localHealth <= 65) and (not IsInCombat()) and (localMana >= 75) and (not hasRejuv) and (not hasRegrowth) )
 	then
 		if (not script_grind.adjustTickRate) then
@@ -470,7 +470,7 @@ function script_druid:run(targetGUID)
 
 	-- check heals and buffs
 	if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) and (not localObj:HasBuff("Frenzied Regeneration")) then
-		self.waitTimer = GetTimeEX() + 1550;
+		self.waitTimer = GetTimeEX() + 2550;
 		return;
 	end
 
@@ -597,7 +597,7 @@ function script_druid:run(targetGUID)
 
 		-- check heals and buffs
 		if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) and (not localObj:HasBuff("Frenzied Regeneration")) then
-			self.waitTimer = GetTimeEX() + 1550;
+			self.waitTimer = GetTimeEX() + 2550;
 			return;
 		end
 
@@ -640,7 +640,6 @@ function script_druid:run(targetGUID)
 			if not self.useStealth and targetObj:GetDistance() <= 30 then
 				if HasSpell("Faerie Fire (Feral)") then
 					CastSpellByName("Faerie Fire (Feral)()");
-					self.waitTimer = GetTimeEX() + 1600;
 					return 0;
 				end
 			end
@@ -857,7 +856,7 @@ function script_druid:run(targetGUID)
 
 			-- check heals and buffs
 			if (script_druid:healsAndBuffs()) and (not IsLooting()) and (not localObj:HasBuff("Frenzied Regeneration")) then
-				self.waitTimer = GetTimeEX() + 1550;
+				self.waitTimer = GetTimeEX() + 2550;
 				return;
 			end
 
@@ -869,8 +868,8 @@ function script_druid:run(targetGUID)
 			-- stay in form - bear form conditions
 			if ( (self.useBear) and (not isBear) and (not isCat) and (localHealth > self.healthToShift)
 				and (localMana >= self.shapeshiftMana) and (IsStanding()) )
-			or ( (script_grind.enemiesAttackingUs(12) >= 2) and (not isBear) and (localMana >= self.shapeshiftMana)
-				and (not isCat) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form")) )
+			or ( (self.useBear) and (not isCat) and (script_grind.enemiesAttackingUs(12) >= 2) and (not isBear) and (localMana >= self.shapeshiftMana)
+				and (not isCat) and (localHealth > self.healthToShift) and (IsStanding()) )
 			or ( (targetObj:GetLevel() > (localObj:GetLevel() + 2)) and (not isBear) and (localMana >= self.shapeshiftMana)
 				and (not isCat) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form")) )
 
@@ -987,7 +986,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- frenzied regeneration
-				if (HasSpell("Frenzied Regeneration")) and (not IsSpellOnCD("Frenzied Regeneration")) and (localhealth < 50) and (localRage >= 15) and (localMana < 40) then
+				if (isBear) and (HasSpell("Frenzied Regeneration")) and (not IsSpellOnCD("Frenzied Regeneration")) and (localHealth < 50) and (localRage >= 15) and (localMana < 40) then
 					if (CastSpellByName("Frenzied Regeneration")) then
 						self.waitTimer = GetTimeEX() + 1000;
 					end
@@ -1216,7 +1215,7 @@ function script_druid:run(targetGUID)
 
 				-- check heals and buffs
 				if (script_druid:healsAndBuffs()) and (not IsLooting()) and (not localObj:HasBuff("Frenzied Regeneration")) then
-					self.waitTimer = GetTimeEX() + 1550;
+					self.waitTimer = GetTimeEX() + 2550;
 					return;
 				end
 

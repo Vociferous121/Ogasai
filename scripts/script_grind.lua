@@ -45,7 +45,7 @@ script_grind = {
 	myTime = GetTimeEX(),
 	message = 'Starting the grinder...',
 	skipUnknown = true, -- skip not specified npc
-	skipHumanoid = true,
+	skipHumanoid = false,
 	skipElemental = false,
 	skipUndead = false,
 	skipDemon = false,
@@ -136,11 +136,6 @@ function script_grind:setup()
 	-- don't skip hard pulls when we are at starter zones
 	if (GetLocalPlayer():GetLevel() < 8) then
 		self.skipHardPull = false;
-	end
-
-	-- don't skip humanoids when we are at starter zones
-	if (GetLocalPlayer():GetLevel() < 10) then
-		self.skipHumanoids = true;
 	end
 
 	-- enable drawing unit info on screen
@@ -258,6 +253,12 @@ function script_grind:run()
 	if (AreBagsFull()) then
 		self.bagsFull = true;
 	end
+
+	--if (IsIndoors()) then
+	--	script_unstuck.unstuckSensitivity = .1;
+	--else
+	--	script_unstuck.unstuckSensitivty = script_unstuck.unstuckSensitivity;
+	--end
 
 	 -- Set next to node distance and nav-mesh smoothness to double that number
 	if (self.useMount and IsMounted()) then
