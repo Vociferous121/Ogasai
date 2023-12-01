@@ -20,8 +20,8 @@ function script_grindEX:doChecks()
 		
 		localObj = GetLocalPlayer();
 		--if (script_grind.avoidElite and not localObj:IsDead()) then 
-		--	if (script_nav:avoidElite()) then
-		--		self.message = script_nav:runBackwards(1, 50);
+		--	if (script_extraFunctions:avoidElite()) then
+		--		self.message = script_extraFunctions:runBackwards(1, 50);
 		--		script_grind.message = "Elite within " .. script_grind.avoidRange .. " yd. running away...";
 		--		return true; 
 		--	end 
@@ -129,7 +129,7 @@ function script_grindEX:doChecks()
 		--end
 
 		if (localObj:HasBuff("Vanish")) then
-			if (script_nav:runBackwards(1, 30)) then 
+			if (script_extraFunctions:runBackwards(1, 30)) then 
 				ClearTarget();
 				script_grind.message = "Moving away from enemies...";
 				return 4;

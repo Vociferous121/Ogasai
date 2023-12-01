@@ -3,7 +3,7 @@ script_shaman = {
 	shamanMenu = include("scripts\\combat\\script_shamanEX.lua"),
 	eatHealth = 70,
 	drinkMana = 50,
-	healHealth = 70,
+	healHealth = 60,
 	potionHealth = 10,
 	potionMana = 20,
 	isSetup = false,
@@ -127,10 +127,11 @@ function script_shaman:runBackwards(targetObj, range)
  		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
  		local moveX, moveY, moveZ = xT + xUV*5, yT + yUV*5, zT + zUV;		
  		if (distance < range) then 
- 			Move(moveX, moveY, moveZ);
-			self.waitTimer = GetTimeEX() + 1500;
- 			return true;
- 		end
+ 			script_navEX:moveToTarget(localObj, moveX, moveY, moveZ);
+			if (IsMoving()) then
+				JumpOrAscendStart();
+			end
+		end
 	end
 	return false;
 end
@@ -219,9 +220,12 @@ function script_shaman:run(targetGUID)
 		end
 
 		-- Auto Attack
-		if (targetObj:GetDistance() < 40) then
-			targetObj:AutoAttack();
-		end
+		--if (targetObj:GetDistance() < 40) then
+		--	targetObj:AutoAttack();
+		--	if (not IsMoving()) then
+		--		targetObj:FaceTarget();
+		--	end
+		--end
 	
 		targetHealth = targetObj:GetHealthPercentage();
 
@@ -241,16 +245,26 @@ function script_shaman:run(targetGUID)
 			-- Dismount
 			if (IsMounted() and targetObj:GetDistance() < 25) then DisMount(); return 0; end
 
+			-- Auto Attack
+			if (targetObj:GetDistance() < 35) and (not IsAutoCasting("Attack")) and (localMana >= self.drinkMana) and (localHealth >= self.healHealth) then
+				targetObj:AutoAttack();
+			end
+
+
 			-- Check: Not in range
 			if (not targetObj:IsSpellInRange("Lightning Bolt")) then
 				return 3;
 			end
-
 			-- Pull with: Lighting Bolt
 			if (localMana >= self.drinkMana) and (targetObj:IsInLineOfSight()) then
 				CastSpellByName("Lightning Bolt", targetObj);
 				targetObj:FaceTarget();
-				
+			end
+
+			-- Totem
+			if (targetObj:GetDistance() <= 20) and (localMana >= self.lightningBoltMana + 10) and (HasSpell(self.totem)) and (not localObj:HasBuff(self.totemBuff)) then
+				CastSpellByName(self.totem);
+				self.waitTimer = GetTimeEX() + 1500;
 			end
 
 			-- Check move into melee range
@@ -264,8 +278,14 @@ function script_shaman:run(targetGUID)
 			-- Dismount
 			if (IsMounted()) then DisMount(); end
 
-			if (targetObj:GetDistance() <= 30) and (not IsMoving()) and (targetObj:IsInLineOfSight()) then
+			if (targetObj:GetDistance() <= self.meleeDistance) and (not IsMoving()) and (targetObj:IsInLineOfSight()) then
 				targetObj:FaceTarget();
+			end
+
+			-- Totem
+			if (targetObj:GetDistance() <= 12) and (HasSpell(self.totem)) and (not localObj:HasBuff(self.totemBuff)) then
+				CastSpellByName(self.totem);
+				self.waitTimer = GetTimeEX() + 1500;
 			end
 			
 			-- Run backwards if we are too close to the target
@@ -285,18 +305,24 @@ function script_shaman:run(targetGUID)
 				end
 			end
 
-			targetObj:AutoAttack();
+			if (not IsAutoCasting("Attack")) and (targetObj:GetDistance() <= self.meleeDistance) then 
+				targetObj:AutoAttack();
+				if (not IsMoving()) and (targetObj:GetDistance() <= 8) then
+					targetObj:FaceTarget();
+				end
+			end
 
 			-- Check: Healing
-			if (localHealth < self.healHealth) then 
-				if (Cast(self.healingSpell, localObj)) then
+			if (localHealth < self.healHealth) and (localMana >= 20) then 
+				if (CastSpellByName(self.healingSpell, localObj)) then
 					self.waitTimer = GetTimeEX() + 4000;
+					script_grind:setWaitTimer(4000);
 					return 0;
 				end
 			end
 
 			-- Check: Lightning Shield
-			if (HasSpell("Lightning Shield")) and (localMana >= 20) and (not localObj:HasBuff("Lightning Shield")) then
+			if (HasSpell("Lightning Shield")) and (localMana >= 35) and (not localObj:HasBuff("Lightning Shield")) then
 				if (CastSpellByName("Lightning Shield", localObj)) then
 					return 0;
 				end
@@ -321,7 +347,7 @@ function script_shaman:run(targetGUID)
 			end
 
 			-- Earth Shock
-			if (targetObj:IsCasting() or targetHealth >= 30) and (targetObj:GetDistance() <= 20) then
+			if (targetObj:IsCasting() or targetHealth >= 30) and (targetObj:GetDistance() <= 20) and (localMana >= 20) then
 				if (not IsSpellOnCD("Earth Shock")) and (HasSpell("Earth Shock")) then
 					if (CastSpellByName("Earth Shock", targetObj)) then
 						targetObj:FaceTarget();
@@ -354,7 +380,7 @@ function script_shaman:run(targetGUID)
 
 				-- Stormstrike
 				if (HasSpell("Stormstrike") and not IsSpellOnCD("Stormstrike")) then
-					if (Cast("Stormstrike", targetObj)) then
+					if (CastSpellByName("Stormstrike", targetObj)) then
 						return 0;
 					end
 				end
@@ -473,8 +499,11 @@ function script_shaman:rest()
 	end
 
 	-- Keep us buffed: Lightning Shield
-	if (CastSpellByName("Lightning Shield", localObj)) then
-		return true;
+	if (not localObj:HasBuff("Lightning Shield")) and (localMana >= self.drinkMana) then
+		if (CastSpellByName("Lightning Shield", localObj)) then
+			self.waitTimer = GetTimeEX() + 1500;
+			return 0;
+		end
 	end
 
 	if (script_shaman:checkEnhancement()) then

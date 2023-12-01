@@ -1,4 +1,5 @@
 script_nav = {
+	includeNavEX= include("scripts\\script_navEX.lua"),
 	useNavMesh = true,
 	nextNavNodeDistance = 2.5, -- for mobs and loot
 	nextPathNodeDistance = 2.9, -- for walking paths
@@ -102,27 +103,15 @@ end
 
 function script_nav:moveToHotspot(localObj)
 	if (self.currentHotSpotName ~= 0) then
-		script_nav:moveToTarget(localObj, self.currentHotSpotX, self.currentHotSpotY, self.currentHotSpotZ); 
+		script_navEX:moveToTarget(localObj, self.currentHotSpotX, self.currentHotSpotY, self.currentHotSpotZ); 
 		
-			if (not script_paranoia.checkParanoia()) and (not IsSwimming()) then
+			if (not script_paranoia.checkParanoia()) and (not IsSwimming()) and (HasSpell("Travel Form")) then
 				if (script_druidEX:travelForm()) then
+					script_grind:setWaitTimer(1500);
 				end
 			end
-			if (not HasSpell("Travel Form")) and (HasSpell("Cat Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
-				if (CastSpellByName("Cat Form")) then
-					self.waitTimer = GetTimeEX() + 500;
-				end
-			end
-			if (not HasSpell("Travel Form")) and (localObj:HasBuff("Cat Form")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (not script_checkDebuffs:hasPoison()) then
-				if (CastSpellByName("Prowl")) then
-					self.waitTimer = GetTimeEX() + 500;
-				end
-			end
-			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (not script_checkDebuffs:hasPoison()) then
-				if (CastSpellByName("Stealth", localObj)) then
-					self.waitTimer = GetTimeEX() + 500;
-				end
-			end
+			
+			script_paranoiaEX:checkStealth();
 
 			return "Moving to hotspot " .. self.currentHotSpotName .. '...';
 	else
@@ -183,7 +172,7 @@ function script_nav:moveToSavedLocation(localObj, minLevel, maxLevel, useStaticH
 		return "Changing go to location...";
 	end
 
-	script_nav:moveToTarget(localObj, self.savedLocations[self.currentGoToLocation]['x'], self.savedLocations[self.currentGoToLocation]['y'], self.savedLocations[self.currentGoToLocation]['z']);
+	script_navEX:moveToTarget(localObj, self.savedLocations[self.currentGoToLocation]['x'], self.savedLocations[self.currentGoToLocation]['y'], self.savedLocations[self.currentGoToLocation]['z']);
 	
 	return "Moving to auto path node: " .. self.currentGoToLocation+1 .. "...";
 end
@@ -318,57 +307,6 @@ function script_nav:getLootTarget(lootRadius)
 	return bestTarget;
 end
 
-function script_nav:moveToTarget(localObj, _x, _y, _z) -- use when moving to moving targets
-
-	-- Please load and enable the nav mesh
-	if (not IsUsingNavmesh() and self.useNavMesh) then
-		return "Please load and and enable the nav mesh...";
-	end
-
-	self.drawNav = false;
-
-	-- Fetch our current position
-	localObj = GetLocalPlayer();
-	local _lx, _ly, _lz = localObj:GetPosition();
-
-	local _ix, _iy, _iz = GetPathPositionAtIndex(5, self.lastnavIndex);	
-
-	-- If the target moves more than 2 yard then make a new path
-	if(GetDistance3D(_x, _y, _z, self.navPosition['x'], self.navPosition['y'], self.navPosition['z']) > 2
-		or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
-		self.navPosition['x'] = _x;
-		self.navPosition['y'] = _y;
-		self.navPosition['z'] = _z;
-		GeneratePath(_lx, _ly, _lz, _x, _y, _z);
-		self.lastnavIndex = 1; -- start at index 1, index 0 is our position
-	end	
-
-	if (not IsPathLoaded(5)) then
-		return "Generating path...";
-	end
-
-	-- Get the current path node's coordinates
-	_ix, _iy, _iz = GetPathPositionAtIndex(5, self.lastnavIndex);
-
-	-- If we are close to the next path node, increase our nav node index
-	if(GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) < self.nextNavNodeDistance) then
-		self.lastnavIndex = 1 + self.lastnavIndex;		
-		if (GetPathSize(5) <= self.lastnavIndex) then
-			self.lastnavIndex = GetPathSize(5)-1;
-		end
-	end
-
-	-- Check: If move to coords are too far away, something wrong, dont move... BUT WHY ?!
-	if (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
-		GeneratePath(_lx, _ly, _lz, _lx, _ly, _lz);
-		return "Generating a new path...";
-	end
-
-	-- Move to the next destination in the path
-	Move(_ix, _iy, _iz);
-
-	return "Moving to target...";
-end
 
 function script_nav:moveToNav(localObj, _x, _y, _z)
 
@@ -510,62 +448,4 @@ function script_nav:navigate(localObj)
 		-- Please load a path...
 		return "No walk path has been loaded...";
 	end
-end
-
-
-function script_nav:runBackwards(count, range) -- Run backwards if there is atleast count of monsters within range
-	local countUnitsInRange = 0;
-	local currentObj, typeObj = GetFirstObject();
-	local localObj = GetLocalPlayer();
-	local closestEnemy = 0;
-	while currentObj ~= 0 do
- 		if typeObj == 3 or typeObj == 4 then
-			if currentObj:CanAttack() and not currentObj:IsCritter() and currentObj:GetDistance() <= range and not currentObj:IsDead() then	
-				countUnitsInRange = countUnitsInRange + 1;
-				if (closestEnemy ~= 0) then
-					if (currentObj:GetDistance() < closestEnemy:GetDistance()) then			
-						closestEnemy = currentObj;
-					end
-				else
-					closestEnemy = currentObj;
-				end
- 			end
- 		end
- 		currentObj, typeObj = GetNextObject(currentObj);
- 	end
- 	
- 	if closestEnemy ~= 0 then
- 			local xT, yT, zT = closestEnemy:GetPosition();
- 			local xP, yP, zP = localObj:GetPosition();
- 			local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
- 			local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
- 			local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;	
-			local moveX, moveY, moveZ = xT + xUV*35, yT + yUV*35, zT + zUV;		
- 		if countUnitsInRange >= count then
-			script_nav:moveToTarget(localObj, moveX, moveY, moveZ);
-			return true;
-		end
-	end
-end
-
-function script_nav:avoidElite() -- Runs away if there is atleast one elite within range
-	local currentObj, typeObj = GetFirstObject();
-	local localObj = GetLocalPlayer();
-	while currentObj ~= 0 do
- 		if (typeObj == 3) and (currentObj:GetClassification() == 1 or currentObj:GetClassification() == 2) then
-			if (currentObj:CanAttack()) and (currentObj:GetDistance() <= script_grind.avoidRange) and (not currentObj:IsDead()) then	
-				local xT, yT, zT = currentObj:GetPosition();
- 				local xP, yP, zP = localObj:GetPosition();
- 				local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
- 				local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
- 				local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
- 				local moveX, moveY, moveZ = xT + xUV*40, yT + yUV*40, zT + zUV;			
-				script_nav:moveToNav(localObj, moveX, moveY, moveZ);
-				script_grind:setWaitTimer(15000);
-			return;
- 			end
-	 	end
- 	currentObj, typeObj = GetNextObject(currentObj);
- 	end
-return false;
 end

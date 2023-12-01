@@ -103,7 +103,7 @@ function script_grindEX:doLoot(localObj)
 	end
 
 		script_follow.message = "Moving to loot...";		
-		script_nav:moveToTarget(localObj, _x, _y, _z);	
+		script_navEX:moveToTarget(localObj, _x, _y, _z);	
 		script_grind:setWaitTimer(100);
 
 	if (script_follow.lootObj:GetDistance() < 3) then

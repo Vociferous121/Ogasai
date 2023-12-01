@@ -147,7 +147,7 @@ function script_warlock:runBackwards(targetObj, range)
  		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
  		local moveX, moveY, moveZ = xT + xUV*20, yT + yUV*20, zT + zUV;		
  		if (distance < range and targetObj:IsInLineOfSight()) then
- 			script_nav:moveToTarget(localObj, moveX, moveY, moveZ);
+ 			script_navEX:moveToTarget(localObj, moveX, moveY, moveZ);
 			if (IsMoving()) then
 				JumpOrAscendStart();
 				self.waitTimer = GetTimeEX() + 250;
@@ -471,7 +471,7 @@ function script_warlock:run(targetGUID)
 			if (GetPet() ~= 0 and self.hasPet) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
 				if (GetPet():HasBuff("Health Funnel") and localHealth < 40) then
 					local _x, _y, _z = localObj:GetPosition();
-					script_nav:moveToTarget(localObj, _x + 1, _y + 1, _z); 
+					script_navEX:moveToTarget(localObj, _x + 1, _y + 1, _z); 
 					return 0;
 				end
 			end
@@ -483,7 +483,7 @@ function script_warlock:run(targetGUID)
 			if (GetTarget() ~= 0 and self.hasPet) and (HasSpell("Drain Life")) then	
 				if (GetTarget():HasDebuff("Drain Life") and localObj:HasBuff("Shadow Trance")) then
 				local _x, _y, _z = localObj:GetPosition();
-					script_nav:moveToTarget(localObj, _x + 1, _y, _z); 
+					script_navEX:moveToTarget(localObj, _x + 1, _y, _z); 
 					return 0;
 				end
 			end
@@ -824,7 +824,7 @@ function script_warlock:run(targetGUID)
 					if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) and (self.hasPet) then
 						self.message = "Healing pet!";
 						local _xXX, _yYY, _zZZ = GetPet():GetPosition();
-						script_nav:moveToTarget(localObj, _xXX, _yYY, _zZZ); 
+						script_navEX:moveToTarget(localObj, _xXX, _yYY, _zZZ); 
 						self.waitTimer = GetTimeEX() + 600;
 						return 0;
 					else
@@ -892,7 +892,7 @@ function script_warlock:run(targetGUID)
 						return; 
 					end
 				else
-					script_nav:moveToTarget(localObj, targetObj:GetPosition()); 
+					script_navEX:moveToTarget(localObj, targetObj:GetPosition()); 
 					self.waitTimer = GetTimeEX() + 2000;
 					return 0;
 				end
@@ -909,7 +909,7 @@ function script_warlock:run(targetGUID)
 						return; 
 					end
 				else
-					script_nav:moveToTarget(localObj, targetObj:GetPosition()); 
+					script_navEX:moveToTarget(localObj, targetObj:GetPosition()); 
 					self.waitTimer = GetTimeEX() + 600;
 					return 0;
 				end
@@ -930,7 +930,7 @@ function script_warlock:run(targetGUID)
 				if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetHealthPercentage() > 0 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) then
 					self.message = "Healing pet with Health Funnel";
 					if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) then
-						script_nav:moveToTarget(localObj, GetPet():GetPosition()); 
+						script_navEX:moveToTarget(localObj, GetPet():GetPosition()); 
 						self.waitTimer = GetTimeEX() + 600;
 						return 0;
 					else

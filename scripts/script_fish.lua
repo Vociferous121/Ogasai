@@ -137,7 +137,7 @@ function script_fish:run()
         	script_radar:Radar();
     	end        
 	if (script_grind.paranoidOn) then
-		if (script_grind:playersWithinRange(script_grind.paranoidRange)) then
+		if (script_paranoiaCheck:playersWithinRange(script_grind.paranoidRange)) then
 			self.message = "Player(s) within paranoid range, pausing...";
 			self.waitTimer = GetTimeEX() + 4123;
 			ClearTarget();

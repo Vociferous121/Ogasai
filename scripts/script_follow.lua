@@ -86,7 +86,7 @@ function script_follow:moveInLineOfSight(partyMember)
 	if (GetNumPartyMembers() > 1) then
 		if (not leaderObj:IsInLineOfSight() or leaderObj:GetDistance() > self.followLeaderDistance) then
 			local x, y, z = leaderObj:GetPosition();
-			script_nav:moveToTarget(GetLocalPlayer(), x , y, z);
+			script_navEX:moveToTarget(GetLocalPlayer(), x , y, z);
 			self.timer = GetTimeEX() + 200;
            		self.message = "Moving to Party Leader LoS";
 			return true;
@@ -96,7 +96,7 @@ function script_follow:moveInLineOfSight(partyMember)
 	if (self.followMember) then
 		if (not partyMember:IsInLineOfSight() and partyMember:GetDistance() < self.followLeaderDistance) then
 			local x, y, z = partyMember:GetPosition();
-			script_nav:moveToTarget(GetLocalPlayer(), x , y, z);
+			script_navEX:moveToTarget(GetLocalPlayer(), x , y, z);
 			self.timer = GetTimeEX() + 200;
 			self.message = "Moving to party member LoS";
 			return true;
@@ -225,7 +225,7 @@ function script_follow:run()
 
 		-- Check: Rogue only, If we just Vanished, move away from enemies within 30 yards
 		if (localObj:HasBuff("Vanish")) then
-			if (script_nav:runBackwards(1, 30)) then 
+			if (script_extraFunctions:runBackwards(1, 30)) then 
 				ClearTarget(); 
 				self.message = "Moving away from enemies..."; 
 				return; 
@@ -393,7 +393,7 @@ function script_follow:run()
 				if (self.combatError == 3) then
 					self.message = "Moving to target...";
 					local _x, _y, _z = self.enemyObj:GetPosition();
-					self.message = script_nav:moveToTarget(GetLocalPlayer(), _x, _y, _z);
+					self.message = script_navEX:moveToTarget(GetLocalPlayer(), _x, _y, _z);
 					return;
 				end
 			
@@ -430,7 +430,7 @@ function script_follow:run()
 			if(script_follow:GetPartyLeaderObject():GetDistance() > self.followLeaderDistance and not script_follow:GetPartyLeaderObject():IsDead()) and (not localObj:IsDead()) then
 				local x, y, z = script_follow:GetPartyLeaderObject():GetPosition();
 				self.message = "Following Party Leader...";
-				script_nav:moveToTarget(GetLocalPlayer(), x, y, z);
+				script_navEX:moveToTarget(GetLocalPlayer(), x, y, z);
 				return;
 			end
 		end

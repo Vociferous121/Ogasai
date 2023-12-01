@@ -46,7 +46,7 @@ function script_priest:healAndBuff(localObj, localMana)
 
 	if (IsAutoCasting("Shoot")) then
 		local _xX, _yY, _zZ = localObj:GetPosition();
-		self.message = script_nav:moveToTarget(localObj, _xX+.1, _yY+.1, _zZ);
+		self.message = script_navEX:moveToTarget(localObj, _xX+.1, _yY+.1, _zZ);
 		self.waitTimer = GetTimeEX() + 1500;
 	end
 
@@ -269,7 +269,7 @@ function script_priest:runBackwards(targetObj, range)
  		local moveX, moveY, moveZ = xT + xUV*10, yT + yUV*10, zT + zUV;	
 	
  		if (distance <= range and targetObj:IsInLineOfSight()) then -- if in range and line of sight
- 			--script_nav:moveToTarget(localObj, moveX, moveY, moveZ);
+ 			--script_navEX:moveToTarget(localObj, moveX, moveY, moveZ);
 			Move(moveX, moveY, moveZ); -- move to calculated coords
  			return true; -- return true when done
  		end

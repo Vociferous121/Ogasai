@@ -5,6 +5,7 @@ script_grind = {
 	vendorLoaded = include("scripts\\script_vendor.lua"),
 	gatherLoaded = include("scripts\\script_gather.lua"),
 	grindExtra = include("scripts\\script_grindEX.lua"),
+	extraFunctionsLoaded = include("scripts\\script_extraFunctions.lua"),
 	grindMenu = include("scripts\\script_grindMenu.lua"),
 	aggroLoaded = include("scripts\\script_aggro.lua"),
 	expExtra = include("scripts\\script_expChecker.lua"),
@@ -330,14 +331,6 @@ function script_grind:run()
 	end
 
 	-- delete items
-	if (not IsLooting()) and (HasItem("Small Barnacled Clam")) and (not localObj:HasBuff("Stealth")) and (not localObj:HasBuff("Prowl")) and (not localObj:IsCasting()) and (not IsInCombat()) then
-		if (UseItem("Small Barnacled Clam")) then
-			if (not LootTarget()) then
-				self.waitTimer = GetTimeEX() + 1500;
-				return;
-			end
-		end
-	end
 	if (script_helper:deleteItem()) then
 		self.waitTimer = GetTimeEX() + 1500;
 		return;
@@ -367,15 +360,7 @@ function script_grind:run()
 				return 4;
 			end
 
-			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:HasBuff("Stealth")) and (not IsInCombat()) and (script_paranoia.currentTime < script_grind.currentTime2 - 190) then
-				CastSpellByName("Stealth");
-				return 0;
-			end
-
-			if (HasSpell("Cat Form")) and (localObj:HasBuff("Cat Form")) and (HasSpell("Prowl")) and (not localObj:HasBuff("Prowl")) and (not IsSpellOnCD("Prowl")) and (not IsInCombat()) and (script_paranoia.currentTime < script_grind.currentTime2 - 190) then
-				CastSpellByName("Prowl");
-				return 0;
-			end
+			script_paranoiaEX:checkStealth();
 
 		self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 2000;
 		return true;
@@ -569,7 +554,7 @@ function script_grind:run()
 
 				if (_x ~= 0 and x ~= 0) then
 					local moveBuffer = math.random(-2, 2);
-					self.message = script_nav:moveToTarget(localObj, _x+moveBuffer, _y+moveBuffer, _z);
+					self.message = script_navEX:moveToTarget(localObj, _x+moveBuffer, _y+moveBuffer, _z);
 					script_grind:setWaitTimer(85);
 					return;
 				end
@@ -828,42 +813,6 @@ function script_grind:playersTargetingUs() -- returns number of players attackin
 	return nrPlayersTargetingUs;
 end
 
-function script_grind:playersWithinRange(range)
-	local currentObj, typeObj = GetFirstObject(); 
-	while currentObj ~= 0 do 
-		if (typeObj == 4 and not currentObj:IsDead()) then
-			if (currentObj:GetDistance() < range) then 
-				local localObj = GetLocalPlayer();
-				if (localObj:GetGUID() ~= currentObj:GetGUID()) and (currentObj:GetUnitName() ~= script_paranoia.ignoreTarget) then
-						self.paranoidTargetDistance = currentObj:GetDistance();
-						self.paranoidTargetName = currentObj:GetUnitName();
-					if (self.useString) then
-						if (currentObj:GetDistance() < self.paranoidRange) and (typeObj == 4) then
-							self.otherName = currentObj;
-							local playerString = ""..script_grind.playerName.."";
-							self.playerName = currentObj:GetUnitName();
-							self.playerPos = currentObj:GetPosition();
-							local playerName = currentObj:GetUnitName();
-							local playerDistance = currentObj:GetDistance();
-							self.playerParanoidDistance = currentObj:GetDistance();
-							local playerTime = GetTimeStamp();
-							local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance (yds) "..playerDistance.. " - added to log file for further implementation of paranoia. Logout Timer has been set!"
-							DEFAULT_CHAT_FRAME:AddMessage(string);
-							ToFile(string);
-							self.useString = false;
-						end
-				
-					end
-				return true;
-				end
-			end 
-		end
-		currentObj, typeObj = GetNextObject(currentObj); 
-	end
-	self.useString = true;
-	return false;
-end
-
 function script_grind:getDistanceDif()
 	local x, y, z = GetLocalPlayer():GetPosition();
 	local xV, yV, zV = self.myX-x, self.myY-y, self.myZ-z;
@@ -1034,7 +983,7 @@ function script_grind:doLoot(localObj)
 			script_grind.tickRate = 65;
 		end
 	self.message = "Moving to loot...";		
-	script_nav:moveToTarget(localObj, _x, _y, _z);	
+	script_navEX:moveToTarget(localObj, _x, _y, _z);	
 	--script_grind:setWaitTimer(300);
 
 	if (self.lootObj:GetDistance() < 3) then
@@ -1110,14 +1059,6 @@ end
 function script_grind:runRest()
 
 		local localObj = GetLocalPlayer();
-		local isCat = localObj:HasBuff("Cat Form");
-		local isBear = localObj:HasBuff("Bear Form");
-		local isStealth = localObj:HasBuff("Stealth");
-		local isShadowmeld = localObj:HasBuff("Shadowmeld");
-		local isProwl = localObj:HasBuff("Prowl");
-		local hasProwl = HasSpell("Prowl");
-		local hasStealth = HasSpell("Stealth");
-		local hasShadowmeld = HasSpell("Shadowmeld");
 
 	if(RunRestScript()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
 		self.message = "Resting...";
@@ -1135,10 +1076,7 @@ function script_grind:runRest()
 			return true;
 		end
 
-		if (isCat) and (HasProwl) and (not IsSpellOnCD("Prowl")) and (not isProwl) and (not script_checkDebuffs:hasPoison()) then
-			CastSpellByName("Prowl", localObj);
-			return true;
-		end
+		script_paranoiaEX:checkStealth();
 
 	return true;	
 	end

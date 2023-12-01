@@ -157,7 +157,7 @@ function script_mage:runBackwards(targetObj, range)
  		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
  		local moveX, moveY, moveZ = xT + xUV*10, yT + yUV*10, zT + zUV;		
  		if (distance < range and targetObj:IsInLineOfSight()) then 
- 			script_nav:moveToTarget(localObj, moveX, moveY, moveZ);
+ 			script_navEX:moveToTarget(localObj, moveX, moveY, moveZ);
 			if (IsMoving()) then
 				JumpOrAscendStart();
 			end
@@ -633,7 +633,7 @@ function script_mage:run(targetGUID)
 	
 				if (IsAutoCasting("Shoot")) then
 					local px, py, pz = targetObj:GetPosition();
-					self.message = script_nav:moveToTarget(localObj, pX+.5, pY+.5, pZ);
+					self.message = script_navEX:moveToTarget(localObj, pX+.5, pY+.5, pZ);
 					return 0;
 				end
 				if (not IsSpellOnCD("Fire Blast")) then

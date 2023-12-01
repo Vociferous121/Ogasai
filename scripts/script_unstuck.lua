@@ -20,7 +20,7 @@ script_unstuck = {
 	_angle = 0,
 	unstuckAngle = 0,
 	unstuckTime = GetTimeEX(),
-	turnSensitivity = 1.55,
+	turnSensitivity = 3.5,
 	
 	
 }
@@ -107,7 +107,7 @@ function script_unstuck:walkForward(yards)
 	_lx, _ly, _lz = GetLocalPlayer():GetPosition();
 	if (self.unstuckTime < GetTimeEX()) then
 		self.unstuckTime = GetTimeEX() + 2000;
-		script_nav:moveToTarget(GetLocalPlayer(), _lx+yards*math.cos(self.unstuckAngle), _ly+yards*math.sin(self.unstuckAngle), _lz);
+		script_navEX:moveToTarget(GetLocalPlayer(), _lx+yards*math.cos(self.unstuckAngle), _ly+yards*math.sin(self.unstuckAngle), _lz);
 	end
 end
 

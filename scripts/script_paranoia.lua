@@ -1,5 +1,7 @@
 script_paranoia = {
 
+	paranoiaEXLoaded = include("scripts\\script_paranoiaEX.lua"),
+	paranoiaCheckLoaded = include("scripts\\script_paranoiaCheck.lua"),
 	stopOnLevel = false,
 	exitBot = false,
 	targetedLevel = GetLocalPlayer():GetLevel() + 1,
@@ -49,9 +51,9 @@ function script_paranoia:checkParanoia()
 	if (script_paranoia.paranoidOn) and (not IsLooting()) then
 
 		-- if players in range
-		if (script_grind:playersWithinRange(script_grind.paranoidRange)) and (not IsLooting()) then
+		if (script_paranoiaCheck:playersWithinRange(script_grind.paranoidRange)) and (not IsLooting()) then
 
-			if (script_grind:playersWithinRange(script_grind.paranoidRange)) then
+			if (script_paranoiaCheck:playersWithinRange(script_grind.paranoidRange)) then
 				script_paranoia.paranoiaUsed = true;
 			end
 
