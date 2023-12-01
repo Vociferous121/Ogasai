@@ -469,10 +469,10 @@ function script_druid:run(targetGUID)
 	end
 
 	-- check heals and buffs
-	if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) and (not localObj:HasBuff("Frenzied Regeneration")) then
-		self.waitTimer = GetTimeEX() + 2550;
-		return;
-	end
+	--if (script_druid:healsAndBuffs()) and (script_grind.lootObj == nil) and (not localObj:HasBuff("Frenzied Regeneration")) then
+	--	self.waitTimer = GetTimeEX() + 2550;
+	--	return;
+	--end
 
 	-- Assign the target 
 	targetObj = GetGUIDObject(targetGUID);
@@ -621,12 +621,16 @@ function script_druid:run(targetGUID)
 				if (isCat) and (self.useCat) and (self.useStealth) and (localObj:HasBuff("Prowl")) then
 					if (HasSpell(self.stealthOpener)) and (not IsSpellOnCD(self.stealthOpener)) and (localEnergy >= 50) and (targetObj:GetDistance() <= 6) then
 						if (CastSpellByName(self.stealthOpener)) then
-							targetObj:FaceTarget();
+							if (not IsMoving()) then
+								targetObj:FaceTarget();
+							end
 							self.waitTimer = GetTimeEX() + 300;
 							return 0;
 						end
 						targetObj:AutoAttack();
-						targetObj:FaceTarget();
+						if (not IsMoving()) then
+							targetObj:FaceTarget();
+						end
 					end
 				end
 			end
@@ -693,8 +697,10 @@ function script_druid:run(targetGUID)
 				if (IsMoving()) then
 					StopMoving();
 				end
-					targetObj:FaceTarget();
-					self.waitTimer = GetTimeEX() + 800;
+					if (not IsMoving()) then
+						targetObj:FaceTarget();
+					end
+				self.waitTimer = GetTimeEX() + 800;
 			end
 
 			----
@@ -951,7 +957,7 @@ function script_druid:run(targetGUID)
 				-- keep auto attack on
 				if (not IsAutoCasting("Attack")) then
 					targetObj:AutoAttack();
-					if (targetObj:GetDistance() < self.meleeDistance) then
+					if (targetObj:GetDistance() < self.meleeDistance) and (not IsMoving()) then
 						targetObj:FaceTarget();
 					elseif (targetObj:GetDistance() > self.meleeDistance) then
 						return 3;
@@ -1110,7 +1116,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- face target
-				if (targetObj:GetDistance() <= self.meleeDistance) then
+				if (targetObj:GetDistance() <= self.meleeDistance) and (not IsMoving()) then
 					targetObj:FaceTarget();
 				end
 

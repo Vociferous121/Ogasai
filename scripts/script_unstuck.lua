@@ -20,7 +20,7 @@ script_unstuck = {
 	_angle = 0,
 	unstuckAngle = 0,
 	unstuckTime = GetTimeEX(),
-	turnSensitivity = 3.5,
+	turnSensitivity = 0.8,
 	
 	
 }

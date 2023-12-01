@@ -20,11 +20,14 @@ script_shaman = {
 	lightningBoltMana = 80,
 }
 
--- needed in menu
+-- needed in menu - split between combat and heal options like other scripts
 -- need self.totem
 -- need self.ligntningboltmana
 
 function script_shaman:setup()
+
+	localObj = GetLocalPlayer();
+	localLevel = localObj:GetLevel();
 
 	-- Set weapon enhancement
 	if (HasSpell("Windfury Weapon")) then
@@ -36,10 +39,13 @@ function script_shaman:setup()
 	end
 
 	-- Set totem
+
+	-- stoneskin totem when we do not have strength of earth totem
 	if (HasSpell("Stoneskin Totem")) and (not HasSpell("Strength of Earth Totem")) and (HasItem("Earth Totem")) then
 		self.totem = "Stoneskin Totem";
 		self.totemBuff = "Stoneskin";
 	end
+	-- strength of earth totem
 	if (HasSpell("Strength of Earth Totem") and HasItem("Earth Totem")) then
 		self.totem = "Strength of Earth Totem";
 		self.totemBuff = "Strength of Earth";
@@ -51,6 +57,10 @@ function script_shaman:setup()
 	-- Set healing spell
 	if (HasSpell("Lesser Healing Wave")) then
 		self.healingSpell = "Lesser Healing Wave";
+	end
+
+	if (localLevel >= 10) then
+		self.drinkMana = 35;
 	end
 
 	self.waitTimer = GetTimeEX();
@@ -246,17 +256,18 @@ function script_shaman:run(targetGUID)
 			if (IsMounted() and targetObj:GetDistance() < 25) then DisMount(); return 0; end
 
 			-- Auto Attack
-			if (targetObj:GetDistance() < 35) and (not IsAutoCasting("Attack")) and (localMana >= self.drinkMana) and (localHealth >= self.healHealth) then
+			if (targetObj:GetDistance() < 35) and (not IsAutoCasting("Attack")) and (localMana >= self.drinkMana) and (localHealth >= self.healHealth) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
 				targetObj:AutoAttack();
 			end
 
-
 			-- Check: Not in range
-			if (not targetObj:IsSpellInRange("Lightning Bolt")) then
+			if (not targetObj:IsSpellInRange("Lightning Bolt")) or (not targetObj:IsInLineOfSight()) then
 				return 3;
-			end
+			else
 			-- Pull with: Lighting Bolt
-			if (localMana >= self.drinkMana) and (targetObj:IsInLineOfSight()) then
+				if (IsMoving()) then
+					StopMoving();
+				end
 				CastSpellByName("Lightning Bolt", targetObj);
 				targetObj:FaceTarget();
 			end
@@ -265,11 +276,6 @@ function script_shaman:run(targetGUID)
 			if (targetObj:GetDistance() <= 20) and (localMana >= self.lightningBoltMana + 10) and (HasSpell(self.totem)) and (not localObj:HasBuff(self.totemBuff)) then
 				CastSpellByName(self.totem);
 				self.waitTimer = GetTimeEX() + 1500;
-			end
-
-			-- Check move into melee range
-			if (IsInCombat()) and (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
-				return 3;
 			end
 
 		-- Combat
@@ -307,7 +313,7 @@ function script_shaman:run(targetGUID)
 
 			if (not IsAutoCasting("Attack")) and (targetObj:GetDistance() <= self.meleeDistance) then 
 				targetObj:AutoAttack();
-				if (not IsMoving()) and (targetObj:GetDistance() <= 8) then
+				if (not IsMoving()) and (targetObj:GetDistance() <= 8) and (targetObj:IsInLineOfSight()) then
 					targetObj:FaceTarget();
 				end
 			end
@@ -347,8 +353,30 @@ function script_shaman:run(targetGUID)
 			end
 
 			-- Earth Shock
-			if (targetObj:IsCasting() or targetHealth >= 30) and (targetObj:GetDistance() <= 20) and (localMana >= 20) then
-				if (not IsSpellOnCD("Earth Shock")) and (HasSpell("Earth Shock")) then
+			if ( (targetObj:IsCasting()) or (not HasSpell("Flame Shock") and targetHealth >= 30) ) then
+				if (targetObj:GetDistance() <= 20) and (localMana >= 20) then
+					if (not IsSpellOnCD("Earth Shock")) and (HasSpell("Earth Shock")) and (not IsSpellOnCD("Flame Shock")) then
+						if (CastSpellByName("Earth Shock", targetObj)) then
+							targetObj:FaceTarget();
+							JumpOrAscendStart();
+							return 0;
+						end
+					end
+				end
+			end
+
+			-- flame shock
+			if (HasSpell("Flame Shock")) and (not IsSpellOnCD("Flame Shock")) and (not IsSpellOnCD("Earth Shock")) and (localMana >= 25) and (targetHealth >= 55) then
+				if (CastSpellByName("Flame Shock")) then
+					targetObj:FaceTarget();
+					JumpOrAscendStart();
+					return 0;
+				end
+			end
+
+			-- earth shock after flame shock
+			if (HasSpell("Flame Shock")) and (HasSpell("Earth Shock")) and (targetObj:HasDebuff("Flame Shock") or targetHealth <= 50) and (localMana >= 35) then
+				if (not IsSpellOnCD("Flame Shock")) and (not IsSpellOnCD("Earth Shock")) then
 					if (CastSpellByName("Earth Shock", targetObj)) then
 						targetObj:FaceTarget();
 						JumpOrAscendStart();
@@ -356,7 +384,7 @@ function script_shaman:run(targetGUID)
 					end
 				end
 			end
-
+					
 			-- cast lightning bolt in combat
 			if (localMana >= self.lightningBoltMana) and (targetHealth >= 20) and (not IsMoving()) then
 				if (CastSpellByName("Lightning Bolt", targetObj)) then
@@ -368,7 +396,7 @@ function script_shaman:run(targetGUID)
 
 			-- Check: If we are in melee range, do melee attacks
 			if (targetObj:GetDistance() < self.meleeDistance and targetObj:IsInLineOfSight()) then
-				if (not IsMoving()) then
+				if (not IsMoving()) and (targetObj:IsInLineOfSight()) then
 					targetObj:FaceTarget();
 				end
 
