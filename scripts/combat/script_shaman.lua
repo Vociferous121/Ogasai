@@ -17,7 +17,10 @@ script_shaman = {
 	totemUsed = false,		-- used for totem2
 	healingSpell = "Healing Wave",
 	isChecked = true,
-	
+	useFireTotem = true,
+	fireTotemMana = 15,
+	earthShockMana = 20,
+	flameShockMana = 35,
 
 
 	lightningBoltMana = 80,
@@ -27,6 +30,10 @@ script_shaman = {
 -- need self.totem - use or not use and ability to type name
 -- need self.totem2 - use or not use and ability to type name
 -- need self.ligntningboltmana - use or not use and ability to change mana percentage to use
+-- need self.usefiretotem in menu
+-- need self.fireTotemMana in menu
+-- need self.earthShockMana in menu
+-- need self.flameShockMana in menu
 
 function script_shaman:setup()
 
@@ -43,6 +50,10 @@ function script_shaman:setup()
 	end
 
 	-- Set totem
+
+	if (not HasItem("Fire Totem")) then
+		self.useFireTotem = false;
+	end
 
 	-- stoneskin totem when we do not have strength of earth totem
 	if (HasSpell("Stoneskin Totem")) and (not HasSpell("Strength of Earth Totem")) and (HasItem("Earth Totem")) then
@@ -68,7 +79,7 @@ function script_shaman:setup()
 	end
 
 	if (localLevel >= 10) then
-		self.drinkMana = 35;
+		self.drinkMana = 40;
 	end
 
 	self.waitTimer = GetTimeEX();
@@ -290,6 +301,20 @@ function script_shaman:run(targetGUID)
 			
 			end
 
+			-- DO NOT TOUCH CASTING FIRE TOTEMS
+			if (self.useFireTotem) and (targetObj:IsSpellInRange("Lightning Bolt")) then
+				if (not script_shaman.totemUsed) then
+					if (HasSpell(self.totem2)) then
+						if (localMana >= self.fireTotemMana) then
+							CastSpellByName(self.totem2);
+							script_shaman.totemUsed = true;
+							self.waitTimer = GetTimeEX() + 1750;
+							return true;
+						end
+					end
+				end
+			end
+
 			-- Totem
 			if (targetObj:GetDistance() <= 20) and (localMana >= self.lightningBoltMana + 10) and (HasSpell(self.totem)) and (not localObj:HasBuff(self.totemBuff)) then
 				if (CastSpellByName(self.totem)) then
@@ -337,7 +362,9 @@ function script_shaman:run(targetGUID)
 			-- Totem
 			if (targetObj:GetDistance() <= 12) and (HasSpell(self.totem)) and (not localObj:HasBuff(self.totemBuff)) then
 				if (CastSpellByName(self.totem)) then
-					script_grind.tickRate = 2000;
+					if (self.useFireTotem) then
+						script_grind.tickRate = 2000;
+					end
 					self.waitTimer = GetTimeEX() + 2000;
 					script_grind:setWaitTimer(2000)
 					return 4;
@@ -345,19 +372,21 @@ function script_shaman:run(targetGUID)
 			end
 
 			-- DO NOT TOUCH CASTING FIRE TOTEMS
-			if (not script_shaman.totemUsed) then
-				if (HasSpell(self.totem2)) then
-					if (localMana >= 25) then
-						if (localObj:HasBuff(self.totemBuff)) then
-							CastSpellByName(self.totem2);
-							script_shaman.totemUsed = true;
-							script_grind.tickRate = 150;
-							return;
+			if (self.useFireTotem) then
+				if (not script_shaman.totemUsed) then
+					if (HasSpell(self.totem2)) then
+						if (localMana >= self.fireTotemMana) then
+							if (localObj:HasBuff(self.totemBuff)) then
+								CastSpellByName(self.totem2);
+								script_shaman.totemUsed = true;
+								script_grind.tickRate = 150;
+								return;
+							end
 						end
 					end
 				end
 			end
-		
+
 			-- Run backwards if we are too close to the target
 			if (targetObj:GetDistance() < .5) then 
 				if (script_shaman:runBackwards(targetObj,1)) then 
@@ -414,9 +443,10 @@ function script_shaman:run(targetGUID)
 
 			-- Earth Shock
 			if ( (targetObj:IsCasting()) or (not HasSpell("Flame Shock") and targetHealth >= 30) ) then
-				if (targetObj:GetDistance() <= 20) and (localMana >= 20) then
+				if (targetObj:GetDistance() <= 20) and (localMana >= self.earthShockMana) then
 					if (not IsSpellOnCD("Earth Shock")) and (HasSpell("Earth Shock")) and (not IsSpellOnCD("Flame Shock")) then
 						if (CastSpellByName("Earth Shock", targetObj)) then
+							self.waitTimer = GetTimeEX() + 1750;
 							targetObj:FaceTarget();
 							JumpOrAscendStart();
 							return 0;
@@ -426,8 +456,9 @@ function script_shaman:run(targetGUID)
 			end
 
 			-- flame shock
-			if (HasSpell("Flame Shock")) and (not IsSpellOnCD("Flame Shock")) and (not IsSpellOnCD("Earth Shock")) and (localMana >= 25) and (targetHealth >= 55) then
+			if (HasSpell("Flame Shock")) and (not IsSpellOnCD("Flame Shock")) and (not IsSpellOnCD("Earth Shock")) and (localMana >= self.flameShockMana) and (targetHealth >= 55) then
 				if (CastSpellByName("Flame Shock")) then
+					self.waitTimer = GetTimeEX() + 1750;
 					targetObj:FaceTarget();
 					JumpOrAscendStart();
 					return 0;
@@ -435,9 +466,10 @@ function script_shaman:run(targetGUID)
 			end
 
 			-- earth shock after flame shock
-			if (HasSpell("Flame Shock")) and (HasSpell("Earth Shock")) and (targetObj:HasDebuff("Flame Shock") or targetHealth <= 50) and (localMana >= 35) then
+			if (HasSpell("Flame Shock")) and (HasSpell("Earth Shock")) and (targetObj:HasDebuff("Flame Shock") or targetHealth <= 50) and (localMana >= self.earthShockMana) then
 				if (not IsSpellOnCD("Flame Shock")) and (not IsSpellOnCD("Earth Shock")) then
 					if (CastSpellByName("Earth Shock", targetObj)) then
+						self.waitTimer = GetTimeEX() + 1750;
 						targetObj:FaceTarget();
 						JumpOrAscendStart();
 						return 0;
@@ -460,19 +492,22 @@ function script_shaman:run(targetGUID)
 					targetObj:FaceTarget();
 				end
 
-				if (not script_shaman.totemUsed) then
-					if (HasSpell(self.totem2)) then
-						if (localMana >= 25) then
-							if (localObj:HasBuff(self.totemBuff)) then
-								CastSpellByName(self.totem2);
-								script_shaman.totemUsed = true;
-								return 4;
+				-- fire totem
+				if (self.useFireTotem) then
+					if (not script_shaman.totemUsed) then
+						if (HasSpell(self.totem2)) then
+							if (localMana >= self.fireTotemMana) then
+								if (localObj:HasBuff(self.totemBuff)) then
+									CastSpellByName(self.totem2);
+									script_shaman.totemUsed = true;
+									return 4;
+								end
 							end
 						end
 					end
 				end
 
-				-- Totem
+				-- Earth Totem
 				if (HasSpell(self.totem) and not localObj:HasBuff(self.totemBuff)) then
 					CastSpellByName(self.totem);
 					self.waitTimer = GetTimeEX() + 1750;
