@@ -15,7 +15,6 @@ script_shaman = {
 	totemBuff = "",		-- used for totem1
 	totem2 = "no totem yet",	-- used for totem2
 	totemUsed = false,		-- used for totem2
-	
 	healingSpell = "Healing Wave",
 	isChecked = true,
 	
