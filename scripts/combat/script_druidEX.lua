@@ -135,7 +135,7 @@ Separator();
 			end
 		end
 
-		if (script_druid.useBear) and (HasSpell("Bear Form")) or (HasSpell("Dire Bear Form")) then
+		if (script_druid.useBear) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) then
 			if (CollapsingHeader("|+| Bear Form Options")) then
 				Text("Maul Rage Cost");
 				script_druid.maulRage = SliderInt("Rage", 10, 15, script_druid.maulRage);
