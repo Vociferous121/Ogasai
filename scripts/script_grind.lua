@@ -605,7 +605,7 @@ function script_grind:run()
 
 		-- Pre checks before navigating
 		if (IsLooting() or IsCasting() or IsChanneling() or IsDrinking() or IsEating() or IsInCombat()) then
-			--script_grind:setWaitTimer(1500);
+			script_grind:setWaitTimer(1500);
 			return;
 		end
 
