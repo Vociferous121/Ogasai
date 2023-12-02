@@ -7,7 +7,7 @@ script_shaman = {
 	potionHealth = 10,
 	potionMana = 20,
 	isSetup = false,
-	meleeDistance = 4.41,
+	meleeDistance = 4.10,
 	waitTimer = 0,
 	stopIfMHBroken = true,
 	enhanceWeapon = "Rockbiter Weapon",
@@ -313,11 +313,12 @@ function script_shaman:run(targetGUID)
 				end
 			elseif (targetObj:GetDistance() > self.meleeDistance) then
 				-- cast fire totem before getting to target range
-				if (targetObj:GetDistance() <= 20) then
+				if (targetObj:GetDistance() <= 20 and self.totem2 ~= "Fire Nova Totem") or (self.totem2 == "Fire Nova Totem" and targetObj:GetDistance() <= 10) then
 					-- DO NOT TOUCH CASTING FIRE TOTEMS
 					if (self.useFireTotem) then
 						if (not script_shaman.totemUsed) then
-							if (HasSpell(self.totem2)) then
+							if (HasSpell(self.totem2))
+							and (not IsSpellOnCD(self.totem2)) then
 								if (localMana >= self.fireTotemMana) then
 									CastSpellByName(self.totem2);
 									targetObj:FaceTarget();
@@ -336,12 +337,14 @@ function script_shaman:run(targetGUID)
 			
 			if (not IsMoving()) and (targetObj:GetDistance() <= 10) then
 				targetObj:FaceTarget();
+			else
+				return 3;
 			end
 
 			-- DO NOT TOUCH CASTING FIRE TOTEMS
 			if (self.useFireTotem) and (targetObj:IsSpellInRange("Lightning Bolt")) then
 				if (not script_shaman.totemUsed) then
-					if (HasSpell(self.totem2)) then
+					if (HasSpell(self.totem2)) and (not IsSpellOnCD(self.totem2)) then
 						if (localMana >= self.fireTotemMana) then
 							CastSpellByName(self.totem2);
 							script_shaman.totemUsed = true;
@@ -378,7 +381,7 @@ function script_shaman:run(targetGUID)
 
 
 			-- stop moving if we get close enough to target
-			if (IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance + 2) and (targetHealth >= 80) then
+			if (IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance) and (targetHealth >= 80) then
 				if (IsMoving()) then
 					StopMoving();
 					targetObj:FaceTarget();
@@ -410,7 +413,7 @@ function script_shaman:run(targetGUID)
 			-- DO NOT TOUCH CASTING FIRE TOTEMS
 			if (self.useFireTotem) then
 				if (not script_shaman.totemUsed) then
-					if (HasSpell(self.totem2)) then
+					if (HasSpell(self.totem2)) and (not IsSpellOnCD(self.totem2)) then
 						if (localMana >= self.fireTotemMana) then
 							CastSpellByName(self.totem2);
 							script_shaman.totemUsed = true;
@@ -535,8 +538,8 @@ function script_shaman:run(targetGUID)
 					end
 				end
 
-				-- stop moving if we get close enough to target and not in combat yet
-				if (IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance + 2) and (targetHealth >= 80) then
+				-- stop moving if we get close enough to target
+				if (IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance) and (targetHealth >= 80) then
 					if (IsMoving()) then
 						StopMoving();
 						targetObj:FaceTarget();
