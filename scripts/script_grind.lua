@@ -461,7 +461,7 @@ function script_grind:run()
 
 			-- Druid cat form is faster if you specc talents
 
-			if (not IsMounted()) and (not script_paranoia:checkParanoia()) and (not IsSwimming()) and (GetLocalPlayer():GetLevel() < 40) then
+			if (not IsMounted()) and (not script_paranoia:checkParanoia()) and (not IsSwimming()) and (not script_grind.useMount) then
 				if (script_druidEX:travelForm()) then
 					self.waitTimer = GetTimeEX() + 1000;
 				end
@@ -480,7 +480,7 @@ function script_grind:run()
 				end
 			end
 			-- Shaman Ghost Wolf 
-			if (not IsMounted()) and (self.currentLevel < 40 and HasSpell('Ghost Wolf') and not localObj:HasBuff('Ghost Wolf')) and (not localObj:IsDead()) then
+			if (not IsMounted()) and (not script_grind.useMount) and (HasSpell('Ghost Wolf')) and (not localObj:HasBuff('Ghost Wolf')) and (not localObj:IsDead()) then
 				if (CastSpellByName('Ghost Wolf')) then
 					self.waitTimer = GetTimeEX() + 1500;
 					return 0;
@@ -615,7 +615,7 @@ function script_grind:run()
 		end
 
 		-- Mount before we navigate through the path, error check to get around indoors
-		if (GetLocalPlayer():GetLevel() >= 40) and (not IsMounted()) then
+		if (script_grind.useMount) and (not IsMounted()) then
 			if (script_druidEX:removeCatForm()) or (script_druidEX:removeBearForm())
 			or (script_druidEX:removeTravelForm()) or (script_druidEX:removeMoonkinForm()) then
 				return;
@@ -625,7 +625,7 @@ function script_grind:run()
 		if (not self.hotspotReached or script_vendor:getStatus() >= 1) and (not IsInCombat())
 		and (not IsMounted()) and (not IsIndoors()) and (not localObj:HasBuff("Cat Form"))
 		and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Travel Form"))
-		and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Moonkin Form")) then
+		and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Moonkin Form")) and (script_grind.useMount) then
 			if (IsMoving()) then
 				StopMoving();
 				return true;
@@ -669,7 +669,7 @@ end
 --function script_grind:mountUp()
 --	local __, lastError = GetLastError();
 --	if (lastError ~= 75 and self.mountTimer < GetTimeEX() and self.useMount) then
---		if(GetLocalPlayer():GetLevel() >= 40 and not IsSwimming() and not IsIndoors() and not IsMounted()) then
+--		if(script_grind.useMount and not IsSwimming() and not IsIndoors() and not IsMounted()) then
 --			self.message = "Mounting...";
 --			if (not IsStanding()) then
 --				StopMoving();

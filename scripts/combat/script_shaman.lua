@@ -367,6 +367,7 @@ function script_shaman:run(targetGUID)
 				if (IsMoving()) then
 					StopMoving();
 					targetObj:FaceTarget();
+					self.waitTimer = GetTimeEX() + 1000;
 				end
 			end
 

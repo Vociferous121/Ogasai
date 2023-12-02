@@ -86,11 +86,10 @@ function script_grindMenu:menu()
 	end	
 	if (CollapsingHeader("Talents, Paranoia & Misc Options")) then
 
-		--if (GetLocalPlayer():GetLevel() >= 40) then
-		--	wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount); Text('Dismount range');
-		--	script_grind.disMountRange = SliderInt("DR (yd)", 1, 100, script_grind.disMountRange);
-		--	Separator();
-		--end
+		if (GetLocalPlayer():GetLevel() >= 40) then
+			wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount); 
+			Separator();
+		end
 
 		wasClicked, script_grind.autoTalent = Checkbox("Spend Talent Points  ", script_grind.autoTalent);
 		SameLine();
