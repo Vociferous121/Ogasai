@@ -25,8 +25,9 @@ script_shaman = {
 }
 
 -- needed in menu - split between combat and heal options like other scripts
--- need self.totem
--- need self.ligntningboltmana
+-- need self.totem - use or not use and ability to type name
+-- need self.totem2 - use or not use and ability to type name
+-- need self.ligntningboltmana - use or not use and ability to change mana percentage to use
 
 function script_shaman:setup()
 
@@ -186,7 +187,7 @@ function script_shaman:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(750, 1150);
+		local tickRandom = random(550, 950);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -220,6 +221,13 @@ function script_shaman:run(targetGUID)
 	if (IsChanneling() or IsCasting() or (self.waitTimer > GetTimeEX())) then
 		return 4;
 	end
+
+	-- stop bot from moving target to target when stuck in combat and we need to rest
+	if (IsInCombat()) and (localObj:GetUnitsTarget() == 0) then
+		self.message = "Waiting! Stuck in combat phase!";
+		return 4;
+	end
+		
 
 	--Valid Enemy
 	if (targetObj ~= 0) then
@@ -277,18 +285,22 @@ function script_shaman:run(targetGUID)
 					StopMoving();
 				end
 				CastSpellByName("Lightning Bolt", targetObj);
+				self.waitTimer = GetTimeEX() + 2300;
+				script_grind:setWaitTimer(2300);
 				targetObj:FaceTarget();
+			
 			end
 
 			-- Totem
 			if (targetObj:GetDistance() <= 20) and (localMana >= self.lightningBoltMana + 10) and (HasSpell(self.totem)) and (not localObj:HasBuff(self.totemBuff)) then
 				if (CastSpellByName(self.totem)) then
-					self.waitTimer = GetTimeEX() + 1500;
+					self.waitTimer = GetTimeEX() + 1750;
+					return 4;
 				end
 			end
 
 			-- stop moving if we get close enough to target and not in combat yet
-			if (not IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance) then
+			if (not IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance + 2) then
 				if (IsMoving()) then
 					StopMoving();
 				end
@@ -305,7 +317,7 @@ function script_shaman:run(targetGUID)
 
 
 			-- stop moving if we get close enough to target
-			if (not IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance) and (targetHealth >= 90) then
+			if (not IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance + 2) and (targetHealth >= 90) then
 				if (IsMoving()) then
 					StopMoving();
 				end
@@ -326,18 +338,30 @@ function script_shaman:run(targetGUID)
 			-- Totem
 			if (targetObj:GetDistance() <= 12) and (HasSpell(self.totem)) and (not localObj:HasBuff(self.totemBuff)) then
 				if (CastSpellByName(self.totem)) then
-					self.waitTimer = GetTimeEX() + 1700;
+					script_grind.tickRate = 2000;
+					self.waitTimer = GetTimeEX() + 2000;
+					script_grind:setWaitTimer(2000)
+					return 4;
 				end
 			end
 
-			if (not script_shaman.totemUsed) and (HasSpell(self.totem2)) and (localMana >= 25) and (localObj:HasBuff(self.totemBuff)) and (targetObj:GetDistance() <= 10) then
-				CastSpellByName(self.totem2);
-				script_shaman.totemUsed = true;
+			-- DO NOT TOUCH CASTING FIRE TOTEMS
+			if (not script_shaman.totemUsed) then
+				if (HasSpell(self.totem2)) then
+					if (localMana >= 25) then
+						if (localObj:HasBuff(self.totemBuff)) then
+							CastSpellByName(self.totem2);
+							script_shaman.totemUsed = true;
+							script_grind.tickRate = 150;
+							return;
+						end
+					end
+				end
 			end
 		
 			-- Run backwards if we are too close to the target
-			if (targetObj:GetDistance() < .8) then 
-				if (script_shaman:runBackwards(targetObj,2)) then 
+			if (targetObj:GetDistance() < .5) then 
+				if (script_shaman:runBackwards(targetObj,1)) then 
 					return 4; 
 				end 
 			end
@@ -345,11 +369,6 @@ function script_shaman:run(targetGUID)
 			-- Check if we are in melee range
 			if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
 				return 3;
-			else
-				if (IsMoving()) then
-					StopMoving();
-					targetObj:FaceTarget();
-				end
 			end
 
 			if (not IsAutoCasting("Attack")) and (targetObj:GetDistance() <= self.meleeDistance) then 
@@ -371,6 +390,7 @@ function script_shaman:run(targetGUID)
 			-- Check: Lightning Shield
 			if (HasSpell("Lightning Shield")) and (localMana >= 35) and (not localObj:HasBuff("Lightning Shield")) then
 				if (CastSpellByName("Lightning Shield", localObj)) then
+					self.waitTimer = GetTimeEX() + 1500;
 					return 0;
 				end
 			end
@@ -441,10 +461,23 @@ function script_shaman:run(targetGUID)
 					targetObj:FaceTarget();
 				end
 
+				if (not script_shaman.totemUsed) then
+					if (HasSpell(self.totem2)) then
+						if (localMana >= 25) then
+							if (localObj:HasBuff(self.totemBuff)) then
+								CastSpellByName(self.totem2);
+								script_shaman.totemUsed = true;
+								return 4;
+							end
+						end
+					end
+				end
+
 				-- Totem
 				if (HasSpell(self.totem) and not localObj:HasBuff(self.totemBuff)) then
 					CastSpellByName(self.totem);
-					self.waitTimer = GetTimeEX() + 1500;
+					self.waitTimer = GetTimeEX() + 1750;
+					return 4;
 				end
 
 				-- Stormstrike
@@ -460,7 +493,7 @@ function script_shaman:run(targetGUID)
 
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(750, 1150);
+		local tickRandom = random(550, 950);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -485,7 +518,7 @@ function script_shaman:rest()
 
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(750, 1150);
+		local tickRandom = random(1388, 2061);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -511,7 +544,7 @@ function script_shaman:rest()
 	end
 
 	-- Heal up
-	if (localHealth < self.eatHealth and localMana > 20) then 
+	if (localHealth < self.eatHealth and localMana > 10) then 
 		if (CastSpellByName("Healing Wave", localObj)) then
 			script_grind:setWaitTimer(5000);
 			return true;
@@ -580,12 +613,13 @@ function script_shaman:rest()
 	end
 
 	if (script_shaman:checkEnhancement()) then
+		self.waitTimer = GetTimeEX() + 1750;
 		return true;
 	end
 
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(750, 1150);
+		local tickRandom = random(1388, 2061);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
