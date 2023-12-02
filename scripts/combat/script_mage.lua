@@ -350,6 +350,11 @@ function script_mage:run(targetGUID)
 		end
 	end
 
+	-- dismount before combat
+	if (IsMounted()) then
+		DisMount();
+	end
+
 	--Valid Enemy
 	if (targetObj ~= 0) and (targetObj ~= nil) and (not localObj:IsStunned()) and (not localObj:IsMovementDisabed()) then
 		
@@ -788,7 +793,7 @@ function script_mage:rest()
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
 
-
+if (not IsMounted()) then
 	--Create Water
 	local waterIndex = -1;
 	for i=0,self.numWater do
@@ -1042,6 +1047,7 @@ function script_mage:rest()
 				return;
 			end
 		end
+	end
 	end	
 	-- No rest / buff needed
 	return false;
@@ -1050,7 +1056,7 @@ end
 function script_mage.frostMagePull(targetObj)
 
 	-- recheck line of sight on target
-	if (not targetObj:IsInLineOfSight()) or (targetObj:GetDistance() > 31) then
+	if (not IsMounted()) and (not targetObj:IsInLineOfSight()) or (targetObj:GetDistance() > 31) then
 		return 3;
 	else
 		if (IsMoving()) then
@@ -1068,7 +1074,7 @@ end
 function script_mage.fireMagePull(targetObj)
 
 	-- recheck line of sight on target
-	if (not targetObj:IsInLineOfSight()) or (targetObj:GetDistance() > 31) then
+	if (not IsMounted()) and (not targetObj:IsInLineOfSight()) or (targetObj:GetDistance() > 31) then
 		return 3;
 	else
 		if (IsMoving()) then

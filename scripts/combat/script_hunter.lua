@@ -249,7 +249,13 @@ function script_hunter:run(targetGUID)
 		end
 	end
 
-	script_hunterEX:chooseAspect(targetObj);
+	-- dismount before combat
+	if (IsMounted()) then
+		DisMount();
+	end
+	if (not IsMounted()) then
+		script_hunterEX:chooseAspect(targetObj);
+	end
 
 	--Valid Enemy
 	if (targetObj ~= 0 and targetObj ~= nil) then

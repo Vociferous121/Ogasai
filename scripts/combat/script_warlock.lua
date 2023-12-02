@@ -391,6 +391,11 @@ function script_warlock:run(targetGUID)
 		end
 	end
 
+	-- dismount before combat
+	if (IsMounted()) then
+		DisMount();
+	end
+
 	--Valid Enemy
 	if (targetObj ~= 0 and targetObj ~= nil) and (not localObj:IsStunned()) and (not script_checkDebuffs:hasSilence()) then
 		
@@ -1291,6 +1296,7 @@ function script_warlock:summonPet()
 	local localMana = GetLocalPlayer():GetManaPercentage();
 
 
+	if (not IsMounted()) then
 	-- Check: Summon our Demon if we are not in combat
 	if (not IsEating()) and (not self.hasPet) and (not IsDrinking()) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (HasSpell("Summon Imp")) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
 
@@ -1437,5 +1443,6 @@ if (GetPet() ~= 0) and (self.hasPet) then
 	script_grind.tickRate = 100;
 	script_rotation.tickRate = 100;
 end
+	end
 	return false;
 end

@@ -154,8 +154,8 @@ function script_grindEX:doChecks()
 				return true;
 			end
 
-			if (script_grind.useMount and not IsInCombat()) then
-				if (script_grind:mountUp() and script_grind.useMount) then
+			if (not IsMounted()) and (GetLocalPlayer():GetLevel() >= 40) then
+				if (script_helper:useMount()) then
 					return true;
 				end
 			end

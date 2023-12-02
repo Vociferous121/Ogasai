@@ -381,34 +381,52 @@ function script_helper:deleteItem()
 	end
 end
 
---function script_helper:useMount()
---	if (HasSpell("Summon Dreadsteed")) then
---		CastSpellByName("Summon Dreadsteed");
---		return true;
---	end
---	
---	if (HasSpell("Summon Felsteed")) then
---		CastSpellByName("Summon Felsteed");
---		return true;
---	end
---
---	if (HasSpell("Summon Charger")) then
---		CastSpellByName("Summon Charger");
---		return true;
---	end
---
---	if (HasSpell("Summon Warhorse")) then
---		CastSpellByName("Summon Warhorse");
---		return true;
---	end
---
---	for i=0,self.numMounts do
---		if (HasItem(self.myMounts[i])) or --(HasSpell(self.myMounts[i])) then
---			if (UseItem(self.myMounts[i])) or --(HasSpell(self.myMounts[i])) then
---				return true;
---			
---			end
---		end
---	end
---	return false;
---end
+function script_helper:useMount()
+	if (HasSpell("Summon Dreadsteed")) then
+		CastSpellByName("Summon Dreadsteed");
+		return true;
+	end
+	
+	if (HasSpell("Summon Felsteed")) then
+		CastSpellByName("Summon Felsteed");
+		return true;
+	end
+
+	if (HasSpell("Summon Charger")) then
+		CastSpellByName("Summon Charger");
+		return true;
+	end
+
+	if (HasSpell("Summon Warhorse")) then
+		CastSpellByName("Summon Warhorse");
+		return true;
+	end
+
+	for i=0,self.numMounts do
+		if (HasItem(self.myMounts[i])) then
+			if (UseItem(self.myMounts[i])) then
+				return true;
+			end
+		end
+	end
+	return false;
+end
+
+function script_helper:mountUp()
+
+	if (IsMoving()) then
+		StopMoving();
+		return false;
+	end
+
+	if (GetLocalPlayer():GetLevel() >= 40) and (not IsMounted()) and (not IsInCombat()) and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:HasBuff("Moonkin Form")) and (not localObj:HasBuff("Travel Form")) then
+			script_helper:useMount();
+			script_grind:setWaitTimer(4200);
+			self.waitTimer = GetTimeEX() + 4200;
+			return;
+		
+	end
+
+
+return false;
+end

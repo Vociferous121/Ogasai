@@ -240,7 +240,7 @@ function script_druid:healsAndBuffs()
 
 
 	-- heal - we left form out of combat
-	if (not IsInCombat()) and (not isBear and not isBear2) and (not isCat) and (not isTravel) and (localHealth <= 65) and (localMana >= 75) and (not hasRejuv) and (not hasRegrowth) and (not IsMoving()) and (IsStanding()) then
+	if (not IsInCombat()) and (not isBear and not isBear2) and (not isCat) and (not isTravel) and (localHealth <= 65) and (localMana >= 75) and (not hasRejuv) and (not hasRegrowth) and (not IsMoving()) and (IsStanding()) and (not IsMounted()) then
 			if (IsMoving()) then
 				StopMoving();
 			end
@@ -282,10 +282,10 @@ function script_druid:healsAndBuffs()
 	local isTravel = localObj:HasBuff("Travel Form");
 
 	-- moving buffs hierarchy up
-	if (not isBear and not isBear2) and (not isCat) and (not isTravel) and (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) and (script_grind.lootObj == 0 or script_grind.lootObj == nil) then
+	if (not isBear and not isBear2) and (not isCat) and (not isTravel) and (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) and (script_grind.lootObj == 0 or script_grind.lootObj == nil) and (not IsMounted()) then
 
 		-- Innervate
-		if (not IsInCombat()) and (HasSpell("Innervate")) and (not IsSpellOnCD("Innervate")) and (not localObj:HasBuff("Innervate")) and (localMana <= self.shapeshiftMana) then
+		if (IsInCombat()) and (HasSpell("Innervate")) and (not IsSpellOnCD("Innervate")) and (not localObj:HasBuff("Innervate")) and (localMana <= self.shapeshiftMana) then
 			if (CastSpellByName("Innervate", localObj)) then
 				self.waitTimer = GetTimeEX() + 3500;
 				return 0;
@@ -293,7 +293,7 @@ function script_druid:healsAndBuffs()
 		end
 
 		-- Mark of the Wild
-		if (not IsInCombat()) and (localMana > 75) and (HasSpell("Mark of the Wild")) then
+		if (not IsInCombat()) and (localMana > 75) and (HasSpell("Mark of the Wild")) and (not IsMounted()) then
 			if (not localObj:HasBuff("Mark of the Wild")) then
 				if (CastSpellByName("Mark of the Wild", localObj)) then
 					self.waitTimer = GetTimeEX() + 2500;
@@ -303,8 +303,8 @@ function script_druid:healsAndBuffs()
 		end
 	
 		-- Thorns
-		if (localMana > 30) and (HasSpell("Thorns")) and (not localObj:HasBuff("Thorns")) then
-			if (localHealth >= self.healthToShift) then
+		if (localMana > 30) and (HasSpell("Thorns")) and (not localObj:HasBuff("Thorns")) and (not IsMounted()) then
+			if (localHealth >= self.healthToShift) and (not IsMounted()) then
 				if (CastSpellByName("Thorns", localObj)) then
 					self.waitTimer = GetTimeEX() + 2550;
 					return 0;
@@ -314,7 +314,7 @@ function script_druid:healsAndBuffs()
 	end
 
 	-- if not isBear and not isCat and not isTravel
-	if (not isBear and not isBear2) and (not isCat) and (not isTravel) and (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) and (script_grind.lootObj == 0 or script_grind.lootObj == nil) and (not localObj:IsStunned()) then
+	if (not isBear and not isBear2) and (not isCat) and (not isTravel) and (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) and (script_grind.lootObj == 0 or script_grind.lootObj == nil) and (not localObj:IsStunned()) and (not IsMounted()) then
 
 		-- Check: Use Healing Potion 
 		if (localHealth < self.potionHealth) then 
@@ -331,21 +331,29 @@ function script_druid:healsAndBuffs()
 		end
 
 		-- Regrowth
-		if (HasSpell("Regrowth")) and (not localObj:HasBuff("Regrowth")) and (localHealth <= self.regrowthHealth) and (localMana >= 40) and (not IsMoving()) and (not IsLooting()) and (not IsChanneling()) and (not IsCasting()) then
-			if (IsMoving()) then
-				StopMoving();
-			end
-			if (not script_grind.adjustTickRate) then
-				script_grind.tickRate = 1550;
-			end
-			if (CastSpellByName("Regrowth", localObj)) then
-				self.waitTimer = GetTimeEX() + 4250;
-				return 0;
+		if (HasSpell("Regrowth")) and (not localObj:HasBuff("Regrowth")) then
+			if (localHealth <= self.regrowthHealth) and (localMana >= 40) and (not localObj:HasBuff("Regrowth")) then
+				if (not IsMoving()) and (not IsLooting()) and (not localObj:HasBuff("Regrowth")) then
+					if (not IsChanneling()) and (not IsCasting()) and (not localObj:HasBuff("Regrowth")) then
+						if (IsMoving()) and (not localObj:HasBuff("Regrowth")) then
+							StopMoving();
+						end
+						if (not script_grind.adjustTickRate) then
+							script_grind.tickRate = 2550;
+						end
+						if (not localObj:HasBuff("Regrowth")) then
+							if (CastSpellByName("Regrowth", localObj)) then
+								self.waitTimer = GetTimeEX() + 4250;
+								return 4;
+							end
+						end
+					end
+				end
 			end
 		end
 
 		-- Rejuvenation
-		if (HasSpell("Rejuvenation")) and (not localObj:HasBuff("Rejuvenation")) and (localHealth <= self.rejuvenationHealth) and (not IsLooting()) and (IsStanding()) then
+		if (HasSpell("Rejuvenation")) and (not localObj:HasBuff("Rejuvenation")) and (localHealth <= self.rejuvenationHealth) and (not IsLooting()) and (IsStanding()) and (localHealth <= 80) then
 			if (localLevel < 10 and localMana >= 25) or (localLevel >= 10 and localMana >= self.shapeshiftMana + 5) then 
 				if (IsMoving()) then
 					StopMoving();
@@ -368,7 +376,7 @@ function script_druid:healsAndBuffs()
 		end
 
 		-- cast rejuvenation if we have regrowth
-		if (localObj:HasBuff("Regrowth")) and (not localObj:HasBuff("Rejuvenation")) and (localMana >= 15) and (not IsMoving()) and (IsStanding()) then
+		if (localObj:HasBuff("Regrowth")) and (not localObj:HasBuff("Rejuvenation")) and (localMana >= 15) and (not IsMoving()) and (IsStanding()) and (localHealth <= 80) then
 				if (IsMoving()) then
 					StopMoving();
 				end
@@ -495,11 +503,6 @@ function script_druid:run(targetGUID)
 			self.waitTimer = GetTimeEX() + 1500;
 			return 0;
 		end
-	end
-
-	-- dismount before combat
-	if (IsMounted()) then
-		DisMount();
 	end
 
 	--Valid Enemy
@@ -643,6 +646,7 @@ function script_druid:run(targetGUID)
 			if not self.useStealth and targetObj:GetDistance() <= 30 then
 				if HasSpell("Faerie Fire (Feral)") then
 					CastSpellByName("Faerie Fire (Feral)()");
+					targetObj:FaceTarget();
 					return 0;
 				end
 			end
@@ -857,6 +861,11 @@ function script_druid:run(targetGUID)
 
 		else	
 
+			-- dismount before combat
+			if (IsMounted()) then
+				DisMount();
+			end
+
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
 			-- check heals and buffs
@@ -948,9 +957,10 @@ function script_druid:run(targetGUID)
 				end
 
 				-- Run backwards if we are too close to the target
-				if (targetObj:GetDistance() <= .8) then 
-					if (script_druid:runBackwards(targetObj,1)) then 
-						return 4; 
+				if (targetObj:GetDistance() <= 0.8) then 
+					if (script_druid:runBackwards(targetObj,2)) then 
+						self.waitTimer = GetTimeEX() + 1850;
+						return 0;
 					end 
 				end
 
@@ -1445,7 +1455,7 @@ function script_druid:rest()
 	-- rest in form
 	if (isBear or isBear2 or isCat) and (self.useRest) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
 		if (localObj:GetUnitsTarget() == 0) then
-			if (localMana <= 60 or localHealth <= 60) and (not IsInCombat()) then
+			if (localMana <= 75 or localHealth <= 75) and (not IsInCombat()) then
 				if (isCat) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (not script_checkDebuffs:hasPoison()) then
 					CastSpellByName("Prowl", localObj);
 				end

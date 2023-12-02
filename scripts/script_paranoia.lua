@@ -148,10 +148,12 @@ function script_paranoia:checkParanoia()
 			script_grind.message = "Player(s) within paranoid range, pausing...";
 
 			-- check stealth for paranoia
-			script_paranoiaEX:checkStealth2();
+			if (not IsMounted()) then
+				script_paranoiaEX:checkStealth2();
+			end
 
 			-- sit when paranoid if enabled
-			if (script_paranoia.sitParanoid) and (IsStanding()) and (not IsInCombat()) and (script_grind.playerParanoidDistance >= 180) then
+			if (script_paranoia.sitParanoid) and (IsStanding()) and (not IsInCombat()) and (script_grind.playerParanoidDistance >= 180) and (not IsMounted()) then
 				script_paranoia.waitTimer = GetTimeEX() + 2521;
 				if (IsMoving()) then
 					StopMoving();

@@ -240,6 +240,12 @@ function script_rogue:run(targetGUID)
 		end
 	end
 
+
+	-- dismount before combat
+	if (IsMounted()) then
+		DisMount();
+	end
+
 	if (self.enableGrind) then
 
 		--Valid Enemy

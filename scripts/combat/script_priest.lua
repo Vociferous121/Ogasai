@@ -50,6 +50,7 @@ function script_priest:healAndBuff(localObj, localMana)
 		self.waitTimer = GetTimeEX() + 1500;
 	end
 
+	if (not IsMounted()) then
 	-- inner focus
 	if (not localObj:HasBuff("Inner Focus")) and (HasSpell("Inner Focus")) then
 		if (not IsSpellOnCD("Inner Focus")) then
@@ -199,6 +200,7 @@ function script_priest:healAndBuff(localObj, localMana)
 			self.waitTimer = GetTimeEX() + 1550;
 			return 0;
 		end
+	end
 	end
 return false;
 end
@@ -422,6 +424,11 @@ function script_priest:run(targetGUID)
 		if (script_priest:healAndBuff(localObj, localMana)) then
 			return;
 		end
+	end
+	
+	-- dismount before combat
+	if (IsMounted()) then
+		DisMount();
 	end
 	
 	--Valid Enemy

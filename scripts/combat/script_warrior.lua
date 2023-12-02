@@ -246,6 +246,11 @@ function script_warrior:run(targetGUID)	-- main content of script
 		end
 	end
 	
+	-- dismount before combat
+	if (IsMounted()) then
+		DisMount();
+	end
+	
 	--Valid Enemy
 	if (targetObj ~= 0) and (not localObj:IsStunned()) and (not localObj:IsMovementDisabed()) and (not localObj:HasDebuff("Disarm")) then
 		

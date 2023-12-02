@@ -2,6 +2,55 @@ script_druidEX = {
 
 }
 
+function script_druidEX:removeTravelForm()
+
+	if (GetLocalPlayer():HasBuff("Travel Form")) then
+		CastSpellByName("Travel Form");
+		script_grind:setWaitTimer(1500);
+		return true;
+	end
+
+return false;
+end
+
+function script_druidEX:removeBearForm()
+
+	if (GetLocalPlayer():HasBuff("Bear Form")) then
+		CastSpellByName("Bear Form");
+		script_grind:setWaitTimer(1500);
+		return true;
+	end
+	if (GetLocalPlayer():HasBuff("Dire Bear Form")) then
+		CastSpellByName("Dire Bear Form");
+		script_grind:setWaitTimer(1500);
+		return true;
+	end
+
+return false;
+end
+
+function script_druidEX:removeCatForm()
+
+	if (GetLocalPlayer():HasBuff("Cat Form")) then
+		CastSpellByName("Cat Form");
+		script_grind:setWaitTimer(1500);
+		return true;
+	end
+
+return false
+end
+
+function script_druidEX:removeMoonkinForm()
+
+	if (GetLocalPlayer():HasBuff("Moonkin Form")) then
+		CastSpellByName("Moonkin Form");
+		script_grind:setWaitTimer(1500);
+		return true;
+	end
+
+return false;
+end
+
 function script_druidEX:travelForm()
 
 	localObj = GetLocalPlayer();

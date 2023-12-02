@@ -237,7 +237,16 @@ function script_shaman:run(targetGUID)
 		self.message = "Waiting! Stuck in combat phase!";
 		return 4;
 	end
-		
+
+	-- dismount before combat
+	if (IsMounted()) then
+		DisMount();
+	end
+	
+	-- remove ghost wolf before combat
+	if (localObj:HasBuff("Ghost Wolf")) then
+		CastSpellByName("Ghost Wolf");
+	end	
 
 	--Valid Enemy
 	if (targetObj ~= 0) then
@@ -304,7 +313,7 @@ function script_shaman:run(targetGUID)
 				end
 			elseif (targetObj:GetDistance() > self.meleeDistance) then
 				-- cast fire totem before getting to target range
-				if (targetObj:GetDistance() <= 9) then
+				if (targetObj:GetDistance() <= 20) then
 					-- DO NOT TOUCH CASTING FIRE TOTEMS
 					if (self.useFireTotem) then
 						if (not script_shaman.totemUsed) then
@@ -320,7 +329,9 @@ function script_shaman:run(targetGUID)
 						end
 					end
 				end
-			return 3;
+				if (targetObj:GetDistance() > self.meleeDistance) then
+					return 3;
+				end
 			end
 			
 			if (not IsMoving()) and (targetObj:GetDistance() <= 10) then
@@ -352,7 +363,7 @@ function script_shaman:run(targetGUID)
 			end
 
 			-- stop moving if we get close enough to target and not in combat yet
-			if (not IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance + 2) and (targetHealth >= 80) then
+			if (not IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance) and (targetHealth >= 80) then
 				if (IsMoving()) then
 					StopMoving();
 					targetObj:FaceTarget();
@@ -429,11 +440,14 @@ function script_shaman:run(targetGUID)
 			end
 
 			-- Check: Healing
-			if (localHealth < self.healHealth) and (localMana >= 20) then 
-				if (CastSpellByName(self.healingSpell, localObj)) then
-					self.waitTimer = GetTimeEX() + 4000;
-					script_grind:setWaitTimer(4000);
-					return 0;
+			if (not IsCasting()) and (not IsChanneling()) then
+				if (localHealth < self.healHealth) then
+					if (localMana >= 20) then 
+						CastSpellByName(self.healingSpell, localObj);
+						self.waitTimer = GetTimeEX() + 4000;
+						script_grind:setWaitTimer(4000);
+						return 4;
+					end
 				end
 			end
 
@@ -510,6 +524,15 @@ function script_shaman:run(targetGUID)
 
 			-- Check: If we are in melee range, do melee attacks
 			if (targetObj:GetDistance() <= self.meleeDistance and targetObj:IsInLineOfSight()) then
+
+				-- Check: Healing
+				if (localHealth < self.healHealth) and (localMana >= 20) then 
+					if (CastSpellByName(self.healingSpell, localObj)) then
+						self.waitTimer = GetTimeEX() + 4000;
+						script_grind:setWaitTimer(4000);
+						return 0;
+					end
+				end
 
 				-- stop moving if we get close enough to target and not in combat yet
 				if (IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance + 2) and (targetHealth >= 80) then
@@ -604,11 +627,15 @@ function script_shaman:rest()
 		end
 	end
 
-	-- Heal up
-	if (localHealth < self.eatHealth and localMana > 10) then 
-		if (CastSpellByName("Healing Wave", localObj)) then
-			script_grind:setWaitTimer(5000);
-			return true;
+	-- Check: Healing
+	if (not IsCasting()) and (not IsChanneling()) then
+		if (localHealth < 75) then
+			if (localMana >= 20) then 
+				CastSpellByName(self.healingSpell, localObj);
+				self.waitTimer = GetTimeEX() + 4000;
+				script_grind:setWaitTimer(4000);
+				return 4;
+			end
 		end
 	end
 

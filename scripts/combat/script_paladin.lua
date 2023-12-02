@@ -158,6 +158,7 @@ function script_paladin:healAndBuff(localObj, localMana)
 
 	script_grind.tickRate = 1500;
 
+	if (not IsMounted()) then
 	if (not IsDrinking()) and (not IsEating()) then
 		if (not IsStanding()) then
 			JumpOrAscendStart();
@@ -351,6 +352,7 @@ function script_paladin:healAndBuff(localObj, localMana)
 		end
 	end
 	
+	end
 	
 return false;
 end
@@ -424,6 +426,11 @@ function script_paladin:run(targetGUID)
 		elseif (IsInCombat()) and (not IsMoving()) then
 			script_grind.tickRate = tickRandom;
 		end
+	end
+
+	-- dismount before combat
+	if (IsMounted()) then
+		DisMount();
 	end
 	
 	--Valid Enemy

@@ -262,7 +262,7 @@ function script_grind:run()
 	--end
 
 	 -- Set next to node distance and nav-mesh smoothness to double that number
-	if (self.useMount and IsMounted()) then
+	if (IsMounted()) then
 		script_nav:setNextToNodeDist(12); NavmeshSmooth(24);
 	else
 		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*2.5);
@@ -339,7 +339,7 @@ function script_grind:run()
 	-- check paranoia	
 		-- jump when targeted in combat
 	if (IsInCombat()) and (script_grind:playersTargetingUs() >= 1) and (script_paranoiaCheck:playersWithinRange(40)) then
-		if (not IsCasting()) and (not IsChanneling()) and (not IsMoving()) then
+		if (not IsCasting()) and (not IsChanneling()) then
 			local moreJumping = math.random(0, 100);
 			if (moreJumping >= 92) then
 				JumpOrAscendStart();
@@ -348,7 +348,7 @@ function script_grind:run()
 		end
 	end
 	-- do paranoia
-	if (not IsLooting()) and (not IsInCombat()) then	
+	if (not IsLooting()) and (not IsInCombat()) and (not IsMounted()) then	
 		if (script_paranoia:checkParanoia()) and (not self.pause) then
 				script_paranoia.paranoiaUsed = true;
 				script_grind.tickRate = 50;
@@ -377,7 +377,9 @@ function script_grind:run()
 			end
 
 			-- do stealth
-			script_paranoiaEX:checkStealth();
+			if (not IsMounted()) then
+				script_paranoiaEX:checkStealth();
+			end
 
 			-- set timer to stop after paranoid player leaves
 			self.waitTimer = GetTimeEX() + (self.paranoidSetTimer * 1000) + 2000;
@@ -447,8 +449,11 @@ function script_grind:run()
 		if (script_nav:getDistanceToHotspot() <= 45) then
 			self.hotspotReached = true;
 		end
+
+	
+
 		-- Auto path: keep us inside the distance to the current hotspot, if mounted keep running even if in combat
-		if ((not IsInCombat()) and (self.autoPath) and (script_vendor:getStatus() == 0) and
+		if ((not IsInCombat() or IsMounted()) and (self.autoPath) and (script_vendor:getStatus() == 0) and
 			(script_nav:getDistanceToHotspot() > self.distToHotSpot or self.hotSpotTimer > GetTimeEX())) then
 			if (not (self.hotSpotTimer > GetTimeEX())) then
 				self.hotSpotTimer = GetTimeEX() + 20000;
@@ -456,26 +461,26 @@ function script_grind:run()
 
 			-- Druid cat form is faster if you specc talents
 
-			if (not script_paranoia:checkParanoia()) and (not IsSwimming()) then
+			if (not IsMounted()) and (not script_paranoia:checkParanoia()) and (not IsSwimming()) and (GetLocalPlayer():GetLevel() < 40) then
 				if (script_druidEX:travelForm()) then
 					self.waitTimer = GetTimeEX() + 1000;
 				end
 			end
 
-			if (not HasSpell("Travel Form")) and (HasSpell("Cat Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
+			if (not IsMounted()) and (not HasSpell("Travel Form")) and (HasSpell("Cat Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
 				if (CastSpellByName("Cat Form")) then
 					self.waitTimer = GetTimeEX() + 500;
 					return 0;
 				end
 			end
-			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (not script_checkDebuffs:hasPoison()) then
+			if (not IsMounted()) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (not script_checkDebuffs:hasPoison()) then
 				if (CastSpellByName("Stealth", localObj)) then
 					self.waitTimer = GetTimeEX() + 1200;
 					return 0;
 				end
 			end
 			-- Shaman Ghost Wolf 
-			if (self.currentLevel < 40 and HasSpell('Ghost Wolf') and not localObj:HasBuff('Ghost Wolf')) and (not localObj:IsDead()) then
+			if (not IsMounted()) and (self.currentLevel < 40 and HasSpell('Ghost Wolf') and not localObj:HasBuff('Ghost Wolf')) and (not localObj:IsDead()) then
 				if (CastSpellByName('Ghost Wolf')) then
 					self.waitTimer = GetTimeEX() + 1500;
 					return 0;
@@ -575,9 +580,9 @@ function script_grind:run()
 				end
 
 				if (_x ~= 0 and x ~= 0) then
-					local moveBuffer = math.random(-2, 2);
+					local moveBuffer = math.random(-3, 3);
 					self.message = script_navEX:moveToTarget(localObj, _x+moveBuffer, _y+moveBuffer, _z);
-					script_grind:setWaitTimer(85);
+					script_grind:setWaitTimer(60);
 					return;
 				end
 				return;
@@ -610,9 +615,26 @@ function script_grind:run()
 		end
 
 		-- Mount before we navigate through the path, error check to get around indoors
-		--if (script_grind:mountUp() and self.useMount) then
-		--	return;
-		--end
+		if (GetLocalPlayer():GetLevel() >= 40) and (not IsMounted()) then
+			if (script_druidEX:removeCatForm()) or (script_druidEX:removeBearForm())
+			or (script_druidEX:removeTravelForm()) or (script_druidEX:removeMoonkinForm()) then
+				return;
+			end
+		end
+			--Mount up
+		if (not self.hotspotReached or script_vendor:getStatus() >= 1) and (not IsInCombat())
+		and (not IsMounted()) and (not IsIndoors()) and (not localObj:HasBuff("Cat Form"))
+		and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Travel Form"))
+		and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Moonkin Form")) then
+			if (IsMoving()) then
+				StopMoving();
+				return true;
+			end
+			if (script_helper:mountUp()) then
+				script_grind:setWaitTimer(4500);
+			end
+		return true;
+		end
 
 		-- Use auto pathing or walk paths
 		if (self.autoPath) then
@@ -1098,8 +1120,9 @@ function script_grind:runRest()
 			return true;
 		end
 
-		script_paranoiaEX:checkStealth();
-
+		if (not IsMounted()) then
+			script_paranoiaEX:checkStealth();
+		end
 	return true;	
 	end
 

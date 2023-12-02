@@ -50,6 +50,7 @@ function script_navEX:moveToTarget(localObj, _x, _y, _z) -- use when moving to m
 
 	-- Move to the next destination in the path
 	Move(_ix, _iy, _iz);
+	script_grind:setWaitTimer(200);
 
 	return "Moving to target...";
 end
