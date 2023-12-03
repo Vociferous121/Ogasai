@@ -200,7 +200,7 @@ function script_druid:healsAndBuffs()
 	end
 
 		-- Dismount
-		if (IsMounted()) and (targetObj:GetDistance() < 25) then 
+		if (IsMounted()) then 
 			DisMount(); 
 			return 4; 
 		end
