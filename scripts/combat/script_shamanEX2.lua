@@ -3,6 +3,20 @@ script_shamanEX2 = {
 
 }
 
+function script_shamanEX2:setTotemBuffs()
+
+	if (script_shaman.totem == "Stoneskin Totem") then
+		script_shaman.totemBuff = "Stoneskin";
+	end
+	if (script_shaman.totem == "Strength of Earth Totem") then
+		script_shaman.totemBuff = "Strength of Earth";
+	end
+
+	if (script_shaman.totem3 == "Healing Stream Totem") then
+		script_shaman.totemBuff3 = "Healing Stream";
+	end
+return false;
+end
 
 function script_shamanEX2:useTotem()
 
@@ -10,12 +24,12 @@ function script_shamanEX2:useTotem()
 	local hasTarget = GetLocalPlayer():GetUnitsTarget();
 
 	-- Totem 1
-	if (script_shaman.useEarthTotem) and (targetHealth >= 30) and (hasTarget ~= 0) then
-		if (targetObj:GetDistance() <= 20) and (localMana >= 20) and (HasSpell(script_shaman.totem))
-			and (not localObj:HasBuff(script_shaman.totemBuff)) then
+	if (script_shaman.useEarthTotem) and (targetHealth >= 30) and (hasTarget ~= 0) and (not localObj:HasBuff(script_shaman.totemBuff)) then
+		if (targetObj:GetDistance() <= 20) and (localMana >= 20) and (targetObj:IsTargetingMe()) and (HasSpell(script_shaman.totem)) then
 			if (CastSpellByName(script_shaman.totem)) then
 				script_shaman.waitTimer = GetTimeEX() + 1750;
-					return 4;
+				script_grind:setWaitTimer(1750);
+				return 4;
 			end
 			return true;
 		end
@@ -23,9 +37,10 @@ function script_shamanEX2:useTotem()
 
 	-- totem 3
 	if (script_shaman.useWaterTotem) and (not localObj:HasBuff(script_shaman.totem3Buff)) and (hasTarget ~= 0) then
-		if (targetObj:GetDistance() <= 20) and (localMana >= 20) and (HasSpell(script_shaman.totem3)) then
+		if (targetObj:GetDistance() <= 20) and (targetObj:IsTargetingMe()) and (localMana >= 20) and (HasSpell(script_shaman.totem3)) then
 			if (CastSpellByName(script_shaman.totem3)) then
 				script_shaman.waitTimer = GetTimeEX() + 1750;
+				script_grind:setWaitTimer(1750);
 				return 4;
 			end
 			return true;
