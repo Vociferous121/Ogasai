@@ -448,8 +448,11 @@ function script_shaman:run(targetGUID)
 				end
 			end
 		
-			if (not IsAutoAttacking()) then
+			if (not IsAutoCasting("Attack")) then
 				targetObj:AutoAttack();
+				if (not IsMoving()) then
+					targetObj:FaceTarget();
+				end
 			end
 
 			if (script_shamanEX2:useTotem()) and (not localObj:HasBuff(self.totemBuff)) and (not localObj:HasBuff(self.totem3Buff)) then
@@ -651,6 +654,11 @@ function script_shaman:run(targetGUID)
 
 			-- Check: If we are in melee range, do melee attacks
 			if (targetObj:GetDistance() <= self.meleeDistance and targetObj:IsInLineOfSight()) then
+
+				if (not IsAutoCasting("Attack")) then
+					targetObj:AutoAttack();
+					targetObj:FaceTarget();
+				end
 
 				if (script_shaman:healsAndBuffs()) then
 					self.waitTimer = GetTimeEX() + 2750;
