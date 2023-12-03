@@ -337,14 +337,13 @@ function script_grind:run()
 	end
 
 	-- check paranoia	
-		-- jump when targeted in combat
-	if (IsInCombat()) and (script_grind:playersTargetingUs() >= 1) and (script_paranoiaCheck:playersWithinRange(40)) then
+		-- jump when player in range in combat
+	if (IsInCombat()) and (script_paranoiaCheck:playersWithinRange(60)) then
 		if (not IsCasting()) and (not IsChanneling()) then
 			local moreJumping = math.random(0, 100);
-			if (moreJumping >= 92) then
+			if (moreJumping >= 96) then
 				JumpOrAscendStart();
 			end
-			self.waitTimer = GetTimeEX() + 800;
 		end
 	end
 	-- do paranoia

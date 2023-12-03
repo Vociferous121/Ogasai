@@ -14,6 +14,7 @@ function script_shamanEX:menu()
 
 		-- melee distance
 		script_shaman.meleeDistance = SliderFloat("Melee range", 1, 6, script_shaman.meleeDistance);
+
 		Separator();
 
 		-- lightning bolt
@@ -21,6 +22,7 @@ function script_shamanEX:menu()
 		Text("Use Lightning Bolt Above Mana");
 		script_shaman.lightningBoltMana = SliderInt("LBM%", 5, 90, script_shaman.lightningBoltMana);
 
+		Separator();
 
 		-- shock mana sliders
 		if (HasSpell("Earth Shock")) then
