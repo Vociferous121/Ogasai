@@ -23,13 +23,28 @@ function script_shamanEX2:useTotem()
 	local localMana = GetLocalPlayer():GetManaPercentage();
 	local hasTarget = GetLocalPlayer():GetUnitsTarget();
 
+	-- remove ghost wolf before combat
+	if (localObj:HasBuff("Ghost Wolf")) then
+		CastSpellByName("Ghost Wolf");
+	end
+
+	if (hasTarget ~= 0) then
+		if (not IsAutoCasting("Attack")) then
+			targetObj:AutoAttack();
+			if (not IsMoving()) then
+				targetObj:FaceTarget();
+			end
+		end
+	end
+
+
 	-- Totem 1
 	if (script_shaman.useEarthTotem) and (targetHealth >= 30) and (hasTarget ~= 0) and (not localObj:HasBuff(script_shaman.totemBuff)) then
 		if (targetObj:GetDistance() <= 20) and (localMana >= 20) and (targetObj:IsTargetingMe()) and (HasSpell(script_shaman.totem)) then
 			if (CastSpellByName(script_shaman.totem)) then
 				script_shaman.waitTimer = GetTimeEX() + 1750;
 				script_grind:setWaitTimer(1750);
-				return 4;
+				return true;
 			end
 			return true;
 		end
@@ -41,7 +56,7 @@ function script_shamanEX2:useTotem()
 			if (CastSpellByName(script_shaman.totem3)) then
 				script_shaman.waitTimer = GetTimeEX() + 1750;
 				script_grind:setWaitTimer(1750);
-				return 4;
+				return true;
 			end
 			return true;
 		end
@@ -67,6 +82,8 @@ function script_shamanEX2:menu()
 
 		Text("Heal Below Health In Combat");
 		script_shaman.healHealth = SliderInt("Heal when below HP% (in combat)", 1, 99, script_shaman.healHealth);
+		Text("Mana Cost Of Healing Spell Percent")
+		script_shaman.healMana = SliderInt("Heal Mana %", 5, 99, script_shaman.healMana);
 
 	end
 

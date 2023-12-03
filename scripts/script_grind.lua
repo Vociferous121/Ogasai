@@ -308,8 +308,8 @@ function script_grind:run()
 		self.message = "Error script_helper not loaded...";
 		return;
 	end
-
-	--and (not self.pause) 
+	
+	-- use unstuck feature ----and (not self.pause) 
 	if (self.useUnstuck and IsMoving()) and (not self.pause) then
 		if (not script_unstuck:pathClearAuto(2)) then
 			script_unstuck:unstuck();
@@ -491,7 +491,7 @@ function script_grind:run()
 		end
 		
 		-- Assign the next valid target to be killed within the pull range
-		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) and self.lootobj == nil then
+		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) and self.lootObj == nil then
 			self.waitTimer = GetTimeEX() + 200;
 			self.lastTarget = self.enemyObj:GetGUID();
 		end
@@ -916,12 +916,6 @@ function script_grind:drawStatus()
 	y = y + 20; DrawText('Combat script status: ', x, y, r+255, g+255, b+0); y = y + 15;
 	if (self.showClassOptions) then RunCombatDraw(); end
 	 y = y + 20;
-	--if (self.autoPath) then 
-	--	DrawText('Auto path: ON! Hotspot: ' .. script_nav:getHotSpotName(), x, y, 255, 255, 205); y = y + 20;
-	--else
-	--	DrawText('Auto path: OFF!', x, y, 255, 255, 205); y = y + 20;
-	--end
-
 	if (script_grind.useVendor) then
 		DrawText('Vendor - ' .. script_vendorMenu:getInfo(), x, y, r+255, g+255, b+0); y = y + 15;
 		DrawText('Vendor Status: ', x, y, r+255, g+255, b+0);
@@ -1022,9 +1016,7 @@ function script_grind:doLoot(localObj)
 			return;
 		end
 	end
-		if (IsMoving()) then
-			script_grind.tickRate = 65;
-		end
+		
 	self.message = "Moving to loot...";		
 	script_navEX:moveToTarget(localObj, _x, _y, _z);	
 	--script_grind:setWaitTimer(300);

@@ -13,7 +13,13 @@ function script_targetMenu:menu()
 
 		wasClicked, script_grindEX.avoidBlacklisted = Checkbox("Avoid Blacklisted Targets (Has Bugs)", script_grindEX.avoidBlacklisted);
 
-		wasCLicked, script_grind.skipHardPull = Checkbox("Blacklist Target With More Than 1 Add", script_grind.skipHardPull);
+		wasClicked, script_grind.skipHardPull = Checkbox("Blacklist Target With More Than 1 Add", script_grind.skipHardPull);
+		if (script_grind.skipHardPull) then
+			Text("Adjust Blacklist Aggro Range (~10yds per tick)");
+			script_aggro.adjustAggro = SliderInt("Adjust Aggro", 1, 4, script_aggro.adjustAggro);
+		end
+
+		Separator();
 		
 		if (Button("BlackList By GUID")) then
 			if UnitExists("target") then

@@ -22,14 +22,15 @@ script_shaman = {
 	useEarthTotem = false,
 	useFireTotem = false,
 	useWaterTotem = false,
-	earthShockMana = 80,
-	flameShockMana = 75,
+	earthShockMana = 40,
+	flameShockMana = 70,
 	lightningBoltMana = 25,
 	pullLightningBolt = false,
 	useFrostShock = false,
 	useEarthShock = false,
 	useFlameShock = false,
 	useLightningBolt = false,
+	healMana = 20,
 
 }
 
@@ -105,6 +106,10 @@ function script_shaman:setup()
 		self.drinkMana = 40;
 	end
 
+	if (localLevel >= 20) then
+		self.healMana = 12;
+	end
+
 	self.waitTimer = GetTimeEX();
 
 	self.isSetup = true;
@@ -120,7 +125,7 @@ function script_shaman:checkEnhancement()
 			if (HasSpell(self.enhanceWeapon)) then
 
 				-- Check: Stop moving, sitting
-				if (not IsStanding() or IsMoving()) then 
+				if (not IsStanding()) then 
 					StopMoving(); 
 					return true;
 				end 
@@ -215,40 +220,81 @@ function script_shaman:healsAndBuffs()
 	local localObj = GetLocalPlayer();
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
+	local hasTarget = localObj:GetUnitsTarget();
 
-	if (IsStanding()) then
-		-- Check Healing
-		if (not IsCasting()) and (not IsChanneling()) then
-			if (localHealth < self.healHealth) then
-				if (localMana >= 20) then 
-					CastSpellByName(self.healingSpell, localObj);
-					self.waitTimer = GetTimeEX() + 4000;
-					script_grind:setWaitTimer(4000);
-					return 4;
-				end
+	if (not IsStanding()) then
+		JumpOrAscendStart();
+	end
+
+	if (IsSwimming()) and (HasBuff("Water Breathing")) and (HasItem("Shiny Fish Scales")) 
+		and (not localObj:HasBuff("Water Breathing")) then
+		if (CastSpellByName("Water Breathing", localObj)) then
+			self.waitTimer = GetTimeEX() + 1750;
+			script_grind:setWaitTimer(1750);
+		end
+	end
+
+	-- remove ghost wolf before combat
+	if (localObj:HasBuff("Ghost Wolf")) then
+		CastSpellByName("Ghost Wolf");
+	end
+
+	if (hasTarget ~= 0) then
+		if (not IsAutoCasting("Attack")) then
+			targetObj:AutoAttack();
+			if (not IsMoving()) then
+				targetObj:FaceTarget();
 			end
 		end
-	
-		-- check cure poison
-		if (HasSpell("Cure Poison")) and (script_checkDebuffs:hasPoison()) then
-			if (not IsSpellOnCD("Cure Poison")) and (localMana >= 65) then
-				if (CastSpellByName("Cure Poison", localObj)) then
-					self.waitTimer = GetTimeEX() + 1650;
-					script_grind:setWaitTimer(1650);
-					return 0;
-				end
+	end
+
+	-- Check Healing
+	if (not IsCasting()) and (not IsChanneling()) then
+		if (localHealth < self.healHealth) then
+			if (localMana >= self.healMana) then 
+				CastSpellByName(self.healingSpell, localObj);
+				self.waitTimer = GetTimeEX() + 4000;
+				script_grind:setWaitTimer(4000);
+				return 4;
 			end
 		end
+	end
 	
-		-- Check: Lightning Shield
-		if (HasSpell("Lightning Shield")) and (localMana >= 35)
-		and (not localObj:HasBuff("Lightning Shield")) then
-			if (CastSpellByName("Lightning Shield", localObj)) then
-				self.waitTimer = GetTimeEX() + 1500;
-				script_grind:setWaitTimer(1500);
+	-- check cure poison
+	if (HasSpell("Cure Poison")) and (script_checkDebuffs:hasPoison()) then
+		if (not IsSpellOnCD("Cure Poison")) and (localMana >= 25) then
+			if (CastSpellByName("Cure Poison", localObj)) then
+				self.waitTimer = GetTimeEX() + 1650;
+				script_grind:setWaitTimer(1650);
 				return 0;
 			end
 		end
+	end
+
+	-- check cure disease
+	if (HasSpell("Cure Disease")) and (script_checkDebuffs:hasDisease()) then
+		if (not IsSpellOnCD("Cure Disease")) and (localMana >= 25) then
+			if (CastSpellByName("Cure Disease", localObj)) then
+				self.waitTimer = GetTimeEX() + 1650;
+				script_grind:setWaitTimer(1650);
+				return 0;
+			end
+		end
+	end
+
+	-- Check: Lightning Shield
+	if (HasSpell("Lightning Shield")) and (localMana >= 35)
+	and (not localObj:HasBuff("Lightning Shield")) then
+		if (CastSpellByName("Lightning Shield", localObj)) then
+			self.waitTimer = GetTimeEX() + 1500;
+			script_grind:setWaitTimer(1500);
+			return 0;
+		end
+	end
+
+	if (script_shaman:checkEnhancement()) then
+		self.waitTimer = GetTimeEX() + 1750;
+		return true;
 	end	
 return false;
 end
@@ -269,7 +315,7 @@ function script_shaman:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(550, 950);
+		local tickRandom = random(350, 750);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -311,9 +357,12 @@ function script_shaman:run(targetGUID)
 
 	-- stop bot from moving target to target when stuck in combat and we need to rest
 	if (IsInCombat()) and (localObj:GetUnitsTarget() == 0) then
-		script_grind.tickRate = 50;
-		self.message = "Waiting! Stuck in combat phase!";
-		return 4;
+		if (script_shaman:healsAndBuffs()) then
+			return;
+		else
+			self.message = "Waiting! Stuck in combat phase!";
+			return 4;
+		end
 	end
 
 	-- dismount before combat
@@ -369,7 +418,9 @@ function script_shaman:run(targetGUID)
 			end
 
 			-- Auto Attack
-			if (targetObj:GetDistance() < 35) and (not IsAutoCasting("Attack")) and (localMana >= self.drinkMana) and (localHealth >= self.healHealth) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
+			if (targetObj:GetDistance() < 35) and (not IsAutoCasting("Attack"))
+				and (localMana >= self.drinkMana) and (localHealth >= self.healHealth)
+				and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
 				if (targetObj:IsInLineOfSight()) then
 					targetObj:AutoAttack();
 				else
@@ -379,9 +430,11 @@ function script_shaman:run(targetGUID)
 
 			if (self.pullLightningBolt) then
 				-- Check: Not in range
-				if (not targetObj:IsSpellInRange("Lightning Bolt")) or (not targetObj:IsInLineOfSight()) then
+				if (not targetObj:IsSpellInRange("Lightning Bolt"))
+				or (not targetObj:IsInLineOfSight()) then
 					return 3;
-				elseif (targetObj:IsInLineOfSight()) and (targetObj:IsSpellInRange("Lightning Bolt")) then
+				elseif (targetObj:IsInLineOfSight())
+					and (targetObj:IsSpellInRange("Lightning Bolt")) then
 					-- Pull with: Lighting Bolt
 					if (IsMoving()) then
 						StopMoving();
@@ -395,28 +448,6 @@ function script_shaman:run(targetGUID)
 				
 				end
 			end
-
-			--if (not self.pullLightningBolt) and (targetObj:GetDistance() > self.meleeDistance) then
-			--	-- cast fire totem before getting to target range
-			--	if (targetObj:GetDistance() <= 17) then
-			--		-- DO NOT TOUCH CASTING FIRE TOTEMS
-			--		if (self.useFireTotem) then
-			--			if (not script_shaman.totemUsed) then
-			--				if (HasSpell(self.totem2))
-			--				and (not IsSpellOnCD(self.totem2)) then
-			--					CastSpellByName(self.totem2);
-			--					targetObj:FaceTarget();
-			--					script_shaman.totemUsed = true;
-			--					return true;
-			--				end
-			--				script_shaman.totemUsed = true;
-			--			end
-			--		end
-			--	end
-			--	if (targetObj:GetDistance() > self.meleeDistance) then
-			--		return 3;
-			--	end
-			--end
 	
 			if (not IsMoving()) and (targetObj:GetDistance() <= 10) then
 				targetObj:FaceTarget();
@@ -440,7 +471,9 @@ function script_shaman:run(targetGUID)
 
 			-- pull flame shock
 			if (self.useFlameShock) then
-				if (not self.pullLightningBolt) and (HasSpell("Flame Shock")) and (localMana >= self.drinkMana) and (not IsSpellOnCD("Flame Shock")) and (targetObj:GetDistance() <= 20) then
+				if (not self.pullLightningBolt) and (HasSpell("Flame Shock"))
+					and (localMana >= self.drinkMana) and (not IsSpellOnCD("Flame Shock"))
+					and (targetObj:GetDistance() <= 20) then
 					if (CastSpellByName("Flame Shock", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1500;
 						return 0;
@@ -455,14 +488,16 @@ function script_shaman:run(targetGUID)
 				end
 			end
 
-			if (script_shamanEX2:useTotem()) and (not localObj:HasBuff(self.totemBuff)) and (not localObj:HasBuff(self.totem3Buff)) then
+			if (script_shamanEX2:useTotem()) and (not localObj:HasBuff(self.totemBuff))
+				and (not localObj:HasBuff(self.totem3Buff)) then
 				script_shamanEX2:setTotemBuffs();
 				self.waitTimer = GetTimeEX() + 1750;
 				return;
 			end
 
 			-- stop moving if we get close enough to target and not in combat yet
-			if (not IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance) and (targetHealth >= 80) then
+			if (not IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance)
+				and (targetHealth >= 80) then
 				if (IsMoving()) then
 					StopMoving();
 					targetObj:FaceTarget();
@@ -471,8 +506,14 @@ function script_shaman:run(targetGUID)
 			end
 
 
-		-- Combat
+	-- now in combat
+
+	-- Combat
 		else	
+
+	-- NOW IN COMBAT
+	
+			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
 				
 			-- stop moving if we get close enough to target
@@ -483,23 +524,17 @@ function script_shaman:run(targetGUID)
 				end
 			end
 
-			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 			-- Dismount
 			if (IsMounted()) then DisMount(); end
 
-			if (targetObj:GetDistance() <= self.meleeDistance) and (not IsMoving()) and (targetObj:IsInLineOfSight()) then
+			if (targetObj:GetDistance() <= self.meleeDistance) and (not IsMoving())
+				and (targetObj:IsInLineOfSight()) then
 				targetObj:FaceTarget();
 			end
-				
-			if (script_shamanEX2:useTotem()) and (not localObj:HasBuff(self.totemBuff)) and (not localObj:HasBuff(self.totem3Buff)) then
-				script_shamanEX2:setTotemBuffs();
-				self.waitTimer = GetTimeEX() + 1750;
-				return;
-			end
 
-
--- stop moving if we get close enough to target and not in combat yet
-			if (not IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance) and (targetHealth >= 80) then
+			-- stop moving if we get close enough to target and not in combat yet
+			if (not IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance)
+				and (targetHealth >= 80) then
 				if (IsMoving()) then
 					StopMoving();
 					targetObj:FaceTarget();
@@ -535,7 +570,8 @@ function script_shaman:run(targetGUID)
 
 			if (not IsAutoCasting("Attack")) and (targetObj:GetDistance() <= self.meleeDistance) then 
 				targetObj:AutoAttack();
-				if (not IsMoving()) and (targetObj:GetDistance() <= 8) and (targetObj:IsInLineOfSight()) then
+				if (not IsMoving()) and (targetObj:GetDistance() <= 8)
+					and (targetObj:IsInLineOfSight()) then
 					targetObj:FaceTarget();
 				end
 			end
@@ -543,6 +579,7 @@ function script_shaman:run(targetGUID)
 			if (script_shaman:healsAndBuffs()) then
 				self.waitTimer = GetTimeEX() + 2750;
 				script_grind:setWaitTimer(2750);
+				return;
 			end
 
 			-- Check: Use Healing Potion 
@@ -564,7 +601,10 @@ function script_shaman:run(targetGUID)
 			end
 	
 			-- frost shock target is low health and possible fleeing
-			if (targetObj:GetCreatureType() == 'Humanoid') and (targetHealth <= 25) and (localMana >= 20) and (HasSpell("Frost Shock")) and (not IsSpellOnCD("Frost Shock")) and (not targetObj:HasDebuff("Frost Shock")) then
+			if (targetObj:GetCreatureType() == 'Humanoid') and (targetHealth <= 25)
+				and (localMana >= 20) and (HasSpell("Frost Shock"))
+				and (not IsSpellOnCD("Frost Shock"))
+				and (not targetObj:HasDebuff("Frost Shock")) then
 				if (CastSpellByName("Frost Shock")) then
 					self.waitTimer = GetTimeEX() + 1650;
 					return 0;
@@ -596,11 +636,14 @@ function script_shaman:run(targetGUID)
 			if (script_shaman:healsAndBuffs()) then
 				self.waitTimer = GetTimeEX() + 2750;
 				script_grind:setWaitTimer(2750);
+				return;
 			end
 
 			-- flame shock
 			if (self.useFlameShock) then
-				if (HasSpell("Flame Shock")) and (not IsSpellOnCD("Flame Shock")) and (not IsSpellOnCD("Earth Shock")) and (localMana >= self.flameShockMana) and (not targetObj:HasDebuff("Flame Shock")) and (targetHealth >= 25) then
+				if (HasSpell("Flame Shock")) and (not IsSpellOnCD("Flame Shock"))
+				and (not IsSpellOnCD("Earth Shock")) and (localMana >= self.flameShockMana)
+				and (not targetObj:HasDebuff("Flame Shock")) and (targetHealth >= 25) then
 					if (CastSpellByName("Flame Shock")) then
 						self.waitTimer = GetTimeEX() + 1750;
 						targetObj:FaceTarget();
@@ -612,8 +655,11 @@ function script_shaman:run(targetGUID)
 
 			-- earth shock after flame shock
 			if (self.useEarthShock) then
-				if (HasSpell("Flame Shock")) and (HasSpell("Earth Shock")) and (targetObj:HasDebuff("Flame Shock") or targetHealth <= 50) and (localMana >= self.earthShockMana) then
-					if (not IsSpellOnCD("Flame Shock")) and (not IsSpellOnCD("Earth Shock")) then	
+				if (HasSpell("Flame Shock")) and (HasSpell("Earth Shock"))
+				and (targetObj:HasDebuff("Flame Shock") or targetHealth <= 50)
+				and (localMana >= self.earthShockMana) then
+					if (not IsSpellOnCD("Flame Shock"))
+						and (not IsSpellOnCD("Earth Shock")) then	
 						if (CastSpellByName("Earth Shock", targetObj)) then
 							self.waitTimer = GetTimeEX() + 1750;
 							targetObj:FaceTarget();
@@ -627,7 +673,8 @@ function script_shaman:run(targetGUID)
 			-- frost shock if selected
 			if (self.useFrostShock)	then
 				if (HasSpell("Frost Shock")) and (not IsSpellOnCD("Frost Shock")) then
-					if (localMana >= 35) and (targetHealth >= 30) and (not targetObj:HasDebuff("Frost Shock")) then
+					if (localMana >= 35) and (targetHealth >= 30)
+						and (not targetObj:HasDebuff("Frost Shock")) then
 						if (CastSpellByName("Frost Shock")) then
 							self.waitTimer = GetTimeEX() + 1750;
 							return 0;
@@ -636,9 +683,17 @@ function script_shaman:run(targetGUID)
 				end
 			end
 
+			if (script_shamanEX2:useTotem()) and (not localObj:HasBuff(self.totemBuff))
+				and (not localObj:HasBuff(self.totem3Buff)) then
+				script_shamanEX2:setTotemBuffs();
+				self.waitTimer = GetTimeEX() + 1750;
+				return;
+			end
+
 			-- cast lightning bolt in combat
 			if (self.useLightningBolt) then
-				if (localMana >= self.lightningBoltMana) and (targetHealth >= 20) and (not IsMoving()) then
+				if (localMana >= self.lightningBoltMana) and (targetHealth >= 20)
+					and (not IsMoving()) then
 					if (CastSpellByName("Lightning Bolt", targetObj)) then
 						targetObj:FaceTarget();
 						fself.waitTimer = GetTimeEX() + 1850;
@@ -650,6 +705,7 @@ function script_shaman:run(targetGUID)
 			if (script_shaman:healsAndBuffs()) then
 				self.waitTimer = GetTimeEX() + 2750;
 				script_grind:setWaitTimer(2750);
+				return;
 			end
 
 			-- Check: If we are in melee range, do melee attacks
@@ -663,10 +719,12 @@ function script_shaman:run(targetGUID)
 				if (script_shaman:healsAndBuffs()) then
 					self.waitTimer = GetTimeEX() + 2750;
 					script_grind:setWaitTimer(2750);
+					return;
 				end
 
 				-- stop moving if we get close enough to target
-				if (IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance) and (targetHealth >= 80) then
+				if (IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance)
+					and (targetHealth >= 80) then
 					if (IsMoving()) then
 						StopMoving();
 						targetObj:FaceTarget();
@@ -678,7 +736,8 @@ function script_shaman:run(targetGUID)
 				end
 
 				-- War Stomp Tauren Racial
-				if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) then 							if (targetObj:IsCasting()) or (script_grind:enemiesAttackingUs() >= 2) or (localHealth <= self.healHealth) then
+				if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) then 							if (targetObj:IsCasting()) or (script_grind:enemiesAttackingUs() >= 2)
+					or (localHealth <= self.healHealth) then
 						if (CastSpellByName("War Stomp")) then
 							self.waitTimer = GetTimeEX() + 500;
 							return 0;
@@ -686,7 +745,8 @@ function script_shaman:run(targetGUID)
 					end
 				end
 				
-				if (script_shamanEX2:useTotem()) and (not localObj:HasBuff(self.totemBuff)) and (not localObj:HasBuff(self.totem3Buff)) then
+				if (script_shamanEX2:useTotem()) and (not localObj:HasBuff(self.totemBuff))
+				and (not localObj:HasBuff(self.totem3Buff)) then
 					script_shamanEX2:setTotemBuffs();
 					self.waitTimer = GetTimeEX() + 1750;
 					return;
@@ -706,7 +766,7 @@ function script_shaman:run(targetGUID)
 
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(550, 950);
+		local tickRandom = random(350, 750);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -731,7 +791,7 @@ function script_shaman:rest()
 
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(1388, 2061);
+		local tickRandom = random(350, 750);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -739,6 +799,12 @@ function script_shaman:rest()
 			script_grind.tickRate = tickRandom;
 		elseif (IsInCombat()) and (not IsMoving()) then
 			script_grind.tickRate = tickRandom;
+		end
+	end
+
+	if (not IsInCombat()) then
+		if (localHealth <= self.eatHealth or localMana <= self.drinkMana) then
+			ClearTarget();
 		end
 	end
 
@@ -759,12 +825,36 @@ function script_shaman:rest()
 	-- Check: Healing
 	if (not IsCasting()) and (not IsChanneling()) then
 		if (localHealth < 75) then
-			if (localMana >= 20) then 
+			if (localMana >= self.healMana) then 
 				CastSpellByName(self.healingSpell, localObj);
-				self.waitTimer = GetTimeEX() + 4000;
-				script_grind:setWaitTimer(4000);
-				return 4;
+				if (self.healingSpell ~= "Lesser Healing Wave") then
+					self.waitTimer = GetTimeEX() + 4000;
+					script_grind:setWaitTimer(4000);
+					return 4;
+				else
+					self.waitTimer = GetTimeEX() + 2000;
+					script_grind:setWaitTimer(2000);
+					return 4;
+				end
 			end
+		end
+	end
+
+	-- Drink something
+	if (not IsDrinking() and localMana < self.drinkMana) and (not IsMoving()) and (not IsInCombat()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
+		self.waitTimer = GetTimeEX() + 2000;
+		self.message = "Need to drink...";
+		if (IsMoving()) then
+			StopMoving();
+			return true;
+		end
+
+		if (script_helper:drinkWater()) then 
+			self.message = "Drinking..."; 
+			return true; 
+		else 
+			self.message = "No drinks! (or drink not included in script_helper)";
+			return true; 
 		end
 	end
 
@@ -790,24 +880,6 @@ function script_shaman:rest()
 		end		
 	end
 
-	-- Drink something
-	if (not IsDrinking() and localMana < self.drinkMana) and (not IsMoving()) and (not IsInCombat()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
-		self.waitTimer = GetTimeEX() + 2000;
-		self.message = "Need to drink...";
-		if (IsMoving()) then
-			StopMoving();
-			return true;
-		end
-
-		if (script_helper:drinkWater()) then 
-			self.message = "Drinking..."; 
-			return true; 
-		else 
-			self.message = "No drinks! (or drink not included in script_helper)";
-			return true; 
-		end
-	end
-
 	-- Continue resting
 	if(localHealth < 98 and IsEating() or localMana < 98 and IsDrinking()) then
 		self.message = "Resting up to full HP/Mana...";
@@ -821,22 +893,9 @@ function script_shaman:rest()
 		return false;
 	end
 
-	-- Keep us buffed: Lightning Shield
-	if (not localObj:HasBuff("Lightning Shield")) and (localMana >= self.drinkMana) then
-		if (CastSpellByName("Lightning Shield", localObj)) then
-			self.waitTimer = GetTimeEX() + 1500;
-			return 0;
-		end
-	end
-
-	if (script_shaman:checkEnhancement()) then
-		self.waitTimer = GetTimeEX() + 1750;
-		return true;
-	end
-
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(1388, 2061);
+		local tickRandom = random(350, 750);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;

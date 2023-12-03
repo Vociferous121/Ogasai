@@ -41,10 +41,10 @@ function script_grindEX:doChecks()
 		end
 		
 
-		if(localObj:IsDead()) then
-			if (script_paranoia:checkParanoia()) then
-				return;
-		else
+		if (localObj:IsDead()) and (script_paranoia:checkParanoia()) then
+			return;
+		end
+		if (localObj:IsDead()) and (not script_paranoia:checkParanoia()) then
 
 			script_grind.message = "Waiting to ressurect...";
 
@@ -59,11 +59,14 @@ function script_grindEX:doChecks()
 				local randomRelease = math.random(3000, 6500);
 
 				self.waitTimer = GetTimeEX() + randomRelease;
+				script_grind:setWaitTimer(randomRelease);
 
-				RepopMe();
-				script_grindEX.deathCounter = script_grindEX.deathCounter + 1;
-				script_grind.message = "Walking to corpse...";
-				return true;
+				if (not IsGhost()) then
+					RepopMe();
+					script_grindEX.deathCounter = script_grindEX.deathCounter + 1;
+					script_grind.message = "Walking to corpse...";
+					return true;
+				end
 			end
 
 			-- Ressurrect within the ress distance to our corpse
@@ -89,44 +92,6 @@ function script_grindEX:doChecks()
 			end
 			return true;
 		end
-		end
-
-		--if (script_grind:getTargetAttackingUs() == nil) then
-			--if (GetLocalPlayer():HasBuff('Bloodrage')) then
-			--	script_grind.message = "Waiting for bloodrage to fade...";
-			--	return true;
-			--end
-		--	if (not IsInCombat() and self.avoidBlacklisted) then
-		--		if (script_aggro:avoidBlacklistedTargets()) then
-		--			script_grind.message = "Avoiding blacklisted targets...";
-		--			return true;
-		--		end
-		--	end
-		--	local groupMana = 0;
-		--	local manaUsers = 0;
-		--	for i = 1, GetNumPartyMembers() do
-		--		local partyMember = GetPartyMember(i);
-		--		if (partyMember:GetManaPercentage() > 0) then
-		--			groupMana = groupMana + partyMember:GetManaPercentage();
-		--			manaUsers = manaUsers + 1;
-		--		end
-		--	end
-			--	if (partyMember:GetDistance() > 100 and not IsInCombat()) then
-			--		if (IsMoving()) then StopMoving(); end
-			--		script_grind.message = 'Waiting for group members...';
-			--		ClearTarget();
-			--		return true;
-			--	end
-			--end
-			--if (groupMana/manaUsers < 25 and GetNumPartyMembers() >= 1 and not IsInCombat()) then
-			--	if (IsMoving()) then
-			--		StopMoving();
-			--	end
-			--	script_grind.message = 'Waiting for group to regen mana (25%+)...';
-			--	ClearTarget();
-			--	return true;
-			--end
-		--end
 
 		if (localObj:HasBuff("Vanish")) then
 			if (script_extraFunctions:runBackwards(1, 30)) then 
@@ -195,8 +160,8 @@ function script_grindEX:doChecks()
 			if ((script_grind.enemyObj:IsTapped() and not script_grind.enemyObj:IsTappedByMe()) 
 				or (script_grind:isTargetBlacklisted(script_grind.enemyObj:GetGUID()) and not IsInCombat())
 				or script_grind.enemyObj:IsDead()) then
-				script_grind.enemyObj = nil;
-				ClearTarget();
+					script_grind.enemyObj = nil;
+					ClearTarget();
 			end
 		end
 
@@ -212,10 +177,14 @@ function script_grindEX:doChecks()
 				end
 			end
 			if (rest) then
-				if (script_grind:runRest()) then return true; end
+				if (script_grind:runRest()) then
+					return true;
+				end
 			end
 			
-			if (script_grind:lootAndSkin()) then return true; end
+			if (script_grind:lootAndSkin()) then
+				return true;
+			end
 		end
 
 		if ((AreBagsFull() or script_grind.bagsFull) and not IsInCombat()) then
