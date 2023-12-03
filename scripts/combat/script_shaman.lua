@@ -210,38 +210,6 @@ end
 			6 - stop bot request from combat script  ]]--
 
 
-function script_shaman:useTotem()
-
-	local localMana = GetLocalPlayer():GetManaPercentage();
-	local hasTarget = GetLocalPlayer():GetUnitsTarget();
-
-	-- Totem 1
-	if (self.useEarthTotem) and (targetHealth >= 30) and (hasTarget ~= 0) then
-		if (targetObj:GetDistance() <= 20) and (localMana >= 20) and (HasSpell(self.totem))
-			and (not localObj:HasBuff(self.totemBuff)) then
-			if (CastSpellByName(self.totem)) then
-				self.waitTimer = GetTimeEX() + 1750;
-					return 4;
-			end
-			return true;
-		end
-	end
-
-	-- totem 3
-	if (self.useWaterTotem) and (not localObj:HasBuff(self.totem3Buff)) and (hasTarget ~= 0) then
-		if (targetObj:GetDistance() <= 20) and (localMana >= 20) and (HasSpell(self.totem3)) then
-			if (CastSpellByName(self.totem3)) then
-				self.waitTimer = GetTimeEX() + 1750;
-				return 4;
-			end
-			return true;
-		end
-	end
-
-return false;
-end
-
-
 function script_shaman:healsAndBuffs()
 	
 	local localObj = GetLocalPlayer();
@@ -476,7 +444,7 @@ function script_shaman:run(targetGUID)
 				end
 			end
 
-			if (script_shaman:useTotem()) then
+			if (script_shamanEX2:useTotem()) then
 				self.waitTimer = GetTimeEX() + 1750;
 				return;
 			end
@@ -511,7 +479,7 @@ function script_shaman:run(targetGUID)
 				targetObj:FaceTarget();
 			end
 				
-			if (script_shaman:useTotem()) then
+			if (script_shamanEX2:useTotem()) then
 				self.waitTimer = GetTimeEX() + 1750;
 				return;
 			end
@@ -694,7 +662,7 @@ function script_shaman:run(targetGUID)
 					end
 				end
 				
-				if (script_shaman:useTotem()) then
+				if (script_shamanEX2:useTotem()) then
 					self.waitTimer = GetTimeEX() + 1750;
 					return;
 				end

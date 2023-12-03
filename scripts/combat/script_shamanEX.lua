@@ -1,9 +1,10 @@
 script_shamanEX = {
 
+		healsMenuLoaded = include("scripts\\combat\\script_shamanEX2.lua"),
+
 }
 
 function script_shamanEX:menu()
-
 	if (CollapsingHeader("Shaman Combat Options")) then
 
 		local wasClicked = false;
@@ -91,41 +92,30 @@ function script_shamanEX:menu()
 
 			if (CollapsingHeader("|+| Totem Options")) then
 
-				Text("Earth Totem");
-					script_shaman.totem = InputText("Earth", script_shaman.totem);
+				if (script_shaman.useEarthTotem) then
+					Text("Earth Totem");
+						script_shaman.totem = InputText("Earth", script_shaman.totem);
+				end
 
-				Separator();
-				
-				Text("Fire Totem");
-					if (HasItem("Fire Totem")) then
-						script_shaman.totem2 = InputText("Fire", script_shaman.totem2);
-					end
-
-				Text("Water Totem");
-					if (HasItem("Water Totem")) then
+				if (script_shaman.useFireTotem) then
+					Separator();
+					Text("Fire Totem");
+						if (HasItem("Fire Totem")) then
+						script_shaman.totem2 = InputText("Fire", script_shaman.totem2);	
+						end
+				end
+		
+				if (script_shaman.useWaterTotem) then
+					Text("Water Totem");
+						if (HasItem("Water Totem")) then
 						script_shaman.totem3 = InputText("Water", script_shaman.totem3);
-					end
+						end
+				end
 			end
 		end
 		
 	end
 
-	if (CollapsingHeader("Shaman Heal Options")) then
-		Text('Rest options:');
-		script_shaman.eatHealth = SliderInt("Eat below HP%", 1, 100, script_shaman.eatHealth);
-		script_shaman.drinkMana = SliderInt("Drink below Mana%", 1, 100, script_shaman.drinkMana);
-		Text('You can add more food/drinks in script_helper.lua');
-
-		Separator();
-
-		script_shaman.potionHealth = SliderInt("Potion below HP%", 1, 99, script_shaman.potionHealth);
-		script_shaman.potionMana = SliderInt("Potion below Mana%", 1, 99, script_shaman.potionMana);
-
-		Separator();
-
-		Text("Heal Below Health In Combat");
-		script_shaman.healHealth = SliderInt("Heal when below HP% (in combat)", 1, 99, script_shaman.healHealth);
-
-	end
-
+	-- load heal menu
+	script_shamanEX2:menu();
 end
