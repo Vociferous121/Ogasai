@@ -411,7 +411,7 @@ function script_shaman:run(targetGUID)
 			end
 
 			-- Totem
-			if (self.useEarthTotem) then
+			if (self.useEarthTotem) and (targetHealth >= 30) then
 				if (targetObj:GetDistance() <= 20) and (localMana >= self.lightningBoltMana + 10) and (HasSpell(self.totem)) and (not localObj:HasBuff(self.totemBuff)) then
 					if (CastSpellByName(self.totem)) then
 						self.waitTimer = GetTimeEX() + 1750;
@@ -452,7 +452,7 @@ function script_shaman:run(targetGUID)
 			end
 
 			-- Earth Totem
-			if (self.useEarthTotem) then
+			if (self.useEarthTotem) and (targetHealth >= 30) then
 				if (targetObj:GetDistance() <= 12) and (HasSpell(self.totem)) and (not localObj:HasBuff(self.totemBuff)) then
 					if (CastSpellByName(self.totem)) then
 						if (self.useFireTotem) then
@@ -531,8 +531,8 @@ function script_shaman:run(targetGUID)
 			end
 
 			-- Earth Shock
-			if ( (targetObj:IsCasting()) or (not HasSpell("Flame Shock") and targetHealth >= 30) ) then
-				if (targetObj:GetDistance() <= 20) and (localMana >= self.earthShockMana) then
+			if ( (targetObj:IsCasting()) or (not HasSpell("Flame Shock") and targetHealth >= 30) or (targetObj:IsFleeing()) ) then
+				if (targetObj:GetDistance() <= 20) and ( (localMana >= self.earthShockMana) or (targetObj:IsFleeing() and localMana >= 25) ) then
 					if (not IsSpellOnCD("Earth Shock")) and (HasSpell("Earth Shock")) and (not IsSpellOnCD("Flame Shock")) then
 						if (CastSpellByName("Earth Shock", targetObj)) then
 							self.waitTimer = GetTimeEX() + 1750;
@@ -615,7 +615,7 @@ function script_shaman:run(targetGUID)
 				end
 
 				-- Earth Totem
-				if (self.useEarthTotem) then
+				if (self.useEarthTotem) and (targetHealth >= 30) then
 					if (HasSpell(self.totem) and not localObj:HasBuff(self.totemBuff)) then
 						CastSpellByName(self.totem);
 						self.waitTimer = GetTimeEX() + 1750;

@@ -341,13 +341,13 @@ function script_grind:run()
 	if (IsInCombat()) and (script_paranoiaCheck:playersWithinRange(60)) then
 		if (not IsCasting()) and (not IsChanneling()) then
 			local moreJumping = math.random(0, 100);
-			if (moreJumping >= 96) then
+			if (moreJumping >= 99) then
 				JumpOrAscendStart();
 			end
 		end
 	end
 	-- do paranoia
-	if (not IsLooting()) and (not IsInCombat()) and (not IsMounted()) then	
+	if (not IsLooting()) and (not IsInCombat()) and (not IsMounted()) and (not IsCasting()) and (not IsChanneling()) then	
 		if (script_paranoia:checkParanoia()) and (not self.pause) then
 				script_paranoia.paranoiaUsed = true;
 				script_grind.tickRate = 50;
