@@ -188,13 +188,13 @@ function script_grind:setup()
 	local randomLogout = math.random(30, 65);
 	self.setParanoidTimer = randomLogout;
 
-	local randomHotspot = math.random(350, 550);
+	local randomHotspot = math.random(550, 1000);
 	self.distToHotSpot = randomHotspot;
 
-	local randomSetTimer = math.random(2, 9);
+	local randomSetTimer = math.random(3, 10);
 	self.paranoidSetTimer = randomSetTimer;
 
-	local randomRange = math.random(35, 70);
+	local randomRange = math.random(50, 90);
 	self.paranoidRange = randomRange;
 
 	-- add chat frame message grinder is loaded
@@ -581,7 +581,7 @@ function script_grind:run()
 				if (_x ~= 0 and x ~= 0) then
 					local moveBuffer = math.random(-3, 3);
 					self.message = script_navEX:moveToTarget(localObj, _x+moveBuffer, _y+moveBuffer, _z);
-					script_grind:setWaitTimer(60);
+					script_grind:setWaitTimer(110);
 					return;
 				end
 				return;
