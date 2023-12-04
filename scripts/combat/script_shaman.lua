@@ -429,18 +429,7 @@ function script_shaman:run(targetGUID)
 				targetObj:FaceTarget();
 			end
 
-			-- Auto Attack
-			if (script_grind.lootObj == nil or script_grind.lootObj == 0) then
-			if (targetObj:GetDistance() <= 35) and (not IsAutoCasting("Attack"))
-				and (localMana >= self.drinkMana) and (localHealth >= self.healHealth)
-				and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
-				if (targetObj:IsInLineOfSight()) then
-					targetObj:AutoAttack();
-				else
-					return 3;
-				end
-			end
-			end
+
 
 			if (self.pullLightningBolt) then
 				-- Check: Not in range
@@ -449,6 +438,7 @@ function script_shaman:run(targetGUID)
 					return 3;
 				elseif (targetObj:IsInLineOfSight())
 					and (targetObj:IsSpellInRange("Lightning Bolt")) then
+					targetObj:AutoAttack();
 					-- Pull with: Lighting Bolt
 					if (IsMoving()) then
 						StopMoving();
@@ -460,6 +450,19 @@ function script_shaman:run(targetGUID)
 					targetObj:FaceTarget();
 					return true;
 				
+				end
+			end
+
+			-- Auto Attack
+			if (script_grind.lootObj == nil or script_grind.lootObj == 0) then
+				if (targetObj:GetDistance() <= 35) and (not IsAutoCasting("Attack"))
+					and (localMana >= self.drinkMana) and (localHealth >= self.healHealth)
+					and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
+					if (targetObj:IsInLineOfSight()) then
+						targetObj:AutoAttack();
+					else
+						return 3;
+					end
 				end
 			end
 	
