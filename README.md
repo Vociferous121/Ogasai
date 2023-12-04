@@ -3,7 +3,7 @@
 
 Causes bans on turtle WoW - USE WITH CAUTION. There are much better places to play, anyways.
 
-Shaman works but is not currently capable of much other than lightning bolt, a couple totems, healing and shocks. - work in progress
+Shaman  - work in progress
 
 # Fixed several bugs affecting low level botting! Casters - please obtain a wand ASAP. Can be used level 5+.
 
