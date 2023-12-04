@@ -430,14 +430,16 @@ function script_shaman:run(targetGUID)
 			end
 
 			-- Auto Attack
-			if (targetObj:GetDistance() < 35) and (not IsAutoCasting("Attack"))
+			if (script_grind.lootObj == nil or script_grind.lootObj == 0) then
+			if (targetObj:GetDistance() <= 35) and (not IsAutoCasting("Attack"))
 				and (localMana >= self.drinkMana) and (localHealth >= self.healHealth)
-				and (script_grind.lootObj == nil) then
+				and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
 				if (targetObj:IsInLineOfSight()) then
 					targetObj:AutoAttack();
 				else
 					return 3;
 				end
+			end
 			end
 
 			if (self.pullLightningBolt) then
@@ -467,6 +469,15 @@ function script_shaman:run(targetGUID)
 				return 3;
 			end
 
+			-- run backwards can't see target but close enough to attack
+			if (IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance) and (not targetObj:IsInLineOfSight()) then
+				if (targetObj:GetDistance() <= self.meleeDistance + 1) then 
+					if (script_shaman:runBackwards(targetObj,6)) then 
+						return 4; 
+					end 
+				end
+			end
+
 			-- DO NOT TOUCH CASTING FIRE TOTEMS
 			if (self.useFireTotem) and (targetObj:GetDistance() <= 18 or ( self.pullLightningBolt and targetObj:GetDistance() <= 12) ) then
 				if (not script_shaman.totemUsed) then
@@ -493,7 +504,7 @@ function script_shaman:run(targetGUID)
 				end
 			end
 		
-			if (not IsAutoCasting("Attack")) then
+			if (not IsAutoCasting("Attack")) and (not IsMoving()) then
 				targetObj:AutoAttack();
 				if (not IsMoving()) then
 					targetObj:FaceTarget();
@@ -836,29 +847,37 @@ function script_shaman:rest()
 	end
 
 	-- Check: Healing - lesser healing wave
-	if (not IsInCombat()) and (IsStanding()) then
-	if (not IsCasting()) and (not IsChanneling()) and (HasSpell("Lesser Healing Wave")) then
-		if (localHealth < 75) and (not isGhostWolf) then
-			if (localMana >= self.healMana) then 
-				if (CastSpellByName("Lesser Healing Wave", localObj)) then
-					self.waitTimer = GetTimeEX() + 2000;
-					script_grind:setWaitTimer(2000);
-					return 4;
+	if (not IsInCombat()) and (IsStanding()) and (not localObj:HasBuff(self.totem3Buff)) then
+		if (not IsCasting()) and (not IsChanneling()) and (HasSpell("Lesser Healing Wave")) then
+			if (localHealth < 75) and (not isGhostWolf) then
+				if (localMana >= self.healMana) then 
+					if (CastSpellByName("Lesser Healing Wave", localObj)) then
+						self.waitTimer = GetTimeEX() + 2000;
+						script_grind:setWaitTimer(2000);
+						return 4;
+					end
+				end
+			end
+		-- check healing - healing wave
+		elseif (HasSpell("Healing Wave")) and (not IsCasting()) and (not IsChanneling()) then
+			if (localHealth < 75) and (not isGhostWolf) then
+				if (localMana >= self.healMana) then
+					if (CastSpellByName("Healing Wave", localObj)) then
+						self.waitTimer = GetTimeEX() + 4000;
+						script_grind:setWaitTimer(4000);
+						return 4;
+					end
 				end
 			end
 		end
-	-- check healing - healing wave
-	elseif (HasSpell("Healing Wave")) and (not IsCasting()) and (not IsChanneling()) then
-		if (localHealth < 75) and (not isGhostWolf) then
-			if (localMana >= self.healMana) then
-				if (CastSpellByName("Healing Wave", localObj)) then
-					self.waitTimer = GetTimeEX() + 4000;
-					script_grind:setWaitTimer(4000);
-					return 4;
-				end
+	elseif (not IsInCombat()) and (IsStanding()) and (localObj:HasBuff(self.totem3Buff)) then
+		if (localHealth <= 50) then
+			if (CastSpellByName(self.healingSpell, localObj)) then
+				script_grind.setWaitTimer(3000);
+				self.waitTimer = GetTimeEX() + 3000;
+				return 4;
 			end
 		end
-	end
 	end
 
 	-- Drink something

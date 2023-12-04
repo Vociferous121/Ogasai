@@ -183,22 +183,27 @@ function script_checkDebuffs:enemyBuff()
 	local localObj = GetLocalPlayer();
 	local hasTarget = localObj:GetUnitsTarget();
 	
-	if (hasTarget ~= 0) then
+	if (script_grind.enemyObj ~= 0 and script_grind.enemyObj ~= nil) then
+		if (hasTarget ~= 0) then
 
-		local enemy = script_grind.enemyObj;
-
-		if (enemy:HasBuff("Power Word:Shield")) 
-		or (enemy:HasBuff("Quick Flame Ward"))
-		or (enemy:HasBuff("Rejuvenation"))
-		
-		then
-		
-
+			local enemy = script_grind.enemyObj;
 	
-			return true;
+			if (enemy:HasBuff("Power Word:Shield")) 
+			or (enemy:HasBuff("Quick Flame Ward"))
+			or (enemy:HasBuff("Rejuvenation"))
+			or (enemy:HasBuff("Regrowth"))
+			or (enemy:HasBuff("Renew"))
+			or (enemy:HasBuff("Mana Shield"))
+			
 
-		else
+
+			then
+			
+			return true;
+	
+			else
 		return false;
+			end
 		end
 	end
 end

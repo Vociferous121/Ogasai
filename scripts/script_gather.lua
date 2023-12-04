@@ -14,7 +14,7 @@ script_gather = {
 	lootDistance = 3,
 	timer = 0,
 	nodeID = 0,
-	gatherAllPossible = true
+	gatherAllPossible = true,
 }
 
 function script_gather:addHerb(name, id, use, req)
