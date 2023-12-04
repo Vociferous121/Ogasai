@@ -177,3 +177,28 @@ function script_checkDebuffs:hasSilence()
 		return false;
 	end
 end
+
+function script_checkDebuffs:enemyBuff()
+	
+	local localObj = GetLocalPlayer();
+	local hasTarget = localObj:GetUnitsTarget();
+	
+	if (hasTarget ~= 0) then
+
+		local enemy = script_grind.enemyObj;
+
+		if (enemy:HasBuff("Power Word:Shield")) 
+		or (enemy:HasBuff("Quick Flame Ward"))
+		or (enemy:HasBuff("Rejuvenation"))
+		
+		then
+		
+
+	
+			return true;
+
+		else
+		return false;
+		end
+	end
+end

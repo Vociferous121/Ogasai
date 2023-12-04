@@ -1,3 +1,6 @@
+script_grind:setWaitTimer(ms) will STOP the bot
+self.waitTimer = GetTimeEX() + x will stop the combat script and cause a stutter if written wrong
+
 -- some spells have different conditions that need to follow - including using a parenthesis in the spell name like
 -- Create Healthstone (Major)
 -- Faeire Fire (Feral)

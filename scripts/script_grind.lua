@@ -45,7 +45,7 @@ script_grind = {
 	myZ = 0,
 	myTime = GetTimeEX(),
 	message = 'Starting the grinder...',
-	skipUnknown = true, -- skip not specified npc
+	skipUnknown = false, -- skip not specified npc - ooze, etc
 	skipHumanoid = false,
 	skipElemental = false,
 	skipUndead = false,
@@ -110,6 +110,7 @@ script_grind = {
 	playerName = "",
 	otherName = player,
 	playerPos = 0,
+	blacklistLootTime = GetTimeEX(),
 }
 
 function script_grind:setup()
@@ -550,6 +551,8 @@ function script_grind:run()
 
 		if(self.enemyObj ~= nil or IsInCombat()) then
 
+			self.blacklistLootTime = GetTimeEX();
+
 			self.message = "Running the combat script...";
 			-- In range: attack the target, combat script returns 0
 			if(self.combatError == 0) then
@@ -951,6 +954,8 @@ function script_grind:doLoot(localObj)
 	local dist = self.lootObj:GetDistance();
 	local localObj = GetLocalPlayer();
 	
+	self.blacklistLootTime = GetTimeEX() + 20000;
+
 	-- Loot checking/reset target
 	if (GetTimeEX() > self.lootCheck['timer']) then
 		if (self.lootCheck['target'] == self.lootObj:GetGUID()) then
@@ -1017,9 +1022,15 @@ function script_grind:doLoot(localObj)
 		end
 	end
 		
+	if (IsStanding()) then
+		if (GetTimeEX() >= self.blacklistLootTime) then
+			script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
+		end
+	end
+
 	self.message = "Moving to loot...";		
 	script_navEX:moveToTarget(localObj, _x, _y, _z);	
-	--script_grind:setWaitTimer(300);
+	script_grind:setWaitTimer(80);
 
 	if (self.lootObj:GetDistance() < 3) then
 		self.waitTimer = GetTimeEX() + 750;
