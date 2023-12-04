@@ -55,18 +55,11 @@ function script_grindEX:doChecks()
 			--end
 
 			-- Release body
-			if (not IsGhost()) then
-				local randomRelease = math.random(3000, 6500);
-
-				self.waitTimer = GetTimeEX() + randomRelease;
-				script_grind:setWaitTimer(randomRelease);
-
-				if (not IsGhost()) then
-					RepopMe();
-					script_grindEX.deathCounter = script_grindEX.deathCounter + 1;
-					script_grind.message = "Walking to corpse...";
-					return true;
-				end
+			if (not IsGhost()) and (not script_paranoia:checkParanoia(30)) then
+				RepopMe();
+				script_grindEX.deathCounter = script_grindEX.deathCounter + 1;
+				script_grind.message = "Walking to corpse...";
+				return true;
 			end
 
 			-- Ressurrect within the ress distance to our corpse

@@ -254,6 +254,12 @@ function script_gather:gather()
 			self.waitTimer = GetTimeEX() + 250;
 		else
 			if (_x ~= 0) then
+
+			--	if (not IsMoving()) and (time > time) then
+			--		script_gather:addNodeToBlacklist(self.nodeObj);
+			--		reset timer variable
+			--	end
+
 				MoveToTarget(_x, _y, _z);
 				self.timer = GetTimeEX() + 250;
 			end

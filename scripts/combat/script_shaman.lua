@@ -465,6 +465,7 @@ function script_shaman:run(targetGUID)
 					end
 				end
 			end
+
 	
 			if (not IsMoving()) and (targetObj:GetDistance() <= 10) then
 				targetObj:FaceTarget();
@@ -487,6 +488,7 @@ function script_shaman:run(targetGUID)
 					if (HasSpell(self.totem2)) and (not IsSpellOnCD(self.totem2)) then
 						if (localMana >= 15) and (targetObj:IsTargetingMe()) then
 							CastSpellByName(self.totem2);
+							targetObj:FaceTarget();
 							script_shaman.totemUsed = true;
 							self.waitTimer = GetTimeEX() + 1750;
 							return true;
@@ -574,6 +576,7 @@ function script_shaman:run(targetGUID)
 					if (HasSpell(self.totem2)) and (not IsSpellOnCD(self.totem2)) then
 						if (localMana >= 15) and (targetObj:IsTargetingMe()) then
 							CastSpellByName(self.totem2);
+							targetObj:FaceTarget();
 							script_shaman.totemUsed = true;
 							script_grind.tickRate = 150;
 							return true;
