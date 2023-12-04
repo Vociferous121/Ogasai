@@ -214,9 +214,15 @@ function script_grindMenu:menu()
 		SameLine();
 
 		wasClicked, script_grind.skinning = Checkbox("Use Skinning", script_grind.skinning);
-		Text('Search For Loot Distance'); script_grind.findLootDistance = SliderFloat("SFL (yd)", 1, 100, script_grind.findLootDistance); Text('Loot Corpse Distance');	 script_grind.lootDistance = SliderFloat("LCD (yd)", 1, 5, script_grind.lootDistance);
-	end
 
+		Text('Search For Loot Distance');
+		script_grind.findLootDistance = SliderFloat("SFL (yd)", 1, 100, script_grind.findLootDistance);
+
+		Text('Loot Corpse Distance');
+		script_grind.lootDistance = SliderFloat("LCD (yd)", 1, 5, script_grind.lootDistance);
+
+	end
+	
 	script_gather:menu();
 		local wasClicked = false;
 

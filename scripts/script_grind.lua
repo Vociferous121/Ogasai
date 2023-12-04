@@ -110,7 +110,7 @@ script_grind = {
 	playerName = "",
 	otherName = player,
 	playerPos = 0,
-	blacklistLootTime = GetTimeEX(),
+	blacklistLootTime = GetTimeEX() + 10000,
 }
 
 function script_grind:setup()
@@ -549,9 +549,7 @@ function script_grind:run()
 			end
 		end
 
-		if(self.enemyObj ~= nil or IsInCombat()) then
-
-			self.blacklistLootTime = GetTimeEX();
+		if (self.enemyObj ~= nil or IsInCombat()) then
 
 			self.message = "Running the combat script...";
 			-- In range: attack the target, combat script returns 0
@@ -953,11 +951,11 @@ function script_grind:doLoot(localObj)
 	local _x, _y, _z = self.lootObj:GetPosition();
 	local dist = self.lootObj:GetDistance();
 	local localObj = GetLocalPlayer();
-	
-	self.blacklistLootTime = GetTimeEX() + 20000;
 
 	-- Loot checking/reset target
 	if (GetTimeEX() > self.lootCheck['timer']) then
+		self.blacklistLootTime = GetTimeEX() + 10000;
+
 		if (self.lootCheck['target'] == self.lootObj:GetGUID()) then
 			self.lootObj = nil; -- reset lootObj
 			ClearTarget();
@@ -1021,7 +1019,7 @@ function script_grind:doLoot(localObj)
 			return;
 		end
 	end
-		
+
 	if (IsStanding()) then
 		if (GetTimeEX() >= self.blacklistLootTime) then
 			script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
