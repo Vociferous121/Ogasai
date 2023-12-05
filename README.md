@@ -2,10 +2,11 @@
  Ogasaism
 
 Causes bans on turtle WoW - USE WITH CAUTION. There are much better places to play, anyways.
+## Files are currently changed daily. There are possibly many bugs that I have not found yet. I do not run every single class all day long testing for errors... If you find something that completely hinders the use of the bot please message on Discord or make a Pull Request here on github and I will fix it ASAP. 
 
-Shaman  - work in progress
+# Any bugs reports are greatly appreciated and will help with the process!
 
-# Fixed several bugs affecting low level botting! Casters - please obtain a wand ASAP. Can be used level 5+.
+# Casters - please obtain a wand ASAP. Can be used level 5+.
 
 Bot made by DarkLinux @ OwnedCore
 
@@ -32,10 +33,6 @@ Requirements
                                      
                                   please turn on auto-self cast in the interface menu
                                   please turn on click-to-move in the interface menu
-
-## Core files have been changed! For these to work properly you must download the entire script and core folder. You can make a backup of your old ones!
-
- Any bugs reports are greatly appreciated and will help with the process!
  
   Changes are too numerous to report. The original design, combat and rest and targeting system, is based on Logitechs original scripts. 
 
