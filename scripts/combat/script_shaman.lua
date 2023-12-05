@@ -3,7 +3,7 @@ script_shaman = {
 	shamanMenu = include("scripts\\combat\\script_shamanEX.lua"),
 	eatHealth = 70,
 	drinkMana = 50,
-	healHealth = 65,
+	healHealth = 45,
 	potionHealth = 10,
 	potionMana = 20,
 	isSetup = false,
@@ -235,11 +235,25 @@ function script_shaman:healsAndBuffs()
 	local localHealth = localObj:GetHealthPercentage();
 	local hasTarget = localObj:GetUnitsTarget();
 
+	-- set tick rate for script to run
+	if (not script_grind.adjustTickRate) then
+
+		local tickRandom = random(750, 1250);
+
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+		elseif (IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+		end
+	end
+
 	if (not IsStanding()) then
 		JumpOrAscendStart();
 	end
 
-	if (IsSwimming()) and (HasBuff("Water Breathing")) and (HasItem("Shiny Fish Scales")) 
+	if (IsSwimming()) and (localObj:HasBuff("Water Breathing")) and (HasItem("Shiny Fish Scales")) 
 		and (not localObj:HasBuff("Water Breathing")) then
 		if (CastSpellByName("Water Breathing", localObj)) then
 			self.waitTimer = GetTimeEX() + 1750;
@@ -322,6 +336,20 @@ function script_shaman:healsAndBuffs()
 			return true;
 		end
 	end	
+
+	-- set tick rate for script to run
+	if (not script_grind.adjustTickRate) then
+
+		local tickRandom = random(750, 1250);
+
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+		elseif (IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+		end
+	end
 return false;
 end
 
@@ -367,6 +395,7 @@ function script_shaman:run(targetGUID)
 	if (script_shaman:healsAndBuffs()) then
 		self.waitTimer = GetTimeEX() + 2750;
 		script_grind:setWaitTimer(2750);
+		return true;
 	end
 
 	-- Assign the target 
@@ -385,7 +414,7 @@ function script_shaman:run(targetGUID)
 	if (IsInCombat()) and (localObj:GetUnitsTarget() == 0) then
 		if (script_shaman:healsAndBuffs()) then
 			script_grind:setWaitTimer(2750);
-			return;
+			return true;
 		else
 			self.message = "Waiting! Stuck in combat phase!";
 			return 4;
@@ -660,7 +689,8 @@ function script_shaman:run(targetGUID)
 				then
 					if (targetObj:GetDistance() <= 20) and
 						( (localMana >= self.earthShockMana)
-						or (targetObj:IsCasting() and localMana >= 15) ) then
+						or (targetObj:IsCasting() and localMana >= 15) 
+						or (localHealth <= 30 and localMana >= 15 and targethealth >= 25) ) 						then
 						if (not IsSpellOnCD("Earth Shock")) then
 							if (CastSpellByName("Earth Shock", targetObj)) then
 								self.waitTimer = GetTimeEX() + 1750;
@@ -676,7 +706,7 @@ function script_shaman:run(targetGUID)
 			if (script_shaman:healsAndBuffs()) then
 				self.waitTimer = GetTimeEX() + 2750;
 				script_grind:setWaitTimer(2750);
-				return;
+				return true;
 			end
 
 			-- flame shock
@@ -746,7 +776,7 @@ function script_shaman:run(targetGUID)
 			if (script_shaman:healsAndBuffs()) then
 				self.waitTimer = GetTimeEX() + 2750;
 				script_grind:setWaitTimer(2750);
-				return;
+				return true;
 			end
 
 			-- Check: If we are in melee range, do melee attacks
@@ -759,7 +789,7 @@ function script_shaman:run(targetGUID)
 				if (script_shaman:healsAndBuffs()) then
 					self.waitTimer = GetTimeEX() + 2750;
 					script_grind:setWaitTimer(2750);
-					return;
+					return true;
 				end
 
 				-- stop moving if we get close enough to target
@@ -832,9 +862,9 @@ function script_shaman:rest()
 
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(350, 750);
+		local tickRandom = random(1850, 2550);
 
-		if (IsMoving()) or (not IsInCombat()) then
+		if (IsMoving()) or (IsInCombat()) then
 			script_grind.tickRate = 135;
 		elseif (not IsInCombat()) and (not IsMoving()) then
 			script_grind.tickRate = tickRandom;
@@ -846,17 +876,6 @@ function script_shaman:rest()
 	-- reset fire totem
 	if (not IsInCombat()) and (script_shaman.totemUsed) and (GetLocalPlayer():GetUnitsTarget() == 0) then
 		script_shaman.totemUsed = false;
-	end
-
-	if (IsStanding()) and (HasItem("Water Totem")) and (HasSpell("Healing Stream Totem")) and (localMana >= 10)
-		and (not localObj:HasBuff("Healing Stream")) then
-		if (localMana <= self.drinkMana or localHealth <= self.eatHealth) then
-			if (CastSpellByName("Healing Stream Totem")) then
-				self.waitTimer = GetTimeEX() + 1750;
-				script_grind:setWaitTimer(1750);
-				return true;
-			end
-		end
 	end
 
 	-- Stop moving before we can rest
@@ -886,24 +905,30 @@ function script_shaman:rest()
 	-- Drink something
 	if (not IsDrinking() and localMana < self.drinkMana) and (not IsMoving()) and (not IsInCombat()) and (script_grind.lootObj == nil) then
 		self.waitTimer = GetTimeEX() + 2000;
+		script_grind:setWaitTimer(2000);
 		self.message = "Need to drink...";
 		if (IsMoving()) then
 			StopMoving();
 			return true;
 		end
 
-		if (script_helper:drinkWater()) then 
-			self.message = "Drinking..."; 
-			return true; 
-		else 
-			self.message = "No drinks! (or drink not included in script_helper)";
-			return true; 
+		if (not IsDrinking()) and (IsStanding()) then
+			script_grind:setWaitTimer(2000);
+			if (script_helper:drinkWater()) then 
+				script_grind:setWaitTimer(2000);
+				self.message = "Drinking..."; 
+				return true; 
+			else 
+				self.message = "No drinks! (or drink not included in script_helper)";
+				return true; 
+			end
 		end
 	end
 
 	-- Eat something
 	if (not IsEating() and localHealth < self.eatHealth) and (not IsMoving()) and (not IsInCombat()) and (script_grind.lootObj == nil) then
 		self.waitTimer = GetTimeEX() + 2000;
+		script_grind:setWaitTimer(2000);
 		self.message = "Need to eat...";
 		if (IsInCombat()) then
 			return true;
@@ -914,14 +939,18 @@ function script_shaman:rest()
 			return true;
 		end
 
-		if (script_helper:eat()) then 
-			self.message = "Eating..."; 
-			return true; 
-		else 
-			self.message = "No food! (or food not included in script_helper)";
-			return true; 
+		if (not IsEating()) and (IsStanding()) then
+			script_grind:setWaitTimer(2000);
+			if (script_helper:eat()) then 
+				script_grind:setWaitTimer(2000);
+				self.message = "Eating..."; 
+				return true; 
+			else 
+				self.message = "No food! (or food not included in script_helper)";
+				return true; 
+			end
 		end		
-	end
+	end	
 
 	-- Continue resting
 	if(localHealth < 98 and IsEating() or localMana < 98 and IsDrinking()) then
@@ -938,7 +967,7 @@ function script_shaman:rest()
 
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(350, 750);
+		local tickRandom = random(1750, 2350);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -948,7 +977,6 @@ function script_shaman:rest()
 			script_grind.tickRate = tickRandom;
 		end
 	end
-
 
 	-- Don't need to rest
 	return false;

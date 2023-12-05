@@ -10,37 +10,25 @@ function script_paranoiaEX:checkStealth()
 	local localObj = GetLocalPlayer();
 	local localMana = localObj:GetManaPercentage();
 
+	-- rogue stealth
 	if (not IsMounted()) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:HasBuff("Stealth")) and (not IsInCombat()) and (script_paranoia.currentTime < script_grind.currentTime2 - 190) then
 		script_grind:setWaitTimer(1500);
 		CastSpellByName("Stealth");
 	end
 
+	-- druid cat form
 	if (not IsMounted()) and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Moonkin Form")) and (not localObj:HasBuff("Cat Form")) and (localObj:HasBuff("Cat Form")) and (not localObj:HasBuff("Travel Form")) and (HasSpell("Prowl")) and (localMana >= script_druid.shapeshiftMana) then
 
 		script_grind:setWaitTimer(1500);
 		CastSpellByName("Cat Form");
 	end
 
+	-- druid cat form prowl
 	if (not IsMounted()) and (HasSpell("Cat Form")) and (localObj:HasBuff("Cat Form")) and (HasSpell("Prowl")) and (not localObj:HasBuff("Prowl")) and (not IsSpellOnCD("Prowl")) and (not IsInCombat()) and (not localObj:HasBuff("Travel Form")) and (script_paranoia.currentTime < script_grind.currentTime2 - 190) then
 
 		script_grind:setWaitTimer(1500);
 		CastSpellByName("Prowl");
 	end
-
-	-- Shaman Ghost Wolf 
-	if (not IsMounted()) and (not script_grind.useMount) and (HasSpell('Ghost Wolf')) and (not localObj:HasBuff('Ghost Wolf')) and (not localObj:IsDead()) then
-		if (IsMoving()) then
-			StopMoving();
-			return false;
-		else
-			CastSpellByName('Ghost Wolf');
-			self.waitTimer = GetTimeEX() + 2500;
-			script_grind:setWaitTimer(2500);
-			return true;
-		end
-	return true;
-	end
-
 end
 
 
@@ -48,6 +36,7 @@ function script_paranoiaEX:checkStealth2()
 
 	local localObj = GetLocalPlayer();
 
+	-- rogue stealth
 	if (not IsMounted()) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:HasBuff("Stealth")) then
 		if (CastSpellByName("Stealth")) then
 		script_grind:setWaitTimer(1500);

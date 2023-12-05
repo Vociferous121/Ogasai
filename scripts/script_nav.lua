@@ -105,12 +105,7 @@ function script_nav:moveToHotspot(localObj)
 	if (self.currentHotSpotName ~= 0) then
 
 		script_navEX:moveToTarget(localObj, self.currentHotSpotX, self.currentHotSpotY, self.currentHotSpotZ); 
-			if (not IsMounted()) and (not script_grind.useMount) and (not script_paranoia.checkParanoia()) and (not IsSwimming()) and (HasSpell("Travel Form")) then
-				if (script_druidEX:travelForm()) then
-					script_grind:setWaitTimer(1500);
-				end
-			end
-			
+
 			if (not IsMounted()) then
 				script_paranoiaEX:checkStealth();
 			end

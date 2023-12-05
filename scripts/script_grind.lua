@@ -111,7 +111,7 @@ script_grind = {
 	playerName = "",
 	otherName = player,
 	playerPos = 0,
-	blacklistLootTime = GetTimeEX() + 10000,
+	blacklistLootTime = GetTimeEX() + 15000,
 	timerSet = false,
 	messageOnce = true,
 }
@@ -457,6 +457,22 @@ function script_grind:run()
 			self.hotspotReached = true;
 		end
 
+			--Mount up
+		if (not self.hotspotReached or script_vendor:getStatus() >= 1) and (not IsInCombat())
+		and (not IsMounted()) and (not IsIndoors()) and (not localObj:HasBuff("Cat Form"))
+		and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Travel Form"))
+		and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Moonkin Form")) and (script_grind.useMount) then
+			if (IsMoving()) then
+				StopMoving();
+				return true;
+			end
+			if (not IsIndoors()) then
+				if (script_helper:mountUp()) then
+					script_grind:setWaitTimer(4500);
+				end
+			return true;
+			end
+		end
 	
 
 		-- Auto path: keep us inside the distance to the current hotspot, if mounted keep running even if in combat
@@ -466,26 +482,46 @@ function script_grind:run()
 				self.hotSpotTimer = GetTimeEX() + 20000;
 			end
 
-			-- Druid cat form is faster if you specc talents
+		--Mount up
+		if (not self.hotspotReached or script_vendor:getStatus() >= 1) and (not IsInCombat())
+		and (not IsMounted()) and (not IsIndoors()) and (not localObj:HasBuff("Cat Form"))
+		and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Travel Form"))
+		and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Moonkin Form")) and (script_grind.useMount) then
+			if (IsMoving()) then
+				StopMoving();
+				return true;
+			end
+			if (not IsIndoors()) then
+				if (script_helper:mountUp()) then
+					script_grind:setWaitTimer(4500);
+					self.waitTimer = GetTimeEX() + 4500;
+				end
+			end
+		end
 
+			-- Druid travel form
 			if (not IsMounted()) and (not script_paranoia:checkParanoia()) and (not IsSwimming()) and (not script_grind.useMount) then
 				if (script_druidEX:travelForm()) then
 					self.waitTimer = GetTimeEX() + 1000;
 				end
 			end
 
+			-- druid cat form
 			if (not IsMounted()) and (not HasSpell("Travel Form")) and (HasSpell("Cat Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
 				if (CastSpellByName("Cat Form")) then
 					self.waitTimer = GetTimeEX() + 500;
 					return 0;
 				end
 			end
+
+			-- rogue stealth
 			if (not IsMounted()) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (not script_checkDebuffs:hasPoison()) then
 				if (CastSpellByName("Stealth", localObj)) then
 					self.waitTimer = GetTimeEX() + 1200;
 					return 0;
 				end
 			end
+
 			-- Shaman Ghost Wolf 
 			if (not IsMounted()) and (not script_grind.useMount) and (HasSpell('Ghost Wolf')) and (not localObj:HasBuff('Ghost Wolf')) and (not localObj:IsDead()) then
 					CastSpellByName('Ghost Wolf');
@@ -586,10 +622,7 @@ function script_grind:run()
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
 
-				if (not IsMoving()) then
-					script_grind.enemyObj:FaceTarget();
-					script_grind.tickRate = 50;
-				end
+				script_grind.tickRate = 0;
 
 				if (_x ~= 0 and x ~= 0) then
 					local moveBuffer = math.random(-3, 3);
@@ -637,7 +670,7 @@ function script_grind:run()
 		if (not self.hotspotReached or script_vendor:getStatus() >= 1) and (not IsInCombat())
 		and (not IsMounted()) and (not IsIndoors()) and (not localObj:HasBuff("Cat Form"))
 		and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Travel Form"))
-		and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Moonkin Form")) and (script_grind.useMount) then
+		and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Moonkin Form")) and (self.useMount) then
 			if (IsMoving()) then
 				StopMoving();
 				return true;
@@ -645,6 +678,29 @@ function script_grind:run()
 			if (not IsIndoors()) then
 				if (script_helper:mountUp()) then
 					script_grind:setWaitTimer(4500);
+				end
+			return true;
+			end
+		end
+
+		-- travel forms
+		if (not self.hotspotReached or script_vendor:getStatus() >= 1) and (not IsInCombat())
+		and (not IsMounted()) and (not IsIndoors()) and (not localObj:HasBuff("Cat Form"))
+		and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Travel Form"))
+		and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Moonkin Form")) and (not localObj:HasBuff("Ghost Wolf")) then
+			if (IsMoving()) then
+				StopMoving();
+				return true;
+			end
+			if (HasSpell("Travel Form")) then
+				if (script_druidEX:travelForm()) then
+					script_grind:setWaitTimer(2500);
+				end
+			return true;
+			end
+			if (HasSpell("Ghost Wolf")) then
+				if (script_shamanEX2:ghostWolf()) then
+					script_grind:setWaitTimer(4000);
 				end
 			return true;
 			end
@@ -892,7 +948,7 @@ function script_grind:doLoot(localObj)
 	local localObj = GetLocalPlayer();
 
 		if (not self.timerSet) then
-			self.blacklistLootTime = GetTimeEX() + 10000;
+			self.blacklistLootTime = GetTimeEX() + 15000;
 			self.timerSet = true;
 		end
 

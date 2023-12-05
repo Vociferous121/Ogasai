@@ -11,6 +11,7 @@ function script_shamanEX:menu()
 
 		
 		Text('Combat options:');
+		SameLine();
 		wasClicked, script_shaman.stopIfMHBroken = Checkbox("Stop bot if main hand is broken (red)...", script_shaman.stopIfMHBroken);
 
 		-- melee distance

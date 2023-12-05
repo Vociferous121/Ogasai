@@ -343,6 +343,7 @@ function script_helper:eat()
 		end
 	end
 	self.waitTimer = GetTimeEX() + 1200;
+	script_grind:setWaitTimer(1200);
 	return false;
 end
 
@@ -356,6 +357,8 @@ function script_helper:drinkWater()
 			end
 		end
 	end
+	self.waitTimer = GetTimeEX() + 1200;
+	script_grind:setWaitTimer(1200);
 	return false;
 end
 
@@ -415,22 +418,14 @@ end
 
 function script_helper:mountUp()
 
-	if (IsMoving()) then
-		StopMoving();
-		return false;
-	end
-	if (IsIndoors()) then
-		return false;
-	end
-
 	if (GetLocalPlayer():GetLevel() >= 40) and (not IsMounted()) and (not IsInCombat()) and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:HasBuff("Moonkin Form")) and (not localObj:HasBuff("Travel Form")) then
-			script_helper:useMount();
-			script_grind:setWaitTimer(4200);
-			self.waitTimer = GetTimeEX() + 4200;
-			return;
-		
+			if (script_helper:useMount()) then
+				script_grind:setWaitTimer(4200);
+				self.waitTimer = GetTimeEX() + 4200;
+				return true;
+			end
+		return true;
 	end
-
 
 return false;
 end

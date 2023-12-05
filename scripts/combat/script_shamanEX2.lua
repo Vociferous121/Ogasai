@@ -65,6 +65,23 @@ function script_shamanEX2:useTotem()
 return false;
 end
 
+function script_shamanEX2:ghostWolf()
+	-- Shaman Ghost Wolf 
+	if (not IsMounted()) and (not script_grind.useMount) and (HasSpell('Ghost Wolf')) and (not localObj:HasBuff('Ghost Wolf')) and (not localObj:IsDead()) then
+		if (IsMoving()) then
+			StopMoving();
+			return false;
+		else
+			CastSpellByName('Ghost Wolf');
+			self.waitTimer = GetTimeEX() + 2500;
+			script_grind:setWaitTimer(2500);
+			return true;
+		end
+	return true;
+	end
+return false;
+end
+
 function script_shamanEX2:menu()
 
 	if (CollapsingHeader("Shaman Heal Options")) then
