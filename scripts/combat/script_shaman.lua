@@ -384,6 +384,7 @@ function script_shaman:run(targetGUID)
 	-- stop bot from moving target to target when stuck in combat and we need to rest
 	if (IsInCombat()) and (localObj:GetUnitsTarget() == 0) then
 		if (script_shaman:healsAndBuffs()) then
+			script_grind:setWaitTimer(2750);
 			return;
 		else
 			self.message = "Waiting! Stuck in combat phase!";

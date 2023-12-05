@@ -44,7 +44,7 @@ function script_paranoiaCheck:playersWithinRange2(range)
 		if (typeObj == 4 and not currentObj:IsDead()) then
 			if (currentObj:GetDistance() < range) then 
 				local localObj = GetLocalPlayer();
-				if (localObj:GetGUID() ~= currentObj:GetGUID()) and (currentObj:GetUnitName() ~= script_paranoia.ignoreTarget) then
+				if (localObj:GetGUID() ~= currentObj:GetGUID()) and (currentObj:GetUnitName() ~= script_paranoia.ignoreTarget) and (currentObj:IsInLineOfSight() or script_grind:playersTargetingUs() >= 1) then
 						script_grind.paranoidTargetDistance = currentObj:GetDistance();
 						script_grind.paranoidTargetName = currentObj:GetUnitName();
 					if (script_grind.useString) then

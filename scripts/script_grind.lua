@@ -345,9 +345,10 @@ function script_grind:run()
 		if (script_paranoiaCheck:playersWithinRange2(60) and script_grind.playersTargetingUs() >= 1) 
 			or (script_paranoiaCheck:playersWithinRange2(38)) then
 			if (not IsCasting()) and (not IsChanneling()) then
-				local moreJumping = math.random(0, 200);
-				if (moreJumping >= 150) then
+				local moreJumping = math.random(0, 601);
+				if (moreJumping >= 600) then
 					JumpOrAscendStart();
+					
 				end
 			end
 		end
@@ -356,7 +357,7 @@ function script_grind:run()
 	if (not IsLooting()) and (not IsInCombat()) and (not IsMounted()) and (not IsCasting()) and (not IsChanneling()) then	
 		if (script_paranoia:checkParanoia()) and (not self.pause) then
 				script_paranoia.paranoiaUsed = true;
-				script_grind.tickRate = 50;
+				script_grind:setWaitTimer(2750);
 			
 			-- if player is within distance <= 30 then do this
 			if (script_grind.playerParanoidDistance <= 30) and (script_grind:playersTargetingUs() >= 1) and (not IsInCombat()) then
@@ -488,7 +489,8 @@ function script_grind:run()
 			if (not IsMounted()) and (not script_grind.useMount) and (HasSpell('Ghost Wolf')) and (not localObj:HasBuff('Ghost Wolf')) and (not localObj:IsDead()) then
 				if (CastSpellByName('Ghost Wolf')) then
 					self.waitTimer = GetTimeEX() + 1500;
-					return 0;
+					script_grind:setWaitTimer(1500);
+					return true;
 				end
 			end
 			self.message = script_nav:moveToHotspot(localObj);

@@ -21,7 +21,7 @@ function script_paranoiaEX:checkStealth()
 		CastSpellByName("Cat Form");
 	end
 
-	if (not IsMounted()) and (HasSpell("Cat Form")) and (localObj:HasBuff("Cat Form")) and (HasSpell("Prowl")) and (not localObj:HasBuff("Prowl")) and (not IsSpellOnCD("Prowl")) and (not IsInCombat()) and (script_paranoia.currentTime < script_grind.currentTime2 - 190) then
+	if (not IsMounted()) and (HasSpell("Cat Form")) and (localObj:HasBuff("Cat Form")) and (HasSpell("Prowl")) and (not localObj:HasBuff("Prowl")) and (not IsSpellOnCD("Prowl")) and (not IsInCombat()) and (not localObj:HasBuff("Travel Form")) and (script_paranoia.currentTime < script_grind.currentTime2 - 190) then
 
 		script_grind:setWaitTimer(1500);
 		CastSpellByName("Prowl");
@@ -64,7 +64,7 @@ function script_paranoiaEX:checkStealth2()
 			return 0;
 		end
 	end
-	if (not IsMounted()) and (localObj:HasBuff("Cat Form")) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) then
+	if (not IsMounted()) and (localObj:HasBuff("Cat Form")) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (not localObj:HasBuff("Travel Form")) then
 		script_grind:setWaitTimer(1500);
 		if (CastSpellByName("Prowl")) then
 			return 0;
