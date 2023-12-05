@@ -14,6 +14,7 @@ script_grind = {
 	paranoiaMenuLoaded = include("scripts\\script_paranoiaMenu.lua"),
 	radarLoaded = include("scripts\\script_radar.lua"),
 	debuffCheck = include("scripts\\script_checkDebuffs.lua"),
+	drawStatusScript = include("scripts\\script_drawStatus.lua"),
 	jump = true,
 	jumpRandomFloat = 96,
 	useVendor = false,
@@ -290,8 +291,8 @@ function script_grind:run()
 	
 	-- player is dead
 	if (localObj:IsDead() or IsGhost()) then
-		script_nav:setNextToNodeDist(3);
-		NavmeshSmooth(12);
+		script_nav:setNextToNodeDist(4);
+		NavmeshSmooth(14);
 		self.tickRate = 100;
 	else
 		script_nav:setNextToNodeDist(self.nextToNodeDist);
@@ -340,11 +341,14 @@ function script_grind:run()
 
 	-- check paranoia	
 		-- jump when player in range in combat
-	if (IsInCombat()) and (script_paranoiaCheck:playersWithinRange(60)) then
-		if (not IsCasting()) and (not IsChanneling()) then
-			local moreJumping = math.random(0, 100);
-			if (moreJumping >= 99) then
-				JumpOrAscendStart();
+	if (IsInCombat()) then
+		if (script_paranoiaCheck:playersWithinRange(60) and script_grind.playersTargetingUs() >= 1) 
+			or (script_paranoiaCheck:playersWithinRange(38)) then
+			if (not IsCasting()) and (not IsChanneling()) then
+				local moreJumping = math.random(0, 200);
+				if (moreJumping >= 150) then
+					JumpOrAscendStart();
+				end
 			end
 		end
 	end
@@ -577,7 +581,8 @@ function script_grind:run()
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
 
-				if (IsInCombat()) then
+				if (not IsMoving()) then
+					self.enemyObj:FaceTarget();
 					script_grind.tickRate = 50;
 				end
 
@@ -866,83 +871,8 @@ function script_grind:getDistanceDif()
 end
 
 function script_grind:drawStatus()
-
-	if (self.drawAggro) then
-		script_aggro:drawAggroCircles(45);
-	end
-	if (self.autoPath and self.drawAutoPath) then
-		script_nav:drawSavedTargetLocations();
-	end
-	if (self.drawGather) then
-		script_gather:drawGatherNodes();
-	end
-	if (self.drawPath) then
-		if (IsMoving()) then
-			script_nav:drawPath();
-		end
-	end
-	if (self.drawUnits) then
-		script_nav:drawUnitsDataOnScreen();
-	end
-	if (not self.drawEnabled and self.showClassOptions) then
-		RunCombatDraw();
-	end
-	if (not self.drawEnabled) then
-		return;
-	end
-
-	-- color
-	local r, g, b = 0, 0, 0;
-
-	-- position
-	local y, x, width = 120, 25, 370;
-	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
-	if (onScreen) then
-		y, x = tY-25, tX+75;
-	end
-
-	-- info
-	if (not self.pause) then
-
-	if (self.adjustText) and (self.drawEnabled) then
-		x = x + self.adjustX;
-		y = y + self.adjustY;
-	end
-
-	--DrawRect(x - 10, y - 7, x + width, y + 140, 255, 255, 0, 10, 77, 0);
-	--DrawRectFilled(x - 10, y - 7, x + width, y + 140, 0, 0, 0, 80, 10, 77);
-	DrawText('Grinder - Pull range: ' .. math.floor(self.pullDistance) .. ' yd. ' .. 
-			 	'Level range: ' .. self.minLevel .. '-' .. self.maxLevel, x, y-4, r+255, g+255, b+0) y = y + 15;
-	
-	DrawText('Grinder status: ', x, y, r+255, g+255, b+0); y = y + 15;
-	DrawText(self.message or "error", x, y, 255, 255, 255);
-	y = y + 20; DrawText('Combat script status: ', x, y, r+255, g+255, b+0); y = y + 15;
-	if (self.showClassOptions) then RunCombatDraw(); end
-	 y = y + 20;
-	if (script_grind.useVendor) then
-		DrawText('Vendor - ' .. script_vendorMenu:getInfo(), x, y, r+255, g+255, b+0); y = y + 15;
-		DrawText('Vendor Status: ', x, y, r+255, g+255, b+0);
-		DrawText(script_vendor:getMessage(), x+105, y, 0, 255, 255);
-	end
-
-	local time = ((GetTimeEX()-self.newTargetTime)/1000); 
-
-	if (self.enemyObj ~= 0 and self.enemyObj ~= nil and not self.enemyObj:IsDead()) then
-		--DrawRect(x - 10, y + 19, x + width, y + 45, 255, 255, 0,  1, 1, 1);
-		--DrawRectFilled(x-10, y+20, x + width, y + 45, 0, 0, 0, 100, 0, 0);
-		DrawText('Blacklist-timer: ' .. self.enemyObj:GetUnitName() .. ': ' .. time .. ' s.', x, y+20, 0, 255, 120); 
-		DrawText('Blacklisting target after ' .. self.blacklistTime .. " s. (If above 92% HP.)", x, y+35, 0, 255, 120);
-	end
-
-	else
-
-		if (self.adjustText) and (self.drawEnabled) then
-			x = x + self.adjustX;
-			y = y + self.adjustY;
-		end
-
-		DrawText('Grinder paused by user...', x-5, y-4, r+255, g+122, b+122);
-	end
+	script_drawStatus:drawSetup();
+	script_drawStatus:draw();
 end
 
 function script_grind:draw()
@@ -1126,9 +1056,9 @@ function script_grind:runRest()
 			return true;
 		end
 
-		if (not IsMounted()) then
-			script_paranoiaEX:checkStealth();
-		end
+		--if (not IsMounted()) then
+		--	script_paranoiaEX:checkStealth();
+		--end
 	return true;	
 	end
 

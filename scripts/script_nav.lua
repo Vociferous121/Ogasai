@@ -2,7 +2,7 @@ script_nav = {
 	includeNavEX= include("scripts\\script_navEX.lua"),
 	useNavMesh = true,
 	nextNavNodeDistance = 1.5, -- for mobs and loot
-	nextPathNodeDistance = 2.9, -- for walking paths
+	nextPathNodeDistance = 2.6, -- for walking paths
 	lastPathIndex = -1,
 	navPosition = {},
 	navPathPosition = {},
@@ -335,7 +335,7 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 		self.lastpathnavIndex = 1; 
 		end
 		
-	elseif (not localObj:IsDead()) and (script_grind.gather) and (self.navPathPosition['x'] ~= _x) or (self.navPathPosition['y'] ~= _y) or (self.navPathPosition['z'] ~= _z)
+	elseif (localObj:IsDead()) and (script_grind.gather) and (self.navPathPosition['x'] ~= _x) or (self.navPathPosition['y'] ~= _y) or (self.navPathPosition['z'] ~= _z)
 		or (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
 		self.navPathPosition['x'] = _x;
 		self.navPathPosition['y'] = _y;

@@ -258,12 +258,21 @@ function script_warlock:setup()
 end
 
 function script_warlock:draw()
-	--script_warlock:window();
 	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
 	if (onScreen) then
-		DrawText(self.message, tX+75, tY+44, 255, 250, 205);
+		if (script_grind.adjustText) and (script_grind.drawEnabled) then
+			tX = tX + script_grind.adjustX;
+			tY = tY + script_grind.adjustY;
+		end
+
+	DrawText(self.message, tX+75, tY+44, 255, 250, 205);
 	else
-		DrawText(self.message, 25, 185, 255, 250, 205);
+		if (script_grind.adjustText) and (script_grind.drawEnabled) then
+			tX = tX + script_grind.adjustX;
+			tY = tY + script_grind.adjustY;
+		end
+
+	DrawText(self.message, 25, 185, 255, 250, 205);
 	end
 end
 

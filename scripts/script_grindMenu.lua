@@ -108,7 +108,7 @@ function script_grindMenu:menu()
 	end
 
 	if (CollapsingHeader("Vendor Options")) then
-		wasClicked, script_grind.useVendor = Checkbox("Vendoring On/Off", script_grind.useVendor);
+		wasClicked, script_grind.useVendor = Checkbox("Use Vendoring", script_grind.useVendor);
 		if (script_hunter.useVendor) then
 			script_grind.useVendor = true;
 		end
@@ -149,10 +149,10 @@ function script_grindMenu:menu()
 		if (not script_grindMenu.useHotSpotArea) then
 
 			-- click auto pathing (nav)
-			wasClicked, script_grind.autoPath = Checkbox("Auto Pathing (Disable To Use Walk Paths)", script_grind.autoPath);
+			--wasClicked, script_grind.autoPath = Checkbox("Auto Pathing)", script_grind.autoPath);
 
 			--click walk path (no nav)
-			wasClicked, script_grindMenu.selectedWalkPath = Checkbox("Use Walk Paths", script_grindMenu.selectedWalkPath);
+			--wasClicked, script_grindMenu.selectedWalkPath = Checkbox("Use Walk Paths", script_grindMenu.selectedWalkPath);
 
 			-- if auto pathing then show hotspot
 			if (script_grind.autoPath) then

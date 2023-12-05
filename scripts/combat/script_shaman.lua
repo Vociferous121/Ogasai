@@ -48,6 +48,10 @@ function script_shaman:setup()
 		self.enchanceWeapon = "Rockbiter Weapon";
 	end
 
+	if (localLevel >= 20) then
+		self.eatHealth = 40;
+	end
+
 	if (HasSpell("Earth Shock")) then
 		self.lightningBoltMana = 80;
 		self.useEarthShock = true;
@@ -197,12 +201,21 @@ function script_shaman:runBackwards(targetObj, range)
 end
 
 function script_shaman:draw()
-	--script_shaman:window();
 	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
 	if (onScreen) then
-		DrawText(self.message, tX+75, tY+40, 0, 255, 255);
+		if (script_grind.adjustText) and (script_grind.drawEnabled) then
+			tX = tX + script_grind.adjustX;
+			tY = tY + script_grind.adjustY;
+		end
+
+	DrawText(self.message, tX+75, tY+44, 255, 250, 205);
 	else
-		DrawText(self.message, 25, 185, 0, 255, 255);
+		if (script_grind.adjustText) and (script_grind.drawEnabled) then
+			tX = tX + script_grind.adjustX;
+			tY = tY + script_grind.adjustY;
+		end
+
+	DrawText(self.message, 25, 185, 255, 250, 205);
 	end
 end
 
@@ -253,8 +266,8 @@ function script_shaman:healsAndBuffs()
 					script_grind:setWaitTimer(4000);
 					return 4;
 				else
-					self.waitTimer = GetTimeEX() + 2000;
-					script_grind:setWaitTimer(2000);
+					self.waitTimer = GetTimeEX() + 2500;
+					script_grind:setWaitTimer(2500);
 					return 4;
 				end
 			end
@@ -372,9 +385,10 @@ function script_shaman:run(targetGUID)
 	if (IsInCombat()) and (localObj:GetUnitsTarget() == 0) then
 		if (script_shaman:healsAndBuffs()) then
 			return;
+		else
+			self.message = "Waiting! Stuck in combat phase!";
+			return 4;
 		end
-		self.message = "Waiting! Stuck in combat phase!";
-		return 4;
 	end
 
 	-- dismount before combat
@@ -853,38 +867,20 @@ function script_shaman:rest()
 	end
 
 	-- Check: Healing - lesser healing wave
-	if (not IsInCombat()) and (IsStanding()) and (not localObj:HasBuff(self.totem3Buff)) then
+	if (not IsInCombat()) and (IsStanding()) then
 		if (not IsCasting()) and (not IsChanneling()) and (HasSpell("Lesser Healing Wave")) then
-			if (localHealth < 75) and (not isGhostWolf) then
+			if (localHealth < 70) and (not isGhostWolf) then
 				if (localMana >= self.healMana) then 
 					if (CastSpellByName("Lesser Healing Wave", localObj)) then
-						self.waitTimer = GetTimeEX() + 2000;
-						script_grind:setWaitTimer(2000);
+						self.waitTimer = GetTimeEX() + 2200;
+						script_grind:setWaitTimer(2200);
 						return 4;
 					end
 				end
-			end
-		-- check healing - healing wave
-		elseif (HasSpell("Healing Wave")) and (not IsCasting()) and (not IsChanneling()) then
-			if (localHealth < 75) and (not isGhostWolf) then
-				if (localMana >= self.healMana) then
-					if (CastSpellByName("Healing Wave", localObj)) then
-						self.waitTimer = GetTimeEX() + 4000;
-						script_grind:setWaitTimer(4000);
-						return 4;
-					end
-				end
-			end
-		end
-	elseif (not IsInCombat()) and (IsStanding()) and (localObj:HasBuff(self.totem3Buff)) then
-		if (localHealth <= 50) then
-			if (CastSpellByName(self.healingSpell, localObj)) then
-				script_grind.setWaitTimer(3000);
-				self.waitTimer = GetTimeEX() + 3000;
-				return 4;
 			end
 		end
 	end
+	
 
 	-- Drink something
 	if (not IsDrinking() and localMana < self.drinkMana) and (not IsMoving()) and (not IsInCombat()) and (script_grind.lootObj == nil) then

@@ -41,10 +41,11 @@ function script_grindEX:doChecks()
 		end
 		
 
-		if (localObj:IsDead()) and (script_paranoia:checkParanoia()) then
+		if (localObj:IsDead()) and (script_paranoia:checkParanoia(40)) then
 			return;
 		end
-		if (localObj:IsDead()) and (not script_paranoia:checkParanoia()) then
+
+		if (localObj:IsDead()) and (not script_paranoia:checkParanoia(40)) then
 
 			script_grind.message = "Waiting to ressurect...";
 

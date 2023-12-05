@@ -61,13 +61,13 @@ function script_warriorEX:menu()
 
 				-- rend
 				if (HasSpell("Rend")) then
-					wasClicked, script_warrior.enableRend = Checkbox("Rend On/Off", script_warrior.enableRend);
+					wasClicked, script_warrior.enableRend = Checkbox("Use Rend", script_warrior.enableRend);
 				end
 				
 				-- cleave
 				if (HasSpell("Cleave")) then
 					SameLine();
-					wasClicked, script_warrior.enableCleave = Checkbox("Cleave On/Off TODO", script_warrior.enableCleave)					end
+					wasClicked, script_warrior.enableCleave = Checkbox("Use Cleave TODO", script_warrior.enableCleave)					end
 			
 				-- battle stance sunder	
 				if (HasSpell("Sunder Armor")) then
@@ -99,9 +99,9 @@ function script_warriorEX:menu()
 		if (script_warrior.defensiveStance) then -- defensive stance menu
 			if (CollapsingHeader("|+| Defensive Stance Options")) then	-- defensive stance
 				Text("Face Target off for easier manual control");
-				wasClicked, script_warrior.enableFaceTarget = Checkbox("Face Target On/Off", script_warrior.enableFaceTarget);	-- facing target
+				wasClicked, script_warrior.enableFaceTarget = Checkbox("Auto Face Target", script_warrior.enableFaceTarget);	-- facing target
 					SameLine();
-					wasClicked, script_warrior.enableShieldBlock = Checkbox("Shield Block On/Off", script_warrior.enableShieldBlock);	-- shield block
+					wasClicked, script_warrior.enableShieldBlock = Checkbox("Use Shield Block", script_warrior.enableShieldBlock);	-- shield block
 				if (script_warrior.enableShieldBlock) then
 					Text("Shield Block Options");
 					script_warrior.shieldBlockHealth = SliderInt("Below % health", 50, 95, script_warrior.shieldBlockHealth);
@@ -142,7 +142,7 @@ if (script_warrior.battleStance) or (script_warrior.defensiveStance) or (script_
 
 		if (HasSpell("Charge")) then
 		SameLine();
-			wasClicked, script_warrior.enableCharge = Checkbox("Charge On/Off", script_warrior.enableCharge);
+			wasClicked, script_warrior.enableCharge = Checkbox("Use Charge", script_warrior.enableCharge);
 		end
 
 		Text('Eat below health percentage');

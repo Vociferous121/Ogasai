@@ -147,9 +147,19 @@ end
 function script_hunter:draw()
 	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
 	if (onScreen) then
-		DrawText(self.message, tX+75, tY+44, 255, 250, 205);
+		if (script_grind.adjustText) and (script_grind.drawEnabled) then
+			tX = tX + script_grind.adjustX;
+			tY = tY + script_grind.adjustY;
+		end
+
+	DrawText(self.message, tX+75, tY+44, 255, 250, 205);
 	else
-		DrawText(self.message, 25, 185, 255, 250, 205);
+		if (script_grind.adjustText) and (script_grind.drawEnabled) then
+			tX = tX + script_grind.adjustX;
+			tY = tY + script_grind.adjustY;
+		end
+
+	DrawText(self.message, 25, 185, 255, 250, 205);
 	end
 end
 
@@ -400,6 +410,7 @@ function script_hunter:run(targetGUID)
 			-- mend pet
 			if (script_hunter:mendPet(localMana, petHP)) then
 				self.waitTimer = GetTimeEX() + 3850;
+				script_grind:setWaitTimer(3850);
 				return 0;
 			end
 
@@ -496,6 +507,7 @@ function script_hunter:run(targetGUID)
 				-- mend pet
 				if (script_hunter:mendPet(localMana, petHP)) then
 					self.waitTimer = GetTimeEX() + 3850;
+					script_grind:setWaitTimer(3850);
 					return 0;
 				end
 
@@ -559,6 +571,7 @@ function script_hunter:mendPet(localMana, petHP)
 
 				CastSpellByName("Mend Pet"); 
 				self.waitTimer = GetTimeEX() + 1850;
+				script_grind:setWaitTimer(1850);
 				return true;
 
 			elseif (GetPet():GetDistance() > 20) and (localMana > 10) then 

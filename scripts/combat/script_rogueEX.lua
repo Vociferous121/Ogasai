@@ -53,16 +53,19 @@ function script_rogueEX:menu()
 			script_rogue.meleeDistance = SliderFloat('MR (yd)', 1, 6, script_rogue.meleeDistance);
 			Separator();
 			wasClicked, script_rogue.stopIfMHBroken = Checkbox("Stop bot if main hand is broken", script_rogue.stopIfMHBroken);
-			SameLine();
-
-			if (HasSpell("Slice and Dice")) then
-				wasClicked, script_rogue.useSliceAndDice = Checkbox("Use Slice & Dice", script_rogue.useSliceAndDice);
-			end
 
 			if (HasSpell("Stealth")) then
 				wasClicked, script_rogue.useStealth = Checkbox("Use Stealth", script_rogue.useStealth);
+			end
+
+if (HasSpell("Slice and Dice")) then
+				SameLine();
+				wasClicked, script_rogue.useSliceAndDice = Checkbox("Use Slice & Dice", script_rogue.useSliceAndDice);
+			end
+
+			if (script_rogue.useStealth) then
 				Text("Stealth range to target");
-				script_rogue.stealthRange = SliderInt('SR (yd)', 1, 100, script_rogue.stealthRange);
+			script_rogue.stealthRange = SliderInt('SR (yd)', 1, 100, script_rogue.stealthRange);
 			end
 
 			Separator();
@@ -138,7 +141,7 @@ function script_rogueEX:menu()
 				wasClicked, script_rogue.enableAdrenRush = Checkbox("Adren Rush on CD", script_rogue.enableAdrenRush);
 			end
 			Text("Experimental Elite Target Rotation");
-			wasClicked, script_rogue.rotationTwo = Checkbox("Rotation 2", script_rogue.rotationTwo);
+			wasClicked, script_rogue.rotationTwo = Checkbox("Rotation 2 (In Groups - Elites)", script_rogue.rotationTwo);
 		end
 		if (CollapsingHeader("Rogue Rotation Combat Options")) then
 			Separator();

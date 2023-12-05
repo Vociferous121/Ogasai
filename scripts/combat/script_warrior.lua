@@ -63,9 +63,6 @@ function script_warrior:setup()
 		self.enableRend = true;
 	end
 
-	if (GetLocalPlayer():GetLevel() >= 20) then
-		self.enableRend = false;
-	end
 end
 
 function script_warrior:spellAttack(spellName, target) -- used in Core files to control casting
@@ -172,11 +169,20 @@ end
 function script_warrior:draw()	-- draw warrior window and status text
 	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
 	if (onScreen) then
-		DrawText(self.message, tX+75, tY+44, 255, 250, 205);
+		if (script_grind.adjustText) and (script_grind.drawEnabled) then
+			tX = tX + script_grind.adjustX;
+			tY = tY + script_grind.adjustY;
+		end
+
+	DrawText(self.message, tX+75, tY+44, 255, 250, 205);
 	else
-		DrawText(self.message, 25, 185, 255, 250, 205);
+		if (script_grind.adjustText) and (script_grind.drawEnabled) then
+			tX = tX + script_grind.adjustX;
+			tY = tY + script_grind.adjustY;
+		end
+
+	DrawText(self.message, 25, 185, 255, 250, 205);
 	end
-	--script_warrior:window();
 end
 
 --[[ error codes: 	0 - All Good , 
@@ -274,12 +280,13 @@ function script_warrior:run(targetGUID)	-- main content of script
 		if (self.useBow) and (not IsInCombat()) and (targetObj:GetDistance() <= 34) and (targetObj:GetDistance() >= 19) and (targetObj:IsInLineOfSight()) and (not IsChanneling()) and (not IsAutoCasting("Shoot Bow")) and (not IsSpellOnCD("Shoot Bow")) and (targetHealth > 99) then
 				if (IsMoving()) then
 					StopMoving();
-					self.waitTimer = GetTimeEX() + 1500;
 				end
-			if (CastSpellByName("Shoot Bow")) then
-				self.waitTimer = GetTimeEX() + 4750;
-				return 0;
-			end
+				if (not IsMoving()) then
+					CastSpellByName("Shoot Bow");
+					self.waitTimer = GetTimeEX() + 4000;
+					script_grind:setWaitTimer(4000);
+					return 4;
+				end
 		end
 	
 		targetHealth = targetObj:GetHealthPercentage();
@@ -356,15 +363,17 @@ function script_warrior:run(targetGUID)	-- main content of script
 
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
+
+			if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (not IsAutoCasting("Attack")) and (targetObj:GetDistance() <= 8) and (not IsMoving()) then
+				targetObj:AutoAttack();
+				targetObj:FaceTarget();
+			end
+
 			-- Cant Attack dead targets
 			if (targetObj:IsDead()) or (not targetObj:CanAttack()) then
 				StopMoving();
 				self.waitTimer = GetTimeEX() + 5000;
 			return 0;
-			end
-
-			if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (not targetObj:FaceTarget()) and (not IsMoving()) then
-				targetObj:FaceTarget();
 			end
 
 			-- Check move into melee range
@@ -660,7 +669,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 					script_grind.tickRate = 50;
 				end
 
-				if (not targetObj:FaceTarget()) then
+				if (not IsMoving()) then
 					targetObj:FaceTarget();
 				end
 		
@@ -733,7 +742,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 					end 
 				end
 
-				if (targetObj:GetDistance() <= 8) then
+				if (targetObj:GetDistance() <= 8) and (not IsMoving()) then
 					targetObj:FaceTarget();
 				end
 
@@ -750,10 +759,8 @@ function script_warrior:run(targetGUID)	-- main content of script
 				-- melee Skill: Heroic Strike if we got 15 rage battle stance
 				if (self.battleStance) then
 					if (localRage >= 15) then 
-						if (not targetObj:FaceTarget()) then
-							targetObj:FaceTarget();
-						end
-						if (targetObj:GetDistance() <= 6) and (localRage >= 15) then
+						targetObj:FaceTarget();
+						if (targetObj:GetDistance() <= 6) then
 							CastSpellByName('Heroic Strike', targetObj);
 							targetObj:FaceTarget();
 							return 0;
@@ -848,7 +855,7 @@ function script_warrior:rest()
 	end
 
 	-- eat if not bandages
-	if (not IsEating() and localHealth <= self.eatHealth) and (not IsInCombat()) and (not IsMoving()) then
+	if (not IsEating() and localHealth <= self.eatHealth) and (not IsInCombat()) and (not IsMoving()) and (script_grind.lootObj == nil) then
 		self.message = "Need to eat...";	
 		if (IsMoving()) then
 			StopMoving();

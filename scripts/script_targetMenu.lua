@@ -43,13 +43,13 @@ function script_targetMenu:menu()
 		script_grind.maxLevel = SliderInt("Max lvl", 1, 60, script_grind.maxLevel); 
 
 		Separator();
-			
-		wasClicked, script_nav.avoidElite = Checkbox("Avoid Elites", script_nav.avoidElite);
+	
+		--wasClicked, script_nav.avoidElite = Checkbox("Avoid Elites (current not working)", script_nav.avoidElite);
 		
-		if (script_grind.avoidElite) then
-			Text("Avoid Elite Range"); 
-			script_grind.avoidRange = SliderInt("ER (yd)", 1, 100, script_grind.avoidRange);
-		end
+		--if (script_grind.avoidElite) then
+		--	Text("Avoid Elite Range"); 
+		--	script_grind.avoidRange = SliderInt("ER (yd)", 1, 100, script_grind.avoidRange);
+		--end
 
 		Separator();
 		

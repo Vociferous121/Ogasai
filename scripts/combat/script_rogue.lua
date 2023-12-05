@@ -6,7 +6,7 @@ script_rogue = {
 	cpGenerator = 'Sinister Strike',
 	throwName = "Heavy Throwing Dagger",
 	stealthOpener = "Sinister Strike",
-	eatHealth = 55,
+	eatHealth = 60,
 	potionHealth = 7,
 	cpGeneratorCost = 45,
 	meleeDistance = 3.9,
@@ -178,9 +178,19 @@ end
 function script_rogue:draw()
 	local tX, tY, onScreen = WorldToScreen(GetLocalPlayer():GetPosition());
 	if (onScreen) then
-		DrawText(self.message, tX+75, tY+44, 255, 250, 205);
+		if (script_grind.adjustText) and (script_grind.drawEnabled) then
+			tX = tX + script_grind.adjustX;
+			tY = tY + script_grind.adjustY;
+		end
+
+	DrawText(self.message, tX+75, tY+44, 255, 250, 205);
 	else
-		DrawText(self.message, 25, 185, 255, 250, 205);
+		if (script_grind.adjustText) and (script_grind.drawEnabled) then
+			tX = tX + script_grind.adjustX;
+			tY = tY + script_grind.adjustY;
+		end
+
+	DrawText(self.message, 25, 185, 255, 250, 205);
 	end
 end
 
@@ -229,7 +239,7 @@ function script_rogue:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(456, 1111);
+		local tickRandom = random(556, 1211);
 
 		if (IsMoving()) or (not IsInCombat()) or (targetObj:IsFleeing()) then
 			script_grind.tickRate = 135;
@@ -375,7 +385,6 @@ function script_rogue:run(targetGUID)
 
 				-- Check if we are in melee range
 				if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
-					script_grind.tickRate = 75;
 					return 3;
 				end
 
@@ -430,7 +439,7 @@ function script_rogue:run(targetGUID)
 
 				if (HasSpell("Ghostly Strike")) and (not IsSpellOnCD("Ghostly Strike")) and (localEnergy >= 40) then
 					CastSpellByName("Ghostly Strike", targetObj);
-					return;
+					return 0;
 				end
 
 				-- Check: Use Healing Potion 
@@ -466,8 +475,6 @@ function script_rogue:run(targetGUID)
 						CastSpellByName("Gouge", targetObj);
 						return 0;
 					end
-
-					ClearTarget();
 
 					if (targetObj:HasDebuff("Gouge")) and (not localObj:HasDebuff("Recently Bandaged")) then
 					script_helper:useBandage();
@@ -564,12 +571,7 @@ function script_rogue:run(targetGUID)
 					if (script_rogue:spellAttack(self.cpGenerator, targetObj)) then
 						return 0;
 					end
-				end
-
-				if (targetObj:IsFleeing()) and (not script_grind.adjustTickRate) then
-					script_grind.tickRate = 50;
-				end
-			
+				end			
 			end
 		end
 	end -- end of if self.enablegrind
@@ -610,7 +612,7 @@ function script_rogue:run(targetGUID)
 
 			-- Don't attack if we should rest first
 			if (localHealth < self.eatHealth and not script_grind:isTargetingMe(targetObj)
-				and targetHealth > 99 and not targetObj:IsStunned() and script_grind.lootobj == nil) then
+				and targetHealth > 99 and not targetObj:IsStunned() and script_grind.lootobj == nil or script_grind.lootObj == 0) then
 				self.message = "Need rest...";
 				return 4;
 			end
@@ -659,7 +661,7 @@ function script_rogue:run(targetGUID)
 
 				-- Use CP generator attack 
 				if ((localEnergy >= self.cpGeneratorCost) and HasSpell(self.cpGenerator)) then
-					if(script_rogue:spellAttack(self.cpGenerator, targetObj)) then
+					if(CastSpellByName(self.cpGenerator, targetObj)) then
 						return 0;
 					end
 				end
@@ -667,7 +669,7 @@ function script_rogue:run(targetGUID)
 				-- Use CP generator attack  (in combat)
 				if (IsInCombat()) then
 					if (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) then
-						if(script_rogue:spellAttack(self.cpGenerator, targetObj)) then
+						if(CastSpellByName(self.cpGenerator, targetObj)) then
 							return 0;
 						end
 					end
@@ -710,7 +712,15 @@ function script_rogue:run(targetGUID)
 						end
 					end
 
-					if (HasSpell("Ghostly Strike")) and (not IsSpellOnCD("Ghostly Strike")) and (localEnergy >= 40) then
+				-- Gouge if target casting
+					if (HasSpell("Gouge")) and (not IsSpellOnCD("Gouge")) and (localEnergy >= 45) and (targetObj:IsCasting()) then
+						if (CastSpellByName("Gouge", targetObj)) then
+							self.waitTimer = GetTimeEX() + 250;
+							return 0;
+						end
+					end
+
+					if (HasSpell("Ghostly Strike")) and (not IsSpellOnCD("Ghostly Strike")) and (localEnergy >= 40) and ( (targetHealth >= 25 and localHealth >= 25) or (localHealth <= 25) ) then
 						if (CastSpellByName("Ghostly Strike", targetObj)) then
 							self.waitTimer = GetTimeEX() + 1200;
 							return 0;
@@ -718,7 +728,7 @@ function script_rogue:run(targetGUID)
 					end
 
 					-- check riposte
-					if (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) and (localEnergy >= 10) then
+					if (HasSpell("Riposte")) and (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) and (localEnergy >= 10) then
 						if (CastSpellByName("Riposte", targetObj)) then
 							self.message = "Using Riposte Combat Rotation 2";
 							return 0;
@@ -782,10 +792,6 @@ function script_rogue:run(targetGUID)
 							end
 						end
 					end
-
-					if (targetObj:IsFleeing()) and (not script_grind.adjustTickRate) then
-						script_grind.tickRate = 50;
-					end
 				end
 
 				-- Combat rotation 1
@@ -794,15 +800,6 @@ function script_rogue:run(targetGUID)
 					-- Dismount
 					if (IsMounted()) then
 						DisMount();
-					end
-
-					-- Check: Do we have the right target (in UI) ??
-					if (GetTarget() ~= 0 and GetTarget() ~= nil) then
-						if (GetTarget():GetGUID() ~= targetObj:GetGUID()) then
-							ClearTarget();
-							targetObj = 0;
-							return 0;
-						end
 					end
 
 					-- Check if we are in melee range
@@ -837,6 +834,14 @@ function script_rogue:run(targetGUID)
 						end
 					end
 
+					-- Gouge if target casting
+					if (HasSpell("Gouge")) and (not IsSpellOnCD("Gouge")) and (localEnergy >= 45) and (targetObj:IsCasting()) then
+						if (CastSpellByName("Gouge", targetObj)) then
+							self.waitTimer = GetTimeEX() + 250;
+							return 0;
+						end
+					end
+
 					-- Use Blade Flurry on CD targets > 1
 					if (self.enableBladeFlurry) then
 						if (HasSpell("Blade Flurry")) and (not IsSpellOnCD("Blade Flurry")) and (targetHealth >= 50) and (localEnergy >= 25) then
@@ -858,13 +863,13 @@ function script_rogue:run(targetGUID)
 						end
 					end
 
-					if (HasSpell("Ghostly Strike")) and (not IsSpellOnCD("Ghostly Strike")) and (localEnergy >= 40) then
+					if (HasSpell("Ghostly Strike")) and (not IsSpellOnCD("Ghostly Strike")) and (localEnergy >= 40) and ( (targetHealth >= 25 and localHealth >=25) or (localHealth <= 25) ) then
 						CastSpellByName("Ghostly Strike", targetObj);
-						return;
+						return 0;
 					end
 
 					-- Check: Use Riposte whenever we can
-					if (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) and (localEnergy >= 10) then 
+					if (HasSpell("Riposte")) and (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) and (localEnergy >= 10) then 
 						CastSpellByName("Riposte", targetObj);
 						return 0; -- return until we cast Riposte 
 					end
@@ -899,19 +904,30 @@ function script_rogue:run(targetGUID)
 
 					-- Use CP generator attack 
 					if ((localEnergy >= self.cpGeneratorCost) and HasSpell(self.cpGenerator)) then
-						if (script_rogue:spellAttack(self.cpGenerator, targetObj)) then
+						if (CastSpellByName(self.cpGenerator, targetObj)) then
 							return 0;
 						end
 					end
-
-					if (targetObj:IsFleeing()) and (not script_grind.adjustTickRate) then
-						script_grind.tickRate = 50;
-					end
 				end
-			return 0;
 			end	
 		end
 	end
+
+
+	-- set tick rate for script to run
+	if (not script_grind.adjustTickRate) then
+
+		local tickRandom = random(556, 1211);
+
+		if (IsMoving()) or (not IsInCombat()) or (targetObj:IsFleeing()) then
+			script_grind.tickRate = 135;
+		elseif (not IsInCombat()) and (not IsMoving()) and (not targetObj:IsFleeing()) then
+			script_grind.tickRate = tickRandom
+		elseif (IsInCombat()) and (not IsMoving())and (not targetObj:IsFleeing()) then
+			script_grind.tickRate = tickRandom;
+		end
+	end
+
 end
 
 function script_rogue:rest()
@@ -940,6 +956,10 @@ function script_rogue:rest()
 		self.useBandage = false;
 	end
 
+	if (IsMounted()) then
+		Dismount();
+	end
+
 	-- if has bandage then use bandages
 	if (self.eatHealth >= 35) and (self.hasBandages) and (self.useBandage) and (not IsMoving()) and (localHealth < self.eatHealth) then
 		if (not script_checkDebuffs:hasPoison()) and (not IsEating()) and (not localObj:HasDebuff("Recently Bandaged")) then
@@ -947,6 +967,8 @@ function script_rogue:rest()
 			StopMoving();
 		end
 			self.waitTimer = GetTimeEX() + 1200;
+			script_grind:setWaitTimer(1500);
+
 		if (IsStanding()) and (not IsInCombat()) and (not IsMoving()) and (not localObj:HasDebuff("Recently Bandaged")) then
 			if (script_helper:useBandage()) then	
 				self.waitTimer = GetTimeEX() + 6000;
@@ -959,7 +981,7 @@ function script_rogue:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(406, 1092);
+		local tickRandom = random(606, 1392);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -978,6 +1000,7 @@ function script_rogue:rest()
 
 	-- Eat something
 	if (not IsEating() and localHealth < self.eatHealth) then
+		script_grind:setWaitTimer(1500);
 		self.waitTimer = GetTimeEX() + 2000;
 		self.message = "Need to eat...";
 		if (IsInCombat()) then
@@ -989,12 +1012,12 @@ function script_rogue:rest()
 		if (script_helper:eat()) then 
 			self.message = "Eating..."; 
 			self.waitTimer = GetTimeEX() + 2000;
+			script_grind:setWaitTimer(1500);
 			return true; 
 		else 
 			self.message = "No food! (or food not included in script_helper)";
-			ClearTarget();
 
-			if (HasSpell("Stealth") and not IsSpellOnCD("Stealth") and not localObj:HasDebuff("Touch of Zanzil")) and (not script_checkDebuffs:hasPoison()) then
+			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:HasDebuff("Touch of Zanzil")) and (not script_checkDebuffs:hasPoison()) and (not localObj:HasBuff("Stealth")) then
 				if (not localObj:HasBuff("Stealth")) then
 					CastSpellByName("Stealth");
 				end
@@ -1004,7 +1027,7 @@ function script_rogue:rest()
 	end
 
 	-- Stealth when we eat
-	if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (IsEating()) and (not localObj:HasDebuff("Touch of Zanzil")) and (not script_checkDebuffs:hasPoison()) then
+	if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:HasBuff("Stealth")) and (IsEating()) and (not localObj:HasDebuff("Touch of Zanzil")) and (not script_checkDebuffs:hasPoison()) then
 		if (not localObj:HasBuff("Stealth")) then
 			CastSpellByName("Stealth");
 			return true;
