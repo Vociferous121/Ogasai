@@ -419,6 +419,9 @@ function script_helper:mountUp()
 		StopMoving();
 		return false;
 	end
+	if (IsIndoors()) then
+		return false;
+	end
 
 	if (GetLocalPlayer():GetLevel() >= 40) and (not IsMounted()) and (not IsInCombat()) and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:HasBuff("Moonkin Form")) and (not localObj:HasBuff("Travel Form")) then
 			script_helper:useMount();

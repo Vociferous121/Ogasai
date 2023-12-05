@@ -342,8 +342,8 @@ function script_grind:run()
 	-- check paranoia	
 		-- jump when player in range in combat
 	if (IsInCombat()) then
-		if (script_paranoiaCheck:playersWithinRange(60) and script_grind.playersTargetingUs() >= 1) 
-			or (script_paranoiaCheck:playersWithinRange(38)) then
+		if (script_paranoiaCheck:playersWithinRange2(60) and script_grind.playersTargetingUs() >= 1) 
+			or (script_paranoiaCheck:playersWithinRange2(38)) then
 			if (not IsCasting()) and (not IsChanneling()) then
 				local moreJumping = math.random(0, 200);
 				if (moreJumping >= 150) then
@@ -637,10 +637,12 @@ function script_grind:run()
 				StopMoving();
 				return true;
 			end
-			if (script_helper:mountUp()) then
-				script_grind:setWaitTimer(4500);
+			if (not IsIndoors()) then
+				if (script_helper:mountUp()) then
+					script_grind:setWaitTimer(4500);
+				end
+			return true;
 			end
-		return true;
 		end
 
 		-- Use auto pathing or walk paths
