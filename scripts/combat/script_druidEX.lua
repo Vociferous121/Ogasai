@@ -211,7 +211,7 @@ Separator();
 
 	end
 
-	if (CollapsingHeader("Heal Options")) then
+	if (CollapsingHeader("Druid Heal Options")) then
 		Text('Rest options:');
 		script_druid.eatHealth = SliderInt("Eat below HP%", 1, 100, script_druid.eatHealth);
 		script_druid.drinkMana = SliderInt("Drink below Mana%", 1, 100, script_druid.drinkMana);

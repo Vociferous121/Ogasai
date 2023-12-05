@@ -768,6 +768,8 @@ function script_mage:run(targetGUID)
 				
 				-- cast fireball
 				if (CastSpellByName("Fireball", targetObj)) then
+					script_grind:setWaitTimer(1500);
+					self.waitTimer = GetTimeEX() + 1500;
 					return 0;
 				end
 			end

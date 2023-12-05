@@ -283,7 +283,7 @@ function script_priestEX:menu()
 			end
 		end
 
-		if (CollapsingHeader("Self Heals - Combat Script")) then
+		if (CollapsingHeader("Priest Heal Options - Self")) then
 
 			Text('Drink below mana percentage');
 			script_priest.drinkMana = SliderInt("DM%", 10, 99, script_priest.drinkMana);
