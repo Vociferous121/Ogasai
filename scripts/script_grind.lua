@@ -487,12 +487,13 @@ function script_grind:run()
 			end
 			-- Shaman Ghost Wolf 
 			if (not IsMounted()) and (not script_grind.useMount) and (HasSpell('Ghost Wolf')) and (not localObj:HasBuff('Ghost Wolf')) and (not localObj:IsDead()) then
-				if (CastSpellByName('Ghost Wolf')) then
+					CastSpellByName('Ghost Wolf');
 					self.waitTimer = GetTimeEX() + 1500;
 					script_grind:setWaitTimer(1500);
-					return true;
-				end
+					return;
+				
 			end
+
 			self.message = script_nav:moveToHotspot(localObj);
 			script_grind:setWaitTimer(65);
 			return;
@@ -584,7 +585,7 @@ function script_grind:run()
 				local localObj = GetLocalPlayer();
 
 				if (not IsMoving()) then
-					self.enemyObj:FaceTarget();
+					script_grind.enemyObj:FaceTarget();
 					script_grind.tickRate = 50;
 				end
 

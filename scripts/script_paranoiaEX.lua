@@ -26,6 +26,21 @@ function script_paranoiaEX:checkStealth()
 		script_grind:setWaitTimer(1500);
 		CastSpellByName("Prowl");
 	end
+
+	-- Shaman Ghost Wolf 
+	if (not IsMounted()) and (not script_grind.useMount) and (HasSpell('Ghost Wolf')) and (not localObj:HasBuff('Ghost Wolf')) and (not localObj:IsDead()) then
+		if (IsMoving()) then
+			StopMoving();
+			return false;
+		else
+			CastSpellByName('Ghost Wolf');
+			self.waitTimer = GetTimeEX() + 2500;
+			script_grind:setWaitTimer(2500);
+			return true;
+		end
+	return true;
+	end
+
 end
 
 
