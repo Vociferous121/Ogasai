@@ -15,6 +15,11 @@ script_gather = {
 	timer = 0,
 	nodeID = 0,
 	gatherAllPossible = true,
+	blacklistedNode = {},
+	blacklistedNum = 0,
+	blacklistTime = GetTimeEX(),
+	timerSet = false;
+	nodeGUID = 0,
 }
 
 function script_gather:addHerb(name, id, use, req)
@@ -146,7 +151,7 @@ function script_gather:GetNode()
 	local bestTarget = nil;
 	while targetObj ~= 0 do
 		if (targetType == 5) then --GameObject
-			if(script_gather:ShouldGather(targetObj:GetObjectDisplayID())) then
+			if(script_gather:ShouldGather(targetObj:GetObjectDisplayID()))  then
 				local dist = targetObj:GetDistance();
 				if(dist < self.gatherDistance and bestDist > dist) then
 					local _x, _y, _z = targetObj:GetPosition();
@@ -219,19 +224,25 @@ function script_gather:gather()
 	if (self.timer > GetTimeEX()) then
 		return true;
 	end
-
-	script_grind.useUnstuckTwo = false;
+	--if (not self.timerSet) then
+	--self.blacklistTime = GetTimeEX() + 5000;
+	--self.timerSet = true;
+	--end
 	
 	local tempNode = script_gather:GetNode();
 	local newNode = (self.nodeObj == tempNode);
 	self.nodeObj = script_gather:GetNode();
+	self.nodeGUID = self.nodeObj:GetGUID();
+	
 		
-	if(self.nodeObj ~= nil and self.nodeObj ~= 0) then
+	if(self.nodeObj ~= nil and self.nodeObj ~= 0) and (not script_gather:isNodeBlacklisted(self.nodeGUID)) then
 		
 		local _x, _y, _z = self.nodeObj:GetPosition();
 		local dist = self.nodeObj:GetDistance();	
-		self.nodeID = self.nodeObj:GetObjectDisplayID();	
-			
+		self.nodeID = self.nodeObj:GetObjectDisplayID();
+		self.nodeGUID = self.nodeObj:GetGUID();
+
+
 		if(dist < self.lootDistance) then
 			if(IsMoving()) then
 				StopMoving();
@@ -250,15 +261,28 @@ function script_gather:gather()
 			if (IsLooting()) then
 				LootTarget();
 				self.waitTimer = GetTimeEX() + 1200;
+
+				if (self.timerSet) then
+					self.timerSet = false;
+				end
 			end
 			self.waitTimer = GetTimeEX() + 250;
 		else
 			if (_x ~= 0) then
 
-			--	if (not IsMoving()) and (time > time) then
-			--		script_gather:addNodeToBlacklist(self.nodeObj);
-			--		reset timer variable
-			--	end
+				--if (IsMoving()) then
+					--if (self.timerSet) then
+					--	self.timerSet = false;
+					--end
+				--end
+
+		--if (self.nodeObj ~= nil) and (self.nodeObj ~= 0) and (self.timerSet) then
+		--	if (GetTimeEX() > self.blacklistTime) then
+		--		script_gather:addNodeToBlacklist(self.nodeGUID);
+		--		self.timerSet = false;
+		--		return false;
+		--	end
+		--end
 
 				MoveToTarget(_x, _y, _z);
 				self.timer = GetTimeEX() + 250;
@@ -313,4 +337,22 @@ function script_gather:menu()
 			end
 		end
 	end
+end
+
+function script_gather:addNodeToBlacklist(nodeGUID)
+	nodeGUID = self.nodeGUID;
+	if (self.nodeID ~= nil and self.nodeID ~= 0 and self.nodeID ~= '') then	
+		self.blacklistedNode[self.blacklistedNum] = self.nodeGUID;
+		self.blacklistedNum = self.blacklistedNum + 1;
+	end
+end
+
+function script_gather:isNodeBlacklisted(nodeGUID) 
+	nodeGUID = self.nodeGUID;
+	for i=0,self.blacklistedNum do
+		if (self.nodeGUID == self.blacklistedNode[i]) then
+			return true;
+		end
+	end
+	return false;
 end

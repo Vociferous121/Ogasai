@@ -311,7 +311,7 @@ function script_grind:run()
 		self.message = "Error script_helper not loaded...";
 		return;
 	end
-	
+
 	-- use unstuck feature ----and (not self.pause) 
 	if (self.useUnstuck and IsMoving()) and (not self.pause) then
 		if (not script_unstuck:pathClearAuto(2)) then
