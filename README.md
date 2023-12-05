@@ -2,7 +2,7 @@
  Ogasaism
 
 Causes bans on turtle WoW - USE WITH CAUTION. There are much better places to play, anyways.
-## Files are currently changed daily. There are possibly many bugs that I have not found yet. I do not run every single class all day long testing for errors... If you find something that completely hinders the use of the bot please message on Discord or make a Pull Request here on github and I will fix it ASAP. 
+## Files are currently changed daily. There are possibly many bugs that I have not found yet. If you find something that completely hinders the use of the bot please message on discord or make a pull request here on github and I will fix it ASAP. 
 
 # Any bugs reports are greatly appreciated and will help with the process!
 
