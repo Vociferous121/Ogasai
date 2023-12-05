@@ -34,5 +34,5 @@ Required to use the bot:
                                   please turn on auto-self cast in the interface menu
                                   please turn on click-to-move in the interface menu
  
-  Changes are too numerous to report. The original design, combat and rest and targeting system, is based on Logitechs original scripts. 
+  Changes are too numerous to report. The original design, combat, rest and targeting system, is based on Logitechs original scripts. 
 
