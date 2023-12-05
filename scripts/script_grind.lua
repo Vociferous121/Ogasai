@@ -113,6 +113,7 @@ script_grind = {
 	playerPos = 0,
 	blacklistLootTime = GetTimeEX() + 10000,
 	timerSet = false,
+	messageOnce = true,
 }
 
 function script_grind:setup()
@@ -549,6 +550,7 @@ function script_grind:run()
 
 			return; 
 		else
+			self.messageOnce = true;
 			self.timerSet = false;
 			-- reset the combat status
 			self.combatError = nil; 
@@ -963,7 +965,10 @@ function script_grind:doLoot(localObj)
 	if (IsStanding()) then
 		if (GetTimeEX() >= self.blacklistLootTime) then
 			script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
+			if (self.messageOnce) then
 			DEFAULT_CHAT_FRAME:AddMessage('Blacklisting Loot Target - Spent Too Long Looting!');
+			self.messageOnce = false;
+			end
 		end
 	end
 
