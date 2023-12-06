@@ -632,7 +632,6 @@ function script_grind:run()
 
 				script_grind.tickRate = 0;
 
-
 				if (_x ~= 0 and x ~= 0) then
 					local moveBuffer = math.random(-3, 3);
 					self.message = script_navEX:moveToTarget(localObj, _x+moveBuffer, _y+moveBuffer, _z);
@@ -773,7 +772,6 @@ function script_grind:getTarget()
 end
 
 function script_grind:getTargetAttackingUs() 
-	script_grind.tickRate = 50;
     local currentObj, typeObj = GetFirstObject(); 
     while currentObj ~= 0 do 
     	if typeObj == 3 then
@@ -797,7 +795,6 @@ end
 
 function script_grind:assignTarget() 
 	-- Return a target attacking our group
-	script_grind.tickRate = 50;
 	local i, targetType = GetFirstObject();
 	while i ~= 0 do
 		if (script_grind:isTargetingGroup(i)) then
@@ -837,8 +834,8 @@ function script_grind:assignTarget()
 	
 	-- Check: If we are in combat but no valid target, kill the "unvalid" target attacking us
 	if (closestTarget == nil and IsInCombat()) then
-		script_grind.tickRate = 50;
 		if (GetTarget() ~= 0) then
+			script_grind.tickRate = 50;
 			return GetTarget();
 		end
 	end
@@ -848,7 +845,6 @@ function script_grind:assignTarget()
 end
 
 function script_grind:isTargetingPet(i) 
-	script_grind.tickRate = 50;
 	local pet = GetPet();
 	if (pet ~= nil and pet ~= 0 and not pet:IsDead()) then
 		if (i:GetUnitsTarget() ~= nil and i:GetUnitsTarget() ~= 0) then
@@ -872,7 +868,6 @@ function script_grind:isTargetingGroup(y)
 end
 
 function script_grind:isTargetingMe(i) 
-	script_grind.tickRate = 50;
 	local localPlayer = GetLocalPlayer();
 	if (localPlayer ~= nil and localPlayer ~= 0 and not localPlayer:IsDead()) then
 		if (i:GetUnitsTarget() ~= nil and i:GetUnitsTarget() ~= 0) then
@@ -1141,6 +1136,12 @@ function script_grind:runRest()
 		-- Stop moving
 		if (IsMoving()) and (not localObj:IsMovementDisabed()) then
 			StopMoving();
+			return true;
+		end
+		if (IsEating() and GetLocalPlayer():GetHealthPercentage() < 95)
+		or (IsDrinking() and GetLocalPlayer():GetManaPercentage() <95)
+		then
+		self.waitTimer = GetTimeEX() + 5000;
 			return true;
 		end
 

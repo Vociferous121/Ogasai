@@ -340,6 +340,7 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 	end	
 
 	if (not IsPathLoaded(5)) then
+		script_grind.tickRate = 0;
 		return "Generating path...";
 	end
 	
