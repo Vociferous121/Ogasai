@@ -689,21 +689,23 @@ function script_grind:run()
 		and (not IsMounted()) and (not IsIndoors()) and (not localObj:HasBuff("Cat Form"))
 		and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Travel Form"))
 		and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Moonkin Form")) and (not localObj:HasBuff("Ghost Wolf")) then
-			if (IsMoving()) then
-				StopMoving();
+			if (HasSpell("Ghost Wolf")) or (HasSpell("Travel Form")) or (self.useMount) then
+				if (IsMoving()) then
+					StopMoving();
+					return true;
+				end
+				if (HasSpell("Travel Form")) then
+					if (script_druidEX:travelForm()) then
+						script_grind:setWaitTimer(2500);
+					end
 				return true;
-			end
-			if (HasSpell("Travel Form")) then
-				if (script_druidEX:travelForm()) then
-					script_grind:setWaitTimer(2500);
 				end
-			return true;
-			end
-			if (HasSpell("Ghost Wolf")) then
-				if (script_shamanEX2:ghostWolf()) then
-					script_grind:setWaitTimer(4000);
+				if (HasSpell("Ghost Wolf")) then
+					if (script_shamanEX2:ghostWolf()) then
+						script_grind:setWaitTimer(4000);
+					end
+				return true;
 				end
-			return true;
 			end
 		end
 
@@ -1029,7 +1031,7 @@ function script_grind:doLoot(localObj)
 			script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
 			if (self.messageOnce) then
 			DEFAULT_CHAT_FRAME:AddMessage('Blacklisting Loot Target - Spent Too Long Looting!');
-			self.blacklistLootTime = GetTimeEX() + 25000;
+			self.blacklistLootTime = GetTimeEX();
 			self.messageOnce = false;
 			end
 		end
@@ -1040,7 +1042,6 @@ function script_grind:doLoot(localObj)
 	script_grind:setWaitTimer(80);
 
 	if (self.lootObj:GetDistance() < 3) then
-		self.blacklistLootTime = GetTimeEX();
 		self.waitTimer = GetTimeEX() + 750;
 	end
 		
