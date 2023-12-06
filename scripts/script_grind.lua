@@ -111,7 +111,7 @@ script_grind = {
 	playerName = "",
 	otherName = player,
 	playerPos = 0,
-	blacklistLootTime = GetTimeEX() + 15000,
+	blacklistLootTime = GetTimeEX() + 25000,
 	timerSet = false,
 	messageOnce = true,
 }
@@ -255,15 +255,10 @@ function script_grind:run()
 		end
 	end
 
+	-- if bags full then set true
 	if (AreBagsFull()) then
 		self.bagsFull = true;
 	end
-
-	--if (IsIndoors()) then
-	--	script_unstuck.unstuckSensitivity = .1;
-	--else
-	--	script_unstuck.unstuckSensitivty = script_unstuck.unstuckSensitivity;
-	--end
 
 	 -- Set next to node distance and nav-mesh smoothness to double that number
 	if (IsMounted()) then
@@ -453,11 +448,12 @@ function script_grind:run()
 			end
 		end
 
+		-- hotspot reached distance
 		if (script_nav:getDistanceToHotspot() <= 45) then
 			self.hotspotReached = true;
 		end
 
-			--Mount up
+		--Mount up
 		if (not self.hotspotReached or script_vendor:getStatus() >= 1) and (not IsInCombat())
 		and (not IsMounted()) and (not IsIndoors()) and (not localObj:HasBuff("Cat Form"))
 		and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Travel Form"))
@@ -554,6 +550,7 @@ function script_grind:run()
 				self.newTargetTime = GetTimeEX() + 1000;
 				ClearTarget();
 			elseif (self.lastTarget == self.enemyObj:GetGUID() and not IsStanding() and not IsInCombat()) then
+				self.blaclistLootTime = GetTimeEX();
 				self.newTargetTime = GetTimeEX(); -- reset time if we rest
 			-- blacklist the target if we had it for a long time and hp is high
 			elseif (((GetTimeEX()-self.newTargetTime)/1000) > self.blacklistTime and self.enemyObj:GetHealthPercentage() > 92) and (not script_paranoia.checkParanoia()) then 
@@ -563,6 +560,7 @@ function script_grind:run()
 			end
 		end
 
+		-- distance to hotspot
 		if (script_nav:getDistanceToHotspot() <= 45) then
 			self.hotspotReached = true;
 		end
@@ -586,7 +584,9 @@ function script_grind:run()
 
 			return; 
 		else
+			-- blacklist loot message
 			self.messageOnce = true;
+			-- blacklist loot timer
 			self.timerSet = false;
 			-- reset the combat status
 			self.combatError = nil; 
@@ -623,6 +623,7 @@ function script_grind:run()
 				local localObj = GetLocalPlayer();
 
 				script_grind.tickRate = 0;
+
 
 				if (_x ~= 0 and x ~= 0) then
 					local moveBuffer = math.random(-3, 3);
@@ -761,6 +762,7 @@ function script_grind:getTarget()
 end
 
 function script_grind:getTargetAttackingUs() 
+	script_grind.tickRate = 50;
     local currentObj, typeObj = GetFirstObject(); 
     while currentObj ~= 0 do 
     	if typeObj == 3 then
@@ -784,6 +786,7 @@ end
 
 function script_grind:assignTarget() 
 	-- Return a target attacking our group
+	script_grind.tickRate = 50;
 	local i, targetType = GetFirstObject();
 	while i ~= 0 do
 		if (script_grind:isTargetingGroup(i)) then
@@ -823,6 +826,7 @@ function script_grind:assignTarget()
 	
 	-- Check: If we are in combat but no valid target, kill the "unvalid" target attacking us
 	if (closestTarget == nil and IsInCombat()) then
+		script_grind.tickRate = 50;
 		if (GetTarget() ~= 0) then
 			return GetTarget();
 		end
@@ -833,6 +837,7 @@ function script_grind:assignTarget()
 end
 
 function script_grind:isTargetingPet(i) 
+	script_grind.tickRate = 50;
 	local pet = GetPet();
 	if (pet ~= nil and pet ~= 0 and not pet:IsDead()) then
 		if (i:GetUnitsTarget() ~= nil and i:GetUnitsTarget() ~= 0) then
@@ -856,6 +861,7 @@ function script_grind:isTargetingGroup(y)
 end
 
 function script_grind:isTargetingMe(i) 
+	script_grind.tickRate = 50;
 	local localPlayer = GetLocalPlayer();
 	if (localPlayer ~= nil and localPlayer ~= 0 and not localPlayer:IsDead()) then
 		if (i:GetUnitsTarget() ~= nil and i:GetUnitsTarget() ~= 0) then
@@ -947,8 +953,8 @@ function script_grind:doLoot(localObj)
 	local dist = self.lootObj:GetDistance();
 	local localObj = GetLocalPlayer();
 
-		if (not self.timerSet) then
-			self.blacklistLootTime = GetTimeEX() + 15000;
+		if (not self.timerSet) and (not IsEating()) and (not IsDrinking()) and (IsStanding()) and (not IsInCombat()) then
+			self.blacklistLootTime = GetTimeEX() + 25000;
 			self.timerSet = true;
 		end
 
@@ -1018,11 +1024,12 @@ function script_grind:doLoot(localObj)
 		end
 	end
 
-	if (IsStanding()) then
+	if (IsStanding()) and (not IsInCombat()) then
 		if (GetTimeEX() >= self.blacklistLootTime) then
 			script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
 			if (self.messageOnce) then
 			DEFAULT_CHAT_FRAME:AddMessage('Blacklisting Loot Target - Spent Too Long Looting!');
+			self.blacklistLootTime = GetTimeEX() + 25000;
 			self.messageOnce = false;
 			end
 		end
@@ -1033,6 +1040,7 @@ function script_grind:doLoot(localObj)
 	script_grind:setWaitTimer(80);
 
 	if (self.lootObj:GetDistance() < 3) then
+		self.blacklistLootTime = GetTimeEX();
 		self.waitTimer = GetTimeEX() + 750;
 	end
 		
@@ -1107,6 +1115,7 @@ function script_grind:runRest()
 		local localObj = GetLocalPlayer();
 
 	if(RunRestScript()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
+		script_grind.tickRate = 1500;
 		self.message = "Resting...";
 		self.newTargetTime = GetTimeEX();
 
@@ -1121,10 +1130,6 @@ function script_grind:runRest()
 			DisMount();
 			return true;
 		end
-
-		--if (not IsMounted()) then
-		--	script_paranoiaEX:checkStealth();
-		--end
 	return true;	
 	end
 
