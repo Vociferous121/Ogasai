@@ -891,6 +891,14 @@ function script_grind:enemyIsValid(i)
 			or (i:IsTappedByMe() and not i:IsDead())) then 
 				return true; 
 		end
+		-- blacklisted target is attacking us
+		if (script_grind:isTargetBlacklisted(i:GetGUID())) and (script_grind:isTargetingMe(i)) then
+			return true;
+		end
+		--attacking pet
+		if (script_grind:isTargetingPet(i)) then
+			return true;
+		end
 		-- Valid Targets: Within pull range, levelrange, not tapped, not skipped etc
 		if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
