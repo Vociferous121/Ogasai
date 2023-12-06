@@ -222,15 +222,11 @@ function script_hunter:run(targetGUID)
 	if (IsInCombat()) and (GetPet() ~= 0) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (self.hasPet) then
 		if (petHasTarget ~= 0) then
 			if (GetPet():GetDistance() > 10) then
+				AssistUnit("pet");
 				PetFollow();
 			end
-
-			if (GetPet():GetDistance() < 10) then
-				AssistUnit("pet");
-				script_grind.tickRate = 135;
-				script_rotation.tickRate = 135;
-			end
 		else
+			AssistUnit("pet");
 			return 4;
 		end
 	end
