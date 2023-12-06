@@ -20,12 +20,6 @@ function script_priestEX:healsAndBuffs(localObj, localMana)
 		DisMount();
 	end
 
-	if (IsAutoCasting("Shoot")) then
-		local _xX, _yY, _zZ = localObj:GetPosition();
-		script_priest.message = script_navEX:moveToTarget(localObj, _xX+.1, _yY+.1, _zZ);
-		script_grind:setWaitTimer(1500);
-	end
-
 	if (not IsMounted()) then
 		-- inner focus
 		if (not localObj:HasBuff("Inner Focus")) and (HasSpell("Inner Focus")) then

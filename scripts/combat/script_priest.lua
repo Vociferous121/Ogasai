@@ -28,6 +28,7 @@ script_priest = {
 	swpMana = 15, -- Use shadow word: pain above this mana %
 	followTargetDistance = 100,
 	rangeDistance = 28,
+	openerRange = 25,
 }
 
 function script_priest:heal(spellName, target)
@@ -120,6 +121,10 @@ function script_priest:setup()
 	if (not HasSpell("Mind Blast")) then
 		self.useSmite = true;
 		self.useWandHealth = 65;
+	end
+
+	if (HasSpell("Vampiric Embrace")) then
+		self.openerRange = 30;
 	end
 
 end
@@ -304,6 +309,13 @@ function script_priest:run(targetGUID)
 			end
 		end 
 
+		if (IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+			if (targetObj:GetDistance() <= 15) then
+				targetObj:FaceTarget();
+				targetObj:AutoAttack();
+			end
+		end
+
 		-- Opener - not in combat pulling target
 		if (not IsInCombat()) then
 
@@ -320,8 +332,14 @@ function script_priest:run(targetGUID)
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 			
 			-- Opener check range of ALL SPELLS
-			if (targetObj:GetDistance() > 30) or (not targetObj:IsInLineOfSight()) then
+			if (targetObj:GetDistance() > self.openerRange) or (not targetObj:IsInLineOfSight()) then
+				self.message = "Walking to spell range!";
 				return 3;
+			end
+
+			-- forces bot to walk closer to enemy and adds some randomness
+			if (targetObj:GetDistance() <= self.openerRange + 3) then
+				self.openerRange = 31;
 			end
 
 			-- casts mind blast quicker
@@ -333,7 +351,7 @@ function script_priest:run(targetGUID)
 					return 0;
 				end
 			end
-
+			
 			-- smite low level wouldn't cast for some reason kept defaulting to auto attack
 			if (GetLocalPlayer():GetLevel() <= 3) and (targetObj:GetDistance() < 28) and (localMana > 10) then
 				CastSpellByName("Smite", targetObj);
