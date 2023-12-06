@@ -136,6 +136,7 @@ function script_hunter:runBackwards(targetObj, range)
  		if (distance < range and targetObj:IsInLineOfSight()) then
  			script_navEX:moveToTarget(localObj, moveX, moveY, moveZ);
 			if (IsMoving()) then
+				self.waitTimer = GetTimeEX() + 1500;
 				JumpOrAscendStart();
 			end
  			return true;
@@ -568,8 +569,7 @@ function script_hunter:mendPet(localMana, petHP)
 					return true;
 	
 				elseif (GetPet():GetDistance() > 20) and (localMana > 10) then 
-					local pX, pY, pZ = GetPet():GetPosition();
-					script_navEX:moveToTarget(GetLocalPlayer(), pX, pY, pZ); 
+					PetFollow();
 					return; 
 				end 
 				
