@@ -439,19 +439,6 @@ function script_grind:run()
 			end
 		end
 
-		-- Gather
-		if (self.gather and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
-			script_grind.tickRate = 100;
-			if (script_gather:gather()) then
-				self.message = 'Gathering ' .. script_gather:currentGatherName() .. '...';
-				return;
-			end
-		end
-
-		-- hotspot reached distance
-		if (script_nav:getDistanceToHotspot() <= 45) then
-			self.hotspotReached = true;
-		end
 
 		--Mount up
 		if (not self.hotspotReached or script_vendor:getStatus() >= 1) and (not IsInCombat())
@@ -469,6 +456,20 @@ function script_grind:run()
 			return true;
 			end
 		end
+		
+		-- Gather
+		if (self.gather and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
+			if (script_gather:gather()) then
+				script_grind.tickRate = 100;
+				self.message = 'Gathering ' .. script_gather:currentGatherName() .. '...';
+				return;
+			end
+		end
+
+		-- hotspot reached distance
+		if (script_nav:getDistanceToHotspot() <= 45) then
+			self.hotspotReached = true;
+		end
 	
 
 		-- Auto path: keep us inside the distance to the current hotspot, if mounted keep running even if in combat
@@ -478,22 +479,23 @@ function script_grind:run()
 				self.hotSpotTimer = GetTimeEX() + 20000;
 			end
 
-		--Mount up
-		if (not self.hotspotReached or script_vendor:getStatus() >= 1) and (not IsInCombat())
-		and (not IsMounted()) and (not IsIndoors()) and (not localObj:HasBuff("Cat Form"))
-		and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Travel Form"))
-		and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Moonkin Form")) and (script_grind.useMount) then
-			if (IsMoving()) then
-				StopMoving();
-				return true;
-			end
-			if (not IsIndoors()) then
-				if (script_helper:mountUp()) then
-					script_grind:setWaitTimer(4500);
-					self.waitTimer = GetTimeEX() + 4500;
+			--Mount up
+			if (not self.hotspotReached or script_vendor:getStatus() >= 1) and (not IsInCombat())
+				and (not IsMounted()) and (not IsIndoors()) and (not localObj:HasBuff("Cat Form"))
+				and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Travel Form"))
+				and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Moonkin Form")) and (script_grind.useMount)
+			then
+				if (IsMoving()) then
+					StopMoving();
+					return true;
+				end
+				if (not IsIndoors()) then
+					if (script_helper:mountUp()) then
+						script_grind:setWaitTimer(4500);
+						self.waitTimer = GetTimeEX() + 4500;
+					end
 				end
 			end
-		end
 
 			-- Druid travel form
 			if (not IsMounted()) and (not script_paranoia:checkParanoia()) and (not IsSwimming()) and (not script_grind.useMount) then
@@ -527,9 +529,10 @@ function script_grind:run()
 				
 			end
 
-			self.message = script_nav:moveToHotspot(localObj);
-			script_grind:setWaitTimer(65);
-			return;
+		-- move to hotspot location
+		self.message = script_nav:moveToHotspot(localObj);
+		script_grind:setWaitTimer(65);
+		return;
 		end
 		
 		-- Assign the next valid target to be killed within the pull range
@@ -538,12 +541,15 @@ function script_grind:run()
 			self.lastTarget = self.enemyObj:GetGUID();
 		end
 
+		-- get target
 		self.enemyObj = script_grind:assignTarget();
 
+		-- use kills to level tracker
 		if (self.useExpChecker) then
 			script_expChecker:targetLevels();
 		end
 
+		-- blacklist target time
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
 			-- Fix bug, when not targeting correctly
 			if (self.lastTarget ~= self.enemyObj:GetGUID()) then
@@ -667,7 +673,8 @@ function script_grind:run()
 				return;
 			end
 		end
-			--Mount up
+
+		--Mount up
 		if (not self.hotspotReached or script_vendor:getStatus() >= 1) and (not IsInCombat())
 		and (not IsMounted()) and (not IsIndoors()) and (not localObj:HasBuff("Cat Form"))
 		and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Travel Form"))
