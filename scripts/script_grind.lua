@@ -439,12 +439,13 @@ function script_grind:run()
 			end
 		end
 
-
 		--Mount up
 		if (not self.hotspotReached or script_vendor:getStatus() >= 1) and (not IsInCombat())
 		and (not IsMounted()) and (not IsIndoors()) and (not localObj:HasBuff("Cat Form"))
 		and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Travel Form"))
-		and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Moonkin Form")) and (script_grind.useMount) then
+		and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Moonkin Form"))
+		and (script_grind.useMount)
+		then
 			if (IsMoving()) then
 				StopMoving();
 				return true;
@@ -481,9 +482,10 @@ function script_grind:run()
 
 			--Mount up
 			if (not self.hotspotReached or script_vendor:getStatus() >= 1) and (not IsInCombat())
-				and (not IsMounted()) and (not IsIndoors()) and (not localObj:HasBuff("Cat Form"))
-				and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Travel Form"))
-				and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Moonkin Form")) and (script_grind.useMount)
+			and (not IsMounted()) and (not IsIndoors()) and (not localObj:HasBuff("Cat Form"))
+			and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Travel Form"))
+			and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Moonkin Form"))
+			and (script_grind.useMount)
 			then
 				if (IsMoving()) then
 					StopMoving();
@@ -1038,7 +1040,7 @@ function script_grind:doLoot(localObj)
 			script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
 			if (self.messageOnce) then
 			DEFAULT_CHAT_FRAME:AddMessage('Blacklisting Loot Target - Spent Too Long Looting!');
-			self.blacklistLootTime = GetTimeEX();
+			self.blacklistLootTime = GetTimeEX() + 25000;
 			self.messageOnce = false;
 			end
 		end
@@ -1123,6 +1125,7 @@ function script_grind:runRest()
 		local localObj = GetLocalPlayer();
 
 	if(RunRestScript()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
+		script_grind.blacklistLootTime = GetTimeEX() + 30000;
 		script_grind.tickRate = 1500;
 		self.message = "Resting...";
 		self.newTargetTime = GetTimeEX();
