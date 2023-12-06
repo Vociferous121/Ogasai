@@ -29,7 +29,7 @@ script_hunter = {
 	useBandage = false,
 	hasBandages = false,
 	useFeedPet = true,
-	meleeDistance = 5,
+	meleeDistance = 6,
 	useCheetah = true,
 	useMarkMana = 45,
 	useMark = true,
@@ -512,7 +512,7 @@ function script_hunter:run(targetGUID)
 			-- melee attacks otherwise
 
 			-- Auto Attack
-			if (targetObj:GetDistance() <= self.meleeDistance) then
+			if (targetObj:GetDistance() < 14) then
 
 				targetObj:AutoAttack();
 
@@ -538,10 +538,6 @@ function script_hunter:run(targetGUID)
 					return 0;
 				end
 
-				if (targetObj:IsFleeing()) and (not script_grind.adjustTickRate) then
-					script_grind.tickRate = 50;
-				end
-
 			end -- melee auto attack
 
 		end -- distance >12 <35
@@ -552,32 +548,33 @@ end -- run function
 
 function script_hunter:mendPet(localMana, petHP)
 	local mendPet = HasSpell("Mend Pet");
-	if (mendPet) and (IsInCombat()) and (self.hasPet) and (petHP > 0) then
-		if (GetPet():GetHealthPercentage() < 35) then
+	if (GetPet() ~= 0) and (mendPet) then
+		if (IsInCombat()) and (self.hasPet) and (petHP > 0) then
+			if (GetPet():GetHealthPercentage() < 35) and (localMAna >= 15) then
+				script_grind.tickRate = 100;
+				self.message = "Pet has lower than 35% HP, mending pet...";
+				-- Check: If in range to mend the pet 
+				if (GetPet():GetDistance() < 20) and (localMana > 15) and (GetPet():IsInLineOfSight()) then 
+					if (IsMoving()) then
+						StopMoving();
+						return true;
+					end 
 
-			script_grind.tickRate = 100;
-			self.message = "Pet has lower than 35% HP, mending pet...";
-
-			-- Check: If in range to mend the pet 
-			if (GetPet():GetDistance() < 20) and (localMana > 10) and (GetPet():IsInLineOfSight()) then 
-				if (IsMoving()) then
-					StopMoving();
+					CastSpellByName("Mend Pet"); 
+					self.waitTimer = GetTimeEX() + 1850;
+					script_grind:setWaitTimer(1850);
 					return true;
+	
+				elseif (GetPet():GetDistance() > 20) and (localMana > 10) then 
+					local pX, pY, pZ = GetPet():GetPosition();
+					script_nav:moveToTarget(GetLocalPlayer(), pX, pY, pZ); 
+					return; 
 				end 
-
-				CastSpellByName("Mend Pet"); 
-				self.waitTimer = GetTimeEX() + 1850;
-				script_grind:setWaitTimer(1850);
-				return true;
-
-			elseif (GetPet():GetDistance() > 20) and (localMana > 10) then 
-				script_nav:moveToNav(GetLocalPlayer(), GetPet():GetPosition()); 
-				return; 
-			end 
-			
+				
+			end
 		end
 	end
-	return false;
+return false;
 end
 
 function script_hunter:rest()

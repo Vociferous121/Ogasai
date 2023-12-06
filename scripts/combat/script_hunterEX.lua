@@ -142,15 +142,15 @@ function script_hunterEX:petChecks()
 
 	if (mendPet) then
 		-- Check: Mend the pet if it has lower than 70% HP and out of combat
-		if (script_hunter.hasPet) and (petHP < 70) and (petHP > 0) and (not IsInCombat()) then
+		if (script_hunter.hasPet) and (petHP < 60) and (petHP > 0) and (not IsInCombat()) then
 			if (GetPet():GetDistance() > 8) then
 				PetFollow();
 				script_hunter.waitTimer = GetTimeEX() + 1850; 
 				return true;
 			end
 			if (GetPet():GetDistance() < 20) and (localMana > 10) then
-				if (script_hunter.hasPet) and (petHP < 70) and (not IsInCombat()) and (petHP > 0) then
-					script_hunter.message = "Pet has lower than 70% HP, mending pet...";
+				if (script_hunter.hasPet) and (petHP < 60) and (not IsInCombat()) and (petHP > 0) then
+					script_hunter.message = "Pet has lower than 60% HP, mending pet...";
 					if (IsMoving()) or (not IsStanding()) then
 						StopMoving();
 						return true;
