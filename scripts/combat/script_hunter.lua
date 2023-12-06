@@ -548,9 +548,11 @@ end -- run function
 
 function script_hunter:mendPet(localMana, petHP)
 	local mendPet = HasSpell("Mend Pet");
+	local petHP = GetPet():GetHealthPercentage();
+	local localMana = GetLocalPlayer():GetManaPercentage();
 	if (GetPet() ~= 0) and (mendPet) then
 		if (IsInCombat()) and (self.hasPet) and (petHP > 0) then
-			if (GetPet():GetHealthPercentage() < 35) and (localMAna >= 15) then
+			if (GetPet():GetHealthPercentage() < 35) and (localMana >= 15) then
 				script_grind.tickRate = 100;
 				self.message = "Pet has lower than 35% HP, mending pet...";
 				-- Check: If in range to mend the pet 
@@ -561,13 +563,13 @@ function script_hunter:mendPet(localMana, petHP)
 					end 
 
 					CastSpellByName("Mend Pet"); 
-					self.waitTimer = GetTimeEX() + 1850;
-					script_grind:setWaitTimer(1850);
+					self.waitTimer = GetTimeEX() + 850;
+					script_grind:setWaitTimer(850);
 					return true;
 	
 				elseif (GetPet():GetDistance() > 20) and (localMana > 10) then 
 					local pX, pY, pZ = GetPet():GetPosition();
-					script_nav:moveToTarget(GetLocalPlayer(), pX, pY, pZ); 
+					script_navEX:moveToTarget(GetLocalPlayer(), pX, pY, pZ); 
 					return; 
 				end 
 				
