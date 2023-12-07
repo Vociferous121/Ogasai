@@ -133,6 +133,8 @@ function script_mage:polymorphAdd(targetObjGUID) -- cast the polymorph condition
 							self.addPolymorphed = true; 
 							polyTimer = GetTimeEX() + 8000;
 							return true; 
+						else
+							self.addPolymorphed = false;
 						end
 					end 
 				end 
@@ -608,7 +610,7 @@ function script_mage:run(targetGUID)
 			end
 
 			-- Check: Frostnova when the target is close, but not when we polymorhped one enemy or the target is affected by Frostbite
-			if (not self.addPolymorphed) and (targetObj:GetDistance() < 8 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova then
+			if (not self.addPolymorphed) and (targetObj:GetDistance() < 10 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova then
 				script_grind.tickRate = 100;
 				script_grind.tickRate = 100;
 				self.message = "Frost nova the target(s)...";
@@ -723,7 +725,7 @@ function script_mage:run(targetGUID)
 			end
 
 			-- Check: Frostnova when the target is close, but not when we polymorhped one enemy or the target is affected by Frostbite
-			if (not self.addPolymorphed) and (targetObj:GetDistance() < 8 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova then
+			if (not self.addPolymorphed) and (targetObj:GetDistance() < 10 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova then
 				script_grind.tickRate = 100;
 				script_grind.tickRate = 100;
 				self.message = "Frost nova the target(s)...";
