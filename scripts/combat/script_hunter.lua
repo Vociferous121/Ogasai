@@ -557,9 +557,11 @@ function script_hunter:run(targetGUID)
 end -- run function
 
 function script_hunter:mendPet(localMana, petHP)
-	local mendPet = HasSpell("Mend Pet");
-	local petHP = GetPet():GetHealthPercentage();
-	local localMana = GetLocalPlayer():GetManaPercentage();
+	if (GetPet() ~= 0) then
+		local mendPet = HasSpell("Mend Pet");
+		local petHP = GetPet():GetHealthPercentage();
+		local localMana = GetLocalPlayer():GetManaPercentage();
+	end
 	if (GetPet() ~= 0) and (mendPet) then
 		if (IsInCombat()) and (self.hasPet) and (petHP > 0) then
 			if (GetPet():GetHealthPercentage() < 35) and (localMana >= 15) then
