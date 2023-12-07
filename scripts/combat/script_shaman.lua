@@ -101,17 +101,8 @@ function script_shaman:setup()
 		self.totem3Buff = "Healing Stream";
 	end
 
-	-- Set healing spell
-	if (HasSpell("Lesser Healing Wave")) then
-		self.healingSpell = "Lesser Healing Wave";
-	end
-
 	if (localLevel >= 10) then
 		self.drinkMana = 40;
-	end
-
-	if (localLevel >= 20) then
-		self.healMana = 12;
 	end
 
 	self.waitTimer = GetTimeEX();

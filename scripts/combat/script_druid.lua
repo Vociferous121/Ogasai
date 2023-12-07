@@ -178,7 +178,8 @@ end
 			3 - not in range, 
 			4 - do nothing , 
 			5 - targeted player pet/totem
-			6 - stop bot request from combat script  ]]--
+			6 - stop bot request from combat script 
+]]--
 
 function script_druid:healsAndBuffs()
 
