@@ -55,65 +55,66 @@ script_grind = {
 	skipAberration = false,
 	skipDragonkin = false,
 	skipGiant = false,
-	skipMechanical = false,
-	skipElites = true,
-	paranoidRange = 75,
+	skipMechanical = false,	
+	skipElites = true,	-- skip elites (currently disabled)
+	paranoidRange = 75,	-- paranoia range
 	nextToNodeDist = 4.4, -- (Set to about half your nav smoothness)
-	blacklistedTargets = {},
-	blacklistedNum = 0,
-	isSetup = false,
-	drawUnits = true,
+	blacklistedTargets = {},	-- GUID table of blacklisted targets
+	blacklistedNum = 0,	-- number of blacklisted targets
+	isSetup = false,	-- is setup function run
+	drawUnits = true,	-- draw unit data on screen
 	Name = "", -- set to e.g. "paths\1-5 Durator.xml" for auto load at startup
-	pathLoaded = "",
-	drawPath = false,
-	autoPath = true,
-	drawAutoPath = true,
-	distToHotSpot = 500,
-	staticHotSpot = true,
-	hotSpotTimer = GetTimeEX(),
-	currentLevel = GetLocalPlayer():GetLevel(),
-	skinning = false,
-	gather = false,
-	lastTarget = 0,
-	newTargetTime = GetTimeEX(),
-	blacklistTime = 45,
-	drawEnabled = true,
-	showClassOptions = true,
-	pause = true,
-	bagsFull = false,
-	vendorRefill = false,
-	useMana = true,
-	drawGather = false,
-	hotspotReached = false,
-	drawAggro = false,
-	safeRess = true,
-	skipHardPull = true,
-	useUnstuck = true,
-	blacklistAdds = 1,
-	blacklistedNameNum = 0,
-	useExpChecker = true,
+	pathLoaded = "",	-- path that is loaded
+	drawPath = false,	-- draw path
+	autoPath = true,	-- use nav 
+	drawAutoPath = true,	-- draw walk path
+	distToHotSpot = 500,	-- distance to target enemies from hotspot
+	staticHotSpot = true,	-- use hotspots
+	hotSpotTimer = GetTimeEX(),	-- timer to hotspot
+	currentLevel = GetLocalPlayer():GetLevel(),	-- current player level
+	skinning = false,	-- use skinning
+	gather = false,		-- use gatherer script
+	lastTarget = 0,		-- last target targeted
+	newTargetTime = GetTimeEX(),	-- set new target wait time
+	blacklistTime = 45,	-- time to blacklist mobs
+	drawEnabled = true,	-- draw on screen menus
+	showClassOptions = true,	-- setup function to show menu
+	pause = true,		-- pause script
+	bagsFull = false,	-- are bags full
+	vendorRefill = false,	-- refill at vendor
+	useMana = true,		-- does player use mana
+	drawGather = false,	-- draw gather nodes
+	hotspotReached = false,	-- is hotspot reached
+	drawAggro = false,	-- draw aggro range circles
+	safeRess = true,	-- ressurect in safe area
+	skipHardPull = true,	-- skip adds
+	useUnstuck = true,	-- use unstuck script
+	blacklistAdds = 1,	-- blacklist targets when there are x adds
+	blacklistedNameNum = 0,	-- number of blacklisted targets
+	useExpChecker = true,	-- run exp checker
 	paranoidSetTimer = 22,	-- time to wait after paranoia has needed
 	useString = true,	-- message to send to log players in range run once
 	useOtherString = true,	-- message to send to log players targeting us run once
 	useLogoutTimer = false,	-- use logout timer true/false
 	logoutSetTime = GetTimeEX() / 1000,	-- set the logout time in seconds
 	logoutTime = 2,	-- logout time in hours
-	adjustTickRate = false,
-	lootCheckTime = 0,
-	afkActionSlot = "24",
-	playerParanoidDistance = 0,
-	adjustText = true,
-	adjustY = 0,
-	adjustX = 0,
+	adjustTickRate = false,	-- adjust script tick rate
+	lootCheckTime = 0,	-- loot check time
+	afkActionSlot = "24",	-- /afk slot for paranoia
+	playerParanoidDistance = 0,	-- paranoid player check their distance
+	adjustText = true,	-- adjust info box
+	adjustY = 0,	-- adjust info box
+	adjustX = 0,	-- adjust info box
 	paranoidTarget = "",	-- name of paranoid players
 	currentTime2 = GetTimeEX() / 1000,	-- paranoia logout timer
 	setParanoidTimer = 213,		-- time added to paranoid logout timer
-	playerName = "",
-	otherName = player,
-	playerPos = 0,
-	blacklistLootTime = GetTimeEX() + 25000,
-	timerSet = false,
-	messageOnce = true,
+	playerName = "",	-- paranoid player name
+	otherName = player,	-- paranoid player name
+	playerPos = 0,	-- paranoid player pos
+	blacklistLootTime = GetTimeEX() + 25000,	-- blacklist loot time
+	timerSet = false,	-- blacklist loot timer set
+	messageOnce = true,	-- message once blacklist loot obj
+	perHasTarget = false,	-- used to check pet target during rest
 }
 
 function script_grind:setup()
@@ -206,6 +207,7 @@ function script_grind:setup()
 		
 end
 
+-- draw grinder window
 function script_grind:window()
 	EndWindow();
 	if(NewWindow("Grinder", 320, 300)) then
@@ -213,10 +215,12 @@ function script_grind:window()
 	end
 end
 
+-- set timer for grind script to run
 function script_grind:setWaitTimer(ms)
 	self.waitTimer = (GetTimeEX() + (ms));
 end
 
+-- add target to blacklist table by GUID
 function script_grind:addTargetToBlacklist(targetGUID)
 	if (targetGUID ~= nil and targetGUID ~= 0 and targetGUID ~= '') then	
 		self.blacklistedTargets[self.blacklistedNum] = targetGUID;
@@ -224,6 +228,7 @@ function script_grind:addTargetToBlacklist(targetGUID)
 	end
 end
 
+-- check if target is blacklisted by table GUID
 function script_grind:isTargetBlacklisted(targetGUID) 
 	for i=0,self.blacklistedNum do
 		if (targetGUID == self.blacklistedTargets[i]) then
@@ -233,13 +238,18 @@ function script_grind:isTargetBlacklisted(targetGUID)
 	return false;
 end
 
+
+-- run grinder
 function script_grind:run()
+	-- show grinder window
 	script_grind:window();
 	
+	-- display radar
 	if (script_radar.showRadar) then
 		script_radar:draw()
 	end
 
+	-- display exp checker
 	if (self.useExpChecker) and (IsInCombat()) then
 		script_expChecker:menu();
 	end
@@ -250,6 +260,7 @@ function script_grind:run()
 		-- set logout time
 		local currentTime = GetTimeEX() / 1000;
 
+		-- logout when timer is set
 		if (currentTime >= self.logoutSetTime + self.logoutTime * 3600) then
 			Exit();
 		end
@@ -264,6 +275,7 @@ function script_grind:run()
 	if (IsMounted()) then
 		script_nav:setNextToNodeDist(12); NavmeshSmooth(24);
 	else
+		-- else set to preset variable
 		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*2.5);
 	end
 
@@ -272,6 +284,7 @@ function script_grind:run()
 	if (localObj:HasBuff("Sprint")) or (localObj:HasBuff("Aspect of the Cheetah")) or (localObj:HasBuff("Dash")) or (localObj:HasBuff("Cat Form")) then
 		script_nav:setNextToNodeDist(8); NavmeshSmooth(24);
 	else
+		-- else set to preset variable
 		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*3);
 	end
 
@@ -281,6 +294,7 @@ function script_grind:run()
 		script_nav:setNextToNodeDist(6);
 		NavmeshSmooth(18);
 	else
+		-- else set to preset variable
 		script_nav:setNextToNodeDist(self.nextToNodeDist);
 		NavmeshSmooth(self.nextToNodeDist*4);
 	end
@@ -291,18 +305,23 @@ function script_grind:run()
 		NavmeshSmooth(14);
 		self.tickRate = 100;
 	else
+		-- else set to preset variable
 		script_nav:setNextToNodeDist(self.nextToNodeDist);
 		NavmeshSmooth(self.nextToNodeDist*4);
 	end
-
+	
+	-- run setup function if not ran yet
 	if (not self.isSetup) then
 		script_grind:setup();
 	end
 
+	--check nav function loaded
 	if (not self.navFunctionsLoaded) then
 		self.message = "Error script_nav not loaded...";
 		return;
 	end
+
+	-- check if helper is loaded
 	if (not self.helperLoaded) then
 		self.message = "Error script_helper not loaded...";
 		return;
@@ -316,7 +335,9 @@ function script_grind:run()
 		end
 	end
 
+	-- pause bot
 	if (self.pause) then self.message = "Paused by user...";
+		-- set paranoid used to off to reset paranoia
 		script_paranoia.paranoiaUsed = false;
 		return;
 	end
@@ -351,6 +372,7 @@ function script_grind:run()
 	end
 	-- do paranoia
 	if (not IsLooting()) and (not IsInCombat()) and (not IsMounted()) and (not IsCasting()) and (not IsChanneling()) then	
+				-- set paranoid used as true
 		if (script_paranoia:checkParanoia()) and (not self.pause) then
 				script_paranoia.paranoiaUsed = true;
 				script_grind:setWaitTimer(2750);
@@ -372,7 +394,8 @@ function script_grind:run()
 	
 			-- logout timer reached then logout
 			if (script_paranoia.currentTime >= script_grind.currentTime2 + script_grind.setParanoidTimer) then
-				script_paranoia.currentTime = 0;
+					-- reset paranoia timer
+				script_paranoia.currentTime = GetTimeEX() + (45*1000);
 				StopBot();
 				Logout();
 				return 4;
@@ -1138,6 +1161,17 @@ end
 function script_grind:runRest()
 
 		local localObj = GetLocalPlayer();
+		local localHealth = localObj:GetHealthPercentage();
+		local localMana = localObj:GetManaPercentage();
+
+		local pet = GetPet();
+		if (pet ~= 0) then
+			if (GetPet():GetUnitsTarget() == 0) then
+				script_grind.petHasTarget = false;
+			end
+		else
+			script_grind.petHasTarget = false;
+		end
 
 	if(RunRestScript()) then
 		script_grind.blacklistLootTime = GetTimeEX() + 30000;
@@ -1150,11 +1184,24 @@ function script_grind:runRest()
 			StopMoving();
 			return true;
 		end
-		if (IsEating() and GetLocalPlayer():GetHealthPercentage() < 95)
-		or (IsDrinking() and GetLocalPlayer():GetManaPercentage() <95)
+
+		if (not IsInCombat()) and (not petHasTarget) then
+			if (IsEating() and localHealth < 95)
+				or (IsDrinking() and localMana < 95)
+			then
+				self.waitTimer = GetTimeEX() + 3500;
+				return true;
+			end
+		end
+	
+		if (IsEating() and localHealth >= 95 and IsDrinking() and localMana >= 95) 
+		or (not IsDrinking() and IsEating() and localHealth >= 95)
+		or (not IsEating() and IsDrinking() and localMana >= 95)
 		then
-		self.waitTimer = GetTimeEX() + 5000;
-			return true;
+			if (not IsStanding()) then
+				JumpOrAscendStart();
+				return false;
+			end
 		end
 
 		-- Dismount
@@ -1164,6 +1211,5 @@ function script_grind:runRest()
 		end
 	return true;	
 	end
-
 return false;
 end
