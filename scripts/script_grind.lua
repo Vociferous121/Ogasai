@@ -898,6 +898,10 @@ function script_grind:enemyIsValid(i)
 		if (script_grind:isTargetBlacklisted(i:GetGUID())) and (script_grind:isTargetingMe(i)) then
 			return true;
 		end
+		-- blacklisted target is polymorphed or feared
+		if (script_grind:isTargetBlacklisted(i:GetGUID())) and (i:HasDebuff("Polymorph") or i:HasDebuff("Fear"))  then
+			return true;
+		end
 		--attacking pet
 		if (script_grind:isTargetingPet(i)) then
 			return true;
