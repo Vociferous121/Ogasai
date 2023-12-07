@@ -606,7 +606,7 @@ function script_grind:run()
 
 		if (self.enemyObj ~= nil or IsInCombat()) then
 
-			if (self.enemyObj:GetDistance() <= 8) and (not IsMoving()) then
+			if (self.enemyObj ~= nil and self.enemyObj:GetDistance() <= 8) and (not IsMoving()) then
 				self.enemyObj:FaceTarget();
 			end
 			self.message = "Running the combat script...";

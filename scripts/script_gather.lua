@@ -232,15 +232,15 @@ function script_gather:gather()
 	local tempNode = script_gather:GetNode();
 	local newNode = (self.nodeObj == tempNode);
 	self.nodeObj = script_gather:GetNode();
-	self.nodeGUID = self.nodeObj:GetGUID();
+	--self.nodeGUID = self.nodeObj:GetGUID();
 	
-		
-	if(self.nodeObj ~= nil and self.nodeObj ~= 0) and (not script_gather:isNodeBlacklisted(self.nodeGUID)) then
-		
+	if(self.nodeObj ~= nil and self.nodeObj ~= 0) then
+	-- and (not script_gather:isNodeBlacklisted(self.nodeGUID))
+
 		local _x, _y, _z = self.nodeObj:GetPosition();
 		local dist = self.nodeObj:GetDistance();	
 		self.nodeID = self.nodeObj:GetObjectDisplayID();
-		self.nodeGUID = self.nodeObj:GetGUID();
+		--self.nodeGUID = self.nodeObj:GetGUID();
 
 
 		if(dist < self.lootDistance) then
@@ -262,11 +262,11 @@ function script_gather:gather()
 				LootTarget();
 				self.waitTimer = GetTimeEX() + 1200;
 
-				if (self.timerSet) then
-					self.timerSet = false;
-				end
+				--if (self.timerSet) then
+				--	self.timerSet = false;
+				--end
 			end
-			self.waitTimer = GetTimeEX() + 250;
+			self.waitTimer = GetTimeEX() + 750;
 		else
 			if (_x ~= 0) then
 

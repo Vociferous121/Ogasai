@@ -149,6 +149,7 @@ function script_warlock:runBackwards(targetObj, range)
  		if (distance < range and targetObj:IsInLineOfSight()) then
  			script_navEX:moveToTarget(localObj, moveX, moveY, moveZ);
 			if (IsMoving()) then
+				self.waitTimer = GetTimeEX() + 1500;
 				JumpOrAscendStart();
 				self.waitTimer = GetTimeEX() + 250;
 			end
