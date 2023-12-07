@@ -369,6 +369,7 @@ function script_warlock:run(targetGUID)
 		if (IsInCombat()) and (not targetObj:IsInLineOfSight() or not GetPet():IsInLineOfSight()) then
 			PetFollow();
 			return 3;
+
 		end
 	end
 

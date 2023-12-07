@@ -231,10 +231,19 @@ function script_hunter:run(targetGUID)
 			return 4;
 		end
 	end
+
+	-- pet not in line of sight
+	if (GetPet() ~= 0) then
+		if (IsInCombat()) and (not targetObj:IsInLineOfSight() or not GetPet():IsInLineOfSight()) then
+			PetFollow();
+			return 3;
+
+		end
+	end
 	
 	-- stuck in combat
 	if (self.waitAfterCombat)and (self.hasPet) and (IsInCombat()) then
-		local petHasTarget = GetPet():GetUnitsTarget();
+			local petHasTarget = GetPet():GetUnitsTarget();
 		if (playerHasTarget == 0) and (petHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
 			AssistUnit("pet");
 			self.message = "No Target - stuck in combat! WAITING!";
