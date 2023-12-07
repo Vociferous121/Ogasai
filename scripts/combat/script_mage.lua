@@ -125,8 +125,6 @@ function script_mage:polymorphAdd(targetObjGUID) -- cast the polymorph condition
     local localObj = GetLocalPlayer();
     while currentObj ~= 0 do 
     	if typeObj == 3 then
-				script_grind.tickRate = 50;
-				script_rotation.tickRate = 50;
 			if (currentObj:CanAttack() and not currentObj:IsDead()) then
 				if (currentObj:GetGUID() ~= targetObjGUID and script_grind:isTargetingMe(currentObj)) then
 					if (not currentObj:HasDebuff("Polymorph") and currentObj:GetCreatureType() ~= 'Elemental' and not currentObj:IsCritter()) and (currentObj:GetCreatureType() ~= "Undead") then
@@ -159,6 +157,7 @@ function script_mage:runBackwards(targetObj, range)
  		if (distance < range and targetObj:IsInLineOfSight()) then 
  			script_navEX:moveToTarget(localObj, moveX, moveY, moveZ);
 			if (IsMoving()) then
+				self.waitTimer = GetTimeEX() + 1500;
 				JumpOrAscendStart();
 			end
  			return true;
@@ -510,15 +509,17 @@ function script_mage:run(targetGUID)
 				if (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (targetHealth > 20) and (not localObj:HasBuff('Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) then
 					script_grind.tickRate = 50;
 					script_rotation.tickRate = 50;
+
 					if (script_mage:runBackwards(targetObj, 9)) then -- Moves if the target is closer than 7 yards
+
 						self.message = "Moving away from target...";
 						if (not IsSpellOnCD("Frost Nova")) then
 							CastSpellByName("Frost Nova");
 							return;
 						end
-					if (targetObj:GetDistance() > 7) and (not IsMoving()) then
-						targetObj:FaceTarget();
-					end
+						if (targetObj:GetDistance() > 7) and (not IsMoving()) then
+							targetObj:FaceTarget();
+						end
 					return 4;
 					end 
 				end	
@@ -645,11 +646,6 @@ function script_mage:run(targetGUID)
 			-- Fire blast
 			if (self.useFireBlast) and (targetObj:GetDistance() < 20) and (HasSpell("Fire Blast")) and (not IsSpellOnCD("Fire Blast")) and (localMana > 6) and (not IsMoving()) then	
 	
-				if (IsAutoCasting("Shoot")) then
-					local px, py, pz = targetObj:GetPosition();
-					self.message = script_navEX:moveToTarget(localObj, pX+.5, pY+.5, pZ);
-					return 0;
-				end
 				if (not IsSpellOnCD("Fire Blast")) then
 					CastSpellByName("Fire Blast", targetObj);
 					targetObj:FaceTarget();
@@ -669,6 +665,9 @@ function script_mage:run(targetGUID)
 							CastSpellByName("Blast Wave");
 							return 0;
 						end
+						if (targetObj:GetDistance() > 7) and (not IsMoving()) then
+							targetObj:FaceTarget();
+						end
 					return 4; 
 					end 
 				end	
@@ -676,11 +675,14 @@ function script_mage:run(targetGUID)
 
 			
 			if (targetHealth > 20) and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (not localObj:HasBuff('Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) then
-			if (script_mage:runBackwards(targetObj, 9)) then -- Moves if the target is closer than 7 yards
-				script_grind.tickRate = 100;
-				script_rotation.tickRate = 100;
-				self.message = "Moving away from target...";
-			end
+				if (script_mage:runBackwards(targetObj, 9)) then -- Moves if the target is closer than 7 yards
+					script_grind.tickRate = 50;
+					script_rotation.tickRate = 50;
+					self.message = "Moving away from target...";
+					if (targetObj:GetDistance() > 7) and (not IsMoving()) then
+						targetObj:FaceTarget();
+					end
+				end
 			end
 
 			-- scorch

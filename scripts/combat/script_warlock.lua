@@ -975,6 +975,7 @@ function script_warlock:run(targetGUID)
 					if (Cast('Curse of Agony', targetObj)) then
 						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 1600;
+						script_grind:setWaitTimer(1600);
 						return 0;
 					end
 				end
@@ -984,7 +985,8 @@ function script_warlock:run(targetGUID)
 			if (not IsMoving()) and (self.enableCorruption) and (not targetObj:HasDebuff("Corruption")) and (targetHealth >= 20) and (targetObj:IsInLineOfSight()) then
 				CastSpellByName('Corruption', targetObj);
 				targetObj:FaceTarget();
-				self.waitTimer = GetTimeEX() + 1550 + (self.corruptionCastTime * 100); 
+				self.waitTimer = GetTimeEX() + 1650 + (self.corruptionCastTime * 100);
+				script_grind:setWaitTimer(500); 
 				return 0;				
 			end
 	
@@ -994,6 +996,7 @@ function script_warlock:run(targetGUID)
 				CastSpellByName("Immolate", targetObj);
 				targetObj:FaceTarget();
 				self.waitTimer = GetTimeEX() + 2350;
+				script_grind:setWaitTimer(2350);
 				return 0;
 				end
 			end

@@ -259,8 +259,11 @@ function script_gather:gather()
 			end
 
 			if (IsLooting()) then
+				if (LootTarget()) then
+					self.waitTimer = GetTimeEX() + 1200;
+					script_grind:setWaitTimer(5000);
+				end
 				LootTarget();
-				self.waitTimer = GetTimeEX() + 1200;
 
 				--if (self.timerSet) then
 				--	self.timerSet = false;

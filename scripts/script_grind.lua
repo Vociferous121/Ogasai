@@ -606,9 +606,14 @@ function script_grind:run()
 
 		if (self.enemyObj ~= nil or IsInCombat()) then
 
-			if (self.enemyObj ~= nil and self.enemyObj:GetDistance() <= 8) and (not IsMoving()) then
-				self.enemyObj:FaceTarget();
+			if (self.enemyObj ~= nil) then
+				if (self.enemyObj:GetDistance() <= 8) and (not IsMoving()) then
+					self.enemyObj:FaceTarget();
+				end
+			else
+				script_grind:assignTarget();
 			end
+
 			self.message = "Running the combat script...";
 			-- In range: attack the target, combat script returns 0
 			if(self.combatError == 0) then
@@ -1130,7 +1135,7 @@ function script_grind:runRest()
 
 		local localObj = GetLocalPlayer();
 
-	if(RunRestScript()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
+	if(RunRestScript()) then
 		script_grind.blacklistLootTime = GetTimeEX() + 30000;
 		script_grind.tickRate = 1500;
 		self.message = "Resting...";
