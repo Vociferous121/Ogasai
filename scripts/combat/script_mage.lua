@@ -423,12 +423,16 @@ function script_mage:run(targetGUID)
 			-- frost mage selected
 			if (self.frostMage) and (targetObj:GetDistance() <= 30) and (targetObj:IsInLineOfSight()) then
 				if (script_mage.frostMagePull(targetObj)) then
+					script_grind:setWaitTimer(1000);
+					self.waitTimer = GetTimeEX() + 1000;
 					targetObj:FaceTarget();
 				end
 
 				-- fire mage selected use these spells instead
 			elseif (self.fireMage) and (targetObj:GetDistance() <= 30) then
 				if (script_mage.fireMagePull(targetObj)) then
+					script_grind:setWaitTimer(1000);
+					self.waitTimer = GetTimeEX() + 1000;
 					targetObj:FaceTarget();
 				end
 			end
@@ -604,7 +608,7 @@ function script_mage:run(targetGUID)
 			end
 
 			-- Check: Frostnova when the target is close, but not when we polymorhped one enemy or the target is affected by Frostbite
-			if (not self.addPolymorphed) and (targetObj:GetDistance() < 5 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova then
+			if (not self.addPolymorphed) and (targetObj:GetDistance() < 8 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova then
 				script_grind.tickRate = 100;
 				script_grind.tickRate = 100;
 				self.message = "Frost nova the target(s)...";
@@ -650,6 +654,7 @@ function script_mage:run(targetGUID)
 					CastSpellByName("Fire Blast", targetObj);
 					targetObj:FaceTarget();
 					self.waitTimer = GetTimeEX() + 1500;
+					script_grind:setWaitTimer(1600);
 					return 0;
 				end
 			end
@@ -715,6 +720,15 @@ function script_mage:run(targetGUID)
 					targetObj:CastSpell("Shoot");
 					return true;
 				end
+			end
+
+			-- Check: Frostnova when the target is close, but not when we polymorhped one enemy or the target is affected by Frostbite
+			if (not self.addPolymorphed) and (targetObj:GetDistance() < 8 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova then
+				script_grind.tickRate = 100;
+				script_grind.tickRate = 100;
+				self.message = "Frost nova the target(s)...";
+				CastSpellByName("Frost Nova");
+				return 0;
 			end
 
 			
