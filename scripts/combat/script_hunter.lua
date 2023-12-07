@@ -356,6 +356,7 @@ function script_hunter:run(targetGUID)
 	
 			if (not IsInCombat()) and (targetObj:GetDistance() < 35) and (targetObj:GetDistance() >= 12) and (targetObj:IsInLineOfSight()) then
 				script_hunter:hunterPull(targetObj);
+				script_grind:setWaitTimer(1000);
 				targetObj:FaceTarget();
 				return;
 			
@@ -880,6 +881,7 @@ function script_hunter:hunterPull(targetObj)
 				PetAttack();
 				end
 				self.waitTimer = GetTimeEX() + 900;
+				script_grind:setWaitTimer(900);
 				return 0;
 			end
 
