@@ -353,18 +353,14 @@ function script_warlock:run(targetGUID)
 	end
 
 	-- force bot to attack pets target
-	if (IsInCombat()) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (GetPet() ~= 0 and self.hasPet) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
+	if (IsInCombat()) and (GetPet() ~= 0) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (self.hasPet) then
 		if (petHasTarget ~= 0) then
 			if (GetPet():GetDistance() > 10) then
+				AssistUnit("pet");
 				PetFollow();
 			end
-
-			if (GetPet():GetDistance() < 10) then
-				TargetNearestEnemy();
-				script_grind.tickRate = 135;
-				script_rotation.tickRate = 135;
-			end
 		else
+			AssistUnit("pet");
 			return 4;
 		end
 	end
