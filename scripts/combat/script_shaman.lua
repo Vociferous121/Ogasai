@@ -3,7 +3,7 @@ script_shaman = {
 	shamanMenu = include("scripts\\combat\\script_shamanEX.lua"),
 	eatHealth = 70,
 	drinkMana = 50,
-	healHealth = 45,
+	healHealth = 55,
 	potionHealth = 10,
 	potionMana = 20,
 	isSetup = false,
@@ -42,10 +42,8 @@ function script_shaman:setup()
 	-- Set weapon enhancement
 	if (HasSpell("Windfury Weapon")) then
 		self.enhanceWeapon = "Windfury Weapon";
-	elseif (HasSpell("Flametongue Weapon")) then
-		self.enhanceWeapon = "Flametongue Weapon";
 	elseif (HasSpell("Rockbiter Weapon")) then
-		self.enchanceWeapon = "Rockbiter Weapon";
+		self.enhanceWeapon = "Rockbiter Weapon";
 	end
 
 	if (localLevel >= 20) then

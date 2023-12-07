@@ -339,6 +339,8 @@ function script_grind:run()
 	if (self.pause) then self.message = "Paused by user...";
 		-- set paranoid used to off to reset paranoia
 		script_paranoia.paranoiaUsed = false;
+		--reset new target time for blacklisting
+		script_grind.newTargetTime = GetTimeEX();
 		return;
 	end
 
@@ -584,7 +586,7 @@ function script_grind:run()
 				self.blaclistLootTime = GetTimeEX();
 				self.newTargetTime = GetTimeEX(); -- reset time if we rest
 			-- blacklist the target if we had it for a long time and hp is high
-			elseif (((GetTimeEX()-self.newTargetTime)/1000) > self.blacklistTime and self.enemyObj:GetHealthPercentage() > 92) then 
+			elseif (((GetTimeEX()-self.newTargetTime)/1000) > self.blacklistTime and self.enemyObj:GetHealthPercentage() > 92 and not self.enemyObj:IsInLineOfSight()) then 
 				script_grind:addTargetToBlacklist(self.enemyObj:GetGUID());
 				ClearTarget();
 				return;
@@ -603,7 +605,8 @@ function script_grind:run()
 
 		-- Dont pull if more than 1 add will be pulled
 		if (self.enemyObj ~= nil and self.enemyObj ~= 0 and self.skipHardPull) then
-			if (not script_aggro:safePull(self.enemyObj) and not IsInCombat()) then
+			if (not script_aggro:safePull(self.enemyObj)) and (not IsInCombat())
+			and (not script_grind:isTargetingMe(self.enemyObj)) then
 				script_grind:addTargetToBlacklist(self.enemyObj:GetGUID());
 				DEFAULT_CHAT_FRAME:AddMessage('script_grind: Blacklisting ' .. self.enemyObj:GetUnitName() .. ', too many adds...');
 				self.enemyObj = nil;
@@ -918,22 +921,24 @@ function script_grind:enemyIsValid(i)
 				return true; 
 		end
 		-- blacklisted target is attacking us
-		if (script_grind:isTargetBlacklisted(i:GetGUID())) and (script_grind:isTargetingMe(i)) then
+		if (script_grind:isTargetBlacklisted(i:GetGUID())) and (script_grind:isTargetingMe(i))
+		and (i:IsInLineOfSight()) then
 			return true;
 		end
 		-- blacklisted target is polymorphed or feared
-		if (script_grind:isTargetBlacklisted(i:GetGUID())) and (i:HasDebuff("Polymorph") or i:HasDebuff("Fear"))  then
+		if (script_grind:isTargetBlacklisted(i:GetGUID())) and (i:HasDebuff("Polymorph") or i:HasDebuff("Fear")) then
 			return true;
 		end
 		--attacking pet
-		if (script_grind:isTargetingPet(i)) then
+		if (script_grind:isTargetingPet(i)) and (i:IsInLineOfSight()) then
 			return true;
 		end
+
 		-- Valid Targets: Within pull range, levelrange, not tapped, not skipped etc
 		if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
 			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
-			and (not script_grind:isTargetBlacklisted(i:GetGUID()) and not script_grind:isTargetingMe(i)) 
+			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
 			and not (self.skipUnknown and i:GetCreatureType() == 'Not specified')
 			and not (self.skipHumanoid and i:GetCreatureType() == 'Humanoid')
 			and not (self.skipDemon and i:GetCreatureType() == 'Demon')
