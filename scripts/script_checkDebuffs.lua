@@ -164,12 +164,14 @@ function script_checkDebuffs:undeadForsaken()
 end
 
 function script_checkDebuffs:hasSilence()
+
+		local player = GetLocalPlayer();
+
+	if (player:HasDebuff("Silence"))
+	or (player:HasDebuff("Sonic Burst"))
+
+	then
 	
-	local __, lastError = GetLastError();
-	if (lastError == 141) then
-		
-		DEFAULT_CHAT_FRAME:AddMessage("Error 141 cannot cast - player silenced");	
-		
 		return true;
 	
 	else

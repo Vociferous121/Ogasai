@@ -555,13 +555,13 @@ function script_grind:run()
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
 			-- Fix bug, when not targeting correctly
 			if (self.lastTarget ~= self.enemyObj:GetGUID()) then
-				self.newTargetTime = GetTimeEX() + 1000;
+				self.newTargetTime = GetTimeEX() + 500;
 				ClearTarget();
 			elseif (self.lastTarget == self.enemyObj:GetGUID() and not IsStanding() and not IsInCombat()) then
 				self.blaclistLootTime = GetTimeEX();
 				self.newTargetTime = GetTimeEX(); -- reset time if we rest
 			-- blacklist the target if we had it for a long time and hp is high
-			elseif (((GetTimeEX()-self.newTargetTime)/1000) > self.blacklistTime and self.enemyObj:GetHealthPercentage() > 92) and (not script_paranoia.checkParanoia()) then 
+			elseif (((GetTimeEX()-self.newTargetTime)/1000) > self.blacklistTime and self.enemyObj:GetHealthPercentage() > 92) then 
 				script_grind:addTargetToBlacklist(self.enemyObj:GetGUID());
 				ClearTarget();
 				return;
@@ -606,6 +606,9 @@ function script_grind:run()
 
 		if (self.enemyObj ~= nil or IsInCombat()) then
 
+			if (self.enemyObj:GetDistance() <= 8) and (not IsMoving()) then
+				self.enemyObj:FaceTarget();
+			end
 			self.message = "Running the combat script...";
 			-- In range: attack the target, combat script returns 0
 			if(self.combatError == 0) then

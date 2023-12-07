@@ -241,12 +241,6 @@ function script_druid:healsAndBuffs()
 		if (not script_grind.adjustTickRate) then
 			script_grind.tickRate = 335;
 		end
-		if (localCP >= 1) and (localEnergy >= 30) and (not HasSpell("Ferocious Bite")) and (HasSpell("Rip")) then
-			if (CastSpellByName("Rip")) then
-				self.waitTimer = GetTimeEX() + 500;
-				return 0;
-			end
-		end
 		if (localObj:HasBuff("Cat Form")) then
 			CastSpellByName("Cat Form");
 			self.waitTimer = GetTimeEX() + 700;
@@ -354,7 +348,7 @@ function script_druid:healsAndBuffs()
 							StopMoving();
 						end
 						if (not script_grind.adjustTickRate) then
-							script_grind.tickRate = 2550;
+							script_grind.tickRate = 2850;
 						end
 						if (not localObj:HasBuff("Regrowth")) then
 							if (CastSpellByName("Regrowth", localObj)) then
@@ -1463,11 +1457,9 @@ function script_druid:rest()
 		end
 
 	-- check heals and buffs
-	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not IsDrinking()) and (not IsEating()) and (not localObj:HasBuff("Frenzied Regeneration"))  then
-		if (IsMoving()) then
-			StopMoving();
-		end
-		self.waitTimer = GetTimeEX() + 2550;
+	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not IsDrinking()) and (not IsEating()) and (not localObj:HasBuff("Frenzied Regeneration")) and (not IsMoving()) then
+		self.waitTimer = GetTimeEX() + 3000;
+		script_grind:setWaitTimer(3000);
 	end	
 
 	-- rest in form
