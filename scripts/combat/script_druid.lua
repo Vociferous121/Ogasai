@@ -554,7 +554,7 @@ function script_druid:run(targetGUID)
 
 		or ( (targetObj:GetLevel() >= (localObj:GetLevel() + 2)) and (IsInCombat()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) and (not IsDrinking()) and (not IsEating()) and (targetObj:GetHealthPercentage() >= 45) and (IsInCombat()) ) then
 
-			if (not isBear and not isBear2) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth >= self.healthToShift) and (IsStanding()) then
+			if (not isBear and not isBear2) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift) and (IsStanding()) then
 				if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 335;
 				end
@@ -671,8 +671,9 @@ function script_druid:run(targetGUID)
 			end
 							
 			-- Auto Attack
-			if (targetObj:GetDistance() < 35) and (not IsAutoCasting("Attack")) and (localMana >= self.drinkMana) then
+			if (targetObj:GetDistance() < 30) and (not IsAutoCasting("Attack")) and (localMana >= self.drinkMana) then
 				targetObj:AutoAttack();
+				
 			end
 
 			-- keep faerie fire up
@@ -696,8 +697,6 @@ function script_druid:run(targetGUID)
 			if (isBear or isBear2) and (HasSpell("Feral Charge")) and (HasSpell("Enrage")) and (not IsSpellOnCD("Enrage")) and (not IsSpellOnCD("Feral Charge")) and (targetObj:GetDistance() <= 45) then
 				if (CastSpellByName("Enrage", localObj)) then
 					return 0;
-				elseif (localObj:HasBuff("Bear Form")) then
-					return 3;
 				end
 			end
 
@@ -762,7 +761,7 @@ function script_druid:run(targetGUID)
 		or ( (script_grind.enemiesAttackingUs(12) >= 2) and (not isBear and not isBear2) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) ) 
 		or ( (targetObj:GetLevel() >= (localObj:GetLevel() + 2) and IsInCombat() ) and (not isBear and not isBear2) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) )
 
-		or ( (hasRegrowth) and (hasRejuv) and (IsInCombat) and (not isBear and not isBear2 and not isCat) and (localMana >= self.shapeshiftMana) and (localHealth < self.healthToShift) )
+		or ( (hasRegrowth) and (hasRejuv) and (IsInCombat) and (not isBear and not isBear2 and not isCat) and (localMana >= self.shapeshiftMana) and (localHealth > self.healthToShift) )
 		then
 			if (script_druidEX.bearForm()) then
 				self.waitTimer = GetTimeEX() + 1500;
@@ -1064,7 +1063,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- keep faerie fire up
-				if HasSpell("Faerie Fire (Feral)") and not IsSpellOnCD("Faerie Fire (Feral)") and not targetObj:HasDebuff("Faerie Fire (Feral)") and not targetObj:GetCreatureType() == "Elemental" then
+				if HasSpell("Faerie Fire (Feral)") and not IsSpellOnCD("Faerie Fire (Feral)") and not targetObj:HasDebuff("Faerie Fire (Feral)") then
 					CastSpellByName("Faerie Fire (Feral)()");
 					return 0;
 				end
@@ -1188,7 +1187,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- keep faerie fire up
-				if HasSpell("Faerie Fire (Feral)") and not IsSpellOnCD("Faerie Fire (Feral)") and not targetObj:HasDebuff("Faerie Fire (Feral)") and not targetObj:GetCreatureType() == "Elemental" then
+				if HasSpell("Faerie Fire (Feral)") and not IsSpellOnCD("Faerie Fire (Feral)") and not targetObj:HasDebuff("Faerie Fire (Feral)") then
 					CastSpellByName("Faerie Fire (Feral)()");
 					self.waitTimer = GetTimeEX() + 1600;
 					return 0;
