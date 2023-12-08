@@ -234,7 +234,7 @@ function script_hunter:run(targetGUID)
 
 	-- pet not in line of sight
 	if (GetPet() ~= 0) then
-		if (IsInCombat()) and (not targetObj:IsInLineOfSight() or not GetPet():IsInLineOfSight()) then
+		if (IsInCombat()) and (not GetPet():IsInLineOfSight()) then
 			PetFollow();
 			return 3;
 
@@ -418,10 +418,26 @@ function script_hunter:run(targetGUID)
 			end
 
 			-- mend pet
-			if (script_hunter:mendPet(localMana, petHP)) then
-				self.waitTimer = GetTimeEX() + 3850;
-				script_grind:setWaitTimer(3850);
-				return 0;
+			if (HasSpell("Mend Pet")) and (GetPet() ~= 0) then
+				-- Check: Mend the pet if it has lower than 70% HP and out of combat
+				if (script_hunter.hasPet) and (petHP < 50) and (petHP > 0) then	
+					if (GetPet():GetDistance() > 20) then
+						PetFollow();
+						return true;
+					
+					elseif (GetPet():GetDistance() < 20) and (localMana > 10) then
+						if (script_hunter.hasPet) and (petHP < 60) and (petHP > 0) then
+							script_hunter.message = "Pet has lower than 50% HP, mending pet...";	
+							if (IsMoving()) or (not IsStanding()) then
+								StopMoving();
+								return true;
+							end
+							CastSpellByName('Mend Pet');
+							script_hunter.waitTimer = GetTimeEX() + 1850; 
+							return true;
+						end
+					end
+				end
 			end
 
 			-- feign death if pet is dead
@@ -451,6 +467,25 @@ function script_hunter:run(targetGUID)
 				if (script_hunter:runBackwards(targetObj, 2)) then
 					self.waitTimer = GetTimeEX() + 1850;
 					return 0;
+				end
+			end
+
+	-- mend pet
+			if (HasSpell("Mend Pet")) and (GetPet() ~= 0) then
+				-- Check: Mend the pet if it has lower than 70% HP and out of combat
+				if (script_hunter.hasPet) and (petHP < 50) and (petHP > 0) then	
+					if (GetPet():GetDistance() > 20) then
+						PetFollow();
+						return true;
+					
+					elseif (GetPet():GetDistance() < 20) and (localMana > 10) then
+						if (script_hunter.hasPet) and (petHP < 60) and (petHP > 0) then
+							script_hunter.message = "Pet has lower than 50% HP, mending pet...";	
+							CastSpellByName('Mend Pet');
+							script_hunter.waitTimer = GetTimeEX() + 1850; 
+							return true;
+						end
+					end
 				end
 			end		
 
@@ -515,11 +550,23 @@ function script_hunter:run(targetGUID)
 				end
 	
 				-- mend pet
-				if (script_hunter:mendPet(localMana, petHP)) then
-					self.waitTimer = GetTimeEX() + 3850;
-					script_grind:setWaitTimer(3850);
-					return 0;
+			if (HasSpell("Mend Pet")) and (GetPet() ~= 0) then
+				-- Check: Mend the pet if it has lower than 70% HP and out of combat
+				if (script_hunter.hasPet) and (petHP < 50) and (petHP > 0) then	
+					if (GetPet():GetDistance() > 20) then
+						PetFollow();
+						return true;
+					
+					elseif (GetPet():GetDistance() < 20) and (localMana > 10) then
+						if (script_hunter.hasPet) and (petHP < 60) and (petHP > 0) then
+							script_hunter.message = "Pet has lower than 50% HP, mending pet...";	
+							CastSpellByName('Mend Pet');
+							script_hunter.waitTimer = GetTimeEX() + 1850; 
+							return true;
+						end
+					end
 				end
+			end
 
 			end
 
@@ -559,40 +606,6 @@ function script_hunter:run(targetGUID)
 	end -- valid enemy	
 			
 end -- run function
-
-function script_hunter:mendPet(localMana, petHP)
-	if (GetPet() ~= 0) then
-		local mendPet = HasSpell("Mend Pet");
-		local petHP = GetPet():GetHealthPercentage();
-		local localMana = GetLocalPlayer():GetManaPercentage();
-	end
-	if (GetPet() ~= 0) and (mendPet) then
-		if (IsInCombat()) and (self.hasPet) and (petHP > 0) then
-			if (GetPet():GetHealthPercentage() < 35) and (localMana >= 15) then
-				script_grind.tickRate = 100;
-				self.message = "Pet has lower than 35% HP, mending pet...";
-				-- Check: If in range to mend the pet 
-				if (GetPet():GetDistance() < 20) and (localMana > 15) and (GetPet():IsInLineOfSight()) then 
-					if (IsMoving()) then
-						StopMoving();
-						return true;
-					end 
-
-					CastSpellByName("Mend Pet"); 
-					self.waitTimer = GetTimeEX() + 850;
-					script_grind:setWaitTimer(850);
-					return true;
-	
-				elseif (GetPet():GetDistance() > 20) and (localMana > 10) then 
-					PetFollow();
-					return; 
-				end 
-				
-			end
-		end
-	end
-return false;
-end
 
 function script_hunter:rest()
 
