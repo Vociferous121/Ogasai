@@ -347,6 +347,18 @@ function script_warlock:run(targetGUID)
 		return 2;
 	end
 
+	-- Check: if we target player pets/totems
+	if (GetTarget() ~= 0) and (GetPet() ~= 0) then
+		if (GetTarget():GetGUID() ~= GetLocalPlayer():GetGUID())
+		and (GetTarget():GetGUID() ~= GetPet():GetGUID()) then
+			if (UnitPlayerControlled("target")) then 
+				script_grind:addTargetToBlacklist(targetObj:GetGUID());
+				return 5; 
+			end
+		end
+	end 
+
+
 	-- Check: Do nothing if we are channeling, casting
 	if (IsChanneling() or IsCasting() or self.waitTimer > GetTimeEX()) then
 		return 4;

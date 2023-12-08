@@ -239,7 +239,7 @@ function script_rogue:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(556, 1211);
+		local tickRandom = random(356, 711);
 
 		if (IsMoving()) or (not IsInCombat()) or (targetObj:IsFleeing()) then
 			script_grind.tickRate = 135;
@@ -305,12 +305,14 @@ function script_rogue:run(targetGUID)
 			end
 
 			-- Check: if we target player pets/totems
-			--if (GetTarget() ~= nil and targetObj ~= nil) then
-			--	if (UnitPlayerControlled("target") and GetTarget() ~= localObj) then 
-			--		script_grind:addTargetToBlacklist(targetObj:GetGUID());
-			--		return 5;
-			--	end
-			--end 
+			if (GetTarget() ~= 0) then
+				if (GetTarget():GetGUID() ~= GetLocalPlayer():GetGUID()) then
+					if (UnitPlayerControlled("target")) then 
+						script_grind:addTargetToBlacklist(targetObj:GetGUID());
+						return 5; 
+					end
+				end
+			end  
 		
 			-- Opener
 			if (not IsInCombat()) then
@@ -917,7 +919,7 @@ function script_rogue:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(556, 1211);
+		local tickRandom = random(356, 711);
 
 		if (IsMoving()) or (not IsInCombat()) or (targetObj:IsFleeing()) then
 			script_grind.tickRate = 135;
@@ -981,7 +983,7 @@ function script_rogue:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(606, 1392);
+		local tickRandom = random(306, 892);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;

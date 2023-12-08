@@ -358,8 +358,8 @@ function script_druid:healsAndBuffs()
 						end
 						if (not localObj:HasBuff("Regrowth")) then
 							if (CastSpellByName("Regrowth", localObj)) then
-								self.waitTimer = GetTimeEX() + 3050;
-								script_grind:setWaitTimer(3000)
+								self.waitTimer = GetTimeEX() + 3550;
+								script_grind:setWaitTimer(3550)
 								return 4;
 							end
 						end
@@ -514,10 +514,12 @@ function script_druid:run(targetGUID)
 	end
 
 	-- Check: if we target player pets/totems
-	if (GetTarget() ~= nil and targetObj ~= nil) then
-		if (UnitPlayerControlled("target") and GetTarget() ~= localObj) then 
-			script_grind:addTargetToBlacklist(targetObj:GetGUID());
-			return 5; 
+	if (GetTarget() ~= 0) then
+		if (GetTarget():GetGUID() ~= GetLocalPlayer():GetGUID()) then
+			if (UnitPlayerControlled("target")) then 
+				script_grind:addTargetToBlacklist(targetObj:GetGUID());
+				return 5; 
+			end
 		end
 	end 
 

@@ -292,10 +292,12 @@ function script_warrior:run(targetGUID)	-- main content of script
 		targetHealth = targetObj:GetHealthPercentage();
 
 		-- Check: if we target player pets/totems
-		if (GetTarget() ~= nil and targetObj ~= nil) then
-			if (UnitPlayerControlled("target") and GetTarget() ~= localObj) then 
-				script_grind:addTargetToBlacklist(targetObj:GetGUID());
-				return 5; 
+		if (GetTarget() ~= 0) then
+			if (GetTarget():GetGUID() ~= GetLocalPlayer():GetGUID()) then
+				if (UnitPlayerControlled("target")) then 
+					script_grind:addTargetToBlacklist(targetObj:GetGUID());
+					return 5; 
+				end
 			end
 		end 
 

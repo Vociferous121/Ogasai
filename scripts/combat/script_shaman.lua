@@ -16,6 +16,8 @@ script_shaman = {
 	totem2 = "no totem yet",	-- used for totem2
 	totemUsed = false,		-- used for totem2
 	totem3 = "no totem yet",
+	totem4 = "no totem yet",
+	totem4Buff = "",
 	totem3Buff = "",
 	healingSpell = "Healing Wave",
 	isChecked = true,
@@ -445,10 +447,18 @@ function script_shaman:run(targetGUID)
 		targetHealth = targetObj:GetHealthPercentage();
 
 		-- Check: if we target player pets/totems
-		if (GetTarget() ~= nil and targetObj ~= nil) then
-			if (UnitPlayerControlled("target") and GetTarget() ~= localObj) then 
-				script_grind:addTargetToBlacklist(targetObj:GetGUID());
-				return 5; 
+		if (GetTarget() ~= 0) then
+			if (GetTarget():GetGUID() ~= GetLocalPlayer():GetGUID())
+			and (GetTarget():GetUnitName() ~= self.totem)
+			and (GetTarget():GetUnitName() ~= self.totem2)
+			and (GetTarget():GetUnitName() ~= self.totem3)
+			and (GetTarget():GetUnitName() ~= self.totem4) 
+
+			then
+				if (UnitPlayerControlled("target")) then 
+					script_grind:addTargetToBlacklist(targetObj:GetGUID());
+					return 5; 
+				end
 			end
 		end 
 		

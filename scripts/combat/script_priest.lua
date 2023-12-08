@@ -301,13 +301,15 @@ function script_priest:run(targetGUID)
 			end
 		end
 
-		-- Check: if we target player pets/totems and then blacklist them
-		if (GetTarget() ~= nil) and (targetObj ~= nil) then
-			if (UnitPlayerControlled("target")) and (GetTarget() ~= localObj) then 
-				script_grind:addTargetToBlacklist(targetObj:GetGUID());
-				return 5; 
+		-- Check: if we target player pets/totems
+		if (GetTarget() ~= 0) then
+			if (GetTarget():GetGUID() ~= GetLocalPlayer():GetGUID()) then
+				if (UnitPlayerControlled("target")) then 
+					script_grind:addTargetToBlacklist(targetObj:GetGUID());
+					return 5; 
+				end
 			end
-		end 
+		end  
 
 		if (IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 			if (targetObj:GetDistance() <= 15) then
