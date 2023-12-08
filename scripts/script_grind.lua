@@ -15,25 +15,25 @@ script_grind = {
 	radarLoaded = include("scripts\\script_radar.lua"),
 	debuffCheck = include("scripts\\script_checkDebuffs.lua"),
 	drawStatusScript = include("scripts\\script_drawStatus.lua"),
-	jump = true,
-	jumpRandomFloat = 96,
-	useVendor = false,
-	repairWhenYellow = false,
-	stopWhenFull = false,
-	hsWhenFull = false,
-	useMount = false,
-	disMountRange = 32,
-	mountTimer = GetTimeEX(),
-	enemyObj = nil,
-	lootObj = nil,
-	timer = GetTimeEX(),
-	tickRate = 100,
-	waitTimer = GetTimeEX(),
-	pullDistance = 225,
-	avoidElite = true,
-	avoidRange = 40,
+	jump = true,	-- enable jumping out of combat
+	jumpRandomFloat = 96,	-- jump > than 
+	useVendor = false,	-- use vendor
+	repairWhenYellow = false,	-- repair when yellow
+	stopWhenFull = false,	-- stop when bags are full
+	hsWhenFull = false,	-- hearthstone when bags are full
+	useMount = false,	-- use mount
+	disMountRange = 32,	-- defunct setting
+	mountTimer = GetTimeEX(),	-- defunct setting
+	enemyObj = nil,	-- enemyObj stops a bug
+	lootObj = nil,	-- lootObj stops a bug
+	timer = GetTimeEX(),	-- blacklist timer
+	tickRate = 100,		-- reaction time / speed of scripts
+	waitTimer = GetTimeEX(),	-- wait timer
+	pullDistance = 225,	-- find target distance
+	avoidElite = true,	-- avoid elites ( currently not working )
+	avoidRange = 40,	-- aboid elites range
 	findLootDistance = 45,
-	lootDistance = 2.7,
+	lootDistance = 3.1,
 	skipLooting = false,
 	lootCheck = {},
 	minLevel = GetLocalPlayer():GetLevel()-5,
@@ -632,6 +632,13 @@ function script_grind:run()
 
 		if (self.enemyObj ~= nil or IsInCombat()) then
 
+			if (not script_aggro:safePull(self.enemyObj))
+			and (not script_grind:isTargetingMe(self.enemyObj)) then
+				script_grind:addTargetToBlacklist(self.enemyObj:GetGUID());
+				DEFAULT_CHAT_FRAME:AddMessage('script_grind: Blacklisting ' .. self.enemyObj:GetUnitName() .. ', too many adds...');
+				self.enemyObj = nil;
+			end
+
 			if (self.enemyObj ~= nil) then
 				if (self.enemyObj:GetDistance() <= 8) and (not IsMoving()) then
 					self.enemyObj:FaceTarget();
@@ -935,7 +942,8 @@ function script_grind:enemyIsValid(i)
 		end
 
 		-- Valid Targets: Within pull range, levelrange, not tapped, not skipped etc
-		if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
+		if (script_aggro:safePull(i))	
+			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
 			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
 			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
@@ -1028,12 +1036,17 @@ function script_grind:doLoot(localObj)
 		return;
 	end
 
+	-- close enough to loot range then do these
 	if(dist <= self.lootDistance) then
 		self.message = "Looting...";
+		
+		-- stop moving
 		if(IsMoving() and not localObj:IsMovementDisabed()) then
 			StopMoving();
 			return;
 		end
+
+		-- stand if we are sitting
 		if(not IsStanding()) then
 			StopMoving();
 			self.waitTimer = GetTimeEX() + 550;
@@ -1047,16 +1060,19 @@ function script_grind:doLoot(localObj)
 			return;
 		end
 
+		-- interact with object if we are not looting
 		if(not self.lootObj:UnitInteract() and not IsLooting()) then
 			self.waitTimer = GetTimeEX() + 1050;
 			return;
 		end
 	
+		-- if looting and not moving then wait
 		if (not LootTarget()) and (not IsMoving()) then
 			script_grind:setWaitTimer(400);
 			self.waitTimer = GetTimeEX() + 450;
 			return;
 		else
+			-- we looted so reset variables
 			self.waitTimer = GetTimeEX() + 600;
 			self.lootCheckTime = 0;
 			self.lootObj = nil;
@@ -1078,9 +1094,12 @@ function script_grind:doLoot(localObj)
 		end
 	end
 
+	-- blacklisting loot after x time
 	if (IsStanding()) and (not IsInCombat()) then
 		if (GetTimeEX() >= self.blacklistLootTime) then
+			-- add to blacklist
 			script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
+			-- variable on/off to stop spamming message
 			if (self.messageOnce) then
 			DEFAULT_CHAT_FRAME:AddMessage('Blacklisting Loot Target - Spent Too Long Looting!');
 			self.blacklistLootTime = GetTimeEX() + 25000;
@@ -1089,11 +1108,13 @@ function script_grind:doLoot(localObj)
 		end
 	end
 
+	-- move to loot object
 	self.message = "Moving to loot...";		
 	script_navEX:moveToTarget(localObj, _x, _y, _z);	
 	script_grind:setWaitTimer(80);
 
-	if (self.lootObj:GetDistance() < 3) then
+	-- wait momentarily once we reached lootObj / stop moving / etc
+	if (self.lootObj:GetDistance() <= self.lootDistance) then
 		self.waitTimer = GetTimeEX() + 750;
 	end
 		
@@ -1104,8 +1125,9 @@ function script_grind:getSkinTarget(lootRadius)
 	local bestDist = lootRadius;
 	local bestTarget = nil;
 	while targetObj ~= 0 do
-		if (targetType == 3) then -- Unit
+		if (targetType == 3) then -- Unit type NPC
 			if(targetObj:IsDead()) then
+					-- if is skinnable and is tapped by me (I killed it)
 				if (targetObj:IsSkinnable() and targetObj:IsTappedByMe() and not targetObj:IsLootable()) then
 					local dist = targetObj:GetDistance();
 					if(dist < lootRadius and bestDist > dist) then
@@ -1135,6 +1157,7 @@ function script_grind:lootAndSkin()
 			self.lootObj = nil; -- don't loot blacklisted targets	
 		end
 	end
+	-- do loot if there is anything lootable
 	local isLoot = not IsInCombat() and not (self.lootObj == nil);
 	if (isLoot and not AreBagsFull() and not self.bagsFull) and (not IsEating() or not IsDrinking()) then
 		script_grind:doLoot(localObj);
@@ -1148,9 +1171,12 @@ function script_grind:lootAndSkin()
 	-- Skin if there is anything skinnable within the loot radius
 	if (HasSpell('Skinning') and self.skinning and HasItem('Skinning Knife')) and (not IsDrinking()) and (not IsEating()) and (IsStanding()) then
 		self.lootObj = nil;
+			-- get skin target
 		self.lootObj = script_grind:getSkinTarget(self.findLootDistance);
 		if (not AreBagsFull() and not self.bagsFull and self.lootObj ~= nil) and (not IsMoving()) then
+			-- do loot
 			if (script_grind:doLoot(localObj)) then
+				-- check for skinning error (probably doesn't work)
 				local __, lastError = GetLastError();
 				if (lastError ~= 77) then
 					self.waitTimer = GetTimeEX() + 1200;
@@ -1169,6 +1195,7 @@ function script_grind:runRest()
 		local localHealth = localObj:GetHealthPercentage();
 		local localMana = localObj:GetManaPercentage();
 
+		-- check for pet to stop bugs
 		local pet = GetPet();
 		if (pet ~= 0) then
 			if (GetPet():GetUnitsTarget() == 0) then
@@ -1178,10 +1205,17 @@ function script_grind:runRest()
 			script_grind.petHasTarget = false;
 		end
 
+	-- run the rest script for grind/combat
 	if(RunRestScript()) then
+		-- reset blacklist looting time
 		script_grind.blacklistLootTime = GetTimeEX() + 30000;
+
+		-- set tick rate for resting
 		script_grind.tickRate = 1500;
+
 		self.message = "Resting...";
+
+		-- set new target time
 		self.newTargetTime = GetTimeEX();
 
 		-- Stop moving
@@ -1190,6 +1224,7 @@ function script_grind:runRest()
 			return true;
 		end
 
+		-- not in combat and pet doesn't have target then stop to rest if needed
 		if (not IsInCombat()) and (not petHasTarget) then
 			if (IsEating() and localHealth < 95)
 				or (IsDrinking() and localMana < 95)
@@ -1199,6 +1234,7 @@ function script_grind:runRest()
 			end
 		end
 	
+		-- if done resting then stand up
 		if (IsEating() and localHealth >= 95 and IsDrinking() and localMana >= 95) 
 		or (not IsDrinking() and IsEating() and localHealth >= 95)
 		or (not IsEating() and IsDrinking() and localMana >= 95)
