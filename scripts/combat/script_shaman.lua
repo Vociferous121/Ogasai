@@ -42,6 +42,8 @@ function script_shaman:setup()
 	-- Set weapon enhancement
 	if (HasSpell("Windfury Weapon")) then
 		self.enhanceWeapon = "Windfury Weapon";
+	--elseif (HasSpell("Flametongue Weapon")) then
+	--	self.enhanceWeapon = "Flametongue Weapon";
 	elseif (HasSpell("Rockbiter Weapon")) then
 		self.enhanceWeapon = "Rockbiter Weapon";
 	end
@@ -69,9 +71,9 @@ function script_shaman:setup()
 	if (HasItem("Fire Totem")) then
 		self.useFireTotem = true;
 	end
-	if (HasItem("Water Totem")) then
-		self.useWaterTotem = true;
-	end
+	--if (HasItem("Water Totem")) then
+	--	self.useWaterTotem = true;
+	--end
 
 	-- stoneskin totem when we do not have strength of earth totem
 	if (HasSpell("Stoneskin Totem")) and (not HasSpell("Strength of Earth Totem")) and (HasItem("Earth Totem")) then

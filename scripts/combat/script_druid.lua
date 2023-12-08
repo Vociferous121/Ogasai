@@ -197,7 +197,7 @@ function script_druid:healsAndBuffs()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(750, 1150);
+		local tickRandom = random(550, 950);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -269,6 +269,9 @@ function script_druid:healsAndBuffs()
 		if (script_druidEX.bearForm()) then
 			self.waitTimer = GetTimeEX() + 1500;
 		end
+		if (CastSpellByName("Healing Touch", localObj)) then
+			self.waitTimer = GetTimeEX() + 1500;
+		end
 	end
 
 	-- shapeshift out of cat form to heal - already have rejuve and regrowth
@@ -279,6 +282,9 @@ function script_druid:healsAndBuffs()
 		if (localObj:HasBuff("Cat Form")) then
 			CastSpellByName("Cat Form");
 			self.waitTimer = GetTimeEX() + 500;
+		end
+		if (CastSpellByName("Healing Touch", localObj)) then
+			self.waitTimer = GetTimeEX() + 1500;
 		end
 	end
 
@@ -323,7 +329,7 @@ function script_druid:healsAndBuffs()
 	end
 
 	-- if not isBear and not isCat and not isTravel
-	if (not isBear and not isBear2) and (not isCat) and (not isTravel) and (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) and (script_grind.lootObj == 0 or script_grind.lootObj == nil) and (not localObj:IsStunned()) and (not IsMounted()) then
+	if (not isBear and not isBear2) and (not isCat) and (not isTravel) and (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) and (not localObj:IsStunned()) and (not IsMounted()) then
 
 		-- Check: Use Healing Potion 
 		if (localHealth < self.potionHealth) then 
@@ -352,8 +358,16 @@ function script_druid:healsAndBuffs()
 						end
 						if (not localObj:HasBuff("Regrowth")) then
 							if (CastSpellByName("Regrowth", localObj)) then
-								self.waitTimer = GetTimeEX() + 4250;
+								self.waitTimer = GetTimeEX() + 3050;
+								script_grind:setWaitTimer(3000)
 								return 4;
+							end
+						end
+						if (not localObj:HasBuff("Rejuvenation")) then
+							if (CastSpellByName("Rejuvenation", localObj)) then
+								self.waitTimer = GetTimeEX() + 1500;
+								script_grind:setWaitTimer(1650);
+								return;
 							end
 						end
 					end
@@ -421,13 +435,19 @@ function script_druid:healsAndBuffs()
 
 --------------------------
 
-
-
+	-- keep auto attack on - turns off when healing - stops casting when low mana can't heal can't shift
+	if (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+		if (script_grind.enemyObj ~= nil and script_grind.enemyObj ~= 0) then
+			if (not IsAutoCasting("Attack")) then
+				script_grind.enemyObj:AutoAttack();
+			end
+		end
+	end
 
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(750, 1150);
+		local tickRandom = random(550, 950);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -463,7 +483,7 @@ function script_druid:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(750, 1150);
+		local tickRandom = random(550, 950);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -609,7 +629,7 @@ function script_druid:run(targetGUID)
 		end
 
 		-- check heals and buffs
-		if (script_druid:healsAndBuffs()) and (not localObj:HasBuff("Frenzied Regeneration")) and (not IsLooting()) then
+		if (script_druid:healsAndBuffs()) and (not localObj:HasBuff("Frenzied Regeneration")) and (not IsLooting()) and (targetHealth >= 20) then
 			self.waitTimer = GetTimeEX() + 2550;
 			return;
 		end
@@ -695,6 +715,13 @@ function script_druid:run(targetGUID)
 				return 3;
 			end
 
+			-- keep faerie fire up
+			if not self.useStealth and targetObj:GetDistance() <= 30 and HasSpell("Faerie Fire (Feral)") then
+				CastSpellByName("Faerie Fire (Feral)()");
+				targetObj:FaceTarget();
+				return 0;
+			end
+
 			-- move to enemy target
 			if (not self.useBear) and (not self.useCat) and (not isBear and not isBear2) and (not isCat) and (targetObj:GetDistance() > 27) and (localMana >= self.drinkMana) then
 				return 3;
@@ -732,6 +759,8 @@ function script_druid:run(targetGUID)
 		if ( (not isBear and not isBear2) and (self.useBear) and (not isCat) and (localHealth > self.healthToShift) and (localMana > self.shapeshiftMana) and (not IsDrinking()) and (not IsEating()) )
 		or ( (script_grind.enemiesAttackingUs(12) >= 2) and (not isBear and not isBear2) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) ) 
 		or ( (targetObj:GetLevel() >= (localObj:GetLevel() + 2) and IsInCombat() ) and (not isBear and not isBear2) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) )
+
+		or ( (hasRegrowth) and (hasRejuv) and (IsInCombat) and (not isBear and not isBear2 and not isCat) and (localMana >= self.shapeshiftMana) and (localHealth < self.healthToShift) )
 		then
 			if (script_druidEX.bearForm()) then
 				self.waitTimer = GetTimeEX() + 1500;
@@ -754,6 +783,14 @@ function script_druid:run(targetGUID)
 					return 0;
 				end
 			end
+
+			-- keep faerie fire up
+			if not self.useStealth and targetObj:GetDistance() <= 30 and HasSpell("Faerie Fire (Feral)") then
+				CastSpellByName("Faerie Fire (Feral)()");
+				targetObj:FaceTarget();
+				return 0;
+			end
+
 		end
 
 
@@ -767,7 +804,9 @@ function script_druid:run(targetGUID)
 
 		-- stay in form
 		-- not in cat form and conditions right then stay in cat form
-		if (script_grind.enemiesAttackingUs(12) < 2) and (not isCat) and (self.useCat) and (not self.useBear) and (not isBear and not isBear2) and (localHealth >= self.healthToShift) and (localMana >= self.shapeshiftMana) and (targetObj:GetLevel() <= (localObj:GetLevel() + 2)) and (not IsDrinking()) and (not IsEatings()) then
+		if (script_grind.enemiesAttackingUs(12) < 2) and (not isCat) and (self.useCat) and (not self.useBear) and (not isBear and not isBear2) and (localHealth >= self.healthToShift) and (localMana >= self.shapeshiftMana) and (targetObj:GetLevel() <= (localObj:GetLevel() + 2)) and (not IsDrinking()) and (not IsEatings())
+		or ( (IsInCombat()) and (hasRegrowth) and (hasRejuv) and (not isCat) and (self.useCat) and (not self.useBear) and (not isBear and not isBear2) and (localHealth < self.healthToShift) and (localMana >= self.shapeshiftMana) )
+		 then
 			if (HasSpell("Cat Form")) then
 				CastSpellByName("Cat Form");
 				return 0;
@@ -879,7 +918,7 @@ function script_druid:run(targetGUID)
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
 			-- check heals and buffs
-			if (script_druid:healsAndBuffs()) and (not IsLooting()) and (not localObj:HasBuff("Frenzied Regeneration")) then
+			if (script_druid:healsAndBuffs()) and (not IsLooting()) and (not localObj:HasBuff("Frenzied Regeneration")) and (targetHealth >= 20) then
 				self.waitTimer = GetTimeEX() + 2550;
 				return;
 			end
@@ -1023,7 +1062,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- keep faerie fire up
-				if HasSpell("Faerie Fire (Feral)") and not IsSpellOnCD("Faerie Fire (Feral)") and not targetObj:HasDebuff("Faerie Fire (Feral)") then
+				if HasSpell("Faerie Fire (Feral)") and not IsSpellOnCD("Faerie Fire (Feral)") and not targetObj:HasDebuff("Faerie Fire (Feral)") and not targetObj:GetCreatureType() == "Elemental" then
 					CastSpellByName("Faerie Fire (Feral)()");
 					return 0;
 				end
@@ -1147,7 +1186,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- keep faerie fire up
-				if HasSpell("Faerie Fire (Feral)") and not IsSpellOnCD("Faerie Fire (Feral)") and not targetObj:HasDebuff("Faerie Fire (Feral)") then
+				if HasSpell("Faerie Fire (Feral)") and not IsSpellOnCD("Faerie Fire (Feral)") and not targetObj:HasDebuff("Faerie Fire (Feral)") and not targetObj:GetCreatureType() == "Elemental" then
 					CastSpellByName("Faerie Fire (Feral)()");
 					self.waitTimer = GetTimeEX() + 1600;
 					return 0;
@@ -1246,7 +1285,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- check heals and buffs
-				if (script_druid:healsAndBuffs()) and (not IsLooting()) and (not localObj:HasBuff("Frenzied Regeneration")) then
+				if (script_druid:healsAndBuffs()) and (not IsLooting()) and (not localObj:HasBuff("Frenzied Regeneration")) and (targetHealth >= 20) then
 					self.waitTimer = GetTimeEX() + 2550;
 					return;
 				end
@@ -1311,7 +1350,7 @@ function script_druid:run(targetGUID)
 		-- set tick rate for script to run
 		if (not script_grind.adjustTickRate) then
 	
-			local tickRandom = random(750, 1150);
+			local tickRandom = random(550, 950);
 		
 			if (IsMoving()) or (not IsInCombat()) then
 				script_grind.tickRate = 135;
@@ -1348,7 +1387,7 @@ function script_druid:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(750, 1150);
+		local tickRandom = random(550, 950);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -1469,7 +1508,7 @@ function script_druid:rest()
 	-- rest in form
 	if (isBear or isBear2 or isCat) and (isCat or isBear or isbear2) and (self.useRest) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
 		if (localObj:GetUnitsTarget() == 0) then
-			if (localMana <= 75 or localHealth <= 75) and (not IsInCombat()) then
+			if (localMana <= 70 or localHealth <= 70) and (not IsInCombat()) then
 				if (isCat) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (not script_checkDebuffs:hasPoison()) then
 					CastSpellByName("Prowl", localObj);
 				end
@@ -1480,7 +1519,7 @@ function script_druid:rest()
 	end	
 
 	-- stop bot to rest if we need to rest
-	if (self.useRest) and (localMana < 75 or localHealth < 75) then
+	if (self.useRest) and (localMana < 70 or localHealth < 70) then
 		if (IsMoving()) then
 			StopMoving();
 			self.waitTimer = GetTimeEX() + 500;
@@ -1513,7 +1552,7 @@ function script_druid:rest()
 -- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(750, 1150);
+		local tickRandom = random(550, 950);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
