@@ -632,13 +632,6 @@ function script_grind:run()
 
 		if (self.enemyObj ~= nil or IsInCombat()) then
 
-			if (not script_aggro:safePull(self.enemyObj))
-			and (not script_grind:isTargetingMe(self.enemyObj)) then
-				script_grind:addTargetToBlacklist(self.enemyObj:GetGUID());
-				DEFAULT_CHAT_FRAME:AddMessage('script_grind: Blacklisting ' .. self.enemyObj:GetUnitName() .. ', too many adds...');
-				self.enemyObj = nil;
-			end
-
 			if (self.enemyObj ~= nil) then
 				if (self.enemyObj:GetDistance() <= 8) and (not IsMoving()) then
 					self.enemyObj:FaceTarget();

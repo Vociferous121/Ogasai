@@ -550,10 +550,13 @@ function script_druid:run(targetGUID)
 		end
 
 -- stay in form bear if bear form is selected
+		-- enemies greater than 2 then use bear form
 		if (self.useBear) or ( script_grind.enemiesAttackingUs(12) >= 2 and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) and (not IsDrinking()) and (not IsEating()) )
 
+		-- enemy level greater than 2 then use bear form
 		or ( (targetObj:GetLevel() >= (localObj:GetLevel() + 2)) and (IsInCombat()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) and (not IsDrinking()) and (not IsEating()) and (targetObj:GetHealthPercentage() >= 45) and (IsInCombat()) ) then
-
+			
+			-- if not in form and mana/health right then use bear form
 			if (not isBear and not isBear2) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift) and (IsStanding()) then
 				if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 335;
@@ -564,8 +567,15 @@ function script_druid:run(targetGUID)
 			end
 		end
 	
-	-- stay in form cat if cat form is selected -- cast cat form
-	if (script_grind.enemiesAttackingUs(10) < 2) and (HasSpell("Cat Form")) and (self.useCat) and (not isCat) and (not self.useBear) and (not isBear and not isBear2) and (localMana >= self.shapeshiftMana) and (localHealth >= self.healthToShift) and (IsStanding()) and (not IsDrinking()) and (not IsEating()) and (targetObj:GetLevel() <= localObj:GetLevel() + 2) then
+-- stay in form cat if cat form is selected -- cast cat form
+		-- only if enemies attacking us less than 2 and not in form and health/mana set right
+			-- not if enemy level greater than 2
+	if (script_grind.enemiesAttackingUs(10) < 2) and (HasSpell("Cat Form")) and (self.useCat)
+		and (not isCat) and (not self.useBear) and (not isBear and not isBear2)
+		and (localMana >= self.shapeshiftMana) and (localHealth >= self.healthToShift)
+		and (IsStanding()) and (not IsDrinking()) and (not IsEating())
+		and (targetObj:GetLevel() <= localObj:GetLevel() + 2)
+	then
 		if (not script_grind.adjustTickRate) then
 			script_grind.tickRate = 335;
 		end
@@ -611,7 +621,9 @@ function script_druid:run(targetGUID)
 		end
 
 		-- stay in cat form - placed here to allow faster movement and stealth to target
-		-- not in cat form and conditions right then stay in cat form
+		-- not in cat form
+			-- not if enemies attack us greater than 1
+				-- not if in form  -  not if enemy level greater than 2
 		if (script_grind.enemiesAttackingUs(12) < 2) and (not isCat) and (self.useCat) and (not self.useBear) and (not isBear and not isBear2) and (localHealth >= self.healthToShift) and (localMana >= self.shapeshiftMana) and (targetObj:GetLevel() <= localObj:GetLevel() +2) and (not IsDrinking()) and (not IsEating()) then
 			if (HasSpell("Cat Form")) then
 				CastSpellByName("Cat Form");
@@ -620,6 +632,8 @@ function script_druid:run(targetGUID)
 		end
 
 		-- War Stomp Tauren Racial
+			-- not in a party and not if target has entangling roots
+				-- 2 or more enemies only
 		if (not isBear and not isBear2) and (not isCat) and (IsInCombat()) then
 			if (targetObj:IsCasting() or script_druid:enemiesAttackingUs(6) >= 2) and (GetNumPartyMembers() < 2) and (not targetObj:HasDebuff("Entangling Roots")) and (targetObj:GetDistance() <= 8) then
 				if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) and (not IsMoving()) then
@@ -755,14 +769,25 @@ function script_druid:run(targetGUID)
 	-- pull bear form
 			------
 
-			-- stay in form
-			-- not in bear form and conditions right then stay in bear form
+	-- stay in form
+	-- not in bear form and conditions right then stay in bear form
+		--not is in form and mana/health set right	
 		if ( (not isBear and not isBear2) and (self.useBear) and (not isCat) and (localHealth > self.healthToShift) and (localMana > self.shapeshiftMana) and (not IsDrinking()) and (not IsEating()) )
+		
+		-- or if enemies attacking us greater than 2 and mana/health set right
 		or ( (script_grind.enemiesAttackingUs(12) >= 2) and (not isBear and not isBear2) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) ) 
-		or ( (targetObj:GetLevel() >= (localObj:GetLevel() + 2) and IsInCombat() ) and (not isBear and not isBear2) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) )
 
-		or ( (hasRegrowth) and (hasRejuv) and (IsInCombat) and (not isBear and not isBear2 and not isCat) and (localMana >= self.shapeshiftMana) and (localHealth > self.healthToShift) )
+		-- or enemy level is greater than 2 and health/mana is set right
+		or ( (targetObj:GetLevel() >= (localObj:GetLevel() + 2) and IsInCombat() ) and (not isBear and not isBear2) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) )
+		
+		-- or hasregrowth and has rejuv and is in combat
+		or ( (hasRegrowth) and (hasRejuv) and (IsInCombat()) and (not isBear and not isBear2 and not isCat) and (localMana >= self.shapeshiftMana) and (localHealth > self.healthToShift) )
+
+		-- or if not has regrwoth yet and has rejuvenation and health/mana correct
+		or ( (not HasSpell("Regrowth")) and (hasRejuv) and (IsInCombat()) and (not isBear and not isBear2 and not isCat) and (localMana >= self.shapeshiftMana) and (localHealth > self.healthToShift) )
+
 		then
+			-- cast bear form
 			if (script_druidEX.bearForm()) then
 				self.waitTimer = GetTimeEX() + 1500;
 			end
@@ -805,9 +830,14 @@ function script_druid:run(targetGUID)
 
 		-- stay in form
 		-- not in cat form and conditions right then stay in cat form
+			-- not if enemies attack us greater than 1 and mana/health set correct
+				-- not if enemy level greater than 2
 		if (script_grind.enemiesAttackingUs(12) < 2) and (not isCat) and (self.useCat) and (not self.useBear) and (not isBear and not isBear2) and (localHealth >= self.healthToShift) and (localMana >= self.shapeshiftMana) and (targetObj:GetLevel() <= (localObj:GetLevel() + 2)) and (not IsDrinking()) and (not IsEatings())
+		-- or is in combat and has heals already and mana/health correct
 		or ( (IsInCombat()) and (hasRegrowth) and (hasRejuv) and (not isCat) and (self.useCat) and (not self.useBear) and (not isBear and not isBear2) and (localHealth < self.healthToShift) and (localMana >= self.shapeshiftMana) )
+
 		 then
+			-- cast cat form
 			if (HasSpell("Cat Form")) then
 				CastSpellByName("Cat Form");
 				return 0;
@@ -930,25 +960,37 @@ function script_druid:run(targetGUID)
 			local isBear2 = localObj:HasBuff("Dire Bear Form");
 			local isCat = localObj:HasBuff("Cat Form");
 
-			-- stay in form - bear form conditions
-			if ( (self.useBear) and (not isBear and not isBear2) and (not isCat) and (localHealth > self.healthToShift)
-				and (localMana >= self.shapeshiftMana) )
-			or ( (self.useBear) and (not isCat) and (script_grind.enemiesAttackingUs(12) >= 2) and (not isBear and not isBear2) and (localMana >= self.shapeshiftMana)
+	-- stay in form - bear form conditions
+			-- if use bear and not is cat form and mana/health correct
+			if ( (self.useBear) and (not isBear and not isBear2) and (not isCat)
+				and (localHealth > self.healthToShift) and (localMana >= self.shapeshiftMana) )
+			
+			-- or enemies attacking us greater than 2 and mana/health correct
+			or ( (self.useBear) and (not isCat) and (script_grind.enemiesAttackingUs(12) >= 2)
+				and (not isBear and not isBear2) and (localMana >= self.shapeshiftMana) 
 				and (not isCat) and (localHealth > self.healthToShift) )
-			or ( (targetObj:GetLevel() >= (localObj:GetLevel() + 2) and IsInCombat()) and (not isBear and not isBear2) and (localMana >= self.shapeshiftMana)
-				and (not isCat) and (localHealth > self.healthToShift) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) )
+		
+			-- or enemy level greater than 2 and mana/health correct
+			or ( (targetObj:GetLevel() >= (localObj:GetLevel() + 2) and IsInCombat())
+				and (not isBear and not isBear2) and (localMana >= self.shapeshiftMana)
+				and (not isCat) and (localHealth > self.healthToShift)
+				and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) )
 
 			then
+				-- adjust tick rate of script to make shifting quicker
 				if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 100;
 				end
+				
+				-- cast bear form
 				if (script_druidEX:bearForm()) then
 					self.waitTimer = GetTimeEX() + 1500;
 				end
 			end
 			
 			-- shift for debuff removal self use bear form
-			if (self.hasDrinks) and (isBear or isBear2) and (not isCat and not self.useCat) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) and (script_grind.enemiesAttackingUs(12) < 2) then
+			if (self.hasDrinks) and (isBear or isBear2) and (not isCat and not self.useCat)
+			and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) 			and (localHealth > self.healthToShift + 20) and (script_grind.enemiesAttackingUs(12) < 2) 			then
 				if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 100;
 				end
@@ -1150,6 +1192,8 @@ function script_druid:run(targetGUID)
 			end
 
 			--stay in form
+				-- not if enemies attacking us greater than 1
+					-- not if enemy level greater than 2
 			if (script_grind.enemiesAttackingUs(12) < 2) and (self.useCat and not isCat) and (not self.useBear and not isBear and not isBear2) and (localHealth >= self.healthToShift) and (localMana >= self.shapeshiftMana) and (IsStanding()) and (targetObj:GetLevel() <= (localObj:GetLevel() + 2) ) then	
 				if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 100;

@@ -109,7 +109,7 @@ function script_paladinEX:healsAndBuffs(localObj, localMana)
 
 	-- cleanse
 	if (script_checkDebuffs:hasPoison()) or (script_checkDebuffs:hasDisease()) or (script_checkDebuffs:hasMagic()) then
-		if (HasSpell("Cleanse")) and (localMana > 40) then
+		if (HasSpell("Cleanse")) and (localMana > 60) then
 			if (Buff("Cleanse", localObj)) then 
 				script_paladin.message = "Cleansing..."; 
 					script_grind:setWaitTimer(1750); 
@@ -120,7 +120,7 @@ function script_paladinEX:healsAndBuffs(localObj, localMana)
 
 	-- remove disease with purify
 	if (script_checkDebuffs:hasDisease()) or (script_checkDebuffs:hasPoison()) then
-		if (HasSpell("Purify")) and (localMana > 40) then
+		if (HasSpell("Purify")) and (localMana > 60) then
 			if (Buff("Purify", localObj)) then 
 				script_paladin.message = "Cleansing..."; 
 				script_grind:setWaitTimer(1750); 

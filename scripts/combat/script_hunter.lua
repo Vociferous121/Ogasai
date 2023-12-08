@@ -425,7 +425,7 @@ function script_hunter:run(targetGUID)
 						PetFollow();
 						return true;
 					
-					elseif (GetPet():GetDistance() < 20) and (localMana > 10) then
+					elseif (GetPet():GetDistance() < 20) and (localMana >= 15) then
 						if (script_hunter.hasPet) and (petHP < 60) and (petHP > 0) then
 							script_hunter.message = "Pet has lower than 50% HP, mending pet...";	
 							if (IsMoving()) or (not IsStanding()) then
@@ -478,7 +478,7 @@ function script_hunter:run(targetGUID)
 						PetFollow();
 						return true;
 					
-					elseif (GetPet():GetDistance() < 20) and (localMana > 10) then
+					elseif (GetPet():GetDistance() < 20) and (localMana >= 15) then
 						if (script_hunter.hasPet) and (petHP < 60) and (petHP > 0) then
 							script_hunter.message = "Pet has lower than 50% HP, mending pet...";	
 							CastSpellByName('Mend Pet');
@@ -557,7 +557,7 @@ function script_hunter:run(targetGUID)
 						PetFollow();
 						return true;
 					
-					elseif (GetPet():GetDistance() < 20) and (localMana > 10) then
+					elseif (GetPet():GetDistance() < 20) and (localMana >= 15) then
 						if (script_hunter.hasPet) and (petHP < 60) and (petHP > 0) then
 							script_hunter.message = "Pet has lower than 50% HP, mending pet...";	
 							CastSpellByName('Mend Pet');
