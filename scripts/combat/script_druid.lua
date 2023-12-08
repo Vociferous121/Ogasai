@@ -71,7 +71,6 @@ function script_druid:setup()
 	if (not HasSpell("Shred")) then
 		self.stealthOpener = "Claw";
 	end
-
 	if (not HasSpell("Prowl")) then
 		useStealth = false;
 	end
@@ -730,9 +729,9 @@ function script_druid:run(targetGUID)
 
 			-- stay in form
 			-- not in bear form and conditions right then stay in bear form
-		if ( (not isBear and not isBear2) and (self.useBear) and (not isCat) and (localHealth > self.healthToShift + 5) and (localMana > self.shapeshiftMana) and (not IsDrinking()) and (not IsEating()) )
-		or ( (script_grind.enemiesAttackingUs(12) >= 2) and (not isBear and not isBear2) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift + 5) and (IsStanding()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) ) 
-		or ( (targetObj:GetLevel() >= (localObj:GetLevel() + 2) and IsInCombat() ) and (not isBear and not isBear2) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift + 5) and (IsStanding()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) )
+		if ( (not isBear and not isBear2) and (self.useBear) and (not isCat) and (localHealth > self.healthToShift) and (localMana > self.shapeshiftMana) and (not IsDrinking()) and (not IsEating()) )
+		or ( (script_grind.enemiesAttackingUs(12) >= 2) and (not isBear and not isBear2) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) ) 
+		or ( (targetObj:GetLevel() >= (localObj:GetLevel() + 2) and IsInCombat() ) and (not isBear and not isBear2) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) )
 		then
 			if (script_druidEX.bearForm()) then
 				self.waitTimer = GetTimeEX() + 1500;
@@ -1044,8 +1043,10 @@ function script_druid:run(targetGUID)
 				end
 
 				-- Swipe
-				if (script_druid:enemiesAttackingUs(10) >= 2) and (not localObj:HasBuff("Frenzied Regeneration")) then
-					if (HasSpell("Swipe")) and (not targetObj:HasDebuff("Swipe")) and (localRage >= 15) then
+				if (script_druid:enemiesAttackingUs(10) >= 2)
+				and (not localObj:HasBuff("Frenzied Regeneration")) then
+					if (HasSpell("Swipe")) and (not targetObj:HasDebuff("Swipe"))
+					and (localRage >= 15) then
 						if (CastSpellByName("Swipe")) then
 							return 0;
 						end
@@ -1053,7 +1054,11 @@ function script_druid:run(targetGUID)
 				end
 
 				-- maul non humanoids
-				if (HasSpell("Maul")) and (not IsCasting()) and (not IsChanneling())and (not IsMoving()) and (targetObj:GetCreatureType() ~= 'Humanoid') and (targetObj:GetDistance() <= self.meleeDistance) and (not localObj:HasBuff("Frenzied Regeneration")) and ( (script_grind.enemiesAttackingUs(12) >= 2 and localRage >= 20) or (script_grind.enemiesAttackingUs(12) < 2 and localRage >= self.maulRage) ) then
+				if (HasSpell("Maul")) and (not IsCasting()) and (not IsChanneling()) 
+				and (not IsMoving()) and (targetObj:GetCreatureType() ~= 'Humanoid')
+				and (targetObj:GetDistance() <= self.meleeDistance)
+				and (not localObj:HasBuff("Frenzied Regeneration"))				
+				then
 						targetObj:FaceTarget();
 					if (CastSpellByName("Maul", targetObj)) then
 						targetObj:AutoAttack();
@@ -1065,12 +1070,10 @@ function script_druid:run(targetGUID)
 				end
 
 				-- maul humanoids fleeing conditions
-				if (HasSpell("Maul")) and (not IsCasting()) and (not IsChanneling()) and (not IsMoving())
-					and (targetObj:GetCreatureType() == 'Humanoid') and (targetHealth > 30)
-					and (targetObj:GetDistance() <= self.meleeDistance) and (not localObj:HasBuff("Frenzied Regeneration"))
-						and ( (script_grind.enemiesAttackingUs(12) >= 2 and localRage >= 20 and HasSpell("Swipe"))
-						or (script_grind.enemiesAttackingUs(12) < 2 and localRage >= self.maulRage)
-						or (script_grind.enemiesAttackingUs(12) >= 2 and not HasSpell("Swipe") and localRage >= self.maulRage) )
+				if (HasSpell("Maul")) and (not IsCasting()) and (not IsChanneling())
+				and (not IsMoving()) and (targetObj:GetCreatureType() == 'Humanoid')
+				and (targetHealth > 30) and (targetObj:GetDistance() <= self.meleeDistance)
+				and (not localObj:HasBuff("Frenzied Regeneration"))
 				then
 						targetObj:FaceTarget();
 					if (CastSpellByName("Maul", targetObj)) then
@@ -1464,7 +1467,7 @@ function script_druid:rest()
 	end	
 
 	-- rest in form
-	if (isBear or isBear2 or isCat) and (self.useRest) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
+	if (isBear or isBear2 or isCat) and (isCat or isBear or isbear2) and (self.useRest) and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
 		if (localObj:GetUnitsTarget() == 0) then
 			if (localMana <= 75 or localHealth <= 75) and (not IsInCombat()) then
 				if (isCat) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (not script_checkDebuffs:hasPoison()) then
@@ -1477,7 +1480,7 @@ function script_druid:rest()
 	end	
 
 	-- stop bot to rest if we need to rest
-	if (self.useRest) and (localMana < self.drinkMana or localHealth < self.eatHealth) then
+	if (self.useRest) and (localMana < 75 or localHealth < 75) then
 		if (IsMoving()) then
 			StopMoving();
 			self.waitTimer = GetTimeEX() + 500;
