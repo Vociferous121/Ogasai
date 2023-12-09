@@ -14,7 +14,7 @@ function coremenu:draw()
 		
 		self.isSetup = true;
 		
-		DEFAULT_CHAT_FRAME:AddMessage('Loading Scripts!');
+		DEFAULT_CHAT_FRAME:AddMessage('Ogasai - LUA Scripts Loaded!');
 		
 		--[[
 			----------------------------
@@ -34,7 +34,16 @@ function coremenu:draw()
 			Class Rotations
 			----------------------------
 		]]--
-		
+
+		LoadScript("Shaman", "scripts\\combat\\script_shaman.lua");
+		AddScriptToCombat("Shaman", "script_shaman");
+
+		LoadScript("Druid", "scripts\\combat\\script_druid.lua");
+		AddScriptToCombat("Druid", "script_druid");
+
+		LoadScript("Warlock", "scripts\\combat\\script_warlock.lua");
+		AddScriptToCombat("Warlock", "script_warlock");
+
 		LoadScript("Mage", "scripts\\combat\\script_mage.lua");
 		AddScriptToCombat("Mage", "script_mage");
 
@@ -43,12 +52,6 @@ function coremenu:draw()
 
 		LoadScript("Hunter", "scripts\\combat\\script_hunter.lua");
 		AddScriptToCombat("Hunter", "script_hunter");
-		
-		LoadScript("Warlock", "scripts\\combat\\script_warlock.lua");
-		AddScriptToCombat("Warlock", "script_warlock");
-
-		LoadScript("Warrior", "scripts\\combat\\script_warrior.lua");
-		AddScriptToCombat("Warrior", "script_warrior");
 
 		LoadScript("Paladin", "scripts\\combat\\script_paladin.lua");
 		AddScriptToCombat("Paladin", "script_paladin");
@@ -56,11 +59,9 @@ function coremenu:draw()
 		LoadScript("Priest", "scripts\\combat\\script_priest.lua");
 		AddScriptToCombat("Priest", "script_priest");
 
-		LoadScript("Shaman", "scripts\\combat\\script_shaman.lua");
-		AddScriptToCombat("Enhance - Shaman", "script_shaman");
+		LoadScript("Warrior", "scripts\\combat\\script_warrior.lua");
+		AddScriptToCombat("Warrior", "script_warrior");
 
-		LoadScript("Druid", "scripts\\combat\\script_druid.lua");
-		AddScriptToCombat("Druid", "script_druid");
 
 		--[[
 			----------------------------
@@ -109,32 +110,32 @@ function coremenu:draw()
 	]]--
 
 	-- Grind 
-	Separator();
-	if (CollapsingHeader("Grind options")) then
-		script_grindMenu:menu();
-	end
+	--Separator();
+	--if (CollapsingHeader("Grind options")) then
+	--	script_grindMenu:menu();
+	--end
 
-	if (CollapsingHeader("Follower options")) then
-		script_followEX:menu();
-	end
+	--if (CollapsingHeader("Follower options")) then
+	--	script_followEX:menu();
+	--end
 
-	if (CollapsingHeader("Fishing options")) then
-		script_fish:menu();
-	end
+	--if (CollapsingHeader("Fishing options")) then
+	--	script_fish:menu();
+	--end
 	
-	Separator();
+	--Separator();
 
-	-- Add Combat scripts menus
-	if (CollapsingHeader("Combat options")) then
-		script_mageEX:menu();
-		script_hunterEX:menu();
-		script_warlockEX:menu();
-		script_paladinEX:menu();
-		script_druidEX:menu();
-		script_priestEX:menu();
-		script_warriorEX:menu();
-		script_rogueEX:menu();
-		script_shamanEX:menu();
-	end
+	---- Add Combat scripts menus
+	--if (CollapsingHeader("Combat options")) then
+	--	script_mageEX:menu();
+	--	script_hunterEX:menu();
+	--	script_warlockEX:menu();
+	--	script_paladinEX:menu();
+	--	script_druidEX:menu();
+	--	script_priestEX:menu();
+	--	script_warriorEX:menu();
+	--	script_rogueEX:menu();
+	--	script_shamanEX:menu();
+	--end
 	
 end
