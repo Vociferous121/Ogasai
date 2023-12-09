@@ -360,7 +360,7 @@ function script_grind:run()
 
 	-- check paranoia	
 		-- jump when player in range in combat
-	if (IsInCombat()) then
+	if (IsInCombat() and not script_grind.undoAFK) then
 		if (script_paranoiaCheck:playersWithinRange2(60) and script_grind.playersTargetingUs() >= 1) 
 			or (script_paranoiaCheck:playersWithinRange2(38)) then
 			if (not IsCasting()) and (not IsChanneling()) then
@@ -496,7 +496,6 @@ function script_grind:run()
 		if (script_nav:getDistanceToHotspot() <= 45) then
 			self.hotspotReached = true;
 		end
-	
 
 		-- Auto path: keep us inside the distance to the current hotspot, if mounted keep running even if in combat
 		if ((not IsInCombat() or IsMounted()) and (self.autoPath) and (script_vendor:getStatus() == 0) and
@@ -608,7 +607,7 @@ function script_grind:run()
 			if (not script_aggro:safePull(self.enemyObj)) and (not IsInCombat())
 			and (not script_grind:isTargetingMe(self.enemyObj)) then
 				script_grind:addTargetToBlacklist(self.enemyObj:GetGUID());
-				DEFAULT_CHAT_FRAME:AddMessage('script_grind: Blacklisting ' .. self.enemyObj:GetUnitName() .. ', too many adds...');
+				DEFAULT_CHAT_FRAME:AddMessage('script_grind: Blacklisting ' .. self.enemyObj:GetUnitName() .. ', too many adds... change blacklist options in "Target Menu"');
 				self.enemyObj = nil;
 			end
 		end
@@ -896,6 +895,17 @@ end
 
 function script_grind:enemyIsValid(i)
 	if (i ~= 0) then
+
+		if (self.skipHardPull) and (not IsInCombat()) then
+			if (not script_aggro:safePull(i))
+			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
+			and (not script_grind:isTargetingMe(i)) then
+				local myTime = GetTimeStamp();
+				script_grind:addTargetToBlacklist(i:GetGUID());
+				DEFAULT_CHAT_FRAME:AddMessage('' ..myTime.. ': Blacklisting "' .. i:GetUnitName() .. '", too many adds...');
+			end
+		end
+
 		-- Valid Targets: Tapped by us, or is attacking us or our pet
 		if (script_grind:isTargetingMe(i)
 			or (script_grind:isTargetingPet(i) and (i:IsTappedByMe() or not i:IsTapped())) 

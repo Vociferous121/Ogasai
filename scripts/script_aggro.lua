@@ -4,7 +4,7 @@ script_aggro = {
 	rY = 0,
 	rZ = 0,
 	rTime = 0,
-	adjustAggro = 3,
+	adjustAggro = 6,
 }
 
 function script_aggro:DrawCircles(pointX,pointY,pointZ,radius)
