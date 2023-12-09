@@ -573,12 +573,13 @@ function script_druid:run(targetGUID)
 			return 0;
 		end
 	end
+
 -- stay in form bear if bear form is selected
 		-- enemies greater than 2 then use bear form
 		if (self.useBear) or ( script_grind.enemiesAttackingUs(12) >= 2 and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) and (not IsDrinking()) and (not IsEating()) )
 
 		-- enemy level greater than 2 then use bear form
-		or ( (targetObj:GetLevel() >= (localObj:GetLevel() + 2)) and (IsInCombat()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) and (not IsDrinking()) and (not IsEating()) and (targetObj:GetHealthPercentage() >= 45) and (IsInCombat()) ) then
+		or ( (targetObj:GetLevel() >= (localObj:GetLevel() + 2)) and (IsInCombat()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) and (not IsDrinking()) and (not IsEating()) and (targetObj:GetHealthPercentage() >= 40) and (IsInCombat()) ) then
 			
 			-- if not in form and mana/health right then use bear form
 			if (not isBear and not isBear2) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift) and (IsStanding()) then
@@ -626,7 +627,7 @@ function script_druid:run(targetGUID)
 
 	-- shapeshift out of cat form to use bear form 2 or more targets - leave form
 		if (self.useCat) and (isCat) and (localMana >= self.shapeshiftMana) and (localHealth <= self.healthToShift) and (GetNumPartyMembers() < 2) then
-			if (script_grind:enemiesAttackingUs(12) >= 2) or (targetObj:GetLevel() >= localObj:GetLevel() + 2 and (IsInCombat())) then
+			if (script_grind:enemiesAttackingUs(12) >= 2 or targetObj:GetLevel() >= localObj:GetLevel() + 2) and (IsInCombat()) then
 		
 				if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 125;
@@ -810,7 +811,7 @@ function script_druid:run(targetGUID)
 		or ( (targetObj:GetLevel() >= (localObj:GetLevel() + 2) and IsInCombat() ) and (not isBear and not isBear2) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) )
 		
 		-- or hasregrowth and has rejuv and is in combat
-		or ( (hasRegrowth) and (hasRejuv) and (IsInCombat()) and (not isBear and not isBear2 and not isCat) and (localMana >= self.shapeshiftMana) and (localHealth > self.healthToShift) and (self.useBear or script_grind.enemiesAttackingUs(12) >= 2) )
+		or ( (self.useBear or script_grind.enemiesAttackingUs(10) >= 2) and (hasRegrowth) and (hasRejuv) and (IsInCombat()) and (not isBear and not isBear2 and not isCat) and (localMana >= self.shapeshiftMana) and (localHealth > self.healthToShift) )
 
 		-- or if not has regrwoth yet and has rejuvenation and health/mana correct
 		or ( (not HasSpell("Regrowth")) and (hasRejuv) and (IsInCombat()) and (not isBear and not isBear2 and not isCat) and (localMana >= self.shapeshiftMana) and (localHealth > self.healthToShift) )
