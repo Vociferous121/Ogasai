@@ -94,7 +94,8 @@ end
 function script_nav:getDistanceToHotspot()
 	local localObj = GetLocalPlayer();
 	local _lx, _ly, _lz = localObj:GetPosition();
-	if (self.currentHotSpotName ~= '') then
+
+	if (self.currentHotSpotName ~= '') and (not script_grind.hotspotReached) then
 		return math.sqrt((self.currentHotSpotX-_lx)^2+(self.currentHotSpotY-_ly)^2);
 	else
 		return 0; -- no hot spot loaded
