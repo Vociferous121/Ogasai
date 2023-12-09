@@ -365,11 +365,10 @@ function script_druid:healsAndBuffs()
 						if (not localObj:HasBuff("Regrowth")) then
 							if (CastSpellByName("Regrowth", localObj)) then
 								if (not script_grind.adjustTickRate) then
-									script_grind.tickRate = 2850;
+									script_grind.tickRate = 2050;
 								end
 								self.waitTimer = GetTimeEX() + 4050;
 								script_grind:setWaitTimer(4050)
-								return false;
 							end
 						end
 						if (localObj:HasBuff("Regrowth")) 
@@ -377,7 +376,6 @@ function script_druid:healsAndBuffs()
 							if (CastSpellByName("Rejuvenation", localObj)) then
 								self.waitTimer = GetTimeEX() + 1500;
 								script_grind:setWaitTimer(1650);
-								return true;
 							end
 						end
 					end
@@ -600,9 +598,7 @@ function script_druid:run(targetGUID)
 		end
 		if (CastSpellByName("Cat Form")) then
 			self.waitTimer = GetTimeEX() + 1200;
-			return 0;
 		end
-		return 0;
 	end
 
 		-- use prowl before spamming auto attack and move in range of target!
@@ -646,7 +642,6 @@ function script_druid:run(targetGUID)
 		if (script_grind.enemiesAttackingUs(12) < 2) and (not isCat) and (self.useCat) and (not self.useBear) and (not isBear and not isBear2) and (localHealth >= self.healthToShift) and (localMana >= self.shapeshiftMana) and (targetObj:GetLevel() <= localObj:GetLevel() +2) and (not IsDrinking()) and (not IsEating()) then
 			if (HasSpell("Cat Form")) then
 				CastSpellByName("Cat Form");
-				return 0;
 			end
 		end
 
@@ -855,7 +850,7 @@ function script_druid:run(targetGUID)
 		-- not in cat form and conditions right then stay in cat form
 			-- not if enemies attack us greater than 1 and mana/health set correct
 				-- not if enemy level greater than 2
-		if (script_grind.enemiesAttackingUs(12) < 2) and (not isCat) and (self.useCat) and (not self.useBear) and (not isBear and not isBear2) and (localHealth >= self.healthToShift) and (localMana >= self.shapeshiftMana) and (targetObj:GetLevel() <= (localObj:GetLevel() + 2)) and (not IsDrinking()) and (not IsEatings())
+		if (script_grind.enemiesAttackingUs(12) < 2) and (not isCat) and (self.useCat) and (not self.useBear) and (not isBear and not isBear2) and (localHealth >= self.healthToShift) and (localMana >= self.shapeshiftMana) and (targetObj:GetLevel() <= (localObj:GetLevel() + 2)) and (not IsDrinking()) and (not IsEating())
 		-- or is in combat and has heals already and mana/health correct
 		or ( (IsInCombat()) and (hasRegrowth) and (hasRejuv) and (not isCat) and (self.useCat) and (not self.useBear) and (not isBear and not isBear2) and (localHealth < self.healthToShift) and (localMana >= self.shapeshiftMana) )
 
@@ -863,7 +858,6 @@ function script_druid:run(targetGUID)
 			-- cast cat form
 			if (HasSpell("Cat Form")) then
 				CastSpellByName("Cat Form");
-				return 0;
 			end
 		end
 
