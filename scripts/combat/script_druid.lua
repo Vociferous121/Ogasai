@@ -306,7 +306,7 @@ function script_druid:healsAndBuffs()
 	local isTravel = localObj:HasBuff("Travel Form");
 
 	-- moving buffs hierarchy up
-	if (not isBear and not isBear2) and (not isCat) and (not isTravel) and (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) and (script_grind.lootObj == 0 or script_grind.lootObj == nil) and (not IsMounted()) then
+	if (not isBear and not isBear2) and (not isCat) and (not isTravel) and (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) and (script_grind.lootObj == 0 or script_grind.lootObj == nil) and (not IsMounted()) and (not script_checkDebuffs:hasSilence()) then
 
 		-- Innervate
 		if (IsInCombat()) and (HasSpell("Innervate")) and (not IsSpellOnCD("Innervate")) and (not localObj:HasBuff("Innervate")) and (localMana <= self.shapeshiftMana) then
@@ -339,7 +339,7 @@ function script_druid:healsAndBuffs()
 	end
 
 	-- if not isBear and not isCat and not isTravel
-	if (not isBear and not isBear2) and (not isCat) and (not isTravel) and (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) and (not localObj:IsStunned()) and (not IsMounted()) then
+	if (not isBear and not isBear2) and (not isCat) and (not isTravel) and (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) and (not localObj:IsStunned()) and (not IsMounted()) and (not script_checkDebuffs:hasSilence()) then
 
 		-- Check: Use Healing Potion 
 		if (localHealth < self.potionHealth) then 
@@ -442,7 +442,7 @@ function script_druid:healsAndBuffs()
 	end
 
 	-- if we have regrowth and rejuvenation and 2 or more targets are attacking us then cast healing touch
-	if (HasSpell("Regrowth")) and (hasRegrowth) and (hasRejuv) and (script_grind:enemiesAttackingUs(10) >= 2) and (not isBear and not isBear2 and not isCat and not isMoonkin and not isTravel and not IsMounted()) and (localHealth < self.healthToShift) and (not IsSpellOnCD("Healing Touch")) then
+	if (HasSpell("Regrowth")) and (hasRegrowth) and (hasRejuv) and (script_grind:enemiesAttackingUs(10) >= 2) and (not isBear and not isBear2 and not isCat and not isMoonkin and not isTravel and not IsMounted()) and (localHealth < self.healthToShift) and (not IsSpellOnCD("Healing Touch")) and (not script_checkDebuffs:hasSilence())  then
 
 		if (CastSpellByName("Healing Touch", localObj)) then
 			self.waitTimer = GetTimeEX() + 1500;
@@ -542,6 +542,7 @@ function script_druid:run(targetGUID)
 		end
 	end
 
+	-- check aquatic form
 	if (not IsInCombat()) and (HasSpell("Aquatic Form")) and (IsSwimming()) and (not localObj:HasBuff("Aquatic Form")) then
 		if (CastSpellByName("Aquatic Form")) then
 			self.waitTimer = GetTimeEX() + 1500;
@@ -566,10 +567,12 @@ function script_druid:run(targetGUID)
 		if (not IsStanding()) then
 			JumpOrAscendStart();
 		end
-
-	if (IsInCombat()) and (localObj:HasBuff("Regrowth")) and (not localObj:HasBuff("Rejuvenation")) and (not IsSpellOnCD("Rejuvenation")) and (localMana >= self.shapeshiftMana + 10) and (not isCat and not isBear and not isBear2) then
+	
+	-- force rejuvenation
+	if (IsInCombat()) and (localObj:HasBuff("Regrowth")) and (not localObj:HasBuff("Rejuvenation")) and (not IsSpellOnCD("Rejuvenation")) and (localMana >= self.shapeshiftMana + 10) and (not isCat and not isBear and not isBear2) and (not script_checkDebuffs:hasSilence()) then
 		if (CastSpellByName("Rejuvenation")) then
-			self.waitTimer = GetTimeEX() + 1500;
+			self.waitTimer = GetTimeEX() + 1550;
+			script_grind:setWaitTimer(1550);
 			return 0;
 		end
 	end
@@ -667,10 +670,11 @@ function script_druid:run(targetGUID)
 		end
 
 		-- check heals and buffs
-		if (localHealth <= self.healthToShift) then
+		if (localHealth <= self.healthToShift) and (not script_checkDebuffs:hasSilence()) then
 			if (targetHealth >= 25 and script_grind.enemiesAttackingUs(10) == 1)
 			or (targetHealth >= 10 and script_grind.enemiesAttackingUs(10) > 1)
 			or (localHealth < self.healthToShift - 25)
+			or (not isBear and not isBear2 and not isCat)
 			then
 				if (not localObj:HasBuff("Frenzied Regeneration")) and (not IsLooting()) then
 					if (script_druid:healsAndBuffs()) then
@@ -978,10 +982,11 @@ function script_druid:run(targetGUID)
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
 			-- check heals and buffs
-		if (localHealth <= self.healthToShift) then
+		if (localHealth <= self.healthToShift) and (not script_checkDebuffs:hasSilence()) then
 			if (targetHealth >= 25 and script_grind.enemiesAttackingUs(10) == 1) 
 			or (targetHealth >= 10 and script_grind.enemiesAttackingUs(10) > 1)
 			or (localHealth <self.healthToShift - 25)
+			or (not isBear and not isBear2 and not isCat)
 			then
 				if (not localObj:HasBuff("Frenzied Regeneration")) and (not IsLooting()) then
 					if (script_druid:healsAndBuffs()) then
@@ -1367,10 +1372,11 @@ function script_druid:run(targetGUID)
 				end
 
 				-- check heals and buffs
-		if (localHealth <= self.healthToShift) then
+		if (localHealth <= self.healthToShift) and (not script_checkDebuffs:hasSilence()) then
 			if (targetHealth >= 25 and script_grind.enemiesAttackingUs(10) == 1) 
 			or (targetHealth >= 10 and script_grind.enemiesAttackingUs(10) > 1)
 			or (localHealth <self.healthToShift - 25)
+			or (not isBear and not isBear2 and not isCat)
 			then
 				if (not localObj:HasBuff("Frenzied Regeneration")) and (not IsLooting()) then
 					if (script_druid:healsAndBuffs()) then
@@ -1520,7 +1526,7 @@ function script_druid:rest()
 	end
 
 	-- check heals and buffs
-	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not IsDrinking()) and (not IsEating()) and (not localObj:HasBuff("Frenzied Regeneration")) and (not IsMoving()) and (not IsInCombat()) then
+	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not IsDrinking()) and (not IsEating()) and (not localObj:HasBuff("Frenzied Regeneration")) and (not IsMoving()) and (not IsInCombat()) and (not script_checkDebuffs:hasSilence()) then
 		if (IsMoving()) then
 			StopMoving();
 			return true;
