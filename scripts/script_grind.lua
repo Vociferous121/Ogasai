@@ -625,6 +625,7 @@ function script_grind:run()
 			-- reset the combat status
 			self.combatError = nil; 
 			-- Run the combat script and retrieve combat script status if we have a valid target
+
 			if (self.enemyObj ~= nil and self.enemyObj ~= 0) then
 				self.combatError = RunCombatScript(self.enemyObj:GetGUID());
 			end
@@ -660,6 +661,16 @@ function script_grind:run()
 				self.message = "Moving to target...";
 				--if (self.enemyObj:GetDistance() < self.disMountRange) then
 				--end
+			-- Dont pull if more than 1 add will be pulled
+			if (self.skipHardPull) and (not IsInCombat()) then
+				if (not script_aggro:safePull(self.enemyObj))
+				and (not script_grind:isTargetBlacklisted(self.enemyObj:GetGUID()))
+				and (not script_grind:isTargetingMe(self.enemyObj)) then
+					script_grind:addTargetToBlacklist(self.enemyObj:GetGUID());
+					DEFAULT_CHAT_FRAME:AddMessage('script_grind: Blacklisting ' .. self.enemyObj:GetUnitName() .. ', too many adds...');
+					self.enemyObj = nil;
+				end
+			end
 
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
@@ -935,8 +946,8 @@ function script_grind:enemyIsValid(i)
 		end
 
 		-- Valid Targets: Within pull range, levelrange, not tapped, not skipped etc
-		if (script_aggro:safePull(i))	
-			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
+		if (self.skipHardPull) and (script_aggro:safePull(i)) then
+			if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
 			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
 			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
@@ -953,6 +964,28 @@ function script_grind:enemyIsValid(i)
 			and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
 			) then
 			return true;
+			end
+
+		elseif (not self.skipHardPull) then	
+			if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
+			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
+			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
+			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
+			and not (self.skipUnknown and i:GetCreatureType() == 'Not specified')
+			and not (self.skipHumanoid and i:GetCreatureType() == 'Humanoid')
+			and not (self.skipDemon and i:GetCreatureType() == 'Demon')
+			and not (self.skipBeast and i:GetCreatureType() == 'Beast')
+			and not (self.skipElemental and i:GetCreatureType() == 'Elemental')
+			and not (self.skipUndead and i:GetCreatureType() == 'Undead') 
+			and not (skipAberration and i:GetCreatureType() == 'Abberration') 
+			and not (skipDragonkin and i:GetCreatureType() == 'Dragonkin') 
+			and not (skipGiant and i:GetCreatureType() == 'Giant') 
+			and not (skipMechanical and i:GetCreatureType() == 'Mechanical') 
+			and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
+			) then
+			return true;
+			end
+	
 		end
 	end
 	return false;
