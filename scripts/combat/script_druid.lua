@@ -360,16 +360,14 @@ function script_druid:healsAndBuffs()
 		if (HasSpell("Regrowth")) and (not localObj:HasBuff("Regrowth")) and (not IsSpellOnCD("Regrowth")) and (IsInCombat()) then
 			if (localHealth <= self.regrowthHealth) and (localMana >= 40) and (not localObj:HasBuff("Regrowth")) then
 				if (not IsMoving()) and (not IsLooting()) and (not localObj:HasBuff("Regrowth")) then	
-					if (not localObj:HasBuff("Regrowth")) then
-							if (IsMoving()) then
-								StopMoving();
-							end
-						if (CastSpellByName("Regrowth", localObj)) then
-							if (not script_grind.adjustTickRate) then
-								script_grind.tickRate = 2050;
-							end
-							return true;
-						end
+					if (IsMoving()) then
+						StopMoving();
+						return true;
+					end
+					if (CastSpellByName("Regrowth", localObj)) then
+						self.waitTimer = GetTimeEX() + 1550
+						script_grind:setWaitTimer(1050);
+						return 0;
 					end
 				end
 			end
@@ -1431,7 +1429,8 @@ function script_druid:run(targetGUID)
 				end
 
 				-- Wrath
-				if (localMana > 30) and (targetHealth > 15) then
+				if (localMana > 30 and targetHealth > 15 and not HasSpell("Star Fire"))
+				or (localMana >= 10 and targetHealth >= 7 and HasSpell("Star Fire")) then
 					if (CastSpellByName("Wrath", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1650;
 						targetObj:FaceTarget();
@@ -1537,14 +1536,16 @@ function script_druid:rest()
 	end
 
 	-- check heals and buffs
-	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not IsDrinking()) and (not IsEating()) and (not localObj:HasBuff("Frenzied Regeneration")) and (not IsMoving()) and (not IsInCombat()) and (not script_checkDebuffs:hasSilence()) then
+	if (not IsLooting()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not IsDrinking()) and (not IsEating()) and (not localObj:HasBuff("Frenzied Regeneration")) and (not IsMoving()) and (not IsInCombat()) and (not script_checkDebuffs:hasSilence()) then
 		if (IsMoving()) then
 			StopMoving();
 			return true;
 		end
-		self.waitTimer = GetTimeEX() + 3500;
-		script_grind:setWaitTimer(3500);
-		return true;
+		if (script_druid:healsAndBuffs()) then
+			self.waitTimer = GetTimeEX() + 3500;
+			script_grind:setWaitTimer(3500);
+			return true;
+		end
 	end	
 
 	-- shift to drink - in bear form

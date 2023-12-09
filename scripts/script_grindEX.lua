@@ -27,6 +27,13 @@ function script_grindEX:doChecks()
 		--	end 
 		--end
 
+		if (not IsInCombat() and self.avoidBlacklisted) then
+		--		if (script_aggro:avoidBlacklistedTargets()) then
+		--			script_grind.message = "Avoiding blacklisted targets...";
+		--			return true;
+		--		end
+		--	end
+
 		if (not IsUsingNavmesh()) then UseNavmesh(true);
 			return true;
 		end

@@ -366,10 +366,6 @@ function script_expChecker:targetLevels()
             end
         end
 	
-	else
-		if (not script_rotation.rotationEnabled) then
-			self.messageRest = "Waiting For Target...";
-		end
 	end
 end
 end
