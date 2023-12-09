@@ -365,9 +365,9 @@ function script_druid:healsAndBuffs()
 						return true;
 					end
 					if (CastSpellByName("Regrowth", localObj)) then
-						self.waitTimer = GetTimeEX() + 1550
-						script_grind:setWaitTimer(1050);
-						return 0;
+						script_grind.tickRate = 450;
+						self.waitTimer = GetTimeEX() + 1250
+						return 4;
 					end
 				end
 			end
