@@ -499,15 +499,12 @@ function script_shaman:run(targetGUID)
 			end
 
 			-- Auto Attack
-			if (script_grind.lootObj == nil or script_grind.lootObj == 0) then
-				if (targetObj:GetDistance() <= 35) and (not IsAutoCasting("Attack"))
-					and (localMana >= self.drinkMana) and (localHealth >= self.healHealth)
-					and (script_grind.lootObj == nil or script_grind.lootObj == 0) then
-					if (targetObj:IsInLineOfSight()) then
-						targetObj:AutoAttack();
-					else
-						return 3;
-					end
+			if (targetObj:GetDistance() <= 35) and (not IsAutoCasting("Attack"))
+				and (localMana >= self.drinkMana) and (localHealth >= self.healHealth) then
+				if (targetObj:IsInLineOfSight()) and (not IsAutoCasting("Attack")) then
+					targetObj:AutoAttack();
+				else
+					return 3;
 				end
 			end
 
@@ -588,12 +585,16 @@ function script_shaman:run(targetGUID)
 	
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
+			-- Check if we are in melee range
+			if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
+				return 3;
+			end
 				
 			-- stop moving if we get close enough to target
-			if (IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance) and (targetHealth >= 80) then
+			if (targetObj:GetDistance() <= self.meleeDistance) and (targetHealth >= 80) then
+				targetObj:FaceTarget();
 				if (IsMoving()) then
 					StopMoving();
-					targetObj:FaceTarget();
 				end
 			end
 
@@ -681,6 +682,13 @@ function script_shaman:run(targetGUID)
 				end
 			end
 
+			--earth shock rank 1 if target is casting
+			if (targetObj:IsCasting()) and (HasSpell("Earth Shock")) then
+				if (not IsSpellOnCD("Earth Shock")) and (localMana >= 7) then
+					CastSpellByName("Earth Shock(Rank 1)");
+					return 0;
+				end
+			end
 			-- Earth Shock
 			if (HasSpell("Earth Shock")) then
 				if (targetObj:IsCasting())
