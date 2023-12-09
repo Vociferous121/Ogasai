@@ -364,8 +364,8 @@ function script_grind:run()
 		if (script_paranoiaCheck:playersWithinRange2(60) and script_grind.playersTargetingUs() >= 1) 
 			or (script_paranoiaCheck:playersWithinRange2(38)) then
 			if (not IsCasting()) and (not IsChanneling()) then
-				local moreJumping = math.random(0, 601);
-				if (moreJumping >= 600) then
+				local moreJumping = math.random(0, 701);
+				if (moreJumping >= 700) then
 					JumpOrAscendStart();
 					
 				end
@@ -642,6 +642,7 @@ function script_grind:run()
 			end
 
 			self.message = "Running the combat script...";
+
 			-- In range: attack the target, combat script returns 0
 			if(self.combatError == 0) then
 				script_nav:resetNavigate();
@@ -792,26 +793,6 @@ function script_grind:run()
 	end 
 end
 
---function script_grind:mountUp()
---	local __, lastError = GetLastError();
---	if (lastError ~= 75 and self.mountTimer < GetTimeEX() and self.useMount) then
---		if(script_grind.useMount and not IsSwimming() and not IsIndoors() and not IsMounted()) then
---			self.message = "Mounting...";
---			if (not IsStanding()) then
---				StopMoving();
---			end
---			if (script_helper:useMount() and self.useMount) then
---				self.waitTimer = GetTimeEX() + 8000;
---				return true;
---			end
---		end
---	else
---		ClearLastError();
---		self.mountTimer = GetTimeEX() + 7000;
---		return false;
---	end
---end
-
 function script_grind:getTarget()
 	return self.enemyObj;
 end
@@ -900,15 +881,6 @@ function script_grind:isTargetingPet(i)
 end
 
 function script_grind:isTargetingGroup(y) 
-	--for i = 1, GetNumPartyMembers() do
-	--	local partyMember = GetPartyMember(i);
-	--	if (partyMember ~= nil and partyMember ~= 0 and not partyMember:IsDead()) then
-	--		if (y:GetUnitsTarget() ~= nil and y:GetUnitsTarget() ~= 0 and not script_grind:isTargetingPet(y)) then
-	--			return y:GetUnitsTarget():GetGUID() == partyMember:GetGUID();
-	--		end
-	--	end
-	--end
-
 	return false;
 end
 

@@ -54,7 +54,7 @@ function script_aggro:safePull(target)
 
 	while currentObj ~= 0 do
  		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) then
-			aggro = currentObj:GetLevel() - localObj:GetLevel() + (script_aggro.adjustAggro + 20);
+			aggro = currentObj:GetLevel() - localObj:GetLevel() + (script_aggro.adjustAggro + 21);
 			cx, cy, cz = currentObj:GetPosition();
 			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro) then	
 				countUnitsInRange = countUnitsInRange + 1;
@@ -125,12 +125,12 @@ function script_aggro:closeToBlacklistedTargets()
 	local aggroClosest = 0;
 
 	while currentObj ~= 0 do
-		aggro = currentObj:GetLevel() - localObj:GetLevel() + 21;
+		aggro = currentObj:GetLevel() - localObj:GetLevel() + 22;
 		local range = aggro + 5;
 		if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range then	
 			if (closestEnemy == 0) then
 				closestEnemy = currentObj;
-				aggroClosest = currentObj:GetLevel() - localObj:GetLevel() + 21;
+				aggroClosest = currentObj:GetLevel() - localObj:GetLevel() + 22;
 			else
 				local dist = currentObj:GetDistance();
 				if (dist < closestDist) then
@@ -200,7 +200,7 @@ function script_aggro:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 			-- Calculate the point closest to our destination
 			if (IsPathLoaded(5)) then
-				local lastNodeIndex = GetPathSize(5)-1;
+				local lastNodeIndex = GetPathSize(5)-2;
 				local destX, destY, destZ = GetPathPositionAtIndex(5, lastNodeIndex); 
 				local destDist = math.sqrt((points[secondPoint].x-destX)^2 + (points[secondPoint].y-destY)^2);
 				if (destDist < bestDestDist) then

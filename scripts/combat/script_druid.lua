@@ -213,6 +213,7 @@ function script_druid:healsAndBuffs()
 			DisMount(); 
 			return 4; 
 		end
+
 --------------
 
 	-- shapeshift out of bear form to heal
@@ -225,6 +226,7 @@ function script_druid:healsAndBuffs()
 		end
 		if (script_druidEX:bearForm()) then
 			self.waitTimer = GetTimeEX() + 1500;
+			return true;
 		end
 		
 	end
@@ -244,6 +246,7 @@ function script_druid:healsAndBuffs()
 		if (localObj:HasBuff("Cat Form")) then
 			CastSpellByName("Cat Form");
 			self.waitTimer = GetTimeEX() + 700;
+			return true;
 		end
 	end
 
@@ -255,7 +258,7 @@ function script_druid:healsAndBuffs()
 			end
 		if (CastSpellByName("Rejuvenation", localObj)) then
 			self.waitTimer = GetTimeEX() + 1650;
-			return 0;
+			return true;
 		end
 	end
 
@@ -267,10 +270,13 @@ function script_druid:healsAndBuffs()
 			script_grind.tickRate = 335;
 		end
 		if (script_druidEX.bearForm()) then
-			self.waitTimer = GetTimeEX() + 1500;
+			self.waitTimer = GetTimeEX() + 1550;
+			script_grind:setWaitTimer(1550);
+			return true;
 		end
 		if (CastSpellByName("Healing Touch", localObj)) then
 			self.waitTimer = GetTimeEX() + 1500;
+			return true;
 		end
 	end
 
@@ -282,9 +288,12 @@ function script_druid:healsAndBuffs()
 		if (localObj:HasBuff("Cat Form")) then
 			CastSpellByName("Cat Form");
 			self.waitTimer = GetTimeEX() + 500;
+			script_grind:setWaitTimer(500);
+			return true;
 		end
 		if (CastSpellByName("Healing Touch", localObj)) then
 			self.waitTimer = GetTimeEX() + 1500;
+			return true;
 		end
 	end
 
@@ -303,7 +312,7 @@ function script_druid:healsAndBuffs()
 		if (IsInCombat()) and (HasSpell("Innervate")) and (not IsSpellOnCD("Innervate")) and (not localObj:HasBuff("Innervate")) and (localMana <= self.shapeshiftMana) then
 			if (CastSpellByName("Innervate", localObj)) then
 				self.waitTimer = GetTimeEX() + 3500;
-				return 0;
+				return true;
 			end
 		end
 
@@ -312,7 +321,7 @@ function script_druid:healsAndBuffs()
 			if (not localObj:HasBuff("Mark of the Wild")) then
 				if (CastSpellByName("Mark of the Wild", localObj)) then
 					self.waitTimer = GetTimeEX() + 2500;
-					return 0;
+					return true;
 				end
 			end
 		end
@@ -322,7 +331,7 @@ function script_druid:healsAndBuffs()
 			if (localHealth >= self.healthToShift) and (not IsMounted()) then
 				if (CastSpellByName("Thorns", localObj)) then
 					self.waitTimer = GetTimeEX() + 2550;
-					return 0;
+					return true;
 				end
 			end
 		end
@@ -353,21 +362,22 @@ function script_druid:healsAndBuffs()
 						if (IsMoving()) and (not localObj:HasBuff("Regrowth")) then
 							StopMoving();
 						end
-						if (not script_grind.adjustTickRate) then
-							script_grind.tickRate = 2850;
-						end
 						if (not localObj:HasBuff("Regrowth")) then
 							if (CastSpellByName("Regrowth", localObj)) then
-								self.waitTimer = GetTimeEX() + 3550;
-								script_grind:setWaitTimer(3550)
-								return 4;
+								if (not script_grind.adjustTickRate) then
+									script_grind.tickRate = 2850;
+								end
+								self.waitTimer = GetTimeEX() + 4050;
+								script_grind:setWaitTimer(4050)
+								return false;
 							end
 						end
-						if (not localObj:HasBuff("Rejuvenation")) then
+						if (localObj:HasBuff("Regrowth")) 
+							and (not localObj:HasBuff("Rejuvenation")) then
 							if (CastSpellByName("Rejuvenation", localObj)) then
 								self.waitTimer = GetTimeEX() + 1500;
 								script_grind:setWaitTimer(1650);
-								return;
+								return true;
 							end
 						end
 					end
@@ -383,7 +393,8 @@ function script_druid:healsAndBuffs()
 				end
 				if (CastSpellByName("Rejuvenation", localObj)) then
 					self.waitTimer = GetTimeEX() + 1600;
-					return 0;
+					script_grind:setWaitTimer(1600);
+					return true;
 				end
 			end
 		end
@@ -393,7 +404,7 @@ function script_druid:healsAndBuffs()
 			if (localHealth < self.healingTouchHealth) and (localMana > 25) then
 				if (CastHeal("Healing Touch", localObj)) then
 					self.waitTimer = GetTimeEX() + 2700;
-					return 0;
+					return true;
 				end
 			end
 		end
@@ -405,7 +416,7 @@ function script_druid:healsAndBuffs()
 				end
 			if (CastSpellByName("Rejuvenation", targetObj)) then
 				self.waitTimer = GetTimeEX() + 1750;
-				return 0;
+				return true;
 			end
 		end
 
@@ -444,6 +455,14 @@ function script_druid:healsAndBuffs()
 		end
 	end
 
+	-- if we have regrowth and rejuvenation and 2 or more targets are attacking us then cast healing touch
+	if (HasSpell("Regrowth")) and (hasRegrowth) and (hasRejuv) and (script_grind:enemiesAttackingUs(10) >= 2) and (not isBear and not isBear2 and not isCat and not isMoonkin and not isTravel and not IsMounted()) and (localHealth < self.healthToShift) then
+		if (CastSpellByName("Healing Touch", localObj)) then
+			self.waitTimer = GetTimeEX() + 1500;
+			script_grind:setWaitTimer(500);
+		end
+	end
+
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
@@ -462,7 +481,7 @@ return false;
 end
 
 function script_druid:run(targetGUID)
-	
+
 	if(not self.isSetup) then
 		script_druid:setup();
 	end
@@ -646,6 +665,10 @@ function script_druid:run(targetGUID)
 
 		-- check heals and buffs
 		if (script_druid:healsAndBuffs()) and (not localObj:HasBuff("Frenzied Regeneration")) and (not IsLooting()) and (targetHealth >= 20) then
+		if (IsMoving()) then
+			StopMoving();
+			return true;
+		end
 			self.waitTimer = GetTimeEX() + 2550;
 			return;
 		end
@@ -950,6 +973,10 @@ function script_druid:run(targetGUID)
 
 			-- check heals and buffs
 			if (script_druid:healsAndBuffs()) and (not IsLooting()) and (not localObj:HasBuff("Frenzied Regeneration")) and (targetHealth >= 20) then
+		if (IsMoving()) then
+			StopMoving();
+			return true;
+		end
 				self.waitTimer = GetTimeEX() + 2550;
 				return;
 			end
@@ -1331,6 +1358,10 @@ function script_druid:run(targetGUID)
 
 				-- check heals and buffs
 				if (script_druid:healsAndBuffs()) and (not IsLooting()) and (not localObj:HasBuff("Frenzied Regeneration")) and (targetHealth >= 20) then
+		if (IsMoving()) then
+			StopMoving();
+			return true;
+		end
 					self.waitTimer = GetTimeEX() + 2550;
 					return;
 				end
@@ -1546,8 +1577,13 @@ function script_druid:rest()
 
 	-- check heals and buffs
 	if (script_druid:healsAndBuffs()) and (not IsLooting()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not IsDrinking()) and (not IsEating()) and (not localObj:HasBuff("Frenzied Regeneration")) and (not IsMoving()) then
-		self.waitTimer = GetTimeEX() + 3000;
-		script_grind:setWaitTimer(3000);
+		if (IsMoving()) then
+			StopMoving();
+			return true;
+		end
+		self.waitTimer = GetTimeEX() + 3500;
+		script_grind:setWaitTimer(3500);
+		return true;
 	end	
 
 	-- rest in form
