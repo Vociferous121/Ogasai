@@ -28,6 +28,7 @@ script_druid = {
 	runOnce = false,
 	shapeshiftMana = 33,	-- cost of shapeshift mana
 	hasDrinks = true,
+	usePowerShift = false,
 }
 
 
@@ -356,7 +357,7 @@ function script_druid:healsAndBuffs()
 		end
 
 		-- Regrowth
-		if (HasSpell("Regrowth")) and (not localObj:HasBuff("Regrowth")) and (not IsSpellOnCD("Regrowth")) then
+		if (HasSpell("Regrowth")) and (not localObj:HasBuff("Regrowth")) and (not IsSpellOnCD("Regrowth")) and (IsInCombat()) then
 			if (localHealth <= self.regrowthHealth) and (localMana >= 40) and (not localObj:HasBuff("Regrowth")) then
 				if (not IsMoving()) and (not IsLooting()) and (not localObj:HasBuff("Regrowth")) then	
 					if (not localObj:HasBuff("Regrowth")) then
@@ -582,7 +583,7 @@ function script_druid:run(targetGUID)
 		if (self.useBear) or ( script_grind.enemiesAttackingUs(12) >= 2 and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) and (not IsDrinking()) and (not IsEating()) )
 
 		-- enemy level greater than 2 then use bear form
-		or ( (targetObj:GetLevel() >= (localObj:GetLevel() + 2)) and (IsInCombat()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) and (not IsDrinking()) and (not IsEating()) and (targetObj:GetHealthPercentage() >= 40) and (IsInCombat()) ) then
+		or ( (targetObj:GetLevel() > (localObj:GetLevel() + 2)) and (IsInCombat()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) and (not IsDrinking()) and (not IsEating()) and (targetObj:GetHealthPercentage() >= 40) and (IsInCombat()) ) then
 			
 			-- if not in form and mana/health right then use bear form
 			if (not isBear and not isBear2) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift) and (IsStanding()) then
@@ -613,7 +614,7 @@ function script_druid:run(targetGUID)
 	end
 
 		-- use prowl before spamming auto attack and move in range of target!
-		if (not IsInCombat()) and (self.useCat) and (isCat) and (self.useStealth) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not script_checkDebuffs:hasPoison()) and (IsStanding()) and (IsMoving()) then
+		if (not IsInCombat()) and (self.useCat) and (isCat) and (self.useStealth) and (HasSpell("Prowl")) and (not IsSpellOnCD("Prowl")) and (not localObj:HasBuff("Prowl")) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not script_checkDebuffs:hasPoison()) and (not localObj:HasDebuff("Rend")) and (IsStanding()) and (IsMoving()) then
 			CastSpellByName("Prowl");
 			JumpOrAscendStart();
 			return 0;
@@ -630,7 +631,7 @@ function script_druid:run(targetGUID)
 
 	-- shapeshift out of cat form to use bear form 2 or more targets - leave form
 		if (self.useCat) and (isCat) and (localMana >= self.shapeshiftMana) and (localHealth <= self.healthToShift) and (GetNumPartyMembers() < 2) then
-			if (script_grind:enemiesAttackingUs(12) >= 2 or targetObj:GetLevel() >= localObj:GetLevel() + 2) and (IsInCombat()) then
+			if (script_grind:enemiesAttackingUs(12) >= 2 or targetObj:GetLevel() > localObj:GetLevel() + 2) and (IsInCombat()) then
 		
 				if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 125;
@@ -812,13 +813,13 @@ function script_druid:run(targetGUID)
 		or ( (script_grind.enemiesAttackingUs(12) >= 2) and (not isBear and not isBear2) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) ) 
 
 		-- or enemy level is greater than 2 and health/mana is set right
-		or ( (targetObj:GetLevel() >= (localObj:GetLevel() + 2) and IsInCombat() ) and (not isBear and not isBear2) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) )
+		or ( (targetObj:GetLevel() > (localObj:GetLevel() + 2) and IsInCombat() ) and (not isBear and not isBear2) and (not isCat) and (localMana > self.shapeshiftMana) and (localHealth > self.healthToShift) and (IsStanding()) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) )
 		
 		-- or hasregrowth and has rejuv and is in combat
 		or ( (self.useBear or script_grind.enemiesAttackingUs(10) >= 2) and (hasRegrowth) and (hasRejuv) and (IsInCombat()) and (not isBear and not isBear2 and not isCat) and (localMana >= self.shapeshiftMana) and (localHealth > self.healthToShift) )
 
 		-- or if not has regrwoth yet and has rejuvenation and health/mana correct
-		or ( (not HasSpell("Regrowth")) and (hasRejuv) and (IsInCombat()) and (not isBear and not isBear2 and not isCat) and (localMana >= self.shapeshiftMana) and (localHealth > self.healthToShift) )
+		or ( (not HasSpell("Regrowth")) and (hasRejuv) and (IsInCombat()) and (not isBear and not isBear2 and not isCat) and (localMana >= self.shapeshiftMana) and (localHealth > self.healthToShift) and (HasSpell("Bear Form")) and (self.useBear) )
 
 		then
 			-- cast bear form
@@ -963,7 +964,7 @@ function script_druid:run(targetGUID)
 	-- end of pulling not in combat phase
 
 
-	-- Combat -- start of combat phase! in combat!
+	-- Combat -- start of combat phase! now in combat!
 
 	-- IN COMBAT
 
@@ -996,6 +997,16 @@ function script_druid:run(targetGUID)
 			end
 		end
 
+		if (self.usePowerShift) then
+			if (self.useCat and isCat) then
+				if (localEnergy < 40) and (localMana > self.shapeshiftMana * 2) and (targetHealth >= 35) and (localCP < 5) and (localHealth >= self.shapeshiftHealth + 30) then
+					if (CastSpellByName("Cat Form")) then
+						return 0;
+					end
+				end
+			end
+		end
+
 	-- attacks in bear form IN COMBAT PHASE
 
 			local isBear = localObj:HasBuff("Bear Form");
@@ -1013,7 +1024,7 @@ function script_druid:run(targetGUID)
 				and (not isCat) and (localHealth > self.healthToShift) )
 		
 			-- or enemy level greater than 2 and mana/health correct
-			or ( (targetObj:GetLevel() >= (localObj:GetLevel() + 2) and IsInCombat())
+			or ( (targetObj:GetLevel() > (localObj:GetLevel() + 2) and IsInCombat())
 				and (not isBear and not isBear2) and (localMana >= self.shapeshiftMana)
 				and (not isCat) and (localHealth > self.healthToShift)
 				and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) )
