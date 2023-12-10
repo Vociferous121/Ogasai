@@ -339,7 +339,7 @@ function script_rogue:run(targetGUID)
 				if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) and (not script_checkDebuffs:hasPoison()) then
 					if (not localObj:HasBuff("Stealth") and not IsSpellOnCD("Stealth")) then
 						CastSpellByName("Stealth");
-						return 0;
+						self.waitTimer = GetTimeEX() + 500;
 					end
 					-- Use sprint (when stealthed for pull)
 					if (HasSpell("Sprint")) and (not IsSpellOnCD("Sprint")) and (localObj:HasBuff("Stealth")) then
