@@ -503,7 +503,7 @@ function script_grind:run()
 		end
 
 		-- Auto path: keep us inside the distance to the current hotspot, if mounted keep running even if in combat
-		if(not script_grind.hotspotReached) and ((not IsInCombat() or IsMounted()) and (self.autoPath) and (script_vendor:getStatus() == 0) and
+		if (not script_grind.hotspotReached) and ((not IsInCombat() or IsMounted()) and (self.autoPath) and (script_vendor:getStatus() == 0) and
 			(script_nav:getDistanceToHotspot() > self.distToHotSpot or self.hotSpotTimer > GetTimeEX())) then
 			if (not (self.hotSpotTimer > GetTimeEX())) then
 				self.hotSpotTimer = GetTimeEX() + 20000;
@@ -661,7 +661,8 @@ function script_grind:run()
 				return;
 			end
 			-- Move in range: combat script return 3
-			if (self.combatError == 3) and (not localObj:IsMovementDisabed()) then
+			if (self.combatError == 3) and (not localObj:IsMovementDisabed())
+				and (not script_checkDebuffs:hasDisabledMovement()) then
 				self.message = "Moving to target...";
 				--if (self.enemyObj:GetDistance() < self.disMountRange) then
 				--end
