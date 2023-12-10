@@ -29,6 +29,7 @@ function script_grindEX:doChecks()
 
 		--if (not IsInCombat() and self.avoidBlacklisted) then
 		--		if (script_aggro:avoidBlacklistedTargets()) then
+		--			if (script_aggro:avoid( need blacklisted target position ) 
 		--			script_grind.message = "Avoiding blacklisted targets...";
 		--			return true;
 		--		end
