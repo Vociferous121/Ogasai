@@ -58,7 +58,7 @@ script_grind = {
 	skipMechanical = false,	
 	skipElites = true,	-- skip elites (currently disabled)
 	paranoidRange = 75,	-- paranoia range
-	nextToNodeDist = 4.4, -- (Set to about half your nav smoothness)
+	nextToNodeDist = 3.2, -- (Set to about half your nav smoothness)
 	blacklistedTargets = {},	-- GUID table of blacklisted targets
 	blacklistedNum = 0,	-- number of blacklisted targets
 	isSetup = false,	-- is setup function run
@@ -503,7 +503,7 @@ function script_grind:run()
 		end
 
 		-- Auto path: keep us inside the distance to the current hotspot, if mounted keep running even if in combat
-		if ((not IsInCombat() or IsMounted()) and (self.autoPath) and (script_vendor:getStatus() == 0) and
+		if(not script_grind.hotspotReached) and ((not IsInCombat() or IsMounted()) and (self.autoPath) and (script_vendor:getStatus() == 0) and
 			(script_nav:getDistanceToHotspot() > self.distToHotSpot or self.hotSpotTimer > GetTimeEX())) then
 			if (not (self.hotSpotTimer > GetTimeEX())) then
 				self.hotSpotTimer = GetTimeEX() + 20000;
@@ -672,7 +672,7 @@ function script_grind:run()
 				script_grind.tickRate = 0;
 
 				if (_x ~= 0 and x ~= 0) then
-					local moveBuffer = math.random(-3, 3);
+					local moveBuffer = math.random(-2, 2);
 					self.message = script_navEX:moveToTarget(localObj, _x+moveBuffer, _y+moveBuffer, _z);
 					script_grind:setWaitTimer(110);
 					return;
@@ -854,7 +854,8 @@ function script_grind:assignTarget()
 	-- Check: If we are in combat but no valid target, kill the "unvalid" target attacking us
 	if (closestTarget == nil and IsInCombat()) then
 		if (GetTarget() ~= 0) then
-			script_grind.tickRate = 50;
+			-- need to check for loot first...
+			--script_grind.tickRate = 100;
 			return GetTarget();
 		end
 	end
@@ -1081,8 +1082,8 @@ function script_grind:doLoot(localObj)
 		end
 
 		-- If we reached the loot object, reset the nav path
-		script_nav:resetNavigate();
-		self.waitTimer = GetTimeEX() + 550;
+		--script_nav:resetNavigate();
+		--self.waitTimer = GetTimeEX() + 550;
 		
 	end
 
