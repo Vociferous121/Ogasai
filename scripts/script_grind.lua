@@ -908,12 +908,14 @@ function script_grind:enemyIsValid(i)
 		end
 
 		-- Valid Targets: Within pull range, levelrange, not tapped, not skipped etc
-		if (self.skipHardPull) then
+		if (self.skipHardPull) and (not i:IsDead()) and (i:CanAttack()) and (not i:IsCritter())
+			and (i:GetLevel() >= self.minLevel)
+			and (i:GetDistance() < 200) then
 			if (not script_aggro:safePull(i)) and (not script_grind:isTargetBlacklisted(i:GetGUID()))
-			and (not script_grind:isTargetingMe(i)) then
-			local myTime = GetTimeStamp();
-			script_grind:addTargetToBlacklist(i:GetGUID());
-			DEFAULT_CHAT_FRAME:AddMessage('' ..myTime.. ': Blacklisting "' .. i:GetUnitName() .. '", too many adds...');
+				and (not script_grind:isTargetingMe(i)) then
+				local myTime = GetTimeStamp();
+				script_grind:addTargetToBlacklist(i:GetGUID());
+				DEFAULT_CHAT_FRAME:AddMessage('' ..myTime.. ': Blacklisting "' .. i:GetUnitName() .. '", too many adds...');
 			end
 
 			if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
