@@ -661,16 +661,6 @@ function script_grind:run()
 				self.message = "Moving to target...";
 				--if (self.enemyObj:GetDistance() < self.disMountRange) then
 				--end
-			-- Dont pull if more than 1 add will be pulled
-			if (self.skipHardPull) and (not IsInCombat()) then
-				if (not script_aggro:safePull(self.enemyObj))
-				and (not script_grind:isTargetBlacklisted(self.enemyObj:GetGUID()))
-				and (not script_grind:isTargetingMe(self.enemyObj)) then
-					script_grind:addTargetToBlacklist(self.enemyObj:GetGUID());
-					DEFAULT_CHAT_FRAME:AddMessage('script_grind: Blacklisting ' .. self.enemyObj:GetUnitName() .. ', too many adds...');
-					self.enemyObj = nil;
-				end
-			end
 
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
@@ -896,16 +886,6 @@ end
 function script_grind:enemyIsValid(i)
 	if (i ~= 0) then
 
-		if (self.skipHardPull) and (not IsInCombat()) then
-			if (not script_aggro:safePull(i))
-			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
-			and (not script_grind:isTargetingMe(i)) then
-				local myTime = GetTimeStamp();
-				script_grind:addTargetToBlacklist(i:GetGUID());
-				DEFAULT_CHAT_FRAME:AddMessage('' ..myTime.. ': Blacklisting "' .. i:GetUnitName() .. '", too many adds...');
-			end
-		end
-
 		-- Valid Targets: Tapped by us, or is attacking us or our pet
 		if (script_grind:isTargetingMe(i)
 			or (script_grind:isTargetingPet(i) and (i:IsTappedByMe() or not i:IsTapped())) 
@@ -928,7 +908,14 @@ function script_grind:enemyIsValid(i)
 		end
 
 		-- Valid Targets: Within pull range, levelrange, not tapped, not skipped etc
-		if (self.skipHardPull) and (script_aggro:safePull(i)) then
+		if (self.skipHardPull) then
+			if (not script_aggro:safePull(i)) and (not script_grind:isTargetBlacklisted(i:GetGUID()))
+			and (not script_grind:isTargetingMe(i)) then
+			local myTime = GetTimeStamp();
+			script_grind:addTargetToBlacklist(i:GetGUID());
+			DEFAULT_CHAT_FRAME:AddMessage('' ..myTime.. ': Blacklisting "' .. i:GetUnitName() .. '", too many adds...');
+			end
+
 			if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
 			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
