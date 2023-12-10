@@ -9,7 +9,7 @@ script_rogue = {
 	eatHealth = 60,
 	potionHealth = 7,
 	cpGeneratorCost = 45,
-	meleeDistance = 3.9,
+	meleeDistance = 3.2,
 	stealthRange = 100,
 	waitTimer = 0,
 	vanishHealth = 8,
@@ -40,40 +40,22 @@ function script_rogue:setup()
 	-- no more bugs first time we run the bot
 	self.waitTimer = GetTimeEX(); 
 
-	-- Set Hemorrhage as default CP builder if we have it
-	if (HasSpell("Hemorrhage")) then
-		self.cpGenerator = "Hemorrhage";
-	end
-
 	--set backstab as opener
 	if (GetLocalPlayer():GetLevel() < 10) then
 		self.stealthOpener = "Backstab";
 	elseif (not HasSpell("Ambush")) and (HasSpell("Garrote")) and (GetLocalPlayer():GetLevel() >= 10) then
 		self.stealthOpener = "Garrote";
-	elseif (HasSpell("Ambush")) then
+	elseif (HasSpell("Ambush")) and (not HasSpell("Riposte") or HasSpell("Ghostly Strike")) then
 		self.stealthOpener = "Ambush";
+	elseif (HasSpell("Riposte")) and (not HasSpell("Cheap Shot")) then
+		self.stealthOpener = "Garrote";
+	elseif (HasSpell("Riposte")) and (HasSpell("Cheap Shot")) then
+		self.stealthOpenber = "Cheap Shot";
 	end
-
-	-- Set Cheap Shot as default opener if we have it
-	if (HasSpell("Cheap Shot")) and (HasSpell("Riposte")) then
-		self.stealthOpener = "Cheap Shot";
-	end
-	
 
 	-- Set the energy cost for the CP builder ability (does not recognize talent e.g. imp. sinister strike)
 	_, _, _, _, self.cpGeneratorCost = GetSpellInfo(self.cpGenerator);
 	self.isSetup = true;
-
-	-- set for easy combat rogue setup
-	--level 10 talent
-	--if (GetLocalPlayer():GetLevel() == 10) then
-	--	self.cpGeneratorCost = 42;
-	--end
-	
-	--level 11 talent
-	--if (GetLocalPlayer():GetLevel() > 10) then
-	--	self.cpGeneratorCost = 40;
-	--end
 
 	if (not HasSpell("Adrenaline Rush")) then
 		self.adrenRushCombo = false;
@@ -82,6 +64,14 @@ function script_rogue:setup()
 
 	if (not HasSpell("Blade Flurry")) then
 		self.enableBladeFlurry = false;
+	end
+
+	-- Set Hemorrhage as default CP builder if we have it
+	if (HasSpell("Hemorrhage")) then
+		self.cpGenerator = "Hemorrhage";
+	end
+	if (HasSpell("Riposte")) then
+		self.cpGeneratorCost = 40;
 	end
 end
 
