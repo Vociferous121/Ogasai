@@ -372,6 +372,10 @@ function script_grind:run()
 			end
 		end
 	end
+
+	if (not script_paranoia.paranoiaUsed) then
+		script_paranoiaCheck:playersWithinRange2(self.paranoidRange);
+	end
 	-- do paranoia
 	if (not IsLooting()) and (not IsInCombat()) and (not IsMounted()) and (not IsCasting()) and (not IsChanneling()) and (script_grind.playerName ~= "Unknown") and (script_grind.otherName ~= "Unknown") then	
 				-- set paranoid used as true

@@ -9,6 +9,7 @@ function script_paranoiaCheck:playersWithinRange(range)
 			if (currentObj:GetDistance() < range) then 
 				local localObj = GetLocalPlayer();
 				if (localObj:GetGUID() ~= currentObj:GetGUID()) and (currentObj:GetUnitName() ~= script_paranoia.ignoreTarget) then
+						script_grind.tickRate = 0;
 						script_grind.paranoidTargetDistance = currentObj:GetDistance();
 						script_grind.paranoidTargetName = currentObj:GetUnitName();
 					if (script_grind.useString) then
