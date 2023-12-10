@@ -367,6 +367,7 @@ function script_druid:healsAndBuffs()
 					if (CastSpellByName("Regrowth", localObj)) then
 						script_grind.tickRate = 450;
 						self.waitTimer = GetTimeEX() + 1250
+						script_grind:setWaitTimer(1250);
 						return 4;
 					end
 				end
@@ -1399,7 +1400,6 @@ function script_druid:run(targetGUID)
 				if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) and (targetObj:IsCasting() or script_druid:enemiesAttackingUs(10) >= 2) and (not IsMoving()) and (targetObj:GetDistance() <= 8) then
 					CastSpellByName("War Stomp");
 					self.waitTimer = GetTimeEX() + 200;
-					return 0;
 				end
 
 				-- keep moonfire up
@@ -1542,16 +1542,16 @@ function script_druid:rest()
 			return true;
 		end
 		if (script_druid:healsAndBuffs()) then
-			self.waitTimer = GetTimeEX() + 3500;
-			script_grind:setWaitTimer(3500);
+			self.waitTimer = GetTimeEX() + 1500;
+			script_grind:setWaitTimer(1500);
 			return true;
 		end
 	end	
 
 	-- shift to drink - in bear form
-	if (isBear or isBear2)and (not IsInCombat()) then
-		if (localMana <= self.drinkMana - 20 and self.shiftToDrink) 
-		or (localMana < 20 and localHealth < 50)
+	if (isBear or isBear2) and (not IsInCombat()) then
+		if (localMana <= self.drinkMana - 15 and self.shiftToDrink) 
+		or (localMana <= 15)
 		then
 			if (script_druidEX:bearForm()) then
 				self.waitTimer = GetTimeEX() + 1500;
@@ -1562,8 +1562,8 @@ function script_druid:rest()
 
 	-- shift to drink - in cat form
 	if (self.shiftToDrink) and (isCat) and (not IsInCombat()) then 	
-		if (localMana <= self.drinkMana - 20 and self.shiftToDrink) 
-		or (localMana < 20 and localHealth < 50)
+		if (localMana <= self.drinkMana - 15 and self.shiftToDrink) 
+		or (localMana < 15)
 		then	
 			if (CastSpellByName("Cat Form")) then
 				self.waitTimer = GetTimeEX() + 1500;
