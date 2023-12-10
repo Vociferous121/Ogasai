@@ -376,6 +376,7 @@ function script_grind:run()
 	if (not script_paranoia.paranoiaUsed) then
 		script_paranoiaCheck:playersWithinRange2(self.paranoidRange);
 	end
+
 	-- do paranoia
 	if (not IsLooting()) and (not IsInCombat()) and (not IsMounted()) and (not IsCasting()) and (not IsChanneling()) and (script_grind.playerName ~= "Unknown") and (script_grind.otherName ~= "Unknown") then	
 				-- set paranoid used as true
@@ -546,7 +547,6 @@ function script_grind:run()
 			if (not IsMounted()) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (not script_checkDebuffs:hasPoison()) then
 				if (CastSpellByName("Stealth", localObj)) then
 					self.waitTimer = GetTimeEX() + 1200;
-					return 0;
 				end
 			end
 
