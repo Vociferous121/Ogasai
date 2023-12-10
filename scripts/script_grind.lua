@@ -923,6 +923,11 @@ function script_grind:enemyIsValid(i)
 				script_grind:addTargetToBlacklist(i:GetGUID());
 				DEFAULT_CHAT_FRAME:AddMessage('' ..myTime.. ': Blacklisting "' .. i:GetUnitName() .. '", too many adds...');
 			end
+			
+			-- target blacklisted moved away from other targets
+			if (script_grind:isTargetBlacklisted(i:GetGUID())) and (script_aggro:safePullRecheck(i)) then
+				return true;
+			end
 
 			if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))

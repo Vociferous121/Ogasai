@@ -71,6 +71,33 @@ function script_aggro:safePull(target)
 	return true;
 end
 
+function script_aggro:safePullRecheck(target) 
+	local localObj = GetLocalPlayer();
+	local countUnitsInRange = 0;
+	local currentObj, typeObj = GetFirstObject();
+	local aggro = 0;
+	local tx, ty, tz = target:GetPosition();
+	local cx, cy, cz = 0, 0, 0;
+
+	while currentObj ~= 0 do
+ 		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) then
+			aggro = currentObj:GetLevel() - localObj:GetLevel() + (script_aggro.adjustAggro + 24);
+			cx, cy, cz = currentObj:GetPosition();
+			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro) then	
+				countUnitsInRange = countUnitsInRange + 1;
+ 			end
+ 		end
+ 		currentObj, typeObj = GetNextObject(currentObj);
+ 	end
+
+	-- avoid pull if more than 1 add
+	if (countUnitsInRange > 1) then
+		return false;
+	end
+
+	return true;
+end
+
 function script_aggro:safeRess(corpseX, corpseY, corpseZ, ressRadius) 
 	local countUnitsInRange = 0;
 	local currentObj, typeObj = GetFirstObject();
