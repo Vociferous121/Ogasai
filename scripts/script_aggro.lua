@@ -71,6 +71,8 @@ function script_aggro:safePull(target)
 	return true;
 end
 
+
+-- used to recheck a blacklisted target and their range - attack target if they moved far enough away
 function script_aggro:safePullRecheck(target) 
 	local localObj = GetLocalPlayer();
 	local countUnitsInRange = 0;
@@ -81,7 +83,7 @@ function script_aggro:safePullRecheck(target)
 
 	while currentObj ~= 0 do
  		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) then
-			aggro = currentObj:GetLevel() - localObj:GetLevel() + (script_aggro.adjustAggro + 24);
+			aggro = currentObj:GetLevel() - localObj:GetLevel() + (script_aggro.adjustAggro + 23.5);
 			cx, cy, cz = currentObj:GetPosition();
 			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro) then	
 				countUnitsInRange = countUnitsInRange + 1;

@@ -29,6 +29,8 @@ function script_grindEX:doChecks()
 
 		--if (not IsInCombat() and self.avoidBlacklisted) then
 		--		if (script_aggro:avoidBlacklistedTargets()) then
+					-- can try to use currentObj ~= enemyObj then avoid??
+					-- doesn't really have to be just a blacklisted target
 		--			if (script_aggro:avoid( need blacklisted target position ) 
 		--			script_grind.message = "Avoiding blacklisted targets...";
 		--			return true;
@@ -96,7 +98,7 @@ function script_grindEX:doChecks()
 		end
 
 		if (localObj:HasBuff("Vanish")) then
-			if (script_extraFunctions:runBackwards(1, 30)) then 
+			if (script_extraFunctions:runBackwards(localObj, 30)) then 
 				ClearTarget();
 				script_grind.message = "Moving away from enemies...";
 				return 4;
