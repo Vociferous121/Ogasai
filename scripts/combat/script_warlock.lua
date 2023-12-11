@@ -367,12 +367,15 @@ function script_warlock:run(targetGUID)
 	end
 
 	-- resummon when sacrifice is active
-	if (GetPet == 0) or (GetPet() ~= 0 and GetPet():GetHealthPercentage() <= 1) then
+	if (not self.HasPet) and (GetPet == 0) or (GetPet() ~= 0 and GetPet():GetHealthPercentage() <= 1) then
 		if (self.useVoid) and (self.sacrificeVoid) and (localObj:HasBuff("Sacrifice")) and (not self.hasPet) and (localMana >= 35) then
 			script_grind.tickRate = 100;
-			CastSpellByName("Summon Voidwalker");
+			if (CastSpellByName("Summon Voidwalker")) then
+			self.waitTimer = GetTimeEX() + 12000;
+			script_grind:setWaitTimer(1200);
 			self.hasPet = true;
 			return true;
+			end
 		end
 	end
 
@@ -385,6 +388,7 @@ function script_warlock:run(targetGUID)
 			end
 		else
 			AssistUnit("pet");
+			self.message = "Stuck in combat! WAITING!";
 			return 4;
 		end
 	end
@@ -1043,6 +1047,8 @@ function script_warlock:run(targetGUID)
 						script_rotation.tickRate = 135;
 					end
 				else
+					AssistUnit("pet");
+					self.message = "Stuck in combat! WAITING!";
 					return 4;
 				end
 			end	

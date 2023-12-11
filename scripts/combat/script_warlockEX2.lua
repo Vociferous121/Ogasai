@@ -6,6 +6,8 @@ script_warlockEX2 = {
 
 function script_warlockEX2:summonPet()
 
+	script_grind.tickRate = 1500;
+
 	local localMana = GetLocalPlayer():GetManaPercentage();
 	local pet = GetPet();
 	local hasPet = pet ~= 0;
