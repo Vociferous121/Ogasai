@@ -84,16 +84,16 @@ function script_warlockEX:summonPet()
 
 	if (not HasItem("Soul Shard")) and (GetPet() == 0) and (localMana >= 35) and (HasSpell("Voidwalker")) then
 		CastSpellByName("Summon Imp");
-		script_grind:setWaitTimer(12000);
-		self.waitTimer = GetTimeEX() + 12000;
+		script_grind:setWaitTimer(15000);
+		self.waitTimer = GetTimeEX() + 15000;
 		script_warlock.hasPet = true;
 		self.impUsed = true;
 	end
 
 	if (self.impUsed) and (HasItem("Soul Shard")) and (not IsInCombat()) and (localMana >= 35) then
 		CastSpellByName("Summon Voidwalker");
-		script_grind:setWaitTimer(12000);
-		self.waitTimer = GetTimeEX() + 12000;
+		script_grind:setWaitTimer(15000);
+		self.waitTimer = GetTimeEX() + 15000;
 		script_warlock.hasPet = true;
 		self.impUsed = false;
 	end
@@ -117,8 +117,8 @@ function script_warlockEX:summonPet()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Succubus")) and (GetPet == 0 or (GetPet() ~= 0 and GetPet():GetHealthPercentage() <= 1)) and (not script_warlock.hasPet) then
-					script_grind:setWaitTimer(12000);
-					self.waitTimer = GetTimeEX() + 12000;
+					script_grind:setWaitTimer(15000);
+					self.waitTimer = GetTimeEX() + 15000;
 					script_warlock.message = "Summoning Succubus";
 					script_warlock.hasPet = true;
 					return 0; 
@@ -134,8 +134,8 @@ function script_warlockEX:summonPet()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Voidwalker")) and (GetPet == 0 or (GetPet() ~= 0 and GetPet():GetHealthPercentage() <= 1)) and (not script_warlock.hasPet) then
-					script_grind:setWaitTimer(12000);
-					self.waitTimer = GetTimeEX() + 12000;
+					script_grind:setWaitTimer(15000);
+					self.waitTimer = GetTimeEX() + 15000;
 					script_warlock.message = "Summoning Void Walker";
 					script_warlock.hasPet = true;
 					return 0; 
@@ -151,8 +151,8 @@ function script_warlockEX:summonPet()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Felhunter")) and (GetPet == 0 or (GetPet() ~= 0 and GetPet():GetHealthPercentage() <= 1)) and (not script_warlock.hasPet) then
-					script_grind:setWaitTimer(12000);
-					self.waitTimer = GetTimeEX() + 12000;
+					script_grind:setWaitTimer(15000);
+					self.waitTimer = GetTimeEX() + 15000;
 					script_warlock.message = "Summoning Felhunter";
 					hasPet = true;
 					return 0; 
@@ -163,8 +163,8 @@ function script_warlockEX:summonPet()
 			if (localMana > 35) and (GetPet() == 0 or (GetPet() ~= 0 and GetPet():GetHealthPercentage() <= 1)) and (not script_warlock.hasPet) then
 				if (GetPet()==0 or (GetPet() ~= 0 and GetPet():GetHealthPercentage() <= 1)) and (not script_warlock.hasPet) then
 					CastSpellByName("Summon Imp");
-					script_grind:setWaitTimer(12000);
-					self.waitTimer = GetTimeEX() + 12000;
+					script_grind:setWaitTimer(15000);
+					self.waitTimer = GetTimeEX() + 15000;
 					script_warlock.message = "Summoning Imp";
 					script_warlock.hasPet = true;
 					return 4;
@@ -186,8 +186,8 @@ function script_warlockEX:summonPet()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Succubus")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not script_warlock.hasPet) then
-					script_grind:setWaitTimer(12000);
-					self.waitTimer = GetTimeEX() + 12000;
+					script_grind:setWaitTimer(15000);
+					self.waitTimer = GetTimeEX() + 15000;
 					script_warlock.message = "Summoning Succubus";
 					script_warlock.hasPet = true;
 					return 0; 
@@ -203,8 +203,8 @@ function script_warlockEX:summonPet()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Voidwalker")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not script_warlock.hasPet) then
-					script_grind:setWaitTimer(12000);
-					self.waitTimer = GetTimeEX() + 12000;
+					script_grind:setWaitTimer(15000);
+					self.waitTimer = GetTimeEX() + 15000;
 					script_warlock.message = "Summoning Void Walker";
 					script_warlock.hasPet = true;
 					return 0; 
@@ -220,8 +220,8 @@ function script_warlockEX:summonPet()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Felhunter")) and (GetPet == 0) and (not script_warlock.hasPet) then
-					script_grind:setWaitTimer(12000);
-					self.waitTimer = GetTimeEX() + 12000;
+					script_grind:setWaitTimer(15000);
+					self.waitTimer = GetTimeEX() + 15000;
 					script_warlock.message = "Summoning Felhunter";
 					hasPet = true;
 					return 0; 
@@ -237,8 +237,8 @@ function script_warlockEX:summonPet()
 					StopMoving();
 				end
 				if (CastSpellByName("Summon Imp")) and (GetPet == 0 or GetPet():GetHealthPercentage() < 1) and (not script_warlock.hasPet) then
-					script_grind:setWaitTimer(12000);
-					self.waitTimer = GetTimeEX() + 12000;
+					script_grind:setWaitTimer(15000);
+					self.waitTimer = GetTimeEX() + 15000;
 					script_warlock.message = "Summoning Imp";
 					script_warlock.hasPet = true;
 					return 0;
@@ -451,7 +451,7 @@ function script_warlockEX:menu()
 
 		if (HasSpell("Drain Life")) then
 
-			Text("Use Drain Life below script_warlock health percent");
+			Text("Use Drain Life below self health percent");
 			
 			script_warlock.drainLifeHealth = SliderInt("DLH", 1, 80, script_warlock.drainLifeHealth);
 			
@@ -473,7 +473,7 @@ function script_warlockEX:menu()
 			
 			if (script_warlock.sacrificeVoid) then
 				
-				Text("script_warlock Health OR Pet Health percent to Sacrifice Voidwalker")
+				Text("Self Health OR Pet Health percent to Sacrifice Voidwalker")
 				
 				script_warlock.sacrificeVoidHealth = SliderInt("SVH", 1, 25, script_warlock.sacrificeVoidHealth);
 				
@@ -553,7 +553,7 @@ function script_warlockEX:menu()
 				
 				script_warlock.useWandHealth = SliderInt("WH", 1, 100, script_warlock.useWandHealth);
 				
-				Text("Use Wand below script_warlock mana percent");
+				Text("Use Wand below self mana percent");
 				
 				script_warlock.useWandMana = SliderInt("WM", 1, 100, script_warlock.useWandMana);
 			end
