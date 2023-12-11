@@ -98,6 +98,10 @@ function script_warlockEX:summonPet()
 		self.impUsed = false;
 	end
 
+	if (GetPet() == 0 or (GetPet() ~= 0 and GetPet():GetHealthPercentage() <= 1)) then
+		script_warlock.hasPet = false;
+	end
+
 	if (not IsMounted()) then
 	-- Check: Summon our Demon if we are not in combat
 	if (not IsEating()) and (not script_warlock.hasPet) and (not IsDrinking()) and (GetPet() == 0 or (GetPet() ~=0 and GetPet():GetHealthPercentage() <= 1)) and (HasSpell("Summon Imp")) and (script_warlock.useVoid or script_warlock.useImp or script_warlock.useSuccubus or script_warlock.useFelhunter) then
