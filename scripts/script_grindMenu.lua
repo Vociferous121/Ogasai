@@ -126,12 +126,10 @@ function script_grindMenu:menu()
 		local wasClicked = false;
 
 		-- checkbox use auto hotspots
-		if (script_grindMenu.useHotSpotArea) then
-			Text("Move to area - Click save current location - Click resume bot");
-		end
 		wasClicked, script_grindMenu.useHotSpotArea = Checkbox("Use Auto Hotspots", script_grindMenu.useHotSpotArea);
-
-		
+		if (script_grindMenu.useHotSpotArea) then
+		wasClicked, script_grind.staticHotSpot = Checkbox("Auto Load Hotspots From - HotspotDB.lua", script_grind.staticHotSpot);
+		end
 		
 		-- show auto hotspot button
 		if (script_grindMenu.useHotSpotArea) then
@@ -156,7 +154,6 @@ function script_grindMenu:menu()
 
 			-- if auto pathing then show hotspot
 			if (script_grind.autoPath) then
-				wasClicked, script_grind.staticHotSpot = Checkbox("Auto Load Hotspots From - HotspotDB.lua", script_grind.staticHotSpot);
 
 			-- draw save current location button
 			if (Button("Save Current Location To Log File")) then script_nav:newHotspot(GetMinimapZoneText() .. ' ' .. GetLocalPlayer():GetLevel() .. ' - ' .. GetLocalPlayer():GetLevel()+2);
