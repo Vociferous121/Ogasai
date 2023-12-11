@@ -51,6 +51,7 @@ script_warlock = {
 	useCurseOfWeakness = false,
 	useCurseOfTongues = false,
 	useDeathCoil = false,
+	hasHealthstone = false,
 }
 
 function script_warlock:cast(spellName, target)
@@ -171,18 +172,7 @@ function script_warlock:isTargetingGroup(y)
 	return false;
 end
 
-
---function script_warlock:addHealthStone(name)
---	self.healthStone[self.numStone] = name;
---	self.numStone = self.numStone + 1;
---end
-
 function script_warlock:setup()
-	--script_warlock:addHealthStone('Major Healthstone');
-	--script_warlock:addHealthStone('Greater Healthstone');
-	--script_warlock:addHealthStone('Healthstone');
-	--script_warlock:addHealthStone('Lesser Healthstone');
-	--script_warlock:addHealthStone('Minor Healthstone');
 
 	self.waitTimer = GetTimeEX();
 	self.fearTimer = GetTimeEX();
@@ -633,6 +623,13 @@ function script_warlock:run(targetGUID)
 				return 3;
 			end
 
+			-- Use Healthstone
+			if (localHealth < 15) and (IsInCombat()) and (self.hasHealthstone) then
+				if (script_warlockEX:useHealthstones()) then
+					self.hasHealthstone = false;
+				end
+			end
+
 			if (HasSpell("Will of the Forsaken")) and (script_checkDebuffs:undeadForsaken()) then
 				if (not IsSpellOnCD("Will of the Forsaken")) then
 					CastSpellByName("Cure Disease", localObj);
@@ -774,17 +771,6 @@ function script_warlock:run(targetGUID)
 					return 0;
 				end
 			end	
-
-			-- Use Healthstone
-			--if (localHealth < self.stoneHealth) then
-			--	for i=0,self.numStone do
-			--		if(HasItem(self.healthStone[i])) then
-			--			if (UseItem(self.healthStone[i])) then
-			--				return 0;
-			--			end
-			--		end
-			--	end
-			--end
 
 			-- Fear single Target
 			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) and (targetObj:GetCreatureType() ~= "Undead") then
@@ -1094,6 +1080,13 @@ function script_warlock:rest()
 			script_grind.tickRate = tickRandom
 		elseif (IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
 			script_grind.tickRate = tickRandom;
+		end
+	end
+
+	if (GetPet() ~= 0) and (HasItem("Soul Shard")) then
+		if (script_warlockEX:checkHealthstones()) then
+			self.waitTimer = GetTimeEX() + 1750;
+			script_grind:setWaitTimer(1750);
 		end
 	end
 

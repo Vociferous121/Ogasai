@@ -2,6 +2,82 @@ script_warlockEX = {
 
 }
 
+function script_warlockEX:useHealthstones()
+
+	if (HasItem("Major Healthstone")) then
+		UseItem("Major Healthstone");
+		return true;
+	elseif (HasItem("Greater Healthstone")) then
+		UseItem("Greater Healthstone");
+		return true;
+	elseif (HasItem("Healthstone")) then
+		UseItem("Healthstone");
+		return true;
+	elseif (HasItem("Lesser Healthstone")) then
+		UseItem("Lesser Healthstone");
+		return true;
+	elseif (HasItem("Minor Healthstone")) then
+		UseItem("Minor Healthstone");
+		return true;
+	end
+
+return false;
+end
+
+function script_warlockEX:checkHealthstones()
+
+	if (HasSpell("Create Healthstone (Major)")) then
+		if (not HasItem("Major Healthstone")) and (HasItem("Soul Shard")) then
+			if (CastSpellByName("Create Healthstone (Major)()")) then
+				script_warlock.hasHealthstone = true;
+				script_grind:setWaitTimer(1750);
+				self.waitTimer = GetTimeEX() + 1750;
+				return true;
+			end
+		end
+	elseif (HasSpell("Create Healthstone (Greater)")) then
+		if (not HasItem("Greater Healthstone")) and (HasItem("Soul Shard")) then
+			if (CastSpellByName("Create Healthstone (Greater)()")) then
+				script_warlock.hasHealthstone = true;
+				script_grind:setWaitTimer(1750);
+				self.waitTimer = GetTimeEX() + 1750;
+				return true;
+			end
+		end
+	elseif (HasSpell("Create Healthstone")) then
+		if (not HasItem("Healstone")) and (HasItem("Soul Shard")) then
+			if (CastSpellByName("Create Healthstone ()")) then
+				script_warlock.hasHealthstone = true;
+				script_grind:setWaitTimer(1750);
+				self.waitTimer = GetTimeEX() + 1750;
+				return true;
+			end
+		end
+
+	elseif (HasSpell("Create Healthstone (Lesser)")) then
+		if (not HasItem("Lesser Healthstone")) and (HasItem("Soul Shard")) then
+			if (CastSpellByName("Create Healthstone (Lesser)()")) then
+				script_warlock.hasHealthstone = true;
+				script_grind:setWaitTimer(1750);
+				self.waitTimer = GetTimeEX() + 1750;
+				return true;
+			end
+		end
+	elseif (HasSpell("Create Healthstone (Minor)")) then
+		if (not HasItem("Minor Healthstone")) and (HasItem("Soul Shard")) then
+			if (CastSpellByName("Create Healthstone (Minor)()")) then
+				script_warlock.hasHealthstone = true;
+				script_grind:setWaitTimer(1750);
+				self.waitTimer = GetTimeEX() + 1750;
+				return true;
+			end
+		end
+	end
+
+return false;
+end
+		
+
 function script_warlockEX:menu()
 
 	-- select local player
