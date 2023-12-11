@@ -668,7 +668,7 @@ function script_warlock:run(targetGUID)
 			end
 		
 			if (GetPet() == 0 or (GetPet() ~= 0 and GetPet():GetHealthPercentage() <= 1)) and (HasSpell("Summon Voidwalker")) then
-				script_warlockEX:summonPet();
+				script_warlockEX2:summonPet();
 				script_grind.tickRate = 0;
 			end
 
@@ -1183,7 +1183,7 @@ function script_warlock:rest()
 		self.hasPet = true;
 	end
 	
-	script_warlockEX:summonPet()
+	script_warlockEX2:summonPet()
 
 	--Create Healthstone
 	--local stoneIndex = -1;
