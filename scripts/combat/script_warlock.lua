@@ -28,7 +28,7 @@ script_warlock = {
 	enableCurseOfAgony = true,
 	enableImmolate = true,
 	enableCorruption = true,
-	drainLifeHealth = 75,
+	drainLifeHealth = 55,
 	healPetHealth = 40,
 	sacrificeVoid = true,
 	sacrificeVoidHealth = 15,
@@ -40,7 +40,7 @@ script_warlock = {
 	useImp = false,
 	useSuccubus = false,
 	useFelhunter = false,
-	wandHealthPreset = 10, -- preset to attack target with 10% HP using wand, reset in Setup function for dungeon to cast shadowbolt
+	wandHealthPreset = 10, -- preset to attack target with 10% HP using wand
 	drainSoulHealthPreset = 20,
 	hasSufferingSpell = false,
 	hasConsumeShadowsSpell = false,
@@ -72,8 +72,10 @@ end
 
 function script_warlock:petAttack()
 
-	if (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (self.hasPet) then
-		PetAttack();
+	if (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) then
+		if (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (self.hasPet) then
+			PetAttack();
+		end
 	end
 
 return true;
@@ -85,9 +87,11 @@ function script_warlock:getTargetNotFeared()
    	while currentObj ~= 0 do 
    		if typeObj == 3 then
 			if (currentObj:CanAttack() and not currentObj:IsDead()) then
-               	if ((script_grind:isTargetingMe(currentObj) or script_grind:isTargetingPet(currentObj)) and not currentObj:HasDebuff('Fear')) then 
-           			return currentObj;
-               	end 
+               			if ((script_grind:isTargetingMe(currentObj)
+				or script_grind:isTargetingPet(currentObj))
+				and not currentObj:HasDebuff('Fear')) then 
+           		return currentObj;
+              	 	end 
            	end 
        	end
         currentObj, typeObj = GetNextObject(currentObj); 
@@ -189,7 +193,7 @@ function script_warlock:setup()
 		self.fearAdds = false;
 		self.useImp = true;
 		self.healPetHealth = 20;
-		self.drainLifeHealth = 50;
+		self.drainLifeHealth = 20;
 		self.wandHealthPreset = 5;
 		self.drainSoulHealthPreset = 10;
 	end
@@ -474,6 +478,7 @@ function script_warlock:run(targetGUID)
 		-- level 1 - 4
 			if (not HasSpell("Corruption")) then
 				if (not HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight())  and (not IsMoving()) then
+						targetObj:FaceTarget();
 					if (Cast('Shadow Bolt', targetObj)) then
 						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 2350;
@@ -492,6 +497,7 @@ function script_warlock:run(targetGUID)
 					if (not targetObj:HasDebuff("Immolate")) and (not IsMoving()) then
 						CastSpellByName("Immolate");
 						self.waitTimer = GetTimeEX() + 2500;
+						script_grind:setWaitTimer(2500);
 					end
 					return 0;
 				end
@@ -504,6 +510,7 @@ function script_warlock:run(targetGUID)
 			end
 			if (HasSpell("Summon Imp")) and (not HasSpell("Corruption")) then
 				Cast('Immolate', targetObj);
+				script_grind:setWaitTimer(2500);
 				return 0;
 			end
 
@@ -982,8 +989,8 @@ function script_warlock:run(targetGUID)
 				if (not targetObj:HasDebuff("Immolate")) then
 				CastSpellByName("Immolate", targetObj);
 				targetObj:FaceTarget();
-				self.waitTimer = GetTimeEX() + 2350;
-				script_grind:setWaitTimer(2350);
+				self.waitTimer = GetTimeEX() + 2550;
+				script_grind:setWaitTimer(2550);
 				return 0;
 				end
 			end
