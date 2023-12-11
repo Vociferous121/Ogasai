@@ -18,7 +18,6 @@ script_nav = {
 	currentHotSpotName = 0,
 	hotSpotDist = 0,
 	drawNav = true,
-	useThis = false,
 }
 
 function script_nav:setup()
@@ -152,7 +151,7 @@ function script_nav:moveToSavedLocation(localObj, minLevel, maxLevel, useStaticH
 	end
 	
 	-- Let's get at least 2 path nodes around the hot spot before we navigate through them
-	if (self.numSavedLocation < 2 and not script_grind.hotspotReached) or (self.numSavedLocation < 2 and self.useThis) then
+	if (self.numSavedLocation < 2) then
 		return script_nav:moveToHotspot(localObj);
 	end
 
@@ -168,7 +167,6 @@ function script_nav:moveToSavedLocation(localObj, minLevel, maxLevel, useStaticH
 		or self.savedLocations[self.currentGoToLocation]['level'] < minLevel
 		or self.savedLocations[self.currentGoToLocation]['level'] > maxLevel) then
 		self.currentGoToLocation = self.currentGoToLocation + 1;
-		self.useThis = treue;
 		return "Changing go to location...";
 	end
 
