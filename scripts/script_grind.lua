@@ -899,6 +899,12 @@ end
 function script_grind:enemyIsValid(i)
 	if (i ~= 0) then
 
+		-- add target to blacklist not safe pull
+		if (not script_aggro:safePull(i)) and (not script_grind:isTargetBlacklisted(i:GetGUID()))
+			and (not script_grind:isTargetingMe(i)) then
+			script_grind:addTargetToBlacklist(i:GetGUID());
+		end
+
 		-- Valid Targets: Tapped by us, or is attacking us or our pet
 		if (script_grind:isTargetingMe(i)
 			or (script_grind:isTargetingPet(i) and (i:IsTappedByMe() or not i:IsTapped())) 
@@ -906,35 +912,26 @@ function script_grind:enemyIsValid(i)
 			or (i:IsTappedByMe() and not i:IsDead())) then 
 				return true; 
 		end
+
 		-- blacklisted target is attacking us
 		if (script_grind:isTargetBlacklisted(i:GetGUID())) and (script_grind:isTargetingMe(i))
 		and (i:IsInLineOfSight()) then
 			return true;
 		end
 		-- blacklisted target is polymorphed or feared
-		if (script_grind:isTargetBlacklisted(i:GetGUID())) or (i:HasDebuff("Polymorph") or i:HasDebuff("Fear")) then
+		if (script_grind:isTargetBlacklisted(i:GetGUID())) and (i:HasDebuff("Polymorph") or i:HasDebuff("Fear")) then
 			return true;
 		end
 		--attacking pet
 		if (script_grind:isTargetingPet(i)) and (i:IsInLineOfSight()) then
 			return true;
+		end			
+		-- target blacklisted moved away from other targets
+		if (i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel) and (script_grind:isTargetBlacklisted(i:GetGUID())) and (script_aggro:safePullRecheck(i)) then
+			return true;
 		end
 
-		-- Valid Targets: Within pull range, levelrange, not tapped, not skipped etc
-		if (self.skipHardPull) and (not i:IsDead()) and (i:CanAttack()) and (not i:IsCritter())
-			and (i:GetLevel() >= self.minLevel)
-			and (i:GetDistance() < 200) then
-			if (not script_aggro:safePull(i)) and (not script_grind:isTargetBlacklisted(i:GetGUID()))
-				and (not script_grind:isTargetingMe(i)) then
-				local myTime = GetTimeStamp();
-				script_grind:addTargetToBlacklist(i:GetGUID());
-			end
-			
-			-- target blacklisted moved away from other targets
-			if (i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel) and (script_grind:isTargetBlacklisted(i:GetGUID())) and (script_aggro:safePullRecheck(i)) then
-				return true;
-			end
-
+		if (self.skipHardPull) then
 			if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
 			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
