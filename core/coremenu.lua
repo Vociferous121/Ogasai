@@ -14,7 +14,6 @@ function coremenu:draw()
 		
 		self.isSetup = true;
 		
-		DEFAULT_CHAT_FRAME:AddMessage('Ogasai - LUA Scripts Loaded!');
 		
 		--[[
 			----------------------------

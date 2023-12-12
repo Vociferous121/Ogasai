@@ -166,13 +166,6 @@ function script_runner:avoidToAggro(safeMargin)
 	-- avoid the closest mob
 	if (closestEnemy ~= 0) then
 
-		if (IsMoving()) then
-			if (not script_unstuck:pathClearAuto(2)) then
-				script_unstuck:unstuck();
-				return true;
-			end
-		end
-
 			script_grind.tickRate = 0;
 			local xT, yT, zT = closestEnemy:GetPosition();
 

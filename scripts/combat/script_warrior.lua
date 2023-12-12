@@ -338,7 +338,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 
 		-- Auto Attack
-		if (targetObj:GetDistance() < 40) and (targetObj:IsInLineOfSight()) then
+		if (targetObj:GetDistance() < 40) and (targetObj:IsInLineOfSight()) and (not IsAutoCasting("Attack")) then
 			targetObj:AutoAttack();
 		end
 
