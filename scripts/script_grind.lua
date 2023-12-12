@@ -355,6 +355,9 @@ function script_grind:run()
 		return;
 	end
 
+	-- add check for number of units in range of player
+	-- adjust move away from target aggro range based on number of targets in large range around player
+
 	-- check paranoia	
 		-- jump when player in range in combat
 	if (IsInCombat() and not script_grind.undoAFK) then
@@ -666,7 +669,7 @@ function script_grind:run()
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
 
-				script_grind.tickRate = 0;
+				script_grind.tickRate = 100;
 
 				if (_x ~= 0 and x ~= 0) then
 					local moveBuffer = math.random(-2, 2);

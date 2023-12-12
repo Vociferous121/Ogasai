@@ -21,7 +21,7 @@ script_nav = {
 }
 
 function script_nav:setup()
-	DEFAULT_CHAT_FRAME:AddMessage('script_nav: loaded...');
+
 end
 
 function script_nav:resetPath()

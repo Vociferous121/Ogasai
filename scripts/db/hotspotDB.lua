@@ -525,8 +525,6 @@ function hotspotDB:setup()
 	
 	-- Add new paths here above here
 	
-
-	DEFAULT_CHAT_FRAME:AddMessage('hotspotDB: loaded...');
 	self.isSetup = true;
 end
 

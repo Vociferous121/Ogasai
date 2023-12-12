@@ -194,7 +194,6 @@ function script_talent:setup()
 
 	self.talentTimer = GetTimeEX();	
 
-	DEFAULT_CHAT_FRAME:AddMessage('script_talent: loaded...');
 	self.isSetup = true;
 end
 

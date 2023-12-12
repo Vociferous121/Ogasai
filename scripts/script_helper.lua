@@ -325,10 +325,6 @@ function script_helper:setup()
 	script_helper:addItem("Snickerfang Jowl");
 	script_helper:addItem("Imperfect Draenethyst Fragment");
 
-
-
-
-	DEFAULT_CHAT_FRAME:AddMessage("script_helper: loaded...");
 	return true;
 end
 

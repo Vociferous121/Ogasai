@@ -4,13 +4,13 @@ script_aggro = {
 	rY = 0,
 	rZ = 0,
 	rTime = 0,
-	adjustAggro = 4,
-	tarDist = 0,
-	tarX = 0,
-	tarY = 0,
-	tarZ = 0,
-	addsRange = 30,	-- range circles
-	checkAddsRange = 25,	-- safe margin
+	adjustAggro = 4,	-- adjust blacklist distance range
+	tarDist = 0,		-- target distance checked with run away from adds range
+	tarX = 0,		-- move away from adds
+	tarY = 0,		-- move away from adds
+	tarZ = 0,		-- move away from adds
+	addsRange = 30,	-- range circles from from adds
+	checkAddsRange = 1,	-- safe margin "runner script" move from adds
 }
 
 function script_aggro:DrawCircles(pointX,pointY,pointZ,radius)
@@ -118,7 +118,7 @@ function script_aggro:moveAwayFromAdds(target)
  		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) then
 			aggro = currentObj:GetLevel() - localObj:GetLevel() + self.addsRange;
 			cx, cy, cz = currentObj:GetPosition();
-			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro) and (not script_grind:isTargetingMe(currentObj)) then
+			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro) and (not script_grind:isTargetingMe(currentObj)) and (currentObj:IsInLineOfSight()) then
 				self.tarDist = currentObj:GetDistance();
 				tarX, tarY, tarZ = currentObj:GetPosition();
 				countUnitsInRange = countUnitsInRange + 1;

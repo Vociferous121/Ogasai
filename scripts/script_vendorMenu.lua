@@ -200,12 +200,12 @@ function script_vendorMenu:setRepairVendor()
 		script_vendor.repairVendor['name'] = name;
 		script_vendor.repairVendor['pos'] = {};
 		script_vendor.repairVendor['pos']['x'], script_vendor.repairVendor['pos']['y'], script_vendor.repairVendor['pos']['z'] = GetTarget():GetPosition();
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Repair Vendor Set...');
+		DEFAULT_CHAT_FRAME:AddMessage('Repair Vendor Set...');
 		if (script_vendor.sellVendor == 0) then
 			script_vendorMenu:setSellVendor();
 		end
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Target A Vendor...');
+		DEFAULT_CHAT_FRAME:AddMessage('Target A Vendor...');
 	end
 end
 
@@ -217,9 +217,9 @@ function script_vendorMenu:setSellVendor()
 		script_vendor.sellVendor['name'] = name;
 		script_vendor.sellVendor['pos'] = {};
 		script_vendor.sellVendor['pos']['x'], script_vendor.sellVendor['pos']['y'], script_vendor.sellVendor['pos']['z'] = GetTarget():GetPosition();
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Sell Vendor Set...');
+		DEFAULT_CHAT_FRAME:AddMessage('Sell Vendor Set...');
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Target A Vendor...');
+		DEFAULT_CHAT_FRAME:AddMessage('Target A Vendor...');
 	end
 end
 
@@ -231,12 +231,12 @@ function script_vendorMenu:setFoodVendor()
 		script_vendor.foodVendor['name'] = name;
 		script_vendor.foodVendor['pos'] = {};
 		script_vendor.foodVendor['pos']['x'], script_vendor.foodVendor['pos']['y'], script_vendor.foodVendor['pos']['z'] = GetTarget():GetPosition();
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Food Vendor Set...');
+		DEFAULT_CHAT_FRAME:AddMessage('Food Vendor Set...');
 		if (script_vendor.sellVendor == 0) then
 			script_vendorMenu:setSellVendor();
 		end
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Target A Vendor...');
+		DEFAULT_CHAT_FRAME:AddMessage('Target A Vendor...');
 	end
 end
 
@@ -248,12 +248,12 @@ function script_vendorMenu:setDrinkVendor()
 		script_vendor.drinkVendor['name'] = name;
 		script_vendor.drinkVendor['pos'] = {};
 		script_vendor.drinkVendor['pos']['x'], script_vendor.drinkVendor['pos']['y'], script_vendor.drinkVendor['pos']['z'] = GetTarget():GetPosition();
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Drink Vendor Set...');
+		DEFAULT_CHAT_FRAME:AddMessage('Drink Vendor Set...');
 		if (script_vendor.sellVendor == 0) then
 			script_vendorMenu:setSellVendor();
 		end
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Target A Vendor...');
+		DEFAULT_CHAT_FRAME:AddMessage('Target A Vendor...');
 	end
 end
 
@@ -265,12 +265,12 @@ function script_vendorMenu:setArrowVendor()
 		script_vendor.arrowVendor['name'] = name;
 		script_vendor.arrowVendor['pos'] = {};
 		script_vendor.arrowVendor['pos']['x'], script_vendor.arrowVendor['pos']['y'], script_vendor.arrowVendor['pos']['z'] = GetTarget():GetPosition();
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Arrow Vendor Set...');
+		DEFAULT_CHAT_FRAME:AddMessage('Arrow Vendor Set...');
 		if (script_vendor.sellVendor == 0) then
 			script_vendorMenu:setSellVendor();
 		end
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Target A Vendor...');
+		DEFAULT_CHAT_FRAME:AddMessage('Target A Vendor...');
 	end
 end
 
@@ -282,12 +282,12 @@ function script_vendorMenu:setBulletVendor()
 		script_vendor.bulletVendor['name'] = name;
 		script_vendor.bulletVendor['pos'] = {};
 		script_vendor.bulletVendor['pos']['x'], script_vendor.bulletVendor['pos']['y'], script_vendor.bulletVendor['pos']['z'] = GetTarget():GetPosition();
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Bullet vendor set...');
+		DEFAULT_CHAT_FRAME:AddMessage('Bullet vendor set...');
 		if (script_vendor.sellVendor == 0) then
 			script_vendorMenu:setSellVendor();
 		end
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: No vendor targeted...');
+		DEFAULT_CHAT_FRAME:AddMessage('No vendor targeted...');
 	end
 end
 
@@ -301,14 +301,14 @@ function script_vendorMenu:checkVendor(useMana)
 	end
 
 	if (not hasDrink and script_vendor.drinkVendor ~= 0 and useMana) then
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Out of drinks, going to vendor...');
+		DEFAULT_CHAT_FRAME:AddMessage('Out of drinks, going to vendor...');
 		script_vendor:buy(script_vendor.drinkName, script_vendor.drinkNr, false, true, false, false);
 		return true;
 		
 	end
 
 	if (not hasFood and script_vendor.foodVendor ~= 0) then
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Out of food, going to vendor...');
+		DEFAULT_CHAT_FRAME:AddMessage('Out of food, going to vendor...');
 		script_vendor:buy(script_vendor.foodName, script_vendor.foodNr, true, false, false, false);
 		return true;
 	end
