@@ -219,6 +219,19 @@ function script_rogue:run(targetGUID)
 		return 4;
 	end
 
+	-- attempt to run away from adds - don't pull them
+	if (IsInCombat() and script_grind.skipHardPull) then
+		if (not script_aggro:moveAwayFromAdds(targetObj)) then
+			--if (script_aggro:movingFromAdds(targetObj, 50)) then
+			if (script_runner:avoidToAggro(15)) then
+				script_grind.tickRate = 100;
+				self.message = "Moving away from adds...";
+				return true;
+			end
+			return true;
+		end
+	end
+
 	-- Apply poisons if we are not in combat
 	if (not IsInCombat() and self.usePoison) then
 		if (script_rogue:checkPoisons()) then
@@ -229,7 +242,7 @@ function script_rogue:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(356, 711);
+		local tickRandom = random(256, 311);
 
 		if (IsMoving()) or (not IsInCombat()) or (targetObj:IsFleeing()) then
 			script_grind.tickRate = 135;
@@ -388,6 +401,14 @@ function script_rogue:run(targetGUID)
 					end
 				end
 
+				-- Check: Use Riposte whenever we can
+				if (HasSpell("Riposte")) and (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) and (localEnergy >= 10) then 
+					if (CastSpellByName("Riposte", targetObj)) then
+						self.waitTimer = GetTimeEX() + 1500;
+						return 0;					
+					end
+				end
+
 				-- Check: Do we have the right target (in UI) ??
 				--if (GetTarget() ~= 0 and GetTarget() ~= nil) then
 				--	if (GetTarget():GetGUID() ~= targetObj:GetGUID()) then
@@ -421,12 +442,11 @@ function script_rogue:run(targetGUID)
 				end
 
 				-- Check: Use Vanish 
-				if (HasSpell('Vanish') and HasItem('Flash Powder') and localHealth < self.vanishHealth and not IsSpellOnCD('Vanish')) then 
+				if (HasSpell('Vanish')) and (HasItem('Flash Powder')) and (localHealth < self.vanishHealth) and (not IsSpellOnCD('Vanish')) then 
 					CastSpellByName('Vanish'); 
-					ClearTarget();
 					self.waitTimer = GetTimeEX() + 10000;
-					self.targetObj = 0;
-					return 4;
+					ClearTarget();
+					self.enemyObj = 0;
 				end
 
 				if (HasSpell("Ghostly Strike")) and (not IsSpellOnCD("Ghostly Strike")) and (localEnergy >= 40) then
@@ -909,7 +929,7 @@ function script_rogue:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(356, 711);
+		local tickRandom = random(256, 311);
 
 		if (IsMoving()) or (not IsInCombat()) or (targetObj:IsFleeing()) then
 			script_grind.tickRate = 135;
@@ -973,7 +993,7 @@ function script_rogue:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(306, 892);
+		local tickRandom = random(306, 692);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -1019,7 +1039,7 @@ function script_rogue:rest()
 	end
 
 	-- Stealth when we eat
-	if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:HasBuff("Stealth")) and (IsEating()) and (not localObj:HasDebuff("Touch of Zanzil")) and (not script_checkDebuffs:hasPoison()) then
+	if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:HasBuff("Stealth")) and (IsEating()) and (not localObj:HasDebuff("Touch of Zanzil")) and (not script_checkDebuffs:hasPoison()) and (localHealth < 45) then
 		if (not localObj:HasBuff("Stealth")) then
 			CastSpellByName("Stealth");
 			return true;
@@ -1037,6 +1057,10 @@ function script_rogue:rest()
 		if (not IsStanding()) then
 			JumpOrAscendStart();
 		end
+	end
+
+	if (HasSpell("Stealth")) and (not localObj:HasBuff("Stealth")) and (IsSpellOnCD("Stealth")) and (self.useStealth) and (not IsLooting()) then
+		return 4;
 	end
 	
 	-- Don't need to eat

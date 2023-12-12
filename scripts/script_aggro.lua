@@ -4,7 +4,11 @@ script_aggro = {
 	rY = 0,
 	rZ = 0,
 	rTime = 0,
-	adjustAggro = 6,
+	adjustAggro = 4,
+	tarDist = 0,
+	tarX = 0,
+	tarY = 0,
+	tarZ = 0,
 }
 
 function script_aggro:DrawCircles(pointX,pointY,pointZ,radius)
@@ -83,7 +87,7 @@ function script_aggro:safePullRecheck(target)
 
 	while currentObj ~= 0 do
  		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) then
-			aggro = currentObj:GetLevel() - localObj:GetLevel() + (script_aggro.adjustAggro + 25);
+			aggro = currentObj:GetLevel() - localObj:GetLevel() + (script_aggro.adjustAggro + 30);
 			cx, cy, cz = currentObj:GetPosition();
 			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro) then	
 				countUnitsInRange = countUnitsInRange + 1;
@@ -98,6 +102,53 @@ function script_aggro:safePullRecheck(target)
 	end
 
 	return true;
+end
+
+function script_aggro:moveAwayFromAdds(target) 
+	local localObj = GetLocalPlayer();
+	local countUnitsInRange = 0;
+	local currentObj, typeObj = GetFirstObject();
+	local aggro = 0;
+	local tx, ty, tz = target:GetPosition();
+	cx, cy, cz = 0, 0, 0;
+
+	while currentObj ~= 0 do
+ 		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) then
+			aggro = currentObj:GetLevel() - localObj:GetLevel() + 35;
+			cx, cy, cz = currentObj:GetPosition();
+			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro) and (not script_grind:isTargetingMe(currentObj)) then
+				self.tarDist = currentObj:GetDistance();
+				tarX, tarY, tarZ = currentObj:GetPosition();
+				countUnitsInRange = countUnitsInRange + 1;
+ 			end
+ 		end
+ 		currentObj, typeObj = GetNextObject(currentObj);
+ 	end
+
+	-- avoid pull if more than 1 add
+	if (countUnitsInRange > 1) then
+		return false;
+	end
+
+	return true;
+end
+
+function script_aggro:movingFromAdds(targetObj, range) 
+	local localObj = GetLocalPlayer();
+ 	if targetObj ~= 0 and (not script_checkDebuffs:hasDisabledMovement()) then
+ 		local xT, yT, zT = targetObj:GetPosition();
+ 		local xP, yP, zP = localObj:GetPosition();
+ 		local distance = targetObj:GetDistance();
+ 		local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
+ 		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
+ 		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;	
+ 		local moveX, moveY, moveZ = xT + xUV*35, yT + yUV*35, zT + zUV;		
+ 		if (distance < range and targetObj:IsInLineOfSight()) then 
+			script_navEX:moveToTarget(localObj, moveX, moveY, moveZ);
+ 			return true;
+ 		end
+	end
+	return false;
 end
 
 function script_aggro:safeRess(corpseX, corpseY, corpseZ, ressRadius) 
@@ -271,8 +322,9 @@ function script_aggro:drawAggroCircles(maxRange)
 
 	while currentObj ~= 0 do
  		if typeObj == 3 and currentObj:GetDistance() < maxRange and not currentObj:IsDead() and currentObj:CanAttack() and not currentObj:IsCritter() then
-			local aggro = currentObj:GetLevel() - localObj:GetLevel() + 21;
+			local aggro = currentObj:GetLevel() - localObj:GetLevel() + 21.5;
 			local cx, cy, cz = currentObj:GetPosition();
+			local px, py, pz = localObj:GetPosition();
 			script_aggro:DrawCircles(cx, cy, cz, aggro);
  		end
  		currentObj, typeObj = GetNextObject(currentObj);

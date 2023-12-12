@@ -25,6 +25,7 @@ function script_navEX:moveToTarget(localObj, _x, _y, _z) -- use when moving to m
 		script_nav.navPosition['z'] = _z;
 		GeneratePath(_lx, _ly, _lz, _x, _y, _z);
 		script_nav.lastnavIndex = 1; -- start at index 1, index 0 is our position
+		script_grind:setWaitTimer(80);
 	end	
 
 	if (not IsPathLoaded(5)) then

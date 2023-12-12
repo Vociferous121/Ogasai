@@ -29,8 +29,6 @@ script_rotation = {
 function script_rotation:setup()
 	script_helper:setup();
 	script_gather:setup();
-	DEFAULT_CHAT_FRAME:AddMessage('script_rotation: loaded...');
-
 	self.isSetup = true;
 end
 

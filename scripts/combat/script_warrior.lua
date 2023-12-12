@@ -238,6 +238,19 @@ function script_warrior:run(targetGUID)	-- main content of script
 		return 4;
 	end
 
+	-- attempt to run away from adds - don't pull them
+	if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj)) then
+		if (not script_aggro:moveAwayFromAdds(targetObj)) then
+			--if (script_aggro:movingFromAdds(targetObj, 50)) then
+			if (script_runner:avoidToAggro(20)) then
+				script_grind.tickRate = 100;
+				self.message = "Moving away from adds...";
+				return true;
+			end
+			return true;
+		end
+	end
+
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 

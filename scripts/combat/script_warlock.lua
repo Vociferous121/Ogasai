@@ -164,6 +164,27 @@ function script_warlock:runBackwards(targetObj, range)
 	return false;
 end
 
+-- move away from adds
+function script_warlock:moveAwayFromAdds(targetObj, range) 
+	local localObj = GetLocalPlayer();
+ 	if (targetObj ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) then
+ 		local xT, yT, zT = targetObj:GetPosition();
+ 		local xP, yP, zP = localObj:GetPosition();
+ 		local distance = targetObj:GetDistance();
+ 		local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
+ 		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
+ 		local xUV, yUV, zUV = (5/vectorLength)*xV, (5/vectorLength)*yV, (1/vectorLength)*zV;		
+ 		local moveX, moveY, moveZ = xT + xUV*35, yT + yUV*35, zT + zUV;		
+ 		if (distance < range and targetObj:IsInLineOfSight()) then
+ 			--script_navEX:moveToTarget(localObj, moveX, moveY, moveZ);
+			Move(moveX, moveY, moveZ);
+ 			return true;
+ 		end
+	end
+	return false;
+end
+
+
 function script_warlock:isTargetingGroup(y) 
 	for i = 1, GetNumPartyMembers() do
 		local partyMember = GetPartyMember(i);
@@ -359,15 +380,16 @@ function script_warlock:run(targetGUID)
 		return 4;
 	end
 
-	if (IsInCombat()) then
+	-- attempt to run away from adds - don't pull them
+	if (IsInCombat() and script_grind.skipHardPull) then
 		if (not script_aggro:moveAwayFromAdds(targetObj)) then
-			if (script_warlock:runBackwards(targetObj, 20)) then
+			--if (script_aggro:movingFromAdds(targetObj, 50)) then
+			if (script_runner:avoidToAggro(15)) then
 				script_grind.tickRate = 100;
-				script_rotation.tickRate = 135;
-				PetFollow();
 				self.message = "Moving away from adds...";
 				return 4;
 			end
+			return true;
 		end
 	end
 

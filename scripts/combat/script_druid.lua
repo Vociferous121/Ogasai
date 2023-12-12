@@ -533,6 +533,20 @@ function script_druid:run(targetGUID)
 	if (IsChanneling() or IsCasting() or (self.waitTimer > GetTimeEX())) then
 		return 4;
 	end
+
+	-- attempt to run away from adds - don't pull them
+	if (IsInCombat() and script_grind.skipHardPull) then
+		if (not script_aggro:moveAwayFromAdds(targetObj)) then
+			--if (script_aggro:movingFromAdds(targetObj, 50)) then
+			if (script_runner:avoidToAggro(15)) then
+				script_grind.tickRate = 100;
+				self.message = "Moving away from adds...";
+				return 4;
+			end
+			return true;
+		end
+	end
+
 	
 	-- remove travel form before combat
 	if (isTravel) then
@@ -980,6 +994,7 @@ function script_druid:run(targetGUID)
 			end
 
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
+
 
 			-- check heals and buffs
 		if (localHealth <= self.healthToShift) and (not script_checkDebuffs:hasSilence()) then
