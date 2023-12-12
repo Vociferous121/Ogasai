@@ -331,7 +331,11 @@ function script_warlock:run(targetGUID)
 	end
 	
 	-- Assign the target 
-	targetObj =  GetGUIDObject(targetGUID);
+	targetObj = GetGUIDObject(targetGUID);
+
+	if (not IsInCombat() and IsMoving()) then
+		self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
+	end
 
 	-- clear target
 	if(targetObj == 0 or targetObj == nil or targetObj:IsDead()) then
@@ -353,6 +357,18 @@ function script_warlock:run(targetGUID)
 	-- Check: Do nothing if we are channeling, casting
 	if (IsChanneling() or IsCasting() or self.waitTimer > GetTimeEX()) then
 		return 4;
+	end
+
+	if (IsInCombat()) then
+		if (not script_aggro:moveAwayFromAdds(targetObj)) then
+			if (script_warlock:runBackwards(targetObj, 20)) then
+				script_grind.tickRate = 100;
+				script_rotation.tickRate = 135;
+				PetFollow();
+				self.message = "Moving away from adds...";
+				return 4;
+			end
+		end
 	end
 
 	-- sacrifice voidwalker low health
@@ -459,7 +475,6 @@ function script_warlock:run(targetGUID)
 			self.useWand = false;
 			self.useShadowBolt = true;
 			self.varUsed = true;
-			DEFAULT_CHAT_FRAME:AddMessage("Switched to use Shadowbolt instead of wand for this combat phase...");
 		end
 		if (self.varUsed and not IsInCombat()) or (localMana < 15 and self.varUsed) then
 			self.useWand = true;
@@ -1176,9 +1191,9 @@ function script_warlock:rest()
 		return true;
 	end
 
-	if (GetPet() ~= 0) and (self.useVoid) and (GetPet():GetHealthPercentage() < 75 and GetPet():GetHealthPercentage() > 1) and (self.hasConsumeShadowsSpell) and (not IsSpellOnCD("Consume Shadows")) then
+	if (GetPet() ~= 0) and (self.useVoid) and (GetPet():GetHealthPercentage() < 70 and GetPet():GetHealthPercentage() > 1) and (self.hasConsumeShadowsSpell) and (GetPet():GetManaPercentage() >= 45) and (not IsSpellOnCD("Consume Shadows")) then
 		CastSpellByName("Consume Shadows");
-		self.waitTimer = GetTimeEX() + 7500;
+		self.waitTimer = GetTimeEX() + 2500;
 		self.message = "Using Voidwalker spell Consume Shadows";
 		return true;
 	end
@@ -1188,7 +1203,7 @@ function script_warlock:rest()
 	elseif (GetPet() ~= 0) then
 		self.hasPet = true;
 	end
-	
+		
 	script_warlockEX2:summonPet()
 
 	--Create Healthstone
