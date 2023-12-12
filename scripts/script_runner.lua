@@ -34,6 +34,7 @@ script_runner = {
 	genTime = GetTimeEX(),
 	useUnstuck = true,
 	pause = false,
+	avoidTarget = 0,
 }
 
 function script_runner:window()
@@ -158,13 +159,19 @@ function script_runner:avoidToAggro(safeMargin)
 						closestEnemy = currentObj;
 					end
 				end
+				self.avoidTarget = currentObj;
  			end
  		end
  		currentObj, typeObj = GetNextObject(currentObj);
- 	end
 
-	-- avoid the closest mob
-	if (closestEnemy ~= 0) then
+		-- avoid the closest mob
+		if (closestEnemy ~= 0) then
+
+			local dist = self.avoidTarget:GetDistance();
+			if (dist < 75) then
+			closestDist = dist;
+			closestEnemy = self.avoidTarget;
+			end
 
 			script_grind.tickRate = 0;
 			local xT, yT, zT = closestEnemy:GetPosition();
@@ -184,12 +191,16 @@ function script_runner:avoidToAggro(safeMargin)
 			end
 
 			return true;
-	end
 
+		end
+		currentObj, typeObj = GetNextObject(currentObj);
+
+	end
 	return false;
 end
 
 --avoid blacklisted target
+	-- eventually going to have to force bot to target either blacklisted target stopping path from being generated
 function script_runner:avoidToBlacklist(safeMargin) 
 	local countUnitsInRange = 0;
 	local currentObj, typeObj = GetFirstObject();

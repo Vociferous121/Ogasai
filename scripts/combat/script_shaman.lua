@@ -24,6 +24,7 @@ script_shaman = {
 	useEarthTotem = false,
 	useFireTotem = false,
 	useWaterTotem = false,
+	useAirTotem = false,
 	earthShockMana = 40,
 	flameShockMana = 70,
 	lightningBoltMana = 25,

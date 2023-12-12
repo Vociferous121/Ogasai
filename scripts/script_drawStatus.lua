@@ -58,11 +58,13 @@ function script_drawStatus:draw()
 	end
 end
 
-
 function script_drawStatus:drawSetup()
 
 	if (script_grind.drawAggro) then
 		script_aggro:drawAggroCircles(45);
+	end
+	if (script_grind.drawAggro2) then
+		script_aggro:drawAggroCircles2(script_aggro.addsRange);
 	end
 	if (script_grind.autoPath and script_grind.drawAutoPath) then
 		script_nav:drawSavedTargetLocations();

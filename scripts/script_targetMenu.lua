@@ -15,10 +15,34 @@ function script_targetMenu:menu()
 
 		wasClicked, script_grind.skipHardPull = Checkbox("Blacklist Target With More Than 1 Add", script_grind.skipHardPull);
 		if (script_grind.skipHardPull) then
-			Text("Adjust Move Away From Adds Range");
-			script_aggro.addsRange = SliderInt("Add Range", 25, 50, script_aggro.addsRange);
+
+			if UnitClass('player') == "Mage"
+				or UnitClass('player') == "Warlock"
+				or UnitClass('player') == "Priest"
+				or UnitClass('player') == "Hunter"
+				then
+
+				Text("Adjust Move Away From Adds Range");
+				script_aggro.addsRange = SliderInt("Add Range", 25, 32, script_aggro.addsRange);
+
+			elseif (UnitClass('player') == "Shaman")
+				and (not script_shaman.useEarthTotem)
+				and (not script_shaman.useWaterTotem)
+				and (not script_shaman.useFireTotem) and (not script_shaman.useAirTotem)
+				then
+
+				Text("Adjust Move Away From Adds Range");
+				script_aggro.addsRange = SliderInt("Add Range", 25, 50, script_aggro.addsRange);
+
+			else
+				Text("Adjust Move Away From Adds Range");
+				script_aggro.addsRange = SliderInt("Add Range", 25, 50, script_aggro.addsRange);
+			end
+
 			Separator();
+
 			Text("Adjust Blacklist Aggro Range (~10yds per tick)");
+
 			script_aggro.adjustAggro = SliderInt("Adjust Aggro", 3, 10, script_aggro.adjustAggro);
 		end
 

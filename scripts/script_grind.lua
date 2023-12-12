@@ -86,6 +86,7 @@ script_grind = {
 	drawGather = false,	-- draw gather nodes
 	hotspotReached = false,	-- is hotspot reached
 	drawAggro = false,	-- draw aggro range circles
+	drawAggro2 = false,
 	safeRess = true,	-- ressurect in safe area
 	skipHardPull = true,	-- skip adds
 	useUnstuck = true,	-- use unstuck script
@@ -911,7 +912,7 @@ function script_grind:enemyIsValid(i)
 			return true;
 		end
 		-- blacklisted target is polymorphed or feared
-		if (script_grind:isTargetBlacklisted(i:GetGUID())) and (i:HasDebuff("Polymorph") or i:HasDebuff("Fear")) then
+		if (script_grind:isTargetBlacklisted(i:GetGUID())) or (i:HasDebuff("Polymorph") or i:HasDebuff("Fear")) then
 			return true;
 		end
 		--attacking pet

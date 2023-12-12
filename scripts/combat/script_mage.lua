@@ -1,8 +1,8 @@
 script_mage = {
 	message = 'Mage Combat Script',
 	mageMenu = include("scripts\\combat\\script_mageEX.lua"),
-	drinkMana = 40,	-- drink at this mana %
-	eatHealth = 51,	-- eat at this health %
+	drinkMana = 75,	-- drink at this mana %
+	eatHealth = 75,	-- eat at this health %
 	potionHealth = 10,	-- use potion at this health %
 	potionMana = 10,	-- use potioon at this mana %
 	water = {},	-- water table setup
@@ -113,6 +113,8 @@ function script_mage:isAddPolymorphed() -- check polymorph
 		if typeObj == 3 then
 			if (currentObj:HasDebuff("Polymorph")) then 
 				return true; 
+			else
+				script_mage.addPolymorphed = false;
 			end
 		end
 		currentObj, typeObj = GetNextObject(currentObj); 
@@ -128,13 +130,16 @@ function script_mage:polymorphAdd(targetObjGUID) -- cast the polymorph condition
 			if (currentObj:CanAttack() and not currentObj:IsDead()) then
 				if (currentObj:GetGUID() ~= targetObjGUID and script_grind:isTargetingMe(currentObj)) then
 					if (not currentObj:HasDebuff("Polymorph") and currentObj:GetCreatureType() ~= 'Elemental' and not currentObj:IsCritter()) and (currentObj:GetCreatureType() ~= "Undead") then
-						ClearTarget();
-						if (script_mage:cast('Polymorph', currentObj)) then 
-							self.addPolymorphed = true; 
-							polyTimer = GetTimeEX() + 8000;
-							return true; 
-						else
-							self.addPolymorphed = false;
+						if (currentObj:IsInLineOfSight()) then
+							if (not script_grind.adjustTickRate) then
+								script_grind.tickRate = 100;
+								script_rotation.tickRate = 100;
+							end
+							if (script_mage:cast('Polymorph', currentObj)) then 
+								self.addPolymorphed = true; 
+								polyTimer = GetTimeEX() + 8000;
+								return true; 
+							end
 						end
 					end 
 				end 
@@ -752,20 +757,19 @@ function script_mage:run(targetGUID)
 				end
 			end
 
-			-- Check: Frostnova when the target is close, but not when we polymorhped one enemy or the target is affected by Frostbite
-			if (not self.addPolymorphed) and (targetObj:GetDistance() < 10 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova then
-				script_grind.tickRate = 100;
-				script_grind.tickRate = 100;
-				self.message = "Frost nova the target(s)...";
-				CastSpellByName("Frost Nova");
-				return 0;
-			end
-
 			
 			-- Main damage source if all above conditions cannot be run
 			-- frost mage spells
 			if (HasSpell("Frostbolt")) and (self.frostMage) and (not IsChanneling()) and (not IsMoving()) then
 				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
+
+			-- Check: Frostnova when the target is close, but not when we polymorhped one enemy or the target is affected by Frostbite
+				if (not self.addPolymorphed) and (targetObj:GetDistance() < 10 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova and localMana >= 10 then
+				script_grind.tickRate = 100;
+				script_grind.tickRate = 100;
+				self.message = "Frost nova the target(s)...";
+				CastSpellByName("Frost Nova");
+			end
 			
 					-- check range
 					if(not targetObj:IsSpellInRange("Frostbolt")) or (not targetObj:IsInLineOfSight()) then
