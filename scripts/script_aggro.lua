@@ -9,6 +9,8 @@ script_aggro = {
 	tarX = 0,
 	tarY = 0,
 	tarZ = 0,
+	addsRange = 30,	-- range circles
+	checkAddsRange = 25,	-- safe margin
 }
 
 function script_aggro:DrawCircles(pointX,pointY,pointZ,radius)
@@ -114,7 +116,7 @@ function script_aggro:moveAwayFromAdds(target)
 
 	while currentObj ~= 0 do
  		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) then
-			aggro = currentObj:GetLevel() - localObj:GetLevel() + 35;
+			aggro = currentObj:GetLevel() - localObj:GetLevel() + self.addsRange;
 			cx, cy, cz = currentObj:GetPosition();
 			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro) and (not script_grind:isTargetingMe(currentObj)) then
 				self.tarDist = currentObj:GetDistance();

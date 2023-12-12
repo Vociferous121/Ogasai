@@ -239,15 +239,15 @@ function script_warrior:run(targetGUID)	-- main content of script
 	end
 
 	-- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj)) then
+	if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj)) then	
 		if (not script_aggro:moveAwayFromAdds(targetObj)) then
-			--if (script_aggro:movingFromAdds(targetObj, 50)) then
-			if (script_runner:avoidToAggro(20)) then
+		--if (script_aggro:movingFromAdds(targetObj, 50)) then
+			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
 				script_grind.tickRate = 100;
 				self.message = "Moving away from adds...";
 				return true;
 			end
-			return true;
+		return true;
 		end
 	end
 
@@ -375,6 +375,20 @@ function script_warrior:run(targetGUID)	-- main content of script
 			-- Combat
 
 		else	
+
+		-- attempt to run away from adds - don't pull them
+			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj)) then	
+				if (not script_aggro:moveAwayFromAdds(targetObj)) then
+				--if (script_aggro:movingFromAdds(targetObj, 50)) then
+					if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
+					script_grind.tickRate = 100;
+					self.message = "Moving away from adds...";
+					return true;
+					end
+				return true;
+				end
+			end
+
 
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 

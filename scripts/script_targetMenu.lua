@@ -15,6 +15,8 @@ function script_targetMenu:menu()
 
 		wasClicked, script_grind.skipHardPull = Checkbox("Blacklist Target With More Than 1 Add", script_grind.skipHardPull);
 		if (script_grind.skipHardPull) then
+			Text("TEST - Move Away From Adds - TEMPORARY");
+			script_aggro.addsRange = SliderInt("mainRangeCircles", 25, 75, script_aggro.addsRange);
 			Text("Adjust Blacklist Aggro Range (~10yds per tick)");
 			script_aggro.adjustAggro = SliderInt("Adjust Aggro", 3, 10, script_aggro.adjustAggro);
 		end
