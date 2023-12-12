@@ -189,6 +189,61 @@ function script_runner:avoidToAggro(safeMargin)
 	return false;
 end
 
+--avoid blacklisted target
+function script_runner:avoidToBlacklist(safeMargin) 
+	local countUnitsInRange = 0;
+	local currentObj, typeObj = GetFirstObject();
+	local localObj = GetLocalPlayer();
+	local closestEnemy = 0;
+	local closestDist = 999;
+	local aggro = 0;
+
+	while currentObj ~= 0 do
+ 		if typeObj == 3 then
+			aggro = currentObj:GetLevel() - localObj:GetLevel() + 15;
+			local range = aggro + safeMargin;
+			if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range and (not script_grind:isTargetingMe(currentObj)) and (currentObj:IsInLineOfSight()) then	
+				if (closestEnemy == 0) then
+					closestEnemy = currentObj;
+				else
+					local dist = currentObj:GetDistance();
+					if (dist < closestDist) then
+						closestDist = dist;
+						closestEnemy = currentObj;
+					end
+				end
+ 			end
+ 		end
+ 		currentObj, typeObj = GetNextObject(currentObj);
+ 	end
+
+	-- avoid the closest mob
+	if (closestEnemy ~= 0) then
+
+			script_grind.tickRate = 0;
+			local xT, yT, zT = closestEnemy:GetPosition();
+
+ 			local xP, yP, zP = localObj:GetPosition();
+
+			local safeRange = safeMargin+1;
+			local intersectMob = script_runner:aggroIntersect(closestEnemy);
+			if (intersectMob ~= nil) then
+				local aggroRange = intersectMob:GetLevel() - localObj:GetLevel() + 15; 
+				local x, y, z = closestEnemy:GetPosition();
+				local xx, yy, zz = intersectMob:GetPosition();
+				local centerX, centerY = (x+xx)/2, (y+yy)/2;
+				script_runner:avoid(centerX, centerY, zP, aggroRange, script_aggro.addsRange);
+			else
+				script_runner:avoid(xT, yT, zP, aggro, script_aggro.addsRange);
+			end
+
+			return true;
+	end
+
+	return false;
+end
+
+
 function script_runner:aggroIntersect(target)
 	local x, y,z = target:GetPosition();
 	while currentObj ~= 0 do

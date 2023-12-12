@@ -159,6 +159,19 @@ function script_paladin:run(targetGUID)
 		return 4;
 	end
 
+	-- attempt to run away from adds - don't pull them
+	if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj)) then	
+		if (not script_aggro:moveAwayFromAdds(targetObj)) then
+		--if (script_aggro:movingFromAdds(targetObj, 50)) then
+			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
+				script_grind.tickRate = 100;
+				self.message = "Moving away from adds...";
+				return true;
+			end
+		return true;
+		end
+	end
+
 	if (IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() == 0) then
 		self.message = "Waiting! Stuck in combat phase!";
 		return 4;
@@ -268,6 +281,19 @@ function script_paladin:run(targetGUID)
 
 		else	
 
+			-- attempt to run away from adds - don't pull them
+			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj)) then	
+				if (not script_aggro:moveAwayFromAdds(targetObj)) then
+				--if (script_aggro:movingFromAdds(targetObj, 50)) then
+					if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
+						script_grind.tickRate = 100;
+						self.message = "Moving away from adds...";
+					return true;
+					end
+				return true;
+				end
+			end
+
 			if (not IsAutoCasting("Attack")) then
 				targetObj:AutoAttack();
 				targetObj:FaceTarget();
@@ -290,8 +316,6 @@ function script_paladin:run(targetGUID)
 					StopMoving();
 				end
 			end
-
-			--targetObj = GetGUIDObject(targetGUID);
 
 			if (not targetObj:IsFleeing()) and (localMana > 8) then
 				if (script_paladinEX:healsAndBuffs(localObj, localMana)) then
@@ -365,8 +389,7 @@ function script_paladin:run(targetGUID)
 					end
 				end
 			end
-
-			-- Check: If we are in melee range, do melee attacks ----- RETURN 0   ONLY USE IN MELEE RANGE
+			-- in melee range
 			if (targetObj:GetDistance() <= self.meleeDistance) then
 
 				

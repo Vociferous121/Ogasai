@@ -241,6 +241,7 @@ function script_grind:run()
 	-- show grinder window
 	script_grind:window();
 	
+	
 	-- display radar
 	if (script_radar.showRadar) then
 		script_radar:draw()
@@ -615,6 +616,12 @@ function script_grind:run()
 			end
 		end
 
+		if (script_grindEX.avoidBlacklisted) and (script_aggro:closeToBlacklistedTargets()) then
+			if (script_runner:avoidToBlacklist(10)) then
+				return true;
+			end
+		end
+
 		-- Finish loot before we engage new targets or navigate
 		if (self.lootObj ~= nil and not IsInCombat()) then
 
@@ -923,7 +930,7 @@ function script_grind:enemyIsValid(i)
 			end
 			
 			-- target blacklisted moved away from other targets
-			if (script_grind:isTargetBlacklisted(i:GetGUID())) and (script_aggro:safePullRecheck(i)) then
+			if (i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel) and (script_grind:isTargetBlacklisted(i:GetGUID())) and (script_aggro:safePullRecheck(i)) then
 				return true;
 			end
 

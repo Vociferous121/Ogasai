@@ -201,6 +201,19 @@ function script_priest:run(targetGUID)
 		return 4;
 	end
 
+	-- attempt to run away from adds - don't pull them
+	if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj)) then	
+		if (not script_aggro:moveAwayFromAdds(targetObj)) then
+		--if (script_aggro:movingFromAdds(targetObj, 50)) then
+			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
+				script_grind.tickRate = 100;
+				self.message = "Moving away from adds...";
+				return true;
+			end
+		return true;
+		end
+	end
+
 	-- set shadow form true
 	if (GetLocalPlayer():HasBuff("Shadowform")) then
 		self.shadowForm = true;
@@ -457,7 +470,18 @@ function script_priest:run(targetGUID)
 
 		else	
 
-
+			-- attempt to run away from adds - don't pull them
+			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj)) then	
+				if (not script_aggro:moveAwayFromAdds(targetObj)) then
+				--if (script_aggro:movingFromAdds(targetObj, 50)) then
+					if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
+						script_grind.tickRate = 100;
+						self.message = "Moving away from adds...";
+					return true;
+					end
+				return true;
+				end
+			end
 
 
 

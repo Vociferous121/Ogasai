@@ -88,7 +88,7 @@ function script_aggro:safePullRecheck(target)
 	local cx, cy, cz = 0, 0, 0;
 
 	while currentObj ~= 0 do
- 		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) then
+ 		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) and (currentObj:GetLevel() <= script_grind.maxLevel and currentObj:GetLevel() >= script_grind.minLevel) then
 			aggro = currentObj:GetLevel() - localObj:GetLevel() + (script_aggro.adjustAggro + 30);
 			cx, cy, cz = currentObj:GetPosition();
 			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro) then	
@@ -207,12 +207,12 @@ function script_aggro:closeToBlacklistedTargets()
 	local aggroClosest = 0;
 
 	while currentObj ~= 0 do
-		aggro = currentObj:GetLevel() - localObj:GetLevel() + 22;
+		aggro = currentObj:GetLevel() - localObj:GetLevel() + 26;
 		local range = aggro + 5;
-		if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range then	
+		if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range and not script_grind:isTargetingMe(currentObj) and script_grind.enemyObj:GetGUID() ~= currentObj:GetGUID() then	
 			if (closestEnemy == 0) then
 				closestEnemy = currentObj;
-				aggroClosest = currentObj:GetLevel() - localObj:GetLevel() + 22;
+				aggroClosest = currentObj:GetLevel() - localObj:GetLevel() + 23;
 			else
 				local dist = currentObj:GetDistance();
 				if (dist < closestDist) then
