@@ -499,7 +499,7 @@ function script_mage:run(targetGUID)
 
 			-- blink frost nova on CD
 			if (self.useBlink) then
-				if (HasSpell("Blink")) and (not IsSpellOnCD("Blink")) and (IsSpellOnCD("Frost Nova") or IsSpellOnCD("Cone of Cold")) and (targetObj:GetDistance() < 10) and (targetHealth > self.useWandHealth + 10) then
+				if (HasSpell("Blink")) and (not IsSpellOnCD("Blink")) and (IsSpellOnCD("Frost Nova") or IsSpellOnCD("Cone of Cold")) and (targetObj:GetDistance() < 9) and (targetHealth > self.useWandHealth + 10) then
 					if (not targetObj:HasDebuff("Frostbite")) and (not targetObj:HasDebuff("Frost Nova")) and (not targetObj:HasDebuff("Blast Wave")) and (targetHealth > 10) then
 						if (CastSpellByName("Blink")) then
 							targetObj:FaceTarget();
@@ -552,7 +552,7 @@ function script_mage:run(targetGUID)
 					if (script_mage:runBackwards(targetObj, 9)) then -- Moves if the target is closer than 7 yards
 
 						self.message = "Moving away from target...";
-						if (not IsSpellOnCD("Frost Nova")) then
+						if (not IsSpellOnCD("Frost Nova")) and targetObj:GetDistance() < 9 then
 							CastSpellByName("Frost Nova");
 							return;
 						end
@@ -566,7 +566,7 @@ function script_mage:run(targetGUID)
 
 			-- frost nova if target is running away
 			if (HasSpell("Frost Nova")) and (not IsSpellOnCD("Frost Nova")) and (targetObj:IsFleeing()) and (targetHealth > 3) then
-				if (localMana > 5) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frostbite")) then
+				if (localMana > 5) and (targetObj:GetDistance() < 9) and (not targetObj:HasDebuff("Frostbite")) then
 					if (CastSpellByName("Frost Nova")) then
 						return;
 					end
@@ -576,7 +576,7 @@ function script_mage:run(targetGUID)
 			-- frost nova fireMage redundancy
 			if (self.fireMage and self.useFrostNova) then
 				if (HasSpell("Frost Nova")) and (not IsSpellOnCD("Frost Nova")) then
-					if (localMana > 5) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frost Nova")) then
+					if (localMana > 5) and (targetObj:GetDistance() < 9) and (not targetObj:HasDebuff("Frost Nova")) then
 						if (CastSpellByName("Frost Nova")) then
 							return;
 						end
@@ -643,7 +643,7 @@ function script_mage:run(targetGUID)
 			end
 
 			-- Check: Frostnova when the target is close, but not when we polymorhped one enemy or the target is affected by Frostbite
-			if (not self.addPolymorphed) and (targetObj:GetDistance() < 10 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova then
+			if (not self.addPolymorphed) and (targetObj:GetDistance() < 9 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova then
 				script_grind.tickRate = 100;
 				script_grind.tickRate = 100;
 				self.message = "Frost nova the target(s)...";
@@ -673,7 +673,7 @@ function script_mage:run(targetGUID)
 
 			--Cone of Cold
 			if (self.useConeOfCold) and (HasSpell('Cone of Cold')) and (localMana >= self.coneOfColdMana) and (targetHealth >= self.coneOfColdHealth) then
-				if (not self.addPolymorphed) and (targetObj:GetDistance() < 10) and (not targetObj:HasDebuff("Frostbite")) and (not targetObj:HasDebuff("Frost Nova")) then
+				if (not self.addPolymorphed) and (targetObj:GetDistance() < 9) and (not targetObj:HasDebuff("Frostbite")) and (not targetObj:HasDebuff("Frost Nova")) then
 					if (script_mage:coneOfCold('Cone of Cold')) then
 						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 1500;
@@ -757,6 +757,19 @@ function script_mage:run(targetGUID)
 				end
 			end
 
+			-- attempt to run away from adds - don't pull them
+			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj)) then	
+				if (not script_aggro:moveAwayFromAdds(targetObj)) then
+				--if (script_aggro:movingFromAdds(targetObj, 50)) then
+					if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
+						script_grind.tickRate = 100;
+						self.message = "Moving away from adds...";
+					return true;
+					end
+				return true;
+				end
+			end
+
 			
 			-- Main damage source if all above conditions cannot be run
 			-- frost mage spells
@@ -764,7 +777,7 @@ function script_mage:run(targetGUID)
 				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
 
 			-- Check: Frostnova when the target is close, but not when we polymorhped one enemy or the target is affected by Frostbite
-				if (not self.addPolymorphed) and (targetObj:GetDistance() < 10 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova and localMana >= 10 then
+				if (not self.addPolymorphed) and (targetObj:GetDistance() < 9 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova and localMana >= 10 then
 				script_grind.tickRate = 100;
 				script_grind.tickRate = 100;
 				self.message = "Frost nova the target(s)...";
@@ -788,6 +801,14 @@ function script_mage:run(targetGUID)
 
 				-- use these spells if not using wand
 				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
+
+				-- Check: Frostnova when the target is close, but not when we polymorhped one enemy or the target is affected by Frostbite
+					if (not self.addPolymorphed) and (targetObj:GetDistance() < 9 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova and localMana >= 10 then
+						script_grind.tickRate = 100;
+						script_grind.tickRate = 100;
+						self.message = "Frost nova the target(s)...";
+						CastSpellByName("Frost Nova");
+					end
 
 					-- cast pyroblast
 					if (targetObj:GetDistance() > 30) and (targetObj:GetManaPercentage() > 1) and (targetHealth > 50) then
@@ -1040,7 +1061,7 @@ if (not IsMounted()) then
 	if (not IsEating()) and (not IsDrinking()) then
 
 		if (not IsStanding())then
-			JumpOrAscendStart();
+			StopMoving();
 		end
 	
 		-- arcane intellect
