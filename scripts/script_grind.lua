@@ -202,9 +202,6 @@ function script_grind:setup()
 	local randomRange = math.random(50, 90);
 	self.paranoidRange = randomRange;
 
-	-- add chat frame message grinder is loaded
-	DEFAULT_CHAT_FRAME:AddMessage('script_grind: loaded...');
-		
 end
 
 -- draw grinder window
@@ -611,7 +608,6 @@ function script_grind:run()
 			if (not script_aggro:safePull(self.enemyObj)) and (not IsInCombat())
 			and (not script_grind:isTargetingMe(self.enemyObj)) then
 				script_grind:addTargetToBlacklist(self.enemyObj:GetGUID());
-				DEFAULT_CHAT_FRAME:AddMessage('script_grind: Blacklisting ' .. self.enemyObj:GetUnitName() .. ', too many adds... change blacklist options in "Target Menu"');
 				self.enemyObj = nil;
 			end
 		end
@@ -921,7 +917,6 @@ function script_grind:enemyIsValid(i)
 				and (not script_grind:isTargetingMe(i)) then
 				local myTime = GetTimeStamp();
 				script_grind:addTargetToBlacklist(i:GetGUID());
-				DEFAULT_CHAT_FRAME:AddMessage('' ..myTime.. ': Blacklisting "' .. i:GetUnitName() .. '", too many adds...');
 			end
 			
 			-- target blacklisted moved away from other targets
@@ -1097,7 +1092,6 @@ function script_grind:doLoot(localObj)
 	if (self.lootObj ~= nil) then
 		if (IsSwimming()) and (not script_grindEX.allowSwim) and (script_aggro:closeToBlacklistedTargets() and self.lootObj:GetDistance() > 5) then
 			script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
-			DEFAULT_CHAT_FRAME:AddMessage('script_grind: Blacklisting loot target to avoid aggro/swimming...');
 			return;
 		end
 	end
@@ -1109,7 +1103,6 @@ function script_grind:doLoot(localObj)
 			script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
 			-- variable on/off to stop spamming message
 			if (self.messageOnce) then
-			DEFAULT_CHAT_FRAME:AddMessage('Blacklisting Loot Target - Spent Too Long Looting!');
 			self.blacklistLootTime = GetTimeEX() + 25000;
 			self.messageOnce = false;
 			end
