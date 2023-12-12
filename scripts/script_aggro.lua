@@ -9,7 +9,7 @@ script_aggro = {
 	tarX = 0,		-- move away from adds
 	tarY = 0,		-- move away from adds
 	tarZ = 0,		-- move away from adds
-	addsRange = 38,	-- range circles from from adds
+	addsRange = 28,	-- range circles from from adds
 	checkAddsRange = 7,	-- safe margin "runner script" move from adds
 }
 
