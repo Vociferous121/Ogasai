@@ -965,7 +965,8 @@ function script_grind:enemyIsValid(i)
 
 		-- skip hard pull added safepull check condition
 		if (self.skipHardPull) then
-			if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
+			if (script_aggro:safePullRecheck(i))
+			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
 			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
 			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
@@ -980,7 +981,7 @@ function script_grind:enemyIsValid(i)
 			and not (skipGiant and i:GetCreatureType() == 'Giant') 
 			and not (skipMechanical and i:GetCreatureType() == 'Mechanical') 
 			and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
-			) and (script_aggro:safePull(i)) then
+			) then
 			return true;
 			end
 

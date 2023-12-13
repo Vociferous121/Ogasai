@@ -995,7 +995,7 @@ function script_druid:run(targetGUID)
 				DisMount();
 			end
 
-					-- attempt to run away from adds - don't pull them
+		-- attempt to run away from adds - don't pull them
 		if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
 		and (targetObj:IsInLineOfSight()) then	
 		if (not script_aggro:moveAwayFromAdds(targetObj)) then
@@ -1258,6 +1258,22 @@ function script_druid:run(targetGUID)
 				end
 
 			end -- end of bear form in combat attacks
+
+				-- attempt to run away from adds - don't pull them
+		if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
+		and (targetObj:IsInLineOfSight()) then	
+		if (not script_aggro:moveAwayFromAdds(targetObj)) then
+		--if (script_aggro:movingFromAdds(targetObj, 50)) then
+				script_grind.tickRate = 0;
+			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
+				if (not script_unstuck:pathClearAuto(2)) then
+					script_unstuck:unstuck();
+				end
+				self.message = "Moving away from adds...";
+				
+			end		
+		end
+	end
 
 
 

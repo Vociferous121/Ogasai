@@ -74,7 +74,6 @@ function script_fish:run()
 	if (not self.setup) then
 		script_vendor:setup();
 		
-		DEFAULT_CHAT_FRAME:AddMessage('script_fish: loaded...');
 	
 	-- set lure name from inventory items
 	if (HasItem("Aquadynamic Fish Attractor")) then
