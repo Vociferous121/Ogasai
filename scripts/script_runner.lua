@@ -149,7 +149,7 @@ function script_runner:avoidToAggro(safeMargin)
 
 	while currentObj ~= 0 do
  		if typeObj == 3 then
-			aggro = currentObj:GetLevel() - localObj:GetLevel() + script_aggro.addsRange;
+			aggro = currentObj:GetLevel() - localObj:GetLevel() + script_aggro.addsRange + 5;
 			local range = aggro + safeMargin;
 			if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range and (not script_grind:isTargetingMe(currentObj)) then	
 				if (closestEnemy == 0) then
@@ -187,9 +187,9 @@ function script_runner:avoidToAggro(safeMargin)
 				local xx, yy, zz = intersectMob:GetPosition();
 				local centerX, centerY = (x+xx)/2, (y+yy)/2;
 			
-				script_runner:avoid(centerX, centerY, zP, aggroRange, script_aggro.addsRange);
+				script_runner:avoid(centerX, centerY, zP, aggroRange, script_aggro.addsRange + 5);
 			else
-				script_runner:avoid(xT, yT, zP, aggro, script_aggro.addsRange);
+				script_runner:avoid(xT, yT, zP, aggro, script_aggro.addsRange + 5);
 			end
 
 			return true;
