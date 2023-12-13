@@ -115,6 +115,7 @@ script_grind = {
 	timerSet = false,	-- blacklist loot timer set
 	messageOnce = true,	-- message once blacklist loot obj
 	perHasTarget = false,	-- used to check pet target during rest
+	extraSafe = true,
 }
 
 function script_grind:setup()
@@ -673,6 +674,14 @@ function script_grind:run()
 				--if (self.enemyObj:GetDistance() < self.disMountRange) then
 				--end
 
+				-- possible needs adjustments...
+				-- if current object is not a safe pull then reset enemy obj
+				if (self.skipHardPull) and (self.extraSafe) and (not IsInCombat())
+				and (self.enemyObj:GetDistance() >= 20)
+				and (not script_aggro:safePullRecheck(self.enemyObj)) then
+						self.enemyObj = nil;
+				end
+
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
 
@@ -903,19 +912,21 @@ function script_grind:enemyIsValid(i)
 		local tarPos = (tz - z);
 
 		-- add target to blacklist not a safe pull
-		if (not script_aggro:safePull(i)) and (not script_grind:isTargetBlacklisted(i:GetGUID()))
-			and (not script_grind:isTargetingMe(i)) and (not script_grind:isTargetingPet(i)) then
-			script_grind:addTargetToBlacklist(i:GetGUID());
-		end
-		
-		-- blacklist targets position too high or low from us
-		if (tarPos > 0) and (not IsSwimming()) then
-			if (tarPos > 9) then
+		if (self.skipHardPull) then
+			if (not script_aggro:safePull(i)) and (not script_grind:isTargetBlacklisted(i:GetGUID()))
+				and (not script_grind:isTargetingMe(i)) and (not script_grind:isTargetingPet(i)) then	
 				script_grind:addTargetToBlacklist(i:GetGUID());
 			end
-		elseif (tarPos < 0) and (not IsSwimming()) then
-			if (tarPos < -9) then
-				script_grind:addTargetToBlacklist(i:GetGUID());
+		
+			-- blacklist targets position too high or low from us
+			if (tarPos > 0) and (not IsSwimming()) then
+				if (tarPos > 9) then
+					script_grind:addTargetToBlacklist(i:GetGUID());
+				end
+			elseif (tarPos < 0) and (not IsSwimming()) then
+				if (tarPos < -9) then
+					script_grind:addTargetToBlacklist(i:GetGUID());
+				end
 			end
 		end
 
@@ -943,7 +954,8 @@ function script_grind:enemyIsValid(i)
 		end	
 		
 		-- target blacklisted moved away from other targets
-		if (script_grind:isTargetBlacklisted(i:GetGUID())) and (script_aggro:safePullRecheck(i))
+		if (self.skipHardPull)
+			and (script_grind:isTargetBlacklisted(i:GetGUID())) and (script_aggro:safePullRecheck(i))
 			and (i:IsInLineOfSight())
 			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
@@ -965,7 +977,8 @@ function script_grind:enemyIsValid(i)
 
 		-- skip hard pull added safepull check condition
 		if (self.skipHardPull) then
-			if (script_aggro:safePullRecheck(i))
+			if (self.extraSafe and script_aggro:safePullRecheck(i) 
+				or not self.extraSafe and script_aggro:safePull(i))
 			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
 			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())

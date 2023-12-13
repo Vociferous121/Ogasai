@@ -247,6 +247,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
 				if (not script_unstuck:pathClearAuto(2)) then
 					script_unstuck:unstuck();
+					return;
 				end
 				self.message = "Moving away from adds...";
 				
@@ -379,6 +380,8 @@ function script_warrior:run(targetGUID)	-- main content of script
 
 		else	
 
+			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
+
 		-- attempt to run away from adds - don't pull them
 			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
 				and (targetObj:IsInLineOfSight()) then	
@@ -388,14 +391,13 @@ function script_warrior:run(targetGUID)	-- main content of script
 					if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
 						if (not script_unstuck:pathClearAuto(2)) then
 							script_unstuck:unstuck();
+							return;
 						end
 					self.message = "Moving away from adds...";
 				
 					end		
 				end
 			end
-
-			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
 
 			if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (not IsAutoCasting("Attack")) and (targetObj:GetDistance() <= 8) and (not IsMoving()) then

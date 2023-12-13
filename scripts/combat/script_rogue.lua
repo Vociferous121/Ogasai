@@ -221,13 +221,14 @@ function script_rogue:run(targetGUID)
 
 			-- attempt to run away from adds - don't pull them
 		if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight()) then	
+		and (targetObj:IsInLineOfSight()) and (not targetObj:IsCasting()) then	
 		if (not script_aggro:moveAwayFromAdds(targetObj)) then
 		--if (script_aggro:movingFromAdds(targetObj, 50)) then
 				script_grind.tickRate = 0;
 			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
 				if (not script_unstuck:pathClearAuto(2)) then
 					script_unstuck:unstuck();
+					return;
 				end
 				self.message = "Moving away from adds...";
 				
@@ -385,21 +386,22 @@ function script_rogue:run(targetGUID)
 			else	
 
 
-						-- attempt to run away from adds - don't pull them
-		if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight()) then	
-		if (not script_aggro:moveAwayFromAdds(targetObj)) then
-		--if (script_aggro:movingFromAdds(targetObj, 50)) then
-				script_grind.tickRate = 0;
-			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
-				if (not script_unstuck:pathClearAuto(2)) then
-					script_unstuck:unstuck();
+			-- attempt to run away from adds - don't pull them
+				if (IsInCombat() and script_grind.skipHardPull)
+					and (script_grind:isTargetingMe(targetObj))
+					and (targetObj:IsInLineOfSight()) and (not targetObj:IsCasting()) then	
+					if (not script_aggro:moveAwayFromAdds(targetObj)) then
+					--if (script_aggro:movingFromAdds(targetObj, 50)) then
+						script_grind.tickRate = 0;
+						if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
+							if (not script_unstuck:pathClearAuto(2)) then
+								script_unstuck:unstuck();
+							return;
+							end
+						self.message = "Moving away from adds...";
+						end		
+					end
 				end
-				self.message = "Moving away from adds...";
-				
-			end		
-		end
-	end
 
 				self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
@@ -1080,6 +1082,7 @@ function script_rogue:rest()
 	end
 
 	if (HasSpell("Stealth")) and (not localObj:HasBuff("Stealth")) and (IsSpellOnCD("Stealth")) and (self.useStealth) and (not IsLooting()) then
+		self.message = "Waiting for Stealth cooldown...";
 		return 4;
 	end
 	

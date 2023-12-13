@@ -92,7 +92,7 @@ function script_aggro:safePullRecheck(target)
 
 	while currentObj ~= 0 do
  		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) and (currentObj:GetLevel() <= script_grind.maxLevel and currentObj:GetLevel() >= script_grind.minLevel) then
-			aggro = currentObj:GetLevel() - localObj:GetLevel() + (script_aggro.adjustAggro + 30);
+			aggro = currentObj:GetLevel() - localObj:GetLevel() + (script_aggro.adjustAggro + 32);
 			cx, cy, cz = currentObj:GetPosition();
 			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro) then	
 				countUnitsInRange = countUnitsInRange + 1;
@@ -129,7 +129,7 @@ function script_aggro:moveAwayFromAdds(target)
 			and (not script_grind:isTargetingMe(currentObj)) 
 			and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro
 			or GetDistance3D(tx2, ty2, tz2, cx, cy, cz) <= aggro
-			or currentObj:GetDistance() <= self.addsRange + 5 and currentObj:IsInLineOfSight()) then
+			or currentObj:GetDistance() <= self.addsRange and currentObj:IsInLineOfSight()) then
 				self.tarDist = currentObj:GetDistance();
 				tarX, tarY, tarZ = currentObj:GetPosition();
 				countUnitsInRange = countUnitsInRange + 1;

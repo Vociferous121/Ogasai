@@ -228,6 +228,7 @@ function script_hunter:run(targetGUID)
 			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
 				if (not script_unstuck:pathClearAuto(2)) then
 					script_unstuck:unstuck();
+					return;
 				end
 				self.message = "Moving away from adds...";
 				
@@ -394,6 +395,7 @@ function script_hunter:run(targetGUID)
 			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
 				if (not script_unstuck:pathClearAuto(2)) then
 					script_unstuck:unstuck();
+					return;
 				end
 				self.message = "Moving away from adds...";
 				
