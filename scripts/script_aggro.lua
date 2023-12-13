@@ -125,7 +125,11 @@ function script_aggro:moveAwayFromAdds(target)
  		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) then
 			aggro = currentObj:GetLevel() - localObj:GetLevel() + self.addsRange + 5;
 			cx, cy, cz = currentObj:GetPosition();
-			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro or GetDistance3D(tx2, ty2, tz2, cx, cy, cz) <= aggro) and (not script_grind:isTargetingMe(currentObj)) then
+			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter())
+			and (not script_grind:isTargetingMe(currentObj)) 
+			and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro
+			or GetDistance3D(tx2, ty2, tz2, cx, cy, cz) <= aggro
+			or currentObj:GetDistance() <= self.addsRange + 5 and currentObj:IsInLineOfSight()) then
 				self.tarDist = currentObj:GetDistance();
 				tarX, tarY, tarZ = currentObj:GetPosition();
 				countUnitsInRange = countUnitsInRange + 1;
