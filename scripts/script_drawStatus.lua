@@ -24,14 +24,16 @@ function script_drawStatus:draw()
 
 	--DrawRect(x - 10, y - 7, x + width, y + 140, 255, 255, 0, 10, 77, 0);
 	--DrawRectFilled(x - 10, y - 7, x + width, y + 140, 0, 0, 0, 80, 10, 77);
-	DrawText('Grinder - Pull range: ' .. math.floor(script_grind.pullDistance) .. ' yd. ' .. 
-			 	'Level range: ' .. script_grind.minLevel .. '-' .. script_grind.maxLevel, x, y-4, r+255, g+255, b+0) y = y + 15;
+	DrawText('Grinder : Pull range : ' .. math.floor(script_grind.pullDistance) .. ' yd. ' .. 
+			 	'Level range : ' .. script_grind.minLevel .. ' - ' .. script_grind.maxLevel, x, y-4, r+255, g+255, b+0) y = y + 15;
 	
-	DrawText('Grinder status: ', x, y, r+255, g+255, b+0); y = y + 15;
-	DrawText(script_grind.message or "error", x, y, 255, 255, 255);
-	y = y + 20; DrawText('Combat script status: ', x, y, r+255, g+255, b+0); y = y + 15;
+	DrawText('Grinder Status:', x, y, r+255, g+255, b+0);
+	DrawText(script_grind.message or "error", x + 115, y, 255, 255, 255);
+	DrawText("_______________", x, y+3, r+255, g+255, b);
+	y = y + 20; DrawText('Combat Script Status:', x, y, r+255, g+255, b+0); y = y + 15;
 	if (script_grind.showClassOptions) then RunCombatDraw(); end
-	 y = y + 20;
+	DrawText("_____________________", x, y-12, r+255, g+255, b);
+
 	if (script_grind.useVendor) then
 		DrawText('Vendor - ' .. script_vendorMenu:getInfo(), x, y, r+255, g+255, b+0); y = y + 15;
 		DrawText('Vendor Status: ', x, y, r+255, g+255, b+0);
@@ -41,10 +43,15 @@ function script_drawStatus:draw()
 	local time = ((GetTimeEX()-script_grind.newTargetTime)/1000); 
 
 	if (script_grind.enemyObj ~= 0 and script_grind.enemyObj ~= nil and not script_grind.enemyObj:IsDead()) then
+
+		if (script_grind.useVendor) then
+			y = y + 20;
+		end
+
 		--DrawRect(x - 10, y + 19, x + width, y + 45, 255, 255, 0,  1, 1, 1);
 		--DrawRectFilled(x-10, y+20, x + width, y + 45, 0, 0, 0, 100, 0, 0);
-		DrawText('Blacklist-timer: ' .. script_grind.enemyObj:GetUnitName() .. ': ' .. time .. ' s.', x, y+20, 0, 255, 120); 
-		DrawText('Blacklisting target after ' .. script_grind.blacklistTime .. " s. (If above 92% HP.)", x, y+35, 0, 255, 120);
+		DrawText('Blacklist-timer: ' .. script_grind.enemyObj:GetUnitName() .. ': ' .. time .. ' s.', x, y+3, 0, 255, 120); 
+		DrawText('Blacklisting target after ' .. script_grind.blacklistTime .. " s. (If above 92% HP.)", x, y+18, 0, 255, 120);
 	end
 
 	else

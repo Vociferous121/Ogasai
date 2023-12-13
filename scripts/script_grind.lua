@@ -679,6 +679,7 @@ function script_grind:run()
 				if (self.skipHardPull) and (self.extraSafe) and (not IsInCombat())
 				and (self.enemyObj:GetDistance() >= 20)
 				and (not script_aggro:safePullRecheck(self.enemyObj)) then
+					script_grind.message2 = "Recheck Safe Pull!";
 						self.enemyObj = nil;
 				end
 
@@ -916,17 +917,6 @@ function script_grind:enemyIsValid(i)
 			if (not script_aggro:safePull(i)) and (not script_grind:isTargetBlacklisted(i:GetGUID()))
 				and (not script_grind:isTargetingMe(i)) and (not script_grind:isTargetingPet(i)) then	
 				script_grind:addTargetToBlacklist(i:GetGUID());
-			end
-		
-			-- blacklist targets position too high or low from us
-			if (tarPos > 0) and (not IsSwimming()) then
-				if (tarPos > 9) then
-					script_grind:addTargetToBlacklist(i:GetGUID());
-				end
-			elseif (tarPos < 0) and (not IsSwimming()) then
-				if (tarPos < -9) then
-					script_grind:addTargetToBlacklist(i:GetGUID());
-				end
 			end
 		end
 

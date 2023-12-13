@@ -58,7 +58,6 @@ function script_aggro:safePull(target)
 	local countUnitsInRange = 0;
 	local currentObj, typeObj = GetFirstObject();
 	local aggro = 0;
-	local tx, ty, tz = target:GetPosition();
 	local cx, cy, cz = 0, 0, 0;
 
 	while currentObj ~= 0 do
@@ -92,7 +91,7 @@ function script_aggro:safePullRecheck(target)
 
 	while currentObj ~= 0 do
  		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) and (currentObj:GetLevel() <= script_grind.maxLevel and currentObj:GetLevel() >= script_grind.minLevel) then
-			aggro = currentObj:GetLevel() - localObj:GetLevel() + (script_aggro.adjustAggro + 32);
+			aggro = currentObj:GetLevel() - localObj:GetLevel() + (script_aggro.adjustAggro + 30);
 			cx, cy, cz = currentObj:GetPosition();
 			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro) then	
 				countUnitsInRange = countUnitsInRange + 1;
@@ -123,13 +122,10 @@ function script_aggro:moveAwayFromAdds(target)
 
 	while currentObj ~= 0 do
  		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) then
-			aggro = currentObj:GetLevel() - localObj:GetLevel() + self.addsRange + 5;
+			aggro = currentObj:GetLevel() - localObj:GetLevel() + self.addsRange;
 			cx, cy, cz = currentObj:GetPosition();
 			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter())
-			and (not script_grind:isTargetingMe(currentObj)) 
-			and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro
-			or GetDistance3D(tx2, ty2, tz2, cx, cy, cz) <= aggro
-			or currentObj:GetDistance() <= self.addsRange and currentObj:IsInLineOfSight()) then
+			and (not script_grind:isTargetingMe(currentObj)) and (currentObj:GetDistance() <= self.addsRange + 70) then
 				self.tarDist = currentObj:GetDistance();
 				tarX, tarY, tarZ = currentObj:GetPosition();
 				countUnitsInRange = countUnitsInRange + 1;
@@ -296,7 +292,7 @@ function script_aggro:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 			-- Calculate the point closest to our destination
 			if (IsPathLoaded(5)) then
-				local lastNodeIndex = GetPathSize(5)-2;
+				local lastNodeIndex = GetPathSize(5)-1;
 				local destX, destY, destZ = GetPathPositionAtIndex(5, lastNodeIndex); 
 				local destDist = math.sqrt((points[secondPoint].x-destX)^2 + (points[secondPoint].y-destY)^2);
 				if (destDist < bestDestDist) then

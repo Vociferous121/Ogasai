@@ -174,7 +174,7 @@ function script_warrior:draw()	-- draw warrior window and status text
 			tY = tY + script_grind.adjustY;
 		end
 
-	DrawText(self.message, tX+75, tY+44, 255, 250, 205);
+	DrawText(self.message, tX+230, tY+9, 255, 250, 205);
 	else
 		if (script_grind.adjustText) and (script_grind.drawEnabled) then
 			tX = tX + script_grind.adjustX;
@@ -247,7 +247,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
 				if (not script_unstuck:pathClearAuto(2)) then
 					script_unstuck:unstuck();
-					return;
+					return true;
 				end
 				self.message = "Moving away from adds...";
 				
@@ -391,7 +391,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 					if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
 						if (not script_unstuck:pathClearAuto(2)) then
 							script_unstuck:unstuck();
-							return;
+							return true;
 						end
 					self.message = "Moving away from adds...";
 				

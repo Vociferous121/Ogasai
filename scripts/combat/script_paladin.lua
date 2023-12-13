@@ -94,7 +94,7 @@ function script_paladin:draw()
 			tY = tY + script_grind.adjustY;
 		end
 
-	DrawText(self.message, tX+75, tY+44, 255, 250, 205);
+	DrawText(self.message, tX+230, tY+9, 255, 250, 205);
 	else
 		if (script_grind.adjustText) and (script_grind.drawEnabled) then
 			tX = tX + script_grind.adjustX;
@@ -166,7 +166,7 @@ function script_paladin:run(targetGUID)
 			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
 				if (not script_unstuck:pathClearAuto(2)) then
 					script_unstuck:unstuck();
-					return;
+					return true;
 				end
 				self.message = "Moving away from adds...";
 				
@@ -286,7 +286,7 @@ function script_paladin:run(targetGUID)
 			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
 				if (not script_unstuck:pathClearAuto(2)) then
 					script_unstuck:unstuck();
-					return;
+					return true;
 				end
 				self.message = "Moving away from adds...";
 				
@@ -294,7 +294,7 @@ function script_paladin:run(targetGUID)
 		end
 	end
 
-			if (not IsAutoCasting("Attack")) then
+			if (not IsAutoCasting("Attack")) and (not IsMoving()) then
 				targetObj:AutoAttack();
 				targetObj:FaceTarget();
 			end
@@ -330,10 +330,6 @@ function script_paladin:run(targetGUID)
 					targetObj:FaceTarget();
 					return 4; 
 				end 
-				if (IsMoving()) then
-					JumpOrAscendStart();
-					targetObj:FaceTarget();
-				end
 			end
 			
 			-- recheck auto attack
