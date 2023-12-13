@@ -26,8 +26,6 @@ script_paladin = {
 
 function script_paladin:setup()
 
-	-- Sort Aura  
-
 	--use Devotion Aura if nothing else
 	if (not HasSpell("Retribution Aura")) and (not HasSpell("Sanctity Aura")) and (not localObj:HasBuff("Stoneskin")) then
 		self.aura = "Devotion Aura";	
@@ -224,12 +222,6 @@ function script_paladin:run(targetGUID)
 		end
 	
 		targetHealth = targetObj:GetHealthPercentage();
-
-		-- Don't attack if we should rest first
-		if (localHealth < self.eatHealth) and (not script_grind:isTargetingMe(targetObj)) and (targetHealth > 99) and (not targetObj:IsStunned()) and (script_grind.lootobj == nil) then
-			self.message = "Need rest...";
-			return 4;
-		end
 
 		-- Check: if we target player pets/totems
 		if (GetTarget() ~= 0) then
@@ -657,10 +649,8 @@ function script_paladin:rest()
 end
 
 function script_paladin:window()
-
 	if (self.isChecked) then
 		EndWindow();
-
 		if(NewWindow("Class Combat Options", 200, 200)) then
 			script_paladin:menuEX();
 		end
