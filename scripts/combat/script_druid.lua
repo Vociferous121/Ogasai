@@ -198,7 +198,7 @@ function script_druid:healsAndBuffs()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = math.random(350, 650);
+		local tickRandom = math.random(350, 550);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -453,7 +453,7 @@ function script_druid:healsAndBuffs()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = math.random(350, 650);
+		local tickRandom = math.random(350, 550);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -489,7 +489,7 @@ function script_druid:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = math.random(350, 650);
+		local tickRandom = math.random(350, 550);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -534,16 +534,19 @@ function script_druid:run(targetGUID)
 		return 4;
 	end
 
-	-- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj)) then	
+			-- attempt to run away from adds - don't pull them
+		if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
+		and (targetObj:IsInLineOfSight()) then	
 		if (not script_aggro:moveAwayFromAdds(targetObj)) then
 		--if (script_aggro:movingFromAdds(targetObj, 50)) then
+				script_grind.tickRate = 0;
 			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
-				script_grind.tickRate = 100;
+				if (not script_unstuck:pathClearAuto(2)) then
+					script_unstuck:unstuck();
+				end
 				self.message = "Moving away from adds...";
-				return true;
-			end
-		return true;
+				
+			end		
 		end
 	end
 	
@@ -992,18 +995,21 @@ function script_druid:run(targetGUID)
 				DisMount();
 			end
 
-			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj)) then	
-				if (not script_aggro:moveAwayFromAdds(targetObj)) then
-				--if (script_aggro:movingFromAdds(targetObj, 50)) then
-					if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
-					script_grind.tickRate = 100;
-					self.message = "Moving away from adds...";
-					return true;
-					end
-				return true;
+					-- attempt to run away from adds - don't pull them
+		if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
+		and (targetObj:IsInLineOfSight()) then	
+		if (not script_aggro:moveAwayFromAdds(targetObj)) then
+		--if (script_aggro:movingFromAdds(targetObj, 50)) then
+				script_grind.tickRate = 0;
+			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
+				if (not script_unstuck:pathClearAuto(2)) then
+					script_unstuck:unstuck();
 				end
-			end
+				self.message = "Moving away from adds...";
+				
+			end		
+		end
+	end
 
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
@@ -1483,7 +1489,7 @@ function script_druid:run(targetGUID)
 		-- set tick rate for script to run
 		if (not script_grind.adjustTickRate) then
 	
-			local tickRandom = math.random(350, 650);
+			local tickRandom = math.random(350, 550);
 		
 			if (IsMoving()) or (not IsInCombat()) then
 				script_grind.tickRate = 135;
@@ -1520,7 +1526,7 @@ function script_druid:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = math.random(350, 650);
+		local tickRandom = math.random(950, 1350);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -1700,7 +1706,7 @@ function script_druid:rest()
 -- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = math.random(350, 650);
+		local tickRandom = math.random(350, 550);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;

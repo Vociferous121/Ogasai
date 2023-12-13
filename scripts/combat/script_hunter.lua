@@ -219,17 +219,19 @@ function script_hunter:run(targetGUID)
 		return 4;
 	end
 
-	-- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj)) then	
+			-- attempt to run away from adds - don't pull them
+		if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
+		and (targetObj:IsInLineOfSight()) then	
 		if (not script_aggro:moveAwayFromAdds(targetObj)) then
 		--if (script_aggro:movingFromAdds(targetObj, 50)) then
+				script_grind.tickRate = 0;
 			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
-				script_grind.tickRate = 100;
-				PetFollow();
+				if (not script_unstuck:pathClearAuto(2)) then
+					script_unstuck:unstuck();
+				end
 				self.message = "Moving away from adds...";
-				return true;
-			end
-		return true;
+				
+			end		
 		end
 	end
 
@@ -383,19 +385,21 @@ function script_hunter:run(targetGUID)
 
 		else
 
-			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj)) then		
-				if (not script_aggro:moveAwayFromAdds(targetObj)) then
-				--if (script_aggro:movingFromAdds(targetObj, 50)) then
-					if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
-						script_grind.tickRate = 100;
-						PetFollow();
-						self.message = "Moving away from adds...";
-					return true;
-					end
-				return true;
+					-- attempt to run away from adds - don't pull them
+		if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
+		and (targetObj:IsInLineOfSight()) then	
+		if (not script_aggro:moveAwayFromAdds(targetObj)) then
+		--if (script_aggro:movingFromAdds(targetObj, 50)) then
+				script_grind.tickRate = 0;
+			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
+				if (not script_unstuck:pathClearAuto(2)) then
+					script_unstuck:unstuck();
 				end
-			end
+				self.message = "Moving away from adds...";
+				
+			end		
+		end
+	end
 
 
 

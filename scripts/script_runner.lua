@@ -145,6 +145,8 @@ function script_runner:avoidToAggro(safeMargin)
 	local closestDist = 999;
 	local aggro = 0;
 
+			script_grind.tickRate = 0;
+
 	while currentObj ~= 0 do
  		if typeObj == 3 then
 			aggro = currentObj:GetLevel() - localObj:GetLevel() + script_aggro.addsRange;
@@ -173,7 +175,6 @@ function script_runner:avoidToAggro(safeMargin)
 			closestEnemy = self.avoidTarget;
 			end
 
-			script_grind.tickRate = 0;
 			local xT, yT, zT = closestEnemy:GetPosition();
 
  			local xP, yP, zP = localObj:GetPosition();
@@ -185,6 +186,7 @@ function script_runner:avoidToAggro(safeMargin)
 				local x, y, z = closestEnemy:GetPosition();
 				local xx, yy, zz = intersectMob:GetPosition();
 				local centerX, centerY = (x+xx)/2, (y+yy)/2;
+			
 				script_runner:avoid(centerX, centerY, zP, aggroRange, script_aggro.addsRange);
 			else
 				script_runner:avoid(xT, yT, zP, aggro, script_aggro.addsRange);
@@ -340,6 +342,10 @@ function script_runner:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 	if (moveToPoint == 0) then
 		moveToPoint = 1;
+	end
+
+	if (IsMoving()) then
+		script_unstuck:unstuck();
 	end
 
 	Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ);

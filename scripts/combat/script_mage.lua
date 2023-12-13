@@ -38,7 +38,7 @@ script_mage = {
 	gemTimer = 0,		-- gem cooldown timer
 	useBlink = false,	-- use blink yes/no
 	isChecked = true,	-- set up
-	useDampenMagic = false,	-- use dampen magic yes/no
+	useDampenMagic = true,	-- use dampen magic yes/no
 	fireMage = false,	-- is fire spec yes/no
 	frostMage = true,	-- is frost spec yes/no
 	scorchStacks = 2,	-- scorch debuff stacks on target
@@ -342,22 +342,24 @@ function script_mage:run(targetGUID)
 	end
 
 	-- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj)) then	
+	if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
+		and (targetObj:IsInLineOfSight()) then	
 		if (not script_aggro:moveAwayFromAdds(targetObj)) then
 		--if (script_aggro:movingFromAdds(targetObj, 50)) then
+				script_grind.tickRate = 0;
 			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
-				script_grind.tickRate = 100;
+				if (not script_unstuck:pathClearAuto(2)) then
+					script_unstuck:unstuck();
+				end
 				self.message = "Moving away from adds...";
-				return true;
-			end
-		return true;
+			end		
 		end
 	end
 
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(500, 1000);
+		local tickRandom = random(350, 650);
 
 		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
 			script_grind.tickRate = 135;
@@ -395,15 +397,6 @@ function script_mage:run(targetGUID)
 		-- stand if sitting
 		if (not IsStanding()) then
 			JumpOrAscendStart();
-		end
-
-		-- Don't attack if we should rest first
-		if (GetNumPartyMembers() < 1) then
-			if (localHealth < self.eatHealth or localMana < self.drinkMana) and (not script_grind:isTargetingMe(targetObj))
-				and (not targetObj:IsFleeing()) and (not targetObj:IsStunned()) and (not script_mage:isAddPolymorphed()) then
-				self.message = "Need rest...";
-				return 4;
-			end
 		end
 
 		-- set target health variable
@@ -445,16 +438,16 @@ function script_mage:run(targetGUID)
 			-- frost mage selected
 			if (self.frostMage) and (targetObj:GetDistance() <= 30) and (targetObj:IsInLineOfSight()) then
 				if (script_mage.frostMagePull(targetObj)) then
-					script_grind:setWaitTimer(1000);
-					self.waitTimer = GetTimeEX() + 1000;
+					script_grind:setWaitTimer(1600);
+					self.waitTimer = GetTimeEX() + 1600;
 					targetObj:FaceTarget();
 				end
 
 				-- fire mage selected use these spells instead
 			elseif (self.fireMage) and (targetObj:GetDistance() <= 30) then
 				if (script_mage.fireMagePull(targetObj)) then
-					script_grind:setWaitTimer(1000);
-					self.waitTimer = GetTimeEX() + 1000;
+					script_grind:setWaitTimer(1600);
+					self.waitTimer = GetTimeEX() + 1600;
 					targetObj:FaceTarget();
 				end
 			end
@@ -464,17 +457,20 @@ function script_mage:run(targetGUID)
 		else	
 
 			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj)) then	
-				if (not script_aggro:moveAwayFromAdds(targetObj)) then
-				--if (script_aggro:movingFromAdds(targetObj, 50)) then
-					if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
-						script_grind.tickRate = 100;
-						self.message = "Moving away from adds...";
-					return true;
-					end
-				return true;
+		if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
+		and (targetObj:IsInLineOfSight()) then	
+		if (not script_aggro:moveAwayFromAdds(targetObj)) then
+		--if (script_aggro:movingFromAdds(targetObj, 50)) then
+				script_grind.tickRate = 0;
+			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
+				if (not script_unstuck:pathClearAuto(2)) then
+					script_unstuck:unstuck();
 				end
-			end
+				self.message = "Moving away from adds...";
+				
+			end		
+		end
+	end
 
 			-- display message in ogasai message box
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
@@ -758,23 +754,42 @@ function script_mage:run(targetGUID)
 			end
 
 			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj)) then	
-				if (not script_aggro:moveAwayFromAdds(targetObj)) then
-				--if (script_aggro:movingFromAdds(targetObj, 50)) then
-					if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
-						script_grind.tickRate = 100;
-						self.message = "Moving away from adds...";
-					return true;
-					end
-				return true;
+	if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
+		and (targetObj:IsInLineOfSight()) then	
+		if (not script_aggro:moveAwayFromAdds(targetObj)) then
+		--if (script_aggro:movingFromAdds(targetObj, 50)) then
+				script_grind.tickRate = 0;
+			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
+				if (not script_unstuck:pathClearAuto(2)) then
+					script_unstuck:unstuck();
 				end
-			end
+				self.message = "Moving away from adds...";
+				
+			end		
+		end
+	end
 
 			
 			-- Main damage source if all above conditions cannot be run
 			-- frost mage spells
 			if (HasSpell("Frostbolt")) and (self.frostMage) and (not IsChanneling()) and (not IsMoving()) then
 				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
+
+				-- attempt to run away from adds - don't pull them
+	if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
+		and (targetObj:IsInLineOfSight()) then	
+		if (not script_aggro:moveAwayFromAdds(targetObj)) then
+		--if (script_aggro:movingFromAdds(targetObj, 50)) then
+				script_grind.tickRate = 0;
+			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
+				if (not script_unstuck:pathClearAuto(2)) then
+					script_unstuck:unstuck();
+				end
+				self.message = "Moving away from adds...";
+				
+			end		
+		end
+	end
 
 			-- Check: Frostnova when the target is close, but not when we polymorhped one enemy or the target is affected by Frostbite
 				if (not self.addPolymorphed) and (targetObj:GetDistance() < 9 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova and localMana >= 10 then
@@ -847,6 +862,20 @@ function script_mage:run(targetGUID)
 
 				
 		end
+
+			-- set tick rate for script to run
+			if (not script_grind.adjustTickRate) then
+	
+				local tickRandom = random(350, 650);
+
+			if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
+				script_grind.tickRate = 135;
+			elseif (not IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
+				script_grind.tickRate = tickRandom
+			elseif (IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
+				script_grind.tickRate = tickRandom;
+			end
+		end
 	end
 end
 
@@ -859,7 +888,7 @@ function script_mage:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(1388, 2061);
+		local tickRandom = random(550, 1261);
 
 		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
 			script_grind.tickRate = 135;
@@ -1005,57 +1034,6 @@ if (not IsMounted()) then
 			return true;
 		end
 	end
-
-	-- Eat and Drink
-	if (not IsDrinking() and localMana < self.drinkMana) then
-		self.message = "Need to drink...";
-		-- Dismount
-		if(IsMounted()) then 
-			DisMount(); 
-			return true; 
-		end
-		if (IsMoving()) then
-			StopMoving();
-			return true;
-		end
-
-		if (script_helper:drinkWater()) then 
-			self.message = "Drinking..."; 
-			return true; 
-		else 
-			self.message = "No drinks! (or drink not included in script_helper)";
-			return true; 
-		end
-	end
-	if (not IsEating() and localHealth < self.eatHealth) then
-		-- Dismount
-		if(IsMounted()) then DisMount(); end
-		self.message = "Need to eat...";	
-		if (IsMoving()) then
-			StopMoving();
-			return true;
-		end
-		
-		if (script_helper:eat()) then 
-			self.message = "Eating..."; 
-			return true; 
-		else 
-			self.message = "No food! (or food not included in script_helper)";
-			return true; 
-		end	
-	end
-	
-	if(localMana < self.drinkMana or localHealth < self.eatHealth) then
-		if (IsMoving()) then
-			StopMoving();
-		end
-		return true;
-	end
-	
-	if((localMana < 98 and IsDrinking()) or (localHealth < 98 and IsEating())) then
-		self.message = "Resting to full hp/mana...";
-		return true;
-	end
 	
 	-- stand up if sitting after drinking/eating -- used for buffs
 	if (not IsEating()) and (not IsDrinking()) then
@@ -1131,6 +1109,57 @@ if (not IsMounted()) then
 		end
 	end
 	end	
+
+-- Eat and Drink
+	if (not IsDrinking() and localMana < self.drinkMana) then
+		self.message = "Need to drink...";
+		-- Dismount
+		if(IsMounted()) then 
+			DisMount(); 
+			return true; 
+		end
+		if (IsMoving()) then
+			StopMoving();
+			return true;
+		end
+
+		if (script_helper:drinkWater()) then 
+			self.message = "Drinking..."; 
+			return true; 
+		else 
+			self.message = "No drinks! (or drink not included in script_helper)";
+			return true; 
+		end
+	end
+	if (not IsEating() and localHealth < self.eatHealth) then
+		-- Dismount
+		if(IsMounted()) then DisMount(); end
+		self.message = "Need to eat...";	
+		if (IsMoving()) then
+			StopMoving();
+			return true;
+		end
+		
+		if (script_helper:eat()) then 
+			self.message = "Eating..."; 
+			return true; 
+		else 
+			self.message = "No food! (or food not included in script_helper)";
+			return true; 
+		end	
+	end
+	
+	if(localMana < self.drinkMana or localHealth < self.eatHealth) then
+		if (IsMoving()) then
+			StopMoving();
+		end
+		return true;
+	end
+	
+	if((localMana < 98 and IsDrinking()) or (localHealth < 98 and IsEating())) then
+		self.message = "Resting to full hp/mana...";
+		return true;
+	end
 	-- No rest / buff needed
 	return false;
 end

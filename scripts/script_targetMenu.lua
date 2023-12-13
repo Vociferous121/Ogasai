@@ -23,7 +23,7 @@ function script_targetMenu:menu()
 				then
 
 				Text("Adjust Move Away From Adds Range");
-				script_aggro.addsRange = SliderInt("Add Range", 25, 32, script_aggro.addsRange);
+				script_aggro.addsRange = SliderInt("Add Range", 25, 35, script_aggro.addsRange);
 
 			elseif (UnitClass('player') == "Shaman")
 				and (not script_shaman.useEarthTotem)

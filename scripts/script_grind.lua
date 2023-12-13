@@ -86,7 +86,6 @@ script_grind = {
 	drawGather = false,	-- draw gather nodes
 	hotspotReached = false,	-- is hotspot reached
 	drawAggro = false,	-- draw aggro range circles
-	drawAggro2 = false,
 	safeRess = true,	-- ressurect in safe area
 	skipHardPull = true,	-- skip adds
 	useUnstuck = true,	-- use unstuck script
@@ -899,10 +898,25 @@ end
 function script_grind:enemyIsValid(i)
 	if (i ~= 0) then
 
-		-- add target to blacklist not safe pull
+		local tx, ty, tz = i:GetPosition()
+		local x, y, z = GetLocalPlayer():GetPosition();
+		local tarPos = (tz - z);
+
+		-- add target to blacklist not a safe pull
 		if (not script_aggro:safePull(i)) and (not script_grind:isTargetBlacklisted(i:GetGUID()))
-			and (not script_grind:isTargetingMe(i)) then
+			and (not script_grind:isTargetingMe(i)) and (not script_grind:isTargetingPet(i)) then
 			script_grind:addTargetToBlacklist(i:GetGUID());
+		end
+		
+		-- blacklist targets position too high or low from us
+		if (tarPos > 0) and (not IsSwimming()) then
+			if (tarPos > 9) then
+				script_grind:addTargetToBlacklist(i:GetGUID());
+			end
+		elseif (tarPos < 0) and (not IsSwimming()) then
+			if (tarPos < -9) then
+				script_grind:addTargetToBlacklist(i:GetGUID());
+			end
 		end
 
 		-- Valid Targets: Tapped by us, or is attacking us or our pet
@@ -914,23 +928,42 @@ function script_grind:enemyIsValid(i)
 		end
 
 		-- blacklisted target is attacking us
-		if (script_grind:isTargetBlacklisted(i:GetGUID())) and (script_grind:isTargetingMe(i))
-		and (i:IsInLineOfSight()) then
+		if (script_grind:isTargetBlacklisted(i:GetGUID())) and (script_grind:isTargetingMe(i)) and (i:IsInLineOfSight()) then
 			return true;
 		end
+
 		-- blacklisted target is polymorphed or feared
 		if (script_grind:isTargetBlacklisted(i:GetGUID())) and (i:HasDebuff("Polymorph") or i:HasDebuff("Fear")) then
 			return true;
 		end
+
 		--attacking pet
 		if (script_grind:isTargetingPet(i)) and (i:IsInLineOfSight()) then
 			return true;
-		end			
+		end	
+		
 		-- target blacklisted moved away from other targets
-		if (i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel) and (script_grind:isTargetBlacklisted(i:GetGUID())) and (script_aggro:safePullRecheck(i)) then
+		if (script_grind:isTargetBlacklisted(i:GetGUID())) and (script_aggro:safePullRecheck(i))
+			and (i:IsInLineOfSight())
+			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
+			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
+			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
+			and not (self.skipUnknown and i:GetCreatureType() == 'Not specified')
+			and not (self.skipHumanoid and i:GetCreatureType() == 'Humanoid')
+			and not (self.skipDemon and i:GetCreatureType() == 'Demon')
+			and not (self.skipBeast and i:GetCreatureType() == 'Beast')
+			and not (self.skipElemental and i:GetCreatureType() == 'Elemental')
+			and not (self.skipUndead and i:GetCreatureType() == 'Undead') 
+			and not (skipAberration and i:GetCreatureType() == 'Abberration') 
+			and not (skipDragonkin and i:GetCreatureType() == 'Dragonkin') 
+			and not (skipGiant and i:GetCreatureType() == 'Giant') 
+			and not (skipMechanical and i:GetCreatureType() == 'Mechanical') 
+			and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
+			) then
 			return true;
 		end
 
+		-- skip hard pull added safepull check condition
 		if (self.skipHardPull) then
 			if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
@@ -947,7 +980,7 @@ function script_grind:enemyIsValid(i)
 			and not (skipGiant and i:GetCreatureType() == 'Giant') 
 			and not (skipMechanical and i:GetCreatureType() == 'Mechanical') 
 			and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
-			) then
+			) and (script_aggro:safePull(i)) then
 			return true;
 			end
 
@@ -1220,7 +1253,8 @@ function script_grind:runRest()
 		script_grind.blacklistLootTime = GetTimeEX() + 30000;
 
 		-- set tick rate for resting
-		script_grind.tickRate = 1500;
+		local randomRestTick = math.random(1200, 1600);
+		script_grind.tickRate = randomRestTick;
 
 		self.message = "Resting...";
 

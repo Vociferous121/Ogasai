@@ -9,10 +9,12 @@ script_aggro = {
 	tarX = 0,		-- move away from adds
 	tarY = 0,		-- move away from adds
 	tarZ = 0,		-- move away from adds
-	addsRange = 30,	-- range circles from from adds
+	addsRange = 32,	-- range circles from from adds
 	checkAddsRange = 5,	-- safe margin "runner script" move from adds
 }
 
+
+-- function to draw aggro circles on screen around targets
 function script_aggro:DrawCircles(pointX,pointY,pointZ,radius)
 	-- thx benjamin
 	local r = 255;
@@ -44,15 +46,13 @@ function script_aggro:DrawCircles(pointX,pointY,pointZ,radius)
 			--ToConsole('x1 inside draw cirlces: ' .. x1 .. 'onScreen1: ' .. onScreen1String .. y1 .. x2 .. y2 .. redVar .. greenVar .. blueVar .. lineThickness);
 			if onScreen1 == true and onScreen2 == true then
 				DrawLine(x1, y1, x2, y2, r, g, b, 1)
-				if (script_grind.drawAggro2) then
-				DrawLine(x1, y1, x2, y2, r, g-255, b, 1)
-				end
 				
 			end
 		end
 	end
 end
 
+-- check for aggro range around other targets based on current level
 function script_aggro:safePull(target) 
 	local localObj = GetLocalPlayer();
 	local countUnitsInRange = 0;
@@ -109,6 +109,7 @@ function script_aggro:safePullRecheck(target)
 	return true;
 end
 
+-- used to check distance of aggro of adds around target and player using my and their distance
 function script_aggro:moveAwayFromAdds(target) 
 	local localObj = GetLocalPlayer();
 	local countUnitsInRange = 0;
@@ -118,11 +119,13 @@ function script_aggro:moveAwayFromAdds(target)
 	local tx2, ty2, tz2 = localObj:GetPosition();
 	cx, cy, cz = 0, 0, 0;
 
+	script_grind.tickRate = 0;
+
 	while currentObj ~= 0 do
  		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) then
 			aggro = currentObj:GetLevel() - localObj:GetLevel() + self.addsRange;
 			cx, cy, cz = currentObj:GetPosition();
-			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro or GetDistance3D(tx2, ty2, tz2, cx, cy, cz) <= aggro) and (not script_grind:isTargetingMe(currentObj)) and (currentObj:IsInLineOfSight()) then
+			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro or GetDistance3D(tx2, ty2, tz2, cx, cy, cz) <= aggro) and (not script_grind:isTargetingMe(currentObj)) then
 				self.tarDist = currentObj:GetDistance();
 				tarX, tarY, tarZ = currentObj:GetPosition();
 				countUnitsInRange = countUnitsInRange + 1;
@@ -131,15 +134,14 @@ function script_aggro:moveAwayFromAdds(target)
  		currentObj, typeObj = GetNextObject(currentObj);
  	end
 
-	-- avoid pull if more than 1 add
+	-- avoid if more than 1 add
 	if (countUnitsInRange > 1) then
-		script_grind.drawAggro2 = true;
 		return false;
 	end
-	script_grind.drawAggro2 = false;
 	return true;
 end
 
+-- old defunct attempt to move away from target
 function script_aggro:movingFromAdds(targetObj, range) 
 	local localObj = GetLocalPlayer();
  	if targetObj ~= 0 and (not script_checkDebuffs:hasDisabledMovement()) then
@@ -158,6 +160,7 @@ function script_aggro:movingFromAdds(targetObj, range)
 	return false;
 end
 
+-- find a safe spot to ressurect
 function script_aggro:safeRess(corpseX, corpseY, corpseZ, ressRadius) 
 	local countUnitsInRange = 0;
 	local currentObj, typeObj = GetFirstObject();
@@ -201,6 +204,7 @@ function script_aggro:safeRess(corpseX, corpseY, corpseZ, ressRadius)
 	return false;
 end
 
+-- if we are close to blacklisted target true or false
 function script_aggro:closeToBlacklistedTargets() 
 	local countUnitsInRange = 0;
 	local currentTargetNr = 0;
@@ -238,6 +242,7 @@ function script_aggro:closeToBlacklistedTargets()
 	return false;
 end
 
+-- avoid aggro 
 function script_aggro:avoid(pointX,pointY,pointZ, radius, safeDist)
 	-- thx benjamin
 	local r = 255;
@@ -318,9 +323,15 @@ function script_aggro:avoid(pointX,pointY,pointZ, radius, safeDist)
 		moveToPoint = 1;
 	end
 
+	if (IsMoving()) then
+		script_unstuck:unstuck();
+	end
+
 	Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ);
 end
 
+
+-- draw the actual aggro circles on the screen based on target and range
 function script_aggro:drawAggroCircles(maxRange)
 	local countUnitsInRange = 0;
 	local currentObj, typeObj = GetFirstObject();
@@ -333,26 +344,6 @@ function script_aggro:drawAggroCircles(maxRange)
 			local cx, cy, cz = currentObj:GetPosition();
 			local px, py, pz = localObj:GetPosition();
 			script_aggro:DrawCircles(cx, cy, cz, aggro);
- 		end
- 		currentObj, typeObj = GetNextObject(currentObj);
- 	end
-end
-
---draw range of move from adds
-function script_aggro:drawAggroCircles2(maxRange)
-	local countUnitsInRange = 0;
-	local currentObj, typeObj = GetFirstObject();
-	local localObj = GetLocalPlayer();
-	local closestEnemy = 0;
-
-	while currentObj ~= 0 do
-		if localObj:GetUnitsTarget() ~= 0 then
- 			if typeObj == 3 and currentObj:GetDistance() < maxRange and not currentObj:IsDead() and currentObj:CanAttack() and not currentObj:IsCritter() and currentObj:GetGUID() ~= localObj:GetUnitsTarget():GetGUID() then
-				local aggro = currentObj:GetLevel() - localObj:GetLevel() + script_aggro.addsRange;
-				local cx, cy, cz = currentObj:GetPosition();
-				local px, py, pz = localObj:GetPosition();
-				script_aggro:DrawCircles(cx, cy, cz-1, aggro);
-			end
  		end
  		currentObj, typeObj = GetNextObject(currentObj);
  	end
