@@ -9,7 +9,7 @@ script_aggro = {
 	tarX = 0,		-- move away from adds
 	tarY = 0,		-- move away from adds
 	tarZ = 0,		-- move away from adds
-	addsRange = 32,	-- range circles from from adds
+	addsRange = 25,	-- range circles from from adds
 	checkAddsRange = 5,	-- safe margin "runner script" move from adds
 }
 
@@ -109,6 +109,7 @@ function script_aggro:safePullRecheck(target)
 end
 
 -- used to check distance of aggro of adds around target and player using my and their distance
+-- should we move true or false
 function script_aggro:moveAwayFromAdds(target) 
 	local localObj = GetLocalPlayer();
 	local countUnitsInRange = 0;
@@ -116,16 +117,14 @@ function script_aggro:moveAwayFromAdds(target)
 	local aggro = 0;
 	local tx, ty, tz = target:GetPosition();
 	local tx2, ty2, tz2 = localObj:GetPosition();
-	cx, cy, cz = 0, 0, 0;
 
 	script_grind.tickRate = 0;
 
 	while currentObj ~= 0 do
  		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) then
-			aggro = currentObj:GetLevel() - localObj:GetLevel() + self.addsRange;
-			cx, cy, cz = currentObj:GetPosition();
+			local cx, cy, cz = currentObj:GetPosition();
 			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter())
-			and (not script_grind:isTargetingMe(currentObj)) and (currentObj:GetDistance() <= self.addsRange + 70) then
+			and (not script_grind:isTargetingMe(currentObj)) and (currentObj:GetDistance() <= self.addsRange + 10) then
 				self.tarDist = currentObj:GetDistance();
 				tarX, tarY, tarZ = currentObj:GetPosition();
 				countUnitsInRange = countUnitsInRange + 1;
@@ -292,7 +291,7 @@ function script_aggro:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 			-- Calculate the point closest to our destination
 			if (IsPathLoaded(5)) then
-				local lastNodeIndex = GetPathSize(5)-1;
+				local lastNodeIndex = GetPathSize(5);
 				local destX, destY, destZ = GetPathPositionAtIndex(5, lastNodeIndex); 
 				local destDist = math.sqrt((points[secondPoint].x-destX)^2 + (points[secondPoint].y-destY)^2);
 				if (destDist < bestDestDist) then
@@ -347,4 +346,21 @@ function script_aggro:drawAggroCircles(maxRange)
  		end
  		currentObj, typeObj = GetNextObject(currentObj);
  	end
+end
+
+function script_aggro:checkAdds()
+
+	if (not script_aggro:moveAwayFromAdds(targetObj)) then
+		script_grind.tickRate = 0;
+		if (script_runner:avoidToAggro(5)) then
+			if (not script_unstuck:pathClearAuto(2)) then
+				script_unstuck:unstuck();
+				return;
+			end
+			self.message = "Moving away from adds...";			
+		end
+	return true;
+	end
+
+return false
 end

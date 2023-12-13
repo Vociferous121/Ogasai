@@ -679,14 +679,14 @@ function script_grind:run()
 				if (self.skipHardPull) and (self.extraSafe) and (not IsInCombat())
 				and (self.enemyObj:GetDistance() >= 20)
 				and (not script_aggro:safePullRecheck(self.enemyObj)) then
-					script_grind.message2 = "Recheck Safe Pull!";
-						self.enemyObj = nil;
+					self.enemyObj = nil;
 				end
 
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
 
 				script_grind.tickRate = 100;
+
 
 				if (_x ~= 0 and x ~= 0) then
 					local moveBuffer = math.random(-2, 2);

@@ -219,20 +219,10 @@ function script_hunter:run(targetGUID)
 		return 4;
 	end
 
-			-- attempt to run away from adds - don't pull them
-		if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
+	-- attempt to run away from adds - don't pull them
+	if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
 		and (targetObj:IsInLineOfSight()) then	
-		if (not script_aggro:moveAwayFromAdds(targetObj)) then
-		--if (script_aggro:movingFromAdds(targetObj, 50)) then
-				script_grind.tickRate = 0;
-			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
-				if (not script_unstuck:pathClearAuto(2)) then
-					script_unstuck:unstuck();
-					return true;
-				end
-				self.message = "Moving away from adds...";
-				
-			end		
+		if (script_aggro:checkAdds()) then
 		end
 	end
 
@@ -386,25 +376,12 @@ function script_hunter:run(targetGUID)
 
 		else
 
-					-- attempt to run away from adds - don't pull them
-		if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight()) then	
-		if (not script_aggro:moveAwayFromAdds(targetObj)) then
-		--if (script_aggro:movingFromAdds(targetObj, 50)) then
-				script_grind.tickRate = 0;
-			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
-				if (not script_unstuck:pathClearAuto(2)) then
-					script_unstuck:unstuck();
-					return true;
+			-- attempt to run away from adds - don't pull them
+			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
+				and (targetObj:IsInLineOfSight()) then	
+				if (script_aggro:checkAdds()) then
 				end
-				self.message = "Moving away from adds...";
-				
-			end		
-		end
-	end
-
-
-
+			end
 
 			if (not targetObj:IsInLineOfSight()) then
 				return 3;

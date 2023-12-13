@@ -344,16 +344,7 @@ function script_mage:run(targetGUID)
 	-- attempt to run away from adds - don't pull them
 	if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
 		and (targetObj:IsInLineOfSight()) then	
-		if (not script_aggro:moveAwayFromAdds(targetObj)) then
-		--if (script_aggro:movingFromAdds(targetObj, 50)) then
-				script_grind.tickRate = 0;
-			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
-				if (not script_unstuck:pathClearAuto(2)) then
-					script_unstuck:unstuck();
-					return true;
-				end
-				self.message = "Moving away from adds...";
-			end		
+		if (script_aggro:checkAdds()) then
 		end
 	end
 
@@ -458,21 +449,11 @@ function script_mage:run(targetGUID)
 		else	
 
 			-- attempt to run away from adds - don't pull them
-		if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight()) then	
-		if (not script_aggro:moveAwayFromAdds(targetObj)) then
-		--if (script_aggro:movingFromAdds(targetObj, 50)) then
-				script_grind.tickRate = 0;
-			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
-				if (not script_unstuck:pathClearAuto(2)) then
-					script_unstuck:unstuck();
-					return true;
+			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
+				and (targetObj:IsInLineOfSight()) then	
+				if (script_aggro:checkAdds()) then
 				end
-				self.message = "Moving away from adds...";
-				
-			end		
-		end
-	end
+			end
 
 			-- display message in ogasai message box
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
@@ -756,21 +737,11 @@ function script_mage:run(targetGUID)
 			end
 
 			-- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight()) then	
-		if (not script_aggro:moveAwayFromAdds(targetObj)) then
-		--if (script_aggro:movingFromAdds(targetObj, 50)) then
-				script_grind.tickRate = 0;
-			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
-				if (not script_unstuck:pathClearAuto(2)) then
-					script_unstuck:unstuck();
-					return true;
+			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
+				and (targetObj:IsInLineOfSight()) then	
+				if (script_aggro:checkAdds()) then
 				end
-				self.message = "Moving away from adds...";
-				
-			end		
-		end
-	end
+			end
 
 			
 			-- Main damage source if all above conditions cannot be run
@@ -778,22 +749,12 @@ function script_mage:run(targetGUID)
 			if (HasSpell("Frostbolt")) and (self.frostMage) and (not IsChanneling()) and (not IsMoving()) then
 				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
 
-				-- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight()) then	
-		if (not script_aggro:moveAwayFromAdds(targetObj)) then
-		--if (script_aggro:movingFromAdds(targetObj, 50)) then
-				script_grind.tickRate = 0;
-			if (script_runner:avoidToAggro(script_aggro.checkAddsRange)) then
-				if (not script_unstuck:pathClearAuto(2)) then
-					script_unstuck:unstuck();
-					return true;
+			-- attempt to run away from adds - don't pull them
+			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
+				and (targetObj:IsInLineOfSight()) then	
+				if (script_aggro:checkAdds()) then
 				end
-				self.message = "Moving away from adds...";
-				
-			end		
-		end
-	end
+			end
 
 			-- Check: Frostnova when the target is close, but not when we polymorhped one enemy or the target is affected by Frostbite
 				if (not self.addPolymorphed) and (targetObj:GetDistance() < 9 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova and localMana >= 10 then
