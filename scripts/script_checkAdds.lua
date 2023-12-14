@@ -44,10 +44,13 @@ function script_checkAdds:moveAwayFromAdds(target)
 	script_grind.tickRate = 0;
 
 	while currentObj ~= 0 do
- 		if (typeObj == 3) and (currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID()) then
-
-			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter())
-			and (not script_grind:isTargetingMe(currentObj)) and (currentObj:GetDistance() <= self.addsRange + 45) then
+ 		if (typeObj == 3) and (script_grind.enemyObj ~= nil and currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID()) then
+			
+			if (currentObj:CanAttack())
+			and (not currentObj:IsDead())
+			and (not currentObj:IsCritter())
+			and (not script_grind:isTargetingMe(currentObj))
+			and (currentObj:GetDistance() <= self.addsRange + 45) then
 				self.tarDist = currentObj:GetDistance();
 				tarX, tarY, tarZ = currentObj:GetPosition();
 				countUnitsInRange = countUnitsInRange + 1;

@@ -619,6 +619,7 @@ function script_grind:run()
 		end
 
 		if (not IsInCombat()) and (script_grindEX.avoidBlacklisted) and (script_aggro:closeToBlacklistedTargets()) then
+			self.message = "Close To Blacklisted Target.. Moving...";
 			if (script_runner:avoidToBlacklist(10)) then
 				return true;
 			end
@@ -905,6 +906,11 @@ function script_grind:enemyIsValid(i)
 		if (self.skipHardPull) and (not script_aggro:safePull(i)) and (not script_grind:isTargetBlacklisted(i:GetGUID())) and (not script_grind:isTargetingMe(i)) then	
 			script_grind:addTargetToBlacklist(i:GetGUID());
 		end
+		
+		-- add elite to blacklist
+		if (self.skipElites) and (i:GetClassification() == 1 or i:GetClassification() == 2) and (not script_grind:isTargetBlacklisted(i:GetGUID())) and (not script_grind:isTargetingMe(i)) then	
+			script_grind:addTargetToBlacklist(i:GetGUID());
+		end	
 
 		-- Valid Targets: Tapped by us, or is attacking us or our pet
 		if (script_grind:isTargetingMe(i)
