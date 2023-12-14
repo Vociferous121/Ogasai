@@ -627,6 +627,10 @@ function script_priest:run(targetGUID)
 				end
 			end
 
+			if (self.useWand) and (targetObj:GetDistance() > 25) or (not targetObj:IsInLineOfSight()) then
+				return 3;
+			end
+
 			--mind flay and then wand when set
 			if (self.useMindFlay) and (self.useWand) and (not localObj:IsCasting() or not localObj:IsChanneling()) and
 				(localMana <= self.mindFlayMana or targetHealth <= self.mindFlayHealth) or (targetObj:GetDistance() <= 25) then

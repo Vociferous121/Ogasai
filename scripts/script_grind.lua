@@ -936,8 +936,9 @@ function script_grind:enemyIsValid(i)
 		end	
 		
 		-- target blacklisted moved away from other targets
+			-- target is blacklisted + safepull recheck + extra safe + not avoid blacklist
 		if (self.skipHardPull) and (script_grind:isTargetBlacklisted(i:GetGUID()))
-			and (script_aggro:safePullRecheck(i)) and (self.extraSafe) then
+			and (script_aggro:safePullRecheck(i)) and (self.extraSafe) and (not script_grindEX.avoidBlacklisted) then
 			if (i:IsInLineOfSight())
 			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
@@ -958,8 +959,30 @@ function script_grind:enemyIsValid(i)
 			end
 		end
 
-		-- skip blacklisted
-		if (self.skipHardPull) 
+		-- skip blacklisted if we avoid enemies
+		if (self.skipHardPull) and (script_grindEX.avoidBlacklisted)
+			and (not script_grind:isTargetBlacklisted(i:GetGUID())) and (not script_aggro:closeToBlacklistedTargetsEnemyValid()) then
+			if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
+			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
+			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
+			and not (self.skipUnknown and i:GetCreatureType() == 'Not specified')
+			and not (self.skipHumanoid and i:GetCreatureType() == 'Humanoid')
+			and not (self.skipDemon and i:GetCreatureType() == 'Demon')
+			and not (self.skipBeast and i:GetCreatureType() == 'Beast')
+			and not (self.skipElemental and i:GetCreatureType() == 'Elemental')
+			and not (self.skipUndead and i:GetCreatureType() == 'Undead') 
+			and not (skipAberration and i:GetCreatureType() == 'Abberration') 
+			and not (skipDragonkin and i:GetCreatureType() == 'Dragonkin') 
+			and not (skipGiant and i:GetCreatureType() == 'Giant') 
+			and not (skipMechanical and i:GetCreatureType() == 'Mechanical') 
+			and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
+			) then
+			return true;
+			end
+		end
+
+		-- don't avoid targets
+		if (self.skipHardPull) and (not script_grindEX.avoidBlacklisted)
 			and (not script_grind:isTargetBlacklisted(i:GetGUID())) then
 			if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
@@ -985,7 +1008,6 @@ function script_grind:enemyIsValid(i)
 			if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
 			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
-			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
 			and not (self.skipUnknown and i:GetCreatureType() == 'Not specified')
 			and not (self.skipHumanoid and i:GetCreatureType() == 'Humanoid')
 			and not (self.skipDemon and i:GetCreatureType() == 'Demon')
