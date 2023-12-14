@@ -244,7 +244,7 @@ function script_priest:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = math.random(500, 1000);
+		local tickRandom = math.random(300, 600);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -354,7 +354,7 @@ function script_priest:run(targetGUID)
 			end
 
 			-- casts mind blast quicker
-			if (HasSpell("Mind Blast")) and (not IsSpellOnCD("Mind Blast")) and (not IsMoving()) then
+			if (HasSpell("Mind Blast")) and (targetObj:IsInLineOfSight()) and (not IsSpellOnCD("Mind Blast")) and (not IsMoving()) then
 				if (not HasSpell("Vampiric Embrace")) or (not HasSpell("Devouring Plague")) then
 					CastSpellByName("Mind Blast");
 					targetObj:FaceTarget();
@@ -399,7 +399,7 @@ function script_priest:run(targetGUID)
 			if (HasSpell("Mind Blast")) and (localMana >= self.mindBlastMana) and (not IsSpellOnCD("Mind Blast")) and (not IsMoving()) and (targetObj:IsInLineOfSight()) then
 				if (Cast("Mind Blast", targetObj)) then	
 					targetObj:FaceTarget();
-					self.waitTimer = GetTimeEX() + 1550;
+					self.waitTimer = GetTimeEX() + 1850;
 					self.message = "Casting Mind Blast!";
 					return 0; -- keep trying until cast
 				end
@@ -408,7 +408,7 @@ function script_priest:run(targetGUID)
 			elseif (HasSpell("Vampiric Embrace")) and (not IsSpellOnCD("Vampiric Embrace")) and (not targetObj:HasDebuff("Vampiric Embrace")) and (not IsMoving()) and (targetObj:IsInLineOfSight()) then
 				if (Cast("Vampiric Embrace", targetObj)) then	
 					targetObj:FaceTarget();
-					self.waitTimer = GetTimeEX() + 750;
+					self.waitTimer = GetTimeEX() + 1850;
 					self.message = "Casting Vampiric Embrace!";
 					return 0; -- keep trying until cast
 				end
@@ -416,7 +416,7 @@ function script_priest:run(targetGUID)
 			elseif (HasSpell("Shadow Word: Pain")) and (not targetObj:HasDebuff("Shadow Word: Pain")) and (IsSpellOnCD("Mind Blast")) and (targetObj:IsInLineOfSight()) then
 				if (Cast("Shadow Word: Pain", targetObj)) then
 					targetObj:FaceTarget();
-					self.waitTimer = GetTimeEX() + 750;
+					self.waitTimer = GetTimeEX() + 1850;
 					return 0; -- keep trying until cast
 				end
 
@@ -465,6 +465,10 @@ function script_priest:run(targetGUID)
 		-- Combat
 
 		else	
+
+			if (targetObj:GetDistance() > 30) or (not targetObj:IsInLineOfSight()) then
+				return 3;
+			end
 
 			-- attempt to run away from adds - don't pull them
 			if (IsInCombat() and script_grind.skipHardPull)
