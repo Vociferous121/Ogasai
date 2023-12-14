@@ -95,9 +95,10 @@ function script_aggro:safePullRecheck(target)
 			aggro = currentObj:GetLevel() - localObj:GetLevel() + (script_aggro.adjustAggro + 32.5);
 			cx, cy, cz = currentObj:GetPosition();
 			local curDist = currentObj:GetDistance();
+			local tarDist = target:GetDistance();
+
 			
-			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) 			and ( (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro)
-			or    (curDist - tarDist > script_checkAdds.addsRange + script_aggro.adjustAggro)
+			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) 			and ( (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro)  
 			    ) then	
 				countUnitsInRange = countUnitsInRange + 1;
  			end
