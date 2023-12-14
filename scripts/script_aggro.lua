@@ -172,7 +172,44 @@ function script_aggro:closeToBlacklistedTargets()
 	while currentObj ~= 0 do
 		aggro = currentObj:GetLevel() - localObj:GetLevel() + 26;
 		local range = aggro + 5;
-		if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range and not script_grind:isTargetingMe(currentObj) and script_grind.enemyObj:GetGUID() ~= currentObj:GetGUID() then	
+		if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range and not script_grind:isTargetingMe(currentObj) then	
+			if (closestEnemy == 0) then
+				closestEnemy = currentObj;
+				aggroClosest = currentObj:GetLevel() - localObj:GetLevel() + 23;
+			else
+				local dist = currentObj:GetDistance();
+				if (dist < closestDist) then
+					closestDist = dist;
+					closestEnemy = currentObj;
+				end
+			end
+ 		end
+		currentTargetNr = currentTargetNr + 1;
+ 		currentObj = GetGUIDObject(script_grind.blacklistedTargets[currentTargetNr]);
+ 	end
+
+	-- avoid the closest mob
+	if (closestEnemy ~= 0) then
+		return true;
+	end
+
+	return false;
+end
+
+function script_aggro:closeToBlacklistedTargetsEnemyValid() 
+	local countUnitsInRange = 0;
+	local currentTargetNr = 0;
+	local currentObj = GetGUIDObject(script_grind.blacklistedTargets[currentTargetNr]);
+	local localObj = GetLocalPlayer();
+	local closestEnemy = 0;
+	local closestDist = 999;
+	local aggro = 0;
+	local aggroClosest = 0;
+
+	while currentObj ~= 0 do
+		aggro = currentObj:GetLevel() - localObj:GetLevel() + 26;
+		local range = aggro + 5;
+		if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range and not script_grind:isTargetingMe(currentObj) and (GetLocalPlayer():GetUnitsTarget() ~= 0 and GetLocalPlayer():GetUnitsTarget():GetGUID() ~= currentObj:GetGUID()) then	
 			if (closestEnemy == 0) then
 				closestEnemy = currentObj;
 				aggroClosest = currentObj:GetLevel() - localObj:GetLevel() + 23;
@@ -275,10 +312,6 @@ function script_aggro:avoid(pointX,pointY,pointZ, radius, safeDist)
 	-- out of bound
 	if (moveToPoint > point or moveToPoint == 0) then
 		moveToPoint = 1;
-	end
-
-	if (IsMoving()) then
-		script_unstuck:unstuck();
 	end
 
 	Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ);
