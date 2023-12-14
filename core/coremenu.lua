@@ -20,8 +20,9 @@ function coremenu:draw()
 			Core Files
 			----------------------------
 		]]--
-		include("core\\core.lua");	
 		
+		include("core\\core.lua");	
+        
 		-- Load DBs
 		include("scripts\\db\\vendorDB.lua");
 		include("scripts\\db\\hotspotDB.lua");

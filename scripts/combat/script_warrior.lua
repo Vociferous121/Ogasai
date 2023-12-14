@@ -239,9 +239,11 @@ function script_warrior:run(targetGUID)	-- main content of script
 	end
 
 	-- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight()) then	
-		if (script_aggro:checkAdds()) then
+	if (IsInCombat() and script_grind.skipHardPull)
+		and (script_grind:isTargetingMe(targetObj))
+		and (targetObj:IsInLineOfSight())
+		and (not targetObj:IsCasting()) then	
+		if (script_checkAdds:checkAdds()) then
 		end
 	end
 
@@ -373,9 +375,11 @@ function script_warrior:run(targetGUID)	-- main content of script
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
 			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
-				and (targetObj:IsInLineOfSight()) then	
-				if (script_aggro:checkAdds()) then
+			if (IsInCombat() and script_grind.skipHardPull)
+				and (script_grind:isTargetingMe(targetObj))
+				and (targetObj:IsInLineOfSight())
+				and (not targetObj:IsCasting()) then		
+				if (script_checkAdds:checkAdds()) then
 				end
 			end
 

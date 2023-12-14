@@ -19,7 +19,8 @@ function script_targetMenu:menu()
 
 		if (script_grind.skipHardPull) then
 
-			wasClicked, script_grind.extraSafe = Checkbox("Recheck Safe-Pull Range (Extra Safe Pulls)", script_grind.extraSafe);
+			local a = script_checkAdds.addsRange + script_aggro.adjustAggro;
+			wasClicked, script_grind.extraSafe = Checkbox("Recheck Blacklisted Targets " ..a.."(yds)" , script_grind.extraSafe);
 
 			if UnitClass('player') == "Mage"
 				or UnitClass('player') == "Warlock"
@@ -28,7 +29,7 @@ function script_targetMenu:menu()
 				then
 
 				Text("Move Away From Adds In Combat Range");
-				script_aggro.addsRange = SliderInt("Distance", 15, 35, script_aggro.addsRange);
+				script_checkAdds.addsRange = SliderInt("Distance", 15, 35, script_checkAdds.addsRange);
 
 			elseif (UnitClass('player') == "Shaman")
 				and (not script_shaman.useEarthTotem)
@@ -37,11 +38,11 @@ function script_targetMenu:menu()
 				then
 
 				Text("Move Away From Adds In Combat Range");
-				script_aggro.addsRange = SliderInt("Add Range", 15, 50, script_aggro.addsRange);
+				script_checkAdds.addsRange = SliderInt("Add Range", 15, 50, script_checkAdds.addsRange);
 
 			else
 				Text("Move Away From Adds In Combat Range");
-				script_aggro.addsRange = SliderInt("Add Range", 15, 50, script_aggro.addsRange);
+				script_checkAdds.addsRange = SliderInt("Add Range", 15, 50, script_checkAdds.addsRange);
 			end
 
 			Separator();

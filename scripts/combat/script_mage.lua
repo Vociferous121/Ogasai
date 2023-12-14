@@ -342,9 +342,11 @@ function script_mage:run(targetGUID)
 	end
 
 	-- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight()) then	
-		if (script_aggro:checkAdds()) then
+	if (IsInCombat() and script_grind.skipHardPull)
+		and (script_grind:isTargetingMe(targetObj))
+		and (targetObj:IsInLineOfSight())
+		and (not targetObj:IsCasting()) then	
+		if (script_checkAdds:checkAdds()) then
 		end
 	end
 
@@ -449,9 +451,11 @@ function script_mage:run(targetGUID)
 		else	
 
 			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
-				and (targetObj:IsInLineOfSight()) then	
-				if (script_aggro:checkAdds()) then
+			if (IsInCombat() and script_grind.skipHardPull)
+				and (script_grind:isTargetingMe(targetObj))
+				and (targetObj:IsInLineOfSight())
+				and (not targetObj:IsCasting()) then		
+				if (script_checkAdds:checkAdds()) then
 				end
 			end
 
@@ -737,9 +741,11 @@ function script_mage:run(targetGUID)
 			end
 
 			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
-				and (targetObj:IsInLineOfSight()) then	
-				if (script_aggro:checkAdds()) then
+			if (IsInCombat() and script_grind.skipHardPull)
+				and (script_grind:isTargetingMe(targetObj))
+				and (targetObj:IsInLineOfSight())
+				and (not targetObj:IsCasting()) then	
+				if (script_checkAdds:checkAdds()) then
 				end
 			end
 
@@ -750,9 +756,11 @@ function script_mage:run(targetGUID)
 				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
 
 			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
-				and (targetObj:IsInLineOfSight()) then	
-				if (script_aggro:checkAdds()) then
+			if (IsInCombat() and script_grind.skipHardPull)
+				and (script_grind:isTargetingMe(targetObj))
+				and (targetObj:IsInLineOfSight())
+				and (not targetObj:IsCasting()) then		
+				if (script_checkAdds:checkAdds()) then
 				end
 			end
 

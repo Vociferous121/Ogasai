@@ -1,6 +1,7 @@
 script_grind = {
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
 	helperLoaded = include("scripts\\script_helper.lua"),
+	checkAddsLoaded = include("scripts\\script_checkAdds.lua"),
 	talentLoaded = include("scripts\\script_talent.lua"),
 	vendorLoaded = include("scripts\\script_vendor.lua"),
 	gatherLoaded = include("scripts\\script_gather.lua"),
@@ -674,14 +675,6 @@ function script_grind:run()
 				--if (self.enemyObj:GetDistance() < self.disMountRange) then
 				--end
 
-				-- possible needs adjustments...
-				-- if current object is not a safe pull then reset enemy obj
-				if (self.skipHardPull) and (self.extraSafe) and (not IsInCombat())
-					and (self.enemyObj:GetDistance() >= 20)
-					and (not script_aggro:safePullRecheck(self.enemyObj)) then
-					self.enemyObj = nil;
-				end
-
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
 
@@ -937,35 +930,12 @@ function script_grind:enemyIsValid(i)
 		end	
 		
 		-- target blacklisted moved away from other targets
-		if (self.skipHardPull)
-			and (script_grind:isTargetBlacklisted(i:GetGUID())) and (script_aggro:safePullRecheck(i))
-			and (i:IsInLineOfSight())
+		if (self.skipHardPull) and (script_grind:isTargetBlacklisted(i:GetGUID()))
+			and (script_aggro:safePullRecheck(i)) and (self.extraSafe) then
+			if (i:IsInLineOfSight())
 			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
 			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
-			and not (self.skipUnknown and i:GetCreatureType() == 'Not specified')
-			and not (self.skipHumanoid and i:GetCreatureType() == 'Humanoid')
-			and not (self.skipDemon and i:GetCreatureType() == 'Demon')
-			and not (self.skipBeast and i:GetCreatureType() == 'Beast')
-			and not (self.skipElemental and i:GetCreatureType() == 'Elemental')
-			and not (self.skipUndead and i:GetCreatureType() == 'Undead') 
-			and not (skipAberration and i:GetCreatureType() == 'Abberration') 
-			and not (skipDragonkin and i:GetCreatureType() == 'Dragonkin') 
-			and not (skipGiant and i:GetCreatureType() == 'Giant') 
-			and not (skipMechanical and i:GetCreatureType() == 'Mechanical') 
-			and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
-			) then
-			return true;
-		end
-
-		-- skip hard pull added safepull check condition
-		if (self.skipHardPull) then
-			if (self.extraSafe and script_aggro:safePullRecheck(i) 
-				or not self.extraSafe and script_aggro:safePull(i))
-			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
-			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
-			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
-			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
 			and not (self.skipUnknown and i:GetCreatureType() == 'Not specified')
 			and not (self.skipHumanoid and i:GetCreatureType() == 'Humanoid')
 			and not (self.skipDemon and i:GetCreatureType() == 'Demon')
@@ -980,8 +950,32 @@ function script_grind:enemyIsValid(i)
 			) then
 			return true;
 			end
+		end
 
-		elseif (not self.skipHardPull) then	
+		-- skip blacklisted
+		if (self.skipHardPull) 
+			and (not script_grind:isTargetBlacklisted(i:GetGUID())) then
+			if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
+			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
+			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
+			and not (self.skipUnknown and i:GetCreatureType() == 'Not specified')
+			and not (self.skipHumanoid and i:GetCreatureType() == 'Humanoid')
+			and not (self.skipDemon and i:GetCreatureType() == 'Demon')
+			and not (self.skipBeast and i:GetCreatureType() == 'Beast')
+			and not (self.skipElemental and i:GetCreatureType() == 'Elemental')
+			and not (self.skipUndead and i:GetCreatureType() == 'Undead') 
+			and not (skipAberration and i:GetCreatureType() == 'Abberration') 
+			and not (skipDragonkin and i:GetCreatureType() == 'Dragonkin') 
+			and not (skipGiant and i:GetCreatureType() == 'Giant') 
+			and not (skipMechanical and i:GetCreatureType() == 'Mechanical') 
+			and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
+			) then
+			return true;
+			end
+		end
+		
+		-- don't skip blacklisted
+		if (not self.skipHardPull) then
 			if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
 			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
@@ -1000,8 +994,7 @@ function script_grind:enemyIsValid(i)
 			) then
 			return true;
 			end
-	
-		end
+		end	
 	end
 	return false;
 end

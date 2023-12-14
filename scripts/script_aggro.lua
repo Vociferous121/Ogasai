@@ -9,8 +9,6 @@ script_aggro = {
 	tarX = 0,		-- move away from adds
 	tarY = 0,		-- move away from adds
 	tarZ = 0,		-- move away from adds
-	addsRange = 25,	-- range circles from from adds
-	checkAddsRange = 5,	-- safe margin "runner script" move from adds
 }
 
 
@@ -89,12 +87,18 @@ function script_aggro:safePullRecheck(target)
 	local aggro = 0;
 	local tx, ty, tz = target:GetPosition();
 	local cx, cy, cz = 0, 0, 0;
+	local curDist = 0;
+	local tarDist = target:GetDistance();
 
 	while currentObj ~= 0 do
- 		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) and (currentObj:GetLevel() <= script_grind.maxLevel and currentObj:GetLevel() >= script_grind.minLevel) then
-			aggro = currentObj:GetLevel() - localObj:GetLevel() + (script_aggro.adjustAggro + 30);
+ 		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) then
+			aggro = currentObj:GetLevel() - localObj:GetLevel() + (script_aggro.adjustAggro + 32.5);
 			cx, cy, cz = currentObj:GetPosition();
-			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro) then	
+			local curDist = currentObj:GetDistance();
+			
+			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) 			and ( (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro)
+			or    (curDist - tarDist > script_checkAdds.addsRange + script_aggro.adjustAggro)
+			    ) then	
 				countUnitsInRange = countUnitsInRange + 1;
  			end
  		end
@@ -107,56 +111,6 @@ function script_aggro:safePullRecheck(target)
 	end
 
 	return true;
-end
-
--- used to check distance of aggro of adds around target and player using my and their distance
--- should we move true or false
-function script_aggro:moveAwayFromAdds(target) 
-	local localObj = GetLocalPlayer();
-	local countUnitsInRange = 0;
-	local currentObj, typeObj = GetFirstObject();
-	local aggro = 0;
-	local tx, ty, tz = target:GetPosition();
-	local tx2, ty2, tz2 = localObj:GetPosition();
-
-	script_grind.tickRate = 0;
-
-	while currentObj ~= 0 do
- 		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) then
-			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter())
-			and (not script_grind:isTargetingMe(currentObj)) and (currentObj:GetDistance() <= self.addsRange + 15) then
-				self.tarDist = currentObj:GetDistance();
-				tarX, tarY, tarZ = currentObj:GetPosition();
-				countUnitsInRange = countUnitsInRange + 1;
- 			end
- 		end
- 		currentObj, typeObj = GetNextObject(currentObj);
- 	end
-
-	-- avoid if more than 1 add
-	if (countUnitsInRange > 1) then
-		return false;
-	end
-	return true;
-end
-
--- old defunct attempt to move away from target
-function script_aggro:movingFromAdds(targetObj, range) 
-	local localObj = GetLocalPlayer();
- 	if targetObj ~= 0 and (not script_checkDebuffs:hasDisabledMovement()) then
- 		local xT, yT, zT = targetObj:GetPosition();
- 		local xP, yP, zP = localObj:GetPosition();
- 		local distance = targetObj:GetDistance();
- 		local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
- 		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
- 		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;	
- 		local moveX, moveY, moveZ = xT + xUV*35, yT + yUV*35, zT + zUV;		
- 		if (distance < range and targetObj:IsInLineOfSight()) then 
-			script_navEX:moveToTarget(localObj, moveX, moveY, moveZ);
- 			return true;
- 		end
-	end
-	return false;
 end
 
 -- find a safe spot to ressurect
@@ -346,21 +300,4 @@ function script_aggro:drawAggroCircles(maxRange)
  		end
  		currentObj, typeObj = GetNextObject(currentObj);
  	end
-end
-
-function script_aggro:checkAdds()
-
-	if (not script_aggro:moveAwayFromAdds(targetObj)) then
-		script_grind.tickRate = 0;
-		if (script_runner:avoidToAggro(script_aggro.addsRange/2)) then
-			if (not script_unstuck:pathClearAuto(2)) then
-				script_unstuck:unstuck();
-				return true;
-			end
-			self.message = "Moving away from adds...";			
-		end
-	return true;
-	end
-
-return false
 end

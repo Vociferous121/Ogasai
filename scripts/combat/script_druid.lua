@@ -535,9 +535,11 @@ function script_druid:run(targetGUID)
 	end
 
 	-- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight()) then	
-		if (script_aggro:checkAdds()) then
+	if (IsInCombat() and script_grind.skipHardPull)
+		and (script_grind:isTargetingMe(targetObj))
+		and (targetObj:IsInLineOfSight())
+		and (not targetObj:IsCasting()) then	
+		if (script_checkAdds:checkAdds()) then
 		end
 	end
 
@@ -987,9 +989,11 @@ function script_druid:run(targetGUID)
 			end
 
 			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
-				and (targetObj:IsInLineOfSight()) then	
-				if (script_aggro:checkAdds()) then
+			if (IsInCombat() and script_grind.skipHardPull)
+				and (script_grind:isTargetingMe(targetObj))
+				and (targetObj:IsInLineOfSight())
+				and (not targetObj:IsCasting()) then	
+				if (script_checkAdds:checkAdds()) then
 				end
 			end
 
@@ -1244,7 +1248,7 @@ function script_druid:run(targetGUID)
 			-- attempt to run away from adds - don't pull them
 			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
 				and (targetObj:IsInLineOfSight()) then	
-				if (script_aggro:checkAdds()) then
+				if (script_checkAdds:checkAdds()) then
 				end
 			end
 
