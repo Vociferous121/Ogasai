@@ -1,6 +1,6 @@
 script_grindEX = {
 	currMapID = GetMapID(), 
-	avoidBlacklisted = true,
+	avoidBlacklisted = false,
 	unstuckTime = GetTimeEX(),
 	deathCounter = 0,
 	logoutOnHearth = true,
