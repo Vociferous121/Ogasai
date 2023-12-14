@@ -92,7 +92,7 @@ function script_aggro:safePullRecheck(target)
 
 	while currentObj ~= 0 do
  		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) then
-			aggro = currentObj:GetLevel() - localObj:GetLevel() + (script_aggro.adjustAggro + 32.5);
+			aggro = currentObj:GetLevel() - localObj:GetLevel() + (script_aggro.adjustAggro + script_checkAdds.addsRange);
 			cx, cy, cz = currentObj:GetPosition();
 			local curDist = currentObj:GetDistance();
 			local tarDist = target:GetDistance();
