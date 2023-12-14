@@ -171,7 +171,7 @@ function script_aggro:closeToBlacklistedTargets()
 	while currentObj ~= 0 do
 		aggro = currentObj:GetLevel() - localObj:GetLevel() + 26;
 		local range = aggro + 5;
-		if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range and not script_grind:isTargetingMe(currentObj) and script_grind.enemyObj:GetGUID() ~= currentObj:GetGUID() then	
+		if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range and not script_grind:isTargetingMe(currentObj) then	
 			if (closestEnemy == 0) then
 				closestEnemy = currentObj;
 				aggroClosest = currentObj:GetLevel() - localObj:GetLevel() + 23;
@@ -274,10 +274,6 @@ function script_aggro:avoid(pointX,pointY,pointZ, radius, safeDist)
 	-- out of bound
 	if (moveToPoint > point or moveToPoint == 0) then
 		moveToPoint = 1;
-	end
-
-	if (IsMoving()) then
-		script_unstuck:unstuck();
 	end
 
 	Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ);

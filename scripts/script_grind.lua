@@ -1015,6 +1015,23 @@ function script_grind:enemiesAttackingUs() -- returns number of enemies attackin
     return unitsAttackingUs;
 end
 
+function script_grind:enemiesWithinRange() -- returns number of enemies within range
+	local unitsAttackingUs = 0; 
+	local currentObj, typeObj = GetFirstObject(); 
+	while currentObj ~= 0 do 
+    	if typeObj == 3 then
+		if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+                	if (currentObj:GetDistance() < GetLocalPlayer():GetUnitsTarget():GetDistance() + script_checkAdds.addsRange) then 
+                		unitsAttackingUs = unitsAttackingUs + 1; 
+                	end 
+            	end 
+       	end
+        currentObj, typeObj = GetNextObject(currentObj); 
+    end
+    return unitsAttackingUs;
+end
+
+
 function script_grind:playersTargetingUs() -- returns number of players attacking us
 	local nrPlayersTargetingUs = 0; 
 	local currentObj, typeObj = GetFirstObject(); 

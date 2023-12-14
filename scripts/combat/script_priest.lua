@@ -244,7 +244,7 @@ function script_priest:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = math.random(500, 1000);
+		local tickRandom = math.random(300, 600);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -354,7 +354,7 @@ function script_priest:run(targetGUID)
 			end
 
 			-- casts mind blast quicker
-			if (HasSpell("Mind Blast")) and (not IsSpellOnCD("Mind Blast")) and (not IsMoving()) then
+			if (HasSpell("Mind Blast")) and (targetObj:IsInLineOfSight()) and (not IsSpellOnCD("Mind Blast")) and (not IsMoving()) then
 				if (not HasSpell("Vampiric Embrace")) or (not HasSpell("Devouring Plague")) then
 					CastSpellByName("Mind Blast");
 					targetObj:FaceTarget();
