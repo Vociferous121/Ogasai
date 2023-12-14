@@ -151,7 +151,7 @@ function script_runner:avoidToAggro(safeMargin)
  		if typeObj == 3 then
 			aggro = currentObj:GetLevel() - localObj:GetLevel() + script_aggro.addsRange;
 			local range = aggro + safeMargin;
-			if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= 75 and (not script_grind:isTargetingMe(currentObj)) then	
+			if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= script_aggro.addsRange + 15 and (not script_grind:isTargetingMe(currentObj)) then	
 				if (closestEnemy == 0) then
 					closestEnemy = currentObj;
 				else
@@ -167,13 +167,7 @@ function script_runner:avoidToAggro(safeMargin)
  		currentObj, typeObj = GetNextObject(currentObj);
 
 		-- avoid the closest mob
-		if (closestEnemy ~= 0) then
-
-			local dist = self.avoidTarget:GetDistance();
-			if (dist < 100) then
-			closestDist = dist;
-			closestEnemy = self.avoidTarget;
-			end
+		if (closestEnemy ~= 0) and (closestEnemy:GetDistance() < script_aggro.addsRange) then
 
 			local xT, yT, zT = closestEnemy:GetPosition();
 
