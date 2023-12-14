@@ -44,10 +44,10 @@ function script_checkAdds:moveAwayFromAdds(target)
 	script_grind.tickRate = 0;
 
 	while currentObj ~= 0 do
- 		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) then
+ 		if (typeObj == 3) and (currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID()) then
 
 			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter())
-			and (not script_grind:isTargetingMe(currentObj)) and (currentObj:GetDistance() <= self.addsRange + 15) then
+			and (not script_grind:isTargetingMe(currentObj)) and (currentObj:GetDistance() <= self.addsRange + 45) then
 				self.tarDist = currentObj:GetDistance();
 				tarX, tarY, tarZ = currentObj:GetPosition();
 				countUnitsInRange = countUnitsInRange + 1;
@@ -162,10 +162,13 @@ function script_checkAdds:avoidToAggro(safeMargin)
 			script_grind.tickRate = 0;
 
 	while currentObj ~= 0 do
- 		if typeObj == 3 then
+ 		if (typeObj == 3) and (currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID()) and (currentObj:GetDistance() < 75) then
 			aggro = currentObj:GetLevel() - localObj:GetLevel() + 21.5;
 			local range = aggro + safeMargin;
-			if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= aggro + 15 and (not script_grind:isTargetingMe(currentObj)) then	
+			if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter()
+			and (not script_grind:isTargetingMe(currentObj))
+			and (currentObj:GetDistance() <= aggro + 15 or currentObj:GetDistance() < self.addsRange)
+	then	
 				if (closestEnemy == 0) then
 					closestEnemy = currentObj;
 				else

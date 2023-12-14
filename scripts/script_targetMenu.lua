@@ -20,7 +20,7 @@ function script_targetMenu:menu()
 		if (script_grind.skipHardPull) then
 
 			local a = script_checkAdds.addsRange + script_aggro.adjustAggro;
-			wasClicked, script_grind.extraSafe = Checkbox("Recheck Blacklisted Targets " ..a.."(yds)" , script_grind.extraSafe);
+			wasClicked, script_grind.extraSafe = Checkbox("Recheck Blacklisted Targets " ..a.." (yds)" , script_grind.extraSafe);
 
 			if UnitClass('player') == "Mage"
 				or UnitClass('player') == "Warlock"

@@ -554,6 +554,15 @@ function script_rogue:run(targetGUID)
 						return 0;
 					end 
 				end 
+
+				-- attempt to run away from adds - don't pull them
+				if (IsInCombat() and script_grind.skipHardPull)
+				and (script_grind:isTargetingMe(targetObj))
+				and (targetObj:IsInLineOfSight())
+				and (not targetObj:IsCasting()) then	
+					if (script_checkAdds:checkAdds()) then
+					end
+				end
 			
 				-- Eviscerate with 5 CPs
 				if (localCP > 4) and (localEnergy >= 35) then

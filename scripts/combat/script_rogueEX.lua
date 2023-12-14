@@ -24,7 +24,7 @@ function script_rogueEX:menu()
 
 	Separator();
 
-	if (CollapsingHeader("Temporary Grind/Rotation Buttons")) then
+	if (CollapsingHeader("Choose Grind or Rotation")) then
 		if (not script_rogue.enableRotation) then -- if not showing rotation button
 			wasClicked, script_rogue.enableGrind = Checkbox("Grinder", script_rogue.enableGrind); -- then show grind button
 				SameLine();
