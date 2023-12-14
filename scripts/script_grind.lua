@@ -618,7 +618,7 @@ function script_grind:run()
 			end
 		end
 
-		if (script_grindEX.avoidBlacklisted) and (script_aggro:closeToBlacklistedTargets()) then
+		if (not IsInCombat()) and (script_grindEX.avoidBlacklisted) and (script_aggro:closeToBlacklistedTargets()) then
 			if (script_runner:avoidToBlacklist(10)) then
 				return true;
 			end

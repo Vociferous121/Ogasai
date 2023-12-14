@@ -27,16 +27,6 @@ function script_grindEX:doChecks()
 		--	end 
 		--end
 
-		--if (not IsInCombat() and self.avoidBlacklisted) then
-		--		if (script_aggro:avoidBlacklistedTargets()) then
-					-- can try to use currentObj ~= enemyObj then avoid??
-					-- doesn't really have to be just a blacklisted target
-		--			if (script_aggro:avoid( need blacklisted target position ) 
-		--			script_grind.message = "Avoiding blacklisted targets...";
-		--			return true;
-		--		end
-		--	end
-
 		if (not IsUsingNavmesh()) then UseNavmesh(true);
 			return true;
 		end

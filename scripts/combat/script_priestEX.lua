@@ -4,6 +4,17 @@ script_priestEX = {
 
 function script_priestEX:healsAndBuffs(localObj, localMana)
 
+	if (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+		-- attempt to run away from adds - don't pull them
+		if (IsInCombat() and script_grind.skipHardPull)
+			and (script_grind:isTargetingMe(targetObj))
+			and (targetObj:IsInLineOfSight())
+			and (not targetObj:IsCasting()) then		
+			if (script_checkAdds:checkAdds()) then
+			end
+		end
+	end
+
 	-- get target health percentage
 	if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (IsInCombat()) then
 		local targetHealth = targetObj:GetHealthPercentage();
@@ -167,6 +178,7 @@ function script_priestEX:healsAndBuffs(localObj, localMana)
 		if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (IsInCombat()) then
 			if (HasSpell("Mind Blast")) and (not IsSpellOnCD("Mind Blast")) and (IsInCombat()) then
 				if (targetHealth >= 20) and (localMana >= script_priest.mindBlastMana) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+					targetObj:FaceTarget();
 					CastSpellByName("Mind Blast", targetObj);
 					script_grind:setWaitTimer(1550);
 					return 0;
