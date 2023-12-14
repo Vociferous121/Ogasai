@@ -187,9 +187,9 @@ function script_runner:avoidToAggro(safeMargin)
 				local xx, yy, zz = intersectMob:GetPosition();
 				local centerX, centerY = (x+xx)/2, (y+yy)/2;
 			
-				script_runner:avoid(centerX, centerY, zP, aggroRange, script_aggro.checkAddsRange);
+				script_runner:avoid(centerX, centerY, zP, aggroRange, script_aggro.addsRange/2);
 			else
-				script_runner:avoid(xT, yT, zP, aggro, script_aggro.checkAddsRange);
+				script_runner:avoid(xT, yT, zP, aggro, script_aggro.addsRange/2);
 			end
 
 			return true;

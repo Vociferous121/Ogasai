@@ -124,7 +124,7 @@ function script_aggro:moveAwayFromAdds(target)
  		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) then
 			local cx, cy, cz = currentObj:GetPosition();
 			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter())
-			and (not script_grind:isTargetingMe(currentObj)) and (currentObj:GetDistance() <= self.addsRange + 10) then
+			and (not script_grind:isTargetingMe(currentObj)) and (currentObj:GetDistance() <= self.addsRange + 15) then
 				self.tarDist = currentObj:GetDistance();
 				tarX, tarY, tarZ = currentObj:GetPosition();
 				countUnitsInRange = countUnitsInRange + 1;
@@ -352,7 +352,7 @@ function script_aggro:checkAdds()
 
 	if (not script_aggro:moveAwayFromAdds(targetObj)) then
 		script_grind.tickRate = 0;
-		if (script_runner:avoidToAggro(5)) then
+		if (script_runner:avoidToAggro(30)) then
 			if (not script_unstuck:pathClearAuto(2)) then
 				script_unstuck:unstuck();
 				return;
