@@ -59,6 +59,7 @@ function script_aggro:safePull(target)
 	local currentObj, typeObj = GetFirstObject();
 	local aggro = 0;
 	local cx, cy, cz = 0, 0, 0;
+	local tx, ty, tz = target:GetPosition();
 
 	while currentObj ~= 0 do
  		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) then

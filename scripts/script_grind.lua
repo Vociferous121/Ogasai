@@ -677,8 +677,8 @@ function script_grind:run()
 				-- possible needs adjustments...
 				-- if current object is not a safe pull then reset enemy obj
 				if (self.skipHardPull) and (self.extraSafe) and (not IsInCombat())
-				and (self.enemyObj:GetDistance() >= 20)
-				and (not script_aggro:safePullRecheck(self.enemyObj)) then
+					and (self.enemyObj:GetDistance() >= 20)
+					and (not script_aggro:safePullRecheck(self.enemyObj)) then
 					self.enemyObj = nil;
 				end
 
@@ -908,16 +908,9 @@ end
 function script_grind:enemyIsValid(i)
 	if (i ~= 0) then
 
-		local tx, ty, tz = i:GetPosition()
-		local x, y, z = GetLocalPlayer():GetPosition();
-		local tarPos = (tz - z);
-
 		-- add target to blacklist not a safe pull
-		if (self.skipHardPull) then
-			if (not script_aggro:safePull(i)) and (not script_grind:isTargetBlacklisted(i:GetGUID()))
-				and (not script_grind:isTargetingMe(i)) and (not script_grind:isTargetingPet(i)) then	
-				script_grind:addTargetToBlacklist(i:GetGUID());
-			end
+		if (self.skipHardPull) and (not script_aggro:safePull(i)) and (not script_grind:isTargetBlacklisted(i:GetGUID())) and (not script_grind:isTargetingMe(i)) then	
+			script_grind:addTargetToBlacklist(i:GetGUID());
 		end
 
 		-- Valid Targets: Tapped by us, or is attacking us or our pet
