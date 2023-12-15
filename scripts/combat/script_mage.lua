@@ -347,6 +347,10 @@ function script_mage:run(targetGUID)
 		and (targetObj:IsInLineOfSight())
 		and (not targetObj:IsCasting()) then	
 		if (script_checkAdds:checkAdds()) then
+			if (not script_unstuck:pathClearAuto(2)) then
+				script_unstuck:unstuck();
+				return true;
+			end
 		end
 	end
 
@@ -432,16 +436,16 @@ function script_mage:run(targetGUID)
 			-- frost mage selected
 			if (self.frostMage) and (targetObj:GetDistance() <= 30) and (targetObj:IsInLineOfSight()) then
 				if (script_mage.frostMagePull(targetObj)) then
-					script_grind:setWaitTimer(1600);
-					self.waitTimer = GetTimeEX() + 1600;
+					script_grind:setWaitTimer(1800);
+					self.waitTimer = GetTimeEX() + 1800;
 					targetObj:FaceTarget();
 				end
 
 				-- fire mage selected use these spells instead
 			elseif (self.fireMage) and (targetObj:GetDistance() <= 30) then
 				if (script_mage.fireMagePull(targetObj)) then
-					script_grind:setWaitTimer(1600);
-					self.waitTimer = GetTimeEX() + 1600;
+					script_grind:setWaitTimer(1800);
+					self.waitTimer = GetTimeEX() + 1800;
 					targetObj:FaceTarget();
 				end
 			end
@@ -456,6 +460,10 @@ function script_mage:run(targetGUID)
 				and (targetObj:IsInLineOfSight())
 				and (not targetObj:IsCasting()) then		
 				if (script_checkAdds:checkAdds()) then
+					if (not script_unstuck:pathClearAuto(2)) then
+						script_unstuck:unstuck();
+						return true;
+					end
 				end
 			end
 
@@ -746,6 +754,10 @@ function script_mage:run(targetGUID)
 				and (targetObj:IsInLineOfSight())
 				and (not targetObj:IsCasting()) then	
 				if (script_checkAdds:checkAdds()) then
+					if (not script_unstuck:pathClearAuto(2)) then
+						script_unstuck:unstuck();
+						return true;
+					end
 				end
 			end
 
@@ -761,6 +773,10 @@ function script_mage:run(targetGUID)
 				and (targetObj:IsInLineOfSight())
 				and (not targetObj:IsCasting()) then		
 				if (script_checkAdds:checkAdds()) then
+					if (not script_unstuck:pathClearAuto(2)) then
+						script_unstuck:unstuck();
+						return true;
+					end
 				end
 			end
 
@@ -1019,6 +1035,7 @@ if (not IsMounted()) then
 		if (HasSpell("Arcane Intellect")) and (not localObj:HasBuff("Arcane Intellect")) and (localMana > 25) then
 			CastSpellByName("Arcane Intellect", localObj);
 			self.waitTimer = GetTimeEX() + 1700;
+			script_grind:setWaitTimer(1700);
 			return true;
 		end
 		
@@ -1026,11 +1043,13 @@ if (not IsMounted()) then
 		if (HasSpell("Ice Armor")) and (not localObj:HasBuff("Ice Armor")) and (localMana > 20) then
 			if (CastSpellByName("Ice Armor", localObj)) then
 				self.waitTimer = GetTimeEX() + 1700;
+				script_grind:setWaitTimer(1700);
 				return true;
 			end
 		elseif (not HasSpell("Ice Armor")) and (HasSpell("Frost Armor")) and (not localObj:HasBuff("Frost Armor")) and (localMana > 20) then	
 			if (CastSpellByName("Frost Armor", localObj)) then
 				self.waitTimer = GetTimeEX() + 1700;
+				script_grind:setWaitTimer(1700);
 				return true;
 			end
 		end
@@ -1040,6 +1059,7 @@ if (not IsMounted()) then
 			if (HasSpell("Dampen Magic")) and (not localObj:HasBuff("Dampen Magic")) and (localMana > 15) then
 					if (CastSpellByName("Dampen Magic", localObj)) then
 					self.waitTimer = GetTimeEX() + 1700;
+					script_grind:setWaitTimer(1700);
 					return true;
 				end
 			end
@@ -1049,6 +1069,7 @@ if (not IsMounted()) then
 		if (HasSpell("Combustion")) and (not IsSpellOnCD("Combustion")) and not (localObj:HasBuff("Combustion")) and (self.fireMage) then	
 			if (CastSpellByName("Combustion")) then
 				self.waitTimer = GetTimeEX() + 1700;
+				script_grind:setWaitTimer(1700);
 				return true;
 			end
 		end
@@ -1058,6 +1079,7 @@ if (not IsMounted()) then
 			if (localMana > 50) and (not localObj:HasBuff("Fire Ward")) then
 				if (CastSpellByName("Frost Ward", localObj)) then
 					self.waitTimer = GetTimeEX() + 1700;
+					script_grind:setWaitTimer(1700);
 					return true;
 				end
 			end
@@ -1068,6 +1090,7 @@ if (not IsMounted()) then
 			if (localMana > 50) and (not localObj:HasBuff("Frost Ward")) then
 				if (CastSpellByName("Fire Ward", localObj)) then
 					self.waitTimer = GetTimeEX() + 1700;
+					script_grind:setWaitTimer(1700);
 					return true;
 				end
 			end
@@ -1077,7 +1100,8 @@ if (not IsMounted()) then
 		if (HasSpell("Remove Lesser Curse")) and (script_checkDebuffs:hasCurse()) and (localMana > 10) then
 			if (CastSpellByName("Remove Lesser Curse", localObj)) then
 				self.waitTimer = GetTimeEX() + 1800;
-				return;
+				script_grind:setWaitTimer(1800);
+				return true;
 			end
 		end
 	end
@@ -1122,17 +1146,20 @@ if (not IsMounted()) then
 		end	
 	end
 	
-	if(localMana < self.drinkMana or localHealth < self.eatHealth) then
+	if (localMana < self.drinkMana or localHealth < self.eatHealth) then
 		if (IsMoving()) then
 			StopMoving();
 		end
 		return true;
 	end
 	
-	if((localMana < 98 and IsDrinking()) or (localHealth < 98 and IsEating())) then
+	if ( (localMana < 98 and IsDrinking())
+	or   (localHealth < 98 and IsEating())
+	   ) then
 		self.message = "Resting to full hp/mana...";
 		return true;
 	end
+
 	-- No rest / buff needed
 	return false;
 end

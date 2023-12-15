@@ -13,7 +13,7 @@ function script_checkAdds:checkAdds()
 	if (not script_checkAdds:moveAwayFromAdds(targetObj)) then
 		script_grind.tickRate = 0;
 	-- avoid target
-		if (script_checkAdds:avoidToAggro(self.addsRange/2)) then
+		if (script_checkAdds:avoidToAggro(self.addsRange*2)) then
 	-- try unstuck script
 			if (not script_unstuck:pathClearAuto(2)) then
 				script_unstuck:unstuck();
@@ -44,13 +44,16 @@ function script_checkAdds:moveAwayFromAdds(target)
 	script_grind.tickRate = 0;
 
 	while currentObj ~= 0 do
- 		if (typeObj == 3) and (script_grind.enemyObj ~= nil and currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID()) then
+ 		if (typeObj == 3)
+		and (script_grind.enemyObj ~= nil and currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID())
+		and (not script_grind:isTargetingMe(currentObj))
+		and (currentObj:IsInLineOfSight()) then
 			
 			if (currentObj:CanAttack())
 			and (not currentObj:IsDead())
 			and (not currentObj:IsCritter())
 			and (not script_grind:isTargetingMe(currentObj))
-			and (currentObj:GetDistance() <= self.addsRange + 5) then
+			and (currentObj:GetDistance() <= self.addsRange + 10) then
 				self.tarDist = currentObj:GetDistance();
 				tarX, tarY, tarZ = currentObj:GetPosition();
 				countUnitsInRange = countUnitsInRange + 1;
@@ -162,11 +165,10 @@ function script_checkAdds:avoidToAggro(safeMargin)
 			script_grind.tickRate = 50;
 
 	while currentObj ~= 0 do
- 		if (typeObj == 3) and (currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID()) and (currentObj:GetDistance() < self.addsRange + 5) then
+ 		if (typeObj == 3) and (currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID()) and (currentObj:GetDistance() < self.addsRange + 5) and (not script_grind:isTargetingMe(currentObj)) then
 			aggro = self.addsRange;
 			local range = aggro + safeMargin;
 			if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter()
-			and (not script_grind:isTargetingMe(currentObj))
 			and (currentObj:GetDistance() <= range)
 			then	
 				if (closestEnemy == 0) then
@@ -184,7 +186,7 @@ function script_checkAdds:avoidToAggro(safeMargin)
 
 
 		-- avoid the closest mob
-		if (closestEnemy ~= 0) and (closestEnemy:GetDistance() < self.addsRange + 1) then
+		if (closestEnemy ~= 0) and (closestEnemy:GetDistance() < self.addsRange + 3) then
 
 			local xT, yT, zT = closestEnemy:GetPosition();
 
@@ -239,7 +241,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 	local b = 0;
 	-- position
 	local x = 25;
-
+	
 	-- we will go by radians, not degrees
 	local sqrt, sin, cos, PI, theta, points, pointsTwo, point = math.sqrt, math.sin, math.cos,math.pi, 0, {}, {}, 0;
 	
@@ -302,6 +304,14 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 	end
 
 	Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ);
+
+	if (not script_unstuck:pathClearAuto(2)) then
+			script_unstuck:unstuck();
+			return true;
+		end
+	if (IsMoving()) then
+		JumpOrAscendStart();
+	end
 end
 
 -- old defunct attempt to move away from target

@@ -681,9 +681,13 @@ function script_grind:run()
 				--end
 
 				-- Dont pull if more than 1 add will be pulled
-				if (self.enemyObj ~= nil and self.enemyObj ~= 0 and self.skipHardPull) then
-					if (not script_aggro:safePull(self.enemyObj)) and (not IsInCombat())
-					and (not script_grind:isTargetingMe(self.enemyObj)) then
+				if (self.enemyObj ~= nil and self.enemyObj ~= 0)
+					and (self.skipHardPull)
+					and (self.extraSafe) then
+					if (not script_aggro:safePull(self.enemyObj))
+						and (not IsInCombat())
+						and (not script_grind:isTargetingMe(self.enemyObj))
+						and (script_grind.enemyObj:GetHealthPercentage() > 99) then
 						script_grind:addTargetToBlacklist(self.enemyObj:GetGUID());
 						self.enemyObj = nil;
 					end
