@@ -347,10 +347,6 @@ function script_mage:run(targetGUID)
 		and (targetObj:IsInLineOfSight())
 		and (not targetObj:IsCasting()) then	
 		if (script_checkAdds:checkAdds()) then
-			if (not script_unstuck:pathClearAuto(2)) then
-				script_unstuck:unstuck();
-				return true;
-			end
 		end
 	end
 
@@ -436,16 +432,16 @@ function script_mage:run(targetGUID)
 			-- frost mage selected
 			if (self.frostMage) and (targetObj:GetDistance() <= 30) and (targetObj:IsInLineOfSight()) then
 				if (script_mage.frostMagePull(targetObj)) then
-					script_grind:setWaitTimer(1800);
-					self.waitTimer = GetTimeEX() + 1800;
+					script_grind:setWaitTimer(2000);
+					self.waitTimer = GetTimeEX() + 2000;
 					targetObj:FaceTarget();
 				end
 
 				-- fire mage selected use these spells instead
 			elseif (self.fireMage) and (targetObj:GetDistance() <= 30) then
 				if (script_mage.fireMagePull(targetObj)) then
-					script_grind:setWaitTimer(1800);
-					self.waitTimer = GetTimeEX() + 1800;
+					script_grind:setWaitTimer(2000);
+					self.waitTimer = GetTimeEX() + 2000;
 					targetObj:FaceTarget();
 				end
 			end
@@ -460,10 +456,6 @@ function script_mage:run(targetGUID)
 				and (targetObj:IsInLineOfSight())
 				and (not targetObj:IsCasting()) then		
 				if (script_checkAdds:checkAdds()) then
-					if (not script_unstuck:pathClearAuto(2)) then
-						script_unstuck:unstuck();
-						return true;
-					end
 				end
 			end
 
@@ -633,6 +625,15 @@ function script_mage:run(targetGUID)
 				end
 			end
 
+			-- attempt to run away from adds - don't pull them
+			if (IsInCombat() and script_grind.skipHardPull)
+				and (script_grind:isTargetingMe(targetObj))
+				and (targetObj:IsInLineOfSight())
+				and (not targetObj:IsCasting()) then		
+				if (script_checkAdds:checkAdds()) then
+				end
+			end
+
 			-- Check: Frostnova when the target is close, but not when we polymorhped one enemy or the target is affected by Frostbite
 			if (not self.addPolymorphed) and (targetObj:GetDistance() < 9 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova then
 				script_grind.tickRate = 100;
@@ -754,10 +755,6 @@ function script_mage:run(targetGUID)
 				and (targetObj:IsInLineOfSight())
 				and (not targetObj:IsCasting()) then	
 				if (script_checkAdds:checkAdds()) then
-					if (not script_unstuck:pathClearAuto(2)) then
-						script_unstuck:unstuck();
-						return true;
-					end
 				end
 			end
 
@@ -773,10 +770,6 @@ function script_mage:run(targetGUID)
 				and (targetObj:IsInLineOfSight())
 				and (not targetObj:IsCasting()) then		
 				if (script_checkAdds:checkAdds()) then
-					if (not script_unstuck:pathClearAuto(2)) then
-						script_unstuck:unstuck();
-						return true;
-					end
 				end
 			end
 
@@ -1174,7 +1167,7 @@ function script_mage.frostMagePull(targetObj)
 			StopMoving();
 		end
 		if (not IsMoving()) and (CastSpellByName("Frostbolt", targetObj)) then
-			self.waitTimer = GetTimeEX() + 500;
+			self.waitTimer = GetTimeEX() + 2000;
 			targetObj:FaceTarget();
 			return true;
 		end

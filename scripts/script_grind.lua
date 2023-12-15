@@ -1324,7 +1324,6 @@ function script_grind:runRest()
 			if (IsEating() and localHealth < 95)
 				or (IsDrinking() and localMana < 95)
 			then
-				self.waitTimer = GetTimeEX() + 3500;
 				return true;
 			end
 		end

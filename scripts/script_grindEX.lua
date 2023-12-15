@@ -57,9 +57,12 @@ function script_grindEX:doChecks()
 
 			-- Release body
 			if (not IsGhost()) and (not script_paranoia:checkParanoia(30)) then
-				RepopMe();
-				script_grindEX.deathCounter = script_grindEX.deathCounter + 1;
-				script_grind.message = "Walking to corpse...";
+				if (not RepopMe()) then
+					script_grindEX.deathCounter = script_grindEX.deathCounter + 1;
+					script_grind.message = "Walking to corpse...";
+					return true;
+				end
+				
 				return true;
 			end
 

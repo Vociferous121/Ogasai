@@ -47,15 +47,14 @@ function script_checkAdds:moveAwayFromAdds(target)
  		if (typeObj == 3)
 		and (script_grind.enemyObj ~= nil and currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID())
 		and (not script_grind:isTargetingMe(currentObj))
-		and (currentObj:IsInLineOfSight()) then
+		and (currentObj:IsInLineOfSight())
+		then
 			
 			if (currentObj:CanAttack())
 			and (not currentObj:IsDead())
 			and (not currentObj:IsCritter())
 			and (not script_grind:isTargetingMe(currentObj))
 			and (currentObj:GetDistance() <= self.addsRange + 10) then
-				self.tarDist = currentObj:GetDistance();
-				tarX, tarY, tarZ = currentObj:GetPosition();
 				countUnitsInRange = countUnitsInRange + 1;
  			end
  		end	
@@ -120,7 +119,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 			-- Calculate the point closest to our destination
 			if (IsPathLoaded(5)) then
-				local lastNodeIndex = GetPathSize(5)-2;
+				local lastNodeIndex = GetPathSize(5)-3;
 				local destX, destY, destZ = GetPathPositionAtIndex(5, lastNodeIndex); 
 				local destDist = math.sqrt((points[secondPoint].x-destX)^2 + (points[secondPoint].y-destY)^2);
 				if (destDist < bestDestDist) then
@@ -182,7 +181,7 @@ function script_checkAdds:avoidToAggro(safeMargin)
 				end
  			end
  		end
-		currentObj, typeObj = GetNextObject(currentObj);
+	currentObj, typeObj = GetNextObject(currentObj);
 
 
 		-- avoid the closest mob
@@ -201,14 +200,18 @@ function script_checkAdds:avoidToAggro(safeMargin)
 				local centerX, centerY = (x+xx)/2, (y+yy)/2;
 			
 				script_checkAdds:avoid(centerX, centerY, zP, aggroRange, self.checkAddsRange);
+	currentObj, typeObj = GetNextObject(currentObj);
+
 			else
 				script_checkAdds:avoid(xT, yT, zP, aggro, self.checkAddsRange);
+	currentObj, typeObj = GetNextObject(currentObj);
+
 			end
 
 			return true;
 
 		end
-		currentObj, typeObj = GetNextObject(currentObj);
+	currentObj, typeObj = GetNextObject(currentObj);
 
 	end
 	return false;
@@ -249,7 +252,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 	local closestPoint = 0;
 	local closestTargetPoint = 0;
 	local closestTargetDist = 999;
-	local quality = 120;
+	local quality = 250;
 
 	while theta <= 2*PI do
 		point = point + 1 -- get next table slot, starts at 0 

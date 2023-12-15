@@ -210,7 +210,7 @@ function script_paladin:run(targetGUID)
 		end
 
 		-- Auto Attack
-		if (targetObj:GetDistance() < 40) then
+		if (targetObj:GetDistance() < 40) and (not IsAutoCasting("Attack")) then
 			targetObj:AutoAttack();
 		end
 	
@@ -259,9 +259,13 @@ function script_paladin:run(targetGUID)
 				end
 			end
 
-			if (targetObj:GetDistance() <= self.meleeDistance) and (not IsMoving()) then
-				targetObj:AutoAttack();
-				targetObj:FaceTarget();
+			if (targetObj:GetDistance() <= self.meleeDistance) then
+				if (not IsAutoCasting("Attack")) then
+					targetObj:AutoAttack();
+				end
+				if (not IsMoving()) then
+					targetObj:FaceTarget();
+				end
 			end
 
 				
@@ -270,7 +274,8 @@ function script_paladin:run(targetGUID)
 		else	
 
 			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
+			if (IsInCombat() and script_grind.skipHardPull)
+				and (script_grind:isTargetingMe(targetObj))
 				and (targetObj:IsInLineOfSight()) then	
 				if (script_checkAdds:checkAdds()) then
 				end
