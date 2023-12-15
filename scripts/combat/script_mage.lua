@@ -161,7 +161,7 @@ function script_mage:runBackwards(targetObj, range)
  		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
  		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
  		local moveX, moveY, moveZ = xT + xUV*10, yT + yUV*10, zT + zUV;		
- 		if (distance < range and targetObj:IsInLineOfSight()) then 
+ 		if (distance < range and targetObj:IsInLineOfSight()) and (not script_checkDebuffs:hasDisabledMovement()) then 
  			script_navEX:moveToTarget(localObj, moveX, moveY, moveZ);
 			if (IsMoving()) then
 				self.waitTimer = GetTimeEX() + 1500;

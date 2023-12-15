@@ -13,7 +13,7 @@ function script_checkAdds:checkAdds()
 	if (not script_checkAdds:moveAwayFromAdds(targetObj)) then
 		script_grind.tickRate = 0;
 	-- avoid target
-		if (script_checkAdds:avoidToAggro(self.addsRange/2 + 5)) then
+		if (script_checkAdds:avoidToAggro(self.addsRange/2)) then
 	-- try unstuck script
 			if (not script_unstuck:pathClearAuto(2)) then
 				script_unstuck:unstuck();
@@ -117,7 +117,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 			-- Calculate the point closest to our destination
 			if (IsPathLoaded(5)) then
-				local lastNodeIndex = GetPathSize(5);
+				local lastNodeIndex = GetPathSize(5)-2;
 				local destX, destY, destZ = GetPathPositionAtIndex(5, lastNodeIndex); 
 				local destDist = math.sqrt((points[secondPoint].x-destX)^2 + (points[secondPoint].y-destY)^2);
 				if (destDist < bestDestDist) then
@@ -163,7 +163,7 @@ function script_checkAdds:avoidToAggro(safeMargin)
 
 	while currentObj ~= 0 do
  		if (typeObj == 3) and (currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID()) and (currentObj:GetDistance() < self.addsRange + 5) then
-			aggro = self.addsRange + 5;
+			aggro = self.addsRange;
 			local range = aggro + safeMargin;
 			if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter()
 			and (not script_grind:isTargetingMe(currentObj))
@@ -184,7 +184,7 @@ function script_checkAdds:avoidToAggro(safeMargin)
 
 
 		-- avoid the closest mob
-		if (closestEnemy ~= 0) and (closestEnemy:GetDistance() < self.addsRange + 5) then
+		if (closestEnemy ~= 0) and (closestEnemy:GetDistance() < self.addsRange + 1) then
 
 			local xT, yT, zT = closestEnemy:GetPosition();
 
@@ -193,7 +193,7 @@ function script_checkAdds:avoidToAggro(safeMargin)
 			local safeRange = safeMargin+1;
 			local intersectMob = script_checkAdds:aggroIntersect(closestEnemy);
 			if (intersectMob ~= nil) then
-				local aggroRange = self.addsRange + 5; 
+				local aggroRange = self.addsRange; 
 				local x, y, z = closestEnemy:GetPosition();
 				local xx, yy, zz = intersectMob:GetPosition();
 				local centerX, centerY = (x+xx)/2, (y+yy)/2;
@@ -286,6 +286,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 	end
 
 	-- TODO use closestPoint and closestTargetPoint to calculate direction to travel
+			
 
 	-- Move just outside the aggro range
 	local moveToPoint = closestPoint;

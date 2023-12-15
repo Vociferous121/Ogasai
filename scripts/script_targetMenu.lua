@@ -1,4 +1,5 @@
 script_targetMenu = {
+
 }
 
 function script_targetMenu:menu()
@@ -22,27 +23,19 @@ function script_targetMenu:menu()
 			local a = script_checkAdds.addsRange + script_aggro.adjustAggro;
 			wasClicked, script_grind.extraSafe = Checkbox("Recheck Blacklisted Targets " ..a.." (yds)" , script_grind.extraSafe);
 
-			if UnitClass('player') == "Mage"
-				or UnitClass('player') == "Warlock"
-				or UnitClass('player') == "Priest"
-				or UnitClass('player') == "Hunter"
-				then
+			if (UnitClass('player') ~= "Shaman") then
 
 				Text("Move Away From Adds In Combat Range");
-				script_checkAdds.addsRange = SliderInt("Distance", 15, 35, script_checkAdds.addsRange);
+				script_checkAdds.addsRange = SliderInt("Distance", 15, 40, script_checkAdds.addsRange);
 
 			elseif (UnitClass('player') == "Shaman")
 				and (not script_shaman.useEarthTotem)
 				and (not script_shaman.useWaterTotem)
-				and (not script_shaman.useFireTotem) and (not script_shaman.useAirTotem)
-				then
+				and (not script_shaman.useFireTotem)
+				and (not script_shaman.useAirTotem) then
 
 				Text("Move Away From Adds In Combat Range");
-				script_checkAdds.addsRange = SliderInt("Add Range", 15, 50, script_checkAdds.addsRange);
-
-			else
-				Text("Move Away From Adds In Combat Range");
-				script_checkAdds.addsRange = SliderInt("Add Range", 15, 50, script_checkAdds.addsRange);
+				script_checkAdds.addsRange = SliderInt("Add Range", 15, 40, script_checkAdds.addsRange);
 			end
 
 			Separator();

@@ -655,6 +655,10 @@ function script_grind:run()
 
 			self.message = "Running the combat script...";
 
+			-- if health is low and target health is too high then
+			-- run away from target script_checkadds.avoidtoaggro addsrange + 75 or so
+			
+
 			-- In range: attack the target, combat script returns 0
 			if(self.combatError == 0) then
 				script_nav:resetNavigate();
@@ -675,6 +679,15 @@ function script_grind:run()
 				self.message = "Moving to target...";
 				--if (self.enemyObj:GetDistance() < self.disMountRange) then
 				--end
+
+				-- Dont pull if more than 1 add will be pulled
+				if (self.enemyObj ~= nil and self.enemyObj ~= 0 and self.skipHardPull) then
+					if (not script_aggro:safePull(self.enemyObj)) and (not IsInCombat())
+					and (not script_grind:isTargetingMe(self.enemyObj)) then
+						script_grind:addTargetToBlacklist(self.enemyObj:GetGUID());
+						self.enemyObj = nil;
+					end
+				end
 
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
