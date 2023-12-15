@@ -784,8 +784,17 @@ function script_mage:run(targetGUID)
 					-- check range
 					if(not targetObj:IsSpellInRange("Frostbolt")) or (not targetObj:IsInLineOfSight()) then
 						return 3;
-					else
-						CastSpellByName("Frostbolt", targetObj);
+					end
+
+					-- attempt to run away from adds - don't pull them
+					if (IsInCombat() and script_grind.skipHardPull)
+						and (script_grind:isTargetingMe(targetObj))
+						and (targetObj:IsInLineOfSight())
+						and (not targetObj:IsCasting()) then		
+						if (script_checkAdds:checkAdds()) then
+						end
+					end
+					if (CastSpellByName("Frostbolt", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1500;
 						return 0;
 					end
@@ -809,17 +818,26 @@ function script_mage:run(targetGUID)
 
 					-- cast pyroblast
 					if (targetObj:GetDistance() > 30) and (targetObj:GetManaPercentage() > 1) and (targetHealth > 50) then
+
+						-- attempt to run away from adds - don't pull them
+						if (IsInCombat() and script_grind.skipHardPull)
+						and (script_grind:isTargetingMe(targetObj))
+						and (targetObj:IsInLineOfSight())
+						and (not targetObj:IsCasting()) then		
+							if (script_checkAdds:checkAdds()) then
+							end
+						end
 						if (HasSpell("Pyroblast")) then
 							if (CastSpellByName("Pyroblast", targetObj)) then
 								return 0;
 							end
 						end
 				
-					else
-				
 						-- cast fireball
-						if (CastSpellByName("Fireball", targetObj)) then
-							return 0;
+						if (not HasSpell("Pyroblast")) then
+							if (CastSpellByName("Fireball", targetObj)) then
+								return 0;
+							end
 						end
 					end
 
@@ -844,6 +862,15 @@ function script_mage:run(targetGUID)
 
 				
 		end
+
+			-- attempt to run away from adds - don't pull them
+			if (IsInCombat() and script_grind.skipHardPull)
+				and (script_grind:isTargetingMe(targetObj))
+				and (targetObj:IsInLineOfSight())
+				and (not targetObj:IsCasting()) then		
+				if (script_checkAdds:checkAdds()) then
+				end
+			end
 
 			-- set tick rate for script to run
 			if (not script_grind.adjustTickRate) then
