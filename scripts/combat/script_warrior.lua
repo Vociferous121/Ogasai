@@ -682,9 +682,27 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end 
 			end
 
+			-- attempt to run away from adds - don't pull them
+			if (IsInCombat() and script_grind.skipHardPull)
+				and (script_grind:isTargetingMe(targetObj))
+				and (targetObj:IsInLineOfSight())
+				and (not targetObj:IsCasting()) then	
+				if (script_checkAdds:checkAdds()) then
+				end
+			end
+
 	-- Check: If we are in melee range, do melee attacks
 			if (targetObj:GetDistance() <= self.meleeDistance) then
 
+				-- attempt to run away from adds - don't pull them
+				if (IsInCombat() and script_grind.skipHardPull)
+					and (script_grind:isTargetingMe(targetObj))
+					and (targetObj:IsInLineOfSight())
+					and (not targetObj:IsCasting()) then	
+					if (script_checkAdds:checkAdds()) then
+					end
+				end
+	
 				if (targetObj:IsFleeing()) and (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 50;
 				end

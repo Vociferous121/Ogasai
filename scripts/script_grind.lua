@@ -34,7 +34,7 @@ script_grind = {
 	avoidElite = true,	-- avoid elites ( currently not working )
 	avoidRange = 40,	-- aboid elites range
 	findLootDistance = 45,
-	lootDistance = 3.1,
+	lootDistance = 2.8,
 	skipLooting = false,
 	lootCheck = {},
 	minLevel = GetLocalPlayer():GetLevel()-5,
@@ -385,7 +385,7 @@ function script_grind:run()
 				-- set paranoid used as true
 		if (script_paranoia:checkParanoia()) and (not self.pause) then
 				script_paranoia.paranoiaUsed = true;
-				script_grind:setWaitTimer(2750);
+				script_grind:setWaitTimer(3850);
 			
 			-- if player is within distance <= 30 then do this
 			if (script_grind.playerParanoidDistance <= 30) and (script_grind:playersTargetingUs() >= 1) and (not IsInCombat()) then
