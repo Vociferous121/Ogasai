@@ -8,6 +8,8 @@ script_grind = {
 	grindExtra = include("scripts\\script_grindEX.lua"),
 	extraFunctionsLoaded = include("scripts\\script_extraFunctions.lua"),
 	grindMenu = include("scripts\\script_grindMenu.lua"),
+	getSpellsLoaded = include("scripts\\script_getSpells.lua"),
+	getSpells = false,
 	aggroLoaded = include("scripts\\script_aggro.lua"),
 	expExtra = include("scripts\\script_expChecker.lua"),
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
@@ -142,7 +144,7 @@ function script_grind:setup()
 	end
 
 	-- don't skip hard pulls when we are at starter zones
-	if (GetLocalPlayer():GetLevel() < 8) then
+	if (GetLocalPlayer():GetLevel() < 5) then
 		self.skipHardPull = false;
 	end
 
@@ -243,7 +245,12 @@ function script_grind:run()
 	-- show grinder window
 	script_grind:window();
 	
-	
+	if (self.getSpells) then
+	if (script_getSpells.getSpellsStatus ~= 3) then
+	if (script_getSpells:run()) then
+	end
+	end
+	end
 	-- display radar
 	if (script_radar.showRadar) then
 		script_radar:draw()
@@ -927,7 +934,12 @@ function script_grind:enemyIsValid(i)
 		-- add elite to blacklist
 		if (self.skipElites) and (i:GetClassification() == 1 or i:GetClassification() == 2) and (not script_grind:isTargetBlacklisted(i:GetGUID())) and (not script_grind:isTargetingMe(i)) then	
 			script_grind:addTargetToBlacklist(i:GetGUID());
-		end	
+		end
+
+		-- add above maxLevel to blacklist
+		if (self.skipHardPull) and (not script_grind:isTargetBlacklisted(i:GetGUID())) and (not script_grind:isTargetingMe(i)) and (i:GetLevel() > self.maxLevel) then
+			script_grind:addTargetToBlacklist(i:GetGUID());
+		end
 
 		-- Valid Targets: Tapped by us, or is attacking us or our pet
 		if (script_grind:isTargetingMe(i)

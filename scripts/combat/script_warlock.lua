@@ -164,27 +164,6 @@ function script_warlock:runBackwards(targetObj, range)
 	return false;
 end
 
--- move away from adds
-function script_warlock:moveAwayFromAdds(targetObj, range) 
-	local localObj = GetLocalPlayer();
- 	if (targetObj ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) then
- 		local xT, yT, zT = targetObj:GetPosition();
- 		local xP, yP, zP = localObj:GetPosition();
- 		local distance = targetObj:GetDistance();
- 		local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
- 		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
- 		local xUV, yUV, zUV = (5/vectorLength)*xV, (5/vectorLength)*yV, (1/vectorLength)*zV;		
- 		local moveX, moveY, moveZ = xT + xUV*35, yT + yUV*35, zT + zUV;		
- 		if (distance < range and targetObj:IsInLineOfSight()) then
- 			--script_navEX:moveToTarget(localObj, moveX, moveY, moveZ);
-			Move(moveX, moveY, moveZ);
- 			return true;
- 		end
-	end
-	return false;
-end
-
-
 function script_warlock:isTargetingGroup(y) 
 	for i = 1, GetNumPartyMembers() do
 		local partyMember = GetPartyMember(i);
@@ -468,6 +447,15 @@ function script_warlock:run(targetGUID)
 	--Valid Enemy
 	if (targetObj ~= 0 and targetObj ~= nil) and (not localObj:IsStunned()) and (not script_checkDebuffs:hasSilence()) then
 		
+		-- attempt to run away from adds - don't pull them
+		if (IsInCombat() and script_grind.skipHardPull)
+			and (script_grind:isTargetingMe(targetObj))
+			and (targetObj:IsInLineOfSight())
+			and (not targetObj:IsCasting()) then	
+			if (script_checkAdds:checkAdds()) then
+			end
+		end
+
 		-- Cant Attack dead targets
 		if (targetObj:IsDead() or not targetObj:CanAttack()) then
 			ClearTarget();
@@ -563,9 +551,18 @@ function script_warlock:run(targetGUID)
 			end
 		end
 
+		-- attempt to run away from adds - don't pull them
+		if (IsInCombat() and script_grind.skipHardPull)
+			and (script_grind:isTargetingMe(targetObj))
+			and (targetObj:IsInLineOfSight())
+			and (not targetObj:IsCasting()) then	
+			if (script_checkAdds:checkAdds()) then
+			end
+		end
+
 		-- walk away from target if pet target guid is the same guid as target targeting me
 			if (targetObj:GetDistance() <= 10) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) and (targetObj:IsInLineOfSight()) then
-				if (targetObj:GetUnitsTarget():GetGUID() == GetPet():GetGUID()) then
+				if (targetObj:GetUnitsTarget():GetGUID() == GetPet():GetGUID()) and (not script_checkAdds:checkAdds()) then
 
 					if (script_warlock:runBackwards(targetObj, 15)) then
 						script_grind.tickRate = 100;
@@ -624,7 +621,7 @@ function script_warlock:run(targetGUID)
 					self.message = "Stacking DoT's";
 				if (Cast("Siphon Life", targetObj)) then
 					script_warlock:petAttack();
-					self.waitTimer = GetTimeEX() + 1600; 
+					self.waitTimer = GetTimeEX() + 1800; 
 					return 0;
 				end
 			end
@@ -635,7 +632,7 @@ function script_warlock:run(targetGUID)
 				self.message = "Stacking DoT's";
 				if (Cast('Curse of Agony', targetObj)) then 
 					script_warlock:petAttack();
-					self.waitTimer = GetTimeEX() + 1600;
+					self.waitTimer = GetTimeEX() + 1800;
 					return 0;
 				end
 			end
@@ -645,7 +642,7 @@ function script_warlock:run(targetGUID)
 				self.message = "Pulling Target";
 				targetObj:FaceTarget();
 				if (CastSpellByName("Shadow Bolt", targetObj)) then
-					self.waitTimer = GetTimeEX() + 1900;
+					self.waitTimer = GetTimeEX() + 2500;
 					return 0;
 				end
 			end
@@ -712,7 +709,7 @@ function script_warlock:run(targetGUID)
 				return 0;
 			end
 		
-			if (GetPet() == 0 or (GetPet() ~= 0 and GetPet():GetHealthPercentage() <= 1)) and (HasSpell("Summon Voidwalker")) then
+			if (GetPet() == 0 or (GetPet() ~= 0 and GetPet():GetHealthPercentage() <= 1)) and (HasSpell("Summon Warlock")) then
 				script_warlockEX2:summonPet();
 				script_grind.tickRate = 0;
 			end
@@ -1009,7 +1006,7 @@ function script_warlock:run(targetGUID)
 		
 
 			-- Check: Keep the Curse of Agony up (24 s duration)
-			if (self.enableCurseOfAgony) then
+			if (self.enableCurseOfAgony) and (not IsMoving()) then
 				if (not targetObj:HasDebuff("Curse of Agony") and targetHealth > 20) and (not targetObj:HasDebuff("Curse of Weakness")) and (not targetObj:HasDebuff("Curse of Tongues")) then
 					if (Cast('Curse of Agony', targetObj)) then
 						targetObj:FaceTarget();
@@ -1031,7 +1028,7 @@ function script_warlock:run(targetGUID)
 	
 			-- Check: Keep the Immolate DoT up (15 s duration)
 			if (not IsMoving()) and (self.enableImmolate) and (not targetObj:HasDebuff("Immolate")) and (localMana > 25) and (targetHealth > 20) and (targetObj:IsInLineOfSight()) then
-				if (not targetObj:HasDebuff("Immolate")) then
+				if (not targetObj:HasDebuff("Immolate")) and (not IsMoving()) then
 				CastSpellByName("Immolate", targetObj);
 				targetObj:FaceTarget();
 				self.waitTimer = GetTimeEX() + 2550;
@@ -1049,7 +1046,7 @@ function script_warlock:run(targetGUID)
 					return;
 			end
 
-			if (self.useShadowBolt) and (not self.useWand) then
+			if (self.useShadowBolt) and (not self.useWand) and (not IsMoving()) then
 				CastSpellByName('Shadow Bolt', targetObj);
 				targetObj:FaceTarget();
 				self.waitTimer = GetTimeEX() + 2000;
@@ -1167,7 +1164,7 @@ function script_warlock:rest()
 		if (not IsInCombat()) and (not IsEating()) and (not IsDrinking()) and (not IsMoving()) and (not IsLooting()) and (IsStanding()) then
 			if (not IsSpellOnCD("Life Tap")) then
 				CastSpellByName("Life Tap", localObj);
-				self.waitTimer = GetTimeEX() + 1550;
+				self.waitTimer = GetTimeEX() + 550;
 				return 0;
 			end
 		end
@@ -1229,8 +1226,10 @@ function script_warlock:rest()
 	elseif (GetPet() ~= 0) then
 		self.hasPet = true;
 	end
-		
-	script_warlockEX2:summonPet()
+	
+	if (HasSpell("Summon Imp")) then	
+		script_warlockEX2:summonPet()
+	end
 
 	--Create Healthstone
 	--local stoneIndex = -1;

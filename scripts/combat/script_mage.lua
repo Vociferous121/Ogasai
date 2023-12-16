@@ -519,6 +519,12 @@ function script_mage:run(targetGUID)
 				return 0;
 			end
 
+			-- use cold snap to reset frost nova if we don't have ice barrier
+			if (not HasSpell("Ice Barrier")) and (HasSpell("Cold Snap")) and (not IsSpellOnCD("Cold Snap")) and (IsSpellOnCD("Frost Nova")) and (not targetObj:HasDebuff("Frost Nova")) and (not targetObj:HasDebuff("Frostbite")) and (targetObj:GetDistance() <= 10) and ( (localMana >= 15 and targetHealth >= 20) or (localHealth <= 30 and localMana >= 10) ) then
+				CastSpellByName("Cold Snap");
+				self.waitTimer = GetTimeEX() + 1000;
+			end
+
 			-- Run backwards if we are too close to the target
 			if (targetObj:GetDistance() <= .5) then 
 				if (script_mage:runBackwards(targetObj,5)) then 

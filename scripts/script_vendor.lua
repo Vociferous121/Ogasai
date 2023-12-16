@@ -117,9 +117,10 @@ function script_vendor:findFood()
 				itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType,
    				itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemLink);
 				for u=0,script_helper.numFood-1 do
-					if (strfind(itemName, script_helper.food[u])) then
-						DEFAULT_CHAT_FRAME:AddMessage('Food name is set to: "' .. script_helper.food[u] .. '" ...');
-						return script_helper.food[u];
+					if (not script_grind.pause) then
+						if (strfind(itemName, script_helper.food[u])) then
+							return script_helper.food[u];
+						end
 					end	
 				end	
 			end	
@@ -138,7 +139,6 @@ function script_vendor:findDrink()
    				itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemLink);
 				for u=0,script_helper.numWater-1 do
 					if (strfind(itemName, script_helper.water[u])) then
-						DEFAULT_CHAT_FRAME:AddMessage('Drink name is set to: "' .. script_helper.water[u] .. '" ...');
 						return script_helper.water[u];
 					end	
 				end	
@@ -448,7 +448,6 @@ function script_vendor:buyAmmo(quiverBagSlot, ammoName, itemIsArrow)
 						else
 							self.message = 'Vendor does not have this ammo...';
 							-- Vendor doesnt have the type of ammo
-							DEFAULT_CHAT_FRAME:AddMessage('Vendor does not have this ammo, pausing...');
 							script_grind.pause = true;
 							if (self.itemIsArrow) then 
 								self.arrowName = "";

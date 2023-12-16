@@ -38,8 +38,6 @@ function script_checkAdds:moveAwayFromAdds(target)
 	local countUnitsInRange = 0;
 	local currentObj, typeObj = GetFirstObject();
 	local aggro = 0;
-	local tx, ty, tz = target:GetPosition();
-	local tx2, ty2, tz2 = localObj:GetPosition();
 
 	script_grind.tickRate = 0;
 
@@ -47,7 +45,10 @@ function script_checkAdds:moveAwayFromAdds(target)
  		if (typeObj == 3)
 		and (script_grind.enemyObj ~= nil and currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID())
 		and (not script_grind:isTargetingMe(currentObj))
+		and (not currentObj:HasDebuff("Polymorph"))
+		and (not currentObj:HasDebuff("Fear"))
 		and (currentObj:IsInLineOfSight())
+		and (not script_grind:isTargetingPet(currentObj))
 		then
 			
 			if (currentObj:CanAttack())
@@ -164,9 +165,9 @@ function script_checkAdds:avoidToAggro(safeMargin)
 			script_grind.tickRate = 50;
 
 	while currentObj ~= 0 do
- 		if (typeObj == 3) and (currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID()) and (currentObj:GetDistance() < self.addsRange + 5) and (not script_grind:isTargetingMe(currentObj)) then
+ 		if (typeObj == 3) and (currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID()) and (currentObj:GetDistance() < self.addsRange + 10) and (not script_grind:isTargetingMe(currentObj)) and (not script_grind:isTargetingPet(currentObj)) then
 			aggro = self.addsRange;
-			local range = aggro + safeMargin;
+			local range = aggro + self.checkAddsRange + 5;
 			if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter()
 			and (currentObj:GetDistance() <= range)
 			then	
@@ -198,6 +199,9 @@ function script_checkAdds:avoidToAggro(safeMargin)
 				local x, y, z = closestEnemy:GetPosition();
 				local xx, yy, zz = intersectMob:GetPosition();
 				local centerX, centerY = (x+xx)/2, (y+yy)/2;
+
+			SpellStopCasting();
+
 			
 				script_checkAdds:avoid(centerX, centerY, zP, aggroRange, self.checkAddsRange);
 	currentObj, typeObj = GetNextObject(currentObj);
@@ -221,13 +225,13 @@ function script_checkAdds:aggroIntersect(target)
 	local x, y,z = target:GetPosition();
 	while currentObj ~= 0 do
  		if typeObj == 3 then
-			aggro = currentObj:GetLevel() - localObj:GetLevel() + 21.5;
-			local range = aggro + 35;
-			if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range and not script_grind:isTargetingMe(currentObj) then	
+			--aggro = currentObj:GetLevel() - localObj:GetLevel() + 21.5;
+			--local range = aggro + 35;
+			if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= self.addsRange*2 and not script_grind:isTargetingMe(currentObj) and (not script_grind:isTargetingPet(currentObj)) then	
 				local xx, yy, zz = currentObj:GetPosition();
 				local dist = math.sqrt((x-xx)^2 +(y-yy)^2);
 				local curDist = currentObj:GetDistance();
-				if (curDist < self.addsRange + 5) then
+				if (curDist < self.addsRange + 10) then
 					return currentObj;
 				end
  			end
