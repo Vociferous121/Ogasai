@@ -507,7 +507,6 @@ function script_warlock:run(targetGUID)
 					if (Cast('Shadow Bolt', targetObj)) then
 						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 2350;
-						return 0;
 					end
 				elseif (HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Immolate")) then
 					if (IsMoving()) then
@@ -524,7 +523,6 @@ function script_warlock:run(targetGUID)
 						self.waitTimer = GetTimeEX() + 2500;
 						script_grind:setWaitTimer(2500);
 					end
-					return 0;
 				end
 			end
 
@@ -561,7 +559,7 @@ function script_warlock:run(targetGUID)
 		end
 
 		-- walk away from target if pet target guid is the same guid as target targeting me
-			if (targetObj:GetDistance() <= 10) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) and (targetObj:IsInLineOfSight()) then
+			if (GetPet() ~= 0) and (targetObj:GetDistance() <= 10) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) and (targetObj:IsInLineOfSight()) then
 				if (targetObj:GetUnitsTarget():GetGUID() == GetPet():GetGUID()) and (not script_checkAdds:checkAdds()) then
 
 					if (script_warlock:runBackwards(targetObj, 15)) then
@@ -612,7 +610,6 @@ function script_warlock:run(targetGUID)
 			if (HasSpell("Amplify Curse")) and (not IsSpellOnCD("Amplify Curse")) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 				CastSpellByName("Amplify Curse");
 				script_warlock:petAttack();
-				return 0;
 			end
 
 			if (HasSpell("Siphon Life")) and (self.enableSiphonLife) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
@@ -622,7 +619,6 @@ function script_warlock:run(targetGUID)
 				if (Cast("Siphon Life", targetObj)) then
 					script_warlock:petAttack();
 					self.waitTimer = GetTimeEX() + 1800; 
-					return 0;
 				end
 			end
 
@@ -633,7 +629,6 @@ function script_warlock:run(targetGUID)
 				if (Cast('Curse of Agony', targetObj)) then 
 					script_warlock:petAttack();
 					self.waitTimer = GetTimeEX() + 1800;
-					return 0;
 				end
 			end
 		
@@ -651,8 +646,6 @@ function script_warlock:run(targetGUID)
 				self.message = "Moving into Line of Sight of target";
 				return 3;
 			end
-
-
 
 			
 			-- IN COMBAT

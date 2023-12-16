@@ -192,6 +192,14 @@ function script_grind:setup()
 	if (HasSpell("Skinning")) then
 		self.skinning = true;
 	end
+	-- turn on herbs
+	if (HasSpell("Find Herbs")) then
+		self.gather = true;
+	end
+	-- turn on mining
+	if (HasSpell("Find Minerals")) then
+		self.gather = true;
+	end
 
 	-- change some values to random
 	local randomLogout = math.random(30, 65);

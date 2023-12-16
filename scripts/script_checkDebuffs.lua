@@ -107,6 +107,7 @@ function script_checkDebuffs:hasDisabledMovement()
 		or (player:HasDebuff("Net"))
 		or (player:HasDebuff("Frost Nova"))
 		or (player:HasDebuff("Entangling Roots"))
+		or (player:HasDebuff("Slowing Poison"))
 
 
 	then

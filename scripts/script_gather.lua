@@ -286,7 +286,6 @@ function script_gather:gather()
 		--		return false;
 		--	end
 		--end
-
 				MoveToTarget(_x, _y, _z);
 				self.timer = GetTimeEX() + 250;
 			end

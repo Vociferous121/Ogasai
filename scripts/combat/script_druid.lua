@@ -646,7 +646,6 @@ function script_druid:run(targetGUID)
 				end
 				if (localObj:HasBuff("Cat Form")) then
 					if (CastSpellByName("Cat Form")) then
-						DEFAULT_CHAT_FRAME:AddMessage(" --- Shifted - attacked by adds");
 						self.wasInCombat = true;
 						self.runOnce = true;
 						self.waitTimer = GetTimeEX() + 500;
@@ -792,15 +791,15 @@ function script_druid:run(targetGUID)
 			end
 
 			-- stop moving if we get close enough to target and not in combat yet
-			if (not IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance) then
-				if (IsMoving()) then
-					StopMoving();
-				end
-					if (not IsMoving()) then
-						targetObj:FaceTarget();
-					end
-				self.waitTimer = GetTimeEX() + 800;
-			end
+			--if (not IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance) then
+			--	if (IsMoving()) then
+			--		StopMoving();
+			--	end
+			--		if (not IsMoving()) then
+			--			targetObj:FaceTarget();
+			--		end
+			--	self.waitTimer = GetTimeEX() + 800;
+			--end
 
 			----
 	-- pull in form
@@ -1073,7 +1072,6 @@ function script_druid:run(targetGUID)
 			-- shift for debuff removal self use cat form - cat form
 			if (self.hasDrinks) and (isCat or not isCat) and (not isBear and not isBear2 and not self.useBear) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
 				if (not script_grind.adjustTickRate) then
-					DEFAULT_CHAT_FRAME:AddMessage(" --- Shifted out of form to remove disabled movement debuff!");
 					script_grind.tickRate = 100;
 				end
 				if (HasSpell("Cat Form")) then
@@ -1259,7 +1257,6 @@ function script_druid:run(targetGUID)
 			-- shift for debuff removal - cat form
 			if (self.hasDrinks) and (self.useCat) and (isCat or not isCat) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
 				if (not script_grind.adjustTickRate) then
-					DEFAULT_CHAT_FRAME:AddMessage(" --- Shifted out of form to remove movement disabled debuff!");
 					script_grind.tickRate = 100;
 				end
 				if (isCat) or (not IsCat) then
@@ -1283,6 +1280,15 @@ function script_druid:run(targetGUID)
 
 			-- do these attacks only in cat form
 			if (isCat) and (not isBear and not isBear2) then
+
+			-- attempt to run away from adds - don't pull them
+			if (IsInCombat() and script_grind.skipHardPull)
+			and (script_grind:isTargetingMe(targetObj))
+			and (targetObj:IsInLineOfSight())
+			and (not targetObj:IsCasting()) then	
+			if (script_checkAdds:checkAdds()) then
+			end
+			end
 
 				if (targetObj:GetDistance() > self.meleeDistance) and (isCat) then
 					return 3;
@@ -1540,7 +1546,6 @@ function script_druid:rest()
 	-- shift for debuff removal - cat form
 	if (self.hasDrinks) and (self.useCat) and (isCat or not isCat) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
 		if (not script_grind.adjustTickRate) then
-			DEFAULT_CHAT_FRAME:AddMessage(" --- Shifted out of form to remove movement disabled debuff!");
 			script_grind.tickRate = 100;
 		end
 		if (isCat) or (not IsCat) then
@@ -1553,7 +1558,6 @@ function script_druid:rest()
 	-- shift for debuff removal - bear form
 	if (self.hasDrinks) and (isBear or isBear2) and (HasSpell("Bear Form") or HasSpell("Dire Bear Form")) and (script_checkDebuffs:hasDisabledMovement()) and (localMana >= self.shapeshiftMana*2) and (localHealth > self.healthToShift + 20) then
 		if (not script_grind.adjustTickRate) then
-			DEFAULT_CHAT_FRAME:AddMessage(" --- Shifted out of form to remove movement disabled debuff!");
 			script_grind.tickRate = 100;
 		end
 		if (script_druidEX:bearForm()) then

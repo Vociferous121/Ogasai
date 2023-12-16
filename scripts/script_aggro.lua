@@ -78,6 +78,33 @@ function script_aggro:safePull(target)
 	return true;
 end
 
+-- check for aggro range around other targets based on current level
+function script_aggro:enemiesNearMe() 
+	local localObj = GetLocalPlayer();
+	local countUnitsInRange = 0;
+	local currentObj, typeObj = GetFirstObject();
+
+	while currentObj ~= 0 do
+ 		if (typeObj == 3) then
+			if (currentObj:CanAttack()) and (not currentObj:IsDead())
+				and (not currentObj:IsCritter()) then
+				if (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro)
+				or (currentObj:GetDistance() <= 25) then	
+					countUnitsInRange = countUnitsInRange + 1;
+				end
+ 			end
+ 		end
+ 		currentObj, typeObj = GetNextObject(currentObj);
+ 	end
+
+	-- avoid pull if more than 1 add
+	if (countUnitsInRange > 1) then
+		return true;
+	end
+
+	return ;
+end
+
 
 -- used to recheck a blacklisted target and their range - attack target if they moved far enough away
 function script_aggro:safePullRecheck(target) 
