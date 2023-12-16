@@ -893,7 +893,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Wand if low mana
-			if (localMana <= 5 or targetHealth <= self.wandHealthPreset) and (localObj:HasRangedWeapon()) and (not self.enableGatherShards) and  (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+			if (localMana <= 5 or targetHealth <= self.useWandHealth) and (localObj:HasRangedWeapon()) and (not self.enableGatherShards) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 				if (not IsAutoCasting("Shoot")) and (not IsMoving()) then
 					targetObj:FaceTarget();
 					targetObj:CastSpell("Shoot");
@@ -1046,14 +1046,20 @@ function script_warlock:run(targetGUID)
 				return 0;
 			end
 
+			if (self.useWand) and (targetHealth >= self.useWandHealth or localMana >= self.useWandMana) then
+				CastSpellByName("Shadow Bolt", targetObj);
+				targetObj:FaceTarget();
+				self.waitTimer = GetTimeEX() + 2000;
+				return 0;
+			end
+
 			-- wand instead
-			if (self.useWand) and (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (localHealth > self.drainLifeHealth or GetPet():GetHealthPercentage() > self.healPetHealth) and (not IsChanneling()) and (targetHealth < 99) then
+			if (self.useWand) and (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (localHealth > self.drainLifeHealth or GetPet():GetHealthPercentage() > self.healPetHealth) and (not IsChanneling()) and (targetHealth < self.useWandHealth or localMana < self.useWanaMana) then
 				if (localObj:HasRangedWeapon()) and (not IsAutoCasting("Shoot")) and (GetLocalPlayer():GetUnitsTarget() ~= 0) and (not IsMoving()) then
-						targetObj:FaceTarget();
-						if (CastSpellByName("Shoot", targetObj)) then
-							self.waitTimer = GetTimeEX() + 250; 
-							return true;
-						end
+					targetObj:FaceTarget();
+					targetObj:CastSpell("Shoot");
+					self.waitTimer = GetTimeEX() + 250; 
+					return true;			
 				end
 			end
 
@@ -1154,11 +1160,10 @@ function script_warlock:rest()
 
 	-- Cast: Life Tap if conditions are right, see the function
 	if (localMana < localHealth) and (HasSpell("Life Tap")) and (localHealth > self.lifeTapHealth) and (localMana < self.lifeTapMana) then
-		if (not IsInCombat()) and (not IsEating()) and (not IsDrinking()) and (not IsMoving()) and (not IsLooting()) and (IsStanding()) then
+		if (not IsInCombat()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) and (IsStanding()) then
 			if (not IsSpellOnCD("Life Tap")) then
 				CastSpellByName("Life Tap", localObj);
 				self.waitTimer = GetTimeEX() + 550;
-				return 0;
 			end
 		end
 	end			

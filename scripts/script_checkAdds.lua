@@ -17,7 +17,6 @@ function script_checkAdds:checkAdds()
 	-- try unstuck script
 			if (not script_unstuck:pathClearAuto(2)) then
 				script_unstuck:unstuck();
-				return true;
 			end
 	-- if we have a pet then pet follow
 			if (GetPet() ~= 0) then
@@ -50,12 +49,14 @@ function script_checkAdds:moveAwayFromAdds(target)
 		--and (currentObj:IsInLineOfSight())
 		and (not script_grind:isTargetingPet(currentObj))
 		then
+
+			local range = self.addsRange;
 			
 			if (currentObj:CanAttack())
 			and (not currentObj:IsDead())
 			and (not currentObj:IsCritter())
 			and (not script_grind:isTargetingMe(currentObj))
-			and (currentObj:GetDistance() <= self.addsRange + 5) then
+			and (currentObj:GetDistance() <= range + 20) then
 				countUnitsInRange = countUnitsInRange + 1;
  			end
  		end	
@@ -165,9 +166,10 @@ function script_checkAdds:avoidToAggro(safeMargin)
 			script_grind.tickRate = 50;
 
 	while currentObj ~= 0 do
- 		if (typeObj == 3) and (currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID()) and (currentObj:GetDistance() < self.addsRange + 10) and (not script_grind:isTargetingMe(currentObj)) and (not script_grind:isTargetingPet(currentObj)) then
+			local range = self.addsRange;
+ 		if (typeObj == 3) and (currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID()) and (currentObj:GetDistance() < range + 20) and (not script_grind:isTargetingMe(currentObj)) and (not script_grind:isTargetingPet(currentObj)) then
 			aggro = self.addsRange;
-			local range = aggro + self.checkAddsRange + 10;
+			local range = aggro + self.checkAddsRange + 20;
 			if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter()
 			and (currentObj:GetDistance() <= range)
 			then	
@@ -181,12 +183,14 @@ function script_checkAdds:avoidToAggro(safeMargin)
 					end
 				end
  			end
+		typeObj = GetNextObject(currentObj);
  		end
 	currentObj, typeObj = GetNextObject(currentObj);
 
 
 		-- avoid the closest mob
-		if (closestEnemy ~= 0) and (closestEnemy:GetDistance() < self.addsRange + 4) then
+			local range = self.addsRange;
+		if (closestEnemy ~= 0) and (closestEnemy:GetDistance() < range + 4) then
 
 			local xT, yT, zT = closestEnemy:GetPosition();
 
@@ -204,14 +208,11 @@ function script_checkAdds:avoidToAggro(safeMargin)
 
 			
 				script_checkAdds:avoid(centerX, centerY, zP, aggroRange, self.checkAddsRange);
-	currentObj, typeObj = GetNextObject(currentObj);
 				PetFollow();
 
 			else
 				script_checkAdds:avoid(xT, yT, zP, aggro, self.checkAddsRange);
-	currentObj, typeObj = GetNextObject(currentObj);
 				PetFollow();
-
 			end
 
 			return true;
@@ -220,6 +221,7 @@ function script_checkAdds:avoidToAggro(safeMargin)
 	currentObj, typeObj = GetNextObject(currentObj);
 
 	end
+	intersectMob = nil;
 	return false;
 end
 
@@ -233,10 +235,12 @@ function script_checkAdds:aggroIntersect(target)
 				local xx, yy, zz = currentObj:GetPosition();
 				local dist = math.sqrt((x-xx)^2 +(y-yy)^2);
 				local curDist = currentObj:GetDistance();
-				if (curDist < self.addsRange + 5) then
+				local range = self.addsRange;
+				if (curDist < range + 20) then
 					return currentObj;
 				end
  			end
+		typeObj = GetNextObject(currentObj);
  		end
  		currentObj, typeObj = GetNextObject(currentObj);
  	end

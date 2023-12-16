@@ -259,9 +259,7 @@ function script_priest:run(targetGUID)
 	if (targetObj ~= 0) and (targetObj ~= nil) and (not localObj:IsStunned()) and (script_checkDebuffs:hasSilence()) and (localObj:HasRangedWeapon()) and (IsInCombat()) then
 		if (not IsAutoCasting("Shoot")) and (self.useWand) then
 			self.message = "Using wand...";
-			if (not targetObj:FaceTarget()) then
-				targetObj:FaceTarget();
-			end
+			targetObj:FaceTarget();
 			targetObj:CastSpell("Shoot");
 			self.waitTimer = GetTimeEX() + 250; 
 			return true; -- return true - if not AutoCasting then false
