@@ -210,10 +210,10 @@ function script_druid:healsAndBuffs()
 	end
 
 		-- Dismount
-		if (IsMounted()) then 
-			DisMount(); 
-			return 4; 
-		end
+	--	if (IsMounted()) then 
+	--		DisMount(); 
+	--		return 4; 
+	--	end
 
 --------------
 
@@ -1266,10 +1266,11 @@ function script_druid:run(targetGUID)
 				end
 			end
 
+				local hasRegrowth = GetLocalPlayer():HasBuff("Regrowth");
 			--stay in form
 				-- not if enemies attacking us greater than 1
 					-- not if enemy level greater than 2
-			if (script_grind.enemiesAttackingUs(12) < 2) and (self.useCat and not isCat) and (not self.useBear and not isBear and not isBear2) and (localHealth >= self.healthToShift) and (localMana >= self.shapeshiftMana) and (IsStanding()) and (targetObj:GetLevel() <= (localObj:GetLevel() + 2) ) then	
+			if (script_grind.enemiesAttackingUs(12) < 2) and (self.useCat and not isCat) and (not self.useBear and not isBear and not isBear2) and (localHealth >= self.healthToShift or hasRegrowth) and (localMana >= self.shapeshiftMana) and (IsStanding()) and (targetObj:GetLevel() <= (localObj:GetLevel() + 2) ) then	
 				if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 100;
 				end

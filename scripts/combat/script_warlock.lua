@@ -655,7 +655,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Use Healthstone
-			if (localHealth < 15) and (IsInCombat()) and (self.hasHealthstone) then
+			if (localHealth < 30) and (IsInCombat()) and (self.hasHealthstone) then
 				if (script_warlockEX:useHealthstones()) then
 					self.hasHealthstone = false;
 				end
@@ -681,7 +681,7 @@ function script_warlock:run(targetGUID)
 			end
 
 
-			if (IsInCombat()) and (HasSpell("Fel Domination")) and (not IsSpellOnCD("Fel Domination")) and (GetPet() == 0 or GetPet():GetHealthPercentage() < 1) and (localMana > 25) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
+			if (IsInCombat()) and (HasSpell("Fel Domination")) and (not IsSpellOnCD("Fel Domination")) and (GetPet() == 0 or (GetPet() ~= 0 and GetPet():GetHealthPercentage() < 1)) and (localMana > 25) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
 				CastSpellByName("Fel Domination");
 				self.waitTimer = GetTimeEX() + 1500;
 				return 0;
