@@ -369,7 +369,6 @@ function script_priest:run(targetGUID)
 			-- No Mind Blast but wand ? fixed!
 			if (not HasSpell("Mind Blast")) and (localObj:HasRangedWeapon()) and (self.useWand) and (not self.useSmite) then
 					if (not IsAutoCasting("Shoot")) and (self.useWand) then
-						targetObj:CastSpell("Shadow Word: Pain");
 						self.message = "Using wand...";
 						if (not targetObj:FaceTarget()) then
 							targetObj:FaceTarget();

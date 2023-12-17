@@ -949,6 +949,19 @@ function script_grind:enemyIsValid(i)
 			script_grind:addTargetToBlacklist(i:GetGUID());
 		end
 
+		-- try to skip units below us or above us (in water or structure)
+		--if (self.skipHardPull) and (not script_grind:isTargetBlacklisted(i:GetGUID())) and (not script_grind:isTargetingMe(i)) then
+		--	local tarPosX, tarPosY, tarPosZ = i:GetPosition();
+		--	local myPosX, myPosY, myPosZ = GetLocalPlayer():GetPosition();
+		--	local posZ = tarPosZ - myPosZ;
+		--	if (posZ > 9) then
+		--		script_grind:addTargetToBlacklist(i:GetGUID());
+		--	end
+		--	if (posZ < -9) then
+		--		script_grind:addTargetToBlacklist(i:GetGUID());
+		--	end
+		--end
+
 		-- Valid Targets: Tapped by us, or is attacking us or our pet
 		if (script_grind:isTargetingMe(i)
 			or (script_grind:isTargetingPet(i) and (i:IsTappedByMe() or not i:IsTapped())) 
@@ -973,9 +986,13 @@ function script_grind:enemyIsValid(i)
 		end	
 		
 		-- target blacklisted moved away from other targets
-			-- target is blacklisted + safepull recheck + extra safe + not avoid blacklist
+		-- bot can target blacklisted targets under these conditions
 		if (self.skipHardPull) and (script_grind:isTargetBlacklisted(i:GetGUID()))
 			and (script_aggro:safePullRecheck(i)) and (self.extraSafe) and (not script_grindEX.avoidBlacklisted) then
+			--local tarPosX, tarPosY, tarPosZ = i:GetPosition();
+			--local myPosX, myPosY, myPosZ = GetLocalPlayer():GetPosition();
+			--local posZ = tarPosZ - myPosZ;
+			--if (posZ < 9) and (posZ > -9) then
 			if (i:IsInLineOfSight())
 			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
@@ -994,6 +1011,7 @@ function script_grind:enemyIsValid(i)
 			) then
 			return true;
 			end
+			--end
 		end
 
 		-- skip blacklisted if we avoid enemies

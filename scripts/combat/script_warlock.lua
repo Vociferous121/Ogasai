@@ -361,7 +361,7 @@ function script_warlock:run(targetGUID)
 
 	-- attempt to run away from adds - don't pull them
 	if (IsInCombat() and script_grind.skipHardPull)
-		and (script_grind:isTargetingMe(targetObj))
+		and (not script_grind:isTargetingMe(targetObj))
 		and (targetObj:IsInLineOfSight())
 		and (not targetObj:IsCasting()) then	
 		if (script_checkAdds:checkAdds()) then
@@ -448,13 +448,13 @@ function script_warlock:run(targetGUID)
 	if (targetObj ~= 0 and targetObj ~= nil) and (not localObj:IsStunned()) and (not script_checkDebuffs:hasSilence()) then
 		
 		-- attempt to run away from adds - don't pull them
-		if (IsInCombat() and script_grind.skipHardPull)
-			and (script_grind:isTargetingMe(targetObj))
-			and (targetObj:IsInLineOfSight())
-			and (not targetObj:IsCasting()) then	
-			if (script_checkAdds:checkAdds()) then
-			end
+	if (IsInCombat() and script_grind.skipHardPull)
+		and (not script_grind:isTargetingMe(targetObj))
+		and (targetObj:IsInLineOfSight())
+		and (not targetObj:IsCasting()) then	
+		if (script_checkAdds:checkAdds()) then
 		end
+	end
 
 		-- Cant Attack dead targets
 		if (targetObj:IsDead() or not targetObj:CanAttack()) then
@@ -550,30 +550,15 @@ function script_warlock:run(targetGUID)
 		end
 
 		-- attempt to run away from adds - don't pull them
-		if (IsInCombat() and script_grind.skipHardPull)
-			and (script_grind:isTargetingMe(targetObj))
-			and (targetObj:IsInLineOfSight())
-			and (not targetObj:IsCasting()) then	
-			if (script_checkAdds:checkAdds()) then
-			end
+	if (IsInCombat() and script_grind.skipHardPull)
+		and (not script_grind:isTargetingMe(targetObj))
+		and (targetObj:IsInLineOfSight())
+		and (not targetObj:IsCasting()) then	
+		if (script_checkAdds:checkAdds()) then
 		end
+	end
 
-		-- walk away from target if pet target guid is the same guid as target targeting me
-			if (GetPet() ~= 0) and (targetObj:GetDistance() <= 10) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) and (targetObj:IsInLineOfSight()) then
-				if (targetObj:GetUnitsTarget():GetGUID() == GetPet():GetGUID()) and (not script_checkAdds:checkAdds()) then
-
-					if (script_warlock:runBackwards(targetObj, 15)) then
-						script_grind.tickRate = 100;
-						script_rotation.tickRate = 135;
-						PetAttack();
-						if (targetObj:GetDistance() >= 14) then
-							targetObj:FaceTarget();
-						end
-						self.message = "Moving away from target for range attacks...";
-						return 4;
-					end
-				end
-			end
+	
 
 		-- START OF COMBAT PHASE
 
@@ -656,13 +641,13 @@ function script_warlock:run(targetGUID)
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
 		-- attempt to run away from adds - don't pull them
-		if (IsInCombat() and script_grind.skipHardPull)
-			and (script_grind:isTargetingMe(targetObj))
-			and (targetObj:IsInLineOfSight())
-			and (not targetObj:IsCasting()) then	
-			if (script_checkAdds:checkAdds()) then
-			end
+	if (IsInCombat() and script_grind.skipHardPull)
+		and (not script_grind:isTargetingMe(targetObj))
+		and (targetObj:IsInLineOfSight())
+		and (not targetObj:IsCasting()) then	
+		if (script_checkAdds:checkAdds()) then
 		end
+	end
 			-- causes crashing after combat phase?
 			-- follow target if single target fear is active and moves out of spell ranged
 			if (self.followFeared) and (self.alwaysFear) and (targetObj:HasDebuff("Fear")) and (not targetObj:IsSpellInRange("Shoot")) then
@@ -718,6 +703,15 @@ function script_warlock:run(targetGUID)
 				targetObj:HasDebuff("Corruption")) or (script_grind:isTargetingMe(targetObj)) and (not targetObj:HasDebuff("Fear")) then
 				script_warlock:petAttack();
 			end
+
+-- attempt to run away from adds - don't pull them
+	if (IsInCombat() and script_grind.skipHardPull)
+		and (not script_grind:isTargetingMe(targetObj))
+		and (targetObj:IsInLineOfSight())
+		and (not targetObj:IsCasting()) then	
+		if (script_checkAdds:checkAdds()) then
+		end
+	end
 
 			-- check pet
 			if(GetPet() ~= 0) then 
@@ -789,9 +783,9 @@ function script_warlock:run(targetGUID)
 			-- Dark Pact instead of lifetap in combat
 			if (HasSpell("Dark Pact")) and (localMana < 40) and (GetPet() ~= 0 and self.hasPet and GetPet():GetHealthPercentage() > 1) and (self.useImp or self.useVoid or self.useSuccubus or self.useFelhunter) and (not IsLooting()) then
 				if (GetPet():GetManaPercentage() > 20) and (not IsSpellOnCD("Dark Pact")) then
-					if (CastAndWalk("Dark Pact", localObj)) then
+					if (CastSpellByName("Dark Pact", localObj)) then
 						self.message = "Casting Dark Pact instead of drinking!";
-						return;
+						return true;
 					end
 				end
 			end
@@ -801,8 +795,16 @@ function script_warlock:run(targetGUID)
 				if (Cast('Shadow Bolt', targetObj)) then
 					return 0;
 				end
-			end	
+			end
 
+-- attempt to run away from adds - don't pull them
+	if (IsInCombat() and script_grind.skipHardPull)
+		and (not script_grind:isTargetingMe(targetObj))
+		and (targetObj:IsInLineOfSight())
+		and (not targetObj:IsCasting()) then	
+		if (script_checkAdds:checkAdds()) then
+		end
+	end
 			-- Fear single Target
 			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) and (targetObj:GetCreatureType() ~= "Undead") then
 				if (targetObj:GetCreatureType() ~= "Undead") and (not targetObj:HasDebuff("Fear")) then
@@ -861,7 +863,7 @@ function script_warlock:run(targetGUID)
 				-- nav move to target causing crashes on follower
 			-- Check: Heal the pet if it's below 50% and we are above 50%
 			if (GetNumPartyMembers() < 1) then
-				if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetHealthPercentage() > 1 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) and (not script_grind:isTargetingMe(script_grind.enemyObj)) then
+				if (GetPet() ~= 0) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetHealthPercentage() > 1 and GetPet():GetHealthPercentage() <= self.healPetHealth) and (HasSpell("Health Funnel")) and (localHealth > 60) and (not script_grind:isTargetingMe(script_grind.enemyObj)) and (targetObj:HasDebuff("Curse of Agony")) and (targetObj:HasDebuff("Corruption"))  then
 					if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) and (self.hasPet) then
 						self.message = "Healing pet!";
 						local _xXX, _yYY, _zZZ = GetPet():GetPosition();
@@ -880,20 +882,18 @@ function script_warlock:run(targetGUID)
 			if (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetDistance() > 40) then
 				PetFollow();
 			end
-
-			-- use wand sliders
-			if (self.useWand) and (targetHealth <= self.useWandHealth -1) and (localMana <= self.useWandMana -1) and  (GetLocalPlayer():GetUnitsTarget() ~= 0) then
-				if (not IsAutoCasting("Shoot")) and (not IsMoving()) then
-					script_warlock:petAttack();
-					targetObj:FaceTarget();
-					CastSpellByName("Shoot");
-					self.waitTimer = GetTimeEX() + 250; 
-					return true;
-				end
-			end
+		
+-- attempt to run away from adds - don't pull them
+	if (IsInCombat() and script_grind.skipHardPull)
+		and (not script_grind:isTargetingMe(targetObj))
+		and (targetObj:IsInLineOfSight())
+		and (not targetObj:IsCasting()) then	
+		if (script_checkAdds:checkAdds()) then
+		end
+	end
 
 			-- Wand if low mana
-			if (localMana <= 5 or targetHealth <= self.useWandHealth) and (localObj:HasRangedWeapon()) and (not self.enableGatherShards) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+			if (localMana <= 5) and (localObj:HasRangedWeapon()) and (not self.enableGatherShards) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 				if (not IsAutoCasting("Shoot")) and (not IsMoving()) then
 					targetObj:FaceTarget();
 					targetObj:CastSpell("Shoot");
@@ -923,7 +923,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Drain Life on low health
-			if (HasSpell("Drain Life")) and (targetObj:GetCreatureType() ~= "Mechanic") and (localHealth <= self.drainLifeHealth) and (localMana > 5) and (not IsChanneling()) and (not self.useDrainMana) then
+			if (HasSpell("Drain Life")) and (targetObj:GetCreatureType() ~= "Mechanic") and (localHealth <= self.drainLifeHealth) and (localMana > 5) and (not IsChanneling()) and (not self.useDrainMana) and (GetPet() ~= 0) then
 				self.message = "Casting Drain Life";
 				if (targetObj:GetDistance() < 20) then
 					if (IsMoving()) then StopMoving(); 
@@ -963,16 +963,17 @@ function script_warlock:run(targetGUID)
 
 				-- nav move to target causing crashes on follower
 			-- Check: Heal the pet if it's below 50% and we are above 50%
-			if (GetNumPartyMembers() < 1) and (HasSpell("Health Funnel")) and (localHealth > 60) then
+			if (GetNumPartyMembers() < 1) and (HasSpell("Health Funnel")) and (localHealth > 60) and (targetObj:HasDebuff("Curse of Agony"))
+				and (targetObj:HasDebuff("Corruption")) then
 				if (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1)
 				and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter)
 				and (GetPet():GetHealthPercentage() <= self.healPetHealth)
-				and (not script_grind:isTargetingMe(script_grind.enemyObj)) then
+				and (not script_grind:isTargetingMe(script_grind.enemyObj))
+				then
 					self.message = "Healing pet with Health Funnel";
 					if (GetPet():GetDistance() >= 20 or not GetPet():IsInLineOfSight()) then
 						script_navEX:moveToTarget(localObj, GetPet():GetPosition()); 
 						self.waitTimer = GetTimeEX() + 600;
-						return 0;
 					else
 						StopMoving();
 					end
@@ -1030,6 +1031,14 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
+-- attempt to run away from adds - don't pull them
+	if (IsInCombat() and script_grind.skipHardPull)
+		and (not script_grind:isTargetingMe(targetObj))
+		and (targetObj:IsInLineOfSight())
+		and (not targetObj:IsCasting()) then	
+		if (script_checkAdds:checkAdds()) then
+		end
+	end
 			-- Fear single Target
 			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) and (targetObj:GetCreatureType() ~= "Undead") then
 				CastSpellByName("Fear", targetObj);
@@ -1046,29 +1055,21 @@ function script_warlock:run(targetGUID)
 				return 0;
 			end
 
-			if (self.useWand) and (targetHealth >= self.useWandHealth or localMana >= self.useWandMana) then
+			if (self.useWand) and (targetHealth >= self.useWandHealth and localMana >= self.useWandMana) then
 				CastSpellByName("Shadow Bolt", targetObj);
 				targetObj:FaceTarget();
 				self.waitTimer = GetTimeEX() + 2000;
 				return 0;
 			end
 
-			-- wand instead
-			if (self.useWand) and (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (localHealth > self.drainLifeHealth or GetPet():GetHealthPercentage() > self.healPetHealth) and (not IsChanneling()) and (targetHealth < self.useWandHealth or localMana < self.useWanaMana) then
-				if (localObj:HasRangedWeapon()) and (not IsAutoCasting("Shoot")) and (GetLocalPlayer():GetUnitsTarget() ~= 0) and (not IsMoving()) then
+			-- use wand sliders
+			if (self.useWand) and (targetHealth < self.useWandHealth or localMana < self.useWandMana) then
+				if (not IsAutoCasting("Shoot")) and (not IsMoving()) then
+					script_warlock:petAttack();
 					targetObj:FaceTarget();
-					targetObj:CastSpell("Shoot");
+					CastSpellByName("Shoot");
 					self.waitTimer = GetTimeEX() + 250; 
-					return true;			
-				end
-			end
-
-			if (GetPet() == 0 or (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1)) and (self.useWand) then
-				if (localObj:HasRangedWeapon()) and (not IsAutoCasting("Shoot")) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
-						targetObj:FaceTarget();
-						CastSpellByName("Shoot", targetObj);
-						self.waitTimer = GetTimeEX() + 250; 
-						return true;
+					return true;
 				end
 			end
 
@@ -1088,7 +1089,18 @@ function script_warlock:run(targetGUID)
 					self.message = "Stuck in combat! WAITING!";
 					return 4;
 				end
-			end	
+			end
+
+-- attempt to run away from adds - don't pull them
+	if (IsInCombat() and script_grind.skipHardPull)
+		and (not script_grind:isTargetingMe(targetObj))
+		and (targetObj:IsInLineOfSight())
+		and (not targetObj:IsCasting()) then	
+		if (script_checkAdds:checkAdds()) then
+		end
+	end
+
+
 		end
 	end
 end
@@ -1286,7 +1298,7 @@ function script_warlock:rest()
 	end
 
 	-- Check: Health funnel on the pet or wait for it to regen if lower than 70%
-	if (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (HasSpell("Health Funnel")) then
+	if (not IsInCombat()) and (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (HasSpell("Health Funnel")) then
 		if (GetPet():GetHealthPercentage() < 50) and (localHealth > 60) then
 			if (GetPet():GetDistance() > 8) then
 				PetFollow();

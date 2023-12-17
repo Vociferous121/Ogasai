@@ -305,6 +305,20 @@ function script_warlockEX:menu()
 			end
 		end
 
+		if (localObj:HasRangedWeapon()) and (script_warlock.useWand) then
+			
+			if (CollapsingHeader("|+| Wand Options")) then
+				
+				Text("Use Wand below target health percent");
+				
+				script_warlock.useWandHealth = SliderInt("WH", 1, 100, script_warlock.useWandHealth);
+				
+				Text("Use Wand below self mana percent");
+				
+				script_warlock.useWandMana = SliderInt("WM", 1, 100, script_warlock.useWandMana);
+			end
+		end
+
 		if (CollapsingHeader("|+| DoT Options")) then
 				
 			if (HasSpell("Corruption")) and (script_warlock.enableCorruption) then
@@ -367,20 +381,6 @@ function script_warlockEX:menu()
 				end
 			end
 			
-		end
-
-		if (localObj:HasRangedWeapon()) and (script_warlock.useWand) then
-			
-			if (CollapsingHeader("|+| Wand Options")) then
-				
-				Text("Use Wand below target health percent");
-				
-				script_warlock.useWandHealth = SliderInt("WH", 1, 100, script_warlock.useWandHealth);
-				
-				Text("Use Wand below self mana percent");
-				
-				script_warlock.useWandMana = SliderInt("WM", 1, 100, script_warlock.useWandMana);
-			end
 		end
 
 		Separator();

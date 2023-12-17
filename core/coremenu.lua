@@ -11,7 +11,7 @@ end
 function coremenu:draw()
 
 	if (self.isSetup == false) then
-		
+	
 		self.isSetup = true;
 		
 		
@@ -96,7 +96,7 @@ function coremenu:draw()
 			----------------------------
 		]]--
 	
-		DrawPath(true);
+	DrawPath(true);
 		
 		--NewTheme(false);
 		
