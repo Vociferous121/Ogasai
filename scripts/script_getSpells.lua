@@ -21,6 +21,7 @@ function script_getSpells:run()
 
 		-- get trainer position
 		
+		if (UnitClass('player') == "Warlock") then
 		-- gnome warlock trainer level 1 area test subject
 
 		local vX, vY, vZ = -6048.7900390625, 391.07900292969, 398.9580078125;
@@ -35,19 +36,18 @@ function script_getSpells:run()
 
 		local vX, vY, vZ = -4599.080078125, -1111.6700439453, 504,93862915039;
 		self.trainerTarget = "Briarthorn";
-
-
-
+		
 		-- human warlock trainer level 10 stormwind test subject
 		--local vX, vY, vZ = -8980.01953125, 1041.0899658203, 101.4502166748;
 
+		end
 
+		--if (UnitClass('player') == 'Mage') then
+		-- gnome mage trainer level 1 area test subject
+		local vX, vY, vZ = -6056.08984375, 388.17498779297, 392.76116943359;
+		self.trainerTarget = "Marryk Nurribit";
 
-
-
-
-
-
+		--end
 
 
 

@@ -106,6 +106,8 @@ function script_warlock:isAddFeared()
 		if typeObj == 3 then
 			if (currentObj:HasDebuff("Fear")) then 
 				return true; 
+			else 
+				self.addFeared = false;
 			end
 		end
 		currentObj, typeObj = GetNextObject(currentObj); 

@@ -12,7 +12,7 @@ script_fish = {
 	setup = false,
 	displayRadar = true,
 	useFishRandom = false,
-	fishRandomFloat = 92,
+	fishRandomFloat = 2.2,
 }
 
 function script_fish:GetBobber()
@@ -220,9 +220,9 @@ function script_fish:run()
 			CastSpellByName("Fishing");
 		end
 
-			local fishRandom = random(1, 100);
+		local fishRandom = random(1, 100);
 
-		if (self.useFishRandom) and (fishRandom >= self.fishRandomFloat) and (not IsChanneling()) and (not IsMoving()) then
+		if (self.useFishRandom) and (fishRandom >= (self.fishRandomFloat + 7) * 10) and (not IsChanneling()) and (not IsMoving()) then
 			CastSpellByName("Fishing");
 		end
 
@@ -334,8 +334,9 @@ function script_fish:menu()
 		
 		wasClicked, self.useFishRandom = Checkbox("Randomize Casting TIme", self.useFishRandom);
 
-		if (self.useFishRandom) then	
-			self.fishRandomFloat = SliderInt("", 80, 90, self.fishRandomFloat);
+		if (self.useFishRandom) then
+			Text("Higher Number = Slower/More Random");	
+			self.fishRandomFloat = SliderFloat("Randomize Fishing", 1, 3, self.fishRandomFloat);
 		end
 
 end

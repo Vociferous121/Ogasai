@@ -214,6 +214,21 @@ function script_grind:setup()
 	local randomRange = math.random(50, 90);
 	self.paranoidRange = randomRange;
 
+	-- why was this not iterated before?
+	local level = GetLocalPlayer():GetLevel();
+	if (level < 10) then
+		script_checkAdds.addsRange = 15;
+	end
+	if (level >= 10) and (level < 20) then
+		script_checkAdds.addsRange = 20;
+	end
+	if (level >= 20) and (level < 40) then
+		script_checkAdds.addsRange = 25;
+	end
+	if (level > 40) then
+		script_checkAdds.addsRange = 30;
+	end
+
 end
 
 -- draw grinder window
@@ -1291,7 +1306,7 @@ function script_grind:lootAndSkin()
 		self.lootObj = nil;
 	end
 	if (self.lootObj ~= nil) then
-		if (script_grind:isTargetBlacklisted(self.lootObj:GetGUID()) and self.lootObj:GetDistance() > 5) then
+		if (script_grind:isTargetBlacklisted(self.lootObj:GetGUID()) and self.lootObj:GetDistance() > 10) then
 			self.lootObj = nil; -- don't loot blacklisted targets	
 		end
 	end

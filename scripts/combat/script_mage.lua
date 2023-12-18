@@ -1,7 +1,7 @@
 script_mage = {
 	message = 'Mage Combat Script',
 	mageMenu = include("scripts\\combat\\script_mageEX.lua"),
-	drinkMana = 75,	-- drink at this mana %
+	drinkMana = 70,	-- drink at this mana %
 	eatHealth = 75,	-- eat at this health %
 	potionHealth = 10,	-- use potion at this health %
 	potionMana = 10,	-- use potioon at this mana %
@@ -28,7 +28,7 @@ script_mage = {
 	coneOfColdMana = 35,	-- use cone of cold above this mana %
 	coneOfColdHealth = 15,	-- use cone of cold above this health %
 	useWandMana = 10,	-- use wand below this mana %
-	useWandHealth = 10,	-- use wand below this target health %
+	useWandHealth = 20,	-- use wand below this target health %
 	manaShieldHealth = 80,	-- use mana shield below this health %
 	manaShieldMana = 20,	-- use mana shield above this mana %
 	useFrostWard = false,	-- use frost ward yes/no
@@ -467,10 +467,19 @@ function script_mage:run(targetGUID)
 				DisMount();
 			end
 
+			-- escape artist gnome racial
+			if (HasSpell("Escape Artist")) and (not IsSpellOnCD("Escape Artist")) then
+				if (script_checkDebuffs:hasDisabledMovement()) then
+					if (CastSpellByName("Escape Artist")) then
+						self.waitTimer = GetTimeEX() + 500;
+					end
+				end
+			end
+
 			-- blink on movement stop debuffs
 			if (self.useBlink) then
 				if (HasSpell("Blink")) and (not IsSpellOnCD("Blink")) then
-					if (localObj:HasDebuff("Web")) or (localObj:HasDebuff("Encasing Webs")) then
+					if (script_checkDebuffs:hasDisabledMovement()) then
 						if (CastSpellByName("Blink")) then
 							targetObj:FaceTarget();
 							self.waitTimer = GetTimeEX() + 500;
@@ -618,6 +627,8 @@ function script_mage:run(targetGUID)
 				script_rotation.tickRate = 50;
 				self.message = "Polymorphing add...";
 				script_mage:polymorphAdd(targetObj:GetGUID());
+				self.waitTimer = GetTimeEX() + 1750;
+				script_grind:setWaitTimer(1500);
 			end 
 
 			-- Check: Sort target selection if add is polymorphed
@@ -745,8 +756,8 @@ function script_mage:run(targetGUID)
 				end
 			end
 
-			-- Wand if low mana or target is low
-			if (self.useWand) and (localMana <= self.useWandMana or targetHealth <= self.useWandHealth) and (not IsChanneling()) and (not localObj:IsStunned()) then
+			-- Wand if mana or target health is low
+			if (self.useWand and localObj:HasRangedWeapon()) and (localMana <= self.useWandMana or targetHealth <= self.useWandHealth) and (not IsChanneling()) and (not localObj:IsStunned()) then
 				self.message = "Using wand...";
 				if (not IsAutoCasting("Shoot")) then
 					targetObj:FaceTarget();
@@ -763,7 +774,10 @@ function script_mage:run(targetGUID)
 				if (script_checkAdds:checkAdds()) then
 				end
 			end
-
+	
+			if (self.useFrostMage) and (not HasSpell("Frostbolt")) then
+				CastSpellByName("Fireball", targetObj);
+			end
 			
 			-- Main damage source if all above conditions cannot be run
 			-- frost mage spells
@@ -823,7 +837,7 @@ function script_mage:run(targetGUID)
 					end
 
 					-- cast pyroblast
-					if (targetObj:GetDistance() > 30) and (targetObj:GetManaPercentage() > 1) and (targetHealth > 50) then
+					if (targetObj:GetDistance() < 30) then
 
 						-- attempt to run away from adds - don't pull them
 						if (IsInCombat() and script_grind.skipHardPull)
@@ -1178,10 +1192,14 @@ if (not IsMounted()) then
 		end
 		return true;
 	end
+
+	if (IsDrinking() and localMana >= 95 and not IsEating())
+	or (IsEating() and localHealth >= 95 and not IsDrinking())
+	or (IsDrinking() and IsEating() and localHealth >= 95 and localMana >= 95) then
+		JumpOrAscendStart();
+	end
 	
-	if ( (localMana < 98 and IsDrinking())
-	or   (localHealth < 98 and IsEating())
-	   ) then
+	if (IsDrinking() or IsEating()) then
 		self.message = "Resting to full hp/mana...";
 		return true;
 	end
