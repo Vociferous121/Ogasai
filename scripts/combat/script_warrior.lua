@@ -239,13 +239,17 @@ function script_warrior:run(targetGUID)	-- main content of script
 	end
 
 	-- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull)
-		and (script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight())
-		and (not targetObj:IsCasting()) then	
-		if (script_checkAdds:checkAdds()) then
+		if (IsInCombat() and script_grind.skipHardPull)
+			and (script_grind:isTargetingMe(targetObj))
+			and (targetObj:IsInLineOfSight())
+			and (not targetObj:IsCasting()) then	
+				if (script_checkAdds:checkAdds()) then
+					ClearTarget();
+					script_checkAdds.closestEnemy = 0;
+					script_checkAdds.intersectEnemy = nil;
+				return true;
+				end
 		end
-	end
 
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
@@ -375,13 +379,17 @@ function script_warrior:run(targetGUID)	-- main content of script
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
 			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull)
-				and (script_grind:isTargetingMe(targetObj))
-				and (targetObj:IsInLineOfSight())
-				and (not targetObj:IsCasting()) then		
+		if (IsInCombat() and script_grind.skipHardPull)
+			and (script_grind:isTargetingMe(targetObj))
+			and (targetObj:IsInLineOfSight())
+			and (not targetObj:IsCasting()) then	
 				if (script_checkAdds:checkAdds()) then
+					ClearTarget();
+					script_checkAdds.closestEnemy = 0;
+					script_checkAdds.intersectEnemy = nil;
+				return true;
 				end
-			end
+		end
 
 
 			if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (not IsAutoCasting("Attack")) and (targetObj:GetDistance() <= 8) and (not IsMoving()) then
@@ -683,25 +691,33 @@ function script_warrior:run(targetGUID)	-- main content of script
 			end
 
 			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull)
-				and (script_grind:isTargetingMe(targetObj))
-				and (targetObj:IsInLineOfSight())
-				and (not targetObj:IsCasting()) then	
+		if (IsInCombat() and script_grind.skipHardPull)
+			and (script_grind:isTargetingMe(targetObj))
+			and (targetObj:IsInLineOfSight())
+			and (not targetObj:IsCasting()) then	
 				if (script_checkAdds:checkAdds()) then
+					ClearTarget();
+					script_checkAdds.closestEnemy = 0;
+					script_checkAdds.intersectEnemy = nil;
+				return true;
 				end
-			end
+		end
 
 	-- Check: If we are in melee range, do melee attacks
 			if (targetObj:GetDistance() <= self.meleeDistance) then
 
 				-- attempt to run away from adds - don't pull them
-				if (IsInCombat() and script_grind.skipHardPull)
-					and (script_grind:isTargetingMe(targetObj))
-					and (targetObj:IsInLineOfSight())
-					and (not targetObj:IsCasting()) then	
-					if (script_checkAdds:checkAdds()) then
-					end
+		if (IsInCombat() and script_grind.skipHardPull)
+			and (script_grind:isTargetingMe(targetObj))
+			and (targetObj:IsInLineOfSight())
+			and (not targetObj:IsCasting()) then	
+				if (script_checkAdds:checkAdds()) then
+					ClearTarget();
+					script_checkAdds.closestEnemy = 0;
+					script_checkAdds.intersectEnemy = nil;
+				return true;
 				end
+		end
 	
 				if (targetObj:IsFleeing()) and (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 50;

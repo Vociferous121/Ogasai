@@ -25,45 +25,30 @@ script_paladin = {
 }
 
 function script_paladin:setup()
-
-	--use Devotion Aura if nothing else
 	if (not HasSpell("Retribution Aura")) and (not HasSpell("Sanctity Aura")) and (not localObj:HasBuff("Stoneskin")) then
 		self.aura = "Devotion Aura";	
-
-		-- else use Ret aura if have it
 	elseif (not HasSpell("Sanctity Aura")) and (HasSpell("Retribution Aura")) then
 		self.aura = "Retribution Aura";
-
-		-- else use Sanctity aura if have it
 	elseif (HasSpell("Sanctity Aura")) then
 		self.aura = "Sanctity Aura";	
 	end
-
-	-- Sort Blessing  
-
 	-- Blessing of wisdom
 	if (HasSpell("Blessing of Wisdom")) then
 		self.blessing = "Blessing of Wisdom";
-	
 		--Blessing of might
 	elseif (HasSpell("Blessing of Might")) then
 		self.blessing = "Blessing of Might";
 	end
-	
 	--set holy light health no flash of light
 	if (not HasSpell("Flash of Light")) then
 		self.holyLightHealth = 66;
 	end
-
 	-- set bubble hearth false if no divine shield
 	if (not HasSpell("Divine Shield")) then
 		self.useBubbleHearth = false;
 	end
-
 	self.waitTimer = GetTimeEX();
-
 	self.isSetup = true;
-
 end
 
 -- Run backwards if the target is within range
@@ -93,38 +78,29 @@ function script_paladin:draw()
 			tX = tX + script_grind.adjustX;
 			tY = tY + script_grind.adjustY;
 		end
-
 	DrawText(self.message, tX+230, tY+9, 255, 250, 205);
 	else
 		if (script_grind.adjustText) and (script_grind.drawEnabled) then
 			tX = tX + script_grind.adjustX;
 			tY = tY + script_grind.adjustY;
 		end
-
 	DrawText(self.message, 25, 185, 255, 250, 205);
 	end
 end
 
 function script_paladin:run(targetGUID)
-	
 	local localObj = GetLocalPlayer();
-
 	local localMana = localObj:GetManaPercentage();
-
 	local localHealth = localObj:GetHealthPercentage();
-
 	local localLevel = localObj:GetLevel();
-
 	-- setup
 	if (not self.isSetup) then
 		script_paladin:setup();
 	end
-
 	-- if dead run rest of script
 	if (localObj:IsDead()) then
 		return 0; 
 	end
-
 	-- stop when target is dead and still in combat
 	if (IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() == 0) then
 		return 4;
@@ -151,19 +127,21 @@ function script_paladin:run(targetGUID)
 		end
 		return;
 	end
-
 	-- Check: Do nothing if we are channeling or casting or wait timer
 	if (IsChanneling()) or (IsCasting()) or (self.waitTimer > GetTimeEX()) then
 		return 4;
 	end
-
 	-- attempt to run away from adds - don't pull them
 	if (IsInCombat() and script_grind.skipHardPull)
 		and (script_grind:isTargetingMe(targetObj))
 		and (targetObj:IsInLineOfSight())
 		and (not targetObj:IsCasting()) then	
-		if (script_checkAdds:checkAdds()) then
-		end
+			if (script_checkAdds:checkAdds()) then
+				ClearTarget();
+				script_checkAdds.closestEnemy = 0;
+				script_checkAdds.intersectEnemy = nil;
+			return true;
+			end
 	end
 
 	if (IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() == 0) then
@@ -173,9 +151,7 @@ function script_paladin:run(targetGUID)
 
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
-
 		local tickRandom = random(550, 1000);
-
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
 		elseif (not IsInCombat()) and (not IsMoving()) then
@@ -184,12 +160,10 @@ function script_paladin:run(targetGUID)
 			script_grind.tickRate = tickRandom;
 		end
 	end
-
 	-- dismount before combat
 	if (IsMounted()) then
 		DisMount();
 	end
-	
 	--Valid Enemy
 	if (targetObj ~= 0) and (not localObj:IsStunned()) then
 
@@ -276,9 +250,14 @@ function script_paladin:run(targetGUID)
 			-- attempt to run away from adds - don't pull them
 			if (IsInCombat() and script_grind.skipHardPull)
 				and (script_grind:isTargetingMe(targetObj))
-				and (targetObj:IsInLineOfSight()) then	
-				if (script_checkAdds:checkAdds()) then
-				end
+				and (targetObj:IsInLineOfSight())
+				and (not targetObj:IsCasting()) then	
+					if (script_checkAdds:checkAdds()) then
+						ClearTarget();
+						script_checkAdds.closestEnemy = 0;
+						script_checkAdds.intersectEnemy = nil;
+					return true;
+					end
 			end
 
 			if (not IsAutoCasting("Attack")) and (not IsMoving()) then
@@ -537,12 +516,10 @@ function script_paladin:rest()
 			script_grind.tickRate = tickRandom;
 		end
 	end
-
 	local localObj = GetLocalPlayer();
 	local localLevel = localObj:GetLevel();
 	local localHealth = localObj:GetHealthPercentage();
 	local localMana = localObj:GetManaPercentage();
-
 	-- heal before eating
 	if (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsMoving()) and (not IsInCombat()) and (localMana > 8) then
 		if (script_paladinEX:healsAndBuffs(localObj, localMana)) then
@@ -607,7 +584,6 @@ function script_paladin:rest()
 			return true; 
 		end	
 	end
-
 	if (IsDrinking()) and (not IsEating()) and (localHealth <= 65) then
 		if (script_helper:eat()) then 
 			self.message = "Eating..."; 
@@ -621,14 +597,12 @@ function script_paladin:rest()
 			self.waitTimer = GetTimeEX() + 2000;
 			return true; 
 		end
-	end
-			
+	end		
 	-- rest to full mana/health when eating/drinking
 	if ((localMana < 98 and IsDrinking()) or (localHealth < 98 and IsEating())) then
 		self.message = "Resting to full hp/mana...";
 		return true;
 	end
-
 	-- Don't need to rest
 	return false;
 end

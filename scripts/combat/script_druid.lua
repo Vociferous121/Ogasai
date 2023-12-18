@@ -539,8 +539,12 @@ function script_druid:run(targetGUID)
 		and (script_grind:isTargetingMe(targetObj))
 		and (targetObj:IsInLineOfSight())
 		and (not targetObj:IsCasting()) then	
-		if (script_checkAdds:checkAdds()) then
-		end
+			if (script_checkAdds:checkAdds()) then
+				ClearTarget();
+				script_checkAdds.closestEnemy = 0;
+				script_checkAdds.intersectEnemy = nil;
+				return true;
+			end
 	end
 
 	-- remove travel form before combat
@@ -732,6 +736,19 @@ function script_druid:run(targetGUID)
 				
 			end
 
+-- attempt to run away from adds - don't pull them
+				if (IsInCombat() and script_grind.skipHardPull)
+					and (script_grind:isTargetingMe(targetObj))
+					and (targetObj:IsInLineOfSight())
+					and (not targetObj:IsCasting()) then	
+						if (script_checkAdds:checkAdds()) then
+							ClearTarget();
+							script_checkAdds.closestEnemy = 0;
+							script_checkAdds.intersectEnemy = nil;
+						return true;
+						end
+				end
+
 			-- keep faerie fire up
 			if not self.useStealth and targetObj:GetDistance() <= 30 then
 				if HasSpell("Faerie Fire (Feral)") then
@@ -771,6 +788,19 @@ function script_druid:run(targetGUID)
 			if (isBear or isBear2 or isCat) and (targetObj:GetDistance() > self.meleeDistance) then
 				return 3;
 			end
+
+-- attempt to run away from adds - don't pull them
+				if (IsInCombat() and script_grind.skipHardPull)
+					and (script_grind:isTargetingMe(targetObj))
+					and (targetObj:IsInLineOfSight())
+					and (not targetObj:IsCasting()) then	
+						if (script_checkAdds:checkAdds()) then
+							ClearTarget();
+							script_checkAdds.closestEnemy = 0;
+							script_checkAdds.intersectEnemy = nil;
+						return true;
+						end
+				end
 
 			-- keep faerie fire up
 			if not self.useStealth and targetObj:GetDistance() <= 30 and HasSpell("Faerie Fire (Feral)") then
@@ -851,6 +881,19 @@ function script_druid:run(targetGUID)
 					return 0;
 				end
 			end
+
+-- attempt to run away from adds - don't pull them
+				if (IsInCombat() and script_grind.skipHardPull)
+					and (script_grind:isTargetingMe(targetObj))
+					and (targetObj:IsInLineOfSight())
+					and (not targetObj:IsCasting()) then	
+						if (script_checkAdds:checkAdds()) then
+							ClearTarget();
+							script_checkAdds.closestEnemy = 0;
+							script_checkAdds.intersectEnemy = nil;
+						return true;
+						end
+				end
 
 			-- keep faerie fire up
 			if not self.useStealth and targetObj:GetDistance() <= 30 and HasSpell("Faerie Fire (Feral)") then
@@ -992,8 +1035,12 @@ function script_druid:run(targetGUID)
 				and (script_grind:isTargetingMe(targetObj))
 				and (targetObj:IsInLineOfSight())
 				and (not targetObj:IsCasting()) then	
-				if (script_checkAdds:checkAdds()) then
-				end
+					if (script_checkAdds:checkAdds()) then
+						ClearTarget();
+						script_checkAdds.closestEnemy = 0;
+						script_checkAdds.intersectEnemy = nil;
+					return true;
+					end
 			end
 
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
@@ -1173,6 +1220,19 @@ function script_druid:run(targetGUID)
 					return 3;
 				end
 
+-- attempt to run away from adds - don't pull them
+				if (IsInCombat() and script_grind.skipHardPull)
+					and (script_grind:isTargetingMe(targetObj))
+					and (targetObj:IsInLineOfSight())
+					and (not targetObj:IsCasting()) then	
+						if (script_checkAdds:checkAdds()) then
+							ClearTarget();
+							script_checkAdds.closestEnemy = 0;
+							script_checkAdds.intersectEnemy = nil;
+						return true;
+						end
+				end
+
 				-- keep faerie fire up
 				if HasSpell("Faerie Fire (Feral)") and not IsSpellOnCD("Faerie Fire (Feral)") and not targetObj:HasDebuff("Faerie Fire (Feral)") then
 					CastSpellByName("Faerie Fire (Feral)()");
@@ -1244,10 +1304,16 @@ function script_druid:run(targetGUID)
 			end -- end of bear form in combat attacks
 
 			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull) and (script_grind:isTargetingMe(targetObj))
-				and (targetObj:IsInLineOfSight()) then	
-				if (script_checkAdds:checkAdds()) then
-				end
+			if (IsInCombat() and script_grind.skipHardPull)
+				and (script_grind:isTargetingMe(targetObj))
+				and (targetObj:IsInLineOfSight())
+				and (not targetObj:IsCasting()) then	
+					if (script_checkAdds:checkAdds()) then
+						ClearTarget();
+						script_checkAdds.closestEnemy = 0;
+						script_checkAdds.intersectEnemy = nil;
+					return true;
+					end
 			end
 
 
@@ -1282,14 +1348,18 @@ function script_druid:run(targetGUID)
 			-- do these attacks only in cat form
 			if (isCat) and (not isBear and not isBear2) then
 
-			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull)
-			and (script_grind:isTargetingMe(targetObj))
-			and (targetObj:IsInLineOfSight())
-			and (not targetObj:IsCasting()) then	
-			if (script_checkAdds:checkAdds()) then
-			end
-			end
+				-- attempt to run away from adds - don't pull them
+				if (IsInCombat() and script_grind.skipHardPull)
+					and (script_grind:isTargetingMe(targetObj))
+					and (targetObj:IsInLineOfSight())
+					and (not targetObj:IsCasting()) then	
+						if (script_checkAdds:checkAdds()) then
+							ClearTarget();
+							script_checkAdds.closestEnemy = 0;
+							script_checkAdds.intersectEnemy = nil;
+						return true;
+						end
+				end
 
 				if (targetObj:GetDistance() > self.meleeDistance) and (isCat) then
 					return 3;
@@ -1313,6 +1383,19 @@ function script_druid:run(targetGUID)
 				-- face target
 				if (targetObj:GetDistance() <= self.meleeDistance) and (not IsMoving()) then
 					targetObj:FaceTarget();
+				end
+
+-- attempt to run away from adds - don't pull them
+				if (IsInCombat() and script_grind.skipHardPull)
+					and (script_grind:isTargetingMe(targetObj))
+					and (targetObj:IsInLineOfSight())
+					and (not targetObj:IsCasting()) then	
+						if (script_checkAdds:checkAdds()) then
+							ClearTarget();
+							script_checkAdds.closestEnemy = 0;
+							script_checkAdds.intersectEnemy = nil;
+						return true;
+						end
 				end
 
 				-- keep faerie fire up
@@ -1344,6 +1427,19 @@ function script_druid:run(targetGUID)
 						self.waitTimer = GetTimeEX() + 1000;
 						return;
 					end
+				end
+
+				-- attempt to run away from adds - don't pull them
+				if (IsInCombat() and script_grind.skipHardPull)
+					and (script_grind:isTargetingMe(targetObj))
+					and (targetObj:IsInLineOfSight())
+					and (not targetObj:IsCasting()) then	
+						if (script_checkAdds:checkAdds()) then
+							ClearTarget();
+							script_checkAdds.closestEnemy = 0;
+							script_checkAdds.intersectEnemy = nil;
+						return true;
+						end
 				end
 				
 				-- keep tiger's fury up
@@ -1379,6 +1475,19 @@ function script_druid:run(targetGUID)
 		-- no bear form or cat form
 
 			if ( (not isBear and not isBear2) and (not isCat) and (not self.useBear) and (not self.useCat) ) or (isMoonkin) then
+
+				-- attempt to run away from adds - don't pull them
+				if (IsInCombat() and script_grind.skipHardPull)
+					and (script_grind:isTargetingMe(targetObj))
+					and (targetObj:IsInLineOfSight())
+					and (not targetObj:IsCasting()) then	
+						if (script_checkAdds:checkAdds()) then
+							ClearTarget();
+							script_checkAdds.closestEnemy = 0;
+							script_checkAdds.intersectEnemy = nil;
+						return true;
+						end
+				end
 
 				-- face target
 				if (targetObj:GetDistance() < 30) and (not IsMoving()) then
@@ -1485,6 +1594,19 @@ function script_druid:run(targetGUID)
 				end
 			end
 		end -- end of else combat phase
+
+		-- attempt to run away from adds - don't pull them
+		if (IsInCombat() and script_grind.skipHardPull)
+			and (script_grind:isTargetingMe(targetObj))
+			and (targetObj:IsInLineOfSight())
+			and (not targetObj:IsCasting()) then	
+				if (script_checkAdds:checkAdds()) then
+					ClearTarget();
+					script_checkAdds.closestEnemy = 0;
+					script_checkAdds.intersectEnemy = nil;
+					return true;
+				end
+		end
 
 		-- set tick rate for script to run
 		if (not script_grind.adjustTickRate) then

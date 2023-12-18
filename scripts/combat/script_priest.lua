@@ -205,9 +205,13 @@ function script_priest:run(targetGUID)
 	if (IsInCombat() and script_grind.skipHardPull)
 		and (script_grind:isTargetingMe(targetObj))
 		and (targetObj:IsInLineOfSight())
-		and (not targetObj:IsCasting()) then		
-		if (script_checkAdds:checkAdds()) then
-		end
+		and (not targetObj:IsCasting()) then	
+			if (script_checkAdds:checkAdds()) then
+				ClearTarget();
+				script_checkAdds.closestEnemy = 0;
+				script_checkAdds.intersectEnemy = nil;
+			return true;
+			end
 	end
 
 	-- set shadow form true
@@ -261,7 +265,6 @@ function script_priest:run(targetGUID)
 			self.message = "Using wand...";
 			targetObj:FaceTarget();
 			targetObj:CastSpell("Shoot");
-			self.waitTimer = GetTimeEX() + 250; 
 			return true; -- return true - if not AutoCasting then false
 		end
 		if (script_priestEX:healsAndBuffs(localObj, localMana)) then
@@ -374,7 +377,6 @@ function script_priest:run(targetGUID)
 							targetObj:FaceTarget();
 						end
 						targetObj:CastSpell("Shoot");
-						self.waitTimer = GetTimeEX() + 250;
 						return true; -- return true - if not AutoCasting then false
 					end
 				if (script_priestEX:healsAndBuffs(localObj, localMana)) then
@@ -472,8 +474,12 @@ function script_priest:run(targetGUID)
 				and (script_grind:isTargetingMe(targetObj))
 				and (targetObj:IsInLineOfSight())
 				and (not targetObj:IsCasting()) then	
-				if (script_checkAdds:checkAdds()) then
-				end
+					if (script_checkAdds:checkAdds()) then
+						ClearTarget();
+						script_checkAdds.closestEnemy = 0;
+						script_checkAdds.intersectEnemy = nil;
+					return true;
+					end
 			end
 
 
@@ -641,7 +647,6 @@ function script_priest:run(targetGUID)
 							targetObj:FaceTarget();
 						end
 						targetObj:CastSpell("Shoot");
-						self.waitTimer = GetTimeEX() + 250;
 						return true; -- return if not AutoCasting then false
 					end
 					if (script_priestEX:healsAndBuffs(localObj, localMana)) then
@@ -689,7 +694,6 @@ function script_priest:run(targetGUID)
 					if (not IsAutoCasting("Shoot")) and (self.useWand) then
 						self.message = "Using wand...";
 						targetObj:CastSpell("Shoot");
-						--self.waitTimer = GetTimeEX() + 250; 
 					end
 				end
 			end
@@ -699,7 +703,6 @@ function script_priest:run(targetGUID)
 						self.message = "Using wand...";
 						targetObj:FaceTarget();
 						targetObj:CastSpell("Shoot");
-						self.waitTimer = GetTimeEX() + 250; 
 						return true; -- return true - if not AutoCasting then false
 					end
 			end
@@ -712,7 +715,6 @@ function script_priest:run(targetGUID)
 							targetObj:FaceTarget();
 						end
 						targetObj:CastSpell("Shoot");
-						self.waitTimer = GetTimeEX() + 250; 
 						return true; -- return true - if not AutoCasting then false
 					end
 				if (script_priestEX:healsAndBuffs(localObj, localMana)) then

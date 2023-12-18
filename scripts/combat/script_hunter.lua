@@ -224,8 +224,12 @@ function script_hunter:run(targetGUID)
 		and (script_grind:isTargetingMe(targetObj))
 		and (targetObj:IsInLineOfSight())
 		and (not targetObj:IsCasting()) then	
-		if (script_checkAdds:checkAdds()) then
-		end
+			if (script_checkAdds:checkAdds()) then
+				ClearTarget();
+				script_checkAdds.closestEnemy = 0;
+				script_checkAdds.intersectEnemy = nil;
+			return true;
+			end
 	end
 
 	-- force bot to attack pets target
@@ -383,8 +387,12 @@ function script_hunter:run(targetGUID)
 				and (script_grind:isTargetingMe(targetObj))
 				and (targetObj:IsInLineOfSight())
 				and (not targetObj:IsCasting()) then	
-				if (script_checkAdds:checkAdds()) then
-				end
+					if (script_checkAdds:checkAdds()) then
+						ClearTarget();
+						script_checkAdds.closestEnemy = 0;
+						script_checkAdds.intersectEnemy = nil;
+					return true;
+					end
 			end
 
 			if (not targetObj:IsInLineOfSight()) then

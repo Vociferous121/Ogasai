@@ -260,8 +260,10 @@ function script_gather:gather()
 
 			if (IsLooting()) then
 				if (LootTarget()) then
-					self.waitTimer = GetTimeEX() + 1200;
-					script_grind:setWaitTimer(5000);
+					if (self.collectHerbs) then
+						self.waitTimer = GetTimeEX() + 1200;
+						script_grind:setWaitTimer(5000);
+					end
 				end
 				LootTarget();
 

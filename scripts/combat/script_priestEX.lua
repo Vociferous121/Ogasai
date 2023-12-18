@@ -99,7 +99,8 @@ function script_priestEX:healsAndBuffs(localObj, localMana)
 			-- Cast Shield Power Word: Shield
 		if (localMana >= 10) and (localHealth <= script_priest.shieldHP) and (not localObj:HasDebuff("Weakened Soul")) and (IsInCombat()) and (HasSpell("Power Word: Shield")) then
 			if (Buff("Power Word: Shield", localObj)) then 
-				script_grind:setWaitTimer(1500);
+				script_grind:setWaitTimer(1600);
+				script_priest.waitTimer = GetTimeEX() + 1600;
 				return 0;  -- if buffed 
 			end
 		end

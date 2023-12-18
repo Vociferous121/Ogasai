@@ -362,13 +362,17 @@ function script_warlock:run(targetGUID)
 	end
 
 	-- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull)
-		and (not script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight())
-		and (not targetObj:IsCasting()) then	
-		if (script_checkAdds:checkAdds()) then
+		if (IsInCombat() and script_grind.skipHardPull)
+			and (script_grind:isTargetingMe(targetObj))
+			and (targetObj:IsInLineOfSight())
+			and (not targetObj:IsCasting()) then	
+				if (script_checkAdds:checkAdds()) then
+					ClearTarget();
+					script_checkAdds.closestEnemy = 0;
+					script_checkAdds.intersectEnemy = nil;
+				return true;
+				end
 		end
-	end
 
 	-- sacrifice voidwalker low health
 	if (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) then
@@ -448,15 +452,6 @@ function script_warlock:run(targetGUID)
 
 	--Valid Enemy
 	if (targetObj ~= 0 and targetObj ~= nil) and (not localObj:IsStunned()) and (not script_checkDebuffs:hasSilence()) then
-		
-		-- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull)
-		and (not script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight())
-		and (not targetObj:IsCasting()) then	
-		if (script_checkAdds:checkAdds()) then
-		end
-	end
 
 		-- Cant Attack dead targets
 		if (targetObj:IsDead() or not targetObj:CanAttack()) then
@@ -551,14 +546,7 @@ function script_warlock:run(targetGUID)
 			end
 		end
 
-		-- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull)
-		and (not script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight())
-		and (not targetObj:IsCasting()) then	
-		if (script_checkAdds:checkAdds()) then
-		end
-	end
+	
 
 	
 
@@ -642,14 +630,7 @@ function script_warlock:run(targetGUID)
 
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
-		-- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull)
-		and (not script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight())
-		and (not targetObj:IsCasting()) then	
-		if (script_checkAdds:checkAdds()) then
-		end
-	end
+
 			-- causes crashing after combat phase?
 			-- follow target if single target fear is active and moves out of spell ranged
 			if (self.followFeared) and (self.alwaysFear) and (targetObj:HasDebuff("Fear")) and (not targetObj:IsSpellInRange("Shoot")) then
@@ -705,15 +686,6 @@ function script_warlock:run(targetGUID)
 				targetObj:HasDebuff("Corruption")) or (script_grind:isTargetingMe(targetObj)) and (not targetObj:HasDebuff("Fear")) then
 				script_warlock:petAttack();
 			end
-
--- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull)
-		and (not script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight())
-		and (not targetObj:IsCasting()) then	
-		if (script_checkAdds:checkAdds()) then
-		end
-	end
 
 			-- check pet
 			if(GetPet() ~= 0) then 
@@ -799,14 +771,6 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
--- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull)
-		and (not script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight())
-		and (not targetObj:IsCasting()) then	
-		if (script_checkAdds:checkAdds()) then
-		end
-	end
 			-- Fear single Target
 			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) and (targetObj:GetCreatureType() ~= "Undead") then
 				if (targetObj:GetCreatureType() ~= "Undead") and (not targetObj:HasDebuff("Fear")) then
@@ -885,14 +849,7 @@ function script_warlock:run(targetGUID)
 				PetFollow();
 			end
 		
--- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull)
-		and (not script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight())
-		and (not targetObj:IsCasting()) then	
-		if (script_checkAdds:checkAdds()) then
-		end
-	end
+
 
 			-- Wand if low mana
 			if (localMana <= 5) and (localObj:HasRangedWeapon()) and (not self.enableGatherShards) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
@@ -1012,7 +969,8 @@ function script_warlock:run(targetGUID)
 					end
 				end
 			end
-	
+
+
 			-- Check: Keep the Corruption DoT up (15 s duration)
 			if (not IsMoving()) and (self.enableCorruption) and (not targetObj:HasDebuff("Corruption")) and (targetHealth >= 20) and (targetObj:IsInLineOfSight()) then
 				CastSpellByName('Corruption', targetObj);
@@ -1033,14 +991,7 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
--- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull)
-		and (not script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight())
-		and (not targetObj:IsCasting()) then	
-		if (script_checkAdds:checkAdds()) then
-		end
-	end
+
 			-- Fear single Target
 			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) and (targetObj:GetCreatureType() ~= "Undead") then
 				CastSpellByName("Fear", targetObj);
@@ -1057,11 +1008,28 @@ function script_warlock:run(targetGUID)
 				return 0;
 			end
 
+
+
 			if (self.useWand) and (targetHealth >= self.useWandHealth and localMana >= self.useWandMana) then
-				CastSpellByName("Shadow Bolt", targetObj);
-				targetObj:FaceTarget();
-				self.waitTimer = GetTimeEX() + 2000;
-				return 0;
+
+				-- attempt to run away from adds - don't pull them
+		if (IsInCombat() and script_grind.skipHardPull)
+			and (script_grind:isTargetingMe(targetObj))
+			and (targetObj:IsInLineOfSight())
+			and (not targetObj:IsCasting()) then	
+				if (script_checkAdds:checkAdds()) then
+					ClearTarget();
+					script_checkAdds.closestEnemy = 0;
+					script_checkAdds.intersectEnemy = nil;
+				return true;
+				end
+		end
+
+				if (CastSpellByName("Shadow Bolt", targetObj)) then
+					targetObj:FaceTarget();
+					self.waitTimer = GetTimeEX() + 2000;
+					return 0;
+				end
 			end
 
 			-- use wand sliders
@@ -1093,16 +1061,18 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
--- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull)
-		and (not script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight())
-		and (not targetObj:IsCasting()) then	
-		if (script_checkAdds:checkAdds()) then
+			-- attempt to run away from adds - don't pull them
+		if (IsInCombat() and script_grind.skipHardPull)
+			and (script_grind:isTargetingMe(targetObj))
+			and (targetObj:IsInLineOfSight())
+			and (not targetObj:IsCasting()) then	
+				if (script_checkAdds:checkAdds()) then
+					ClearTarget();
+					script_checkAdds.closestEnemy = 0;
+					script_checkAdds.intersectEnemy = nil;
+				return true;
+				end
 		end
-	end
-
-
 		end
 	end
 end
@@ -1242,31 +1212,6 @@ function script_warlock:rest()
 	if (HasSpell("Summon Imp")) then	
 		script_warlockEX2:summonPet()
 	end
-
-	--Create Healthstone
-	--local stoneIndex = -1;
-	--for i=0,self.numStone do
-	--	if (HasItem(self.healthStone[i])) then
-	--		stoneIndex= i;
-	--		break;
-	--	end
-	--end
-
-	--if (HasSpell('Create Healthstone')) then
-	--	if (stoneIndex == -1 and HasItem("Soul Shard")) then 
-	--		if (localMana > 10 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
-	--			self.message = "Creating a healthstone...";
-	--			if (HasSpell('Create Healthstone') and IsMoving()) then
-	--				StopMoving();
-	--				return true;
-	--			end
-	--			if (HasSpell('Create Healthstone')) then
-	--			CastSpellByName('Create Healthstone');
-	--				return true;
-	--			end
-	--		end
-	--	end
-	--end
 
 	-- Do buffs if we got some mana 
 	if (localMana > 30) and (IsStanding()) then

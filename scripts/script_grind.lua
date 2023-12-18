@@ -217,16 +217,19 @@ function script_grind:setup()
 	-- why was this not iterated before?
 	local level = GetLocalPlayer():GetLevel();
 	if (level < 10) then
-		script_checkAdds.addsRange = 15;
-	end
-	if (level >= 10) and (level < 20) then
 		script_checkAdds.addsRange = 20;
 	end
-	if (level >= 20) and (level < 40) then
+	if (level >= 10) and (level < 20) then
 		script_checkAdds.addsRange = 25;
 	end
-	if (level > 40) then
+	if (level >= 20) and (level < 40) then
 		script_checkAdds.addsRange = 30;
+	end
+	if (level > 40) then
+		script_checkAdds.addsRange = 35;
+	end
+	if (level == 60) then
+		script_checkAdds.addsRange = 40;
 	end
 
 end

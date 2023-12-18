@@ -38,6 +38,10 @@ function script_grindMenu:menu()
 		Separator();
 	end
 
+	if (not script_paranoia.paranoiaUsed) and (GetXPExhaustion() ~= nil) then
+	Text('Rested Exp: '..GetXPExhaustion()..' - '..math.ceil(20*GetXPExhaustion()/UnitXPMax("player")).. ' bubbles');
+	end
+
 	if (not script_grind.pause) then
 		if (Button("Pause Bot")) then
 			script_grind.pause = true;
