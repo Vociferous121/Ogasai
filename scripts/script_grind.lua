@@ -286,6 +286,12 @@ function script_grind:run()
 		self.bagsFull = true;
 	end
 
+	if (IsIndoors()) then
+		script_nav:setNextToNodeDist(2); NavmeshSmooth(6);
+	else
+		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*2.5);
+	end
+
 	 -- Set next to node distance and nav-mesh smoothness to double that number
 	if (IsMounted()) then
 		script_nav:setNextToNodeDist(12); NavmeshSmooth(24);
