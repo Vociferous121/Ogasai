@@ -54,14 +54,14 @@ function script_hunter:setup()
 		self.ammoName = itemName;
 	end
 
-	DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Ammo name is set to: "' .. self.ammoName .. '" ...');
+	--DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Ammo name is set to: "' .. self.ammoName .. '" ...');
 	if (not strfind(itemName, "Arrow")) then
-		DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Ammo will be bought at "Bullet" vendors...');
+	--	DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Ammo will be bought at "Bullet" vendors...');
 		script_vendor.itemIsArrow = false;
 		self.ammoIsArrow = false;
 		script_vendor.ammoName = itemName;
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Ammo will be bought at "Arrow" vendors...');
+	--	DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Ammo will be bought at "Arrow" vendors...');
 		script_vendor.ammoName = itemName;
 		self.ammoIsArrow = true;
 	end	
@@ -72,9 +72,9 @@ function script_hunter:setup()
 		local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType,
    		itemStackCount, itemEquipLoc, itemTexture = GetItemInfo(iLink);
 		self.foodName = itemName;
-		DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Pet food name is set to: "' .. self.foodName .. '" ...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Pet food name is set to: "' .. self.foodName .. '" ...');
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Please set the pet food name in hunter options...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Please set the pet food name in hunter options...');
 	end
 
 	if (GetLocalPlayer():GetLevel() < 3) then
@@ -219,19 +219,6 @@ function script_hunter:run(targetGUID)
 		return 4;
 	end
 
-	-- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull)
-		and (script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight())
-		and (not targetObj:IsCasting()) then	
-			if (script_checkAdds:checkAdds()) then
-				ClearTarget();
-				script_checkAdds.closestEnemy = 0;
-				script_checkAdds.intersectEnemy = nil;
-			return true;
-			end
-	end
-
 	-- force bot to attack pets target
 	if (IsInCombat()) and (GetPet() ~= 0) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (self.hasPet) then
 		if (petHasTarget ~= 0) then
@@ -255,7 +242,7 @@ function script_hunter:run(targetGUID)
 	end
 	
 	-- stuck in combat
-	if (self.waitAfterCombat)and (self.hasPet) and (IsInCombat()) then
+	if (self.waitAfterCombat)and (self.hasPet) and (IsInCombat()) and (GetPet() ~= 0) then
 			local petHasTarget = GetPet():GetUnitsTarget();
 		if (playerHasTarget == 0) and (petHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
 			AssistUnit("pet");
@@ -381,19 +368,6 @@ function script_hunter:run(targetGUID)
 			-----------------------------
 
 		else
-
-			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull)
-				and (script_grind:isTargetingMe(targetObj))
-				and (targetObj:IsInLineOfSight())
-				and (not targetObj:IsCasting()) then	
-					if (script_checkAdds:checkAdds()) then
-						ClearTarget();
-						script_checkAdds.closestEnemy = 0;
-						script_checkAdds.intersectEnemy = nil;
-					return true;
-					end
-			end
 
 			if (not targetObj:IsInLineOfSight()) then
 				return 3;

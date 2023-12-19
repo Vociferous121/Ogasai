@@ -219,19 +219,6 @@ function script_rogue:run(targetGUID)
 		return 4;
 	end
 
-	-- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull)
-		and (script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight())
-		and (not targetObj:IsCasting()) then	
-			if (script_checkAdds:checkAdds()) then
-				ClearTarget();
-				script_checkAdds.closestEnemy = 0;
-				script_checkAdds.intersectEnemy = nil;
-			return true;
-			end
-	end
-
 	-- Apply poisons if we are not in combat
 	if (not IsInCombat() and self.usePoison) then
 		if (script_rogue:checkPoisons()) then
@@ -380,19 +367,6 @@ function script_rogue:run(targetGUID)
 
 				-- now in Combat
 			else	
-
-				-- attempt to run away from adds - don't pull them
-				if (IsInCombat() and script_grind.skipHardPull)
-					and (script_grind:isTargetingMe(targetObj))
-					and (targetObj:IsInLineOfSight())
-					and (not targetObj:IsCasting()) then	
-						if (script_checkAdds:checkAdds()) then
-							ClearTarget();
-							script_checkAdds.closestEnemy = 0;
-							script_checkAdds.intersectEnemy = nil;
-						return true;
-						end
-				end
 
 				self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
@@ -562,19 +536,6 @@ function script_rogue:run(targetGUID)
 					end 
 				end 
 
-				-- attempt to run away from adds - don't pull them
-				if (IsInCombat() and script_grind.skipHardPull)
-					and (script_grind:isTargetingMe(targetObj))
-					and (targetObj:IsInLineOfSight())
-					and (not targetObj:IsCasting()) then	
-						if (script_checkAdds:checkAdds()) then
-							ClearTarget();
-							script_checkAdds.closestEnemy = 0;
-							script_checkAdds.intersectEnemy = nil;
-						return true;
-						end
-				end
-			
 				-- Eviscerate with 5 CPs
 				if (localCP > 4) and (localEnergy >= 35) then
 					CastSpellByName("Eviscerate", targetObj);

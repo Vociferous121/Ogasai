@@ -103,7 +103,7 @@ function script_nav:getDistanceToHotspot()
 end
 
 function script_nav:moveToHotspot(localObj)
-	if (self.currentHotSpotName ~= 0) then
+	if (self.currentHotSpotName ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) then
 
 		script_navEX:moveToTarget(localObj, self.currentHotSpotX, self.currentHotSpotY, self.currentHotSpotZ); 
 

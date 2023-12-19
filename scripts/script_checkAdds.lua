@@ -6,6 +6,20 @@ script_checkAdds = {
 	intersectEnemy = nil,
 }
 
+
+-- attempt to run away from adds - don't pull them
+--if (IsInCombat() and script_grind.skipHardPull)
+--and (script_grind:isTargetingMe(targetObj))
+--and (targetObj:IsInLineOfSight())
+--and (not targetObj:IsCasting()) then	
+--if (script_checkAdds:checkAdds()) then
+--ClearTarget();
+--script_checkAdds.closestEnemy = 0;
+--script_checkAdds.intersectEnemy = nil;
+--return true;
+--end
+--end
+
 -- SCRIPT NEEDS CLEANED UP - A LOT OF THIS IS EXTRA STUFF FROM ATTEMPTS TO FIND THE BEST
 -- WAY TO DO THIS AND THE QUICKEST WAY FOR THE BOT TO RECOGNIZE TARGETS
 -- should we move or not
@@ -21,6 +35,7 @@ function script_checkAdds:checkAdds()
 		-- try unstuck script
 			if (not script_unstuck:pathClearAuto(2)) then
 				script_unstuck:unstuck();
+				return true;
 			end
 
 	-- if we have a pet then pet follow
@@ -35,6 +50,8 @@ function script_checkAdds:checkAdds()
 
 return false
 end
+
+-- requires target from combat script 'targetObj'
 
 -- avoid aggro 
 function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
@@ -104,17 +121,17 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 	if (closestPointToDest ~= nil) then	
 		local diffPoint = closestPointToDest - moveToPoint;
 		if (diffPoint <= 0) then
-			moveToPoint = closestPoint - 2;
+			moveToPoint = closestPoint - 4;
 		else
-			moveToPoint = closestPoint + 2;
+			moveToPoint = closestPoint + 4;
 		end
 	else
-		moveToPoint = closestPoint + 2;
+		moveToPoint = closestPoint + 4;
 	end
 	
 	-- out of bound
 	if (moveToPoint == 0 or moveToPoint == nil) then
-		moveToPoint = -2;
+		moveToPoint = -4;
 	end
 
 	if (moveToPoint ~= 0)
@@ -133,6 +150,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 	if (not script_unstuck:pathClearAuto(2)) then
 		script_unstuck:unstuck();
+		return true;
 	end
 
 	self.closestEnemy = 0;
@@ -154,6 +172,12 @@ function script_checkAdds:avoidToAggro(safeMargin)
 	local xx, yy, zz = 0, 0, 0;
 	local centerX, centerY = 0, 0;
 
+
+	-- need to rewrite for quicker access to object manager
+	-- need to do a run once at start of combat to gather mobs around player
+	-- place those mobs in a table ~ 80 yard range? based on distance closest first
+	-- call that table to find first entry which should be closest target
+	-- avoid closest target
 	while currentObj ~= 0 do
 				local range = script_checkAdds.addsRange;
 				local aggro = script_checkAdds.addsRange;
@@ -188,10 +212,8 @@ function script_checkAdds:avoidToAggro(safeMargin)
 
 		-- avoid the closest mob
 			local range = self.addsRange;
-						-- this needs retyped.. we need to find direction to travel and
-						-- not use add count to stop moving...
-				--and (script_grind.enemiesWithinRange(self.addsRange) <= 4) 
-		if (self.closestEnemy ~= 0) then
+						
+		if (self.closestEnemy ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) then
 
 			local xT, yT, zT = self.closestEnemy:GetPosition();
 
@@ -266,6 +288,7 @@ function script_checkAdds:aggroIntersect(target)
  			end
 		typeObj = GetNextObject(currentObj);
  		end
+
  		currentObj, typeObj = GetNextObject(currentObj);
 		self.intersectEnemy = nil;
 		self.closestEnemy = 0;
@@ -334,17 +357,17 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 	if (closestPoint ~= nil) then	
 		local diffPoint = closestPoint - moveToPoint;
 		if (diffPoint <= 0) then
-			moveToPoint = closestPoint - 2;
+			moveToPoint = closestPoint - 4;
 		else
-			moveToPoint = closestPoint + 2;
+			moveToPoint = closestPoint + 4;
 		end
 	else
-		moveToPoint = closestPoint + 2;
+		moveToPoint = closestPoint + 4;
 	end
 	
 	-- out of bound
 	if (moveToPoint == 0 or moveToPoint == nil) then
-		moveToPoint = -2;
+		moveToPoint = -4;
 	end
 
 	if (moveToPoint ~= 0)
@@ -363,6 +386,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 	if (not script_unstuck:pathClearAuto(2)) then
 		script_unstuck:unstuck();
+		return true;
 	end
 
 	self.closestEnemy = 0;

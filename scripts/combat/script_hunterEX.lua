@@ -231,7 +231,6 @@ function script_hunterEX:menu()
 		end
 
 		SameLine();
-		Separator();
 		if (GetPet() ~= 0) and (GetLocalPlayer():GetLevel() >= 10) then
 			wasClicked, script_hunter.waitAfterCombat = Checkbox("Wait After Combat", script_hunter.waitAfterCombat);
 		end

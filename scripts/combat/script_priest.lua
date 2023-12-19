@@ -201,19 +201,6 @@ function script_priest:run(targetGUID)
 		return 4;
 	end
 
-	-- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull)
-		and (script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight())
-		and (not targetObj:IsCasting()) then	
-			if (script_checkAdds:checkAdds()) then
-				ClearTarget();
-				script_checkAdds.closestEnemy = 0;
-				script_checkAdds.intersectEnemy = nil;
-			return true;
-			end
-	end
-
 	-- set shadow form true
 	if (GetLocalPlayer():HasBuff("Shadowform")) then
 		self.shadowForm = true;
@@ -468,20 +455,6 @@ function script_priest:run(targetGUID)
 			if (targetObj:GetDistance() > 30) or (not targetObj:IsInLineOfSight()) then
 				return 3;
 			end
-
-			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull)
-				and (script_grind:isTargetingMe(targetObj))
-				and (targetObj:IsInLineOfSight())
-				and (not targetObj:IsCasting()) then	
-					if (script_checkAdds:checkAdds()) then
-						ClearTarget();
-						script_checkAdds.closestEnemy = 0;
-						script_checkAdds.intersectEnemy = nil;
-					return true;
-					end
-			end
-
 
 			self.message = "Killing.. " .. targetObj:GetUnitName() .. "...";
 

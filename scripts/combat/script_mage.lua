@@ -133,7 +133,6 @@ function script_mage:polymorphAdd(targetObjGUID) -- cast the polymorph condition
 						if (currentObj:IsInLineOfSight()) then
 							if (not script_grind.adjustTickRate) then
 								script_grind.tickRate = 100;
-								script_rotation.tickRate = 100;
 							end
 							if (script_mage:cast('Polymorph', currentObj)) then 
 								self.addPolymorphed = true; 
@@ -341,19 +340,6 @@ function script_mage:run(targetGUID)
 		return 4;
 	end
 
-	-- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull)
-		and (script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight())
-		and (not targetObj:IsCasting()) then	
-			if (script_checkAdds:checkAdds()) then
-				ClearTarget();
-				script_checkAdds.closestEnemy = 0;
-				script_checkAdds.intersectEnemy = nil;
-			return true;
-			end
-	end
-
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
@@ -436,16 +422,16 @@ function script_mage:run(targetGUID)
 			-- frost mage selected
 			if (self.frostMage) and (targetObj:GetDistance() <= 30) and (targetObj:IsInLineOfSight()) then
 				if (script_mage.frostMagePull(targetObj)) then
-					script_grind:setWaitTimer(2000);
-					self.waitTimer = GetTimeEX() + 2000;
+					script_grind:setWaitTimer(2200);
+					self.waitTimer = GetTimeEX() + 2200;
 					targetObj:FaceTarget();
 				end
 
 				-- fire mage selected use these spells instead
 			elseif (self.fireMage) and (targetObj:GetDistance() <= 30) then
 				if (script_mage.fireMagePull(targetObj)) then
-					script_grind:setWaitTimer(2000);
-					self.waitTimer = GetTimeEX() + 2000;
+					script_grind:setWaitTimer(2200);
+					self.waitTimer = GetTimeEX() + 2200;
 					targetObj:FaceTarget();
 				end
 			end
@@ -453,19 +439,6 @@ function script_mage:run(targetGUID)
 		-- Combat
 
 		else	
-
-			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull)
-				and (script_grind:isTargetingMe(targetObj))
-				and (targetObj:IsInLineOfSight())
-				and (not targetObj:IsCasting()) then	
-					if (script_checkAdds:checkAdds()) then
-						ClearTarget();
-						script_checkAdds.closestEnemy = 0;
-						script_checkAdds.intersectEnemy = nil;
-					return true;
-					end
-			end
 
 			-- display message in ogasai message box
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
@@ -552,8 +525,7 @@ function script_mage:run(targetGUID)
 			-- Check: Move backwards if the target is affected by Frost Nova or Frost Bite
 			if (GetNumPartyMembers() < 1) and (self.useFrostNova) then
 				if (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (targetHealth > 20) and (not localObj:HasBuff('Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) then
-					script_grind.tickRate = 50;
-					script_rotation.tickRate = 50;
+					script_grind.tickRate = 0;
 
 					if (script_mage:runBackwards(targetObj, 9)) then -- Moves if the target is closer than 7 yards
 
@@ -650,22 +622,8 @@ function script_mage:run(targetGUID)
 				end
 			end
 
-			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull)
-				and (script_grind:isTargetingMe(targetObj))
-				and (targetObj:IsInLineOfSight())
-				and (not targetObj:IsCasting()) then	
-					if (script_checkAdds:checkAdds()) then
-						ClearTarget();
-						script_checkAdds.closestEnemy = 0;
-						script_checkAdds.intersectEnemy = nil;
-					return true;
-					end
-			end
-
 			-- Check: Frostnova when the target is close, but not when we polymorhped one enemy or the target is affected by Frostbite
 			if (not self.addPolymorphed) and (targetObj:GetDistance() < 9 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova then
-				script_grind.tickRate = 100;
 				script_grind.tickRate = 100;
 				self.message = "Frost nova the target(s)...";
 				CastSpellByName("Frost Nova");
@@ -719,8 +677,7 @@ function script_mage:run(targetGUID)
 			if (self.fireMage) and (HasSpell("Blast Wave")) then
 				if (localMana > 30) and (targetObj:GetDistance() < 10) and (not IsSpellOnCD("Blast Wave")) and (targetHealth > 15 or localHealth < 20) then
 					if (script_mage:runBackwards(targetObj, 9)) then -- Moves if the target is closer than 7 yards
-						script_grind.tickRate = 100;
-						script_rotation.tickRate = 100;
+						script_grind.tickRate = 0;
 						self.message = "Moving away from target...";
 						if (not IsSpellOnCD("Blast Wave")) then
 							CastSpellByName("Blast Wave");
@@ -737,8 +694,7 @@ function script_mage:run(targetGUID)
 			
 			if (targetHealth > 20) and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (not localObj:HasBuff('Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) then
 				if (script_mage:runBackwards(targetObj, 9)) then -- Moves if the target is closer than 7 yards
-					script_grind.tickRate = 50;
-					script_rotation.tickRate = 50;
+					script_grind.tickRate = 0;
 					self.message = "Moving away from target...";
 					if (targetObj:GetDistance() > 7) and (not IsMoving()) then
 						targetObj:FaceTarget();
@@ -778,19 +734,6 @@ function script_mage:run(targetGUID)
 				end
 			end
 
-			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull)
-				and (script_grind:isTargetingMe(targetObj))
-				and (targetObj:IsInLineOfSight())
-				and (not targetObj:IsCasting()) then	
-					if (script_checkAdds:checkAdds()) then
-						ClearTarget();
-						script_checkAdds.closestEnemy = 0;
-						script_checkAdds.intersectEnemy = nil;
-					return true;
-					end
-			end
-	
 			if (self.useFrostMage) and (not HasSpell("Frostbolt")) then
 				CastSpellByName("Fireball", targetObj);
 			end
@@ -800,23 +743,9 @@ function script_mage:run(targetGUID)
 			if (HasSpell("Frostbolt")) and (self.frostMage) and (not IsChanneling()) and (not IsMoving()) then
 				if (localMana >= self.useWandMana and targetHealth >= self.useWandHealth) then
 
-			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull)
-				and (script_grind:isTargetingMe(targetObj))
-				and (targetObj:IsInLineOfSight())
-				and (not targetObj:IsCasting()) then	
-					if (script_checkAdds:checkAdds()) then
-						ClearTarget();
-						script_checkAdds.closestEnemy = 0;
-						script_checkAdds.intersectEnemy = nil;
-					return true;
-					end
-			end
-
 			-- Check: Frostnova when the target is close, but not when we polymorhped one enemy or the target is affected by Frostbite
 				if (not self.addPolymorphed) and (targetObj:GetDistance() < 9 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova and localMana >= 10 then
-				script_grind.tickRate = 100;
-				script_grind.tickRate = 100;
+				script_grind.tickRate = 0;
 				self.message = "Frost nova the target(s)...";
 				CastSpellByName("Frost Nova");
 			end
@@ -824,19 +753,6 @@ function script_mage:run(targetGUID)
 					-- check range
 					if(not targetObj:IsSpellInRange("Frostbolt")) or (not targetObj:IsInLineOfSight()) then
 						return 3;
-					end
-
-					-- attempt to run away from adds - don't pull them
-					if (IsInCombat() and script_grind.skipHardPull)
-						and (script_grind:isTargetingMe(targetObj))
-						and (targetObj:IsInLineOfSight())
-						and (not targetObj:IsCasting()) then	
-							if (script_checkAdds:checkAdds()) then
-								ClearTarget();
-								script_checkAdds.closestEnemy = 0;
-								script_checkAdds.intersectEnemy = nil;
-							return true;
-							end
 					end
 
 					if (CastSpellByName("Frostbolt", targetObj)) then
@@ -856,26 +772,12 @@ function script_mage:run(targetGUID)
 				-- Check: Frostnova when the target is close, but not when we polymorhped one enemy or the target is affected by Frostbite
 					if (not self.addPolymorphed) and (targetObj:GetDistance() < 9 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova and localMana >= 10 then
 						script_grind.tickRate = 100;
-						script_grind.tickRate = 100;
 						self.message = "Frost nova the target(s)...";
 						CastSpellByName("Frost Nova");
 					end
 
 					-- cast pyroblast
 					if (targetObj:GetDistance() < 30) then
-
-					-- attempt to run away from adds - don't pull them
-					if (IsInCombat() and script_grind.skipHardPull)
-						and (script_grind:isTargetingMe(targetObj))
-						and (targetObj:IsInLineOfSight())
-						and (not targetObj:IsCasting()) then	
-							if (script_checkAdds:checkAdds()) then
-								ClearTarget();
-								script_checkAdds.closestEnemy = 0;
-								script_checkAdds.intersectEnemy = nil;
-							return true;
-							end
-					end
 
 						if (HasSpell("Pyroblast")) then
 							if (CastSpellByName("Pyroblast", targetObj)) then
@@ -911,19 +813,6 @@ function script_mage:run(targetGUID)
 			end
 
 				
-		end
-
-		-- attempt to run away from adds - don't pull them
-		if (IsInCombat() and script_grind.skipHardPull)
-			and (script_grind:isTargetingMe(targetObj))
-			and (targetObj:IsInLineOfSight())
-			and (not targetObj:IsCasting()) then	
-				if (script_checkAdds:checkAdds()) then
-					ClearTarget();
-					script_checkAdds.closestEnemy = 0;
-					script_checkAdds.intersectEnemy = nil;
-				return true;
-				end
 		end
 
 		-- set tick rate for script to run

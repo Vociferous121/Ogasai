@@ -217,19 +217,19 @@ function script_grind:setup()
 	-- why was this not iterated before?
 	local level = GetLocalPlayer():GetLevel();
 	if (level < 10) then
-		script_checkAdds.addsRange = 20;
+		script_checkAdds.addsRange = 15;
 	end
 	if (level >= 10) and (level < 20) then
-		script_checkAdds.addsRange = 25;
+		script_checkAdds.addsRange = 20;
 	end
 	if (level >= 20) and (level < 40) then
-		script_checkAdds.addsRange = 30;
+		script_checkAdds.addsRange = 25;
 	end
 	if (level > 40) then
-		script_checkAdds.addsRange = 35;
+		script_checkAdds.addsRange = 30;
 	end
 	if (level == 60) then
-		script_checkAdds.addsRange = 40;
+		script_checkAdds.addsRange = 32;
 	end
 
 end
@@ -651,7 +651,7 @@ function script_grind:run()
 		-- Dont pull if more than 1 add will be pulled
 		if (self.enemyObj ~= nil and self.enemyObj ~= 0 and self.skipHardPull) then
 			if (not script_aggro:safePull(self.enemyObj)) and (not IsInCombat())
-			and (not script_grind:isTargetingMe(self.enemyObj)) then
+			and (not script_grind:isTargetingMe2(self.enemyObj)) then
 				script_grind:addTargetToBlacklist(self.enemyObj:GetGUID());
 				self.enemyObj = nil;
 			end
@@ -696,6 +696,19 @@ function script_grind:run()
 
 			-- if health is low and target health is too high then
 			-- run away from target script_checkadds.avoidtoaggro addsrange + 75 or so
+
+			-- attempt to run away from adds - don't pull them
+			if (IsInCombat() and script_grind.skipHardPull)
+				and (script_grind:isTargetingMe2(self.enemyObj))
+				and (self.enemyObj:IsInLineOfSight())
+				and (not self.enemyObj:IsCasting()) then	
+					if (script_checkAdds:checkAdds()) then
+						ClearTarget();
+						script_checkAdds.closestEnemy = 0;
+						script_checkAdds.intersectEnemy = nil;
+					return true;
+					end
+			end
 			
 
 			-- In range: attack the target, combat script returns 0
@@ -725,7 +738,7 @@ function script_grind:run()
 					and (self.extraSafe) then
 					if (not script_aggro:safePull(self.enemyObj))
 						and (not IsInCombat())
-						and (not script_grind:isTargetingMe(self.enemyObj))
+						and (not script_grind:isTargetingMe2(self.enemyObj))
 						and (script_grind.enemyObj:GetHealthPercentage() > 99) then
 						script_grind:addTargetToBlacklist(self.enemyObj:GetGUID());
 						self.enemyObj = nil;
@@ -891,7 +904,7 @@ function script_grind:assignTarget()
 
 	-- Instantly return the last target if we attacked it and it's still alive and we are in combat
 	if (self.enemyObj ~= 0 and self.enemyObj ~= nil and not self.enemyObj:IsDead() and IsInCombat()) then
-		if (script_grind:isTargetingMe(self.enemyObj) 
+		if (script_grind:isTargetingMe2(self.enemyObj) 
 			or script_grind:isTargetingPet(self.enemyObj) 
 			or self.enemyObj:IsTappedByMe()) then
 			return self.enemyObj;
@@ -950,6 +963,15 @@ function script_grind:isTargetingMe(i)
 	if (localPlayer ~= nil and localPlayer ~= 0 and not localPlayer:IsDead()) then
 		if (i:GetUnitsTarget() ~= nil and i:GetUnitsTarget() ~= 0) then
 			return i:GetUnitsTarget():GetGUID() == localPlayer:GetGUID();
+		end
+	end
+	return false;
+end
+function script_grind:isTargetingMe2(target) 
+	local localPlayer = GetLocalPlayer();
+	if (localPlayer ~= nil and localPlayer ~= 0 and not localPlayer:IsDead()) then
+		if (target:GetUnitsTarget() ~= nil and target:GetUnitsTarget() ~= 0) then
+			return target:GetUnitsTarget():GetGUID() == localPlayer:GetGUID();
 		end
 	end
 	return false;
@@ -1112,7 +1134,7 @@ function script_grind:enemiesAttackingUs() -- returns number of enemies attackin
 	while currentObj ~= 0 do 
     	if typeObj == 3 then
 		if (currentObj:CanAttack() and not currentObj:IsDead()) then
-                	if (script_grind:isTargetingMe(currentObj) or script_grind:isTargetingPet(currentObj)) then 
+                	if (script_grind:isTargetingMe2(currentObj) or script_grind:isTargetingPet(currentObj)) then 
                 		unitsAttackingUs = unitsAttackingUs + 1; 
                 	end 
             	end 
@@ -1144,7 +1166,7 @@ function script_grind:playersTargetingUs() -- returns number of players attackin
 	local currentObj, typeObj = GetFirstObject(); 
 	while currentObj ~= 0 do 
 		if typeObj == 4 then
-			if (script_grind:isTargetingMe(currentObj)) then 
+			if (script_grind:isTargetingMe2(currentObj)) then 
                 		nrPlayersTargetingUs = nrPlayersTargetingUs + 1;
 			end 
 		end

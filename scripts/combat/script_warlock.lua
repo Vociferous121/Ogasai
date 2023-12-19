@@ -361,19 +361,6 @@ function script_warlock:run(targetGUID)
 		return 4;
 	end
 
-	-- attempt to run away from adds - don't pull them
-		if (IsInCombat() and script_grind.skipHardPull)
-			and (script_grind:isTargetingMe(targetObj))
-			and (targetObj:IsInLineOfSight())
-			and (not targetObj:IsCasting()) then	
-				if (script_checkAdds:checkAdds()) then
-					ClearTarget();
-					script_checkAdds.closestEnemy = 0;
-					script_checkAdds.intersectEnemy = nil;
-				return true;
-				end
-		end
-
 	-- sacrifice voidwalker low health
 	if (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) then
 		if (self.useVoid) and (self.hasSacrificeSpell) and (self.sacrificeVoid) and (localHealth <= self.sacrificeVoidHealth or GetPet():GetHealthPercentage() <= self.sacrificeVoidHealth) then
@@ -1012,19 +999,6 @@ function script_warlock:run(targetGUID)
 
 			if (self.useWand) and (targetHealth >= self.useWandHealth and localMana >= self.useWandMana) then
 
-				-- attempt to run away from adds - don't pull them
-		if (IsInCombat() and script_grind.skipHardPull)
-			and (script_grind:isTargetingMe(targetObj))
-			and (targetObj:IsInLineOfSight())
-			and (not targetObj:IsCasting()) then	
-				if (script_checkAdds:checkAdds()) then
-					ClearTarget();
-					script_checkAdds.closestEnemy = 0;
-					script_checkAdds.intersectEnemy = nil;
-				return true;
-				end
-		end
-
 				if (CastSpellByName("Shadow Bolt", targetObj)) then
 					targetObj:FaceTarget();
 					self.waitTimer = GetTimeEX() + 2000;
@@ -1060,19 +1034,6 @@ function script_warlock:run(targetGUID)
 					return 4;
 				end
 			end
-
-			-- attempt to run away from adds - don't pull them
-		if (IsInCombat() and script_grind.skipHardPull)
-			and (script_grind:isTargetingMe(targetObj))
-			and (targetObj:IsInLineOfSight())
-			and (not targetObj:IsCasting()) then	
-				if (script_checkAdds:checkAdds()) then
-					ClearTarget();
-					script_checkAdds.closestEnemy = 0;
-					script_checkAdds.intersectEnemy = nil;
-				return true;
-				end
-		end
 		end
 	end
 end

@@ -131,18 +131,6 @@ function script_paladin:run(targetGUID)
 	if (IsChanneling()) or (IsCasting()) or (self.waitTimer > GetTimeEX()) then
 		return 4;
 	end
-	-- attempt to run away from adds - don't pull them
-	if (IsInCombat() and script_grind.skipHardPull)
-		and (script_grind:isTargetingMe(targetObj))
-		and (targetObj:IsInLineOfSight())
-		and (not targetObj:IsCasting()) then	
-			if (script_checkAdds:checkAdds()) then
-				ClearTarget();
-				script_checkAdds.closestEnemy = 0;
-				script_checkAdds.intersectEnemy = nil;
-			return true;
-			end
-	end
 
 	if (IsInCombat()) and (GetLocalPlayer():GetUnitsTarget() == 0) then
 		self.message = "Waiting! Stuck in combat phase!";
@@ -246,19 +234,6 @@ function script_paladin:run(targetGUID)
 		-- Combat WE ARE NOW IN COMBAT
 
 		else	
-
-			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull)
-				and (script_grind:isTargetingMe(targetObj))
-				and (targetObj:IsInLineOfSight())
-				and (not targetObj:IsCasting()) then	
-					if (script_checkAdds:checkAdds()) then
-						ClearTarget();
-						script_checkAdds.closestEnemy = 0;
-						script_checkAdds.intersectEnemy = nil;
-					return true;
-					end
-			end
 
 			if (not IsAutoCasting("Attack")) and (not IsMoving()) then
 				targetObj:AutoAttack();

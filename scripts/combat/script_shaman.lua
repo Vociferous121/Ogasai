@@ -356,7 +356,7 @@ function script_shaman:run(targetGUID)
 	local localObj = GetLocalPlayer();
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
-	local localLevel = localObj:GetLevel();
+	local localLevel = localObj:GetLevel();	
 
 	script_shamanEX2:setTotemBuffs();
 

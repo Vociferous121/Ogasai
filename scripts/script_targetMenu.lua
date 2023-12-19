@@ -24,7 +24,7 @@ function script_targetMenu:menu()
 			wasClicked, script_grind.extraSafe = Checkbox("Recheck Blacklisted Targets " ..a.." (yds)" , script_grind.extraSafe);
 
 			if (UnitClass('player') ~= "Shaman") then
-
+				
 				Text("Move Away From Adds In Combat Range");
 				script_checkAdds.addsRange = SliderInt("Distance", 15, 40, script_checkAdds.addsRange);
 
@@ -36,6 +36,15 @@ function script_targetMenu:menu()
 
 				Text("Move Away From Adds In Combat Range");
 				script_checkAdds.addsRange = SliderInt("Add Range", 15, 40, script_checkAdds.addsRange);
+			end
+			if (UnitClass('player') == "Shaman") then
+				if (script_shaman.useEarthTotem)
+				or (script_shaman.useWaterTotem)
+				or (script_shaman.useFireTotem)
+				or (script_shaman.useAirTotem)
+			then
+				Text("Disable Totems To Use Avoid Adds In Combat");
+				end
 			end
 
 			Separator();
