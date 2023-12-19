@@ -657,6 +657,19 @@ function script_grind:run()
 			end
 		end
 
+		if (IsInCombat()) then
+				while currentObj ~= 0 do
+					if (typeObj == 3) and (currentObj:GetDistance() < script_checkAdds.addsRange + 10)
+						and (script_checkAdds.closestEnemy ~= 0)
+						and (not currentObj:GetGUID() == self.enemyObj:GetGUID()) then
+					if (script_checkAdds.closestEnemy:GetDistance() > currentObj:GetDistance()) then
+						script_checkAdds.closestEnemy = currentObj;
+					end
+					end
+				currentObj, typeObj = GetNextObject(currentObj);
+				end
+		end
+
 		if (not IsInCombat()) and (script_grindEX.avoidBlacklisted) and (script_aggro:closeToBlacklistedTargets()) then
 			self.message = "Close To Blacklisted Target.. Moving...";
 			if (script_runner:avoidToBlacklist(10)) then
@@ -664,6 +677,30 @@ function script_grind:run()
 			end
 		end
 
+-- attempt to run away from adds - don't pull them
+			if (IsInCombat() and script_grind.skipHardPull)
+				and (script_grind:isTargetingMe2(self.enemyObj))
+				and (self.enemyObj:IsInLineOfSight())
+				and (not self.enemyObj:IsCasting()) then	
+
+				if (script_checkAdds:checkAdds()) then
+					while currentObj ~= 0 do
+					script_grind.tickRate = 50;
+					if (typeObj == 3) and (currentObj:GetDistance() < script_checkAdds.addsRange+2)
+					and (script_checkAdds.closestEnemy ~= 0)
+					and (not currentObj:GetGUID() == self.enemyObj:GetGUID()) then
+						if (script_checkAdds.closestEnemy:GetDistance() > currentObj:GetDistance()) then
+						script_checkAdds.closestEnemy = currentObj;
+						end
+					end
+					currentObj, typeObj = GetNextObject(currentObj);
+					end
+				return true;
+				end
+			end
+			script_checkAdds.closestEnemy = 0;
+			script_checkAdds.intersectEnemy = nil;
+		
 		-- Finish loot before we engage new targets or navigate
 		if (self.lootObj ~= nil and not IsInCombat()) then
 
@@ -696,19 +733,6 @@ function script_grind:run()
 
 			-- if health is low and target health is too high then
 			-- run away from target script_checkadds.avoidtoaggro addsrange + 75 or so
-
-			-- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull)
-				and (script_grind:isTargetingMe2(self.enemyObj))
-				and (self.enemyObj:IsInLineOfSight())
-				and (not self.enemyObj:IsCasting()) then	
-					if (script_checkAdds:checkAdds()) then
-						ClearTarget();
-						script_checkAdds.closestEnemy = 0;
-						script_checkAdds.intersectEnemy = nil;
-					return true;
-					end
-			end
 			
 
 			-- In range: attack the target, combat script returns 0

@@ -30,8 +30,6 @@ function script_checkAdds:checkAdds()
 		if (script_checkAdds:avoidToAggro(self.checkAddsRange)) then
 
 			script_grind.tickRate = 50;
-			self.intersectEnemy = nil;
-			self.closestEnemy = 0;
 		-- try unstuck script
 			if (not script_unstuck:pathClearAuto(2)) then
 				script_unstuck:unstuck();
@@ -74,7 +72,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 	while theta <= 2*PI do
 		point = point + 1 -- get next table slot, starts at 0 
 		points[point] = { x = pointX + radius*cos(theta), y = pointY + radius*sin(theta) }
-		pointsTwo[point] = { x = pointX + (safeDist+radius)*cos(theta), y = pointY + (safeDist+radius)*sin(theta) }
+		pointsTwo[point] = { x = pointX + (self.addsRange*2)*cos(theta), y = pointY + (self.addsRange*2)*sin(theta) }
 		theta = theta + 2*PI / quality -- get next theta
 	end
 	
@@ -121,17 +119,17 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 	if (closestPointToDest ~= nil) then	
 		local diffPoint = closestPointToDest - moveToPoint;
 		if (diffPoint <= 0) then
-			moveToPoint = closestPoint - 4;
+			moveToPoint = closestPoint - 3;
 		else
-			moveToPoint = closestPoint + 4;
+			moveToPoint = closestPoint + 3;
 		end
 	else
-		moveToPoint = closestPoint + 4;
+		moveToPoint = closestPoint + 3;
 	end
 	
 	-- out of bound
 	if (moveToPoint == 0 or moveToPoint == nil) then
-		moveToPoint = -4;
+		moveToPoint = - 3;
 	end
 
 	if (moveToPoint ~= 0)
@@ -181,10 +179,10 @@ function script_checkAdds:avoidToAggro(safeMargin)
 	while currentObj ~= 0 do
 				local range = script_checkAdds.addsRange;
 				local aggro = script_checkAdds.addsRange;
-				local myAggro = currentObj:GetLevel() - localObj:GetLevel() + 22.5;
+				local myAggro = currentObj:GetLevel() - localObj:GetLevel() + 22;
 				
  		if (typeObj == 3)
-			and (currentObj:GetDistance() <= self.addsRange*2+self.checkAddsRange*2)
+			and (currentObj:GetDistance() <= self.addsRange+10)
 			and (currentObj:IsInLineOfSight())
 		then
 			if (script_grind.enemyObj ~= nil)
@@ -199,16 +197,17 @@ function script_checkAdds:avoidToAggro(safeMargin)
 				then
 					local tarX, tarY, tarZ = currentObj:GetPosition();
 					local myX, myY, myZ = localObj:GetPosition();
-				if (currentObj:GetDistance() <= range+5
+				if (currentObj:GetDistance() <= range
 				or GetDistance3D(myX, myY, myZ, tarX, tarY, tarZ) <= myAggro)
 				then
 					self.closestEnemy = currentObj;	
 				end
+					
  			end
 			typeObj = GetNextObject(currentObj);
 		end
 	currentObj, typeObj = GetNextObject(currentObj);
-
+				
 
 		-- avoid the closest mob
 			local range = self.addsRange;
@@ -226,19 +225,15 @@ function script_checkAdds:avoidToAggro(safeMargin)
 				local x, y, z = self.closestEnemy:GetPosition();
 				local xx, yy, zz = self.intersectEnemy:GetPosition();
 				local centerX, centerY = (x+xx)/2, (y+yy)/2;
-
-				SpellStopCasting();
-
 			
-				script_checkAdds:avoid(centerX, centerY, zP, aggroRange*10, self.addsRange*10);
+				script_checkAdds:avoid(centerX, centerY, zP, aggroRange, self.checkAddsRange);
 				PetFollow();
 				self.closestEnemy = 0;
 				self.intersectEnemy = nil;
 
 			else
-				SpellStopCasting();
 
-				script_checkAdds:avoid(xT, yT, zP, aggro*10, self.addsRange*10);
+				script_checkAdds:avoid(xT, yT, zP, aggro, self.checkAddsRange);
 				PetFollow();
 				self.closestEnemy = 0;
 				self.intersectEnemy = nil;
@@ -263,7 +258,7 @@ function script_checkAdds:aggroIntersect(target)
 	self.intersectEnemy = nil;
 	while currentObj ~= 0 do
  		if (typeObj == 3)
-			and (currentObj:GetDistance() < self.addsRange*2+self.checkAddsRange*2)
+			and (currentObj:GetDistance() < self.addsRange+10)
 			and (currentObj:IsInLineOfSight()) 
 		then
 			if (currentObj:CanAttack())
@@ -280,7 +275,7 @@ function script_checkAdds:aggroIntersect(target)
 				local xx, yy, zz = currentObj:GetPosition();
 				local dist = math.sqrt((x-xx)^2 +(y-yy)^2);
 				local curDist = currentObj:GetDistance();
-				local range = self.addsRange+15;
+				local range = self.addsRange;
 
 				if (curDist < range) then
 					return currentObj;
