@@ -37,7 +37,7 @@ function script_grindMenu:menu()
 		Text(""..time);
 		Separator();
 	end
-	
+
 	if (GetXPExhaustion() ~= nil) and (not script_paranoia.paranoiaUsed) then
 		if (math.ceil(20*GetXPExhaustion()/UnitXPMax("player")) == 30) then
 			Text('Rested Exp: MAX RESTED - '..math.ceil(20*GetXPExhaustion()/UnitXPMax("player")).. ' bubbles');

@@ -397,8 +397,33 @@ function script_grind:run()
 		return;
 	end
 
-	-- add check for number of units in range of player
-	-- adjust move away from target aggro range based on number of targets in large range around player
+
+	if (IsInCombat()) then
+		while currentObj ~= 0 do
+			if (typeObj == 3) and (currentObj:GetDistance() <= script_checkAdds.addsRange)
+				and (currentObj:GetGUID() ~= self.enemyObj:GetGUID())
+				and (not script_grind:isTargetingMe3(currentObj))
+				and (not script_grind:isTargetingPet(currentObj)) then
+					script_checkAdds.closestEnemy = currentObj;
+			typeObj = GetNextObject(currentObj);
+			end
+		currentObj, typeObj = GetNextObject(currentObj);
+		end
+
+		while currentObj ~= 0 do
+			if (typeObj == 3) and (script_checkAdds.closestEnemy ~= 0)
+				and (currentObj:GetDistance() <= script_checkAdds.addsRange)
+				and (currentObj:GetGUID() ~= self.enemyObj:GetGUID())
+				and (not script_grind:isTargetingMe3(currentObj))
+				and (not script_grind:isTargetingPet(currentObj)) then
+					if (currentObj:GetDistance() < script_checkAdds.closestEnemy:GetDistance()) then
+						script_checkAdds.closestEnemy = currentObj;
+					end
+			typeObj = GetNextObject(currentObj);
+			end
+		currentObj, typeObj = GetNextObject(currentObj);
+		end
+	end
 
 	-- check paranoia	
 		-- jump when player in range in combat
@@ -482,7 +507,7 @@ function script_grind:run()
 	if (script_helper:deleteItem()) then
 		return;
 	end	
-	
+
 	-- set tick rate for scripts
 	if (GetTimeEX() > self.timer) then
 		self.timer = GetTimeEX() + self.tickRate;
@@ -657,19 +682,6 @@ function script_grind:run()
 			end
 		end
 
-		if (IsInCombat()) then
-				while currentObj ~= 0 do
-					if (typeObj == 3) and (currentObj:GetDistance() < script_checkAdds.addsRange + 10)
-						and (script_checkAdds.closestEnemy ~= 0)
-						and (not currentObj:GetGUID() == self.enemyObj:GetGUID()) then
-					if (script_checkAdds.closestEnemy:GetDistance() > currentObj:GetDistance()) then
-						script_checkAdds.closestEnemy = currentObj;
-					end
-					end
-				currentObj, typeObj = GetNextObject(currentObj);
-				end
-		end
-
 		if (not IsInCombat()) and (script_grindEX.avoidBlacklisted) and (script_aggro:closeToBlacklistedTargets()) then
 			self.message = "Close To Blacklisted Target.. Moving...";
 			if (script_runner:avoidToBlacklist(10)) then
@@ -681,25 +693,27 @@ function script_grind:run()
 			if (IsInCombat() and script_grind.skipHardPull)
 				and (script_grind:isTargetingMe2(self.enemyObj))
 				and (self.enemyObj:IsInLineOfSight())
-				and (not self.enemyObj:IsCasting()) then	
-
+				and (not self.enemyObj:IsCasting()) then
+		
 				if (script_checkAdds:checkAdds()) then
 					while currentObj ~= 0 do
 					script_grind.tickRate = 50;
-					if (typeObj == 3) and (currentObj:GetDistance() < script_checkAdds.addsRange+2)
-					and (script_checkAdds.closestEnemy ~= 0)
-					and (not currentObj:GetGUID() == self.enemyObj:GetGUID()) then
-						if (script_checkAdds.closestEnemy:GetDistance() > currentObj:GetDistance()) then
-						script_checkAdds.closestEnemy = currentObj;
-						end
+					if (typeObj == 3) and (currentObj:GetDistance() < script_checkAdds.addsRange)
+						and (currentObj:GetGUID() ~= self.enemyObj:GetGUID()) 
+						and (not script_grind:isTargetingMe3(currentObj))
+						and (not script_grind:isTargetingPet(currentObj)) then		
+							script_checkAdds.closestEnemy = currentObj;
+ 					typeObj = GetNextObject(currentObj);
 					end
 					currentObj, typeObj = GetNextObject(currentObj);
 					end
 				return true;
 				end
+				if (not script_unstuck:pathClearAuto(2)) then
+					script_unstuck:unstuck();
+					return true;
+				end
 			end
-			script_checkAdds.closestEnemy = 0;
-			script_checkAdds.intersectEnemy = nil;
 		
 		-- Finish loot before we engage new targets or navigate
 		if (self.lootObj ~= nil and not IsInCombat()) then
@@ -720,6 +734,9 @@ function script_grind:run()
 		end
 
 		if (self.enemyObj ~= nil or IsInCombat()) then
+
+			script_checkAdds.closestEnemy = 0;
+			script_checkAdds.intersectEnemy = nil;
 
 			if (self.enemyObj ~= nil) then
 				if (self.enemyObj:GetDistance() <= 8) and (not IsMoving()) then
@@ -987,6 +1004,15 @@ function script_grind:isTargetingMe(i)
 	if (localPlayer ~= nil and localPlayer ~= 0 and not localPlayer:IsDead()) then
 		if (i:GetUnitsTarget() ~= nil and i:GetUnitsTarget() ~= 0) then
 			return i:GetUnitsTarget():GetGUID() == localPlayer:GetGUID();
+		end
+	end
+	return false;
+end
+function script_grind:isTargetingMe3(currentObj) 
+	local localPlayer = GetLocalPlayer();
+	if (localPlayer ~= nil and localPlayer ~= 0 and not localPlayer:IsDead()) then
+		if (currentObj:GetUnitsTarget() ~= nil and currentObj:GetUnitsTarget() ~= 0) then
+			return currentObj:GetUnitsTarget():GetGUID() == localPlayer:GetGUID();
 		end
 	end
 	return false;
