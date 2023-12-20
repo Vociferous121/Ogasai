@@ -46,6 +46,7 @@ script_mage = {
 	followTargetDistance = 100,	-- new follow/face target distance here to debug melee
 	waitTimer = GetTimeEX(),	-- set wait timer variable. probably not needed?
 	rangeDistance = 38,
+	moveAwayRest = true,
 
 }
 
@@ -856,7 +857,17 @@ function script_mage:rest()
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
 
+	if (self.moveAwayRest) and (localMana < self.drinkMana or localHealth < self.eatHealth) and (not IsInCombat()) and (script_grind.enemyObj == nil or script_grind.enemyObj == 0) then
+		if (script_checkAdds:avoidToAggro2(script_checkAdds.checkAddsRange+10)) then
+			script_grind:setWaitTimer(1700);
+			self.waitTimer = GetTimeEX() + 5500;
+			self.message = "Moving away from adds to drink/eat.";
+			return;
+		end
+	end
+
 if (not IsMounted()) then
+
 	--Create Water
 	local waterIndex = -1;
 	for i=0,self.numWater do

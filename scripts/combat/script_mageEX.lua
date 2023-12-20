@@ -30,6 +30,10 @@ function script_mageEX:menu()
 
 			local wasClicked = false;
 
+			wasClicked, script_mage.moveAwayRest = Checkbox("Move Away From Adds While Resting", script_mage.moveAwayRest);
+
+			Separator();
+
 			Text('Drink Below Mana Percentage');
 			script_mage.drinkMana = SliderInt("DM%", 1, 100, script_mage.drinkMana);
 

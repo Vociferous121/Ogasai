@@ -22,7 +22,7 @@ function script_paranoiaCheck:playersWithinRange(range)
 							local playerDistance = currentObj:GetDistance();
 							script_grind.playerParanoidDistance = currentObj:GetDistance();
 							local playerTime = GetTimeStamp();
-							local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance (yds) "..playerDistance.. " - added to log file for further implementation of paranoia. Logout Timer has been set!"
+							local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance (yds) "..playerDistance.. " - added to log file. Logout Timer set!"
 							DEFAULT_CHAT_FRAME:AddMessage(string);
 							ToFile(string);
 							script_grind.useString = false;

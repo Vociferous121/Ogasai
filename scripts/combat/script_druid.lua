@@ -317,6 +317,14 @@ function script_druid:healsAndBuffs()
 			end
 		end
 
+		-- Nature's Grasp
+		if (HasSpell("Nature's Grasp")) and (not IsSpellOnCD("Nature's Grasp")) and (not localObj:HasBuff("Nature's Grasp")) and (IsInCombat()) and (localMana >= self.shapeshiftMana) then
+			if (CastSpellByName("Nature's Grasp", localObj)) then
+				self.waitTimer = GetTimeEX() + 1750;
+				return true;
+			end
+		end
+
 		-- Mark of the Wild
 		if (HasSpell("Mark of the Wild")) and (not IsMounted()) and (not localObj:HasBuff("Mark of the Wild")) and (localHealth >= self.healthToShift) and (not IsSpellOnCD("Mark of the Wild")) then
 			if (IsInCombat() and script_grind.enemiesAttackingUs(10) < 2 and localMana >= 60) 
