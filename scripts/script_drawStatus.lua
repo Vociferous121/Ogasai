@@ -54,17 +54,16 @@ function script_drawStatus:draw()
 			DrawText('Blacklist-timer: ' .. script_grind.enemyObj:GetUnitName() .. ': ' .. time .. ' s.', x, y+3, 0, 255, 120); 
 			DrawText('Blacklisting target after ' .. script_grind.blacklistTime .. " s. (If above 92% HP.)", x, y+18, 0, 255, 120);
 		end
-
-		else
-	
+			
+	end
+	end
+		if (script_grind.pause) then
 			if (script_grind.adjustText) and (script_grind.drawEnabled) then
 				x = x + script_grind.adjustX;
 				y = y + script_grind.adjustY;
 			end
-	
 			DrawText('Grinder paused by user...', x-5, y-4, r+255, g+122, b+122);
 		end
-	end
 end
 
 function script_drawStatus:drawSetup()

@@ -4,7 +4,7 @@ script_aggro = {
 	rY = 0,
 	rZ = 0,
 	rTime = 0,
-	adjustAggro = 4,	-- adjust blacklist distance range
+	adjustAggro = 2,	-- adjust blacklist distance range
 	tarDist = 0,		-- target distance checked with run away from adds range
 }
 
@@ -57,8 +57,8 @@ function script_aggro:safePull(target)
 	local tx, ty, tz = target:GetPosition();
 
 	while currentObj ~= 0 do
- 		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) then
-			aggro = currentObj:GetLevel() - localObj:GetLevel() + (script_aggro.adjustAggro + 21);
+ 		if (typeObj == 3)  then
+			aggro = currentObj:GetLevel() - localObj:GetLevel() + (script_aggro.adjustAggro + 22);
 			cx, cy, cz = currentObj:GetPosition();
 			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro) then	
 				countUnitsInRange = countUnitsInRange + 1;
@@ -112,20 +112,22 @@ function script_aggro:safePullRecheck(target)
 	local tx, ty, tz = 0;
 	local cx, cy, cz = 0, 0, 0;
 	local curDist = 0;
-	local tarDist = target:GetDistance();
+	local tarDist = 0;
 
 	while currentObj ~= 0 do
- 		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) then
-			aggro = currentObj:GetLevel() - localObj:GetLevel() + (script_aggro.adjustAggro + script_checkAdds.addsRange);
-			cx, cy, cz = currentObj:GetPosition();
-			local curDist = currentObj:GetDistance();
-			local tarDist = target:GetDistance();
+ 		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) and (currentObj:GetDistance() <= 42) then
+ 			local curDist = currentObj:GetDistance();
+			local range = script_checkAdds.addsRange + script_aggro.adjustAggro;
 
 			-- target distance checked against currentobj distance
-			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) 			and ( (GetDistance3D(tx, ty, tz, cx, cy, cz) >= aggro) or (curDist - tarDist >= script_checkAdds.addsRange) 
+			if (currentObj:CanAttack())
+				and (not currentObj:IsDead())
+				and (not currentObj:IsCritter()
+				and (curDist - tarDist >= range) 
 			    ) then	
 				countUnitsInRange = countUnitsInRange + 1;
  			end
+		typeObj = GetNextObject(currentObj);
  		end
  		currentObj, typeObj = GetNextObject(currentObj);
  	end

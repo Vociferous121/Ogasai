@@ -214,12 +214,14 @@ function script_nav:drawMonsterDataOnScreen(target)
 		if (GetTarget() == target) then 
 			DrawText('(targeted)', tX, tY-20, 255, 0, 0); 
 		end
+		-- avoid targets
 		if (script_grind:isTargetBlacklisted(target:GetGUID()))
 			and (not script_grind:isTargetHardBlacklisted(target:GetGUID())) then
-			DrawText('(blacklisted)', tX, tY-20, 255, 0, 0);
+			DrawText('(Avoiding)', tX, tY-20, 255, 0, 0);
 		end
+		-- hard blacklisted targets
 		if (script_grind:isTargetHardBlacklisted(target:GetGUID())) then
-			DrawText('|blacklisted|', tX, tY-20, 255, 150, 150);
+			DrawText('(blacklisted)', tX, tY-20, 255, 150, 150);
 		end
 		DrawText('HP: ' .. math.floor(target:GetHealthPercentage()) .. '%', tX, tY, 255, 0, 0);
 		DrawText('' .. math.floor(distance) .. ' yd.', tX, tY+10, 255, 255, 255);
@@ -262,7 +264,7 @@ function script_nav:drawPath()
 		else
 			firstIndex = self.lastnavIndex;
 		end
-		if (self.lastnavIndex-1 <= GetPathSize(5)-1) then
+		if (self.lastnavIndex <= GetPathSize(5)) then
 			for index = firstIndex, GetPathSize(5) - 2 do
 				local _x, _y, _z = GetPathPositionAtIndex(5, index);
 				local _xx, _yy, _zz = GetPathPositionAtIndex(5, index+1);

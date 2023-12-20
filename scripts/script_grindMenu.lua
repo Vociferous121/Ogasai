@@ -38,6 +38,10 @@ function script_grindMenu:menu()
 		Separator();
 	end
 
+	--garbage collection info
+	--local a = gcinfo();
+	--Text(a);
+
 	if (GetXPExhaustion() ~= nil) and (not script_paranoia.paranoiaUsed) then
 		if (math.ceil(20*GetXPExhaustion()/UnitXPMax("player")) == 30) then
 			Text('Rested Exp: MAX RESTED - '..math.ceil(20*GetXPExhaustion()/UnitXPMax("player")).. ' bubbles');
@@ -208,7 +212,11 @@ function script_grindMenu:menu()
 		
 		-- ressurect distance
 		wasClicked, script_grind.safeRess = Checkbox("Ressurect In Safe Area", script_grind.safeRess);
-		Text('Ressurect To Corpse Distance'); script_grind.ressDistance = SliderFloat("RD (yd)", 1, 35, script_grind.ressDistance); Separator();
+		SameLine();
+		wasClicked, script_grindEX.allowSwim = Checkbox("(Has Bugs) Allow Swimming", script_grindEX.allowSwim);
+
+		Text('Ressurect To Corpse Distance'); script_grind.ressDistance = SliderFloat("RD (yd)", 1, 35, script_grind.ressDistance);
+		Separator();
 	end
 
 	script_targetMenu:menu();

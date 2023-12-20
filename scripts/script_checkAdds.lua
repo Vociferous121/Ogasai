@@ -127,6 +127,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 		Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ);
 		script_grind:setWaitTimer(1300);
+		script_grind.message = "Moving Away From Adds";
 		self.closestEnemy = 0;
 		self.intersectEnemy = nil;
 	end
@@ -167,7 +168,7 @@ function script_checkAdds:avoidToAggro(safeMargin)
 				
  		if (typeObj == 3)
 			and (currentObj:GetDistance() <= self.addsRange)
-			--and currentObj:IsInLineOfSight())
+			and (currentObj:IsInLineOfSight())
 		then
 			if (script_grind.enemyObj ~= nil)
 				and (currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID())
@@ -185,7 +186,7 @@ function script_checkAdds:avoidToAggro(safeMargin)
 				--or GetDistance3D(myX, myY, myZ, tarX, tarY, tarZ) <= myAggro)
 				then
 					self.closestEnemy = currentObj;	
-				elseif (currentObj:GetGUID() ~= self.enemyObj:GetGUID()) then
+				elseif (currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID()) then
 
 					local dist = currentObj:GetDistance();
 
@@ -202,7 +203,7 @@ function script_checkAdds:avoidToAggro(safeMargin)
 		-- recheck closest target
 		if (typeObj == 3)
 			and (currentObj:GetDistance() <= self.addsRange)
-			--and currentObj:IsInLineOfSight())
+			and (currentObj:IsInLineOfSight())
 		then
 			if (script_grind.enemyObj ~= nil)
 				and (currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID())
@@ -220,7 +221,7 @@ function script_checkAdds:avoidToAggro(safeMargin)
 				--or GetDistance3D(myX, myY, myZ, tarX, tarY, tarZ) <= myAggro)
 				then
 					self.closestEnemy = currentObj;	
-				elseif (currentObj:GetGUID() ~= self.enemyObj:GetGUID()) then
+				elseif (currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID()) then
 
 					local dist = currentObj:GetDistance();
 
@@ -274,7 +275,7 @@ function script_checkAdds:aggroIntersect(target)
 	while currentObj ~= 0 do
  		if (typeObj == 3)
 			and (currentObj:GetDistance() <= self.addsRange)
-			--and currentObj:IsInLineOfSight())
+			and (currentObj:IsInLineOfSight())
 		then
 			if (currentObj:CanAttack())
 				and (not currentObj:IsDead())
@@ -391,6 +392,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 		then 
 
 		Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ);
+		script_grind.message = "Moving Away From Adds";
 		script_grind:setWaitTimer(1300);
 		self.closestEnemy = 0;
 		self.intersectEnemy = nil;
@@ -425,7 +427,7 @@ function script_checkAdds:avoidToAggro2(safeMargin)
 				
  		if (typeObj == 3)
 			and (currentObj:GetDistance() <= self.addsRange)
-			--and currentObj:IsInLineOfSight())
+			and (currentObj:IsInLineOfSight())
 		then
 			if (not script_grind:isTargetingMe(currentObj))
 				and (not script_grind:isTargetingPet(currentObj))

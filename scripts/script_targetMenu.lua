@@ -21,12 +21,14 @@ function script_targetMenu:menu()
 				script_grind:addTargetToHardBlacklist(GetTarget():GetGUID());
 			end
 		end
+		
+		Separator();
 
 		if (CollapsingHeader("|+|Blacklisting/Avoid Options")) then
 
 		Text("           || Blacklisting Resets On Reload ||");
 
-		wasClicked, script_grindEX.avoidBlacklisted = Checkbox("Avoid Blacklisted Targets (Has Bugs)", script_grindEX.avoidBlacklisted);
+		wasClicked, script_grindEX.avoidBlacklisted = Checkbox("(Has Bugs) Avoid Blacklisted Targets", script_grindEX.avoidBlacklisted);
 
 		Separator();
 
@@ -35,7 +37,7 @@ function script_targetMenu:menu()
 		if (script_grind.skipHardPull) then
 
 			local a = script_checkAdds.addsRange + script_aggro.adjustAggro;
-			wasClicked, script_grind.extraSafe = Checkbox("Recheck Blacklisted Targets " ..a.." (yds)" , script_grind.extraSafe);
+			wasClicked, script_grind.extraSafe = Checkbox("(Has Bugs) Recheck Blacklisted Targets " ..a.." (yds)", script_grind.extraSafe);
 
 			if (UnitClass('player') ~= "Shaman") then
 				
@@ -65,7 +67,7 @@ function script_targetMenu:menu()
 
 			Text("Blacklist Target-to-Target Distance (~ 10yds per tick)");
 
-			script_aggro.adjustAggro = SliderInt("Aggro Distance", 3, 10, script_aggro.adjustAggro);
+			script_aggro.adjustAggro = SliderInt("Aggro Distance", 1, 5, script_aggro.adjustAggro);
 		end
 
 		Separator();
@@ -75,7 +77,21 @@ function script_targetMenu:menu()
 
 		end	-- end of collapsingheadering blacklist/avoid options
 
-		wasClicked, script_grindEX.allowSwim = Checkbox("Allow Swimming (Has Bugs)", script_grindEX.allowSwim);
+		if (CollapsingHeader("|+| Skip Creature By Type")) then
+
+			wasClicked, script_grind.skipElites = Checkbox("Skip Elite", script_grind.skipElites);
+			SameLine(); wasClicked, script_grind.skipHumanoid = Checkbox("Skip Humanoid", script_grind.skipHumanoid);
+			wasClicked, script_grind.skipElemental = Checkbox("Skip Elemental", script_grind.skipElemental);
+			SameLine(); wasClicked, script_grind.skipUndead = Checkbox("Skip Undead", script_grind.skipUndead);
+			wasClicked, script_grind.skipDemon = Checkbox("Skip Demon", script_grind.skipDemon);
+			SameLine(); wasClicked, script_grind.skipBeast = Checkbox("Skip Beast", script_grind.skipBeast);
+			wasClicked, script_grind.skipAberration = Checkbox("Skip Abberation", script_grind.skipAberration);
+			SameLine(); wasClicked, script_grind.skipDragonkin = Checkbox("Skip Dragonkin", script_grind.skipDragonkin);
+			wasClicked, script_grind.skipGiant = Checkbox("Skip Giant", script_grind.skipGiant);
+			SameLine(); wasClicked, script_grind.skipMechanical = Checkbox("Skip Mechanical", script_grind.skipMechanical);
+			wasClicked, script_grind.skipUnknown = Checkbox("Skip Not specified", script_grind.skipUnknown);
+			Separator();
+		end
 
 		Text("Search For Target Distance");
 		script_grind.pullDistance = SliderFloat("PD (yd)", 1, 300, script_grind.pullDistance); 
@@ -94,22 +110,6 @@ function script_targetMenu:menu()
 		--	Text("Avoid Elite Range"); 
 		--	script_grind.avoidRange = SliderInt("ER (yd)", 1, 100, script_grind.avoidRange);
 		--end
-
-		Separator();
 		
-		if (CollapsingHeader("|+| Skip Creature By Type")) then
-
-			wasClicked, script_grind.skipElites = Checkbox("Skip Elite", script_grind.skipElites);
-			SameLine(); wasClicked, script_grind.skipHumanoid = Checkbox("Skip Humanoid", script_grind.skipHumanoid);
-			wasClicked, script_grind.skipElemental = Checkbox("Skip Elemental", script_grind.skipElemental);
-			SameLine(); wasClicked, script_grind.skipUndead = Checkbox("Skip Undead", script_grind.skipUndead);
-			wasClicked, script_grind.skipDemon = Checkbox("Skip Demon", script_grind.skipDemon);
-			SameLine(); wasClicked, script_grind.skipBeast = Checkbox("Skip Beast", script_grind.skipBeast);
-			wasClicked, script_grind.skipAberration = Checkbox("Skip Abberation", script_grind.skipAberration);
-			SameLine(); wasClicked, script_grind.skipDragonkin = Checkbox("Skip Dragonkin", script_grind.skipDragonkin);
-			wasClicked, script_grind.skipGiant = Checkbox("Skip Giant", script_grind.skipGiant);
-			SameLine(); wasClicked, script_grind.skipMechanical = Checkbox("Skip Mechanical", script_grind.skipMechanical);
-			wasClicked, script_grind.skipUnknown = Checkbox("Skip Not specified", script_grind.skipUnknown);
-		end
 	end
 end

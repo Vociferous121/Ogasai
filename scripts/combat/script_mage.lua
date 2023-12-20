@@ -356,15 +356,29 @@ function script_mage:run(targetGUID)
 	end
 
 
-		-- check silence and use wand
-	if (targetObj ~= 0) and (targetObj ~= nil) and (not localObj:IsStunned()) and (script_checkDebuffs:hasSilence()) and (localObj:HasRangedWeapon()) and (IsInCombat()) then
-		if (not IsAutoCasting("Shoot")) then
-			targetObj:FaceTarget();
-			targetObj:CastSpell("Shoot");
-			return true;
+	-- check silence and use wand
+	if (IsInCombat())
+		and (localObj:HasRangedWeapon())
+		and (not IsCasting())
+		and (not IsChanneling())
+		and (not localObj:IsStunned())
+	then
+		if (script_checkDebuffs:hasSilence()
+			or IsSpellOnCD("Frostbolt")
+			or IsSpellOnCD("Fireball")) 
+		then
+			if (targetObj ~= 0)
+				and (targetObj ~= nil)
+			then
+				if (not IsAutoCasting("Shoot")) then
+					targetObj:FaceTarget();
+					targetObj:CastSpell("Shoot");
+				return true;
+				end
+			end
 		end
 	end
-
+		
 	-- dismount before combat
 	if (IsMounted()) then
 		DisMount();

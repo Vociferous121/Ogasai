@@ -30,7 +30,7 @@ function script_mageEX:menu()
 
 			local wasClicked = false;
 
-			wasClicked, script_mage.moveAwayRest = Checkbox("Move Away From Adds While Resting", script_mage.moveAwayRest);
+			wasClicked, script_mage.moveAwayRest = Checkbox("Move Away From Adds While Resting - TESTING", script_mage.moveAwayRest);
 
 			Separator();
 

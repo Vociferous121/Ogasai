@@ -58,7 +58,7 @@ function script_rotationMenu:menu()
 	Separator();
 
 	if (CollapsingHeader('Display options')) then
-		if (CollapsingHeader("|+| Radar - EXPERIMENTAL")) then
+		if (CollapsingHeader("|+| Radar")) then
 			script_radar:menu();
 		end
 
