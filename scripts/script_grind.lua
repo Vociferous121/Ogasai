@@ -424,27 +424,44 @@ function script_grind:run()
 	end
 
 
-	if (IsInCombat()) and (GetLocalPlayer():GetHealthPercentage() >= 1) then
+	if (IsInCombat()) and (GetLocalPlayer():GetHealthPercentage() >= 1) and (self.skipHardPull) then
+		local closestDist = 999;
+
 		while currentObj ~= 0 do
 			if (typeObj == 3) and (currentObj:GetDistance() <= script_checkAdds.addsRange)
 				and (currentObj:GetGUID() ~= self.enemyObj:GetGUID())
 				and (not script_grind:isTargetingMe3(currentObj))
 				and (not script_grind:isTargetingPet(currentObj)) then
 					script_checkAdds.closestEnemy = currentObj;
+
+			elseif (currentObj:GetGUID() ~= self.enemyObj:GetGUID()) then
+
+				local dist = currentObj:GetDistance();
+
+				if (dist < closestDist) then
+					closestDist = dist;
+					script_checkAdds.closestEnemy = currentObj;
+				end
 			typeObj = GetNextObject(currentObj);
 			end
 		currentObj, typeObj = GetNextObject(currentObj);
 		end
 
 		while currentObj ~= 0 do
-			if (typeObj == 3) and (script_checkAdds.closestEnemy ~= 0)
-				and (currentObj:GetDistance() <= script_checkAdds.addsRange)
+			if (typeObj == 3) and (currentObj:GetDistance() <= script_checkAdds.addsRange)
 				and (currentObj:GetGUID() ~= self.enemyObj:GetGUID())
 				and (not script_grind:isTargetingMe3(currentObj))
 				and (not script_grind:isTargetingPet(currentObj)) then
-					if (currentObj:GetDistance() < script_checkAdds.closestEnemy:GetDistance()) then
-						script_checkAdds.closestEnemy = currentObj;
-					end
+					script_checkAdds.closestEnemy = currentObj;
+
+			elseif (currentObj:GetGUID() ~= self.enemyObj:GetGUID()) then
+
+				local dist = currentObj:GetDistance();
+
+				if (dist < closestDist) then
+					closestDist = dist;
+					script_checkAdds.closestEnemy = currentObj;
+				end
 			typeObj = GetNextObject(currentObj);
 			end
 		currentObj, typeObj = GetNextObject(currentObj);

@@ -185,16 +185,23 @@ function script_checkAdds:avoidToAggro(safeMargin)
 				--or GetDistance3D(myX, myY, myZ, tarX, tarY, tarZ) <= myAggro)
 				then
 					self.closestEnemy = currentObj;	
+				elseif (currentObj:GetGUID() ~= self.enemyObj:GetGUID()) then
+
+					local dist = currentObj:GetDistance();
+
+					if (dist < closestDist) then
+						closestDist = dist;
+						script_checkAdds.closestEnemy = currentObj;
+					end
 				end
-					
- 			end
 			typeObj = GetNextObject(currentObj);
+			end
 		end
 	currentObj, typeObj = GetNextObject(currentObj);
 
 		-- recheck closest target
-		if (typeObj == 3) and (self.closestEnemy ~= 0)
-			and (currentObj:GetDistance() < self.closestEnemy:GetDistance())
+		if (typeObj == 3)
+			and (currentObj:GetDistance() <= self.addsRange)
 			--and currentObj:IsInLineOfSight())
 		then
 			if (script_grind.enemyObj ~= nil)
@@ -207,17 +214,25 @@ function script_checkAdds:avoidToAggro(safeMargin)
 				and (not currentObj:HasDebuff("Polymorph"))
 				and (not currentObj:HasDebuff("Fear"))
 			then
-					local tarX, tarY, tarZ = currentObj:GetPosition();
+						local tarX, tarY, tarZ = currentObj:GetPosition();
 					local myX, myY, myZ = localObj:GetPosition();
-				if (currentObj:GetDistance() <= (self.closestEnemy:GetDistance()))
+				if (currentObj:GetDistance() <= (range+1))
 				--or GetDistance3D(myX, myY, myZ, tarX, tarY, tarZ) <= myAggro)
 				then
 					self.closestEnemy = currentObj;	
+				elseif (currentObj:GetGUID() ~= self.enemyObj:GetGUID()) then
+
+					local dist = currentObj:GetDistance();
+
+					if (dist < closestDist) then
+						closestDist = dist;
+						script_checkAdds.closestEnemy = currentObj;
+					end
 				end
-					
- 			end
 			typeObj = GetNextObject(currentObj);
+			end
 		end
+	currentObj, typeObj = GetNextObject(currentObj);
 				
 
 		-- avoid the closest mob
