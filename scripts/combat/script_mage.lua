@@ -455,6 +455,8 @@ function script_mage:run(targetGUID)
 
 		else	
 
+			script_checkAdds:checkAdds();
+
 			-- display message in ogasai message box
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 			

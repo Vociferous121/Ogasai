@@ -434,13 +434,16 @@ function script_grind:run()
 				and (not script_grind:isTargetingPet(currentObj)) then
 					script_checkAdds.closestEnemy = currentObj;
 
-			elseif (currentObj:GetGUID() ~= self.enemyObj:GetGUID()) then
+			else
+		
+				if (currentObj ~= 0) and (typeObj == 3) and (currentObj:GetGUID() ~= self.enemyObj:GetGUID()) then
 
-				local dist = currentObj:GetDistance();
+					local dist = currentObj:GetDistance();
 
-				if (dist < closestDist) then
-					closestDist = dist;
-					script_checkAdds.closestEnemy = currentObj;
+					if (dist < closestDist) then
+						closestDist = dist;
+						script_checkAdds.closestEnemy = currentObj;
+					end
 				end
 			typeObj = GetNextObject(currentObj);
 			end
@@ -454,13 +457,16 @@ function script_grind:run()
 				and (not script_grind:isTargetingPet(currentObj)) then
 					script_checkAdds.closestEnemy = currentObj;
 
-			elseif (currentObj:GetGUID() ~= self.enemyObj:GetGUID()) then
+			else
+		
+				if (currentObj ~= 0) and (typeObj == 3) and (currentObj:GetGUID() ~= self.enemyObj:GetGUID()) then
 
-				local dist = currentObj:GetDistance();
+					local dist = currentObj:GetDistance();
 
-				if (dist < closestDist) then
-					closestDist = dist;
-					script_checkAdds.closestEnemy = currentObj;
+					if (dist < closestDist) then
+						closestDist = dist;
+						script_checkAdds.closestEnemy = currentObj;
+					end
 				end
 			typeObj = GetNextObject(currentObj);
 			end
