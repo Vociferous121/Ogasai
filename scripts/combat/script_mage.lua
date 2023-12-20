@@ -46,7 +46,7 @@ script_mage = {
 	followTargetDistance = 100,	-- new follow/face target distance here to debug melee
 	waitTimer = GetTimeEX(),	-- set wait timer variable. probably not needed?
 	rangeDistance = 38,
-	moveAwayRest = true,
+	moveAwayRest = false,
 
 }
 
@@ -525,10 +525,10 @@ function script_mage:run(targetGUID)
 			
 			-- Check: Move backwards if the target is affected by Frost Nova or Frost Bite
 			if (GetNumPartyMembers() < 1) and (self.useFrostNova) then
-				if (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (targetHealth > 20) and (not localObj:HasBuff('Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) then
+				if (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (targetHealth > 20) and (not localObj:HasBuff('Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) and (not IsSwimming()) then
 					script_grind.tickRate = 0;
 
-					if (script_mage:runBackwards(targetObj, 9)) then -- Moves if the target is closer than 7 yards
+					if (script_mage:runBackwards(targetObj, 8)) then -- Moves if the target is closer than 7 yards
 
 						self.message = "Moving away from target...";
 						if (not IsSpellOnCD("Frost Nova")) and targetObj:GetDistance() < 9 then
@@ -605,7 +605,6 @@ function script_mage:run(targetGUID)
 			-- Check: Polymorph add
 			if (targetObj ~= nil and self.polymorphAdds and script_grind:enemiesAttackingUs(5) > 1 and HasSpell('Polymorph') and not self.addPolymorphed and self.polyTimer < GetTimeEX()) and (targetObj:GetDistance() < 25) then
 				script_grind.tickRate = 50;
-				script_rotation.tickRate = 50;
 				self.message = "Polymorphing add...";
 				script_mage:polymorphAdd(targetObj:GetGUID());
 				self.waitTimer = GetTimeEX() + 1750;
@@ -617,7 +616,6 @@ function script_mage:run(targetGUID)
 				if(script_grind:enemiesAttackingUs(5) >= 1 and targetObj:HasDebuff('Polymorph')) then
 					ClearTarget();
 					script_grind.tickRate = 50;
-					script_rotation.tickRate = 50;
 					targetObj = script_mage:getTargetNotPolymorphed();
 					targetObj:AutoAttack();
 				end
@@ -676,8 +674,8 @@ function script_mage:run(targetGUID)
 
 			-- blast wave
 			if (self.fireMage) and (HasSpell("Blast Wave")) then
-				if (localMana > 30) and (targetObj:GetDistance() < 10) and (not IsSpellOnCD("Blast Wave")) and (targetHealth > 15 or localHealth < 20) then
-					if (script_mage:runBackwards(targetObj, 9)) then -- Moves if the target is closer than 7 yards
+				if (localMana > 30) and (targetObj:GetDistance() < 10) and (not IsSpellOnCD("Blast Wave")) and (targetHealth > 15 or localHealth < 20) and (not IsSwimming()) then
+					if (script_mage:runBackwards(targetObj, 8)) then -- Moves if the target is closer than 7 yards
 						script_grind.tickRate = 0;
 						self.message = "Moving away from target...";
 						if (not IsSpellOnCD("Blast Wave")) then
@@ -693,8 +691,8 @@ function script_mage:run(targetGUID)
 			end
 
 			
-			if (targetHealth > 20) and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (not localObj:HasBuff('Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) then
-				if (script_mage:runBackwards(targetObj, 9)) then -- Moves if the target is closer than 7 yards
+			if (targetHealth > 20) and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (not localObj:HasBuff('Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) and (not IsSwimming()) then
+				if (script_mage:runBackwards(targetObj, 8)) then -- Moves if the target is closer than 7 yards
 					script_grind.tickRate = 0;
 					self.message = "Moving away from target...";
 					if (targetObj:GetDistance() > 7) and (not IsMoving()) then

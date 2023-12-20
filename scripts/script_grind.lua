@@ -64,6 +64,8 @@ script_grind = {
 	nextToNodeDist = 3.2, -- (Set to about half your nav smoothness)
 	blacklistedTargets = {},	-- GUID table of blacklisted targets
 	blacklistedNum = 0,	-- number of blacklisted targets
+	hardBlacklistedTargets = {},	-- GUID table of blacklisted targets
+	hardBlacklistedNum = 0,	-- number of blacklisted targets
 	isSetup = false,	-- is setup function run
 	drawUnits = true,	-- draw unit data on screen
 	Name = "", -- set to e.g. "paths\1-5 Durator.xml" for auto load at startup
@@ -94,6 +96,7 @@ script_grind = {
 	useUnstuck = true,	-- use unstuck script
 	blacklistAdds = 1,	-- blacklist targets when there are x adds
 	blacklistedNameNum = 0,	-- number of blacklisted targets
+	hardBlacklistedNameNum = 0,	-- number of blacklisted targets
 	useExpChecker = true,	-- run exp checker
 	paranoidSetTimer = 22,	-- time to wait after paranoia has needed
 	useString = true,	-- message to send to log players in range run once
@@ -247,6 +250,12 @@ function script_grind:setWaitTimer(ms)
 	self.waitTimer = (GetTimeEX() + (ms));
 end
 
+-- hard blacklist targets copy/paste functions and add new conditions not to attack hard blacklisted targets
+-- main reason for this is blacklist timer on a target and how the bot rechecks blacklisting
+-- druid still has issues double casting regrowth
+-- druid needs to cast regrowth before combat when health is low
+	-- casts rejuvenation then tries to use out of form attacks
+
 -- add target to blacklist table by GUID
 function script_grind:addTargetToBlacklist(targetGUID)
 	if (targetGUID ~= nil and targetGUID ~= 0 and targetGUID ~= '') then	
@@ -265,6 +274,23 @@ function script_grind:isTargetBlacklisted(targetGUID)
 	return false;
 end
 
+-- add target to hard blacklist table by GUID
+function script_grind:addTargetToHardBlacklist(targetGUID)
+	if (targetGUID ~= nil and targetGUID ~= 0 and targetGUID ~= '') then	
+		self.hardBlacklistedTargets[self.hardBlacklistedNum] = targetGUID;
+		self.hardBlacklistedNum = self.hardBlacklistedNum + 1;
+	end
+end
+
+-- check if target is hard blacklisted by table GUID
+function script_grind:isTargetHardBlacklisted(targetGUID) 
+	for i=0,self.hardBlacklistedNum do
+		if (targetGUID == self.hardBlacklistedTargets[i]) then
+			return true;
+		end
+	end
+	return false;
+end
 
 -- run grinder
 function script_grind:run()
@@ -398,7 +424,7 @@ function script_grind:run()
 	end
 
 
-	if (IsInCombat()) then
+	if (IsInCombat()) and (GetLocalPlayer():GetHealthPercentage() >= 1) then
 		while currentObj ~= 0 do
 			if (typeObj == 3) and (currentObj:GetDistance() <= script_checkAdds.addsRange)
 				and (currentObj:GetGUID() ~= self.enemyObj:GetGUID())
@@ -658,6 +684,7 @@ function script_grind:run()
 			-- blacklist the target if we had it for a long time and hp is high
 			elseif (((GetTimeEX()-self.newTargetTime)/1000) > self.blacklistTime and self.enemyObj:GetHealthPercentage() > 92 and not self.enemyObj:IsInLineOfSight()) then 
 				script_grind:addTargetToBlacklist(self.enemyObj:GetGUID());
+				script_grind:addTargetToHardBlacklist(self.enemyObj:GetGUID());
 				ClearTarget();
 				return;
 			end
@@ -689,31 +716,35 @@ function script_grind:run()
 			end
 		end
 
--- attempt to run away from adds - don't pull them
-			if (IsInCombat() and script_grind.skipHardPull)
-				and (script_grind:isTargetingMe2(self.enemyObj))
-				and (self.enemyObj:IsInLineOfSight())
-				and (not self.enemyObj:IsCasting()) then
+		-- attempt to run away from adds - don't pull them
+		if (IsInCombat())
+			and (GetLocalPlayer():GetHealthPercentage() >= 1)
+			and (script_grind.skipHardPull)
+			and (script_grind:isTargetingMe2(self.enemyObj))
+			and (self.enemyObj:IsInLineOfSight())
+			and (not self.enemyObj:IsCasting())
+			and (not self.enemyObj:IsFleeing()) then
 		
-				if (script_checkAdds:checkAdds()) then
-					while currentObj ~= 0 do
-					script_grind.tickRate = 50;
-					if (typeObj == 3) and (currentObj:GetDistance() < script_checkAdds.addsRange)
-						and (currentObj:GetGUID() ~= self.enemyObj:GetGUID()) 
-						and (not script_grind:isTargetingMe3(currentObj))
-						and (not script_grind:isTargetingPet(currentObj)) then		
-							script_checkAdds.closestEnemy = currentObj;
- 					typeObj = GetNextObject(currentObj);
-					end
-					currentObj, typeObj = GetNextObject(currentObj);
-					end
-				return true;
+			while currentObj ~= 0 do
+				script_grind.tickRate = 50;
+				if (typeObj == 3) and (currentObj:GetDistance() < script_checkAdds.addsRange)
+					and (currentObj:GetGUID() ~= self.enemyObj:GetGUID()) 
+					and (not script_grind:isTargetingMe3(currentObj))
+					and (not script_grind:isTargetingPet(currentObj)) then		
+						script_checkAdds.closestEnemy = currentObj;
+				typeObj = GetNextObject(currentObj);
 				end
-				if (not script_unstuck:pathClearAuto(2)) then
-					script_unstuck:unstuck();
-					return true;
-				end
+			currentObj, typeObj = GetNextObject(currentObj);
 			end
+		
+			if (script_checkAdds:checkAdds()) then
+				return true;
+			end
+			if (not script_unstuck:pathClearAuto(2)) then
+				script_unstuck:unstuck();
+				return true;
+			end
+		end
 		
 		-- Finish loot before we engage new targets or navigate
 		if (self.lootObj ~= nil and not IsInCombat()) then
@@ -747,10 +778,6 @@ function script_grind:run()
 			end
 
 			self.message = "Running the combat script...";
-
-			-- if health is low and target health is too high then
-			-- run away from target script_checkadds.avoidtoaggro addsrange + 75 or so
-			
 
 			-- In range: attack the target, combat script returns 0
 			if(self.combatError == 0) then
@@ -818,6 +845,36 @@ function script_grind:run()
 		 		Logout();
 				StopBot();
 				return;
+			end
+
+			-- attempt to run away from adds - don't pull them
+			if (IsInCombat())
+				and (GetLocalPlayer():GetHealthPercentage() >= 1)
+				and (script_grind.skipHardPull)
+				and (script_grind:isTargetingMe2(self.enemyObj))
+				and (self.enemyObj:IsInLineOfSight())
+				and (not self.enemyObj:IsCasting())
+				and (not self.enemyObj:IsFleeing()) then
+		
+				while currentObj ~= 0 do
+					script_grind.tickRate = 50;
+					if (typeObj == 3) and (currentObj:GetDistance() < script_checkAdds.addsRange)
+						and (currentObj:GetGUID() ~= self.enemyObj:GetGUID()) 
+						and (not script_grind:isTargetingMe3(currentObj))
+						and (not script_grind:isTargetingPet(currentObj)) then		
+							script_checkAdds.closestEnemy = currentObj;
+					typeObj = GetNextObject(currentObj);
+					end
+				currentObj, typeObj = GetNextObject(currentObj);
+				end
+
+				if (script_checkAdds:checkAdds()) then
+					return true;
+				end
+				if (not script_unstuck:pathClearAuto(2)) then
+					script_unstuck:unstuck();
+					return true;
+				end
 			end
 		end
 
@@ -1017,9 +1074,10 @@ function script_grind:isTargetingMe3(currentObj)
 	end
 	return false;
 end
-function script_grind:isTargetingMe2(target) 
+function script_grind:isTargetingMe2(target) -- self.enemyObj
 	local localPlayer = GetLocalPlayer();
-	if (localPlayer ~= nil and localPlayer ~= 0 and not localPlayer:IsDead()) then
+	local target = script_grind.enemyObj;
+	if (script_grind.enemyObj ~= 0) and (script_grind.enemyObj ~= nil) and (localPlayer ~= nil and localPlayer ~= 0 and not localPlayer:IsDead()) then
 		if (target:GetUnitsTarget() ~= nil and target:GetUnitsTarget() ~= 0) then
 			return target:GetUnitsTarget():GetGUID() == localPlayer:GetGUID();
 		end
@@ -1083,8 +1141,12 @@ function script_grind:enemyIsValid(i)
 		
 		-- target blacklisted moved away from other targets
 		-- bot can target blacklisted targets under these conditions
-		if (self.skipHardPull) and (script_grind:isTargetBlacklisted(i:GetGUID()))
-			and (script_aggro:safePullRecheck(i)) and (self.extraSafe) and (not script_grindEX.avoidBlacklisted) then
+		if (self.skipHardPull)
+			and (script_grind:isTargetBlacklisted(i:GetGUID()))
+			and (not script_grind:isTargetHardBlacklisted(i:GetGUID()))
+			and (script_aggro:safePullRecheck(i))
+			and (self.extraSafe)
+			and (not script_grindEX.avoidBlacklisted) then
 			--local tarPosX, tarPosY, tarPosZ = i:GetPosition();
 			--local myPosX, myPosY, myPosZ = GetLocalPlayer():GetPosition();
 			--local posZ = tarPosZ - myPosZ;
@@ -1112,7 +1174,7 @@ function script_grind:enemyIsValid(i)
 
 		-- skip blacklisted if we avoid enemies
 		if (self.skipHardPull) and (script_grindEX.avoidBlacklisted)
-			and (not script_grind:isTargetBlacklisted(i:GetGUID())) and (not script_aggro:closeToBlacklistedTargetsEnemyValid()) then
+			and (not script_grind:isTargetBlacklisted(i:GetGUID())) and (not script_aggro:closeToBlacklistedTargetsEnemyValid()) and (not script_grind:isTargetHardBlacklisted(i:GetGUID())) then
 			if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
 			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
@@ -1134,7 +1196,8 @@ function script_grind:enemyIsValid(i)
 
 		-- don't avoid targets
 		if (self.skipHardPull) and (not script_grindEX.avoidBlacklisted)
-			and (not script_grind:isTargetBlacklisted(i:GetGUID())) then
+			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
+			and (not script_grind:isTargetHardBlacklisted(i:GetGUID())) then
 			if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
 			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
@@ -1184,7 +1247,7 @@ function script_grind:enemiesAttackingUs() -- returns number of enemies attackin
 	while currentObj ~= 0 do 
     	if typeObj == 3 then
 		if (currentObj:CanAttack() and not currentObj:IsDead()) then
-                	if (script_grind:isTargetingMe2(currentObj) or script_grind:isTargetingPet(currentObj)) then 
+                	if (script_grind:isTargetingMe(currentObj) or script_grind:isTargetingPet(currentObj)) then 
                 		unitsAttackingUs = unitsAttackingUs + 1; 
                 	end 
             	end 
@@ -1216,7 +1279,7 @@ function script_grind:playersTargetingUs() -- returns number of players attackin
 	local currentObj, typeObj = GetFirstObject(); 
 	while currentObj ~= 0 do 
 		if typeObj == 4 then
-			if (script_grind:isTargetingMe2(currentObj)) then 
+			if (script_grind:isTargetingMe(currentObj)) then 
                 		nrPlayersTargetingUs = nrPlayersTargetingUs + 1;
 			end 
 		end

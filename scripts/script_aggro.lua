@@ -6,9 +6,6 @@ script_aggro = {
 	rTime = 0,
 	adjustAggro = 4,	-- adjust blacklist distance range
 	tarDist = 0,		-- target distance checked with run away from adds range
-	tarX = 0,		-- move away from adds
-	tarY = 0,		-- move away from adds
-	tarZ = 0,		-- move away from adds
 }
 
 
@@ -112,7 +109,7 @@ function script_aggro:safePullRecheck(target)
 	local countUnitsInRange = 0;
 	local currentObj, typeObj = GetFirstObject();
 	local aggro = 0;
-	local tx, ty, tz = target:GetPosition();
+	local tx, ty, tz = 0;
 	local cx, cy, cz = 0, 0, 0;
 	local curDist = 0;
 	local tarDist = target:GetDistance();
@@ -190,6 +187,7 @@ function script_aggro:closeToBlacklistedTargets()
 	local countUnitsInRange = 0;
 	local currentTargetNr = 0;
 	local currentObj = GetGUIDObject(script_grind.blacklistedTargets[currentTargetNr]);
+	local currentObj2 = GetGUIDObject(script_grind.hardBlacklistedTargets[currentTargetNr]);
 	local localObj = GetLocalPlayer();
 	local closestEnemy = 0;
 	local closestDist = 999;
@@ -199,7 +197,12 @@ function script_aggro:closeToBlacklistedTargets()
 	while currentObj ~= 0 do
 		aggro = currentObj:GetLevel() - localObj:GetLevel() + 26;
 		local range = aggro + 5;
-		if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range and not script_grind:isTargetingMe(currentObj) then	
+		if (currentObj:CanAttack())
+			and (not currentObj:IsDead())
+			and (not currentObj:IsCritter())
+			and (currentObj:GetDistance() <= range)
+			and (not script_grind:isTargetingMe(currentObj))
+		then	
 			if (closestEnemy == 0) then
 				closestEnemy = currentObj;
 				aggroClosest = currentObj:GetLevel() - localObj:GetLevel() + 23;

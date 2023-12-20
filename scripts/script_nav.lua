@@ -214,8 +214,12 @@ function script_nav:drawMonsterDataOnScreen(target)
 		if (GetTarget() == target) then 
 			DrawText('(targeted)', tX, tY-20, 255, 0, 0); 
 		end
-		if (script_grind:isTargetBlacklisted(target:GetGUID())) then
+		if (script_grind:isTargetBlacklisted(target:GetGUID()))
+			and (not script_grind:isTargetHardBlacklisted(target:GetGUID())) then
 			DrawText('(blacklisted)', tX, tY-20, 255, 0, 0);
+		end
+		if (script_grind:isTargetHardBlacklisted(target:GetGUID())) then
+			DrawText('|blacklisted|', tX, tY-20, 255, 150, 150);
 		end
 		DrawText('HP: ' .. math.floor(target:GetHealthPercentage()) .. '%', tX, tY, 255, 0, 0);
 		DrawText('' .. math.floor(distance) .. ' yd.', tX, tY+10, 255, 255, 255);

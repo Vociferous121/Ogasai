@@ -306,6 +306,14 @@ function script_druid:healsAndBuffs()
 	local isCat = localObj:HasBuff("Cat Form");
 	local isTravel = localObj:HasBuff("Travel Form");
 
+	-- Force Thorns in combat
+	if (localMana > 15) and (HasSpell("Thorns")) and (not localObj:HasBuff("Thorns")) and (not IsMounted()) and (not IsSpellOnCD("Thorns")) and (not isBear) and (not isCat) and (not isBear2) and (not isTravel) and (not isMoonkin) then
+		if (CastSpellByName("Thorns", localObj)) then
+			self.waitTimer = GetTimeEX() + 2550;
+			return true;
+		end
+	end
+
 	-- moving buffs hierarchy up
 	if (not isBear and not isBear2) and (not isCat) and (not isTravel) and (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) and (script_grind.lootObj == 0 or script_grind.lootObj == nil) and (not IsMounted()) and (not script_checkDebuffs:hasSilence()) then
 
@@ -318,12 +326,13 @@ function script_druid:healsAndBuffs()
 		end
 
 		-- Nature's Grasp
-		if (HasSpell("Nature's Grasp")) and (not IsSpellOnCD("Nature's Grasp")) and (not localObj:HasBuff("Nature's Grasp")) and (IsInCombat()) and (localMana >= self.shapeshiftMana) then
-			if (CastSpellByName("Nature's Grasp", localObj)) then
-				self.waitTimer = GetTimeEX() + 1750;
-				return true;
-			end
-		end
+		-- run backwards if health is low enough and target is rooted?
+		--if (HasSpell("Nature's Grasp")) and (not IsSpellOnCD("Nature's Grasp")) and (not localObj:HasBuff("Nature's Grasp")) and (IsInCombat()) and (localMana >= self.shapeshiftMana) then
+		--	if (CastSpellByName("Nature's Grasp", localObj)) then
+		--		self.waitTimer = GetTimeEX() + 1750;
+		--		return true;
+		--	end
+		--end
 
 		-- Mark of the Wild
 		if (HasSpell("Mark of the Wild")) and (not IsMounted()) and (not localObj:HasBuff("Mark of the Wild")) and (localHealth >= self.healthToShift) and (not IsSpellOnCD("Mark of the Wild")) then
@@ -337,7 +346,7 @@ function script_druid:healsAndBuffs()
 		end
 	
 		-- Thorns
-		if (localMana > 30) and (HasSpell("Thorns")) and (not localObj:HasBuff("Thorns")) and (not IsMounted()) and (not IsSpellOnCD("Thorns")) then
+		if (localMana > 15) and (HasSpell("Thorns")) and (not localObj:HasBuff("Thorns")) and (not IsMounted()) and (not IsSpellOnCD("Thorns")) then
 			if (localHealth >= self.healthToShift) and (not IsMounted()) then
 				if (CastSpellByName("Thorns", localObj)) then
 					self.waitTimer = GetTimeEX() + 2550;
@@ -373,9 +382,9 @@ function script_druid:healsAndBuffs()
 						return true;
 					end
 					if (CastSpellByName("Regrowth", localObj)) then
-						script_grind.tickRate = 450;
-						self.waitTimer = GetTimeEX() + 1250
-						script_grind:setWaitTimer(1250);
+						script_grind.tickRate = 1250;
+						self.waitTimer = GetTimeEX() + 2550
+						script_grind:setWaitTimer(2550);
 						return 4;
 					end
 				end

@@ -7,10 +7,24 @@ function script_targetMenu:menu()
 	local wasClicked = false;
 
 	if (CollapsingHeader("Target Options")) then
+		local wasClicked = false;
 
-		Text(" !! Blacklisting resets when script is reloaded !! ");
+		Text("Hard Blacklist = Never Recheck Target");
+		if (Button("BlackList By GUID")) then
+			if UnitExists("target") then
+				script_grind:addTargetToBlacklist(GetTarget():GetGUID());
+			end
+		end
+		SameLine();
+		if (Button("Hard BlackList By GUID")) then
+			if UnitExists("target") then
+				script_grind:addTargetToHardBlacklist(GetTarget():GetGUID());
+			end
+		end
 
-		wasClicked, script_grindEX.allowSwim = Checkbox("Allow Swimming (Has Bugs)", script_grindEX.allowSwim);
+		if (CollapsingHeader("|+|Blacklisting/Avoid Options")) then
+
+		Text("           || Blacklisting Resets On Reload ||");
 
 		wasClicked, script_grindEX.avoidBlacklisted = Checkbox("Avoid Blacklisted Targets (Has Bugs)", script_grindEX.avoidBlacklisted);
 
@@ -56,16 +70,12 @@ function script_targetMenu:menu()
 
 		Separator();
 		
-		if (Button("BlackList By GUID")) then
-			if UnitExists("target") then
-				script_grind:addTargetToBlacklist(GetTarget():GetGUID());
-			end
-		end
-		
 		Text('Blacklist Time'); 
 		script_grind.blacklistTime = SliderInt("BT (s)", 1, 120, script_grind.blacklistTime);
 
-		Separator();
+		end	-- end of collapsingheadering blacklist/avoid options
+
+		wasClicked, script_grindEX.allowSwim = Checkbox("Allow Swimming (Has Bugs)", script_grindEX.allowSwim);
 
 		Text("Search For Target Distance");
 		script_grind.pullDistance = SliderFloat("PD (yd)", 1, 300, script_grind.pullDistance); 
