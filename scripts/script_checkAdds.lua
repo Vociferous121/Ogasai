@@ -108,7 +108,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 	
 	-- out of bound
 	if (moveToPoint == 0 or moveToPoint == nil) then
-		moveToPoint = - setPoint;
+		moveToPoint = setPoint;
 	end
 
 	if (moveToPoint ~= 0)
@@ -179,8 +179,8 @@ function script_checkAdds:avoidToAggro(safeMargin)
 			then
 					local tarX, tarY, tarZ = currentObj:GetPosition();
 					local myX, myY, myZ = localObj:GetPosition();
-				if (currentObj:GetDistance() <= (range+1))
-				--or GetDistance3D(myX, myY, myZ, tarX, tarY, tarZ) <= myAggro)
+				if (currentObj:GetDistance() <= (range+1)
+				or GetDistance3D(myX, myY, myZ, tarX, tarY, tarZ) <= myAggro)
 				then
 					self.closestEnemy = currentObj;	
 				elseif (currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID()) then
@@ -214,8 +214,8 @@ function script_checkAdds:avoidToAggro(safeMargin)
 			then
 						local tarX, tarY, tarZ = currentObj:GetPosition();
 					local myX, myY, myZ = localObj:GetPosition();
-				if (currentObj:GetDistance() <= (range+1))
-				--or GetDistance3D(myX, myY, myZ, tarX, tarY, tarZ) <= myAggro)
+				if (currentObj:GetDistance() <= (range+1)
+				or GetDistance3D(myX, myY, myZ, tarX, tarY, tarZ) <= myAggro)
 				then
 					self.closestEnemy = currentObj;	
 				elseif (currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID()) then
@@ -374,7 +374,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 	
 	-- out of bound
 	if (moveToPoint == 0 or moveToPoint == nil) then
-		moveToPoint = -setPoint;
+		moveToPoint = setPoint;
 	end
 
 	if (moveToPoint ~= 0)

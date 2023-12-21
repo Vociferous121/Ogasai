@@ -2,6 +2,7 @@ script_drawStatus = {
 
 }
 
+-- draw status windows on screen
 
 function script_drawStatus:draw()
 	-- color
@@ -75,18 +76,18 @@ function script_drawStatus:drawSetup()
 		script_aggro:drawAggroCircles2(script_aggro.addsRange);
 	end
 	if (script_grind.autoPath and script_grind.drawAutoPath) then
-		script_nav:drawSavedTargetLocations();
+		script_drawData:drawSavedTargetLocations();
 	end
 	if (script_grind.drawGather) then
 		script_gather:drawGatherNodes();
 	end
 	if (script_grind.drawPath) then
 		if (IsMoving()) then
-			script_nav:drawPath();
+			script_drawData:drawPath();
 		end
 	end
 	if (script_grind.drawUnits) then
-		script_nav:drawUnitsDataOnScreen();
+		script_drawData:drawUnitsDataOnScreen();
 	end
 	if (not script_grind.drawEnabled and script_grind.showClassOptions) then
 		RunCombatDraw();

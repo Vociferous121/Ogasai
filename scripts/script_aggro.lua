@@ -194,6 +194,8 @@ function script_aggro:closeToBlacklistedTargets()
 			and (not currentObj:IsCritter())
 			and (currentObj:GetDistance() <= range)
 			and (not script_grind:isTargetingMe(currentObj))
+			and (not currentObj:HasDebuff("Polymorph"))
+			and (not currentObj:HasDebuff("Fear"))
 		then	
 			if (closestEnemy == 0) then
 				closestEnemy = currentObj;
@@ -237,6 +239,8 @@ function script_aggro:closeToHardBlacklistedTargets()
 			and (not currentObj:IsCritter())
 			and (currentObj:GetDistance() <= range)
 			and (not script_grind:isTargetingMe(currentObj))
+			and (not currentObj:HasDebuff("Polymorph"))
+			and (not currentObj:HasDebuff("Fear"))
 		then	
 			if (closestEnemy == 0) then
 				closestEnemy = currentObj;
@@ -329,17 +333,18 @@ function script_aggro:avoid(pointX,pointY,pointZ, radius, safeDist)
 	if (closestPointToDest ~= nil) then	
 		local diffPoint = closestPointToDest - moveToPoint;
 		if (diffPoint <= 0) then
-			moveToPoint = closestPoint - 4;
+			moveToPoint = closestPoint - 6;
 		else
-			moveToPoint = closestPoint + 4;
+			moveToPoint = closestPoint + 6;
 		end
 	else
-		moveToPoint = closestPoint + 4;
+		--moveToPoint = closestPoint + 6;
+		script_grind:assignTarget();
 	end
 	
 	-- out of bound
 	if (moveToPoint > point or moveToPoint == 0) then
-		moveToPoint = 1;
+		moveToPoint = 5;
 	end
 
 	Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ);

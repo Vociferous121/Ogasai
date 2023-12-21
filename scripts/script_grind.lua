@@ -3,6 +3,7 @@ script_grind = {
 	helperLoaded = include("scripts\\script_helper.lua"),
 	checkAddsLoaded = include("scripts\\script_checkAdds.lua"),
 	talentLoaded = include("scripts\\script_talent.lua"),
+	includeDrawData = include("scripts\\script_drawData.lua"),
 	vendorLoaded = include("scripts\\script_vendor.lua"),
 	gatherLoaded = include("scripts\\script_gather.lua"),
 	grindExtra = include("scripts\\script_grindEX.lua"),
@@ -601,14 +602,14 @@ function script_grind:run()
 			end
 
 			-- Druid travel form
-			if (not IsMounted()) and (not script_paranoia:checkParanoia()) and (not IsSwimming()) and (not script_grind.useMount) then
+			if (not IsMounted()) and (not script_paranoia:checkParanoia()) and (not IsSwimming()) and (not self.useMount) then
 				if (script_druidEX:travelForm()) then
 					self.waitTimer = GetTimeEX() + 1000;
 				end
 			end
 
 			-- druid cat form
-			if (not IsMounted()) and (not HasSpell("Travel Form")) and (HasSpell("Cat Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
+			if (not IsMounted()) and (not self.useMount) and (not HasSpell("Travel Form")) and (HasSpell("Cat Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
 				if (CastSpellByName("Cat Form")) then
 					self.waitTimer = GetTimeEX() + 500;
 					return 0;
@@ -616,14 +617,14 @@ function script_grind:run()
 			end
 
 			-- rogue stealth
-			if (not IsMounted()) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (not script_checkDebuffs:hasPoison()) then
+			if (not IsMounted()) and (not self.useMount) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (not script_checkDebuffs:hasPoison()) then
 				if (CastSpellByName("Stealth", localObj)) then
 					self.waitTimer = GetTimeEX() + 1200;
 				end
 			end
 
 			-- Shaman Ghost Wolf 
-			if (not IsMounted()) and (not script_grind.useMount) and (HasSpell('Ghost Wolf')) and (not localObj:HasBuff('Ghost Wolf')) and (not localObj:IsDead()) then
+			if (not IsMounted()) and (not self.useMount) and (not script_grind.useMount) and (HasSpell('Ghost Wolf')) and (not localObj:HasBuff('Ghost Wolf')) and (not localObj:IsDead()) then
 					CastSpellByName('Ghost Wolf');
 					self.waitTimer = GetTimeEX() + 1500;
 					script_grind:setWaitTimer(1500);
@@ -698,8 +699,6 @@ function script_grind:run()
 				if (script_runner:avoidToBlacklist(13)) then
 					return true;
 				end
-			else
-				script_grind:assignTarget();
 			end
 		end
 
@@ -715,10 +714,6 @@ function script_grind:run()
 			script_om:FORCEOM2();
 		
 			if (script_checkAdds:checkAdds()) then
-				return true;
-			end
-			if (not script_unstuck:pathClearAuto(2)) then
-				script_unstuck:unstuck();
 				return true;
 			end
 		end

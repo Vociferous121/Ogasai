@@ -253,12 +253,17 @@ function script_druid:healsAndBuffs()
 
 
 	-- heal - we left form out of combat
-	if (not IsInCombat()) and (not isBear and not isBear2) and (not isCat) and (not isTravel) and (localHealth <= 65) and (localMana >= 75) and (not hasRejuv) and (not hasRegrowth) and (not IsMoving()) and (IsStanding()) and (not IsMounted()) then
-			if (IsMoving()) then
-				StopMoving();
-			end
+	if (not IsInCombat()) and (not isBear and not isBear2) and (not isCat) and (not isTravel) and (localHealth <= 65) and (localMana >= 75) and (not hasRejuv) and (not hasRegrowth) and (IsStanding()) and (not IsMounted()) then
 		if (CastSpellByName("Rejuvenation", localObj)) then
 			self.waitTimer = GetTimeEX() + 1650;
+			return true;
+		end
+	end
+	-- heal - we left form out of combat regrowth
+	if (not IsInCombat()) and (not isBear and not isBear2) and (not isCat) and (not isTravel) and (localHealth <= 60) and (localMana >= 35) and (not hasRegrowth) and (not IsMoving()) and (IsStanding()) and (not IsMounted()) then
+		if (CastSpellByName("Regrowth", localObj)) then
+			self.waitTimer = GetTimeEX() + 2550;
+			script_grind:setWaitTimer(2500);
 			return true;
 		end
 	end

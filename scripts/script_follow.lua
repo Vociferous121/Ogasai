@@ -131,7 +131,7 @@ function script_follow:run()
 		script_follow:window();
 		
 		if (IsUsingNavmesh()) and (self.drawPath) then
-			script_nav:drawPath();
+			script_drawData:drawPath();
 		end
 
 	-- Set next to node distance and nav-mesh smoothness to double that number

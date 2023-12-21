@@ -10,11 +10,11 @@ script_followEX = {
 function script_followEX:drawStatus()
 
 	if (script_follow.drawPath) then
-		script_nav:drawPath(); 
+		script_drawData:drawPath(); 
 	end
 
 	if (script_followEX.drawUnits) then 
-		script_nav:drawUnitsDataOnScreen();
+		script_drawData:drawUnitsDataOnScreen();
 	end
 
 	if (script_aggro.drawAggro) then 

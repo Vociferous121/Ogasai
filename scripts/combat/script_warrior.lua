@@ -359,9 +359,20 @@ function script_warrior:run(targetGUID)	-- main content of script
 				end
 			end
 
+
+
 			-- Combat
 
+
+
+
 		else	
+
+
+
+
+
+			script_checkAdds:checkAdds();
 
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 

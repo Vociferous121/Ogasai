@@ -109,7 +109,7 @@ function script_grindMenu:menu()
 		if (script_grind.autoTalent) then
 			Text("Spending Next Talent Point In: " .. (script_talent:getNextTalentName() or " "));
 		end
-		wasClicked, script_grind.getSpells = Checkbox("Get Spells (IN PROCESS DO NOT USE)", script_grind.getSpells);
+		--wasClicked, script_grind.getSpells = Checkbox("Get Spells (IN PROCESS DO NOT USE)", script_grind.getSpells);
 		
 		script_paranoiaMenu:menu();
 

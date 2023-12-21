@@ -236,7 +236,7 @@ function script_rotation:draw()
 	end
 
 	if (self.drawUnits) then 
-		script_nav:drawUnitsDataOnScreen(); 
+		script_drawData:drawUnitsDataOnScreen(); 
 	end
 
 	if (not self.drawEnabled) then 

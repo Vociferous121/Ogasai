@@ -24,6 +24,10 @@ function script_nav:setup()
 
 end
 
+function script_nav:drawPullRange(range)
+	local localObj = GetLocalPlayer();
+end
+
 function script_nav:resetPath()
 	self.lastnavIndex = 0;
 	self.navPosition['x'], self.navPosition['y'], self.navPosition['z'] = 0, 0, 0;
@@ -175,116 +179,9 @@ function script_nav:moveToSavedLocation(localObj, minLevel, maxLevel, useStaticH
 	return "Moving to auto path node: " .. self.currentGoToLocation+1 .. "...";
 end
 
-function script_nav:drawSavedTargetLocations()
-	for i = 0,self.numSavedLocation-1 do
-		local tX, tY, onScreen = WorldToScreen(self.savedLocations[i]['x'], self.savedLocations[i]['y'], self.savedLocations[i]['z']);
-		if (onScreen) then
-			DrawText('Auto Path Node', tX, tY-20, 0, 255, 255);
-			DrawText('ID: ' .. i+1, tX, tY-10, 0, 255, 255);
-			DrawText('ML: ' .. self.savedLocations[i]['level'], tX, tY, 255, 255, 0);
-		end
-	end
-	if (self.currentHotSpotName ~= 0) then
-		local tX, tY, onScreen = WorldToScreen(self.currentHotSpotX , self.currentHotSpotY, self.currentHotSpotZ);
-		if (onScreen) then
-			DrawText('HOTSPOT: ' .. self.currentHotSpotName, tX, tY, 0, 255, 255);
-		end
-	end
-end
-
-function script_nav:drawUnitsDataOnScreen()
-	local i, targetType = GetFirstObject();
-	while i ~= 0 do
-		if (targetType == 3 and not i:IsCritter() and not i:IsDead() and i:CanAttack()) then
-			script_nav:drawMonsterDataOnScreen(i);
-		end
-		if (targetType == 4 and not i:IsCritter() and not i:IsDead()) then
-			script_nav:drawPlayerDataOnScreen(i);
-		end
-		i, targetType = GetNextObject(i);
-	end
-end
-
-function script_nav:drawMonsterDataOnScreen(target)
-	local player = GetLocalPlayer();
-	local distance = target:GetDistance();
-	local tX, tY, onScreen = WorldToScreen(target:GetPosition());
-	if (onScreen) then
-		DrawText(target:GetCreatureType() .. ' - ' .. target:GetLevel(), tX, tY-10, 255, 255, 0);
-		if (GetTarget() == target) then 
-			DrawText('(targeted)', tX, tY-20, 255, 0, 0); 
-		end
-
-		-- avoid targets
-		if (script_grind:isTargetBlacklisted(target:GetGUID())) and (script_grind.skipHardPull)
-			and (not script_grind:isTargetHardBlacklisted(target:GetGUID())) then
-			DrawText("(Avoiding)", tX, tY-20, 255, 0, 0);
-		end
-		-- hard blacklisted targets
-		if (script_grind:isTargetHardBlacklisted(target:GetGUID())) then
-			DrawText('(blacklisted)', tX, tY-20, 255, 150, 150);
-		end
-		DrawText('HP: ' .. math.floor(target:GetHealthPercentage()) .. '%', tX, tY, 255, 0, 0);
-		DrawText('' .. math.floor(distance) .. ' yd.', tX, tY+10, 255, 255, 255);
-	end
-end
-
-function script_nav:drawPlayerDataOnScreen(target)
-	local player = GetLocalPlayer();
-	if (target:GetGUID() ~= player:GetGUID()) then 
-		local distance = target:GetDistance();
-		local tX, tY, onScreen = WorldToScreen(target:GetPosition());
-		if (onScreen) then
-			if (target:CanAttack()) then 
-				DrawText('' .. target:GetUnitName() .. ' - ' .. target:GetLevel(), tX, tY-10, 255, 0, 0);
-			else 
-				DrawText('' .. target:GetUnitName() .. ' - ' .. target:GetLevel(), tX, tY-10, 0, 255, 0);
-			end
-			DrawText('HP: ' .. math.floor(target:GetHealthPercentage()) .. '%', tX, tY, 255, 0, 0);
-			DrawText('' .. math.floor(distance) .. ' yd.', tX, tY+10, 255, 255, 255);
-			if (target:GetUnitsTarget() ~= 0) then
-				if (target:GetUnitsTarget():GetGUID() == player:GetGUID()) then 
-					DrawText('TARGETING US!', tX, tY+20, 255, 0, 0); 
-				end
-			end
-		end
-	end
-end
-
 function script_nav:setNextToNodeDist(distance)
 	self.nextNavNodeDistance = distance;
 	self.nextPathNodeDistance = distance;
-end
-
-function script_nav:drawPath()
-	local firstIndex = 0;
-	local mx, my, mz = GetLocalPlayer():GetPosition();
-	if (IsPathLoaded(5)) then
-		if (self.drawNav) then
-			firstIndex = self.lastpathnavIndex;
-		else
-			firstIndex = self.lastnavIndex;
-		end
-		if (self.lastnavIndex <= GetPathSize(5)) then
-			for index = firstIndex, GetPathSize(5) - 2 do
-				local _x, _y, _z = GetPathPositionAtIndex(5, index);
-				local _xx, _yy, _zz = GetPathPositionAtIndex(5, index+1);
-				local _tX, _tY, onScreen = WorldToScreen(_x, _y, _z);
-				local _tXX, _tYY, onScreens = WorldToScreen(_xx, _yy, _zz);
-				if(onScreen and onScreens) then
-					DrawLine(_tX, _tY, _tXX, _tYY, 255, 255, 0, 1);
-					if (GetDistance3D(mx, my, mz, _xx, _yy, _zz) < 100) then
-						script_aggro:DrawCircles(_x, _y, _z, 0.2);
-						script_aggro:DrawCircles(_xx, _yy, _zz, 0.2);
-					end
-				end
-			end
-		end
-	end
-end
-
-function script_nav:drawPullRange(range)
-	local localObj = GetLocalPlayer();
 end
 
 function script_nav:getLootTarget(lootRadius)

@@ -15,7 +15,7 @@ function script_targetMenu:menu()
 			end
 		end
 		SameLine();
-		if (Button("BlackList Target - GUID")) then
+		if (Button("Blacklist Target - GUID")) then
 			if UnitExists("target") then
 				script_grind:addTargetToHardBlacklist(GetTarget():GetGUID());
 			end
@@ -23,20 +23,20 @@ function script_targetMenu:menu()
 		
 		Separator();
 
-		if (CollapsingHeader("|+|Blacklisting/Avoid Options")) then
+		if (CollapsingHeader("|+| Blacklisting/Avoid Options")) then
 
 		Text("           || Blacklisting Resets On Reload ||");
-
-		wasClicked, script_grindEX.avoidBlacklisted = Checkbox("(Has Bugs) Avoid Blacklisted Targets", script_grindEX.avoidBlacklisted);
 
 		Separator();
 
 		wasClicked, script_grind.skipHardPull = Checkbox("Blacklist And Avoid Enemies / Aggro Ranges", script_grind.skipHardPull);
 
+		wasClicked, script_grindEX.avoidBlacklisted = Checkbox("(Has Bugs) Avoid Blacklisted Targets", script_grindEX.avoidBlacklisted);
+
 		if (script_grind.skipHardPull) then
 
 			local a = script_checkAdds.addsRange-10;
-			wasClicked, script_grind.extraSafe = Checkbox("(Has Bugs) Recheck Blacklisted Targets " ..a.." (yds)", script_grind.extraSafe);
+			wasClicked, script_grind.extraSafe = Checkbox("Recheck Blacklisted Targets " ..a.." (yds)", script_grind.extraSafe);
 
 			if (UnitClass('player') ~= "Shaman") then
 				
