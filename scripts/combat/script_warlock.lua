@@ -1065,7 +1065,7 @@ function script_warlock:rest()
 		end
 	end
 
-	if (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (HasItem("Soul Shard")) then
+	if (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (HasItem("Soul Shard")) and (not IsInCombat()) then
 		if (script_warlockEX:checkHealthstones()) then
 			self.waitTimer = GetTimeEX() + 1750;
 			script_grind:setWaitTimer(1750);

@@ -35,7 +35,7 @@ function script_targetMenu:menu()
 
 		if (script_grind.skipHardPull) then
 
-			local a = script_checkAdds.addsRange + script_aggro.adjustAggro;
+			local a = script_checkAdds.addsRange;
 			wasClicked, script_grind.extraSafe = Checkbox("(Has Bugs) Recheck Blacklisted Targets " ..a.." (yds)", script_grind.extraSafe);
 
 			if (UnitClass('player') ~= "Shaman") then
