@@ -4,7 +4,7 @@ script_aggro = {
 	rY = 0,
 	rZ = 0,
 	rTime = 0,
-	adjustAggro = 1,	-- adjust blacklist distance range
+	adjustAggro = 2,	-- adjust blacklist distance range
 	tarDist = 0,		-- target distance checked with run away from adds range
 }
 
@@ -113,8 +113,8 @@ function script_aggro:safePullRecheck(target)
 	local tx, ty, tz = target:GetPosition();
 
 	while currentObj ~= 0 do
- 		if (typeObj == 3) and (not currentObj:GetGUID() == target:GetGUID()) then
-			aggro = script_checkAdds.addsRange;
+ 		if (typeObj == 3) then
+			aggro = script_checkAdds.addsRange - 10;
 			cx, cy, cz = currentObj:GetPosition();
 			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro) then	
 				countUnitsInRange = countUnitsInRange + 1;
@@ -180,7 +180,6 @@ function script_aggro:closeToBlacklistedTargets()
 	local countUnitsInRange = 0;
 	local currentTargetNr = 0;
 	local currentObj = GetGUIDObject(script_grind.blacklistedTargets[currentTargetNr]);
-	local currentObj2 = GetGUIDObject(script_grind.hardBlacklistedTargets[currentTargetNr]);
 	local localObj = GetLocalPlayer();
 	local closestEnemy = 0;
 	local closestDist = 999;
@@ -188,8 +187,8 @@ function script_aggro:closeToBlacklistedTargets()
 	local aggroClosest = 0;
 
 	while currentObj ~= 0 do
-		aggro = currentObj:GetLevel() - localObj:GetLevel() + 26;
-		local range = aggro + 5;
+		aggro = currentObj:GetLevel() - localObj:GetLevel() + 21;
+		local range = aggro + 1;
 		if (currentObj:CanAttack())
 			and (not currentObj:IsDead())
 			and (not currentObj:IsCritter())
@@ -198,7 +197,7 @@ function script_aggro:closeToBlacklistedTargets()
 		then	
 			if (closestEnemy == 0) then
 				closestEnemy = currentObj;
-				aggroClosest = currentObj:GetLevel() - localObj:GetLevel() + 23;
+				aggroClosest = currentObj:GetLevel() - localObj:GetLevel() + 22;
 			else
 				local dist = currentObj:GetDistance();
 				if (dist < closestDist) then
@@ -219,10 +218,11 @@ function script_aggro:closeToBlacklistedTargets()
 	return false;
 end
 
-function script_aggro:closeToBlacklistedTargetsEnemyValid() 
+-- if we are close to blacklisted target true or false
+function script_aggro:closeToHardBlacklistedTargets() 
 	local countUnitsInRange = 0;
 	local currentTargetNr = 0;
-	local currentObj = GetGUIDObject(script_grind.blacklistedTargets[currentTargetNr]);
+	local currentObj = GetGUIDObject(script_grind.hardBlacklistedTargets[currentTargetNr]);
 	local localObj = GetLocalPlayer();
 	local closestEnemy = 0;
 	local closestDist = 999;
@@ -230,12 +230,17 @@ function script_aggro:closeToBlacklistedTargetsEnemyValid()
 	local aggroClosest = 0;
 
 	while currentObj ~= 0 do
-		aggro = currentObj:GetLevel() - localObj:GetLevel() + 26;
-		local range = aggro + 5;
-		if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range and not script_grind:isTargetingMe(currentObj) and (GetLocalPlayer():GetUnitsTarget() ~= 0 and GetLocalPlayer():GetUnitsTarget():GetGUID() ~= currentObj:GetGUID()) then	
+		aggro = currentObj:GetLevel() - localObj:GetLevel() + 21;
+		local range = aggro + 1;
+		if (currentObj:CanAttack())
+			and (not currentObj:IsDead())
+			and (not currentObj:IsCritter())
+			and (currentObj:GetDistance() <= range)
+			and (not script_grind:isTargetingMe(currentObj))
+		then	
 			if (closestEnemy == 0) then
 				closestEnemy = currentObj;
-				aggroClosest = currentObj:GetLevel() - localObj:GetLevel() + 23;
+				aggroClosest = currentObj:GetLevel() - localObj:GetLevel() + 22;
 			else
 				local dist = currentObj:GetDistance();
 				if (dist < closestDist) then
@@ -245,7 +250,7 @@ function script_aggro:closeToBlacklistedTargetsEnemyValid()
 			end
  		end
 		currentTargetNr = currentTargetNr + 1;
- 		currentObj = GetGUIDObject(script_grind.blacklistedTargets[currentTargetNr]);
+ 		currentObj = GetGUIDObject(script_grind.hardBlacklistedTargets[currentTargetNr]);
  	end
 
 	-- avoid the closest mob
@@ -272,7 +277,7 @@ function script_aggro:avoid(pointX,pointY,pointZ, radius, safeDist)
 	local closestPoint = 0;
 	local closestTargetPoint = 0;
 	local closestTargetDist = 999;
-	local quality = 120;
+	local quality = 250;
 
 	while theta <= 2*PI do
 		point = point + 1 -- get next table slot, starts at 0 

@@ -688,10 +688,18 @@ function script_grind:run()
 			end
 		end
 
-		if (not IsInCombat()) and (script_grindEX.avoidBlacklisted) and (script_aggro:closeToBlacklistedTargets()) then
+		if (script_grindEX.avoidBlacklisted) and (script_aggro:closeToBlacklistedTargets() or script_aggro:closeToHardBlacklistedTargets()) then
 			self.message = "Close To Blacklisted Target.. Moving...";
-			if (script_runner:avoidToBlacklist(10)) then
-				return true;
+			if (not IsEating()) and (not IsDrinking()) then
+				if (script_runner:avoidToBlacklist(5)) then
+					return true;
+				end
+			elseif (IsEating() or IsDrinking()) then
+				if (script_runner:avoidToBlacklist(13)) then
+					return true;
+				end
+			else
+				script_grind:assignTarget();
 			end
 		end
 
@@ -1040,13 +1048,13 @@ function script_grind:enemyIsValid(i)
 		end
 		
 		-- add elite to blacklist
-		if (self.skipElites) and (i:GetClassification() == 1 or i:GetClassification() == 2) and (not script_grind:isTargetBlacklisted(i:GetGUID())) and (not script_grind:isTargetingMe(i)) then	
-			script_grind:addTargetToBlacklist(i:GetGUID());
+		if (self.skipElites) and (i:GetClassification() == 1 or i:GetClassification() == 2) and (not script_grind:isTargetHardBlacklisted(i:GetGUID())) and (not script_grind:isTargetingMe(i)) then	
+			script_grind:addTargetToHardBlacklist(i:GetGUID());
 		end
 
 		-- add above maxLevel to blacklist
-		if (self.skipHardPull) and (not script_grind:isTargetBlacklisted(i:GetGUID())) and (not script_grind:isTargetingMe(i)) and (i:GetLevel() > self.maxLevel) then
-			script_grind:addTargetToBlacklist(i:GetGUID());
+		if (self.skipHardPull) and (not script_grind:isTargetHardBlacklisted(i:GetGUID())) and (not script_grind:isTargetingMe(i)) and (i:GetLevel() > self.maxLevel) then
+			script_grind:addTargetToHardBlacklist(i:GetGUID());
 		end
 
 		-- try to skip units below us or above us (in water or structure)
@@ -1070,8 +1078,13 @@ function script_grind:enemyIsValid(i)
 				return true; 
 		end
 
-		-- blacklisted target is attacking us
+		-- avoid target is attacking us
 		if (script_grind:isTargetBlacklisted(i:GetGUID())) and (script_grind:isTargetingMe(i)) and (i:IsInLineOfSight()) then
+			return true;
+		end
+
+		-- blacklisted target is attacking us
+		if (script_grind:isTargetHardBlacklisted(i:GetGUID())) and (script_grind:isTargetingMe(i)) and (i:IsInLineOfSight()) then
 			return true;
 		end
 
@@ -1088,7 +1101,6 @@ function script_grind:enemyIsValid(i)
 		if (self.skipHardPull) and (self.extraSafe)
 			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
 			and (not script_grind:isTargetHardBlacklisted(i:GetGUID()))
-			and (not script_grindEX.avoidBlacklisted)
 			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
 			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
@@ -1113,7 +1125,8 @@ function script_grind:enemyIsValid(i)
 
 		-- skip blacklisted if we avoid enemies
 		if (self.skipHardPull) and (script_grindEX.avoidBlacklisted)
-			and (not script_grind:isTargetBlacklisted(i:GetGUID())) and (not script_aggro:closeToBlacklistedTargetsEnemyValid()) and (not script_grind:isTargetHardBlacklisted(i:GetGUID())) then
+			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
+			and (not script_grind:isTargetHardBlacklisted(i:GetGUID())) then
 			if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
 			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
@@ -1179,10 +1192,9 @@ function script_grind:enemyIsValid(i)
 
 		-- target blacklisted moved away from other targets
 		-- bot can target blacklisted targets under these conditions
-		if (self.skipHardPull) and (self.extraSafe) and (script_aggro:safePullRecheck(i)) and (i:GetDistance() <= script_checkAdds.addsRange) then
+		if (self.skipHardPull) and (self.extraSafe) and (script_aggro:safePullRecheck(i)) then
 			if (script_grind:isTargetBlacklisted(i:GetGUID()))
 			and (not script_grind:isTargetHardBlacklisted(i:GetGUID()))
-			and (not script_grindEX.avoidBlacklisted)
 			and (i:IsInLineOfSight())
 			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))

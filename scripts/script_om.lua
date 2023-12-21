@@ -7,6 +7,8 @@ function script_om:FORCEOM()
 
 	local closestDist = 999;
 
+	-- fuck this why won't you recognize closest target???
+
 	while currentObj ~= 0 do
 		if (typeObj == 3)
 			and (currentObj:GetDistance() <= script_checkAdds.addsRange)
