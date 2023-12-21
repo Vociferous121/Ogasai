@@ -617,6 +617,7 @@ function script_warlock:run(targetGUID)
 
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
+			script_checkAdds:checkAdds();
 
 			-- causes crashing after combat phase?
 			-- follow target if single target fear is active and moves out of spell ranged

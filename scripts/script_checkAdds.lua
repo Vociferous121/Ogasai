@@ -13,13 +13,10 @@ function script_checkAdds:checkAdds()
 
 			script_grind.tickRate = 50;
 
-			-- try unstuck script
 			if (not script_unstuck:pathClearAuto(2)) then
 				script_unstuck:unstuck();
 				return true;
 			end
-
-			-- if we have a pet then pet follow
 
 			if (GetPet() ~= 0) then
 				PetFollow();
@@ -96,7 +93,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 	-- Move just outside the aggro range
 	local moveToPoint = closestPoint;
-	local setPoint = 2
+	local setPoint = 3;
 
 	if (closestPointToDest ~= nil) then	
 		local diffPoint = closestPointToDest - moveToPoint;

@@ -471,14 +471,12 @@ function script_mage:run(targetGUID)
 			end
 
 			-- blink on movement stop debuffs
-			if (self.useBlink) then
-				if (HasSpell("Blink")) and (not IsSpellOnCD("Blink")) then
-					if (script_checkDebuffs:hasDisabledMovement()) then
-						if (CastSpellByName("Blink")) then
-							targetObj:FaceTarget();
-							self.waitTimer = GetTimeEX() + 500;
-							return 0;
-						end
+			if (HasSpell("Blink")) and (not IsSpellOnCD("Blink")) then
+				if (script_checkDebuffs:hasDisabledMovement()) then
+					if (CastSpellByName("Blink")) then
+						targetObj:FaceTarget();
+						self.waitTimer = GetTimeEX() + 500;
+						return 0;
 					end
 				end
 			end

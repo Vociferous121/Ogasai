@@ -18,6 +18,7 @@ script_grind = {
 	radarLoaded = include("scripts\\script_radar.lua"),
 	debuffCheck = include("scripts\\script_checkDebuffs.lua"),
 	drawStatusScript = include("scripts\\script_drawStatus.lua"),
+	omLoaded = include("scripts\\script_om.lua"),
 	jump = true,	-- enable jumping out of combat
 	jumpRandomFloat = 96,	-- jump > than 
 	useVendor = false,	-- use vendor
@@ -426,75 +427,7 @@ function script_grind:run()
 
 
 	if (IsInCombat()) and (GetLocalPlayer():GetHealthPercentage() >= 1) and (self.skipHardPull) then
-		local closestDist = 999;
-
-		while currentObj ~= 0 do
-			if (typeObj == 3)
-				and (currentObj:GetDistance() <= script_checkAdds.addsRange)
-				and (currentObj:GetGUID() ~= self.enemyObj:GetGUID())
-				and (not script_grind:isTargetingMe3(currentObj))
-				and (not script_grind:isTargetingPet(currentObj))
-				--and (currentObj:IsInLineOfSight())
-				and (not currentObj:IsCritter())
-			then
-					script_checkAdds.closestEnemy = currentObj;
-
-			else
-		
-				if (currentObj ~= 0)
-					and (typeObj == 3)
-					and (currentObj:GetGUID() ~= self.enemyObj:GetGUID())
-					--and (currentObj:IsInLineOfSight())
-					and (not currentObj:IsCritter())
-					and (not script_grind:isTargetingMe3(currentObj))
-					and (not script_grind:isTargetingPet(currentObj))
-				then
-
-					local dist = currentObj:GetDistance();
-
-					if (dist < closestDist) then
-						closestDist = dist;
-						script_checkAdds.closestEnemy = currentObj;
-					end
-				end
-			typeObj = GetNextObject(currentObj);
-			end
-		currentObj, typeObj = GetNextObject(currentObj);
-		end
-
-		while currentObj ~= 0 do
-			if (typeObj == 3)
-				and (currentObj:GetDistance() <= script_checkAdds.addsRange)
-				and (currentObj:GetGUID() ~= self.enemyObj:GetGUID())
-				and (not script_grind:isTargetingMe3(currentObj))
-				and (not script_grind:isTargetingPet(currentObj))
-				--and (currentObj:IsInLineOfSight())
-				and (not currentObj:IsCritter())
-			then
-					script_checkAdds.closestEnemy = currentObj;
-
-			else
-		
-				if (currentObj ~= 0)
-					and (typeObj == 3)
-					and (currentObj:GetGUID() ~= self.enemyObj:GetGUID())
-					--and (currentObj:IsInLineOfSight())
-					and (not currentObj:IsCritter())
-					and (not script_grind:isTargetingMe3(currentObj))
-					and (not script_grind:isTargetingPet(currentObj))
-				then
-
-					local dist = currentObj:GetDistance();
-
-					if (dist < closestDist) then
-						closestDist = dist;
-						script_checkAdds.closestEnemy = currentObj;
-					end
-				end
-			typeObj = GetNextObject(currentObj);
-			end
-		currentObj, typeObj = GetNextObject(currentObj);
-		end
+		script_om:FORCEOM();
 	end
 
 	-- check paranoia	
@@ -771,17 +704,7 @@ function script_grind:run()
 			and (not self.enemyObj:IsCasting())
 			and (not self.enemyObj:IsFleeing()) then
 		
-			while currentObj ~= 0 do
-				script_grind.tickRate = 50;
-				if (typeObj == 3) and (currentObj:GetDistance() < script_checkAdds.addsRange)
-					and (currentObj:GetGUID() ~= self.enemyObj:GetGUID()) 
-					and (not script_grind:isTargetingMe3(currentObj))
-					and (not script_grind:isTargetingPet(currentObj)) then		
-						script_checkAdds.closestEnemy = currentObj;
-				typeObj = GetNextObject(currentObj);
-				end
-			currentObj, typeObj = GetNextObject(currentObj);
-			end
+			script_om:FORCEOM2();
 		
 			if (script_checkAdds:checkAdds()) then
 				return true;
@@ -901,18 +824,8 @@ function script_grind:run()
 				and (self.enemyObj:IsInLineOfSight())
 				and (not self.enemyObj:IsCasting())
 				and (not self.enemyObj:IsFleeing()) then
-		
-				while currentObj ~= 0 do
-					script_grind.tickRate = 50;
-					if (typeObj == 3) and (currentObj:GetDistance() < script_checkAdds.addsRange)
-						and (currentObj:GetGUID() ~= self.enemyObj:GetGUID()) 
-						and (not script_grind:isTargetingMe3(currentObj))
-						and (not script_grind:isTargetingPet(currentObj)) then		
-							script_checkAdds.closestEnemy = currentObj;
-					typeObj = GetNextObject(currentObj);
-					end
-				currentObj, typeObj = GetNextObject(currentObj);
-				end
+
+				script_om:FORCEOM2();
 
 				if (script_checkAdds:checkAdds()) then
 					return true;
@@ -1184,57 +1097,89 @@ function script_grind:enemyIsValid(i)
 		if (script_grind:isTargetingPet(i)) and (i:IsInLineOfSight()) then
 			return true;
 		end	
-		
-		-- target blacklisted moved away from other targets
-		-- bot can target blacklisted targets under these conditions
-		if (self.skipHardPull)
-			and (script_grind:isTargetBlacklisted(i:GetGUID()))
+
+		if (self.skipHardPull) and (self.extraSafe)
+			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
 			and (not script_grind:isTargetHardBlacklisted(i:GetGUID()))
-			and (self.extraSafe)
-			and (not script_grindEX.avoidBlacklisted) then
-			
+			and (not script_grindEX.avoidBlacklisted)
+			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
+			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
+			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
+			and not (self.skipUnknown and i:GetCreatureType() == 'Not specified')
+			and not (self.skipHumanoid and i:GetCreatureType() == 'Humanoid')
+			and not (self.skipDemon and i:GetCreatureType() == 'Demon')
+			and not (self.skipBeast and i:GetCreatureType() == 'Beast')
+			and not (self.skipElemental and i:GetCreatureType() == 'Elemental')
+			and not (self.skipUndead and i:GetCreatureType() == 'Undead') 
+			and not (skipAberration and i:GetCreatureType() == 'Abberration') 
+			and not (skipDragonkin and i:GetCreatureType() == 'Dragonkin') 
+			and not (skipGiant and i:GetCreatureType() == 'Giant') 
+			and not (skipMechanical and i:GetCreatureType() == 'Mechanical') 
+			and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
 			--local tarPosX, tarPosY, tarPosZ = i:GetPosition();
 			--local myPosX, myPosY, myPosZ = GetLocalPlayer():GetPosition();
 			--local posZ = tarPosZ - myPosZ;
 			--if (posZ < 9) and (posZ > -9) then
-		if (script_aggro:safePullRecheck(i))
-			and(i:IsInLineOfSight())
-			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
-			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
-			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
-			and not (self.skipUnknown and i:GetCreatureType() == 'Not specified')
-			and not (self.skipHumanoid and i:GetCreatureType() == 'Humanoid')
-			and not (self.skipDemon and i:GetCreatureType() == 'Demon')
-			and not (self.skipBeast and i:GetCreatureType() == 'Beast')
-			and not (self.skipElemental and i:GetCreatureType() == 'Elemental')
-			and not (self.skipUndead and i:GetCreatureType() == 'Undead') 
-			and not (skipAberration and i:GetCreatureType() == 'Abberration') 
-			and not (skipDragonkin and i:GetCreatureType() == 'Dragonkin') 
-			and not (skipGiant and i:GetCreatureType() == 'Giant') 
-			and not (skipMechanical and i:GetCreatureType() == 'Mechanical') 
-			and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
-			) then
-			return true;
-		elseif (not script_aggro:safePullRecheck(i))
-			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
-			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
-			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
-			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
-			and not (self.skipUnknown and i:GetCreatureType() == 'Not specified')
-			and not (self.skipHumanoid and i:GetCreatureType() == 'Humanoid')
-			and not (self.skipDemon and i:GetCreatureType() == 'Demon')
-			and not (self.skipBeast and i:GetCreatureType() == 'Beast')
-			and not (self.skipElemental and i:GetCreatureType() == 'Elemental')
-			and not (self.skipUndead and i:GetCreatureType() == 'Undead') 
-			and not (skipAberration and i:GetCreatureType() == 'Abberration') 
-			and not (skipDragonkin and i:GetCreatureType() == 'Dragonkin') 
-			and not (skipGiant and i:GetCreatureType() == 'Giant') 
-			and not (skipMechanical and i:GetCreatureType() == 'Mechanical') 
-			and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
 			) then
 			return true;
 		end
-	end
+		
+		-- target blacklisted moved away from other targets
+		-- bot can target blacklisted targets under these conditions
+		if (self.skipHardPull) and (self.extraSafe)
+			and (script_aggro:safePullRecheck(i))
+			and (script_grind:isTargetBlacklisted(i:GetGUID()))
+			and (not script_grind:isTargetHardBlacklisted(i:GetGUID()))
+			and (not script_grindEX.avoidBlacklisted)
+			and (i:IsInLineOfSight())
+			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
+			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
+			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
+			and not (self.skipUnknown and i:GetCreatureType() == 'Not specified')
+			and not (self.skipHumanoid and i:GetCreatureType() == 'Humanoid')
+			and not (self.skipDemon and i:GetCreatureType() == 'Demon')
+			and not (self.skipBeast and i:GetCreatureType() == 'Beast')
+			and not (self.skipElemental and i:GetCreatureType() == 'Elemental')
+			and not (self.skipUndead and i:GetCreatureType() == 'Undead') 
+			and not (skipAberration and i:GetCreatureType() == 'Abberration') 
+			and not (skipDragonkin and i:GetCreatureType() == 'Dragonkin') 
+			and not (skipGiant and i:GetCreatureType() == 'Giant') 
+			and not (skipMechanical and i:GetCreatureType() == 'Mechanical') 
+			and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
+			--local tarPosX, tarPosY, tarPosZ = i:GetPosition();
+			--local myPosX, myPosY, myPosZ = GetLocalPlayer():GetPosition();
+			--local posZ = tarPosZ - myPosZ;
+			--if (posZ < 9) and (posZ > -9) then
+			) then
+			return true;
+		else
+			
+		if (self.skipHardPull) and (self.extraSafe)
+			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
+			and (not script_grind:isTargetHardBlacklisted(i:GetGUID()))
+			and (not script_grindEX.avoidBlacklisted)
+			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
+			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
+			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
+			and not (self.skipUnknown and i:GetCreatureType() == 'Not specified')
+			and not (self.skipHumanoid and i:GetCreatureType() == 'Humanoid')
+			and not (self.skipDemon and i:GetCreatureType() == 'Demon')
+			and not (self.skipBeast and i:GetCreatureType() == 'Beast')
+			and not (self.skipElemental and i:GetCreatureType() == 'Elemental')
+			and not (self.skipUndead and i:GetCreatureType() == 'Undead') 
+			and not (skipAberration and i:GetCreatureType() == 'Abberration') 
+			and not (skipDragonkin and i:GetCreatureType() == 'Dragonkin') 
+			and not (skipGiant and i:GetCreatureType() == 'Giant') 
+			and not (skipMechanical and i:GetCreatureType() == 'Mechanical') 
+			and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
+			--local tarPosX, tarPosY, tarPosZ = i:GetPosition();
+			--local myPosX, myPosY, myPosZ = GetLocalPlayer():GetPosition();
+			--local posZ = tarPosZ - myPosZ;
+			--if (posZ < 9) and (posZ > -9) then
+			) then
+			return true;
+		end
+		end
 
 		-- skip blacklisted if we avoid enemies
 		if (self.skipHardPull) and (script_grindEX.avoidBlacklisted)
