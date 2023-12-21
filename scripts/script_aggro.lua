@@ -187,8 +187,9 @@ function script_aggro:closeToBlacklistedTargets()
 	local aggroClosest = 0;
 
 	while currentObj ~= 0 do
-		aggro = currentObj:GetLevel() - localObj:GetLevel() + 21;
-		local range = aggro + 1;
+		aggro = currentObj:GetLevel() - localObj:GetLevel() + 22;
+		local range = aggro;
+
 		if (currentObj:CanAttack())
 			and (not currentObj:IsDead())
 			and (not currentObj:IsCritter())
@@ -196,10 +197,11 @@ function script_aggro:closeToBlacklistedTargets()
 			and (not script_grind:isTargetingMe(currentObj))
 			and (not currentObj:HasDebuff("Polymorph"))
 			and (not currentObj:HasDebuff("Fear"))
+			and (not currentObj:GetGUID() == script_grind.lastTarget)
 		then	
 			if (closestEnemy == 0) then
 				closestEnemy = currentObj;
-				aggroClosest = currentObj:GetLevel() - localObj:GetLevel() + 22;
+				aggroClosest = currentObj:GetLevel() - localObj:GetLevel() + 23;
 			else
 				local dist = currentObj:GetDistance();
 				if (dist < closestDist) then
@@ -340,15 +342,40 @@ function script_aggro:avoid(pointX,pointY,pointZ, radius, safeDist)
 			moveToPoint = closestPoint + setPoint;
 		end
 	else
-		moveToPoint = closestPoint + setPoint;
+		-- need to assign blacklisted target only closest target
+		script_grind:assignTarget();
+		--moveToPoint = closestPoint + setPoint;
 	end
 	
 	-- out of bound
 	if (moveToPoint > point or moveToPoint == 0) then
-		moveToPoint = setPoint;
+		--moveToPoint = setPoint;
+		-- need to assign blacklisted target only closest target
+		script_grind:assignTarget();
 	end
 
-	Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ);
+	if (moveToPoint ~= 0)
+		and (moveToPoint ~= nil)
+		and (points[point].x ~= nil)
+		and (points[point].y ~= nil)
+		and (pointsTwo[moveToPoint] ~= nil)
+		and (pointZ ~= nil)
+		and (point ~= nil)
+		and (points[point] ~= nil)
+
+		then
+
+		if (self.useUnstuck and IsMoving()) then
+			if (not script_unstuck:pathClearAuto(2)) then
+				script_unstuck:unstuck();
+				return true;
+			end
+		end
+
+		if (Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ)) then
+			script_grind:setWaitTimer(300);
+		end
+	end
 end
 
 

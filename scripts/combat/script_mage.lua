@@ -161,11 +161,23 @@ function script_mage:runBackwards(targetObj, range)
  		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
  		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
  		local moveX, moveY, moveZ = xT + xUV*10, yT + yUV*10, zT + zUV;		
- 		if (distance < range and targetObj:IsInLineOfSight()) and (not script_checkDebuffs:hasDisabledMovement()) then 
- 			script_navEX:moveToTarget(localObj, moveX, moveY, moveZ);
- 			return true;
+ 		if (distance <= range)
+			and (targetObj:IsInLineOfSight())
+			and (not script_checkDebuffs:hasDisabledMovement())
+		then 
+			if (script_grind.useUnstuck and IsMoving()) then
+				if (not script_unstuck:pathClearAuto(2)) then
+					script_unstuck:unstuck();
+					return true;
+				end
+			end
+ 			if (script_navEX:moveToTarget(localObj, moveX, moveY, moveZ)) then
+ 				return true;
+			end
+		return true;
 		end
 	end
+
 	return false;
 end
 
@@ -521,7 +533,7 @@ function script_mage:run(targetGUID)
 			end
 
 			-- use cold snap to reset frost nova if we don't have ice barrier
-			if (not HasSpell("Ice Barrier")) and (HasSpell("Cold Snap")) and (not IsSpellOnCD("Cold Snap")) and (IsSpellOnCD("Frost Nova")) and (not targetObj:HasDebuff("Frost Nova")) and (not targetObj:HasDebuff("Frostbite")) and (targetObj:GetDistance() <= 10) and ( (localMana >= 15 and targetHealth >= 20) or (localHealth <= 30 and localMana >= 10) ) then
+			if (targetObj:IsInLineOfSight()) and (not HasSpell("Ice Barrier")) and (HasSpell("Cold Snap")) and (not IsSpellOnCD("Cold Snap")) and (IsSpellOnCD("Frost Nova")) and (not targetObj:HasDebuff("Frost Nova")) and (not targetObj:HasDebuff("Frostbite")) and (targetObj:GetDistance() <= 10) and ( (localMana >= 15 and targetHealth >= 20) or (localHealth <= 30 and localMana >= 10) ) then
 				CastSpellByName("Cold Snap");
 				self.waitTimer = GetTimeEX() + 1000;
 			end
@@ -535,7 +547,7 @@ function script_mage:run(targetGUID)
 			
 			-- Check: Move backwards if the target is affected by Frost Nova or Frost Bite
 			if (GetNumPartyMembers() < 1) and (self.useFrostNova) then
-				if (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (targetHealth > 20) and (not localObj:HasBuff('Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) and (not IsSwimming()) then
+				if (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (targetHealth > 20) and (not localObj:HasBuff('Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) and (not IsSwimming()) and (targetObj:IsInLineOfSight()) then
 					script_grind.tickRate = 0;
 
 					if (script_mage:runBackwards(targetObj, 8)) then -- Moves if the target is closer than 7 yards
@@ -684,7 +696,7 @@ function script_mage:run(targetGUID)
 
 			-- blast wave
 			if (self.fireMage) and (HasSpell("Blast Wave")) then
-				if (localMana > 30) and (targetObj:GetDistance() < 10) and (not IsSpellOnCD("Blast Wave")) and (targetHealth > 15 or localHealth < 20) and (not IsSwimming()) then
+				if (localMana > 30) and (targetObj:GetDistance() < 10) and (not IsSpellOnCD("Blast Wave")) and (targetHealth > 15 or localHealth < 20) and (not IsSwimming()) and (targetObj:IsInLineOfSight()) then
 					if (script_mage:runBackwards(targetObj, 8)) then -- Moves if the target is closer than 7 yards
 						script_grind.tickRate = 0;
 						self.message = "Moving away from target...";
@@ -701,7 +713,7 @@ function script_mage:run(targetGUID)
 			end
 
 			
-			if (targetHealth > 20) and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (not localObj:HasBuff('Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) and (not IsSwimming()) then
+			if (targetHealth > 20) and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (not localObj:HasBuff('Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) and (not IsSwimming()) and (targetObj:IsInLineOfSight()) then
 				if (script_mage:runBackwards(targetObj, 8)) then -- Moves if the target is closer than 7 yards
 					script_grind.tickRate = 0;
 					self.message = "Moving away from target...";

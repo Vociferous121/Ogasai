@@ -200,7 +200,7 @@ function script_runner:avoidToBlacklist(safeMargin)
  		if typeObj == 3 then
 			aggro = currentObj:GetLevel() - localObj:GetLevel() + 23;
 			local range = aggro + safeMargin;
-			if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range and script_grind:isTargetBlacklisted(currentObj:GetGUID()) and (not script_grind:isTargetingMe(currentObj)) and (script_grind.enemyObj:GetGUID() ~= currentObj:GetGUID()) then
+			if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range and script_grind:isTargetBlacklisted(currentObj:GetGUID()) and (not script_grind:isTargetingMe(currentObj)) then
 				if (closestEnemy == 0) and (not GetLocalPlayer():GetUnitsTarget() ~= 0 and script_grind.enemyObj ~= currentObj:GetGUID()) then
 					closestEnemy = currentObj;
 				else
@@ -225,7 +225,7 @@ function script_runner:avoidToBlacklist(safeMargin)
 			local safeRange = safeMargin+1;
 			local intersectMob = script_runner:aggroIntersect(closestEnemy);
 			if (intersectMob ~= nil) then
-				local aggroRange = intersectMob:GetLevel() - localObj:GetLevel() + 20 + aggro; 
+				local aggroRange = intersectMob:GetLevel() - localObj:GetLevel() + aggro; 
 				local x, y, z = closestEnemy:GetPosition();
 				local xx, yy, zz = intersectMob:GetPosition();
 				local centerX, centerY = (x+xx)/2, (y+yy)/2;
@@ -312,22 +312,54 @@ function script_runner:avoid(pointX,pointY,pointZ, radius, safeDist)
 		end
 	end
 
-	-- TODO use closestPoint and closestTargetPoint to calculate direction to travel
+	script_grind.tickRate = 0;
 
 	-- Move just outside the aggro range
 	local moveToPoint = closestPoint;
+	local setPoint = 25;
+
+	if (closestPointToDest ~= nil) then	
+		local diffPoint = closestPointToDest - moveToPoint;
+		if (diffPoint <= 0) then
+			moveToPoint = closestPoint - setPoint;
+		else
+			moveToPoint = closestPoint + setPoint;
+		end
+	else
+		-- need to assign blacklisted target only closest target
+		--script_grind:assignTarget();
+		moveToPoint = closestPoint + setPoint;
+	end
 	
-	moveToPoint = closestPoint + 4;
-	
-	if (moveToPoint > point) then
-		moveToPoint = 1;
+	-- out of bound
+	if (moveToPoint > point or moveToPoint == 0) then
+		moveToPoint = - setPoint;
+		-- need to assign blacklisted target only closest target
+		script_grind:assignTarget();
 	end
 
-	if (moveToPoint == 0) then
-		moveToPoint = 1;
-	end
+	if (moveToPoint ~= 0)
+		and (moveToPoint ~= nil)
+		and (points[point].x ~= nil)
+		and (points[point].y ~= nil)
+		and (pointsTwo[moveToPoint] ~= nil)
+		and (pointZ ~= nil)
+		and (point ~= nil)
+		and (points[point] ~= nil)
 
-	Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ);
+		then
+
+		if (self.useUnstuck and IsMoving()) then
+			if (not script_unstuck:pathClearAuto(2)) then
+				script_unstuck:unstuck();
+				return true;
+			end
+		end
+
+		if (Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ)) then
+			script_grind:setWaitTimer(300);
+		end
+	end
 end
 
 function script_runner:drawAggroCircles()

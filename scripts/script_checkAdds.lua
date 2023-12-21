@@ -1,7 +1,7 @@
 script_checkAdds = {
 
 	addsRange = 35,	-- range circles from from adds
-	checkAddsRange = 5,	-- safe margin "runner script" move from adds
+	checkAddsRange = 3,	-- safe margin "runner script" move from adds
 	closestEnemy = 0,
 	intersectEnemy = nil,
 }
@@ -93,7 +93,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 	-- Move just outside the aggro range
 	local moveToPoint = closestPoint;
-	local setPoint = 3;
+	local setPoint = 5;
 
 	if (closestPointToDest ~= nil) then	
 		local diffPoint = closestPointToDest - moveToPoint;
@@ -122,16 +122,17 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 		then 
 
-		Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ);
-		script_grind:setWaitTimer(1300);
-		script_grind.message = "Moving Away From Adds";
-		self.closestEnemy = 0;
-		self.intersectEnemy = nil;
-	end
+		if (not script_unstuck:pathClearAuto(2)) then
+			script_unstuck:unstuck();
+			return true;
+		end
 
-	if (not script_unstuck:pathClearAuto(2)) then
-		script_unstuck:unstuck();
-		return true;
+		if (Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ)) then
+			script_grind:setWaitTimer(1300);
+			script_grind.message = "Moving Away From Adds";
+			self.closestEnemy = 0;
+			self.intersectEnemy = nil;
+		end
 	end
 end
 
@@ -357,7 +358,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 	-- Move just outside the aggro range
 	moveToPoint = closestPoint;
-	local setPoint = 2;
+	local setPoint = 5;
 
 	-- find direction to travel
 
@@ -388,16 +389,17 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 		then 
 
-		Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ);
-		script_grind.message = "Moving Away From Adds";
-		script_grind:setWaitTimer(1300);
-		self.closestEnemy = 0;
-		self.intersectEnemy = nil;
-	end
+		if (not script_unstuck:pathClearAuto(2)) then
+			script_unstuck:unstuck();
+			return true;
+		end
 
-	if (not script_unstuck:pathClearAuto(2)) then
-		script_unstuck:unstuck();
-		return true;
+		if (Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ)) then
+			script_grind.message = "Moving Away From Adds";
+			script_grind:setWaitTimer(1300);
+			self.closestEnemy = 0;
+			self.intersectEnemy = nil;
+		end
 	end
 end
 
