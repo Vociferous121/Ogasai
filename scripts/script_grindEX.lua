@@ -116,9 +116,8 @@ function script_grindEX:doChecks()
 				return true;
 			end
 
-			if (not IsMounted()) and (GetLocalPlayer():GetLevel() >= 40) then
+			if (script_grind.useMount) and (not IsMounted()) and (GetLocalPlayer():GetLevel() >= 40) then
 				if (script_helper:useMount()) then
-					return true;
 				end
 			end
 		end

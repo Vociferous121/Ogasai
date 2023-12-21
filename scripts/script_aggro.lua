@@ -373,7 +373,7 @@ function script_aggro:avoid(pointX,pointY,pointZ, radius, safeDist)
 		end
 
 		if (Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ)) then
-			script_grind:setWaitTimer(300);
+			script_grind:setWaitTimer(450);
 		end
 	end
 end

@@ -427,7 +427,7 @@ function script_mage:run(targetGUID)
 			end
 		end 
 		
-		if (targetObj:GetDistance() > 30) or (not targetObj:IsInLineOfSight()) then
+		if (targetObj:GetDistance() > 30) or (not targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Frost Nova")) then
 			return 3;
 		end
 
@@ -445,16 +445,16 @@ function script_mage:run(targetGUID)
 			-- frost mage selected
 			if (self.frostMage) and (targetObj:GetDistance() <= 30) and (targetObj:IsInLineOfSight()) then
 				if (script_mage.frostMagePull(targetObj)) then
-					script_grind:setWaitTimer(2200);
-					self.waitTimer = GetTimeEX() + 2200;
+					script_grind:setWaitTimer(2600);
+					self.waitTimer = GetTimeEX() + 2600;
 					targetObj:FaceTarget();
 				end
 
 				-- fire mage selected use these spells instead
 			elseif (self.fireMage) and (targetObj:GetDistance() <= 30) then
 				if (script_mage.fireMagePull(targetObj)) then
-					script_grind:setWaitTimer(2200);
-					self.waitTimer = GetTimeEX() + 2200;
+					script_grind:setWaitTimer(2600);
+					self.waitTimer = GetTimeEX() + 2600;
 					targetObj:FaceTarget();
 				end
 			end
@@ -772,7 +772,7 @@ function script_mage:run(targetGUID)
 			end
 			
 					-- check range
-					if(not targetObj:IsSpellInRange("Frostbolt")) or (not targetObj:IsInLineOfSight()) then
+					if (not targetObj:IsSpellInRange("Frostbolt")) or (not targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Frost Nova")) then
 						return 3;
 					end
 
@@ -821,7 +821,7 @@ function script_mage:run(targetGUID)
 			if (self.frostMage) and (not HasSpell("Frostbolt")) and (not IsMoving()) then				
 		
 				-- else if not has frostbolt then use fireball as range check
-				if (not targetObj:IsSpellInRange("Fireball")) or (not targetObj:IsInLineOfSight()) then
+				if (not targetObj:IsSpellInRange("Fireball")) or (not targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Frost Nova")) then
 					return 3;
 				end	
 				
@@ -1172,7 +1172,8 @@ function script_mage.frostMagePull(targetObj)
 			StopMoving();
 		end
 		if (not IsMoving()) and (CastSpellByName("Frostbolt", targetObj)) then
-			self.waitTimer = GetTimeEX() + 2000;
+			self.waitTimer = GetTimeEX() + 2300;
+			script_grind:setWaitTimer(2300)
 			targetObj:FaceTarget();
 			return true;
 		end

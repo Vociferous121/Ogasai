@@ -547,12 +547,12 @@ function script_grind:run()
 				StopMoving();
 				return true;
 			end
-			if (not IsIndoors()) then
+			if (not IsIndoors()) and (not IsMoving()) then
 				if (script_helper:mountUp()) then
 					script_grind:setWaitTimer(4500);
 				end
-			return true;
 			end
+		return true;
 		end
 		
 		-- Gather
@@ -587,12 +587,13 @@ function script_grind:run()
 					StopMoving();
 					return true;
 				end
-				if (not IsIndoors()) then
+				if (not IsIndoors()) and (not IsMoving()) then
 					if (script_helper:mountUp()) then
 						script_grind:setWaitTimer(4500);
 						self.waitTimer = GetTimeEX() + 4500;
 					end
 				end
+			return true;
 			end
 
 			-- Druid travel form
@@ -841,12 +842,12 @@ function script_grind:run()
 				StopMoving();
 				return true;
 			end
-			if (not IsIndoors()) then
+			if (not IsIndoors()) and (not IsMoving()) then
 				if (script_helper:mountUp()) then
 					script_grind:setWaitTimer(4500);
 				end
-			return true;
 			end
+		return true;
 		end
 
 		-- travel forms
@@ -863,13 +864,11 @@ function script_grind:run()
 					if (script_druidEX:travelForm()) then
 						script_grind:setWaitTimer(2500);
 					end
-				return true;
 				end
 				if (HasSpell("Ghost Wolf")) then
 					if (script_shamanEX2:ghostWolf()) then
 						script_grind:setWaitTimer(4000);
 					end
-				return true;
 				end
 			end
 		end
