@@ -9,14 +9,13 @@ function script_targetMenu:menu()
 	if (CollapsingHeader("Target Options")) then
 		local wasClicked = false;
 
-		Text("Hard Blacklist = Never Recheck Target");
-		if (Button("BlackList By GUID")) then
+		if (Button("Avoid Target - GUID")) then
 			if UnitExists("target") then
 				script_grind:addTargetToBlacklist(GetTarget():GetGUID());
 			end
 		end
 		SameLine();
-		if (Button("Hard BlackList By GUID")) then
+		if (Button("BlackList Target - GUID")) then
 			if UnitExists("target") then
 				script_grind:addTargetToHardBlacklist(GetTarget():GetGUID());
 			end

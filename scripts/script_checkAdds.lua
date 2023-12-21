@@ -168,7 +168,7 @@ function script_checkAdds:avoidToAggro(safeMargin)
 				
  		if (typeObj == 3)
 			and (currentObj:GetDistance() <= self.addsRange)
-			and (currentObj:IsInLineOfSight())
+			--and (currentObj:IsInLineOfSight())
 		then
 			if (script_grind.enemyObj ~= nil)
 				and (currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID())
@@ -203,7 +203,7 @@ function script_checkAdds:avoidToAggro(safeMargin)
 		-- recheck closest target
 		if (typeObj == 3)
 			and (currentObj:GetDistance() <= self.addsRange)
-			and (currentObj:IsInLineOfSight())
+			--and (currentObj:IsInLineOfSight())
 		then
 			if (script_grind.enemyObj ~= nil)
 				and (currentObj:GetGUID() ~= script_grind.enemyObj:GetGUID())
@@ -275,7 +275,7 @@ function script_checkAdds:aggroIntersect(target)
 	while currentObj ~= 0 do
  		if (typeObj == 3)
 			and (currentObj:GetDistance() <= self.addsRange)
-			and (currentObj:IsInLineOfSight())
+			--and (currentObj:IsInLineOfSight())
 		then
 			if (currentObj:CanAttack())
 				and (not currentObj:IsDead())
@@ -427,7 +427,7 @@ function script_checkAdds:avoidToAggro2(safeMargin)
 				
  		if (typeObj == 3)
 			and (currentObj:GetDistance() <= self.addsRange)
-			and (currentObj:IsInLineOfSight())
+			--and (currentObj:IsInLineOfSight())
 		then
 			if (not script_grind:isTargetingMe(currentObj))
 				and (not script_grind:isTargetingPet(currentObj))

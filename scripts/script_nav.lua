@@ -214,10 +214,11 @@ function script_nav:drawMonsterDataOnScreen(target)
 		if (GetTarget() == target) then 
 			DrawText('(targeted)', tX, tY-20, 255, 0, 0); 
 		end
+
 		-- avoid targets
-		if (script_grind:isTargetBlacklisted(target:GetGUID()))
+		if (script_grind:isTargetBlacklisted(target:GetGUID())) and (script_grind.skipHardPull)
 			and (not script_grind:isTargetHardBlacklisted(target:GetGUID())) then
-			DrawText('(Avoiding)', tX, tY-20, 255, 0, 0);
+			DrawText("(Avoiding)", tX, tY-20, 255, 0, 0);
 		end
 		-- hard blacklisted targets
 		if (script_grind:isTargetHardBlacklisted(target:GetGUID())) then

@@ -114,6 +114,8 @@ function script_aggro:safePullRecheck(target)
 	local curDist = 0;
 	local tarDist = 0;
 
+	-- targeting is limited... need to find a way to not target things across the map..
+	-- limited to searching for targets within ranged attack distance
 	while currentObj ~= 0 do
  		if (typeObj == 3) and (currentObj:GetGUID() ~= target:GetGUID()) and (currentObj:GetDistance() <= 42) then
  			local curDist = currentObj:GetDistance();

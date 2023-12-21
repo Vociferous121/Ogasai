@@ -128,7 +128,6 @@ function script_grind:setup()
 	self.lootCheck['target'] = 0;
 	self.lootCheck['timer'] = GetTimeEX();
 
-
 	-- Classes that don't use mana
 	local class, classFileName = UnitClass("player");
 	if (strfind("Warrior", class) or strfind("Rogue", class)) then
@@ -296,7 +295,9 @@ end
 function script_grind:run()
 	-- show grinder window
 	script_grind:window();
-	
+
+
+
 	if (self.getSpells) then
 	if (script_getSpells.getSpellsStatus ~= 3) then
 	if (script_getSpells:run()) then
@@ -428,15 +429,26 @@ function script_grind:run()
 		local closestDist = 999;
 
 		while currentObj ~= 0 do
-			if (typeObj == 3) and (currentObj:GetDistance() <= script_checkAdds.addsRange)
+			if (typeObj == 3)
+				and (currentObj:GetDistance() <= script_checkAdds.addsRange)
 				and (currentObj:GetGUID() ~= self.enemyObj:GetGUID())
 				and (not script_grind:isTargetingMe3(currentObj))
-				and (not script_grind:isTargetingPet(currentObj)) then
+				and (not script_grind:isTargetingPet(currentObj))
+				--and (currentObj:IsInLineOfSight())
+				and (not currentObj:IsCritter())
+			then
 					script_checkAdds.closestEnemy = currentObj;
 
 			else
 		
-				if (currentObj ~= 0) and (typeObj == 3) and (currentObj:GetGUID() ~= self.enemyObj:GetGUID()) then
+				if (currentObj ~= 0)
+					and (typeObj == 3)
+					and (currentObj:GetGUID() ~= self.enemyObj:GetGUID())
+					--and (currentObj:IsInLineOfSight())
+					and (not currentObj:IsCritter())
+					and (not script_grind:isTargetingMe3(currentObj))
+					and (not script_grind:isTargetingPet(currentObj))
+				then
 
 					local dist = currentObj:GetDistance();
 
@@ -451,15 +463,26 @@ function script_grind:run()
 		end
 
 		while currentObj ~= 0 do
-			if (typeObj == 3) and (currentObj:GetDistance() <= script_checkAdds.addsRange)
+			if (typeObj == 3)
+				and (currentObj:GetDistance() <= script_checkAdds.addsRange)
 				and (currentObj:GetGUID() ~= self.enemyObj:GetGUID())
 				and (not script_grind:isTargetingMe3(currentObj))
-				and (not script_grind:isTargetingPet(currentObj)) then
+				and (not script_grind:isTargetingPet(currentObj))
+				--and (currentObj:IsInLineOfSight())
+				and (not currentObj:IsCritter())
+			then
 					script_checkAdds.closestEnemy = currentObj;
 
 			else
 		
-				if (currentObj ~= 0) and (typeObj == 3) and (currentObj:GetGUID() ~= self.enemyObj:GetGUID()) then
+				if (currentObj ~= 0)
+					and (typeObj == 3)
+					and (currentObj:GetGUID() ~= self.enemyObj:GetGUID())
+					--and (currentObj:IsInLineOfSight())
+					and (not currentObj:IsCritter())
+					and (not script_grind:isTargetingMe3(currentObj))
+					and (not script_grind:isTargetingPet(currentObj))
+				then
 
 					local dist = currentObj:GetDistance();
 
@@ -1167,14 +1190,15 @@ function script_grind:enemyIsValid(i)
 		if (self.skipHardPull)
 			and (script_grind:isTargetBlacklisted(i:GetGUID()))
 			and (not script_grind:isTargetHardBlacklisted(i:GetGUID()))
-			and (script_aggro:safePullRecheck(i))
 			and (self.extraSafe)
 			and (not script_grindEX.avoidBlacklisted) then
+			
 			--local tarPosX, tarPosY, tarPosZ = i:GetPosition();
 			--local myPosX, myPosY, myPosZ = GetLocalPlayer():GetPosition();
 			--local posZ = tarPosZ - myPosZ;
 			--if (posZ < 9) and (posZ > -9) then
-			if (i:IsInLineOfSight())
+		if (script_aggro:safePullRecheck(i))
+			and(i:IsInLineOfSight())
 			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
 			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
@@ -1191,9 +1215,26 @@ function script_grind:enemyIsValid(i)
 			and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
 			) then
 			return true;
-			end
-			--end
+		elseif (not script_aggro:safePullRecheck(i))
+			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
+			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
+			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
+			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
+			and not (self.skipUnknown and i:GetCreatureType() == 'Not specified')
+			and not (self.skipHumanoid and i:GetCreatureType() == 'Humanoid')
+			and not (self.skipDemon and i:GetCreatureType() == 'Demon')
+			and not (self.skipBeast and i:GetCreatureType() == 'Beast')
+			and not (self.skipElemental and i:GetCreatureType() == 'Elemental')
+			and not (self.skipUndead and i:GetCreatureType() == 'Undead') 
+			and not (skipAberration and i:GetCreatureType() == 'Abberration') 
+			and not (skipDragonkin and i:GetCreatureType() == 'Dragonkin') 
+			and not (skipGiant and i:GetCreatureType() == 'Giant') 
+			and not (skipMechanical and i:GetCreatureType() == 'Mechanical') 
+			and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
+			) then
+			return true;
 		end
+	end
 
 		-- skip blacklisted if we avoid enemies
 		if (self.skipHardPull) and (script_grindEX.avoidBlacklisted)
@@ -1217,7 +1258,8 @@ function script_grind:enemyIsValid(i)
 			end
 		end
 
-		-- don't avoid targets
+		-- don't avoid targets and don't recheck targets - main attacking conditions
+			-- DON'T RECHECK TARGETS AVOID BLACKLISTED
 		if (self.skipHardPull) and (not script_grindEX.avoidBlacklisted)
 			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
 			and (not script_grind:isTargetHardBlacklisted(i:GetGUID())) then
@@ -1404,7 +1446,7 @@ function script_grind:doLoot(localObj)
 	-- Blacklist loot target if swimming or we are close to aggro blacklisted targets and not close to loot target
 	if (self.lootObj ~= nil) then
 		if (IsSwimming()) and (not script_grindEX.allowSwim) and (script_aggro:closeToBlacklistedTargets() and self.lootObj:GetDistance() > 5) then
-			script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
+			script_grind:addTargetToHardBlacklist(self.lootObj:GetGUID());
 			return;
 		end
 	end
@@ -1413,7 +1455,7 @@ function script_grind:doLoot(localObj)
 	if (IsStanding()) and (not IsInCombat()) then
 		if (GetTimeEX() >= self.blacklistLootTime) then
 			-- add to blacklist
-			script_grind:addTargetToBlacklist(self.lootObj:GetGUID());
+			script_grind:addTargetToHardBlacklist(self.lootObj:GetGUID());
 			-- variable on/off to stop spamming message
 			if (self.messageOnce) then
 			self.blacklistLootTime = GetTimeEX() + 25000;
@@ -1467,7 +1509,7 @@ function script_grind:lootAndSkin()
 		self.lootObj = nil;
 	end
 	if (self.lootObj ~= nil) then
-		if (script_grind:isTargetBlacklisted(self.lootObj:GetGUID()) and self.lootObj:GetDistance() > 10) then
+		if (script_grind:isTargetHardBlacklisted(self.lootObj:GetGUID()) and self.lootObj:GetDistance() > 10) then
 			self.lootObj = nil; -- don't loot blacklisted targets	
 		end
 	end

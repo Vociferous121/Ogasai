@@ -66,14 +66,15 @@ function script_fish:draw()
 	if(NewWindow("Fishing options", 320, 300)) then 
 		script_fish:menu(); 
 	end
-	
+	if (self.displayRadar) then
+        	script_radar:Radar();
+    	end
 end
 
 function script_fish:run()
 
 	if (not self.setup) then
 		script_vendor:setup();
-		
 	
 	-- set lure name from inventory items
 	if (HasItem("Aquadynamic Fish Attractor")) then
@@ -117,7 +118,7 @@ function script_fish:run()
 		self.message = "In Combat!";
 		
 		--IMPROVE
-		if(GetTarget() ~= 0) then
+		if (GetTarget() ~= 0) then
 			RunCombatScript(GetTarget():GetGUID());
 		end
 		
@@ -131,10 +132,7 @@ function script_fish:run()
 			return;
 		end
 	end
-
-	if (self.displayRadar) then
-        	script_radar:Radar();
-    	end        
+        
 	if (script_grind.paranoidOn) then
 		if (script_paranoiaCheck:playersWithinRange(script_grind.paranoidRange)) then
 			self.message = "Player(s) within paranoid range, pausing...";
@@ -336,7 +334,7 @@ function script_fish:menu()
 
 		if (self.useFishRandom) then
 			Text("Higher Number = Slower/More Random");	
-			self.fishRandomFloat = SliderFloat("Randomize Fishing", 1, 3, self.fishRandomFloat);
+			self.fishRandomFloat = SliderFloat("Randomize Fishing", 0, 3, self.fishRandomFloat);
 		end
 
 end
