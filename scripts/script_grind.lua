@@ -251,12 +251,6 @@ function script_grind:setWaitTimer(ms)
 	self.waitTimer = (GetTimeEX() + (ms));
 end
 
--- hard blacklist targets copy/paste functions and add new conditions not to attack hard blacklisted targets
--- main reason for this is blacklist timer on a target and how the bot rechecks blacklisting
--- druid still has issues double casting regrowth
--- druid needs to cast regrowth before combat when health is low
-	-- casts rejuvenation then tries to use out of form attacks
-
 -- add target to blacklist table by GUID
 function script_grind:addTargetToBlacklist(targetGUID)
 	if (targetGUID ~= nil and targetGUID ~= 0 and targetGUID ~= '') then	
@@ -639,8 +633,8 @@ function script_grind:run()
 		end
 		
 		-- Assign the next valid target to be killed within the pull range
-		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) and (not IsInCombat()) then
-			self.waitTimer = GetTimeEX() + 700;
+		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
+			self.waitTimer = GetTimeEX() + 200;
 			self.lastTarget = self.enemyObj:GetGUID();
 		end
 
@@ -656,17 +650,15 @@ function script_grind:run()
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
 			-- Fix bug, when not targeting correctly
 			if (self.lastTarget ~= self.enemyObj:GetGUID()) then
-				self.newTargetTime = GetTimeEX() + 500;
+				self.newTargetTime = GetTimeEX() + 200;
 				ClearTarget();
 			elseif (self.lastTarget == self.enemyObj:GetGUID() and not IsStanding() and not IsInCombat()) then
 				self.blaclistLootTime = GetTimeEX();
 				self.newTargetTime = GetTimeEX(); -- reset time if we rest
 			-- blacklist the target if we had it for a long time and hp is high
 			elseif (((GetTimeEX()-self.newTargetTime)/1000) > self.blacklistTime and self.enemyObj:GetHealthPercentage() > 92 and not self.enemyObj:IsInLineOfSight()) then 
-				script_grind:addTargetToBlacklist(self.enemyObj:GetGUID());
 				script_grind:addTargetToHardBlacklist(self.enemyObj:GetGUID());
-				ClearTarget();
-				return;
+				
 			end
 		end
 
@@ -685,7 +677,6 @@ function script_grind:run()
 			if (not script_aggro:safePull(self.enemyObj)) and (not IsInCombat())
 			and (not script_grind:isTargetingMe2(self.enemyObj)) then
 				script_grind:addTargetToBlacklist(self.enemyObj:GetGUID());
-				self.enemyObj = nil;
 			end
 		end
 
@@ -1074,7 +1065,7 @@ function script_grind:enemyIsValid(i)
 		end
 
 		-- avoid target is attacking us
-		if (script_grind:isTargetBlacklisted(i:GetGUID())) and (script_grind:isTargetingMe(i)) and (i:IsInLineOfSight()) then
+		if (script_grind:isTargetBlacklisted(i:GetGUID())) and (script_grind:isTargetingMe(i)) then
 			return true;
 		end
 
@@ -1084,65 +1075,17 @@ function script_grind:enemyIsValid(i)
 		end
 
 		-- blacklisted target is polymorphed or feared
-		if (script_grind:isTargetBlacklisted(i:GetGUID())) and (i:HasDebuff("Polymorph") or i:HasDebuff("Fear")) then
-			return true;
-		end
+		--if (script_grind:isTargetBlacklisted(i:GetGUID())) and (i:HasDebuff("Polymorph") or i:HasDebuff("Fear")) then
+		--	return true;
+		--end
 
 		--attacking pet
 		if (script_grind:isTargetingPet(i)) and (i:IsInLineOfSight()) then
 			return true;
-		end	
-
-		if (self.skipHardPull) and (self.extraSafe)
-			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
-			and (not script_grind:isTargetHardBlacklisted(i:GetGUID()))
-			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
-			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
-			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
-			and not (self.skipUnknown and i:GetCreatureType() == 'Not specified')
-			and not (self.skipHumanoid and i:GetCreatureType() == 'Humanoid')
-			and not (self.skipDemon and i:GetCreatureType() == 'Demon')
-			and not (self.skipBeast and i:GetCreatureType() == 'Beast')
-			and not (self.skipElemental and i:GetCreatureType() == 'Elemental')
-			and not (self.skipUndead and i:GetCreatureType() == 'Undead') 
-			and not (skipAberration and i:GetCreatureType() == 'Abberration') 
-			and not (skipDragonkin and i:GetCreatureType() == 'Dragonkin') 
-			and not (skipGiant and i:GetCreatureType() == 'Giant') 
-			and not (skipMechanical and i:GetCreatureType() == 'Mechanical') 
-			and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
-			--local tarPosX, tarPosY, tarPosZ = i:GetPosition();
-			--local myPosX, myPosY, myPosZ = GetLocalPlayer():GetPosition();
-			--local posZ = tarPosZ - myPosZ;
-			--if (posZ < 9) and (posZ > -9) then
-			) then
-			return true;
-		end
-
-		-- skip blacklisted if we avoid enemies
-		if (self.skipHardPull) and (script_grindEX.avoidBlacklisted)
-			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
-			and (not script_grind:isTargetHardBlacklisted(i:GetGUID())) then
-			if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
-			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
-			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
-			and not (self.skipUnknown and i:GetCreatureType() == 'Not specified')
-			and not (self.skipHumanoid and i:GetCreatureType() == 'Humanoid')
-			and not (self.skipDemon and i:GetCreatureType() == 'Demon')
-			and not (self.skipBeast and i:GetCreatureType() == 'Beast')
-			and not (self.skipElemental and i:GetCreatureType() == 'Elemental')
-			and not (self.skipUndead and i:GetCreatureType() == 'Undead') 
-			and not (skipAberration and i:GetCreatureType() == 'Abberration') 
-			and not (skipDragonkin and i:GetCreatureType() == 'Dragonkin') 
-			and not (skipGiant and i:GetCreatureType() == 'Giant') 
-			and not (skipMechanical and i:GetCreatureType() == 'Mechanical') 
-			and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
-			) then
-			return true;
-			end
 		end
 
 		-- don't avoid targets and don't recheck targets
-		if (self.skipHardPull) and (not script_grindEX.avoidBlacklisted)
+		if (self.skipHardPull) and (not self.extraSafe) and (not script_grindEX.avoidBlacklisted)
 			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
 			and (not script_grind:isTargetHardBlacklisted(i:GetGUID())) then
 			if (not i:IsDead() and i:CanAttack() and not i:IsCritter()
@@ -1187,10 +1130,38 @@ function script_grind:enemyIsValid(i)
 
 		-- target blacklisted moved away from other targets
 		-- bot can target blacklisted targets under these conditions
-		if (self.skipHardPull) and (self.extraSafe) and (script_aggro:safePullRecheck(i)) then
-			if (script_grind:isTargetBlacklisted(i:GetGUID()))
+		if (self.skipHardPull)
+			and (self.extraSafe)
+			and (script_grind:isTargetBlacklisted(i:GetGUID())
+			and script_aggro:safePullRecheck(i)) then
+			if (not script_grind:isTargetHardBlacklisted(i:GetGUID()))
+				and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
+				and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
+				and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
+				and not (self.skipUnknown and i:GetCreatureType() == 'Not specified')
+				and not (self.skipHumanoid and i:GetCreatureType() == 'Humanoid')
+				and not (self.skipDemon and i:GetCreatureType() == 'Demon')
+				and not (self.skipBeast and i:GetCreatureType() == 'Beast')
+				and not (self.skipElemental and i:GetCreatureType() == 'Elemental')
+				and not (self.skipUndead and i:GetCreatureType() == 'Undead') 
+				and not (skipAberration and i:GetCreatureType() == 'Abberration') 
+				and not (skipDragonkin and i:GetCreatureType() == 'Dragonkin') 
+				and not (skipGiant and i:GetCreatureType() == 'Giant') 
+				and not (skipMechanical and i:GetCreatureType() == 'Mechanical') 
+				and not (self.skipElites and (i:GetClassification() == 1 or i:GetClassification() == 2))
+				--local tarPosX, tarPosY, tarPosZ = i:GetPosition();
+				--local myPosX, myPosY, myPosZ = GetLocalPlayer():GetPosition();
+				--local posZ = tarPosZ - myPosZ;
+				--if (posZ < 9) and (posZ > -9) then
+				) then
+			return true;
+			end
+		end
+
+
+		if (self.skipHardPull) and (self.extraSafe)
+			and (not script_grind:isTargetBlacklisted(i:GetGUID()))
 			and (not script_grind:isTargetHardBlacklisted(i:GetGUID()))
-			and (i:IsInLineOfSight())
 			and (not i:IsDead() and i:CanAttack() and not i:IsCritter()
 			and ((i:GetLevel() <= self.maxLevel and i:GetLevel() >= self.minLevel))
 			and i:GetDistance() < self.pullDistance and (not i:IsTapped() or i:IsTappedByMe())
@@ -1211,8 +1182,8 @@ function script_grind:enemyIsValid(i)
 			--if (posZ < 9) and (posZ > -9) then
 			) then
 			return true;
-			end
-		end	
+		end
+	
 	end
 	return false;
 end

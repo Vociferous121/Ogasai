@@ -241,6 +241,7 @@ function script_aggro:closeToHardBlacklistedTargets()
 			and (not script_grind:isTargetingMe(currentObj))
 			and (not currentObj:HasDebuff("Polymorph"))
 			and (not currentObj:HasDebuff("Fear"))
+			and (not currentObj:GetGUID() == script_grind.enemyObj:GetGUID())
 		then	
 			if (closestEnemy == 0) then
 				closestEnemy = currentObj;
@@ -329,22 +330,22 @@ function script_aggro:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 	-- Move just outside the aggro range
 	local moveToPoint = closestPoint;
+	local setPoint = 10;
 
 	if (closestPointToDest ~= nil) then	
 		local diffPoint = closestPointToDest - moveToPoint;
 		if (diffPoint <= 0) then
-			moveToPoint = closestPoint - 6;
+			moveToPoint = closestPoint - setPoint;
 		else
-			moveToPoint = closestPoint + 6;
+			moveToPoint = closestPoint + setPoint;
 		end
 	else
-		--moveToPoint = closestPoint + 6;
-		script_grind:assignTarget();
+		moveToPoint = closestPoint + setPoint;
 	end
 	
 	-- out of bound
 	if (moveToPoint > point or moveToPoint == 0) then
-		moveToPoint = 5;
+		moveToPoint = setPoint;
 	end
 
 	Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ);

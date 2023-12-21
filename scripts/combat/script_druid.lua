@@ -387,7 +387,7 @@ function script_druid:healsAndBuffs()
 						return true;
 					end
 					if (CastSpellByName("Regrowth", localObj)) then
-						script_grind.tickRate = 1250;
+						script_grind.tickRate = 2550;
 						self.waitTimer = GetTimeEX() + 2550
 						script_grind:setWaitTimer(2550);
 						return 4;
@@ -457,7 +457,7 @@ function script_druid:healsAndBuffs()
 	-- keep auto attack on - turns off when healing - stops casting when low mana can't heal can't shift
 	if (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 		if (script_grind.enemyObj ~= nil and script_grind.enemyObj ~= 0) then
-			if (not IsAutoCasting("Attack")) then
+			if (not IsAutoCasting("Attack")) and (not IsMoving()) then
 				script_grind.enemyObj:AutoAttack();
 			end
 		end
@@ -731,7 +731,9 @@ function script_druid:run(targetGUID)
 							self.waitTimer = GetTimeEX() + 300;
 							return 0;
 						end
-						targetObj:AutoAttack();
+						if (not IsAutoCasting("Attack")) and (not IsMoving()) then
+							targetObj:AutoAttack();
+						end
 						if (not IsMoving()) then
 							targetObj:FaceTarget();
 						end
