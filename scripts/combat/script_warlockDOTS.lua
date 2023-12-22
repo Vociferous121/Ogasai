@@ -3,19 +3,13 @@ script_warlockDOTS = {
 
 }
 
---local localObj = GetLocalPlayer();
---local localMana = localObj:GetManaPercentage();
---local localHealth = localObj:GetHealthPercentage();
---local
---if (IsInCombat()) and (localMana
-
 function script_warlockDOTS:getTargetNotDOT()
 
 	local unitsAttackingUs = 0; 
    	local currentObj, typeObj = GetFirstObject(); 
    	while currentObj ~= 0 do 
    		if typeObj == 3 then
-			if (currentObj:CanAttack() and not currentObj:IsDead()) then
+			if (currentObj:CanAttack() and not currentObj:IsDead()) and (not currentObj:IsCritter()) then
                			if (script_grind:isTargetingMe(currentObj))
 					or (script_grind:isTargetingPet(currentObj))
 					then
@@ -33,17 +27,40 @@ function script_warlockDOTS:getTargetNotDOT()
 return nil;
 end
 
+-- get a target that has DOTS if needed... maybe by health and focus to kill that one?
+function script_warlockDOTS:getTargetDOT()
+
+	local unitsAttackingUs = 0; 
+   	local currentObj, typeObj = GetFirstObject(); 
+   	while currentObj ~= 0 do 
+   		if typeObj == 3 then
+			if (currentObj:CanAttack() and not currentObj:IsDead()) and (not currentObj:IsCritter()) then
+               			if (script_grind:isTargetingMe(currentObj))
+					or (script_grind:isTargetingPet(currentObj))
+					then
+					if (currentObj:HasDebuff('Corruption'))
+					or (currentObj:HasDebuff("Immolate"))
+					or (currentObj:HasDebuff("Curse of Agony"))
+					then
+           				return currentObj;
+              	 			end 
+				end
+			end
+           	end 
+       	end
+        currentObj, typeObj = GetNextObject(currentObj); 
+return nil;
+end
+
 function script_warlockDOTS:corruption(targetObj) 
 	local currentObj, typeObj = GetFirstObject(); 
 	local localObj = GetLocalPlayer();
 	local mana = localObj:GetManaPercentage();
-	if (mana > 20) then
+	if (mana >= 15) and (HasSpell("Corruption")) then
 	while currentObj ~= 0 do 
 		if typeObj == 3 then
-			if (currentObj:CanAttack()) and (not currentObj:IsDead()) then
-				if (currentObj:GetDistance() <= 40)
-			--and (script_grind:isTargetingMe(currentObj) or script_grind:isTargetingPet(currentObj))
-				then
+			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) then
+				if (currentObj:GetDistance() <= 40) then
 					if (not currentObj:HasDebuff("Corruption")) and (currentObj:IsInLineOfSight()) then
 						if (not script_grind.adjustTickRate) then
 							script_grind.tickRate = 100;
@@ -67,13 +84,11 @@ function script_warlockDOTS:immolate(targetObj)
 	local currentObj, typeObj = GetFirstObject(); 
 	local localObj = GetLocalPlayer();
 	local mana = localObj:GetManaPercentage();
-	if (mana > 40) then
+	if (mana >= 40) and (HasSpell("Immolate")) then
 	while currentObj ~= 0 do 
 		if typeObj == 3 then
-			if (currentObj:CanAttack()) and (not currentObj:IsDead()) then
-				if (currentObj:GetDistance() <= 40)
-			--and (script_grind:isTargetingMe(currentObj) or script_grind:isTargetingPet(currentObj))
-				then
+			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) then
+				if (currentObj:GetDistance() <= 40) then
 					if (not currentObj:HasDebuff("Immolate")) and (currentObj:IsInLineOfSight()) then
 						if (not script_grind.adjustTickRate) then
 							script_grind.tickRate = 100;
@@ -97,13 +112,11 @@ function script_warlockDOTS:curseOfAgony(targetObj)
 	local currentObj, typeObj = GetFirstObject(); 
 	local localObj = GetLocalPlayer();
 	local mana = localObj:GetManaPercentage();
-	if (mana > 40) and (HasSpell("Curse of Agony")) then
+	if (mana >= 15) and (HasSpell("Curse of Agony")) then
 	while currentObj ~= 0 do 
 		if typeObj == 3 then
-			if (currentObj:CanAttack()) and (not currentObj:IsDead()) then
-				if (currentObj:GetDistance() <= 40)
-			--and (script_grind:isTargetingMe(currentObj) or script_grind:isTargetingPet(currentObj))
-				then
+			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) then
+				if (currentObj:GetDistance() <= 40) then
 					if (not currentObj:HasDebuff("Curse of Agony")) and (currentObj:IsInLineOfSight()) then
 						if (not script_grind.adjustTickRate) then
 							script_grind.tickRate = 100;

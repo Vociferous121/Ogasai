@@ -632,13 +632,14 @@ function script_warlock:run(targetGUID)
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
 			if (self.feelingLucky) then
-				if (script_grind:enemiesAttackingUs() <= self.howLucky)
-					and (localMana >= 50)
+				if (script_grind:enemiesAttackingUs() < self.howLucky)
+					--and (localMana >= 50)
 					and (localHealth >= 50)
+					and (localMana > 15)
 				then
 					script_warlockDOTS:corruption(targetObj);
-					script_warlockDOTS:immolate(targetObj);
 					script_warlockDOTS:curseOfAgony(targetObj);
+					script_warlockDOTS:immolate(targetObj);
 				end
 			end
 

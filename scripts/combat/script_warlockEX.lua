@@ -96,7 +96,7 @@ function script_warlockEX:menu()
 	
 		if (script_warlock.feelingLucky) then
 			Text("Your Luck");
-			script_warlock.howLucky = SliderInt("???", 1, 10, script_warlock.howLucky);
+			script_warlock.howLucky = SliderInt("???", 1, 8, script_warlock.howLucky);
 			script_grindEX.avoidBlacklisted = false;
 			script_grind.skipHardPull = false;
 		end
