@@ -56,7 +56,7 @@ function script_warlockDOTS:corruption(targetObj)
 	local currentObj, typeObj = GetFirstObject(); 
 	local localObj = GetLocalPlayer();
 	local mana = localObj:GetManaPercentage();
-	if (mana >= 15) and (HasSpell("Corruption")) then
+	if (IsInCombat()) and (mana >= 15) and (HasSpell("Corruption")) then
 	while currentObj ~= 0 do 
 		if typeObj == 3 then
 			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) then
@@ -84,7 +84,7 @@ function script_warlockDOTS:immolate(targetObj)
 	local currentObj, typeObj = GetFirstObject(); 
 	local localObj = GetLocalPlayer();
 	local mana = localObj:GetManaPercentage();
-	if (mana >= 40) and (HasSpell("Immolate")) then
+	if (IsInCombat()) and (mana >= 40) and (HasSpell("Immolate")) then
 	while currentObj ~= 0 do 
 		if typeObj == 3 then
 			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) then
@@ -112,7 +112,7 @@ function script_warlockDOTS:curseOfAgony(targetObj)
 	local currentObj, typeObj = GetFirstObject(); 
 	local localObj = GetLocalPlayer();
 	local mana = localObj:GetManaPercentage();
-	if (mana >= 15) and (HasSpell("Curse of Agony")) then
+	if (IsInCombat()) and (mana >= 15) and (HasSpell("Curse of Agony")) then
 	while currentObj ~= 0 do 
 		if typeObj == 3 then
 			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) then

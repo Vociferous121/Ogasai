@@ -192,9 +192,6 @@ function script_warlock:setup()
 		self.useWand = false;
 	end
 
-
--- issue with hasPet and not having pet low level causing the bot to stop
--- may be a combat command. learning a pet spell and summoning pet continues the script
 	if (GetNumPartyMembers() >= 1) then
 		self.fearAdds = false;
 		self.useImp = true;
@@ -202,6 +199,8 @@ function script_warlock:setup()
 		self.drainLifeHealth = 20;
 		self.wandHealthPreset = 5;
 		self.drainSoulHealthPreset = 10;
+		self.waitAfterCombat = false;
+		
 	end
 
 	if (GetNumPartyMembers() < 1) then
@@ -397,27 +396,22 @@ function script_warlock:run(targetGUID)
 		end
 	end
 
-	-- force bot to attack pets target
-	if (self.waitAfterCombat) then
-		if (IsInCombat()) and (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (self.hasPet) then
-			if (petHasTarget ~= 0) then
-				if (GetPet():GetDistance() > 10) then
-					AssistUnit("pet");
-					PetFollow();
-				end
-			else
-				AssistUnit("pet");
-				self.message = "Stuck in combat! WAITING!";
-				return 4;
-			end
-		end
-	end
-
 	if (GetPet() ~= 0) and (GetPet():GetHealthPercentage() > 1) then
 		if (IsInCombat()) and (not targetObj:IsInLineOfSight() or not GetPet():IsInLineOfSight()) then
 			PetFollow();
 			return 3;
 
+		end
+	end
+
+	-- stuck in combat
+	if (self.waitAfterCombat) and (GetNumPartyMembers() < 1) and (self.hasPet) and (IsInCombat()) and (GetPet() ~= 0) then
+			local petHasTarget = GetPet():GetUnitsTarget();
+			local playerHasTarget = localObj:GetUnitsTarget();
+		if (playerHasTarget == 0) and (petHasTarget == 0) and (script_vendor.status == 0) then
+			--AssistUnit("pet");
+			self.message = "No Target - stuck in combat! WAITING!";
+			return 4;
 		end
 	end
 
@@ -634,8 +628,8 @@ function script_warlock:run(targetGUID)
 			if (self.feelingLucky) then
 				if (script_grind:enemiesAttackingUs() < self.howLucky)
 					--and (localMana >= 50)
-					and (localHealth >= 50)
-					and (localMana > 15)
+					and (localHealth >= 65)
+					and (localMana > 20)
 				then
 					script_warlockDOTS:corruption(targetObj);
 					script_warlockDOTS:curseOfAgony(targetObj);
@@ -701,7 +695,7 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- Set the pet to attack
-			if (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetPet():GetHealthPercentage() >= 1) and (targetObj:GetDistance() < 35) and (targetHealth < 99 or targetObj:HasDebuff("Curse of Agony") or 
+			if (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (targetHealth < 99 or targetObj:HasDebuff("Curse of Agony") or 
 				targetObj:HasDebuff("Corruption")) or (script_grind:isTargetingMe(targetObj)) and (not targetObj:HasDebuff("Fear")) then
 				script_warlock:petAttack();
 			end
@@ -1046,27 +1040,6 @@ function script_warlock:run(targetGUID)
 					CastSpellByName("Shoot");
 					self.waitTimer = GetTimeEX() + 250; 
 					return true;
-				end
-			end
-
-			-- force bot to attack pets target
-			if (self.waitAfterCombat) then
-				if (IsInCombat()) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (GetPet() ~= 0 and self.hasPet and GetPet():GetHealthPercentage() > 1) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
-					if (petHasTarget ~= 0) then
-						if (GetPet():GetDistance() > 10) then
-							PetFollow();
-						end
-						if (GetPet():GetDistance() < 10) then
-							AssistUnit("pet");	
-							if (not script_grind.adjustTickRate) then
-							script_grind.tickRate = 135;
-							end
-						end
-					else
-						AssistUnit("pet");
-						self.message = "Stuck in combat! WAITING!";
-						return 4;
-					end
 				end
 			end
 		end

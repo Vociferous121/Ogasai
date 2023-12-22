@@ -113,7 +113,7 @@ function script_grindMenu:menu()
 		
 		script_paranoiaMenu:menu();
 
-		wasClicked, script_grind.adjustTickRate = Checkbox("Adjust Script Speed !!CAUTION!!", script_grind.adjustTickRate);
+		wasClicked, script_grind.adjustTickRate = Checkbox("Adjust Script Speed", script_grind.adjustTickRate);
 		if (script_grind.adjustTickRate) then
 			Text("Script Tick Rate - How Fast The Scripts Run"); script_grind.tickRate = SliderInt("TR (ms)", 0, 3000, script_grind.tickRate);	
 		end

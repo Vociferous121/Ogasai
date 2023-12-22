@@ -23,42 +23,41 @@ script_priestFollowerHeals = {
 
 function script_priestFollowerHeals:HealsAndBuffs()
 
-	if (IsAutoCasting("Shoot")) then
-		self.waitTimer = GetTimeEX() + 0;
-	end
-
-    local localMana = GetLocalPlayer():GetManaPercentage();
 	if (not IsStanding()) then 
 		StopMoving();
 	end
-	-- Heals and buffs
+
 	for i = 1, GetNumPartyMembers()+1 do
-		local partyMember = GetPartyMember(i);
+
+			local partyMember = GetPartyMember(i);
+
 		if (i == GetNumPartyMembers()+1) then
 			partyMember = GetLocalPlayer();
 		end
-		local partyMembersHP = partyMember:GetHealthPercentage();
-		if (partyMembersHP > 0 and localMana > 1) then
-			local partyMemberDistance = partyMember:GetDistance();
-			leaderObj = GetPartyMember(GetPartyLeaderIndex());
-			local localHealth = GetLocalPlayer():GetHealthPercentage();					
 
-			-- Move in range: combat script return 3
-			if (script_follow.combatError == 3) then
-				script_follow.message = "Moving to target...";
-				script_follow:moveInLineOfSight(partyMember);		
-				return;
-			end
+			local localMana = GetLocalPlayer():GetManaPercentage();
+			local localEnergy = GetLocalPlayer():GetEnergyPercentage();
+			local partyMemberHP = partyMember:GetHealthPercentage();
+
+		if (partyMemberHP > 0) and (localMana > 1 or localEnergy > 1) then
+				local partyMemberDistance = partyMember:GetDistance();
+				leaderObj = GetPartyMember(GetPartyLeaderIndex());
+				local localHealth = GetLocalPlayer():GetHealthPercentage();
+		end
+
+		-- Move in range: combat script return 3
+		if (script_follow.combatError == 3) then
+			script_follow.message = "Moving to target...";
+			script_follow:moveInLineOfSight(partyMember);		
+		return;
+		end
 			
-			-- Move in line of sight and in range of the party member
+		-- Move in line of sight and in range of the party member
+		if (partyMember:GetDistance() > 40) or (not partyMember:IsInLineOfSight()) then
 			if (script_follow:moveInLineOfSight(partyMember)) then
-				return true; 
+			return true; 
 			end
-
-            -- priest buffs
-            local class = UnitClass('player');
-
-            if (class == 'Priest') then
+		end
 
                 -- Dispel Magic
                 if (HasSpell("Dispel Magic")) and (localMana > 20) and (GetNumPartyMembers() >= 1) then 
@@ -148,11 +147,8 @@ function script_priestFollowerHeals:HealsAndBuffs()
                         end
                     end
                 end
-            end
 
-            local class = UnitClass('player');
-
-            if (class == ('Priest')) and (self.enableHeals) then
+            if (self.enableHeals) then
 
                 -- flash heal 
                 if (self.clickFlashHeal) then
@@ -243,7 +239,6 @@ function script_priestFollowerHeals:HealsAndBuffs()
                         end
                     end
                 end
-            end
         end
     end
     return;

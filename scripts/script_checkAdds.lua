@@ -1,7 +1,7 @@
 script_checkAdds = {
 
 	addsRange = 35,	-- range circles from from adds
-	checkAddsRange = 3,	-- safe margin "runner script" move from adds
+	checkAddsRange = 5,	-- safe margin "runner script" move from adds
 	closestEnemy = 0,
 	intersectEnemy = nil,
 }
@@ -11,7 +11,9 @@ function script_checkAdds:checkAdds()
 
 		if (script_checkAdds:avoidToAggro(self.checkAddsRange)) then
 
-			script_grind.tickRate = 50;
+			if (not script_grind.adjustTickRate) then
+				script_grind.tickRate = 50;
+			end
 
 			if (not script_unstuck:pathClearAuto(2)) then
 				script_unstuck:unstuck();
@@ -137,7 +139,11 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 end
 
 function script_checkAdds:avoidToAggro(safeMargin) 
-	script_grind.tickRate = 50;
+	
+	if (not script_grind.adjustTickRate) then
+		script_grind.tickRate = 50;
+	end
+
 	local countUnitsInRange = 0;
 	local currentObj, typeObj = GetFirstObject();
 	local localObj = GetLocalPlayer();
@@ -405,7 +411,10 @@ end
 
 -- lazy attempt to avoid adds during resting
 function script_checkAdds:avoidToAggro2(safeMargin) 
-	script_grind.tickRate = 50;
+	if (not script_grind.adjustTickRate) then
+		script_grind.tickRate = 50;
+	end
+
 	local countUnitsInRange = 0;
 	local currentObj, typeObj = GetFirstObject();
 	local localObj = GetLocalPlayer();

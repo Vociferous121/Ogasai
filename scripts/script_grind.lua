@@ -148,7 +148,7 @@ function script_grind:setup()
 	end
 
 	-- don't skip hard pulls when we are at starter zones
-	if (GetLocalPlayer():GetLevel() < 5) then
+	if (GetLocalPlayer():GetLevel() <= 5) then
 		self.skipHardPull = false;
 	end
 
@@ -427,7 +427,7 @@ function script_grind:run()
 
 	-- check paranoia	
 		-- jump when player in range in combat
-	if (IsInCombat() and not script_grind.undoAFK) then
+	if (IsInCombat() and not script_grind.undoAFK) and (script_paranoia.paranoidOn) then
 		if (script_paranoiaCheck:playersWithinRange2(60) and script_grind.playersTargetingUs() >= 1) 
 			or (script_paranoiaCheck:playersWithinRange2(38)) then
 			if (not IsCasting()) and (not IsChanneling()) then
@@ -558,7 +558,10 @@ function script_grind:run()
 		-- Gather
 		if (self.gather and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
 			if (script_gather:gather()) then
-				script_grind.tickRate = 100;
+				if (not script_grind.adjustTickRate) then
+					script_grind.tickRate = 100;
+				end
+
 				self.message = 'Gathering ' .. script_gather:currentGatherName() .. '...';
 				return;
 			end
@@ -681,21 +684,23 @@ function script_grind:run()
 			end
 		end
 
-		if (script_grindEX.avoidBlacklisted) and (script_aggro:closeToBlacklistedTargets() or script_aggro:closeToHardBlacklistedTargets()) then
-			self.message = "Close To Blacklisted Target.. Moving...";
-			if (not IsEating()) and (not IsDrinking()) then
-				if (script_runner:avoidToBlacklist(5)) then
-					return true;
+		if (script_grindEX.avoidBlacklisted) then
+			if (script_aggro:closeToBlacklistedTargets() or script_aggro:closeToHardBlacklistedTargets()) then
+				self.message = "Close To Blacklisted Target.. Moving...";
+				if (not IsEating()) and (not IsDrinking()) then
+					if (script_runner:avoidToBlacklist(5)) then
+						return true;
+					end
+				elseif (IsEating() or IsDrinking()) then
+					if (script_runner:avoidToBlacklist(13)) then
+						return true;
+					end
 				end
-			elseif (IsEating() or IsDrinking()) then
-				if (script_runner:avoidToBlacklist(13)) then
-					return true;
-				end
-			end
+			end	
 		end
 
 		-- attempt to run away from adds - don't pull them
-		if (IsInCombat())
+		if (IsInCombat()) and (self.safePull)
 			and (GetLocalPlayer():GetHealthPercentage() >= 1)
 			and (script_grind.skipHardPull)
 			and (script_grind:isTargetingMe2(self.enemyObj))
@@ -767,8 +772,9 @@ function script_grind:run()
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
 
-				script_grind.tickRate = 100;
-
+				if (not script_grind.adjustTickRate) then
+					script_grind.tickRate = 100;
+				end
 
 				if (_x ~= 0 and x ~= 0) then
 					local moveBuffer = math.random(-2, 2);
@@ -799,7 +805,7 @@ function script_grind:run()
 			end
 
 			-- attempt to run away from adds - don't pull them
-			if (IsInCombat())
+			if (IsInCombat()) and (self.safePull)
 				and (GetLocalPlayer():GetHealthPercentage() >= 1)
 				and (script_grind.skipHardPull)
 				and (script_grind:isTargetingMe2(self.enemyObj))
@@ -991,8 +997,32 @@ function script_grind:isTargetingPet(i)
 	return false;
 end
 
-function script_grind:isTargetingGroup(y) 
-	return false;
+function script_grind:isTargetingGroup(currentObj) 
+
+	partyMember = 0;
+
+	for i = 1, GetNumPartyMembers() + 1 do
+
+		partyMember = GetPartyMember(i);
+			
+	end
+	
+	local currentObj, typeObj = GetFirstObject(); 
+	while currentObj ~= 0 do 
+    		if typeObj == 3 then
+			if (currentObj:CanAttack() and not currentObj:IsDead()) then
+				local localObj = GetLocalPlayer();
+				local targetTarget = currentObj:GetUnitsTarget();
+				if (targetTarget ~= 0 and targetTarget ~= nil) then
+					if (targetTarget:GetGUID() == partyMember:GetGUID()) then
+						return true;
+					end
+                		end 
+            		end 
+       		end
+        currentObj, typeObj = GetNextObject(currentObj); 
+   	end
+    return false;
 end
 
 function script_grind:isTargetingMe(i) 
@@ -1448,8 +1478,10 @@ function script_grind:runRest()
 		script_grind.blacklistLootTime = GetTimeEX() + 30000;
 
 		-- set tick rate for resting
-		local randomRestTick = math.random(1200, 1600);
-		script_grind.tickRate = randomRestTick;
+		if (not script_grind.adjustTickRate) then
+			local randomRestTick = math.random(1200, 1600);
+			script_grind.tickRate = randomRestTick;
+		end
 
 		self.message = "Resting...";
 

@@ -11,7 +11,7 @@ script_follow = {
 	pullDistance = 150,
 	findLootDistance = 40,
 	lootDistance = 3,
-	skipLooting = true,
+	skipLooting = false,
 	lootCheck = {},
 	ressDistance = 25,
 	combatError = 0,
@@ -36,6 +36,12 @@ script_follow = {
 	extraFunctions = include("scripts\\script_followEX.lua"),
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
 	healsLoaded = include("scripts\\script_followHealsAndBuffs.lua"),
+	menuLoaded = include("scripts\\script_followMenu.lua"),
+	drawDataLoaded = include("scripts\\script_drawData.lua"),
+	drawStatusLoaded = include("scripts\\script_drawStatus.lua"),
+	checkDebuffsLoaded = include("scripts\\script_checkDebuffs.lua"),
+
+
 	drawNav = true,
 
 }
@@ -44,7 +50,7 @@ function script_follow:window()
 	if (self.isChecked) then 
 		EndWindow();
 		if(NewWindow("Follower Options", 320, 360)) then 
-			script_followEX:menu();
+			script_followMenu:menu();
 		end
 	end
 end
@@ -360,6 +366,16 @@ function script_follow:run()
        		end
 	end	
 
+		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) and (script_follow:GetPartyLeaderObject():GetUnitsTarget() ~= 0) then
+			if (self.enemyObj:GetGUID() ~= script_follow:GetPartyLeaderObject():GetUnitsTarget():GetGUID()) then
+				self.enemyObj = nil;
+				ClearTarget();
+			end
+		elseif (script_follow:GetPartyLeaderObject():GetUnitsTarget() == 0) then
+				self.enemyObj = nil;
+				ClearTarget();
+		end
+
 		-- Finish loot before we engage new targets or navigate
 		if (self.lootObj ~= nil and not IsInCombat()) then
 			return; 
@@ -433,6 +449,7 @@ function script_follow:run()
 						local x, y, z = script_follow:GetPartyLeaderObject():GetPosition();
 						self.message = "Following Party Leader...";
 						script_navEX:moveToTarget(GetLocalPlayer(), x, y, z);
+						self.waitTimer = GetTimeEX() + 300;
 						return;
 					end
 				end
@@ -443,6 +460,7 @@ function script_follow:run()
 					local x, y, z = script_follow:GetPartyLeaderObject():GetPosition();
 					self.message = "Following Party Leader...";
 					script_navEX:moveToTarget(GetLocalPlayer(), x, y, z);
+					self.waitTimer = GetTimeEX() + 300;
 					return;
 				end
 			end
@@ -591,30 +609,4 @@ function script_follow:playersTargetingUs() -- returns number of players attacki
         	currentObj, typeObj = GetNextObject(currentObj); 
 	end
     return nrPlayersTargetingUs;
-end
-
-function script_follow:playersWithinRange(range)
-		local currentObj, typeObj = GetFirstObject(); 
-	while currentObj ~= 0 do 
-    		if (typeObj == 4 and not currentObj:IsDead()) then
-			if (currentObj:GetDistance() < range) then 
-					local localObj = GetLocalPlayer();
-				if (localObj:GetGUID() ~= currentObj:GetGUID()) then
-                			return true;
-				end
-			end 
-       		end
-        	currentObj, typeObj = GetNextObject(currentObj); 
-   	end
-    return false;
-end
-
-function script_follow:getDistanceDif()
-	local x, y, z = GetLocalPlayer():GetPosition();
-	local xV, yV, zV = self.myX-x, self.myY-y, self.myZ-z;
-	return math.sqrt(xV^2 + yV^2 + zV^2);
-end
-
-function script_follow:draw()
-	script_followEX:drawStatus();	
 end

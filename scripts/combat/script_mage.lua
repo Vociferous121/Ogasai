@@ -463,7 +463,9 @@ function script_mage:run(targetGUID)
 
 		else	
 
-			script_checkAdds:checkAdds();
+			if (script_grind.skipHardPull) then
+				script_checkAdds:checkAdds();
+			end
 
 			-- display message in ogasai message box
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
@@ -827,6 +829,21 @@ function script_mage:run(targetGUID)
 				
 				-- cast fireball
 				if (CastSpellByName("Fireball", targetObj)) then
+					script_grind:setWaitTimer(1500);
+					self.waitTimer = GetTimeEX() + 1500;
+					return 0;
+				end
+			end
+
+			-- this is here to check for low level not having a wand yet
+			if (self.frostMage) and (not IsMoving()) and (not localObj:HasRangedWeapon()) and (targetHealth <= self.useWandHealth) then				
+		
+				if (not targetObj:IsSpellInRange("Fireball")) or (not targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Frost Nova")) then
+					return 3;
+				end	
+				
+				-- cast frostbolt
+				if (CastSpellByName("Frostbolt", targetObj)) then
 					script_grind:setWaitTimer(1500);
 					self.waitTimer = GetTimeEX() + 1500;
 					return 0;

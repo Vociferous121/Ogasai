@@ -80,7 +80,9 @@ end
 function script_om:FORCEOM2()
 
 	while currentObj ~= 0 do
-		script_grind.tickRate = 50;
+		if (not script_grind.adjustTickRate) then
+			script_grind.tickRate = 50;
+		end
 		if (typeObj == 3) and (currentObj:GetDistance() < script_checkAdds.addsRange)
 			and (currentObj:GetGUID() ~= self.enemyObj:GetGUID()) 
 			and (not script_grind:isTargetingMe3(currentObj))

@@ -50,11 +50,11 @@ function script_followHealsAndBuffs:healAndBuff()
 			end
 
 			-- mage heals and buffs
-			--if (class == 'Mage') then
-			--	if (script_mageFollowerHeals:HealsAndBuffs()) then
-			--		return true;
-			--	end
-			--end
+			if (class == 'Mage') then
+				if (script_mageFollowerHeals:HealsAndBuffs()) then
+					return true;
+				end
+			end
 
 			-- druid heals and buffs
 			if (class == 'Druid') then

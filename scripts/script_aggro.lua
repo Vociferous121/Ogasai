@@ -232,6 +232,10 @@ function script_aggro:closeToHardBlacklistedTargets()
 	local closestDist = 999;
 	local aggro = 0;
 	local aggroClosest = 0;
+	local enemy = GetLocalPlayer();
+	if (script_grind.enemyObj ~= 0) and (script_grind.enemyObj ~= nil) then
+		local enemy = script_grind.enemyObj:GetGUID();
+	end
 
 	while currentObj ~= 0 do
 		aggro = currentObj:GetLevel() - localObj:GetLevel() + 21;
@@ -243,7 +247,7 @@ function script_aggro:closeToHardBlacklistedTargets()
 			and (not script_grind:isTargetingMe(currentObj))
 			and (not currentObj:HasDebuff("Polymorph"))
 			and (not currentObj:HasDebuff("Fear"))
-			and (not currentObj:GetGUID() == script_grind.enemyObj:GetGUID())
+			and (not currentObj:GetGUID() == enemy)
 		then	
 			if (closestEnemy == 0) then
 				closestEnemy = currentObj;

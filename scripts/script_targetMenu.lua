@@ -28,6 +28,11 @@ function script_targetMenu:menu()
 		Text("           || Blacklisting Resets On Reload ||");
 
 		Separator();
+		
+		if (not script_grind.skipHardPull) then
+			script_grind.extraSafe = false;
+			script_grindEX.avoidBlacklisted = false;
+		end
 
 		wasClicked, script_grind.skipHardPull = Checkbox("Blacklist And Avoid Enemies / Aggro Ranges", script_grind.skipHardPull);
 
