@@ -405,7 +405,8 @@ function script_warlock:run(targetGUID)
 	end
 
 	-- stuck in combat
-	if (self.waitAfterCombat) and (GetNumPartyMembers() < 1) and (self.hasPet) and (IsInCombat()) and (GetPet() ~= 0) then
+	--and (GetNumPartyMembers() < 1)
+	if (self.waitAfterCombat) and (self.hasPet) and (IsInCombat()) and (GetPet() ~= 0) then
 			local petHasTarget = GetPet():GetUnitsTarget();
 			local playerHasTarget = localObj:GetUnitsTarget();
 		if (playerHasTarget == 0) and (petHasTarget == 0) and (script_vendor.status == 0) then
@@ -447,6 +448,18 @@ function script_warlock:run(targetGUID)
 
 	--Valid Enemy
 	if (targetObj ~= 0 and targetObj ~= nil) and (not localObj:IsStunned()) and (not script_checkDebuffs:hasSilence()) then
+
+		-- in group with a mage? run backwards!
+		if (GetNumPartyMembers() >= 1) then
+			if (targetObj:HasDebuff("Frost Nova")) or (targetObj:HasDebuff("Frostbite")) then
+				-- Run backwards if we are too close to the target
+				if (targetObj:GetDistance() <= 7) then 
+					if (script_warlock:runBackwards(targetObj,8)) then 
+						return 4; 
+					end 
+				end
+			end
+		end
 
 		-- Cant Attack dead targets
 		if (targetObj:IsDead() or not targetObj:CanAttack()) then

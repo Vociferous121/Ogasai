@@ -1,6 +1,8 @@
 script_followEX = {
 	
 	healsLoaded = include("scripts\\script_followHealsAndBuffs.lua"),
+	followEX2Loaded = include("scripts\\script_followEX2.lua"),
+
 
 		drawUnits = false,
 		drawAggro = false,
@@ -11,10 +13,6 @@ function script_followEX:getDistanceDif()
 	local x, y, z = GetLocalPlayer():GetPosition();
 	local xV, yV, zV = self.myX-x, self.myY-y, self.myZ-z;
 	return math.sqrt(xV^2 + yV^2 + zV^2);
-end
-
-function script_followEX:draw()
-	script_followEX:drawStatus();	
 end
 
 function script_followEX:drawStatus()

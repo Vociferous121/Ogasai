@@ -40,9 +40,8 @@ script_follow = {
 	drawDataLoaded = include("scripts\\script_drawData.lua"),
 	drawStatusLoaded = include("scripts\\script_drawStatus.lua"),
 	checkDebuffsLoaded = include("scripts\\script_checkDebuffs.lua"),
-
-
 	drawNav = true,
+	objectAttackingUs = 0,
 
 }
 
@@ -229,15 +228,14 @@ function script_follow:run()
 			return;
 		end
 
-		-- Check: Rogue only, If we just Vanished, move away from enemies within 30 yards
-		if (localObj:HasBuff("Vanish")) then
-			if (script_extraFunctions:runBackwards(1, 30)) then 
-				ClearTarget(); 
-				self.message = "Moving away from enemies..."; 
-				return; 
-			end 
+		-- get target attacking us
+		if (IsInCombat()) and (self.enemyObj == nil) or (self.enemyObj == 0) then
+			TargetNearestEnemy();
+			if (localObj:GetUnitsTarget() ~= 0) then
+				self.enemyObj = localObj:GetUnitsTarget();
+			end
 		end
-		
+				
 		-- Rest
 		if (not IsInCombat() and script_follow:enemiesAttackingUs() == 0 and not localObj:HasBuff('Feign Death')) then
 			if(RunRestScript()) then
@@ -339,7 +337,7 @@ function script_follow:run()
             			local target = GetTarget();
 			if (target:CanAttack() and self.assistInCombat) then
 				self.enemyObj = target;
-			else
+			elseif (script_follow:enemiesAttackingUs() == 0) then
 				self.enemyObj = nil;
 			end 
 
@@ -358,7 +356,7 @@ function script_follow:run()
 				if (script_follow:GetPartyLeaderObject():GetUnitsTarget():GetHealthPercentage() <= self.dpsHP and self.assistInCombat) then
 					self.enemyObj = script_follow:GetPartyLeaderObject():GetUnitsTarget();
 					script_follow:moveInLineOfSight(leaderObj);
-				else
+				elseif (script_follow:enemiesAttackingUs() == 0) then
 					self.enemyObj = nil;
 					ClearTarget();
 				end
@@ -366,12 +364,14 @@ function script_follow:run()
        		end
 	end	
 
-		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) and (script_follow:GetPartyLeaderObject():GetUnitsTarget() ~= 0) then
-			if (self.enemyObj:GetGUID() ~= script_follow:GetPartyLeaderObject():GetUnitsTarget():GetGUID()) then
-				self.enemyObj = nil;
-				ClearTarget();
+		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
+			if (script_follow:enemiesAttackingUs() == 0) then
+				if (self.enemyObj:GetGUID() ~= script_follow:GetPartyLeaderObject():GetUnitsTarget():GetGUID()) then
+					self.enemyObj = nil;
+					ClearTarget();
+				end
 			end
-		elseif (script_follow:GetPartyLeaderObject():GetUnitsTarget() == 0) then
+		elseif (script_follow:enemiesAttackingUs() == 0) and (script_follow:GetPartyLeaderObject():GetUnitsTarget() == 0) then
 				self.enemyObj = nil;
 				ClearTarget();
 		end
@@ -485,6 +485,7 @@ function script_follow:getTargetAttackingUs()
 			if (currentObj:CanAttack() and not currentObj:IsDead()) then
 					local localObj = GetLocalPlayer();		
 				if (currentObj:GetUnitsTarget() == localObj) then 
+					self.objectAttackingUs = currentObj;
                 			return currentObj; 
 				end 
 			end

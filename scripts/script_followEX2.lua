@@ -1,0 +1,23 @@
+script_followEX2 = {
+
+}
+
+function script_followEX2:isTargetingMe(target) -- self.enemyObj
+	local localPlayer = GetLocalPlayer();
+	if (localPlayer ~= nil and localPlayer ~= 0 and not localPlayer:IsDead()) then
+		if (target:GetUnitsTarget() ~= nil and target:GetUnitsTarget() ~= 0) then
+			return target:GetUnitsTarget():GetGUID() == localPlayer:GetGUID();
+		end
+	end
+	return false;
+end
+
+function script_followEX2:isTargetingMe2(currentObj) 
+	local localPlayer = GetLocalPlayer();
+	if (localPlayer ~= nil and localPlayer ~= 0 and not localPlayer:IsDead()) then
+		if (currentObj:GetUnitsTarget() ~= nil and currentObj:GetUnitsTarget() ~= 0) then
+			return currentObj:GetUnitsTarget():GetGUID() == localPlayer:GetGUID();
+		end
+	end
+	return false;
+end
