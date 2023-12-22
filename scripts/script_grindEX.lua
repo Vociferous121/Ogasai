@@ -4,7 +4,7 @@ script_grindEX = {
 	unstuckTime = GetTimeEX(),
 	deathCounter = 0,
 	logoutOnHearth = true,
-	allowSwim = false,
+	allowSwim = true,
 }
 
 function script_grindEX:doChecks() 

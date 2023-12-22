@@ -170,18 +170,6 @@ function script_warlock:runBackwards(targetObj, range)
 	return false;
 end
 
-function script_warlock:isTargetingGroup(y) 
-	for i = 1, GetNumPartyMembers() do
-		local partyMember = GetPartyMember(i);
-		if (partyMember ~= nil and partyMember ~= 0 and not partyMember:IsDead()) then
-			if (y:GetUnitsTarget() ~= nil and y:GetUnitsTarget() ~= 0 and not script_follow:isTargetingPet(y)) then
-				return y:GetUnitsTarget():GetGUID() == partyMember:GetGUID();
-			end
-		end
-	end
-	return false;
-end
-
 function script_warlock:setup()
 
 	self.waitTimer = GetTimeEX();
@@ -405,12 +393,11 @@ function script_warlock:run(targetGUID)
 	end
 
 	-- stuck in combat
-	--and (GetNumPartyMembers() < 1)
 	if (self.waitAfterCombat) and (self.hasPet) and (IsInCombat()) and (GetPet() ~= 0) then
 			local petHasTarget = GetPet():GetUnitsTarget();
-			local playerHasTarget = localObj:GetUnitsTarget();
+			local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
 		if (playerHasTarget == 0) and (petHasTarget == 0) and (script_vendor.status == 0) then
-			--AssistUnit("pet");
+			AssistUnit("pet");
 			self.message = "No Target - stuck in combat! WAITING!";
 			return 4;
 		end

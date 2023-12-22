@@ -136,6 +136,13 @@ function script_grind:setup()
 		self.useMana = false;
 		self.restMana = 0;
 	end
+
+	if (GetNumPartyMembers() >= 1) then
+		script_paranoia.paranoidOn = false;
+		self.skipHardPull = false;
+		script_grindEX.avoidBlacklisted = false;
+	end
+
 	
 	-- No refill as mage or at level 1
 	if (strfind("Mage", class)) then
@@ -927,7 +934,7 @@ function script_grind:getTargetAttackingUs()
 			end	
                 	if (script_grind:isTargetingGroup(currentObj)) then 
                 		return currentObj:GetGUID();
-                	end 
+                	end
             	end 
        	end
         currentObj, typeObj = GetNextObject(currentObj); 
@@ -997,33 +1004,47 @@ function script_grind:isTargetingPet(i)
 	return false;
 end
 
-function script_grind:isTargetingGroup(currentObj) 
-
-	partyMember = 0;
-
-	for i = 1, GetNumPartyMembers() + 1 do
-
-		partyMember = GetPartyMember(i);
-			
-	end
-	
-	local currentObj, typeObj = GetFirstObject(); 
-	while currentObj ~= 0 do 
-    		if typeObj == 3 then
-			if (currentObj:CanAttack() and not currentObj:IsDead()) then
-				local localObj = GetLocalPlayer();
-				local targetTarget = currentObj:GetUnitsTarget();
-				if (targetTarget ~= 0 and targetTarget ~= nil) then
-					if (targetTarget:GetGUID() == partyMember:GetGUID()) then
-						return true;
+function script_grind:isTargetingGroup(y) 
+	for i = 1, GetNumPartyMembers()+1 do
+		local partyMember = GetPartyMember(i);
+		if (partyMember ~= nil and partyMember ~= 0 and not partyMember:IsDead()) then
+			local y, typeObj = GetFirstObject(); 
+			while y ~= 0 do 
+    				if typeObj == 3 then
+					if (y:GetUnitsTarget() ~= nil and y:GetUnitsTarget() ~= 0) then
+						if (y:GetUnitsTarget():GetGUID() == partyMember:GetGUID()) then
+							self.enemyObj = y;
+						end
 					end
-                		end 
+				end
+			y, typeObj = GetNextObject(y); 
+			end
+		end
+	end
+return false;
+end
+
+function script_grind:isTargetingGroupBool() 
+	for i = 1, GetNumPartyMembers() do
+		local partyMember = GetPartyMember(i);
+		if (partyMember ~= nil and partyMember ~= 0 and not partyMember:IsDead()) then
+			local unitsAttackingUs = 0; 
+			local currentObj, typeObj = GetFirstObject(); 
+			while currentObj ~= 0 do 
+    				if typeObj == 3 then
+					if (currentObj:CanAttack() and not currentObj:IsDead()) then
+                				if (currentObj:GetUnitsTarget() ~= nil and currentObj:GetUnitsTarget() ~= 0) then
+						return true;
+						end
+					end
+	                	end
+			currentObj, typeObj = GetNextObject(currentObj); 
             		end 
        		end
-        currentObj, typeObj = GetNextObject(currentObj); 
-   	end
+    	end
     return false;
 end
+
 
 function script_grind:isTargetingMe(i) 
 	local localPlayer = GetLocalPlayer();
@@ -1057,6 +1078,9 @@ end
 function script_grind:enemyIsValid(i)
 	if (i ~= 0) then
 
+		if (script_grind:isTargetingGroup(i)) then
+			return true;
+		end
 		-- add target to blacklist not a safe pull
 		if (self.skipHardPull) and (not script_aggro:safePull(i)) and (not script_grind:isTargetBlacklisted(i:GetGUID())) and (not script_grind:isTargetingMe(i)) then	
 			script_grind:addTargetToBlacklist(i:GetGUID());
