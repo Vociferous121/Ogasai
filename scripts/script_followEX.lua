@@ -182,7 +182,6 @@ function script_followEX:menu()
 			if (CollapsingHeader("|+| Loot Options")) then
 				Text("Loot options:");
 				wasClicked, script_follow.skipLooting = Checkbox("Skip Looting", script_follow.skipLooting);
-				SameLine();
 				script_follow.findLootDistance = SliderInt("Find Loot Distance (yd)", 5, 40, script_follow.findLootDistance);	
 				script_follow.lootDistance = SliderInt("Loot Distance (yd)", 1, 6, script_follow.lootDistance);
 			end

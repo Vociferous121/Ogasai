@@ -10,7 +10,7 @@ script_follow = {
 	waitTimer = GetTimeEX(),
 	pullDistance = 150,
 	findLootDistance = 40,
-	lootDistance = 6,
+	lootDistance = 3,
 	skipLooting = true,
 	lootCheck = {},
 	ressDistance = 25,
@@ -285,7 +285,7 @@ function script_follow:run()
 		-- Loot
 		if (not IsInCombat() and script_follow:enemiesAttackingUs() == 0 and not localObj:HasBuff('Feign Death')) then
 			-- Loot if there is anything lootable and we are not in combat and if our bags aren't full
-			if (not self.skipLooting and not AreBagsFull() and leaderObj:GetDistance() <= self.followLeaderDistance) then 
+			if (not self.skipLooting and not AreBagsFull()) then 
 				self.lootObj = script_nav:getLootTarget(self.findLootDistance);
 			else
 				self.lootObj = nil;
@@ -361,7 +361,7 @@ function script_follow:run()
 	end	
 
 		-- Finish loot before we engage new targets or navigate
-		if (self.lootObj ~= nil and not IsInCombat()) and (script_follow:GetPartyLeaderObject():GetDistance() < self.followLeaderDistance) then
+		if (self.lootObj ~= nil and not IsInCombat()) then
 			return; 
 		else
 			-- reset the combat status
@@ -426,12 +426,25 @@ function script_follow:run()
 		end	
 
 		-- Follow our master
-		if (script_follow:GetPartyLeaderObject() ~= 0) then
-			if(script_follow:GetPartyLeaderObject():GetDistance() > self.followLeaderDistance and not script_follow:GetPartyLeaderObject():IsDead()) and (not localObj:IsDead()) then
-				local x, y, z = script_follow:GetPartyLeaderObject():GetPosition();
-				self.message = "Following Party Leader...";
-				script_navEX:moveToTarget(GetLocalPlayer(), x, y, z);
-				return;
+		if (not self.skipLooting) then
+			if (self.lootObj ~= nil or self.lootObj ~= 0 or IsInCombat()) then
+				if (script_follow:GetPartyLeaderObject() ~= 0) then
+					if(script_follow:GetPartyLeaderObject():GetDistance() > self.followLeaderDistance and not script_follow:GetPartyLeaderObject():IsDead()) and (not localObj:IsDead()) then
+						local x, y, z = script_follow:GetPartyLeaderObject():GetPosition();
+						self.message = "Following Party Leader...";
+						script_navEX:moveToTarget(GetLocalPlayer(), x, y, z);
+						return;
+					end
+				end
+			end
+		elseif (self.skipLooting) then
+			if (script_follow:GetPartyLeaderObject() ~= 0) then
+				if(script_follow:GetPartyLeaderObject():GetDistance() > self.followLeaderDistance and not script_follow:GetPartyLeaderObject():IsDead()) and (not localObj:IsDead()) then
+					local x, y, z = script_follow:GetPartyLeaderObject():GetPosition();
+					self.message = "Following Party Leader...";
+					script_navEX:moveToTarget(GetLocalPlayer(), x, y, z);
+					return;
+				end
 			end
 		end
 
