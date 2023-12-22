@@ -90,6 +90,17 @@ function script_warlockEX:menu()
 	-- show combat menu
 	if (CollapsingHeader("Warlock Combat Options")) then
 
+		wasClicked, script_warlock.waitAfterCombat = Checkbox("Wait After Combat", script_warlock.waitAfterCombat);
+		SameLine();
+		wasClicked, script_warlock.feelingLucky = Checkbox("Feeling Lucky?", script_warlock.feelingLucky);
+	
+		if (script_warlock.feelingLucky) then
+			Text("Your Luck");
+			script_warlock.howLucky = SliderInt("???", 1, 10, script_warlock.howLucky);
+			script_grindEX.avoidBlacklisted = false;
+			script_grind.skipHardPull = false;
+		end
+			
 		-- if has spell summon imp then show summon imp button
 		if (HasSpell("Summon Imp")) then
 

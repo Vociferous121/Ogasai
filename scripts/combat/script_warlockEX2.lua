@@ -6,7 +6,9 @@ script_warlockEX2 = {
 
 function script_warlockEX2:summonPet()
 
+	if (not script_grind.adjustTickRate) then
 	script_grind.tickRate = 1500;
+	end
 
 	local localMana = GetLocalPlayer():GetManaPercentage();
 	local pet = GetPet();
@@ -207,9 +209,8 @@ function script_warlockEX2:summonPet()
 		end
 	end
 
-	if (hasPet) and (script_warlock.hasPet) then
+	if (hasPet) and (script_warlock.hasPet) and (not script_grind.adjustTickRate) then
 		script_grind.tickRate = 100;
-		script_rotation.tickRate = 100;
 	end
 end
 return false;

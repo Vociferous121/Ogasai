@@ -1,6 +1,7 @@
 script_warlock = {
 	message = 'Warlock Combat Script',
 	warlockMenu = include("scripts\\combat\\script_warlockEX.lua"),
+	warlockDOTS = include("scripts\\combat\\script_warlockDOTS.lua"),
 	drinkMana = 40,
 	eatHealth = 55,
 	potionHealth = 10,
@@ -53,6 +54,9 @@ script_warlock = {
 	useDeathCoil = false,
 	hasHealthstone = false,
 	varUsed = false,
+	waitAfterCombat = true,
+	feelingLucky = false,
+	howLucky = 3,
 }
 
 function script_warlock:cast(spellName, target)
@@ -298,9 +302,13 @@ function script_warlock:run(targetGUID)
 
 	if (GetPet() ~= 0) then
 		self.hasPet = true;
-		petHasTarget = GetPet():GetUnitsTarget();
+		local petHasTarget = GetPet():GetUnitsTarget();
 	elseif (GetPet() == 0 or (GetPet() ~= 0 and GetPet():GetHealthPercentage() <= 1)) then
 		self.hasPet = false;
+	end
+
+	if (GetPet() == 0) or (GetPet() ~= 0 and GetPet():GetHealthPercentage() < 1) and (HasSpell("Summon Imp")) and ( (localMana >= 45) or (localObj:HasBuff("Fel Domination") and localMana >= 30) ) then
+		script_warlockEX2:summonPet();
 	end
 
 	-- Check: If the pet is void and has spell Consume Shadows
@@ -364,7 +372,9 @@ function script_warlock:run(targetGUID)
 	-- sacrifice voidwalker low health
 	if (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) then
 		if (self.useVoid) and (self.hasSacrificeSpell) and (self.sacrificeVoid) and (localHealth <= self.sacrificeVoidHealth or GetPet():GetHealthPercentage() <= self.sacrificeVoidHealth) then
+			if (not script_grind.adjustTickRate) then
 			script_grind.tickRate = 100;
+			end
 			CastSpellByName("Sacrifice");
 			self.waitTimer = GetTimeEX() + 1500;
 			self.hasPet = false;
@@ -375,7 +385,9 @@ function script_warlock:run(targetGUID)
 	-- resummon when sacrifice is active
 	if (not self.HasPet) and (GetPet == 0) or (GetPet() ~= 0 and GetPet():GetHealthPercentage() <= 1) then
 		if (self.useVoid) and (self.sacrificeVoid) and (localObj:HasBuff("Sacrifice")) and (not self.hasPet) and (localMana >= 35) then
+			if (not script_grind.adjustTickRate) then
 			script_grind.tickRate = 100;
+			end
 			if (CastSpellByName("Summon Voidwalker")) then
 			self.waitTimer = GetTimeEX() + 12000;
 			script_grind:setWaitTimer(1200);
@@ -386,19 +398,21 @@ function script_warlock:run(targetGUID)
 	end
 
 	-- force bot to attack pets target
-	if (IsInCombat()) and (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (self.hasPet) then
-		if (petHasTarget ~= 0) then
-			if (GetPet():GetDistance() > 10) then
+	if (self.waitAfterCombat) then
+		if (IsInCombat()) and (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (self.hasPet) then
+			if (petHasTarget ~= 0) then
+				if (GetPet():GetDistance() > 10) then
+					AssistUnit("pet");
+					PetFollow();
+				end
+			else
 				AssistUnit("pet");
-				PetFollow();
+				self.message = "Stuck in combat! WAITING!";
+				return 4;
 			end
-		else
-			AssistUnit("pet");
-			self.message = "Stuck in combat! WAITING!";
-			return 4;
 		end
 	end
-	
+
 	if (GetPet() ~= 0) and (GetPet():GetHealthPercentage() > 1) then
 		if (IsInCombat()) and (not targetObj:IsInLineOfSight() or not GetPet():IsInLineOfSight()) then
 			PetFollow();
@@ -617,7 +631,20 @@ function script_warlock:run(targetGUID)
 
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
-			script_checkAdds:checkAdds();
+			if (self.feelingLucky) then
+				if (script_grind:enemiesAttackingUs() <= self.howLucky)
+					and (localMana >= 50)
+					and (localHealth >= 50)
+				then
+					script_warlockDOTS:corruption(targetObj);
+					script_warlockDOTS:immolate(targetObj);
+					script_warlockDOTS:curseOfAgony(targetObj);
+				end
+			end
+
+			if (script_grind.skipHardPull) then
+				script_checkAdds:checkAdds();
+			end
 
 			-- causes crashing after combat phase?
 			-- follow target if single target fear is active and moves out of spell ranged
@@ -643,8 +670,9 @@ function script_warlock:run(targetGUID)
 			-- gather shards enabled
 			if (self.enableGatherShards) then
 				if (targetHealth <= 35) and (HasSpell("Drain Soul")) and (targetObj:GetDistance() <= 26) and (IsInCombat()) then
+					if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 135;
-					script_rotation.tickRate = 135;
+					end
 					CastSpellByName('Drain Soul', targetObj);
 					self.message = "Gathering Soulshards - bot will NOT stop";
 					return;
@@ -660,7 +688,9 @@ function script_warlock:run(targetGUID)
 		
 			if (GetPet() == 0 or (GetPet() ~= 0 and GetPet():GetHealthPercentage() <= 1)) and (HasSpell("Summon Warlock")) then
 				script_warlockEX2:summonPet();
+				if (not script_grind.adjustTickRate) then
 				script_grind.tickRate = 0;
+				end
 			end
 
 			-- recall pet if too far > 30
@@ -763,8 +793,9 @@ function script_warlock:run(targetGUID)
 			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) and (targetObj:GetCreatureType() ~= "Undead") then
 				if (targetObj:GetCreatureType() ~= "Undead") and (not targetObj:HasDebuff("Fear")) then
 					CastSpellByName("Fear", targetObj);
+					if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 135;
-					script_rotation.tickRate = 135;
+					end
 					self.waitTimer = GetTimeEX() + 1900;
 					return;
 				end
@@ -781,7 +812,6 @@ function script_warlock:run(targetGUID)
 				script_warlock:fearAdd(targetObj:GetGUID());
 				if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 100;
-					script_rotation.tickRate = 100;
 				end
 			end
 
@@ -790,7 +820,6 @@ function script_warlock:run(targetGUID)
 				if(script_grind:enemiesAttackingUs(10) >= 1 and targetObj:HasDebuff('Fear')) then
 					if (not script_grind.adjustTickRate) then
 						script_grind.tickRate = 100;
-						script_rotation.tickRate = 100;
 					end
 					ClearTarget();
 					targetObj = script_warlock:getTargetNotFeared();
@@ -984,8 +1013,9 @@ function script_warlock:run(targetGUID)
 			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) and (targetObj:GetCreatureType() ~= "Undead") then
 				CastSpellByName("Fear", targetObj);
 					self.waitTimer = GetTimeEX() + 1900;
+					if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 135;
-					script_rotation.tickRate = 135;
+					end
 					return;
 			end
 
@@ -1019,20 +1049,23 @@ function script_warlock:run(targetGUID)
 			end
 
 			-- force bot to attack pets target
-			if (IsInCombat()) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (GetPet() ~= 0 and self.hasPet and GetPet():GetHealthPercentage() > 1) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
-				if (petHasTarget ~= 0) then
-					if (GetPet():GetDistance() > 10) then
-						PetFollow();
+			if (self.waitAfterCombat) then
+				if (IsInCombat()) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (GetPet() ~= 0 and self.hasPet and GetPet():GetHealthPercentage() > 1) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) then
+					if (petHasTarget ~= 0) then
+						if (GetPet():GetDistance() > 10) then
+							PetFollow();
+						end
+						if (GetPet():GetDistance() < 10) then
+							AssistUnit("pet");	
+							if (not script_grind.adjustTickRate) then
+							script_grind.tickRate = 135;
+							end
+						end
+					else
+						AssistUnit("pet");
+						self.message = "Stuck in combat! WAITING!";
+						return 4;
 					end
-					if (GetPet():GetDistance() < 10) then
-						AssistUnit("pet");				
-						script_grind.tickRate = 135;
-						script_rotation.tickRate = 135;
-					end
-				else
-					AssistUnit("pet");
-					self.message = "Stuck in combat! WAITING!";
-					return 4;
 				end
 			end
 		end
