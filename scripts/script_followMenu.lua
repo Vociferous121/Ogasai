@@ -60,7 +60,7 @@ function script_followMenu:menu()
 
 			wasClicked, script_follow.followMember = Checkbox("Follow Party Member", script_follow.followMember);
 
-			wasClicked, script_follow.useUnStuck = Checkbox("Turn On/Off Buggy unStuck Script", script_follow.useUnStuck);
+			wasClicked, script_follow.useUnStuck = Checkbox("Use UnStuck Script", script_follow.useUnStuck);
 
 			
 			Separator();

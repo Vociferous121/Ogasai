@@ -12,6 +12,7 @@ script_grind = {
 	getSpellsLoaded = include("scripts\\script_getSpells.lua"),
 	getSpells = false,
 	aggroLoaded = include("scripts\\script_aggro.lua"),
+	grindPartyOptionsLoaded = include("scripts\\script_grindParty.lua"),
 	expExtra = include("scripts\\script_expChecker.lua"),
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
 	paranoiaLoaded = include("scripts\\script_paranoia.lua"),
@@ -141,6 +142,8 @@ function script_grind:setup()
 		script_paranoia.paranoidOn = false;
 		self.skipHardPull = false;
 		script_grindEX.avoidBlacklisted = false;
+		script_grindParty.forceTarget = true;
+		script_grindParty.waitForGroup = true;
 	end
 
 	
@@ -532,6 +535,13 @@ function script_grind:run()
 					script_vendor:repair(); 
 					return true;
 				end
+			end
+		end
+
+		-- check party members
+		if (GetNumPartyMembers() >= 1) then
+			if (script_grindParty:partyOptions()) then
+				return true;
 			end
 		end
 
@@ -932,9 +942,11 @@ function script_grind:getTargetAttackingUs()
 					return currentObj:GetGUID();
 				end
 			end	
-                	if (script_grind:isTargetingGroup(currentObj)) then 
-                		return currentObj:GetGUID();
-                	end
+			if (script_grindParty.forceTarget) then
+                		if (script_grind:isTargetingGroup(currentObj)) then 
+                			return currentObj:GetGUID();
+                		end
+			end
             	end 
        	end
         currentObj, typeObj = GetNextObject(currentObj); 
@@ -946,8 +958,10 @@ function script_grind:assignTarget()
 	-- Return a target attacking our group
 	local i, targetType = GetFirstObject();
 	while i ~= 0 do
-		if (script_grind:isTargetingGroup(i)) then
-			return i;
+		if (script_grindParty.forceTarget) then
+			if (script_grind:isTargetingGroup(i)) then
+				return i;
+			end
 		end
 		i, targetType = GetNextObject(i);
 	end
@@ -1078,8 +1092,10 @@ end
 function script_grind:enemyIsValid(i)
 	if (i ~= 0) then
 
-		if (script_grind:isTargetingGroup(i)) then
-			return true;
+		if (script_grindParty.forceTarget) then
+			if (script_grind:isTargetingGroup(i)) then
+				return true;
+			end
 		end
 		-- add target to blacklist not a safe pull
 		if (self.skipHardPull) and (not script_aggro:safePull(i)) and (not script_grind:isTargetBlacklisted(i:GetGUID())) and (not script_grind:isTargetingMe(i)) then	
@@ -1112,7 +1128,7 @@ function script_grind:enemyIsValid(i)
 		-- Valid Targets: Tapped by us, or is attacking us or our pet
 		if (script_grind:isTargetingMe(i)
 			or (script_grind:isTargetingPet(i) and (i:IsTappedByMe() or not i:IsTapped())) 
-			or (script_grind:isTargetingGroup(i) and (i:IsTappedByMe() or not i:IsTapped())) 
+			or (script_grindParty.forceTarget and script_grind:isTargetingGroup(i) and (i:IsTappedByMe() or not i:IsTapped())) 
 			or (i:IsTappedByMe() and not i:IsDead())) then 
 				return true; 
 		end

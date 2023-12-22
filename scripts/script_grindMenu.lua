@@ -270,4 +270,11 @@ function script_grindMenu:menu()
 		wasClicked, script_grind.drawPath = Checkbox('Display Move Path', script_grind.drawPath);
 		wasClicked, script_grind.drawGather = Checkbox('Display Gather Nodes', script_grind.drawGather);
 	end
+
+	if (GetNumPartyMembers() >= 1) then
+		if (CollapsingHeader("Grind Party Options")) then
+		wasClicked, script_grindParty.forceTarget = Checkbox("Force Attack Group Targets", script_grindParty.forceTarget);
+		wasClicked, script_grindParty.waitForGroup = Checkbox("Wait For Party Mana", script_grindParty.waitForGroup);
+		end
+	end
 end
