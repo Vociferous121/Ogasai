@@ -6,7 +6,6 @@ script_followEX = {
 
 		drawUnits = false,
 		drawAggro = false,
-		drawAggroRange = 100,
 }
 
 function script_followEX:getDistanceDif()
@@ -26,7 +25,7 @@ function script_followEX:drawStatus()
 	end
 
 	if (script_aggro.drawAggro) then 
-		script_aggro:drawAggroCircles(self.drawAggroRange); 
+		script_aggro:drawAggroCircles(script_followMenu.drawAggroRange); 
 	end
 	-- color
 		local r, g, b = 255, 255, 0;

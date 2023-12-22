@@ -1,5 +1,7 @@
 script_followMenu = {
 
+		drawAggroRange = 100,
+
 }
 
 function script_followMenu:menu()

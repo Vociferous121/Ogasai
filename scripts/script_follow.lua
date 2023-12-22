@@ -118,6 +118,10 @@ function script_follow:setup()
 	ClearTarget();
 end
 
+function script_follow:draw()
+	script_followEX:drawStatus();
+end
+
 function script_follow:setWaitTimer(ms)
 	self.waitTimer = GetTimeEX() + ms;
 end
@@ -364,17 +368,17 @@ function script_follow:run()
        		end
 	end	
 
-		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
-			if (script_follow:enemiesAttackingUs() == 0) then
-				if (self.enemyObj:GetGUID() ~= script_follow:GetPartyLeaderObject():GetUnitsTarget():GetGUID()) then
-					self.enemyObj = nil;
-					ClearTarget();
-				end
-			end
-		elseif (script_follow:enemiesAttackingUs() == 0) and (script_follow:GetPartyLeaderObject():GetUnitsTarget() == 0) then
-				self.enemyObj = nil;
-				ClearTarget();
-		end
+		--if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
+		--	if (script_follow:enemiesAttackingUs() == 0) then
+		--		if (self.enemyObj:GetGUID() ~= script_follow:GetPartyLeaderObject():GetUnitsTarget():GetGUID()) then
+		--			self.enemyObj = nil;
+		--			ClearTarget();
+		--		end
+		--	end
+		--elseif (script_follow:enemiesAttackingUs() == 0) and (script_follow:GetPartyLeaderObject():GetUnitsTarget() == 0) then
+		--		self.enemyObj = nil;
+		--		ClearTarget();
+		--end
 
 		-- Finish loot before we engage new targets or navigate
 		if (self.lootObj ~= nil and not IsInCombat()) then
@@ -596,18 +600,4 @@ function script_follow:enemiesAttackingUs() -- returns number of enemies attacki
       		currentObj, typeObj = GetNextObject(currentObj); 
 	end
    		return unitsAttackingUs;
-end
-
-function script_follow:playersTargetingUs() -- returns number of players attacking us
-		local nrPlayersTargetingUs = 0; 
-		local currentObj, typeObj = GetFirstObject(); 
-	while currentObj ~= 0 do 
-		if typeObj == 4 then
-			if (script_follow:isTargetingMe(currentObj)) then 
-               			nrPlayersTargetingUs = nrPlayersTargetingUs + 1; 
-			end 
-		end
-        	currentObj, typeObj = GetNextObject(currentObj); 
-	end
-    return nrPlayersTargetingUs;
 end

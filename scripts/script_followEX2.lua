@@ -21,3 +21,17 @@ function script_followEX2:isTargetingMe2(currentObj)
 	end
 	return false;
 end
+
+function script_followEX2:playersTargetingUs() -- returns number of players attacking us
+		local nrPlayersTargetingUs = 0; 
+		local currentObj, typeObj = GetFirstObject(); 
+	while currentObj ~= 0 do 
+		if typeObj == 4 then
+			if (script_follow:isTargetingMe(currentObj)) then 
+               			nrPlayersTargetingUs = nrPlayersTargetingUs + 1; 
+			end 
+		end
+        	currentObj, typeObj = GetNextObject(currentObj); 
+	end
+    return nrPlayersTargetingUs;
+end
