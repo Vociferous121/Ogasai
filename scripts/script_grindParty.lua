@@ -2,6 +2,7 @@ script_grindParty = {
 
 	forceTarget = false,
 	waitForGroup = false,
+	waitForMemberDistance = false,
 
 }
 
@@ -30,7 +31,7 @@ function script_grindParty:partyOptions()
 				end
 
 				if (member:GetRagePercentage() > 0) then
-					memberRage = member:GetRacePercentage();
+					memberRage = member:GetRagePercentage();
 				end
 
 				if (member:GetEnergyPercentage() > 0) then
@@ -38,7 +39,7 @@ function script_grindParty:partyOptions()
 				end
 
 			end
-			if (member:GetDistance() > 100 and not IsInCombat()) then
+			if (self.waitForMemberDistance) and (member:GetDistance() > 100 and not IsInCombat()) then
 				if (IsMoving()) then StopMoving(); end
 				script_grind.message = 'Waiting for group members...';
 				ClearTarget();

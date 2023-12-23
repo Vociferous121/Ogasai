@@ -5,7 +5,7 @@ script_warrior = {
 	bloodRageHealth = 65, -- health to use bloodrage
 	potionHealth = 6, -- health to use potion
 	isSetup = false, -- setup check
-	meleeDistance = 4.1, -- melee distance
+	meleeDistance = 3.15, -- melee distance
 	waitTimer = 0, -- set wait time for script
 	stopIfMHBroken = true, -- stop if main hand is broken
 	overpowerActionBarSlot = 73+6, -- Default: Overpower in slot 7 on the default Battle Stance Bar
@@ -371,9 +371,9 @@ function script_warrior:run(targetGUID)	-- main content of script
 
 
 
-
+			if (script_grind.skipHardPull) then
 			script_checkAdds:checkAdds();
-
+			end
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
 			if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (not IsAutoCasting("Attack")) and (targetObj:GetDistance() <= 8) and (not IsMoving()) then
@@ -772,12 +772,12 @@ function script_warrior:run(targetGUID)	-- main content of script
 				if (self.battleStance) then
 					if (localRage >= 15) then 
 						targetObj:FaceTarget();
-						if (targetObj:GetDistance() <= 6) then
+						if (targetObj:GetDistance() <= 6) and (targetObj:FaceTarget()) then
 							CastSpellByName('Heroic Strike', targetObj);
 							targetObj:FaceTarget();
 							return 0;
-						
 						end
+					targetObj:FaceTarget();
 					end 
 				end
 

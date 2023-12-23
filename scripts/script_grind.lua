@@ -138,12 +138,17 @@ function script_grind:setup()
 		self.restMana = 0;
 	end
 
+	-- grind party or in a group using grind for some other reason?
 	if (GetNumPartyMembers() >= 1) then
 		script_paranoia.paranoidOn = false;
 		self.skipHardPull = false;
 		script_grindEX.avoidBlacklisted = false;
 		script_grindParty.forceTarget = true;
 		script_grindParty.waitForGroup = true;
+		self.drawEnabled = false;
+		self.drawUnits = false;
+		self.useExpChecker = false;
+		
 	end
 
 	
