@@ -369,7 +369,9 @@ function script_rogue:run(targetGUID)
 			else	
 
 				if (script_grind.skipHardPull) then
-					script_checkAdds:checkAdds();
+					if (script_checkAdds:checkAdds()) then
+						script_om:FORCEOM();
+					end
 				end
 
 				self.message = "Killing " .. targetObj:GetUnitName() .. "...";
