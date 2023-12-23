@@ -210,7 +210,7 @@ function script_warlockEX2:summonPet()
 	end
 
 	if (hasPet) and (script_warlock.hasPet) and (not script_grind.adjustTickRate) then
-		script_grind.tickRate = 100;
+		script_grind.tickRate = 500;
 	end
 end
 return false;

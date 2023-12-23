@@ -368,6 +368,10 @@ function script_rogue:run(targetGUID)
 				-- now in Combat
 			else	
 
+				if (script_grind.skipHardPull) then
+					script_checkAdds:checkAdds();
+				end
+
 				self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
 				-- Dismount

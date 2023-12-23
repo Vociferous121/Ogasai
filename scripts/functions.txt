@@ -56,6 +56,23 @@ must be behind target = 51
 			ToFile(string);
 		end
 	end
+added oGasai APIs:
+
+	-- local player 
+HasForm() [bool] player has a form
+IsCatForm()	[bool]
+IsBearForm()	[bool]
+IsTravelForm()	[bool]
+IsAquaticForm() [bool]
+IsGhostWolf()	[bool]
+CallPet()	[bool]
+IsStealth()	[bool]
+
+	-- local player has a target or pet has a target
+PlayerHasTarget()	[bool]
+PetHasTarget()	[bool]
+
+
 
 Wow APIs:
 https://wowwiki-archive.fandom.com/wiki/World_of_Warcraft_API?oldid=293138

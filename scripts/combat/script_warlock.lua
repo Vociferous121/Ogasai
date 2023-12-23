@@ -129,7 +129,7 @@ function script_warlock:fearAdd(targetObjGUID)
 				if (currentObj:GetGUID() ~= targetObjGUID) and (script_grind:isTargetingMe(currentObj) or script_grind:isTargetingPet(currentObj)) then
 					if (not currentObj:HasDebuff("Fear") and currentObj:GetCreatureType() ~= 'Elemental' and not currentObj:IsCritter()) then
 						if (currentObj:IsInLineOfSight()) then
-							if (not script_grind.adjustTickRate) then
+							if (not script_grind.adjustTickRate) and (IsInCombat()) then
 								script_grind.tickRate = 100;
 								script_rotation.tickRate = 100;
 							end
@@ -327,7 +327,21 @@ function script_warlock:run(targetGUID)
 	if (localObj:IsDead()) then
 		return 0;
 	end
-	
+
+	-- force bot to attack pets target
+	if (self.waitAfterCombat) and (IsInCombat()) and (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (playerHasTarget == 0) and (self.hasPet) then
+		if (petHasTarget ~= 0) then
+			if (GetPet():GetDistance() > 10) then
+				AssistUnit("pet");
+				PetFollow();
+			end
+		elseif (petHasTarget == 0) then
+			AssistUnit("pet");
+			self.message = "Stuck in combat! WAITING!";
+			return 4;
+		end
+	end
+
 	-- Assign the target 
 	targetObj = GetGUIDObject(targetGUID);
 
@@ -393,13 +407,21 @@ function script_warlock:run(targetGUID)
 		end
 	end
 
-	-- stuck in combat
-	if (self.waitAfterCombat) and (self.hasPet) and (IsInCombat()) and (GetPet() ~= 0) then
-			local petHasTarget = GetPet():GetUnitsTarget();
-			local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
-		if (playerHasTarget == 0) and (petHasTarget == 0) and (script_vendor.status == 0) then
+	if (GetPet() ~= 0) then
+		local petHasTarget = GetPet():GetUnitsTarget();
+	end
+		local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
+
+	-- force bot to attack pets target
+	if (self.waitAfterCombat) and (IsInCombat()) and (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (playerHasTarget == 0) and (self.hasPet) then
+		if (petHasTarget ~= 0) then
+			if (GetPet():GetDistance() > 10) then
+				AssistUnit("pet");
+				PetFollow();
+			end
+		elseif (petHasTarget == 0) then
 			AssistUnit("pet");
-			self.message = "No Target - stuck in combat! WAITING!";
+			self.message = "Stuck in combat! WAITING!";
 			return 4;
 		end
 	end
@@ -407,7 +429,7 @@ function script_warlock:run(targetGUID)
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(200, 900);
+		local tickRandom = random(350, 900);
 
 		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
 			script_grind.tickRate = 135;
@@ -499,15 +521,16 @@ function script_warlock:run(targetGUID)
 			end
 		end
 
-		-- level 1 - 4
-			if (not HasSpell("Corruption")) then
+			-- level 1 - 4
+			if (not HasSpell("Corruption")) and (not IsInCombat()) then
 				if (not HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight())  and (not IsMoving()) then
 						targetObj:FaceTarget();
 					if (Cast('Shadow Bolt', targetObj)) then
 						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 2350;
 					end
-				elseif (HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Immolate")) then
+				end
+				if (HasSpell("Summon Imp")) and (localMana > 25) and (targetObj:IsInLineOfSight()) and (not targetObj:HasDebuff("Immolate")) then
 					if (IsMoving()) then
 						StopMoving();
 						targetObj:FaceTarget();
@@ -596,6 +619,7 @@ function script_warlock:run(targetGUID)
 				if (Cast("Siphon Life", targetObj)) then
 					script_warlock:petAttack();
 					self.waitTimer = GetTimeEX() + 1800; 
+					script_grind:setWaitTimer(650);
 				end
 			end
 
@@ -606,6 +630,7 @@ function script_warlock:run(targetGUID)
 				if (Cast('Curse of Agony', targetObj)) then 
 					script_warlock:petAttack();
 					self.waitTimer = GetTimeEX() + 1800;
+					script_grind:setWaitTimer(650);
 				end
 			end
 		
@@ -615,6 +640,7 @@ function script_warlock:run(targetGUID)
 				targetObj:FaceTarget();
 				if (CastSpellByName("Shadow Bolt", targetObj)) then
 					self.waitTimer = GetTimeEX() + 2500;
+					script_grind:setWaitTimer(650);
 					return 0;
 				end
 			end
@@ -631,6 +657,25 @@ function script_warlock:run(targetGUID)
 		else	
 
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
+
+			if (GetPet() ~= 0) then
+		local petHasTarget = GetPet():GetUnitsTarget();
+	end
+		local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
+
+	-- force bot to attack pets target
+	if (self.waitAfterCombat) and (IsInCombat()) and (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (playerHasTarget == 0) and (self.hasPet) then
+		if (petHasTarget ~= 0) then
+			if (GetPet():GetDistance() > 10) then
+				AssistUnit("pet");
+				PetFollow();
+			end
+		elseif (petHasTarget == 0) then
+			AssistUnit("pet");
+			self.message = "Stuck in combat! WAITING!";
+			return 4;
+		end
+	end
 
 			if (self.feelingLucky) then
 				if (script_grind:enemiesAttackingUs() < self.howLucky)
@@ -683,7 +728,7 @@ function script_warlock:run(targetGUID)
 		
 			if (GetPet() == 0 or (GetPet() ~= 0 and GetPet():GetHealthPercentage() <= 1)) and (HasSpell("Summon Warlock")) then
 				script_warlockEX2:summonPet();
-				if (not script_grind.adjustTickRate) then
+				if (not script_grind.adjustTickRate) and (IsInCombat()) then
 				script_grind.tickRate = 0;
 				end
 			end
@@ -788,7 +833,7 @@ function script_warlock:run(targetGUID)
 			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) and (targetObj:GetCreatureType() ~= "Undead") then
 				if (targetObj:GetCreatureType() ~= "Undead") and (not targetObj:HasDebuff("Fear")) then
 					CastSpellByName("Fear", targetObj);
-					if (not script_grind.adjustTickRate) then
+					if (not script_grind.adjustTickRate) and (IsInCombat()) then
 					script_grind.tickRate = 135;
 					end
 					self.waitTimer = GetTimeEX() + 1900;
@@ -805,7 +850,7 @@ function script_warlock:run(targetGUID)
 			if (targetObj ~= nil) and (self.fearAdds) and (script_grind:enemiesAttackingUs(10) > 1) and (HasSpell('Fear')) and (not self.addFeared) and (self.fearTimer < GetTimeEX()) then
 				self.message = "Fearing add...";
 				script_warlock:fearAdd(targetObj:GetGUID());
-				if (not script_grind.adjustTickRate) then
+				if (not script_grind.adjustTickRate) and (IsInCombat()) then
 					script_grind.tickRate = 100;
 				end
 			end
@@ -813,7 +858,7 @@ function script_warlock:run(targetGUID)
 			-- Check: Sort target selection if add is feared
 			if (self.addFeared) then
 				if(script_grind:enemiesAttackingUs(10) >= 1 and targetObj:HasDebuff('Fear')) then
-					if (not script_grind.adjustTickRate) then
+					if (not script_grind.adjustTickRate) and (IsInCombat()) then
 						script_grind.tickRate = 100;
 					end
 					ClearTarget();
@@ -969,21 +1014,22 @@ function script_warlock:run(targetGUID)
 
 			-- Check: Keep the Corruption DoT up (15 s duration)
 			if (not IsMoving()) and (self.enableCorruption) and (not targetObj:HasDebuff("Corruption")) and (targetHealth >= 20) and (targetObj:IsInLineOfSight()) then
-				CastSpellByName('Corruption', targetObj);
-				targetObj:FaceTarget();
-				self.waitTimer = GetTimeEX() + 1650 + (self.corruptionCastTime * 100);
-				script_grind:setWaitTimer(500); 
-				return 0;				
+				if (CastSpellByName("Corruption", targetObj)) then
+					targetObj:FaceTarget();
+					self.waitTimer = GetTimeEX() + 2050 + (self.corruptionCastTime * 100);
+					script_grind:setWaitTimer(2050 + (self.corruptionCastTime * 100));
+					return 0;
+				end				
 			end
 	
 			-- Check: Keep the Immolate DoT up (15 s duration)
 			if (not IsMoving()) and (self.enableImmolate) and (not targetObj:HasDebuff("Immolate")) and (localMana > 25) and (targetHealth > 20) and (targetObj:IsInLineOfSight()) then
 				if (not targetObj:HasDebuff("Immolate")) and (not IsMoving()) then
-				CastSpellByName("Immolate", targetObj);
-				targetObj:FaceTarget();
-				self.waitTimer = GetTimeEX() + 2550;
-				script_grind:setWaitTimer(2550);
-				return 0;
+					CastSpellByName("Immolate", targetObj);
+					targetObj:FaceTarget();
+					self.waitTimer = GetTimeEX() + 3050;
+					script_grind:setWaitTimer(3050);
+					return 0;
 				end
 			end
 
@@ -991,7 +1037,7 @@ function script_warlock:run(targetGUID)
 			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) and (targetObj:GetCreatureType() ~= "Undead") then
 				CastSpellByName("Fear", targetObj);
 					self.waitTimer = GetTimeEX() + 1900;
-					if (not script_grind.adjustTickRate) then
+					if (not script_grind.adjustTickRate) and (IsInCombat()) then
 					script_grind.tickRate = 135;
 					end
 					return;
@@ -1060,7 +1106,7 @@ function script_warlock:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(300, 900);
+		local tickRandom = random(350, 900);
 
 		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
 			script_grind.tickRate = 135;
@@ -1090,6 +1136,25 @@ function script_warlock:rest()
 		self.hasPet = false;
 	end
 
+if (GetPet() ~= 0) then
+		local petHasTarget = GetPet():GetUnitsTarget();
+	end
+		local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
+
+	-- force bot to attack pets target
+	if (self.waitAfterCombat) and (IsInCombat()) and (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (playerHasTarget == 0) and (self.hasPet) then
+		if (petHasTarget ~= 0) then
+			if (GetPet():GetDistance() > 10) then
+				AssistUnit("pet");
+				PetFollow();
+			end
+		elseif (petHasTarget == 0) then
+			AssistUnit("pet");
+			self.message = "Stuck in combat! WAITING!";
+			return 4;
+		end
+	end
+
 	-- Dark Pact instead of drink
 	if (HasSpell("Dark Pact")) and (IsStanding()) and (localMana < 75) and (GetPet() ~= 0 or self.hasPet) and (self.useImp or self.useVoid or self.useSuccubus or self.useFelhunter) then
 		if (not IsSpellOnCD("Dark Pact")) and (GetPet():GetManaPercentage() > 20) and (IsStanding()) then
@@ -1114,8 +1179,7 @@ function script_warlock:rest()
 		if (not IsInCombat()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) and (IsStanding()) then
 			if (not IsSpellOnCD("Life Tap")) then
 				CastSpellByName("Life Tap", localObj);
-				self.waitTimer = GetTimeEX() + 550;
-				script_grind:setWaitTimer(550);
+				self.waitTimer = GetTimeEX() + 1650;
 			end
 		end
 	end			

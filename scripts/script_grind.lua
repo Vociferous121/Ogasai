@@ -224,7 +224,7 @@ function script_grind:setup()
 	local randomLogout = math.random(30, 65);
 	self.setParanoidTimer = randomLogout;
 
-	local randomHotspot = math.random(550, 1000);
+	local randomHotspot = math.random(550, 1500);
 	self.distToHotSpot = randomHotspot;
 
 	local randomSetTimer = math.random(3, 10);
@@ -469,7 +469,7 @@ function script_grind:run()
 			-- if player is within distance <= 30 then do this
 			if (script_grind.playerParanoidDistance <= 30) and (script_grind:playersTargetingUs() >= 1) and (not IsInCombat()) then
 				-- target player targeting us
-				if (GetLocalPlayer():GetUnitsTarget() == 0) then	
+				if (not PlayerHasTarget()) then	
 					TargetByName(script_grind.playerName);
 				end
 			end
@@ -560,10 +560,7 @@ function script_grind:run()
 
 		--Mount up
 		if (not self.hotspotReached or script_vendor:getStatus() >= 1) and (not IsInCombat())
-		and (not IsMounted()) and (not IsIndoors()) and (not localObj:HasBuff("Cat Form"))
-		and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Travel Form"))
-		and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Moonkin Form"))
-		and (script_grind.useMount)
+		and (not IsMounted()) and (not IsIndoors()) and (not HasForm()) and (script_grind.useMount)
 		then
 			if (IsMoving()) then
 				StopMoving();
@@ -581,7 +578,7 @@ function script_grind:run()
 		if (self.gather and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
 			if (script_gather:gather()) then
 				if (not script_grind.adjustTickRate) then
-					script_grind.tickRate = 100;
+					script_grind.tickRate = 135;
 				end
 
 				self.message = 'Gathering ' .. script_gather:currentGatherName() .. '...';
@@ -603,9 +600,7 @@ function script_grind:run()
 
 			--Mount up
 			if (not self.hotspotReached or script_vendor:getStatus() >= 1) and (not IsInCombat())
-			and (not IsMounted()) and (not IsIndoors()) and (not localObj:HasBuff("Cat Form"))
-			and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Travel Form"))
-			and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Moonkin Form"))
+			and (not IsMounted()) and (not IsIndoors()) and (not HasForm())
 			and (script_grind.useMount)
 			then
 				if (IsMoving()) then
@@ -757,6 +752,30 @@ function script_grind:run()
 
 		if (self.enemyObj ~= nil or IsInCombat()) then
 
+			if (UnitClass('player') == "Warlock") or (UnitClass('player') == "Hunter") then
+
+				-- force bot to attack pets target
+				if (script_warlock.waitAfterCombat or script_hunter.waitAfterCombat)
+					and (IsInCombat())
+					and (GetPet() ~= 0
+						and GetPet():GetHealthPercentage() > 1
+						and not PetHasTarget())
+					and (not PlayerHasTarget())
+					and (script_warlock.hasPet or script_hunter.hasPet)
+				then
+			 		if (PetHasTarget()) then
+						if (GetPet():GetDistance() > 10) then
+							AssistUnit("pet");
+							PetFollow();
+						end
+					elseif (not PlayerHasTarget()) then
+						AssistUnit("pet");
+						self.message = "Stuck in combat! WAITING!";
+						return 4;
+					end
+				end
+			end
+
 			script_checkAdds.closestEnemy = 0;
 			script_checkAdds.intersectEnemy = nil;
 
@@ -795,7 +814,7 @@ function script_grind:run()
 				local localObj = GetLocalPlayer();
 
 				if (not script_grind.adjustTickRate) then
-					script_grind.tickRate = 100;
+					script_grind.tickRate = 135;
 				end
 
 				if (_x ~= 0 and x ~= 0) then
@@ -863,9 +882,7 @@ function script_grind:run()
 
 		--Mount up
 		if (not self.hotspotReached or script_vendor:getStatus() >= 1) and (not IsInCombat())
-		and (not IsMounted()) and (not IsIndoors()) and (not localObj:HasBuff("Cat Form"))
-		and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Travel Form"))
-		and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Moonkin Form")) and (self.useMount) then
+		and (not IsMounted()) and (not IsIndoors()) and (not HasForm()) and (self.useMount) then
 			if (IsMoving()) then
 				StopMoving();
 				return true;
@@ -880,9 +897,7 @@ function script_grind:run()
 
 		-- travel forms
 		if (not self.hotspotReached or script_vendor:getStatus() >= 1) and (not IsInCombat())
-		and (not IsMounted()) and (not IsIndoors()) and (not localObj:HasBuff("Cat Form"))
-		and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Travel Form"))
-		and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Moonkin Form")) and (not localObj:HasBuff("Ghost Wolf")) then
+		and (not IsMounted()) and (not IsIndoors()) and (not HasForm()) then
 			if (HasSpell("Ghost Wolf")) or (HasSpell("Travel Form")) or (self.useMount) then
 				if (IsMoving()) then
 					StopMoving();
@@ -1339,6 +1354,9 @@ function script_grind:doLoot(localObj)
 	local _x, _y, _z = self.lootObj:GetPosition();
 	local dist = self.lootObj:GetDistance();
 	local localObj = GetLocalPlayer();
+
+		script_grind.tickRate = 135;
+
 
 		if (not self.timerSet) and (not IsEating()) and (not IsDrinking()) and (IsStanding()) and (not IsInCombat()) then
 			self.blacklistLootTime = GetTimeEX() + 25000;

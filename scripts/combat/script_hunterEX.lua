@@ -67,7 +67,7 @@ function script_hunterEX:petChecks()
 		if (IsMoving()) or (not IsStanding()) then
 			StopMoving();
 		end
-		CastSpellByName('Call Pet'); 
+		CallPet();
 		script_hunter.waitTimer = GetTimeEX() + 1850;
 		return true;
 	end

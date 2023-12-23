@@ -155,7 +155,7 @@ function script_grindMenu:menu()
 
 		-- distance from hotspot slider
 			Text('Distance To Move From Hotspot');
-			script_grind.distToHotSpot = SliderInt("DHS (yd)", 1, 1000, script_grind.distToHotSpot); Separator();
+			script_grind.distToHotSpot = SliderInt("DHS (yd)", 1, 2500, script_grind.distToHotSpot); Separator();
 		end
 
 		-- if not use hotspot then show rest of pathing

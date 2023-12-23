@@ -6,7 +6,9 @@ script_warlockDOTS = {
 function script_warlockDOTS:getTargetNotDOT()
 
 	local unitsAttackingUs = 0; 
-   	local currentObj, typeObj = GetFirstObject(); 
+   	local currentObj, typeObj = GetFirstObject();
+
+if (IsInCombat()) then 
    	while currentObj ~= 0 do 
    		if typeObj == 3 then
 			if (currentObj:CanAttack() and not currentObj:IsDead()) and (not currentObj:IsCritter()) then
@@ -23,7 +25,9 @@ function script_warlockDOTS:getTargetNotDOT()
 			end
            	end 
        	end
-        currentObj, typeObj = GetNextObject(currentObj); 
+        currentObj, typeObj = GetNextObject(currentObj)
+end
+ 
 return nil;
 end
 
@@ -67,7 +71,8 @@ function script_warlockDOTS:corruption(targetObj)
 							script_rotation.tickRate = 100;
 						end
 						if (script_warlock:cast('Corruption', currentObj)) then 
-							script_grind:setWaitTimer(1000);
+							script_grind:setWaitTimer(1500);
+							script_warlock.waitTimer = 1500;
 							return true; 
 						end
 					end 
@@ -95,7 +100,8 @@ function script_warlockDOTS:immolate(targetObj)
 							script_rotation.tickRate = 100;
 						end
 						if (script_warlock:cast('Immolate', currentObj)) then 
-							script_grind:setWaitTimer(1000);
+							script_grind:setWaitTimer(1500);
+							script_warlock.waitTimer = 1500;
 							return true; 
 						end
 					end 
@@ -123,7 +129,8 @@ function script_warlockDOTS:curseOfAgony(targetObj)
 							script_rotation.tickRate = 100;
 						end
 						if (script_warlock:cast('Curse of Agony', currentObj)) then 
-							script_grind:setWaitTimer(1000);
+							script_grind:setWaitTimer(1500);
+							script_warlock.waitTimer = 1500;
 							return true; 
 						end
 					end 

@@ -414,7 +414,7 @@ end
 
 function script_helper:mountUp()
 
-	if (GetLocalPlayer():GetLevel() >= 40) and (not IsMounted()) and (not IsInCombat()) and (not localObj:HasBuff("Bear Form")) and (not localObj:HasBuff("Dire Bear Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:HasBuff("Moonkin Form")) and (not localObj:HasBuff("Travel Form")) then
+	if (GetLocalPlayer():GetLevel() >= 40) and (not IsMounted()) and (not IsInCombat()) and (not HasForm()) then
 			if (script_helper:useMount()) then
 				script_grind:setWaitTimer(4200);
 				self.waitTimer = GetTimeEX() + 4200;

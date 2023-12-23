@@ -582,6 +582,10 @@ function script_shaman:run(targetGUID)
 	-- Combat
 		else	
 
+			if (script_grind.skipHardPull) and (not self.useWaterTotem) and (not self.useFireTotem) and (not self.useEarthTotem) and (not self.useAirTotem) then
+				script_checkAdds:checkAdds();
+			end
+
 	-- NOW IN COMBAT
 	
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";

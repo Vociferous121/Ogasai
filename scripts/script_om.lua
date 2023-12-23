@@ -80,7 +80,7 @@ end
 function script_om:FORCEOM2()
 
 	while currentObj ~= 0 do
-		if (not script_grind.adjustTickRate) then
+		if (not script_grind.adjustTickRate) and (IsInCombat()) then
 			script_grind.tickRate = 50;
 		end
 		if (typeObj == 3) and (currentObj:GetDistance() < script_checkAdds.addsRange)

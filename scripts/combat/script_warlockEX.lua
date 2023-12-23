@@ -273,7 +273,7 @@ function script_warlockEX:menu()
 		-- unending breath
 		if (HasSpell("Unending Breath")) then
 
-			wasClicked, script_warlock.useUnendingBreath = Checkbox("Unending Breath On/Off", script_warlock.useUnendingBreath);
+			wasClicked, script_warlock.useUnendingBreath = Checkbox("Use Unending Breath", script_warlock.useUnendingBreath);
 		end
 		
 		SameLine();

@@ -108,10 +108,11 @@ end
 
 function script_nav:moveToHotspot(localObj)
 	if (self.currentHotSpotName ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) then
+		script_grind.tickRate = 135;
 
 		script_navEX:moveToTarget(localObj, self.currentHotSpotX, self.currentHotSpotY, self.currentHotSpotZ); 
 
-			if (not IsMounted()) then
+			if (not IsMounted()) or (HasSpell("Stealth")) or (HasSpell("Cat Form")) or (HasSpell("Travel Form")) or (HasSpell("Ghost Wolf")) then
 				script_paranoiaEX:checkStealth();
 			end
 

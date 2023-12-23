@@ -199,13 +199,10 @@ function script_hunter:run(targetGUID)
 
 	local pet = GetPet();
 	local petHP = 0;
-	local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
-
 	if (pet ~= nil and pet ~= 0) then
 		petHP = pet:GetHealthPercentage();
 		local petMana = GetPet():GetManaPercentage();
 		local petFocus = GetPet():GetFocus();
-		local petHasTarget = GetPet():GetUnitsTarget();
 	end
 
 	if (self.hasPet and not IsInCombat()) then
@@ -220,8 +217,8 @@ function script_hunter:run(targetGUID)
 	end
 
 	-- force bot to attack pets target
-	if (IsInCombat()) and (GetPet() ~= 0) and (playerHasTarget == 0) and (GetNumPartyMembers() < 1) and (self.hasPet) then
-		if (petHasTarget ~= 0) then
+	if (IsInCombat()) and (GetPet() ~= 0) and (not PlayerHasTarget()) and (GetNumPartyMembers() < 1) and (self.hasPet) then
+		if (PetHasTarget()) then
 			if (GetPet():GetDistance() > 10) then
 				AssistUnit("pet");
 				PetFollow();
@@ -243,8 +240,7 @@ function script_hunter:run(targetGUID)
 	
 	-- stuck in combat
 	if (self.waitAfterCombat)and (self.hasPet) and (IsInCombat()) and (GetPet() ~= 0) then
-			local petHasTarget = GetPet():GetUnitsTarget();
-		if (playerHasTarget == 0) and (petHasTarget == 0) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
+		if (not PlayerHasTarget()) and (not PetHasTarget()) and (GetNumPartyMembers() < 1) and (script_vendor.status == 0) then
 			AssistUnit("pet");
 			self.message = "No Target - stuck in combat! WAITING!";
 			return 4;
@@ -277,6 +273,10 @@ function script_hunter:run(targetGUID)
 	if (targetObj ~= 0 and targetObj ~= nil) then
 
 		self.message = "Killing " .. targetObj:GetUnitName() .. "...";
+
+		if (self.hasPet) and (not GetPet() ~= 0) then
+			CallPet();
+		end
 		
 		-- Cant Attack dead targets
 		if (targetObj:IsDead() or not targetObj:CanAttack()) then
@@ -331,16 +331,18 @@ function script_hunter:run(targetGUID)
 		end 
 
 		-- check pet range
-		if (self.hasPet) and (GetPet() ~= 0) and (GetPet():GetDistance() > 35) and (GetLocalPlayer():GetUnitsTarget() == 0) then 
-			PetFollow();
-		end
-		if (self.hasPet) and (GetPet():GetDistance() <= 32) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then 
-			PetAttack();
-			targetObj:AutoAttack();
-		end
-
-		if (self.hasPet) and (GetPet() ~= 0) and (targetObj:IsFleeing()) and (targetObj:GetCreatureType() == 'Humanoid') then
-			PetFollow();
+		if (GetPet() ~= 0) then
+			if (self.hasPet) and (GetPet() ~= 0) and (GetPet():GetDistance() > 35) and (GetLocalPlayer():GetUnitsTarget() == 0) then 
+				PetFollow();
+			end
+			if (self.hasPet) and (GetPet():GetDistance() <= 32) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then 
+				PetAttack();
+				targetObj:AutoAttack();
+			end
+	
+			if (self.hasPet) and (GetPet() ~= 0) and (targetObj:IsFleeing()) and (targetObj:GetCreatureType() == 'Humanoid') then
+				PetFollow();
+			end
 		end
 	
 
@@ -368,6 +370,12 @@ function script_hunter:run(targetGUID)
 			-----------------------------
 
 		else
+
+			if (script_grind.skipHardPull) then
+				script_checkAdds:checkAdds();
+			end
+
+			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
 			if (not targetObj:IsInLineOfSight()) then
 				return 3;
@@ -489,8 +497,7 @@ function script_hunter:run(targetGUID)
 					end
 				end
 			end		
-
-			-- walk away from target if pet target guid is the same guid as target targeting me
+-- walk away from target if pet target guid is the same guid as target targeting me
 			if (GetPet() ~= 0) and (self.hasPet) and (targetObj:GetDistance() <= 14) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) and (targetObj:IsInLineOfSight()) then
 				if (targetObj:GetUnitsTarget():GetGUID() == pet:GetGUID()) then
 
@@ -576,6 +583,25 @@ function script_hunter:run(targetGUID)
 			-- Auto Attack
 			if (targetObj:GetDistance() < 14) then
 
+			if (self.hasPet) and (not GetPet() ~= 0) then
+				CallPet();
+			end
+
+-- walk away from target if pet target guid is the same guid as target targeting me
+			if (GetPet() ~= 0) and (self.hasPet) and (targetObj:GetDistance() <= 14) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) and (targetObj:IsInLineOfSight()) then
+				if (targetObj:GetUnitsTarget():GetGUID() == pet:GetGUID()) then
+
+					if (script_hunter:runBackwards(targetObj, 15)) then
+						script_grind.tickRate = 100;
+						script_rotation.tickRate = 135;
+						PetAttack();
+						self.message = "Moving away from target for range attacks...";
+						return 4;
+					end
+				end
+			end
+
+
 				targetObj:AutoAttack();
 
 				if (targetObj:GetDistance() > self.meleeDistance) then
@@ -654,11 +680,6 @@ function script_hunter:rest()
 	local localObj = GetLocalPlayer();
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
-	local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
-
-	if (GetPet() ~= 0) and (self.hasPet) then
-		local petHasTarget = GetPet():GetUnitsTarget();
-	end
 
 	-- Stop moving before we can rest
 	if(localHealth < self.eatHealth) or (localMana < self.drinkMana) then
@@ -935,11 +956,6 @@ function script_hunter:hunterPull(targetObj)
 					CastSpellByName("Arcane Shot");
 					return 0;
 				end
-			end
-
-			local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
-			if (GetPet() ~= 0) and (self.hasPet) then
-				local petHasTarget = GetPet():GetUnitsTarget();
 			end
 
 			if (not self.hasPet) then
