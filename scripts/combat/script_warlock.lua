@@ -32,7 +32,7 @@ script_warlock = {
 	drainLifeHealth = 55,
 	healPetHealth = 40,
 	sacrificeVoid = true,
-	sacrificeVoidHealth = 15,
+	sacrificeVoidHealth = 20,
 	useUnendingBreath = false,
 	alwaysFear = false,
 	useDrainMana = false,
@@ -108,8 +108,9 @@ function script_warlock:isAddFeared()
 	local localObj = GetLocalPlayer();
 	while currentObj ~= 0 do 
 		if typeObj == 3 then
-			if (currentObj:HasDebuff("Fear")) then 
-				return true; 
+			if (currentObj:HasDebuff("Fear")) then
+				self.addFeared = true; 
+				return true;
 			else 
 				self.addFeared = false;
 			end
@@ -433,6 +434,14 @@ function script_warlock:run(targetGUID)
 		DisMount();
 	end
 
+
+	-- Use Healthstone
+	if (localHealth < 30) and (IsInCombat()) and (self.hasHealthstone) then
+		if (script_warlockEX:useHealthstones()) then
+			self.hasHealthstone = false;
+		end
+	end
+
 	--Valid Enemy
 	if (targetObj ~= 0 and targetObj ~= nil) and (not localObj:IsStunned()) and (not script_checkDebuffs:hasSilence()) then
 
@@ -463,9 +472,7 @@ function script_warlock:run(targetGUID)
 		targetHealth = targetObj:GetHealthPercentage();
 
 		if (targetObj:GetDistance() < 35) then
-			if (not targetObj:AutoAttack()) then
 				targetObj:AutoAttack();
-			end
 		end
 
 		-- use shadowbolt on more than 1 target for increased survivability
@@ -645,13 +652,6 @@ function script_warlock:run(targetGUID)
 			-- follow target if single target fear is active and moves out of spell ranged
 			if (self.followFeared) and (self.alwaysFear) and (targetObj:HasDebuff("Fear")) and (not targetObj:IsSpellInRange("Shoot")) then
 				return 3;
-			end
-
-			-- Use Healthstone
-			if (localHealth < 30) and (IsInCombat()) and (self.hasHealthstone) then
-				if (script_warlockEX:useHealthstones()) then
-					self.hasHealthstone = false;
-				end
 			end
 
 			if (HasSpell("Will of the Forsaken")) and (script_checkDebuffs:undeadForsaken()) then
@@ -893,22 +893,6 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
-			-- Drain Life on low health
-			if (HasSpell("Drain Life")) and (targetObj:GetCreatureType() ~= "Mechanic") and (localHealth <= self.drainLifeHealth) and (localMana > 5) and (not IsChanneling()) and (not self.useDrainMana) and (GetPet() ~= 0) then
-				self.message = "Casting Drain Life";
-				if (targetObj:GetDistance() < 20) then
-					if (IsMoving()) then StopMoving(); 
-						return true; 
-					end
-					if (Cast('Drain Life', targetObj)) then 
-						return true; 
-					end
-				else
-					script_navEX:moveToTarget(localObj, targetObj:GetPosition()); 
-					self.waitTimer = GetTimeEX() + 2000;
-				end
-			end
-
 			-- Drain Mana on low mana
 			if (HasSpell("Drain Mana")) and (self.useDrainMana) and (targetObj:GetCreatureType() ~= "Mechanic") and (targetObj:GetManaPercentage() >= 25) and (localMana <= 65) then
 				self.message = "Casting Drain Mana";
@@ -1003,7 +987,6 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
-
 			-- Fear single Target
 			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) and (targetObj:GetCreatureType() ~= "Undead") then
 				CastSpellByName("Fear", targetObj);
@@ -1012,6 +995,22 @@ function script_warlock:run(targetGUID)
 					script_grind.tickRate = 135;
 					end
 					return;
+			end
+
+			-- Drain Life on low health
+			if (HasSpell("Drain Life")) and (targetObj:GetCreatureType() ~= "Mechanic") and (localHealth <= self.drainLifeHealth) and (localMana > 5) and (not IsChanneling()) and (not self.useDrainMana) and (GetPet() ~= 0) then
+				self.message = "Casting Drain Life";
+				if (targetObj:GetDistance() < 20) then
+					if (IsMoving()) then StopMoving(); 
+						return true; 
+					end
+					if (Cast('Drain Life', targetObj)) then 
+						return true; 
+					end
+				else
+					script_navEX:moveToTarget(localObj, targetObj:GetPosition()); 
+					self.waitTimer = GetTimeEX() + 2000;
+				end
 			end
 
 			if (self.useShadowBolt) and (not self.useWand) and (not IsMoving()) then
@@ -1081,7 +1080,6 @@ function script_warlock:rest()
 
 	if (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) then
 		if (not IsInCombat()) and (GetPet():GetUnitsTarget() == 0) then
-			ClearTarget();
 		end
 	end
 
@@ -1117,6 +1115,7 @@ function script_warlock:rest()
 			if (not IsSpellOnCD("Life Tap")) then
 				CastSpellByName("Life Tap", localObj);
 				self.waitTimer = GetTimeEX() + 550;
+				script_grind:setWaitTimer(550);
 			end
 		end
 	end			
@@ -1137,7 +1136,6 @@ function script_warlock:rest()
 			return true; 
 		else 
 			self.message = "No drinks! (or drink not included in script_helper)";
-			ClearTarget();
 			return true; 
 		end
 	end
