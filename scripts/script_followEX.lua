@@ -76,13 +76,13 @@ function script_grindEX:doLoot(localObj)
 		if(IsMoving() and not localObj:IsMovementDisabed()) then
 			StopMoving();
 			script_follow.waitTimer = GetTimeEX() + 450;
-			return;
+			return true;
 		end
 
 		if(not IsStanding()) then
 			StopMoving();
 			script_follow.waitTimer = GetTimeEX() + 450;
-			return;
+			return true;
 		end
 		
 		-- If we reached the loot object, reset the nav path
@@ -91,21 +91,20 @@ function script_grindEX:doLoot(localObj)
 		-- Dismount
 		if (IsMounted()) then 
 			DisMount(); script_follow.waitTimer = GetTimeEX() + 450;
-			return; 
+			return true; 
 		end
 
 		if(not script_follow.lootObj:UnitInteract() and not IsLooting()) then
 			script_follow.waitTimer = GetTimeEX() + 950;
-			return;
+			return true;
 		end
 
 		if (not LootTarget()) then
 			script_follow.waitTimer = GetTimeEX() + 650;
-			return;
+			return true;
 		else
 			script_follow.lootObj = nil;
 			script_follow.waitTimer = GetTimeEX() + 450;
-			return;
 		end
 	end
 
@@ -113,7 +112,7 @@ function script_grindEX:doLoot(localObj)
 		script_navEX:moveToTarget(localObj, _x, _y, _z);	
 		script_grind:setWaitTimer(100);
 
-	if (script_follow.lootObj:GetDistance() < 3) then
+	if (script_follow.lootObj ~= nil) and (script_follow.lootObj:GetDistance() < 3 and not IsLooting()) then
 		script_follow.waitTimer = GetTimeEX() + 450; 
 	end
 end

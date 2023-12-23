@@ -1039,7 +1039,7 @@ return false;
 end
 
 function script_grind:isTargetingGroupBool() 
-	for i = 1, GetNumPartyMembers() do
+	for i = 1, GetNumPartyMembers()+1 do
 		local partyMember = GetPartyMember(i);
 		if (partyMember ~= nil and partyMember ~= 0 and not partyMember:IsDead()) then
 			local unitsAttackingUs = 0; 
