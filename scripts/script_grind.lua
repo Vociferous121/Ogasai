@@ -342,12 +342,6 @@ function script_grind:run()
 		self.bagsFull = true;
 	end
 
-	if (IsIndoors()) then
-		script_nav:setNextToNodeDist(2); NavmeshSmooth(6);
-	else
-		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*2.5);
-	end
-
 	 -- Set next to node distance and nav-mesh smoothness to double that number
 	if (IsMounted()) then
 		script_nav:setNextToNodeDist(12); NavmeshSmooth(24);
@@ -385,6 +379,12 @@ function script_grind:run()
 		-- else set to preset variable
 		script_nav:setNextToNodeDist(self.nextToNodeDist);
 		NavmeshSmooth(self.nextToNodeDist*4);
+	end
+
+	if (IsIndoors()) then
+		script_nav:setNextToNodeDist(2); NavmeshSmooth(12);
+	else
+		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*2.5);
 	end
 	
 	-- run setup function if not ran yet
@@ -939,15 +939,15 @@ function script_grind:getTargetAttackingUs()
     local currentObj, typeObj = GetFirstObject(); 
     while currentObj ~= 0 do 
     	if typeObj == 3 then
-		if (currentObj:CanAttack() and not currentObj:IsDead()) then
+		if (currentObj:CanAttack() and not currentObj:IsDead()) and (currentObj:IsInLineOfSight()) then
 			local localObj = GetLocalPlayer();
 			local targetTarget = currentObj:GetUnitsTarget();
-			if (targetTarget ~= 0 and targetTarget ~= nil) then
+			if (targetTarget ~= 0 and targetTarget ~= nil) and (currentObj:GetDistance() < 50) then
 				if (targetTarget:GetGUID() == localObj:GetGUID()) then
 					return currentObj:GetGUID();
 				end
 			end	
-			if (script_grindParty.forceTarget) then
+			if (currentObj:GetDistance() < 50) and (currentObj:IsInLineOfSight()) and (script_grindParty.forceTarget) then
                 		if (script_grind:isTargetingGroup(currentObj)) then 
                 			return currentObj:GetGUID();
                 		end
@@ -963,7 +963,7 @@ function script_grind:assignTarget()
 	-- Return a target attacking our group
 	local i, targetType = GetFirstObject();
 	while i ~= 0 do
-		if (script_grindParty.forceTarget) then
+		if (i:GetDistance() < 50) and (i:IsInLineOfSight()) and (script_grindParty.forceTarget) then
 			if (script_grind:isTargetingGroup(i)) then
 				return i;
 			end
@@ -1024,20 +1024,31 @@ function script_grind:isTargetingPet(i)
 end
 
 function script_grind:isTargetingGroup(y) 
+	local partyMember = 0;
+
 	for i = 1, GetNumPartyMembers()+1 do
 		local partyMember = GetPartyMember(i);
-		if (partyMember ~= nil and partyMember ~= 0 and not partyMember:IsDead()) then
-			local y, typeObj = GetFirstObject(); 
-			while y ~= 0 do 
-    				if typeObj == 3 then
-					if (y:GetUnitsTarget() ~= nil and y:GetUnitsTarget() ~= 0) then
-						if (y:GetUnitsTarget():GetGUID() == partyMember:GetGUID()) then
-							self.enemyObj = y;
-						end
+	end
+		
+	if (partyMember ~= nil and partyMember ~= 0 and not partyMember:IsDead() and partyMember:GetDistance() < 50) then
+		local y, typeObj = GetFirstObject(); 
+
+		while y ~= 0 do 
+
+    			if (typeObj == 3)
+				and (y:GetDistance() < 50)
+				and (not y:IsCritter())
+				and (not y:IsDead())
+				and (y:CanAttack())
+				and (y:IsInLineOfSight())
+			then
+				if (y:GetUnitsTarget() ~= nil and y:GetUnitsTarget() ~= 0) then
+					if (y:GetUnitsTarget():GetGUID() == partyMember:GetGUID()) then
+						self.enemyObj = y;
 					end
 				end
-			y, typeObj = GetNextObject(y); 
 			end
+		y, typeObj = GetNextObject(y); 
 		end
 	end
 return false;
@@ -1097,7 +1108,7 @@ end
 function script_grind:enemyIsValid(i)
 	if (i ~= 0) then
 
-		if (script_grindParty.forceTarget) then
+		if (i:GetDistance() < 50) and (i:IsInLineOfSight()) and (script_grindParty.forceTarget) then
 			if (script_grind:isTargetingGroup(i)) then
 				return true;
 			end

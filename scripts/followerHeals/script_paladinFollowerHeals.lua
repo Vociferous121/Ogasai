@@ -49,7 +49,7 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                 if (HasSpell("Cure Disease")) and (localMana > 10) then
                     if (member:HasDebuff("Infected Wound")) then
                         if (CastHeal("Cure Disease", member)) then
-                            self.waitTimer = GetTimeEX() + 1500;
+                            script_follow.waitTimer = GetTimeEX() + 1500;
                             return true;
                         end
                     end
@@ -59,7 +59,7 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                 if (HasSpell("Purify")) and (localMana > 10) then
                     if (member:HasDebuff("Irradiated")) or (member:HasDebuff("Infected Wound")) then
                         if (CastHeal("Purify", member)) then
-                            self.waitTimer = GetTimeEX() + 1500;
+                            script_follow.waitTimer = GetTimeEX() + 1500;
                             return true;
                         end
                     end
@@ -73,7 +73,7 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                                 return true;
                             end -- move to member
                             if (Buff("Blessing of Might", member)) then
-                                        self.waitTimer = GetTimeEX() + 1500;
+                                        script_follow.waitTimer = GetTimeEX() + 1500;
                                 return true;	
                             end
                         end
@@ -87,7 +87,7 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                             return true;
                         end -- move to member
                         if (Buff("Blessing of Wisdom", member)) then
-                            self.waitTimer = GetTimeEX() + 1500;
+                            script_follow.waitTimer = GetTimeEX() + 1500;
                             return true;
                         end
                     end
@@ -99,7 +99,7 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                         return true;
                     end -- move to member
                     if (Cast("Blessing of Protection", member)) then
-                        self.waitTimer = GetTimeEX() + 1500;
+                        script_follow.waitTimer = GetTimeEX() + 1500;
                         return true;
                     end
                 end
@@ -113,7 +113,7 @@ function script_paladinFollowerHeals:HealsAndBuffs()
 					return true;
 				end
 				if (CastHeal("Lay on Hands", member)) then
-                        		self.waitTimer = GetTimeEX() + 1500;
+                        		script_follow.waitTimer = GetTimeEX() + 1500;
                         		return true;
 				end
 			end
@@ -122,7 +122,7 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                 	leaderHealth = leaderObj:GetHealthPercentage();
                 	if leaderHealth < 40 and HasSpell("Holy Light") then
                 	    CastHeal("Holy Light", leaderObj);
-                	    self.waitTimer = GetTimeEX() + 2000;
+                	    script_follow.waitTimer = GetTimeEX() + 2500;
                 	    return true;
                 	end
 
@@ -132,7 +132,7 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                 	        return true;
                 	    end -- move to member
                 	    if (CastHeal("Holy Light", member)) then
-                	        self.waitTimer = GetTimeEX() + 2700;
+                	        script_follow.waitTimer = GetTimeEX() + 2700;
                 	        return true;
                 	    end
                 	end

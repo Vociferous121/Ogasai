@@ -10,19 +10,17 @@ function script_grindParty:partyOptions()
 
 	if (self.waitForGroup) then
 		if (script_grind:getTargetAttackingUs() == nil) then
-			if (GetLocalPlayer():HasBuff('Bloodrage')) then
-				script_grind.message = "Waiting for bloodrage to fade...";
-				return true;
-			end
-			
+		
 			local groupMana = 0;
 			local manaUsers = 0;
 			local member = 0;
+			local memberDistance = 0;
 
-			for i = 1, GetNumPartyMembers() do
+			for i = 1, GetNumPartyMembers()+1 do
 
 					member = GetPartyMember(i);
 					memberHealth = member:GetHealthPercentage();
+					memberDistance = member:GetDistance();
 
 				if (member:GetManaPercentage() > 0) then
 					groupMana = groupMana + member:GetManaPercentage();
@@ -39,13 +37,17 @@ function script_grindParty:partyOptions()
 				end
 
 			end
-			if (self.waitForMemberDistance) and (member:GetDistance() > 100 and not IsInCombat()) then
+			if (self.waitForMemberDistance) and (memberDistance > 100 and not IsInCombat()) then
 				if (IsMoving()) then StopMoving(); end
 				script_grind.message = 'Waiting for group members...';
 				ClearTarget();
 				return true;
 			end
-			if (not IsInCombat()) and ( (groupMana/manaUsers < 25) or (member:HasBuff("Drink") and memberMana < 90) or (member:HasBuff("Eat") and memberHealth < 90) ) then
+			if (memberDistance < 100) and (not IsInCombat()) 
+			and ( (groupMana/manaUsers < 25)
+			or (member:HasBuff("Drink") and memberMana < 90)
+			or (member:HasBuff("Eat") and memberHealth < 90) )
+			then
 				if (IsMoving()) then
 					StopMoving();
 				end

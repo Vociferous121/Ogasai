@@ -174,7 +174,7 @@ function script_follow:run()
 	if (self.useUnStuck) then
 		if (not script_unstuck:pathClearAuto(2)) then
 			self.message = script_unstuck.message;
-			return;
+			return true;
 		end
 	end
 
@@ -268,6 +268,27 @@ function script_follow:run()
 			self.message = 'Warning bags are full...';
 		end
 
+		-- Loot
+		if (not IsInCombat() and script_follow:enemiesAttackingUs() == 0 and not localObj:HasBuff('Feign Death')) then
+			-- Loot if there is anything lootable and we are not in combat and if our bags aren't full
+			if (not self.skipLooting and not AreBagsFull()) then 
+				self.lootObj = script_nav:getLootTarget(self.findLootDistance);
+			else
+				self.lootObj = nil;
+			end
+			if (self.lootObj == 0) then
+				self.lootObj = nil; 
+			end
+				local isLoot = not IsInCombat() and not (self.lootObj == nil);
+			if (isLoot and not AreBagsFull()) then
+				script_grindEX:doLoot(localObj);
+				return;
+			elseif (AreBagsFull() and not hsWhenFull) then
+				self.lootObj = nil;
+				self.message = "Warning the bags are full...";
+			end
+		end
+
 		-- Clear dead/tapped targets
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
 			if ((self.enemyObj:IsTapped() and not self.enemyObj:IsTappedByMe()) 
@@ -286,7 +307,7 @@ function script_follow:run()
 		-- Healer check: heal/buff the party
 		for i = 1, GetNumPartyMembers()+1 do
 			local member = GetPartyMember(i);
-			if (not member:IsDead()) then
+			if (not member:IsDead()) and (not localObj:IsDead()) then
 				if (script_followHealsAndBuffs:healAndBuff()) then
 					self.message = "Healing/buffing the party...";
 					self.waitTimer = GetTimeEX() + 1000;
@@ -307,10 +328,16 @@ function script_follow:run()
 		end
 
 		-- Healer check: heal/buff the party
-		if (script_followHealsAndBuffs:healAndBuff()) and (HasSpell("Smite") or HasSpell("Rejuvenation") or HasSpell("Healing Wave") or HasSpell("Holy Light")) then
-			self.message = "Healing/buffing the party...";
-			ClearTarget();
-			return;
+		for i = 1, GetNumPartyMembers()+1 do
+			local member = GetPartyMember(i);
+			if (not member:IsDead()) and (not localObj:IsDead()) then
+				if (script_followHealsAndBuffs:healAndBuff()) then
+					self.message = "Healing/buffing the party...";
+					self.waitTimer = GetTimeEX() + 1000;
+					ClearTarget();
+					return;
+				end
+			end
 		end
 				
 		-- Check if anything is attacking us Paladin
@@ -332,32 +359,17 @@ function script_follow:run()
 
 		else
 
-		-- Healer check: heal/buff the party
-			if (script_followHealsAndBuffs:healAndBuff()) and (HasSpell("Smite") or HasSpell("Rejuvenation") or HasSpell("Healing Wave") or HasSpell("Holy Light")) then
-				self.message = "Healing/buffing the party...";
-				ClearTarget();
-				return;
-			end
-		end
-
-		-- Loot
-		if (not IsInCombat() and script_follow:enemiesAttackingUs() == 0 and not localObj:HasBuff('Feign Death')) then
-			-- Loot if there is anything lootable and we are not in combat and if our bags aren't full
-			if (not self.skipLooting and not AreBagsFull()) then 
-				self.lootObj = script_nav:getLootTarget(self.findLootDistance);
-			else
-				self.lootObj = nil;
-			end
-			if (self.lootObj == 0) then
-				self.lootObj = nil; 
-			end
-				local isLoot = not IsInCombat() and not (self.lootObj == nil);
-			if (isLoot and not AreBagsFull()) then
-				script_grindEX:doLoot(localObj);
-				return;
-			elseif (AreBagsFull() and not hsWhenFull) then
-				self.lootObj = nil;
-				self.message = "Warning the bags are full...";
+			-- Healer check: heal/buff the party
+			for i = 1, GetNumPartyMembers()+1 do
+				local member = GetPartyMember(i);
+				if (not member:IsDead()) and (not localObj:IsDead()) then
+					if (script_followHealsAndBuffs:healAndBuff()) then
+						self.message = "Healing/buffing the party...";
+						self.waitTimer = GetTimeEX() + 1000;
+						ClearTarget();
+						return;
+					end
+				end
 			end
 		end
 
@@ -475,12 +487,17 @@ function script_follow:run()
 				end
 			end
 		end
-
 		-- Healer check: heal/buff the party
-		if (script_followHealsAndBuffs:healAndBuff()) and (HasSpell("Smite") or HasSpell("Rejuvenation") or HasSpell("Healing Wave") or HasSpell("Holy Light")) then
-			self.message = "Healing/buffing the party...";
-			ClearTarget();
-			return;
+		for i = 1, GetNumPartyMembers()+1 do
+			local member = GetPartyMember(i);
+			if (not member:IsDead()) and (not localObj:IsDead()) then
+				if (script_followHealsAndBuffs:healAndBuff()) then
+					self.message = "Healing/buffing the party...";
+					self.waitTimer = GetTimeEX() + 1000;
+					ClearTarget();
+					return;
+				end
+			end
 		end
 end -- end of function 
 

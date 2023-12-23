@@ -100,11 +100,11 @@ function script_grindEX:doLoot(localObj)
 		end
 
 		if (not LootTarget()) then
-			script_follow.waitTimer = GetTimeEX() + 650;
+			script_follow.waitTimer = GetTimeEX() + 250;
 			return true;
 		else
 			script_follow.lootObj = nil;
-			script_follow.waitTimer = GetTimeEX() + 450;
+			script_follow.waitTimer = GetTimeEX() + 250;
 		end
 	end
 

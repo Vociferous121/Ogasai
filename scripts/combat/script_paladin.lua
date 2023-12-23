@@ -139,7 +139,7 @@ function script_paladin:run(targetGUID)
 
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
-		local tickRandom = random(550, 1000);
+		local tickRandom = random(450, 800);
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
 		elseif (not IsInCombat()) and (not IsMoving()) then
@@ -148,6 +148,7 @@ function script_paladin:run(targetGUID)
 			script_grind.tickRate = tickRandom;
 		end
 	end
+
 	-- dismount before combat
 	if (IsMounted()) then
 		DisMount();
@@ -481,7 +482,7 @@ function script_paladin:rest()
 	-- set tick rate for script to run
 	if (not script_grind.adjustTickRate) then
 
-		local tickRandom = random(500, 1100);
+		local tickRandom = random(450, 800);
 
 		if (IsMoving()) or (not IsInCombat()) then
 			script_grind.tickRate = 135;
@@ -577,6 +578,18 @@ function script_paladin:rest()
 	if ((localMana < 98 and IsDrinking()) or (localHealth < 98 and IsEating())) then
 		self.message = "Resting to full hp/mana...";
 		return true;
+	end
+
+-- set tick rate for script to run
+	if (not script_grind.adjustTickRate) then
+		local tickRandom = random(450, 800);
+		if (IsMoving()) or (not IsInCombat()) then
+			script_grind.tickRate = 135;
+		elseif (not IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom
+		elseif (IsInCombat()) and (not IsMoving()) then
+			script_grind.tickRate = tickRandom;
+		end
 	end
 	-- Don't need to rest
 	return false;

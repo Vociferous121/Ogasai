@@ -10,6 +10,8 @@ script_grindMenu = {
 	paladinMenu = include("scripts\\combat\\script_paladinEX.lua"),
 	shamanMenu = include("scripts\\combat\\script_shamanEX.lua"),
 	druidMenu = include("scripts\\combat\\script_druidEX.lua"),
+	grindpartymenuincluded = include("scripts\\script_grindPartyMenu.lua"),
+
 	useHotSpotArea = true,
 	selectedWalkPath = false,
 
@@ -271,13 +273,5 @@ function script_grindMenu:menu()
 		wasClicked, script_grind.drawGather = Checkbox('Display Gather Nodes', script_grind.drawGather);
 	end
 
-	if (GetNumPartyMembers() >= 1) then
-		if (CollapsingHeader("Grind Party Options")) then
-		wasClicked, script_grindParty.forceTarget = Checkbox("Force Attack Group Targets", script_grindParty.forceTarget);
-		wasClicked, script_grindParty.waitForGroup = Checkbox("Wait For Party Mana", script_grindParty.waitForGroup);
-		wasClicked, script_grindParty.waitForMemberDistance = Checkbox("Stop if member leaves range", script_grindParty.waitForMemberDistance);
-
-
-		end
-	end
+	script_grindPartyMenu:menu();
 end

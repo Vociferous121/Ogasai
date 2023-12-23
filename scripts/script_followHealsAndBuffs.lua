@@ -25,7 +25,7 @@ function script_followHealsAndBuffs:healAndBuff()
 			if (script_follow.combatError == 3) then
 				script_follow.message = "Moving to target...";
 				script_follow:moveInLineOfSight(partyMember);		
-				return;
+				return true;
 			end
 			
 			-- Move in line of sight and in range of the party member
