@@ -386,18 +386,6 @@ function script_follow:run()
        		end
 	end	
 
-		--if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
-		--	if (script_follow:enemiesAttackingUs() == 0) then
-		--		if (self.enemyObj:GetGUID() ~= script_follow:GetPartyLeaderObject():GetUnitsTarget():GetGUID()) then
-		--			self.enemyObj = nil;
-		--			ClearTarget();
-		--		end
-		--	end
-		--elseif (script_follow:enemiesAttackingUs() == 0) and (script_follow:GetPartyLeaderObject():GetUnitsTarget() == 0) then
-		--		self.enemyObj = nil;
-		--		ClearTarget();
-		--end
-
 		-- Finish loot before we engage new targets or navigate
 		if (self.lootObj ~= nil and not IsInCombat()) then
 			return; 

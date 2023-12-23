@@ -9,6 +9,7 @@ script_paladinFollowerHeals = {
 	bopHealth = 10,
 	clickFlashOfLight = true,
 	clickHolyLight = true,
+	timer = GetTimeEX(),
 
 }
 
@@ -17,6 +18,9 @@ function script_paladinFollowerHeals:HealsAndBuffs()
 	if (not IsStanding()) then 
 		StopMoving();
 	end
+	if(GetTimeEX() > self.timer) then
+		self.timer = GetTimeEX() + script_follow.tickRate;
+
 	for i = 1, GetNumPartyMembers()+1 do
 
 			local member = GetPartyMember(i);
@@ -49,7 +53,7 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                 if (HasSpell("Cure Disease")) and (localMana > 10) then
                     if (member:HasDebuff("Infected Wound")) then
                         if (CastHeal("Cure Disease", member)) then
-                            script_follow.waitTimer = GetTimeEX() + 1500;
+                            self.timer = GetTimeEX() + 1500;
                             return true;
                         end
                     end
@@ -59,7 +63,7 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                 if (HasSpell("Purify")) and (localMana > 10) then
                     if (member:HasDebuff("Irradiated")) or (member:HasDebuff("Infected Wound")) then
                         if (CastHeal("Purify", member)) then
-                            script_follow.waitTimer = GetTimeEX() + 1500;
+                            self.timer = GetTimeEX() + 1500;
                             return true;
                         end
                     end
@@ -73,7 +77,7 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                                 return true;
                             end -- move to member
                             if (Buff("Blessing of Might", member)) then
-                                        script_follow.waitTimer = GetTimeEX() + 1500;
+                                        self.timer = GetTimeEX() + 1500;
                                 return true;	
                             end
                         end
@@ -87,7 +91,7 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                             return true;
                         end -- move to member
                         if (Buff("Blessing of Wisdom", member)) then
-                            script_follow.waitTimer = GetTimeEX() + 1500;
+                            self.timer = GetTimeEX() + 1500;
                             return true;
                         end
                     end
@@ -99,7 +103,7 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                         return true;
                     end -- move to member
                     if (Cast("Blessing of Protection", member)) then
-                        script_follow.waitTimer = GetTimeEX() + 1500;
+                        self.timer = GetTimeEX() + 1500;
                         return true;
                     end
                 end
@@ -113,7 +117,7 @@ function script_paladinFollowerHeals:HealsAndBuffs()
 					return true;
 				end
 				if (CastHeal("Lay on Hands", member)) then
-                        		script_follow.waitTimer = GetTimeEX() + 1500;
+                        		self.timer = GetTimeEX() + 1500;
                         		return true;
 				end
 			end
@@ -122,9 +126,9 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                 	leaderHealth = leaderObj:GetHealthPercentage();
                 	if leaderHealth < 40 and HasSpell("Holy Light") then
                 	    CastHeal("Holy Light", leaderObj);
-                	    script_follow.waitTimer = GetTimeEX() + 2500;
+                	    self.timer = GetTimeEX() + 3000;
                 	    return true;
-                	end
+                	else
 
                 	-- Holy Light
                 	if (localMana > self.holyLightMana) and (memberHP < self.partyHolyLightHealth) and (HasSpell("Holy Light")) then
@@ -132,10 +136,11 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                 	        return true;
                 	    end -- move to member
                 	    if (CastHeal("Holy Light", member)) then
-                	        script_follow.waitTimer = GetTimeEX() + 2700;
+                	        self.timer = GetTimeEX() + 3000;
                 	        return true;
                 	    end
                 	end
+			end
 
                 	-- Flash Of Light
                 	if (localMana > self.flashOfLightMana) and (memberHP < self.partyFlashOfLightHealth) and (HasSpell("Flash of Light")) then
@@ -147,6 +152,7 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                  	   end
 			end       
 		end 
+	end
 	end
     return;
 end   

@@ -10,6 +10,7 @@ script_druidFollowerHeals = {
 	clickHealingTouch = true,
 	clickRegrowth = true,
 	swiftMendHealth = 40,
+	timer = GetTimeEX(),
 
 }
 
@@ -18,6 +19,9 @@ function script_druidFollowerHeals:HealsAndBuffs()
 	if (not IsStanding()) then 
 		StopMoving();
 	end
+	if(GetTimeEX() > self.timer) then
+		self.timer = GetTimeEX() + script_follow.tickRate;
+
 
 	for i = 1, GetNumPartyMembers()+1 do
 
@@ -72,7 +76,7 @@ function script_druidFollowerHeals:HealsAndBuffs()
                 	        	    return true;
                 	        	end -- move to member
                 	        	if (CastSpellByName("Nature's Swiftness", localObj)) then
-                	         		self.waitTimer = GetTimeEX() + 1500;
+                	         		self.timer = GetTimeEX() + 1500;
                 	         	  	return true;
                 	        	end
                 	    	end
@@ -85,7 +89,7 @@ function script_druidFollowerHeals:HealsAndBuffs()
                         	    		return true;
                         		end -- move to member
                         		if (CastSpellByName("Regrowth")) then
-                        		    self.waitTimer = GetTimeEX() + 1500;
+                        		    self.timer = GetTimeEX() + 1500;
                         		    return true;
                         		end
                     		end
@@ -97,7 +101,7 @@ function script_druidFollowerHeals:HealsAndBuffs()
                 	                return true;
                 	    	end -- move to member
                 	    	if (CastSpellByName("Rejuvenation")) then
-                	        	self.waitTimer = GetTimeEX() + 1500;
+                	        	self.timer = GetTimeEX() + 1500;
                 	        	return true;
                 	    	end
                 	end
@@ -109,12 +113,13 @@ function script_druidFollowerHeals:HealsAndBuffs()
                 	        	    return true;
 					end -- move to member
                 	       		if (CastSpellByName("Healing Touch", partyMember)) then
-                	        	    self.waitTimer = GetTimeEX() + 1500;
+                	        	    self.timer = GetTimeEX() + 1500;
                        		 	    return true;
                         		end
 				end
 			end
 		end
+	end
 	end	
-    return;
+    return true;
 end

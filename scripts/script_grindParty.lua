@@ -9,7 +9,7 @@ script_grindParty = {
 function script_grindParty:partyOptions()
 
 	if (self.waitForGroup) then
-		if (script_grind:getTargetAttackingUs() == nil) then
+		if (script_grind:getTargetAttackingUs() == nil) and (not IsInCombat()) then
 		
 			local groupMana = 0;
 			local manaUsers = 0;

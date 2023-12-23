@@ -11,6 +11,8 @@ script_followHealsAndBuffs = {
 	rogueLoaded = include("scripts\\followerHeals\\script_rogueFollowerHeals.lua"),
 	mageLoaded = include("scripts\\followerHeals\\script_mageFollowerHeals.lua"),
 
+	timer = GetTimeEX(),
+
 }
 
 		-- separated these files due to a limitation of file sizes.
@@ -20,6 +22,10 @@ script_followHealsAndBuffs = {
 		-- based on class to reduce CPU usage it will only cast spells if you are that class...
 
 function script_followHealsAndBuffs:healAndBuff()
+
+		if(GetTimeEX() > self.timer) then
+			self.timer = GetTimeEX() + script_follow.tickRate;
+
 	
 			-- Move in range: combat script return 3
 			if (script_follow.combatError == 3) then
@@ -66,6 +72,7 @@ function script_followHealsAndBuffs:healAndBuff()
 			-- paladin heals and buffs
 			if (class == 'Paladin') then
 				if (script_paladinFollowerHeals:HealsAndBuffs()) then
+					self.timer = GetTimeEX() + 2000;
 					return true;
 				end
 			end
@@ -97,5 +104,6 @@ function script_followHealsAndBuffs:healAndBuff()
 			--		return true;
 			--	end
 			--end
+		end
 	return;
 end

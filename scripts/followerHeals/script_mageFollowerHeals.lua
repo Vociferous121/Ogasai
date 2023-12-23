@@ -1,8 +1,17 @@
 script_mageFollowerHeals = {
 
+	timer = GetTimeEX(),
+
 }
 
 function script_mageFollowerHeals:HealsAndBuffs()
+
+	if (not IsStanding()) then 
+		StopMoving();
+	end
+	if(GetTimeEX() > self.timer) then
+		self.timer = GetTimeEX() + script_follow.tickRate;
+
 
 	for i = 1, GetNumPartyMembers()+1 do
 
@@ -46,6 +55,7 @@ function script_mageFollowerHeals:HealsAndBuffs()
 				return true;
 			end
 		end
+	end
 	end
 return;
 end
