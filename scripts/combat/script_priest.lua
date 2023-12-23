@@ -354,6 +354,7 @@ function script_priest:run(targetGUID)
 			-- smite low level wouldn't cast for some reason kept defaulting to auto attack
 			if (GetLocalPlayer():GetLevel() <= 3) and (targetObj:GetDistance() < 28) and (localMana > 10) then
 				CastSpellByName("Smite", targetObj);
+				targetObj:FaceTarget();
 			end
 
 			-- No Mind Blast but wand ? fixed!

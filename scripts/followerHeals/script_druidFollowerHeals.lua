@@ -121,5 +121,5 @@ function script_druidFollowerHeals:HealsAndBuffs()
 		end
 	end
 	end	
-    return true;
+    return;
 end

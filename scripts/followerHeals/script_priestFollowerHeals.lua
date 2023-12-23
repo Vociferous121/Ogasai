@@ -23,6 +23,9 @@ script_priestFollowerHeals = {
 }
 
 function script_priestFollowerHeals:HealsAndBuffs()
+	
+	local localMana = GetLocalPlayer():GetManaPercentage();
+	local localHealth = GetLocalPlayer():GetHealthPercentage();
 
 	if (not IsStanding()) then 
 		StopMoving();
@@ -41,9 +44,9 @@ function script_priestFollowerHeals:HealsAndBuffs()
 
 			local localMana = GetLocalPlayer():GetManaPercentage();
 			local localEnergy = GetLocalPlayer():GetEnergyPercentage();
-			local partyMemberHP = partyMember:GetHealthPercentage();
+			local partyMembersHP = partyMember:GetHealthPercentage();
 
-		if (partyMemberHP > 0) and (localMana > 1 or localEnergy > 1) then
+		if (partyMembersHP > 0) then
 				local partyMemberDistance = partyMember:GetDistance();
 				leaderObj = GetPartyMember(GetPartyLeaderIndex());
 				local localHealth = GetLocalPlayer():GetHealthPercentage();
@@ -246,5 +249,5 @@ function script_priestFollowerHeals:HealsAndBuffs()
         end
     end
 	end
-    return true;
+    return;
 end
