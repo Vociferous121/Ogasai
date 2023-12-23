@@ -52,7 +52,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 	while theta <= 2*PI do
 		point = point + 1 -- get next table slot, starts at 0 
 		points[point] = { x = pointX + radius*cos(theta), y = pointY + radius*sin(theta) }
-		pointsTwo[point] = { x = pointX + (self.addsRange/2)*cos(theta), y = pointY + (self.addsRange/2)*sin(theta) }
+		pointsTwo[point] = { x = pointX + (self.addsRange)*cos(theta), y = pointY + (self.addsRange)*sin(theta) }
 		theta = theta + 2*PI / quality -- get next theta
 	end
 	
@@ -95,7 +95,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 	-- Move just outside the aggro range
 	local moveToPoint = closestPoint;
-	local setPoint = 3;
+	local setPoint = 4;
 
 	if (closestPointToDest ~= nil) then	
 		local diffPoint = closestPointToDest - moveToPoint;
@@ -134,12 +134,13 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 				script_grind.enemyObj:FaceTarget();
 			end
 		end
-
-		if (Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ)) then
-			script_grind.message = "Moving Away From Adds";
-			self.closestEnemy = 0;
-			self.intersectEnemy = nil;
-		return true;
+if (script_grind.enemyObj ~= nil and script_grind.enemyObj ~= 0) and (not script_grind.enemyObj:IsCasting()) then
+			if (Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ)) then
+				script_grind.message = "Moving Away From Adds";
+				self.closestEnemy = 0;
+				self.intersectEnemy = nil;
+			return true;
+			end
 		end
 	end
 end
@@ -263,10 +264,10 @@ function script_checkAdds:avoidToAggro(safeMargin)
 				local xx, yy, zz = self.intersectEnemy:GetPosition();
 				local centerX, centerY = (x+xx)/2, (y+yy)/2;
 			
-				script_checkAdds:avoid(centerX, centerY, zP, aggroRange, self.checkAddsRange);
+				script_checkAdds:avoid(centerX, centerY, zP, aggroRange, self.checkAddsRange/2);
 				PetFollow();
 			else
-				script_checkAdds:avoid(xT, yT, zP, aggro, self.checkAddsRange);
+				script_checkAdds:avoid(xT, yT, zP, aggro, self.checkAddsRange/2);
 				PetFollow();
 			end
 
@@ -335,7 +336,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 	while theta <= 2*PI do
 		point = point + 1 -- get next table slot, starts at 0 
 		points[point] = { x = pointX + radius*cos(theta), y = pointY + radius*sin(theta) }
-		pointsTwo[point] = { x = pointX + (self.addsRange/2)*cos(theta)*2, y = pointY + (self.addsRange/2)*sin(theta)*2 }
+		pointsTwo[point] = { x = pointX + (self.addsRange)*cos(theta)*2, y = pointY + (self.addsRange)*sin(theta)*2 }
 		theta = theta + 2*PI / quality -- get next theta
 	end
 	for i = 1, point do
@@ -370,7 +371,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 	-- Move just outside the aggro range
 	moveToPoint = closestPoint;
-	local setPoint = 3;
+	local setPoint = 4;
 
 	-- find direction to travel
 
@@ -412,11 +413,13 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 			end
 		end
 
-		if (Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ)) then
-			script_grind.message = "Moving Away From Adds";
-			self.closestEnemy = 0;
-			self.intersectEnemy = nil;
-		return true;
+		if (script_grind.enemyObj ~= nil and script_grind.enemyObj ~= 0) and (not script_grind.enemyObj:IsCasting()) then
+			if (Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ)) then
+				script_grind.message = "Moving Away From Adds";
+				self.closestEnemy = 0;
+				self.intersectEnemy = nil;
+			return true;
+			end
 		end
 	end
 end
@@ -473,7 +476,7 @@ function script_checkAdds:avoidToAggro2(safeMargin)
 		-- avoid the closest mob
 			local range = self.addsRange;
 						
-		if (self.closestEnemy ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) and (closestEnemy:GetDistance() < self.addsRange + 4) then
+		if (self.closestEnemy ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) and (closestEnemy:GetDistance() < self.addsRange + 2) then
 
 			local xT, yT, zT = self.closestEnemy:GetPosition();
 
@@ -487,12 +490,12 @@ function script_checkAdds:avoidToAggro2(safeMargin)
 				local xx, yy, zz = self.intersectEnemy:GetPosition();
 				local centerX, centerY = (x+xx)/2, (y+yy)/2;
 			
-				script_checkAdds:avoid(centerX, centerY, zP, aggroRange, self.checkAddsRange);
+				script_checkAdds:avoid(centerX, centerY, zP, aggroRange, self.checkAddsRange/2);
 				PetFollow();
 
 			else
 
-				script_checkAdds:avoid(xT, yT, zP, aggro, self.checkAddsRange);
+				script_checkAdds:avoid(xT, yT, zP, aggro, self.checkAddsRange/2);
 				PetFollow();
 			end
 
