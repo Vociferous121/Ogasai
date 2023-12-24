@@ -297,4 +297,7 @@ function script_grindMenu:menu()
 		end
 		
 	--Text("Paranoia Used : nothing here yet!");
+
+	-- debug info
+	--Text("Script Tick Rate - How Fast The Scripts Run"); script_grind.tickRate = SliderInt("TR (ms)", 0, 3000, script_grind.tickRate);
 end

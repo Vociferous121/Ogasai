@@ -832,7 +832,7 @@ function script_grind:run()
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
 
-				if (not script_grind.adjustTickRate) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+				if (not script_grind.adjustTickRate) and (PlayerHasTarget()) then
 					script_grind.tickRate = 135;
 				end
 
@@ -1330,8 +1330,8 @@ function script_grind:enemiesWithinRange() -- returns number of enemies within r
 	local unitsAttackingUs = 0; 
 	local currentObj, typeObj = GetFirstObject(); 
 	while currentObj ~= 0 do 
-    	if typeObj == 3 then
-		if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+    	if (typeObj == 3) and (PlayerHasTarget()) then
+		if (currentObj:CanAttack()) and (not currentObj:IsDead()) then
                 	if (currentObj:GetDistance() < GetLocalPlayer():GetUnitsTarget():GetDistance() + script_checkAdds.addsRange) then 
                 		unitsAttackingUs = unitsAttackingUs + 1; 
                 	end 
@@ -1566,7 +1566,7 @@ function script_grind:runRest()
 		-- check for pet to stop bugs
 		local pet = GetPet();
 		if (pet ~= 0) then
-			if (GetPet():GetUnitsTarget() == 0) then
+			if (not PetHasTarget()) then
 				script_grind.petHasTarget = false;
 			end
 		else

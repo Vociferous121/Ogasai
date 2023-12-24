@@ -11,10 +11,6 @@ function script_checkAdds:checkAdds()
 
 		if (script_checkAdds:avoidToAggro(self.checkAddsRange)) then
 
-			if (not script_grind.adjustTickRate) then
-				script_grind.tickRate = 135;
-			end
-
 			if (not script_unstuck:pathClearAuto(2)) then
 				script_unstuck:unstuck();
 				return true;
@@ -136,6 +132,9 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 		end
 if (script_grind.enemyObj ~= nil and script_grind.enemyObj ~= 0) and (not script_grind.enemyObj:IsCasting()) then
 			if (Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ)) then
+				if (not script_grind.adjustTickRate) and (PlayerHasTarget()) then
+					script_grind.tickRate = 350;
+				end	
 				script_grind.message = "Moving Away From Adds";
 				self.closestEnemy = 0;
 				self.intersectEnemy = nil;
@@ -148,10 +147,6 @@ end
 
 function script_checkAdds:avoidToAggro(safeMargin) 
 	
-	if (not script_grind.adjustTickRate) then
-		script_grind.tickRate = 50;
-	end
-
 	local countUnitsInRange = 0;
 	local currentObj, typeObj = GetFirstObject();
 	local localObj = GetLocalPlayer();
@@ -417,6 +412,9 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 		if (script_grind.enemyObj ~= nil and script_grind.enemyObj ~= 0) and (not script_grind.enemyObj:IsCasting()) then
 			if (Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ)) then
+				if (not script_grind.adjustTickRate) and (PlayerHasTarget()) then
+					script_grind.tickRate = 135;
+				end
 				script_grind.message = "Moving Away From Adds";
 				self.closestEnemy = 0;
 				self.intersectEnemy = nil;
@@ -429,9 +427,6 @@ end
 
 -- lazy attempt to avoid adds during resting
 function script_checkAdds:avoidToAggro2(safeMargin) 
-	if (not script_grind.adjustTickRate) then
-		script_grind.tickRate = 50;
-	end
 
 	local countUnitsInRange = 0;
 	local currentObj, typeObj = GetFirstObject();

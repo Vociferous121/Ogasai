@@ -246,6 +246,19 @@ function script_rogue:run(targetGUID)
 		DisMount();
 	end
 
+	-- check adds and run away
+	if (IsInCombat()) and (PlayerHasTarget()) and (script_grind.skipHardPull) and (not self.enableRotation) then
+		if (script_checkAdds:checkAdds()) then
+			script_grind.tickRate = 135;
+			return true;
+		end
+	end
+
+	-- force auto attack in combat
+	if (IsInCombat()) and (PlayerHasTarget()) and (not IsAutoCasting("Attack")) then
+		targetObj:AutoAttack();
+	end
+
 	if (self.enableGrind) then
 
 		--Valid Enemy
@@ -302,7 +315,13 @@ function script_rogue:run(targetGUID)
 						return 5; 
 					end
 				end
-			end  
+			end 
+
+			--stuck in combat
+			if (not PlayerHasTarget()) and (IsInCombat()) and (script_grind.enemiesAttackingUs() == 0) then
+				self.message = "Stuck in combat... Waiting...";
+				return;
+			end
 		
 			-- Opener
 			if (not IsInCombat()) then
@@ -333,7 +352,6 @@ function script_rogue:run(targetGUID)
 					-- Use sprint (when stealthed for pull)
 					if (HasSpell("Sprint")) and (not IsSpellOnCD("Sprint")) and (IsStealth()) then
 						CastSpellByName("Sprint");
-						return 3;
 					end
 				end
 
@@ -353,7 +371,7 @@ function script_rogue:run(targetGUID)
 				end
 
 				-- Check if we are in melee range
-				if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
+				if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) and (PlayerHasTarget()) then
 					return 3;
 				end
 
@@ -367,12 +385,6 @@ function script_rogue:run(targetGUID)
 				-- now in Combat
 			else	
 
-				if (script_grind.skipHardPull) then
-					if (script_checkAdds:checkAdds()) then
-						return true;
-					end
-				end
-
 				self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
 				-- Dismount
@@ -381,7 +393,7 @@ function script_rogue:run(targetGUID)
 				end
 
 				-- Check if we are in melee range
-				if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
+				if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) and (PlayerHasTarget()) then
 					return 3;
 				end
 
@@ -402,13 +414,13 @@ function script_rogue:run(targetGUID)
 				end
 
 				-- Check: Do we have the right target (in UI) ??
-				--if (GetTarget() ~= 0 and GetTarget() ~= nil) then
-				--	if (GetTarget():GetGUID() ~= targetObj:GetGUID()) then
-				--		ClearTarget();
-				--		targetObj = 0;
-				--		return 0;
-				--	end
-				--end
+				if (GetTarget() ~= 0 and GetTarget() ~= nil) then
+					if (GetTarget():GetGUID() ~= targetObj:GetGUID()) then
+						ClearTarget();
+						targetObj = 0;
+						return 0;
+					end
+				end
 
 				local localCP = GetComboPoints("player", "target");
 
@@ -645,7 +657,6 @@ function script_rogue:run(targetGUID)
 				if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) and (not script_checkDebuffs:hasPoison()) and (script_grind.lootObj == 0 or script_grind.lootObj == nil) then
 					if (not IsStealth() and not IsSpellOnCD("Stealth")) then
 						CastStealth();
-						return 3;
 					end
 					-- why break stealth??
 					--elseif (not self.useStealth and IsStealth()) then
@@ -665,7 +676,7 @@ function script_rogue:run(targetGUID)
 				end
 			
 				-- Check if we are in melee range
-				if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
+				if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) and (PlayerHasTarget()) then
 					return 3;
 				end
 
@@ -815,7 +826,7 @@ function script_rogue:run(targetGUID)
 					end
 
 					-- Check if we are in melee range
-					if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) then
+					if (targetObj:GetDistance() > self.meleeDistance or not targetObj:IsInLineOfSight()) and (PlayerHasTarget()) then
 						return 3;
 					end
 
