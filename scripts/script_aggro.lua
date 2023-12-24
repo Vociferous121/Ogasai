@@ -187,7 +187,7 @@ function script_aggro:closeToBlacklistedTargets()
 	local aggroClosest = 0;
 
 	while currentObj ~= 0 do
-		aggro = currentObj:GetLevel() - localObj:GetLevel() + 22;
+		aggro = currentObj:GetLevel() - localObj:GetLevel() + 23.5;
 		local range = aggro;
 
 		if (currentObj:CanAttack())
@@ -197,11 +197,11 @@ function script_aggro:closeToBlacklistedTargets()
 			and (not script_grind:isTargetingMe(currentObj))
 			and (not currentObj:HasDebuff("Polymorph"))
 			and (not currentObj:HasDebuff("Fear"))
-			and (not currentObj:GetGUID() == script_grind.lastTarget)
+			and (currentObj:GetGUID() ~= script_grind.lastAvoidTarget:GetGUID())
 		then	
 			if (closestEnemy == 0) then
 				closestEnemy = currentObj;
-				aggroClosest = currentObj:GetLevel() - localObj:GetLevel() + 23;
+				aggroClosest = currentObj:GetLevel() - localObj:GetLevel() + 24;
 			else
 				local dist = currentObj:GetDistance();
 				if (dist < closestDist) then
@@ -233,9 +233,6 @@ function script_aggro:closeToHardBlacklistedTargets()
 	local aggro = 0;
 	local aggroClosest = 0;
 	local enemy = GetLocalPlayer();
-	if (script_grind.enemyObj ~= 0) and (script_grind.enemyObj ~= nil) then
-		local enemy = script_grind.enemyObj:GetGUID();
-	end
 
 	while currentObj ~= 0 do
 		aggro = currentObj:GetLevel() - localObj:GetLevel() + 21;
@@ -247,7 +244,6 @@ function script_aggro:closeToHardBlacklistedTargets()
 			and (not script_grind:isTargetingMe(currentObj))
 			and (not currentObj:HasDebuff("Polymorph"))
 			and (not currentObj:HasDebuff("Fear"))
-			and (not currentObj:GetGUID() == enemy)
 		then	
 			if (closestEnemy == 0) then
 				closestEnemy = currentObj;
@@ -336,7 +332,7 @@ function script_aggro:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 	-- Move just outside the aggro range
 	local moveToPoint = closestPoint;
-	local setPoint = 10;
+	local setPoint = 2;
 
 	if (closestPointToDest ~= nil) then	
 		local diffPoint = closestPointToDest - moveToPoint;
@@ -353,9 +349,9 @@ function script_aggro:avoid(pointX,pointY,pointZ, radius, safeDist)
 	
 	-- out of bound
 	if (moveToPoint > point or moveToPoint == 0) then
-		--moveToPoint = setPoint;
+		moveToPoint =  - setPoint;
 		-- need to assign blacklisted target only closest target
-		script_grind:assignTarget();
+		--script_grind:assignTarget();
 	end
 
 	if (moveToPoint ~= 0)
@@ -377,8 +373,14 @@ function script_aggro:avoid(pointX,pointY,pointZ, radius, safeDist)
 		end
 
 		if (Move(pointsTwo[moveToPoint].x, pointsTwo[moveToPoint].y, pointZ)) then
-			script_grind:setWaitTimer(450);
+			script_nav:resetNavPos();
+			script_nav:resetNavigate();
+			script_nav:resetPath();
 		end
+	else
+			script_nav:resetNavPos();
+			script_nav:resetNavigate();
+			script_nav:resetPath();
 	end
 end
 

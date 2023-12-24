@@ -19,7 +19,7 @@ function script_paranoiaCheck:playersWithinRange(range)
 							script_grind.playerName = currentObj:GetUnitName();
 							script_grind.playerPos = currentObj:GetPosition();
 							local playerName = currentObj:GetUnitName();
-							local playerDistance = abs(currentObj:GetDistance());
+							local playerDistance = math.floor(currentObj:GetDistance());
 							script_grind.playerParanoidDistance = currentObj:GetDistance();
 							local playerTime = GetTimeStamp();
 							local string ="" ..playerTime.. " - Player Name ("..playerName.. ") - Distance (yds) "..playerDistance.. " - added to log file. Logout Timer set!"

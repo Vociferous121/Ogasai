@@ -10,8 +10,11 @@ script_grindMenu = {
 	paladinMenu = include("scripts\\combat\\script_paladinEX.lua"),
 	shamanMenu = include("scripts\\combat\\script_shamanEX.lua"),
 	druidMenu = include("scripts\\combat\\script_druidEX.lua"),
-	grindpartymenuincluded = include("scripts\\script_grindPartyMenu.lua"),
+	grindPartyMenuIncluded = include("scripts\\script_grindPartyMenu.lua"),
+	counterMenuIncluded = include("scripts\\script_counterMenu.lua"),
+	debugMenuIncluded = include("scripts\\script_debugMenu.lua"),
 
+	debugMenu = false,
 	useHotSpotArea = true,
 	selectedWalkPath = false,
 
@@ -273,55 +276,15 @@ function script_grindMenu:menu()
 		wasClicked, script_grind.drawAutoPath = Checkbox('Display Auto-Path Nodes', script_grind.drawAutoPath);
 		wasClicked, script_grind.drawPath = Checkbox('Display Move Path', script_grind.drawPath);
 		wasClicked, script_grind.drawGather = Checkbox('Display Gather Nodes', script_grind.drawGather);
+		wasClicked, self.debugMenu = Checkbox("Display Debug Stuff", self.debugMenu);
 	end
 
 	script_grindPartyMenu:menu();
-	Text("Counters Since Last Reload - ");
 
-		local lastReloadDeathCounter = script_grindEX.deathCounter;
-		Text("Deaths : " ..lastReloadDeathCounter);
+	if (self.debugMenu) then
+		script_debugMenu:menu();
+	end
 
-		local monsterKillCount = script_grind.monsterKillCount;
-		Text("Monster Kills : " ..monsterKillCount);
-
-
-
-		-- get copper amount
-		local moneyObtainedCount = script_grind.moneyObtainedCount;
-
-		-- get silver amount
-		local moneyObtainedCountSilver = math.floor(moneyObtainedCount / 100);
-
-		-- get gold amount
-		local moneyObtainedCountGold = math.floor(moneyObtainedCount / 10000);
-
-		-- silver from copper
-		local test = (moneyObtainedCount - moneyObtainedCountSilver * 100);
-
-		-- gold from silver?copper?
-
+	script_counterMenu:menu();
 	
-		-- less than 100 copper
-		if (moneyObtainedCount < 100) then
-			Text("Money Obtained : " ..moneyObtainedCount.. " Copper");
-
-		-- more than 100 copper but less than 10000 copper
-		elseif (moneyObtainedCount > 100) and (moneyObtainedCount < 10000) then
-
-			Text("Money Obtained : " ..moneyObtainedCountSilver .. " Silver " ..test.. " Copper");
-
-		elseif (moneyObtainedCount >= 1000) then
-
-			Text("Money Obtained : " ..moneyObtainedCountGold.. " Gold " ..test.. " Silver");
-		end
-		
-
-
-
-
-
-	--Text("Paranoia Used : nothing here yet!");
-
-	-- debug info
-	--Text("Script Tick Rate - How Fast The Scripts Run"); script_grind.tickRate = SliderInt("TR (ms)", 0, 3000, script_grind.tickRate);
 end

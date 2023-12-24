@@ -43,19 +43,19 @@ function script_rogue:setup()
 	--set backstab as opener
 	if (GetLocalPlayer():GetLevel() < 10) then
 		self.stealthOpener = "Backstab";
-	elseif (not HasSpell("Ambush")) and (HasSpell("Garrote")) and (GetLocalPlayer():GetLevel() >= 10) then
-		self.stealthOpener = "Garrote";
-	elseif (HasSpell("Ambush")) and (not HasSpell("Riposte") or HasSpell("Ghostly Strike")) then
-		self.stealthOpener = "Ambush";
-	elseif (HasSpell("Riposte")) and (not HasSpell("Cheap Shot")) then
-		self.stealthOpener = "Garrote";
-	elseif (HasSpell("Riposte")) and (HasSpell("Cheap Shot")) then
-		self.stealthOpenber = "Cheap Shot";
 	end
-
-	-- Set the energy cost for the CP builder ability (does not recognize talent e.g. imp. sinister strike)
-	_, _, _, _, self.cpGeneratorCost = GetSpellInfo(self.cpGenerator);
-	self.isSetup = true;
+	if (not HasSpell("Ambush")) and (HasSpell("Garrote")) and (GetLocalPlayer():GetLevel() >= 10) then
+		self.stealthOpener = "Garrote";
+	end
+	if (HasSpell("Ambush")) and (not HasSpell("Riposte") or HasSpell("Ghostly Strike")) then
+		self.stealthOpener = "Ambush";
+	end
+	if (HasSpell("Riposte")) and (not HasSpell("Cheap Shot")) then
+		self.stealthOpener = "Garrote";
+	end
+	if (HasSpell("Cheap Shot")) and (not HasSpell("Ghostly Strike")) then
+		self.stealthOpener = "Cheap Shot";
+	end
 
 	if (not HasSpell("Adrenaline Rush")) then
 		self.adrenRushCombo = false;
@@ -73,6 +73,11 @@ function script_rogue:setup()
 	if (HasSpell("Riposte")) then
 		self.cpGeneratorCost = 40;
 	end
+
+	-- Set the energy cost for the CP builder ability (does not recognize talent e.g. imp. sinister strike)
+	_, _, _, _, self.cpGeneratorCost = GetSpellInfo(self.cpGenerator);
+
+	self.isSetup = true;
 end
 
 function script_rogue:spellAttack(spellName, target)
@@ -255,9 +260,9 @@ function script_rogue:run(targetGUID)
 	end
 
 	-- force auto attack in combat
-	if (IsInCombat()) and (PlayerHasTarget()) and (not IsAutoCasting("Attack")) then
-		targetObj:AutoAttack();
-	end
+	--if (IsInCombat()) and (PlayerHasTarget()) and (not IsAutoCasting("Attack")) then
+	--	targetObj:AutoAttack();
+	--end
 
 	if (self.enableGrind) then
 
@@ -387,6 +392,9 @@ function script_rogue:run(targetGUID)
 
 				self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
+				local localCP = GetComboPoints("player", "target");
+
+
 				-- Dismount
 				if (IsMounted()) then
 					DisMount();
@@ -402,6 +410,12 @@ function script_rogue:run(targetGUID)
 						if (not targetObj:FaceTarget()) then
 							targetObj:FaceTarget();
 						end
+					end
+				end
+
+				if (HasSpell('Kidney Shot')) and (localCP >= 1) and (targetObj:IsCasting()) and (not IsSpellOnCD('Kidney Shot')) and (localEnergy >= 25) then
+					if (Cast('Kidney Shot', targetObj)) then
+						return 0;
 					end
 				end
 
@@ -421,8 +435,6 @@ function script_rogue:run(targetGUID)
 						return 0;
 					end
 				end
-
-				local localCP = GetComboPoints("player", "target");
 
 				-- Run backwards if we are too close to the target
 				if (targetObj:GetDistance() < .2) then 
@@ -453,10 +465,11 @@ function script_rogue:run(targetGUID)
 
 				-- Check: Use Vanish 
 				if (HasSpell('Vanish')) and (HasItem('Flash Powder')) and (localHealth < self.vanishHealth) and (not IsSpellOnCD('Vanish')) then 
-					CastSpellByName('Vanish'); 
-					self.waitTimer = GetTimeEX() + 10000;
-					ClearTarget();
-					self.enemyObj = 0;
+					if (CastSpellByName('Vanish')) then
+						self.waitTimer = GetTimeEX() + 10000;
+						ClearTarget();
+						self.enemyObj = 0;
+					end
 				end
 
 				if (HasSpell("Ghostly Strike")) and (not IsSpellOnCD("Ghostly Strike")) and (localEnergy >= 40) then

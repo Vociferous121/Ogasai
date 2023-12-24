@@ -129,6 +129,7 @@ script_grind = {
 	useAnotherVar = false,
 	currentMoney = GetMoney(),
 	moneyObtainedCount = 0,
+	lastAvoidTarget = GetLocalPlayer(),
 }
 
 function script_grind:setup()
@@ -242,16 +243,16 @@ function script_grind:setup()
 		script_checkAdds.addsRange = 15;
 	end
 	if (level >= 10) and (level < 20) then
-		script_checkAdds.addsRange = 20;
+		script_checkAdds.addsRange = 18;
 	end
 	if (level >= 20) and (level < 40) then
-		script_checkAdds.addsRange = 25;
+		script_checkAdds.addsRange = 21;
 	end
 	if (level > 40) then
-		script_checkAdds.addsRange = 30;
+		script_checkAdds.addsRange = 24;
 	end
 	if (level == 60) then
-		script_checkAdds.addsRange = 32;
+		script_checkAdds.addsRange = 27;
 	end
 
 end
@@ -406,7 +407,7 @@ function script_grind:run()
 	end
 
 	-- use unstuck feature ----and (not self.pause) 
-	if (self.useUnstuck and IsMoving()) and (not self.pause) then
+	if (self.useUnstuck) and (IsMoving()) and (not self.pause) then
 		if (not script_unstuck:pathClearAuto(2)) then
 			script_unstuck:unstuck();
 			return true;
@@ -443,8 +444,8 @@ function script_grind:run()
 
 	-- check paranoia	
 		-- jump when player in range in combat
-	if (IsInCombat() and not script_grind.undoAFK) and (script_paranoia.paranoidOn) then
-		if (script_paranoiaCheck:playersWithinRange2(60) and script_grind.playersTargetingUs() >= 1) 
+	if (IsInCombat()) and (not script_grind.undoAFK) and (script_paranoia.paranoidOn) then
+		if (script_paranoiaCheck:playersWithinRange2(60)) and (script_grind.playersTargetingUs() >= 1) 
 			or (script_paranoiaCheck:playersWithinRange2(38)) then
 			if (not IsCasting()) and (not IsChanneling()) then
 				local moreJumping = math.random(0, 701);
@@ -636,11 +637,11 @@ function script_grind:run()
 			end
 
 			-- rogue stealth
-			if (not IsMounted()) and (not self.useMount) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (not script_checkDebuffs:hasPoison()) then
-				if (CastSpellByName("Stealth", localObj)) then
-					self.waitTimer = GetTimeEX() + 1200;
-				end
-			end
+			--if (not IsMounted()) and (not self.useMount) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (not script_checkDebuffs:hasPoison()) then
+			--	if (CastSpellByName("Stealth", localObj)) then
+			--		self.waitTimer = GetTimeEX() + 1200;
+			--	end
+			--end
 
 			-- Shaman Ghost Wolf 
 			if (not IsMounted()) and (not self.useMount) and (not script_grind.useMount) and (HasSpell('Ghost Wolf')) and (not localObj:HasBuff('Ghost Wolf')) and (not localObj:IsDead()) then
@@ -705,21 +706,6 @@ function script_grind:run()
 			end
 		end
 
-		if (script_grindEX.avoidBlacklisted) then
-			if (script_aggro:closeToBlacklistedTargets() or script_aggro:closeToHardBlacklistedTargets()) then
-				self.message = "Close To Blacklisted Target.. Moving...";
-				if (not IsEating()) and (not IsDrinking()) then
-					if (script_runner:avoidToBlacklist(5)) then
-						return true;
-					end
-				elseif (IsEating() or IsDrinking()) then
-					if (script_runner:avoidToBlacklist(13)) then
-						return true;
-					end
-				end
-			end	
-		end
-
 		-- attempt to run away from adds - don't pull them
 		if (IsInCombat()) and (self.safePull)
 			and (GetLocalPlayer():GetHealthPercentage() >= 1)
@@ -750,12 +736,31 @@ function script_grind:run()
 			self.combatError = nil; 
 			-- Run the combat script and retrieve combat script status if we have a valid target
 
+			if (script_grindEX.avoidBlacklisted) then
+				if (script_aggro:closeToBlacklistedTargets()
+					or script_aggro:closeToHardBlacklistedTargets()) then
+					self.message = "Close To Blacklisted Target.. Moving...";
+					if (not IsEating()) and (not IsDrinking()) then
+						if (script_runner:avoidToBlacklist(5)) then
+							return true;
+						end
+					elseif (IsEating() or IsDrinking()) then
+						if (script_runner:avoidToBlacklist(13)) then
+							return true;
+						end
+					end
+				return true;
+				end	
+			end
+
 			if (self.enemyObj ~= nil and self.enemyObj ~= 0) then
 				self.combatError = RunCombatScript(self.enemyObj:GetGUID());
 			end
 		end
 
 		if (self.enemyObj ~= nil or IsInCombat()) then
+
+			self.lastAvoidTarget = self.enemyObj;
 
 			if (UnitClass('player') == "Warlock") or (UnitClass('player') == "Hunter") then
 
@@ -785,6 +790,7 @@ function script_grind:run()
 			script_checkAdds.intersectEnemy = nil;
 
 			if (self.enemyObj ~= nil) then
+
 				if (self.enemyObj:GetDistance() <= 8) and (not IsMoving()) and (PlayerHasTarget()) then
 					self.enemyObj:FaceTarget();
 				end
