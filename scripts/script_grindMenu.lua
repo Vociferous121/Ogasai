@@ -32,7 +32,7 @@ end
 function script_grindMenu:menu()
 
 	-- display paranoia logout time above menu
-	local time = abs((script_grind.currentTime2 - script_paranoia.currentTime) + script_grind.setParanoidTimer);
+	local time = math.floor((script_grind.currentTime2 - script_paranoia.currentTime) + script_grind.setParanoidTimer);
 	if (script_paranoia.paranoiaUsed) then
 		Text("Paranoia Logout Timer  -  ");
 		SameLine();
@@ -284,18 +284,42 @@ function script_grindMenu:menu()
 		local monsterKillCount = script_grind.monsterKillCount;
 		Text("Monster Kills : " ..monsterKillCount);
 
-		local moneyObtainedCount = script_grind.moneyObtainedCount / 100;
-		local test = "silver";
 
 
+		-- get copper amount
+		local moneyObtainedCount = script_grind.moneyObtainedCount;
+
+		-- get silver amount
+		local moneyObtainedCountSilver = math.floor(moneyObtainedCount / 100);
+
+		-- get gold amount
+		local moneyObtainedCountGold = math.floor(moneyObtainedCount / 10000);
+
+		-- silver from copper
+		local test = (moneyObtainedCount - moneyObtainedCountSilver * 100);
+
+		-- gold from silver?copper?
+
+	
+		-- less than 100 copper
 		if (moneyObtainedCount < 100) then
-			Text("Money Obtained : " ..test.. ": " ..moneyObtainedCount);
-		elseif (moneyObtainedCount >= 100) then
-			local test2 = "gold";
-			local test3 = script_grind.moneyObtainedCount / 10000;
-			Text("Money Obtained : " ..test2.. ": " ..test3);
+			Text("Money Obtained : " ..moneyObtainedCount.. " Copper");
+
+		-- more than 100 copper but less than 10000 copper
+		elseif (moneyObtainedCount > 100) and (moneyObtainedCount < 10000) then
+
+			Text("Money Obtained : " ..moneyObtainedCountSilver .. " Silver " ..test.. " Copper");
+
+		elseif (moneyObtainedCount >= 1000) then
+
+			Text("Money Obtained : " ..moneyObtainedCountGold.. " Gold " ..test.. " Silver");
 		end
 		
+
+
+
+
+
 	--Text("Paranoia Used : nothing here yet!");
 
 	-- debug info
