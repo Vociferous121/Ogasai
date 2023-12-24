@@ -2,53 +2,49 @@ script_functions = {
 
 }
 
-player = GetLocalPlayer();
-pet = GetPet();
 
-function IsStealth()
+-- druid or shaman check forms
+function HasForm()
 
-	if (player:HasBuff("Stealth"))
-		or (player:HasBuff("Prowl"))
-	
+	if (GetLocalPlayer():HasBuff("Bear Form"))
+		or (GetLocalPlayer():HasBuff("Dire Bear Form"))
+		or (GetLocalPlayer():HasBuff("Cat Form"))
+		or (GetLocalPlayer():HasBuff("Aquatic Form"))
+		or (GetLocalPlayer():HasBuff("Travel Form"))
+		or (GetLocalPlayer():HasBuff("Moonkin Form"))
+		or (GetLocalPlayer():HasBuff("Ghost Wolf"))
 	then
 		return true;
 	end
 return false;
 end
 
+function IsMoonkinForm()
 
--- druid or shaman check forms
-function HasForm()
+	if (GetLocalPlayer():HasBuff("Moonkin Form"))
 
-	if (player:HasBuff("Bear Form"))
-		or (player:HasBuff("Dire Bear Form"))
-		or (player:HasBuff("Cat Form"))
-		or (player:HasBuff("Aquatic Form"))
-		or (player:HasBuff("Travel Form"))
-		or (player:HasBuff("Moonkin Form"))
-		or (player:HasBuff("Ghost Wolf"))
 	then
 		return true;
 	end
-return false;
 end
 
 -- druid has cat form
 function IsCatForm()
 
-	if (player:HasBuff("Cat Form"))
+	if (GetLocalPlayer():HasBuff("Cat Form"))
 	
 	then
 		return true;
 	end
+
 return false;
 end
 
 -- druid has bear form
 function IsBearForm()
 	
-	if (player:HasBuff("Bear Form"))
-		or (player:HasBuff("Dire Bear Form"))
+	if (GetLocalPlayer():HasBuff("Bear Form"))
+		or (GetLocalPlayer():HasBuff("Dire Bear Form"))
 	
 	then
 		return true;
@@ -60,7 +56,7 @@ end
 -- druid has travel form
 function IsTravelForm()
 	
-	if (player:HasBuff("Travel Form"))
+	if (GetLocalPlayer():HasBuff("Travel Form"))
 
 	then
 		return true;
@@ -71,7 +67,7 @@ end
 -- druid has aquatic form
 function IsAquaticForm()
 	
-	if (player:HasBuff("Aquatic Form"))
+	if (GetLocalPlayer():HasBuff("Aquatic Form"))
 
 	then
 		return true;
@@ -82,7 +78,7 @@ end
 -- shaman has ghost wolf form
 function IsGhostWolf()
 	
-	if (player:HasBuff("Ghost Wolf"))
+	if (GetLocalPlayer():HasBuff("Ghost Wolf"))
 
 	then
 		return true;
@@ -92,8 +88,8 @@ end
 
 function PetHasTarget()
 	
-	if (pet ~= 0) then
-		if (pet:GetUnitsTarget() ~= 0) then
+	if (GetPet() ~= 0) then
+		if (GetPet():GetUnitsTarget() ~= 0) then
 			return true;
 		end
 	end
@@ -102,7 +98,7 @@ end
 
 function PlayerHasTarget()
 	
-	if (player:GetUnitsTarget() ~= 0) then
+	if (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 		return true;
 	end
 return false;
@@ -110,11 +106,44 @@ end
 
 function CallPet()
 
-	if (pet == 0) then
-		script_hunter.message = "Pet is missing, calling pet...";
+	if (GetPet() == 0) then
+		script_hunter.message = "GetPet() is missing, calling GetPet()...";
 		CastSpellByName("Call Pet");
 		return true;
 	end
 return false;
 end
 
+function CastStealth()
+
+	if (HasSpell("Stealth")) or (HasSpell("Prowl")) then
+		if (HasSpell("Stealth")) then
+			if (not IsSpellOnCD("Stealth")) then
+				CastSpellByName("Stealth", localObj);
+				return true;
+			end
+		elseif (HasSpell("Prowl")) then
+			if (not HasForm()) then
+				if (HasSpell("Cat Form")) then
+					CastSpellByName("Cat Form");
+					return true;
+				end
+			elseif (not IsSpellOnCD("Prowl")) and (GetLocalPlayer:HasBuff("Cat Form")) then
+				CastSpellByName("Prowl", localObj);
+				return true;
+			end
+		end
+	end
+return false;
+end
+
+function IsStealth()
+
+	if (GetLocalPlayer():HasBuff("Stealth"))
+		or (GetLocalPlayer():HasBuff("Prowl"))
+	
+	then
+		return true;
+	end
+return false;
+end

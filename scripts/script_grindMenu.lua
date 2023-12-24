@@ -54,12 +54,14 @@ function script_grindMenu:menu()
 
 	if (not script_grind.pause) then
 		if (Button("Pause Bot")) then
+			script_paranoia.currentTime = GetTimeEX() + (45*1000);
 			script_grind.pause = true;
 		end
 	else
 		if (Button("Resume Bot")) then
 			script_grind.myTime = GetTimeEX();
-				script_grind.pause = false;
+			script_paranoia.currentTime = GetTimeEX() + (45*1000);
+			script_grind.pause = false;
 		end
 	end
 

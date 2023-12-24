@@ -17,7 +17,7 @@ function script_paranoiaEX:checkStealth()
 	end
 
 	-- druid cat form
-	if (not IsMounted()) and (IsCatForm()) and (HasSpell("Prowl")) and (localMana >= script_druid.shapeshiftMana) then
+	if (not IsMounted()) and (not IsCatForm()) and (HasSpell("Prowl")) and (localMana >= script_druid.shapeshiftMana) then
 
 		script_grind:setWaitTimer(1500);
 		CastSpellByName("Cat Form");

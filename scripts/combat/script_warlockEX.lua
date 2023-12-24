@@ -280,7 +280,7 @@ function script_warlockEX:menu()
 
 		if (HasSpell("Drain Mana")) then
 
-			wasClicked, script_warlock.useDrainMana = Checkbox("Drain Mana On/Off", script_warlock.useDrainMana);
+			wasClicked, script_warlock.useDrainMana = Checkbox("Use Drain Mana", script_warlock.useDrainMana);
 		end
 
 		Separator();
@@ -344,19 +344,19 @@ function script_warlockEX:menu()
 			
 			if (HasSpell("Siphon Life")) then
 
-				wasClicked, script_warlock.enableSiphonLife = Checkbox("Siphon Life On/Off", script_warlock.enableSiphonLife);
+				wasClicked, script_warlock.enableSiphonLife = Checkbox("Use Siphon Life", script_warlock.enableSiphonLife);
 				
 				SameLine();
 			end
 
 			if (HasSpell("Immolate")) then
 				
-				wasClicked, script_warlock.enableImmolate = Checkbox("Immolate On/Off",script_warlock.enableImmolate);
+				wasClicked, script_warlock.enableImmolate = Checkbox("Use Immolate",script_warlock.enableImmolate);
 			end
 
 			if (HasSpell("Curse of Agony")) then
 				
-				wasClicked, script_warlock.enableCurseOfAgony = Checkbox("Curse of Agony On/Off", script_warlock.enableCurseOfAgony);
+				wasClicked, script_warlock.enableCurseOfAgony = Checkbox("Use Curse of Agony", script_warlock.enableCurseOfAgony);
 
 				if (script_warlock.useCurseOfAgony) then
 					script_warlock.useCurseOfWeakness = false;
@@ -368,7 +368,7 @@ function script_warlockEX:menu()
 
 			if (HasSpell("Corruption")) then
 				
-				wasClicked, script_warlock.enableCorruption = Checkbox("Corruption On/Off", script_warlock.enableCorruption);
+				wasClicked, script_warlock.enableCorruption = Checkbox("Use Corruption", script_warlock.enableCorruption);
 			end
 
 		end		

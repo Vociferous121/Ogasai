@@ -126,7 +126,7 @@ function script_checkDebuffs:petDebuff()
 
 		local class = UnitClass('player');
 
-	if (class == 'Hunter' or class == 'Warlock') and (GetLocalPlayer():GetLevel() >= 10) and (HasPet()) then
+	if (class == 'Hunter' or class == 'Warlock') and (GetLocalPlayer():GetLevel() >= 10) and (GetPet() ~= 0) then
 		local pet = GetPet();
 	
 		if (pet:HasDebuff("Web"))

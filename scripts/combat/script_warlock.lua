@@ -542,8 +542,8 @@ function script_warlock:run(targetGUID)
 					end
 					if (not targetObj:HasDebuff("Immolate")) and (not IsMoving()) then
 						CastSpellByName("Immolate");
-						self.waitTimer = GetTimeEX() + 2500;
-						script_grind:setWaitTimer(2500);
+						self.waitTimer = GetTimeEX() + 2800;
+						script_grind:setWaitTimer(2800);
 					end
 				end
 			end
@@ -555,7 +555,7 @@ function script_warlock:run(targetGUID)
 			end
 			if (HasSpell("Summon Imp")) and (not HasSpell("Corruption")) then
 				Cast('Immolate', targetObj);
-				script_grind:setWaitTimer(2500);
+				script_grind:setWaitTimer(3000);
 				return 0;
 			end
 
@@ -686,6 +686,7 @@ function script_warlock:run(targetGUID)
 					script_warlockDOTS:corruption(targetObj);
 					script_warlockDOTS:curseOfAgony(targetObj);
 					script_warlockDOTS:immolate(targetObj);
+					ClearTarget();
 				end
 			end
 
@@ -709,7 +710,7 @@ function script_warlock:run(targetGUID)
 
 			-- gather shards enabled
 			if (self.enableGatherShards) then
-				if (targetHealth <= 35) and (HasSpell("Drain Soul")) and (targetObj:GetDistance() <= 26) and (IsInCombat()) then
+				if (targetHealth <= 20) and (HasSpell("Drain Soul")) and (targetObj:GetDistance() <= 26) and (IsInCombat()) then
 					if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 135;
 					end
@@ -729,7 +730,7 @@ function script_warlock:run(targetGUID)
 			if (GetPet() == 0 or (GetPet() ~= 0 and GetPet():GetHealthPercentage() <= 1)) and (HasSpell("Summon Warlock")) then
 				script_warlockEX2:summonPet();
 				if (not script_grind.adjustTickRate) and (IsInCombat()) then
-				script_grind.tickRate = 0;
+				script_grind.tickRate = 100;
 				end
 			end
 
@@ -829,6 +830,12 @@ function script_warlock:run(targetGUID)
 				end
 			end
 
+			if (HasSpell("Fear")) and (localMana >= 10) and (localHealth <= 30) and (script_grind:isTargetingMe(targetObj)) and (not targetObj:HasDebuff("Fear")) then
+				CastSpellByName("Fear", targetObj);
+				self.waitTimer = GetTimeEX() + 1500;
+				return 0;
+			end
+
 			-- Fear single Target
 			if (self.alwaysFear) and (HasSpell("Fear")) and (not targetObj:HasDebuff("Fear")) and (targetObj:GetHealthPercentage() > 40) and (targetObj:GetCreatureType() ~= "Undead") then
 				if (targetObj:GetCreatureType() ~= "Undead") and (not targetObj:HasDebuff("Fear")) then
@@ -851,7 +858,7 @@ function script_warlock:run(targetGUID)
 				self.message = "Fearing add...";
 				script_warlock:fearAdd(targetObj:GetGUID());
 				if (not script_grind.adjustTickRate) and (IsInCombat()) then
-					script_grind.tickRate = 100;
+					script_grind.tickRate = 250;
 				end
 			end
 
@@ -859,7 +866,7 @@ function script_warlock:run(targetGUID)
 			if (self.addFeared) then
 				if(script_grind:enemiesAttackingUs(10) >= 1 and targetObj:HasDebuff('Fear')) then
 					if (not script_grind.adjustTickRate) and (IsInCombat()) then
-						script_grind.tickRate = 100;
+						script_grind.tickRate = 250;
 					end
 					ClearTarget();
 					targetObj = script_warlock:getTargetNotFeared();

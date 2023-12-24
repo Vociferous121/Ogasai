@@ -67,12 +67,12 @@ function script_warlockDOTS:corruption(targetObj)
 				if (currentObj:GetDistance() <= 40) then
 					if (not currentObj:HasDebuff("Corruption")) and (currentObj:IsInLineOfSight()) then
 						if (not script_grind.adjustTickRate) then
-							script_grind.tickRate = 100;
-							script_rotation.tickRate = 100;
+							script_grind.tickRate = 250;
+							script_rotation.tickRate = 250;
 						end
 						if (script_warlock:cast('Corruption', currentObj)) then 
-							script_grind:setWaitTimer(1500);
-							script_warlock.waitTimer = 1500;
+							script_grind:setWaitTimer(2500);
+							script_warlock.waitTimer = GetTimeEX() + 2500;
 							return true; 
 						end
 					end 
@@ -96,12 +96,12 @@ function script_warlockDOTS:immolate(targetObj)
 				if (currentObj:GetDistance() <= 40) then
 					if (not currentObj:HasDebuff("Immolate")) and (currentObj:IsInLineOfSight()) then
 						if (not script_grind.adjustTickRate) then
-							script_grind.tickRate = 100;
-							script_rotation.tickRate = 100;
+							script_grind.tickRate = 250;
+							script_rotation.tickRate = 250;
 						end
 						if (script_warlock:cast('Immolate', currentObj)) then 
-							script_grind:setWaitTimer(1500);
-							script_warlock.waitTimer = 1500;
+							script_grind:setWaitTimer(2500);
+							script_warlock.waitTimer = GetTimeEX() + 2500;
 							return true; 
 						end
 					end 
@@ -125,12 +125,12 @@ function script_warlockDOTS:curseOfAgony(targetObj)
 				if (currentObj:GetDistance() <= 40) then
 					if (not currentObj:HasDebuff("Curse of Agony")) and (currentObj:IsInLineOfSight()) then
 						if (not script_grind.adjustTickRate) then
-							script_grind.tickRate = 100;
-							script_rotation.tickRate = 100;
+							script_grind.tickRate = 250;
+							script_rotation.tickRate = 250;
 						end
 						if (script_warlock:cast('Curse of Agony', currentObj)) then 
-							script_grind:setWaitTimer(1500);
-							script_warlock.waitTimer = 1500;
+							script_grind:setWaitTimer(2500);
+							script_warlock.waitTimer = GetTimeEX() + 2500;
 							return true; 
 						end
 					end 

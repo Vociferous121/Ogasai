@@ -87,6 +87,9 @@ function coremenu:draw()
 		LoadScript("Runner", "scripts\\script_runner.lua");
 		AddScriptToMode("Runner", "script_runner");
 
+		--LoadScript("Pick Pocket Rogue", "scripts\\script_pickPocket.lua");
+		--AddScriptToMode("Pick Pocket Rogue", "script_pickPocket");
+
 		--LoadScript("Unstuck Test", "scripts\\script_unstuck.lua");
 		--AddScriptToMode("Unstuck Test", "script_unstuck");
 
