@@ -991,6 +991,7 @@ function script_druid:run(targetGUID)
 			end
 
 			if (script_grind.skipHardPull) then
+				script_om:FORCEOM();
 				script_checkAdds:checkAdds();
 			end
 

@@ -625,7 +625,7 @@ function script_mage:run(targetGUID)
 			end
 
 			-- Use Evocation if we have low Mana but still a lot of HP left
-			if (localMana < self.evocationMana and localHealth > self.evocationHealth and HasSpell("Evocation") and not IsSpellOnCD("Evocation")) and (targetHealth > 20) then		
+			if (localMana < self.evocationMana and localHealth > self.evocationHealth and HasSpell("Evocation") and not IsSpellOnCD("Evocation")) and (targetHealth > 35) then		
 				self.message = "Using Evocation...";
 				CastSpellByName("Evocation"); 
 				return 0;
@@ -643,6 +643,8 @@ function script_mage:run(targetGUID)
 			if (not localObj:HasBuff("Ice Barrier")) and (HasSpell("Mana Shield")) and (localMana >= self.manaShieldMana) and (localHealth <= self.manaShieldHealth) and (not localObj:HasBuff("Mana Shield")) and (IsInCombat()) then
 				if (not targetObj:HasDebuff("Frost Nova") and not targetObj:HasDebuff("Frostbite")) then
 					CastSpellByName("Mana Shield");
+					self.waitTimer = GetTimeEX() + 1650;
+					script_grind:setWaitTimer(1650);
 					return 0;
 				end
 			end
@@ -1202,6 +1204,9 @@ function script_mage.frostMagePull(targetObj)
 		if (IsMoving()) then
 			StopMoving();
 		end
+		if (PlayerHasTarget()) then
+			targetObj:FaceTarget();
+		end
 		if (not IsMoving()) and (CastSpellByName("Frostbolt", targetObj)) then
 			self.waitTimer = GetTimeEX() + 2300;
 			script_grind:setWaitTimer(2300);
@@ -1236,7 +1241,9 @@ function script_mage.fireMagePull(targetObj)
 			if (CastSpellByName("Fireball", targetObj)) then
 				self.waitTimer = GetTimeEX() + 3000;
 				script_grind:setWaitTimer(3000);
-				targetObj:FaceTarget();
+				if (PlayerHasTarget()) then
+					targetObj:FaceTarget();
+				end
 				return true;
 			end
 		end
