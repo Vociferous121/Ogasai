@@ -210,6 +210,9 @@ function vendorDB:setup()
 	vendorDB:addVendor('Gruham Rumbnul', 0, 0, 11, false, false, false, true, true, -3746.03, 888.59, 11.01); -- Ammo, Bullets, General
 	vendorDB:addVendor('Murndan Derth', 0, 0, 11, true, false, false, false, false, -3790.13, -858.47, 11.60); -- Repair
 
+	-- Ally + Horde Wetlands
+	vendorDB:addVendor("Kixxle", 0, 0, 11, false, false, false, false, false, -3188.04, -2465.58, 9.56);
+
 	-- Ally: Hillsbrad
 	vendorDB:addVendor('Sarah Raycroft', 0, 0, 267, false, false, true, true, true, -774.52, -505.75, 23.63); -- ammo drinks hillsbrad
 	vendorDB:addVendor('Robert Aebischer', 0, 0, 267, true, false, false, false, false, -815.53, -572.19, 15.23); -- repair

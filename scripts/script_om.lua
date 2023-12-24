@@ -17,6 +17,8 @@ function script_om:FORCEOM()
 			and (not script_grind:isTargetingPet(currentObj))
 			--and (currentObj:IsInLineOfSight())
 			and (not currentObj:IsCritter())
+			and (not currentObj:IsDead())
+			and (currentObj:CanAttack())
 		then
 				script_checkAdds.closestEnemy = currentObj;
 		else
@@ -26,6 +28,8 @@ function script_om:FORCEOM()
 				and (currentObj:GetGUID() ~= self.enemyObj:GetGUID())
 				--and (currentObj:IsInLineOfSight())
 				and (not currentObj:IsCritter())
+				and (not currentObj:IsDead())
+				and (currentObj:CanAttack())
 				and (not script_grind:isTargetingMe3(currentObj))
 				and (not script_grind:isTargetingPet(currentObj))
 			then
@@ -50,6 +54,8 @@ function script_om:FORCEOM()
 			and (not script_grind:isTargetingPet(currentObj))
 			--and (currentObj:IsInLineOfSight())
 			and (not currentObj:IsCritter())
+			and (not currentObj:IsDead())
+			and (currentObj:CanAttack())
 		then
 				script_checkAdds.closestEnemy = currentObj;
 		else
@@ -59,6 +65,8 @@ function script_om:FORCEOM()
 				and (currentObj:GetGUID() ~= self.enemyObj:GetGUID())
 				--and (currentObj:IsInLineOfSight())
 				and (not currentObj:IsCritter())
+				and (not currentObj:IsDead())
+				and (currentObj:CanAttack())
 				and (not script_grind:isTargetingMe3(currentObj))
 				and (not script_grind:isTargetingPet(currentObj))
 			then
@@ -86,7 +94,11 @@ function script_om:FORCEOM2()
 		if (typeObj == 3) and (currentObj:GetDistance() < script_checkAdds.addsRange)
 			and (currentObj:GetGUID() ~= self.enemyObj:GetGUID()) 
 			and (not script_grind:isTargetingMe3(currentObj))
-			and (not script_grind:isTargetingPet(currentObj)) then		
+			and (not script_grind:isTargetingPet(currentObj))
+			and (not currentObj:IsCritter())
+			and (not currentObj:IsDead())
+			and (currentObj:CanAttack())
+		then		
 				script_checkAdds.closestEnemy = currentObj;
 		typeObj = GetNextObject(currentObj);
 		end

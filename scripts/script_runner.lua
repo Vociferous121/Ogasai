@@ -196,12 +196,18 @@ function script_runner:avoidToBlacklist(safeMargin)
 	local closestDist = 999;
 	local aggro = 0;
 
+	if (script_grind.enemyObj == nil or script_grind.enemyObj == 0) then
+		enemy = localObj;
+	else
+		enemy = script_grind.enemyObj;
+	end
+
 	while currentObj ~= 0 do
  		if typeObj == 3 then
 			aggro = currentObj:GetLevel() - localObj:GetLevel() + 23;
 			local range = aggro + safeMargin;
 			if currentObj:CanAttack() and not currentObj:IsDead() and not currentObj:IsCritter() and currentObj:GetDistance() <= range and script_grind:isTargetBlacklisted(currentObj:GetGUID()) and (not script_grind:isTargetingMe(currentObj)) then
-				if (closestEnemy == 0) and (not GetLocalPlayer():GetUnitsTarget() ~= 0 and script_grind.enemyObj ~= currentObj:GetGUID()) then
+				if (closestEnemy == 0) and (not GetLocalPlayer():GetUnitsTarget() ~= 0 and enemy:GetGUID() ~= currentObj:GetGUID()) then
 					closestEnemy = currentObj;
 				else
 					local dist = currentObj:GetDistance();

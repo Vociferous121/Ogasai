@@ -54,7 +54,7 @@ end
 function script_druidEX:travelForm()
 
 	localObj = GetLocalPlayer();
-	if (not IsMounted()) and (not script_grind.useMount) then
+	if (not IsMounted()) and (not script_grind.useMount) and (not IsIndoors()) then
 		if (HasSpell("Travel Form")) then
 			if (localObj:HasBuff("Bear Form")) then
 				if (CastSpellByName("Bear Form")) then
@@ -76,8 +76,8 @@ function script_druidEX:travelForm()
 		end
 	end
 	
-	if (not IsMounted()) and (not script_grind.useMount) then
-		if (HasSpell("Travel Form")) and (not localObj:HasBuff("Travel Form")) then
+	if (not IsMounted()) and (not script_grind.useMount) and (not IsIndoors()) then
+		if (HasSpell("Travel Form")) and (not localObj:HasBuff("Travel Form")) and (not IsIndoors()) then
 			if (CastSpellByName("Travel Form")) then
 				self.waitTimer = GetTimeEX() + 1500;
 				return 0;

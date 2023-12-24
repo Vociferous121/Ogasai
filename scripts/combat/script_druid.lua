@@ -562,7 +562,7 @@ function script_druid:run(targetGUID)
 
 	-- remove travel form before combat
 	if (isTravel) then
-		if (CastSpellByName("Travel Form")) then
+		if (script_druidEX:removeTravelForm()) then
 			self.waitTimer = GetTimeEX() + 1500;
 			return 0;
 		end

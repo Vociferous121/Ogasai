@@ -23,6 +23,7 @@ function script_paranoia:checkParanoia()
 
 	-- death counter logout when reached
 	if (script_grindEX.deathCounter >= script_paranoia.counted) and (script_grindEX.deathCounter >= script_paranoia.counted) then
+		DEFAULT_CHAT_FRAME:AddMessage("Stopping - Death counter reached...");
 		StopBot();
 		script_grindEX.deathCounter = 0;
 		if (script_paranoia.deathCounterExit) then

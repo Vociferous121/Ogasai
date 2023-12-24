@@ -5,6 +5,7 @@ script_grindEX = {
 	deathCounter = 0,
 	logoutOnHearth = true,
 	allowSwim = true,
+	useThisVar = true,
 }
 
 function script_grindEX:doChecks() 
@@ -58,11 +59,13 @@ function script_grindEX:doChecks()
 			-- Release body
 			if (not IsGhost()) and (not script_paranoia:checkParanoia(30)) then
 				if (not RepopMe()) then
-					script_grindEX.deathCounter = script_grindEX.deathCounter + 1;
+					if (self.useThisVar) then
+						script_grindEX.deathCounter = script_grindEX.deathCounter + 1;
+						self.useThisVar = false;
+					end
 					script_grind.message = "Walking to corpse...";
 					return true;
 				end
-				
 				return true;
 			end
 
@@ -86,16 +89,15 @@ function script_grindEX:doChecks()
 					end
 				end
 				RetrieveCorpse();
+				self.useThisVar = true;
 			end
 			return true;
 		end
 
+		-- run back if has vanish
 		if (localObj:HasBuff("Vanish")) then
-			if (script_extraFunctions:runBackwards(localObj, 30)) then 
-				ClearTarget();
-				script_grind.message = "Moving away from enemies...";
-				return 4;
-			end
+			script_navEX:moveToTarget(localObj, script_nav.savedLocations[script_nav.currentGoToLocation]['x'], script_nav.savedLocations[script_nav.currentGoToLocation]['y'], script_nav.savedLocations[script_nav.currentGoToLocation]['z']); 
+			return;
 		end
 		
 		local rest = true;

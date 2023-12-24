@@ -274,4 +274,6 @@ function script_grindMenu:menu()
 	end
 
 	script_grindPartyMenu:menu();
+	local a = script_grindEX.deathCounter;
+	Text("Death Counter Since Last Reload: " ..a);
 end

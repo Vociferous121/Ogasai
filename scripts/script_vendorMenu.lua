@@ -15,8 +15,8 @@ function script_vendorMenu:printAddVendor(canRepair, hasFood, hasWater, hasArrow
 		y = math.floor(y*100) / 100;
 		z = math.floor(z*100) / 100;
 		local pos = ', ' .. x .. ', ' .. y .. ', ' .. z .. ");";
-		DEFAULT_CHAT_FRAME:AddMessage('Add Vendor to Database by adding the line below in the setup() function in VendorDB.lua.');
-		DEFAULT_CHAT_FRAME:AddMessage('You can copy this line from logs.txt in logs folder.');
+		DEFAULT_CHAT_FRAME:AddMessage('Add Vendor to Database by adding the line below in VendorDB.');
+		DEFAULT_CHAT_FRAME:AddMessage('You can copy this line from logs folder.');
 		local addString = 'vendorDB:addVendor("' .. UnitName("target") .. '", ' .. factionID .. ', ' .. GetContinentID() .. ', ' .. GetMapID() .. ', '
 			.. tostring(canRepair) .. ', ' .. tostring(hasFood) .. ', ' .. tostring(hasWater) .. ', ' .. tostring(hasArrow) .. ', ' ..tostring(hasBullet) .. pos;
 

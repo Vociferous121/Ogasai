@@ -617,11 +617,13 @@ function script_grind:run()
 			end
 
 			-- Druid travel form
-			if (not IsMounted()) and (not script_paranoia:checkParanoia()) and (not IsSwimming()) and (not self.useMount) then
-				if (script_druidEX:travelForm()) then
-					self.waitTimer = GetTimeEX() + 1000;
-				end
-			end
+			--if (not IsIndoors()) then
+			--	if (not IsMounted()) and (not script_paranoia:checkParanoia()) and (not IsSwimming()) and (not self.useMount) then
+			--		if (script_druidEX:travelForm()) then
+			--			self.waitTimer = GetTimeEX() + 1000;
+			--		end
+			--	end
+			--end
 
 			-- druid cat form
 			if (not IsMounted()) and (not self.useMount) and (not HasSpell("Travel Form")) and (HasSpell("Cat Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
@@ -723,7 +725,8 @@ function script_grind:run()
 			and (script_grind:isTargetingMe2(self.enemyObj))
 			and (self.enemyObj:IsInLineOfSight())
 			and (not self.enemyObj:IsCasting())
-			and (not self.enemyObj:IsFleeing()) then
+			and (not self.enemyObj:IsFleeing())
+		 then
 		
 			script_om:FORCEOM2();
 		
@@ -780,7 +783,7 @@ function script_grind:run()
 			script_checkAdds.intersectEnemy = nil;
 
 			if (self.enemyObj ~= nil) then
-				if (self.enemyObj:GetDistance() <= 8) and (not IsMoving()) then
+				if (self.enemyObj:GetDistance() <= 8) and (not IsMoving()) and (PlayerHasTarget()) then
 					self.enemyObj:FaceTarget();
 				end
 			else
@@ -813,7 +816,7 @@ function script_grind:run()
 				local _x, _y, _z = self.enemyObj:GetPosition();
 				local localObj = GetLocalPlayer();
 
-				if (not script_grind.adjustTickRate) then
+				if (not script_grind.adjustTickRate) and (GetLocalPlayer():GetUnitsTarget() ~= 0) then
 					script_grind.tickRate = 135;
 				end
 
@@ -852,7 +855,8 @@ function script_grind:run()
 				and (script_grind:isTargetingMe2(self.enemyObj))
 				and (self.enemyObj:IsInLineOfSight())
 				and (not self.enemyObj:IsCasting())
-				and (not self.enemyObj:IsFleeing()) then
+				and (not self.enemyObj:IsFleeing())
+			then
 
 				script_om:FORCEOM2();
 
@@ -1254,6 +1258,8 @@ function script_grind:enemyIsValid(i)
 				--local posZ = tarPosZ - myPosZ;
 				--if (posZ < 9) and (posZ > -9) then
 				) then
+					-- force bot to keep this target and not recheck safepull over and over again
+					script_grind.enemyObj = currentObj;
 			return true;
 			end
 		end

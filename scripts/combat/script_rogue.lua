@@ -269,9 +269,9 @@ function script_rogue:run(targetGUID)
 			end
 
 			-- pick pocket
-			--if (HasSpell("Pick Pocket")) and (localObj:HasBuff("Stealth")) and (not IsInCombat()) and (not IsAutoCasting("Attack")) then
+			--if (HasSpell("Pick Pocket")) and (IsStealth()) and (not IsInCombat()) and (not IsAutoCasting("Attack")) then
 			--	if (targetObj:GetCreatureType() == 'Humanoid') or (targetObj:GetCreatureType() == 'Undead') then
-			--		if (targetObj:GetDistance() <= 5) and (localObj:HasBuff("Stealth")) then
+			--		if (targetObj:GetDistance() <= 5) and (IsStealth()) then
 			--			CastSpellByName("Pick Pocket");
 			--			if (IsLooting()) then
 			--				LootTarget();
@@ -326,20 +326,19 @@ function script_rogue:run(targetGUID)
 				end
 
 				-- Stealth in range if enabled
-				if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) and (not script_checkDebuffs:hasPoison()) then
-					if (not localObj:HasBuff("Stealth") and not IsSpellOnCD("Stealth")) then
-						CastSpellByName("Stealth");
-						self.waitTimer = GetTimeEX() + 500;
+				if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) and (not script_checkDebuffs:hasPoison()) and (script_grind.lootObj == nil) then
+					if (not IsStealth()) then
+						CastStealth();
 					end
 					-- Use sprint (when stealthed for pull)
-					if (HasSpell("Sprint")) and (not IsSpellOnCD("Sprint")) and (localObj:HasBuff("Stealth")) then
+					if (HasSpell("Sprint")) and (not IsSpellOnCD("Sprint")) and (IsStealth()) then
 						CastSpellByName("Sprint");
 						return 3;
 					end
 				end
 
 				-- Open with stealth opener
-				if (targetObj:GetDistance() <= 5 and self.useStealth and HasSpell(self.stealthOpener) and localObj:HasBuff("Stealth")) then
+				if (targetObj:GetDistance() <= 5 and self.useStealth and HasSpell(self.stealthOpener) and IsStealth()) then
 					if (script_rogue:spellAttack(self.stealthOpener, targetObj)) then
 						return 0;
 					end
@@ -429,9 +428,15 @@ function script_rogue:run(targetGUID)
 					end
 				end		
 				
-				if (GetNumPartyMembers() > 1) and (HasSpell("Feint")) and (script_grind:isTargetingMe(targetObj)) and (not IsSpellOnCD("Feint")) and (localEnergy >= 20) then
-						CastSpellByName("Feint", targetObj);
-						return 0;
+				if (GetNumPartyMembers() >= 1) and (HasSpell("Feint")) and (script_grind:isTargetingMe(targetObj)) and (not IsSpellOnCD("Feint")) and (localEnergy >= 20) then
+					CastSpellByName("Feint", targetObj);
+					return 0;
+				end
+
+				-- run back if has vanish
+				if (localObj:HasBuff("Vanish")) then
+					script_navEX:moveToTarget(localObj, script_nav.savedLocations[script_nav.currentGoToLocation]['x'], script_nav.savedLocations[script_nav.currentGoToLocation]['y'], script_nav.savedLocations[script_nav.currentGoToLocation]['z']); 
+					return;
 				end
 
 				-- Check: Use Vanish 
@@ -617,7 +622,7 @@ function script_rogue:run(targetGUID)
 
 			-- Don't attack if we should rest first
 			if (localHealth < self.eatHealth and not script_grind:isTargetingMe(targetObj)
-				and targetHealth > 99 and not targetObj:IsStunned() and script_grind.lootobj == nil or script_grind.lootObj == 0) then
+				and targetHealth > 99 and not targetObj:IsStunned() and script_grind.lootobj == nil) then
 				self.message = "Need rest...";
 				return 4;
 			end
@@ -637,23 +642,23 @@ function script_rogue:run(targetGUID)
 				self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 			
 				-- Stealth in range if enabled
-				if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) and (not script_checkDebuffs:hasPoison()) then
-					if (not localObj:HasBuff("Stealth") and not IsSpellOnCD("Stealth")) then
-						CastSpellByName("Stealth");
+				if (self.useStealth and targetObj:GetDistance() <= self.stealthRange) and (not script_checkDebuffs:hasPoison()) and (script_grind.lootObj == 0 or script_grind.lootObj == nil) then
+					if (not IsStealth() and not IsSpellOnCD("Stealth")) then
+						CastStealth();
 						return 3;
 					end
 					-- why break stealth??
-					--elseif (not self.useStealth and localObj:HasBuff("Stealth")) then
+					--elseif (not self.useStealth and IsStealth()) then
 					--CastSpellByName("Stealth");
 				end
 
 				-- Open with stealth opener
-				if (targetObj:GetDistance() < 6 and self.useStealth and HasSpell(self.stealthOpener) and localObj:HasBuff("Stealth")) then
+				if (targetObj:GetDistance() < 6 and self.useStealth and HasSpell(self.stealthOpener) and IsStealth()) then
 					if (script_rogue:spellAttack(self.stealthOpener, targetObj)) then
 						return 0;
 					end
 						-- if we are stealthed for some reason
-				elseif (targetObj:GetDistance() < 6) and (not self.useStealth) and (HasSpell(self.stealthOpener)) and (localObj:HasBuff("Stealth")) then
+				elseif (targetObj:GetDistance() < 6) and (not self.useStealth) and (HasSpell(self.stealthOpener)) and (IsStealth()) then
 					if (script_rogue:spellAttack(self.stealthOpener, targetObj)) then
 						return 0;
 					end
@@ -1021,20 +1026,13 @@ function script_rogue:rest()
 			return true; 
 		else 
 			self.message = "No food! (or food not included in script_helper)";
-
-			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:HasDebuff("Touch of Zanzil")) and (not script_checkDebuffs:hasPoison()) and (not localObj:HasBuff("Stealth")) then
-				if (not localObj:HasBuff("Stealth")) then
-					CastSpellByName("Stealth");
-				end
-			end
-			return true; 
 		end		
 	end
 
 	-- Stealth when we eat
-	if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:HasBuff("Stealth")) and (IsEating()) and (not localObj:HasDebuff("Touch of Zanzil")) and (not script_checkDebuffs:hasPoison()) and (localHealth < 45) then
-		if (not localObj:HasBuff("Stealth")) then
-			CastSpellByName("Stealth");
+	if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not IsStealth()) and (IsEating())  and (not script_checkDebuffs:hasPoison()) and (localHealth < 45) then
+		if (not IsStealth()) then
+			CastStealth();
 			return true;
 		end
 	end
@@ -1052,7 +1050,9 @@ function script_rogue:rest()
 		end
 	end
 
-	if (HasSpell("Stealth")) and (not localObj:HasBuff("Stealth")) and (IsSpellOnCD("Stealth")) and (self.useStealth) and (not IsLooting()) then
+	local vendorStatus = script_vendor:getStatus();
+
+	if (HasSpell("Stealth")) and (not IsStealth()) and (IsSpellOnCD("Stealth")) and (self.useStealth) and (not IsLooting()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (vendorStatus ~= 1) and (vendorStatus ~= 2) and (vendorStatus ~= 3) and (vendorStatus ~= 4) then
 		self.message = "Waiting for Stealth cooldown...";
 		return 4;
 	end

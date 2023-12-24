@@ -28,7 +28,7 @@ function script_checkAdds:checkAdds()
 		return true;
 		end
 
-return false
+return false;
 end
 
 -- avoid aggro 
@@ -95,7 +95,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 	-- Move just outside the aggro range
 	local moveToPoint = closestPoint;
-	local setPoint = 4;
+	local setPoint = 3;
 
 	if (closestPointToDest ~= nil) then	
 		local diffPoint = closestPointToDest - moveToPoint;
@@ -139,6 +139,7 @@ if (script_grind.enemyObj ~= nil and script_grind.enemyObj ~= 0) and (not script
 				script_grind.message = "Moving Away From Adds";
 				self.closestEnemy = 0;
 				self.intersectEnemy = nil;
+				script_om:FORCEOM();
 			return true;
 			end
 		end
@@ -264,10 +265,10 @@ function script_checkAdds:avoidToAggro(safeMargin)
 				local xx, yy, zz = self.intersectEnemy:GetPosition();
 				local centerX, centerY = (x+xx)/2, (y+yy)/2;
 			
-				script_checkAdds:avoid(centerX, centerY, zP, aggroRange, self.checkAddsRange/2);
+				script_checkAdds:avoid(centerX, centerY, zP, aggroRange/2, self.checkAddsRange/2);
 				PetFollow();
 			else
-				script_checkAdds:avoid(xT, yT, zP, aggro, self.checkAddsRange/2);
+				script_checkAdds:avoid(xT, yT, zP, aggro/2, self.checkAddsRange/2);
 				PetFollow();
 			end
 
@@ -371,7 +372,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 
 	-- Move just outside the aggro range
 	moveToPoint = closestPoint;
-	local setPoint = 4;
+	local setPoint = 3;
 
 	-- find direction to travel
 
@@ -418,6 +419,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 				script_grind.message = "Moving Away From Adds";
 				self.closestEnemy = 0;
 				self.intersectEnemy = nil;
+				script_om:FORCEOM();
 			return true;
 			end
 		end
