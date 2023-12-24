@@ -292,7 +292,7 @@ function script_grindMenu:menu()
 			Text("Money Obtained : " ..test.. ": " ..moneyObtainedCount);
 		elseif (moneyObtainedCount >= 100) then
 			local test2 = "gold";
-			local test3 = script_grind.moneyObtainedCount;
+			local test3 = script_grind.moneyObtainedCount / 10000;
 			Text("Money Obtained : " ..test2.. ": " ..test3);
 		end
 		
