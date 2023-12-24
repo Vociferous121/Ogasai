@@ -210,6 +210,11 @@ function script_druid:healsAndBuffs()
 
 --------------
 
+		if (not IsStanding()) then
+			JumpOrAscendStart();
+		end
+
+
 	-- shapeshift out of bear form to heal
 	if ( (IsBearForm()) and (localHealth <= self.healthToShift) and (localMana >= self.shapeshiftMana) and (not hasRejuv) and (not hasRegrowth) and (script_grind.enemiesAttackingUs(12) == 1 ) )
 	or ( (IsBearForm() ) and (localHealth <= self.healthToShift) and (localMana >= self.shapeshiftMana) and (not hasRejuv) and (not hasRegrowth) and (script_grind.enemiesAttackingUs(12) >= 2) )
@@ -508,6 +513,10 @@ function script_druid:run(targetGUID)
 		elseif (IsInCombat()) and (not IsMoving()) then
 			script_grind.tickRate = tickRandom;
 		end
+	end
+	
+	if (not IsStanding()) then
+		JumpOrAscendStart();
 	end
 
 	-- don't attack dead objects

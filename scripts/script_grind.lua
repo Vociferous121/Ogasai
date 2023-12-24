@@ -725,7 +725,6 @@ function script_grind:run()
 		
 		-- Finish loot before we engage new targets or navigate
 		if (self.lootObj ~= nil and not IsInCombat()) then
-
 			return; 
 		else
 			-- blacklist loot message
