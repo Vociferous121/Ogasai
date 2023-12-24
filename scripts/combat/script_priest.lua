@@ -455,7 +455,9 @@ function script_priest:run(targetGUID)
 
 
 			if (script_grind.skipHardPull) then
-				script_checkAdds:checkAdds();
+				if (script_checkAdds:checkAdds()) then
+					return true;
+				end
 			end
 
 			if (targetObj:GetDistance() > 30) or (not targetObj:IsInLineOfSight()) then

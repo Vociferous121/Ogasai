@@ -237,7 +237,9 @@ function script_paladin:run(targetGUID)
 		else	
 
 			if (script_grind.skipHardPull) then
-				script_checkAdds:checkAdds();
+				if (script_checkAdds:checkAdds()) then
+					return true;
+				end
 			end
 
 			if (not IsAutoCasting("Attack")) and (not IsMoving()) then

@@ -172,8 +172,9 @@ function script_mage:runBackwards(targetObj, range)
 					return true;
 				end
 			end
-			if (IsMoving()) then
+			if (IsMoving()) and (script_grind.jump) then
 				JumpOrAscendStart();
+				self.waitTimer = GetTimeEX() + 300;
 			end
  			if (script_navEX:moveToTarget(localObj, moveX, moveY, moveZ)) then
  				return true;
@@ -472,8 +473,9 @@ function script_mage:run(targetGUID)
 		else	
 
 			if (script_grind.skipHardPull) then
-				script_om:FORCEOM();
-				script_checkAdds:checkAdds();		
+				if (script_checkAdds:checkAdds()) then
+					return true;
+				end
 			end
 
 			-- display message in ogasai message box
@@ -484,19 +486,8 @@ function script_mage:run(targetGUID)
 				DisMount();
 			end
 
-			-- escape artist gnome racial
-			if (HasSpell("Escape Artist")) and (not IsSpellOnCD("Escape Artist")) then
-				if (script_checkDebuffs:hasDisabledMovement()) then
-					if (CastSpellByName("Escape Artist")) then
-						self.waitTimer = GetTimeEX() + 500;
-					end
-				end
-			end
-		
-			-- berserking troll racial
-			if (IsInCombat()) and (HasSpell("Berserking")) and (not localObj:HasBuff("Berserking")) and (not IsSpellOnCD("Berserking")) and (PlayerHasTarget()) then
-				CastSpellByName("Berserking", localObj);
-			end
+			-- check racial spells
+			CheckRacialSpells();
 
 			-- blink on movement stop debuffs
 			if (HasSpell("Blink")) and (not IsSpellOnCD("Blink")) then

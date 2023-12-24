@@ -369,7 +369,7 @@ function script_rogue:run(targetGUID)
 
 				if (script_grind.skipHardPull) then
 					if (script_checkAdds:checkAdds()) then
-						script_om:FORCEOM();
+						return true;
 					end
 				end
 
@@ -690,6 +690,8 @@ function script_rogue:run(targetGUID)
 			else	
 
 				local localCP = GetComboPoints("player", "target");
+
+				script_checkRacials();
 	
 				-- Combat Rotation 2 COMBAT ROTATION 2
 				if (self.rotationTwo) then

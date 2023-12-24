@@ -665,16 +665,14 @@ function script_druid:run(targetGUID)
 			end
 		end
 
-		-- War Stomp Tauren Racial
+		--Racial
 			-- not in a party and not if target has entangling roots
 				-- 2 or more enemies only
 		if (not IsBearForm()) and (not IsCatForm()) and (IsInCombat()) then
 			if (targetObj:IsCasting() or script_druid:enemiesAttackingUs(6) >= 2) and (GetNumPartyMembers() < 2) and (not targetObj:HasDebuff("Entangling Roots")) and (targetObj:GetDistance() <= 8) then
-				if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) and (not IsMoving()) then
-					CastSpellByName("War Stomp", localObj);
-					self.waitTimer = GetTimeEX() + 200;
-					return 0;
-				end
+				CheckRacialSpells();
+				self.waitTimer = GetTimeEX() + 200;
+				return 0;
 			end
 		end
 
@@ -991,8 +989,9 @@ function script_druid:run(targetGUID)
 			end
 
 			if (script_grind.skipHardPull) then
-				script_om:FORCEOM();
-				script_checkAdds:checkAdds();
+				if (script_checkAdds:checkAdds()) then
+					return true;
+				end
 			end
 
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
@@ -1405,9 +1404,9 @@ function script_druid:run(targetGUID)
 			end
 		end
 
-				-- War Stomp Tauren Racial
-				if (HasSpell("War Stomp")) and (not IsSpellOnCD("War Stomp")) and (targetObj:IsCasting() or script_druid:enemiesAttackingUs(10) >= 2) and (not IsMoving()) and (targetObj:GetDistance() <= 8) then
-					CastSpellByName("War Stomp");
+				-- racial
+				if (targetObj:IsCasting() or script_druid:enemiesAttackingUs(10) >= 2) and (not IsMoving()) and (targetObj:GetDistance() <= 8) then
+					CheckRacialSpells();
 					self.waitTimer = GetTimeEX() + 200;
 				end
 

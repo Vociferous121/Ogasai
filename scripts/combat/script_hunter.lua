@@ -371,13 +371,19 @@ function script_hunter:run(targetGUID)
 		else
 
 			if (script_grind.skipHardPull) then
-				script_checkAdds:checkAdds();
+				if (script_checkAdds:checkAdds()) then
+					return true;
+				end
 			end
 
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
 			if (not targetObj:IsInLineOfSight()) then
 				return 3;
+			end
+
+			if (not HasSpell("War Stomp")) then
+				CheckRacialSpells();
 			end
 
 			if (not targetObj:IsFleeing()) and (not targetObj:IsInLineOfSight()) then
@@ -457,14 +463,12 @@ function script_hunter:run(targetGUID)
 				end
 			end
 
-			-- War Stomp Tauren Racial
-			if (not IsSpellOnCD("War Stomp")) then
-				if (HasSpell("War Stomp")) and (not IsMoving()) and (targetObj:GetDistance() <= 6) then
-					if (targetObj:IsCasting()) or (targetObj:IsFleeing()) or (localLevel < 10) and (IsAutoCasting("Auto Attack")) then
-						CastSpellByName("War Stomp");
-						self.waitTimer = GetTimeEX() + 200;
-						return 0;
-					end
+			--Racial
+			if (not IsMoving()) and (targetObj:GetDistance() <= 6) then
+				if (IsAutoCasting("Auto Attack")) then
+					CheckRacialSpells();
+					self.waitTimer = GetTimeEX() + 200;
+					return 0;
 				end
 			end
 		

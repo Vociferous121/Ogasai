@@ -368,11 +368,10 @@ function script_warrior:run(targetGUID)	-- main content of script
 
 		else	
 
-
-
-
 			if (script_grind.skipHardPull) then
-			script_checkAdds:checkAdds();
+				if (script_checkAdds:checkAdds()) then
+					return true;
+				end
 			end
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 

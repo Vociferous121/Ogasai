@@ -691,7 +691,9 @@ function script_warlock:run(targetGUID)
 			end
 
 			if (script_grind.skipHardPull) then
-				script_checkAdds:checkAdds();
+				if (script_checkAdds:checkAdds()) then
+					return true;
+				end
 			end
 
 			-- causes crashing after combat phase?
