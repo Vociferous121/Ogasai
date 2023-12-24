@@ -276,6 +276,25 @@ function script_grindMenu:menu()
 	end
 
 	script_grindPartyMenu:menu();
-	local a = script_grindEX.deathCounter;
-	Text("Death Counter Since Last Reload: " ..a);
+	Text("Counters Since Last Reload - ");
+
+		local lastReloadDeathCounter = script_grindEX.deathCounter;
+		Text("Deaths : " ..lastReloadDeathCounter);
+
+		local monsterKillCount = script_grind.monsterKillCount;
+		Text("Monster Kills : " ..monsterKillCount);
+
+		local moneyObtainedCount = script_grind.moneyObtainedCount / 100;
+		local test = "silver";
+
+
+		if (moneyObtainedCount < 100) then
+			Text("Money Obtained : " ..test.. ": " ..moneyObtainedCount);
+		elseif (moneyObtainedCount >= 100) then
+			local test2 = "gold";
+			local test3 = script_grind.moneyObtainedCount;
+			Text("Money Obtained : " ..test2.. ": " ..test3);
+		end
+		
+	--Text("Paranoia Used : nothing here yet!");
 end

@@ -523,14 +523,16 @@ function script_mage:run(targetGUID)
 			end
 
 			-- Fire blast
-			if (self.useFireBlast) and (targetObj:GetDistance() <= 20) and (HasSpell("Fire Blast")) and (not IsSpellOnCD("Fire Blast")) and (localMana > 6) and (not IsMoving()) then	
+			if (self.useFireBlast) and (targetObj:GetDistance() <= 20) and (HasSpell("Fire Blast")) and (not IsSpellOnCD("Fire Blast")) and (localMana > 6) and (not IsMoving()) then
+				if (not targetObj:HasDebuff("Frost Nova")) and (not targetObj:HasDebuff("Frostbite")) or (targetHealth < 20 and localHealth < 25) then
 	
-				if (not IsSpellOnCD("Fire Blast")) then
-					CastSpellByName("Fire Blast", targetObj);
-					targetObj:FaceTarget();
-					self.waitTimer = GetTimeEX() + 1500;
-					script_grind:setWaitTimer(1600);
-					return 0;
+					if (not IsSpellOnCD("Fire Blast")) then
+						CastSpellByName("Fire Blast", targetObj);
+						targetObj:FaceTarget();
+						self.waitTimer = GetTimeEX() + 1500;
+						script_grind:setWaitTimer(1600);
+						return 0;
+					end
 				end
 			end
 

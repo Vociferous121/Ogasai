@@ -125,6 +125,10 @@ script_grind = {
 	messageOnce = true,	-- message once blacklist loot obj
 	perHasTarget = false,	-- used to check pet target during rest
 	extraSafe = true,
+	monsterKillCount = 0,
+	useAnotherVar = false,
+	currentMoney = GetMoney(),
+	moneyObtainedCount = 0,
 }
 
 function script_grind:setup()
@@ -150,7 +154,6 @@ function script_grind:setup()
 		self.useExpChecker = false;
 		
 	end
-
 	
 	-- No refill as mage or at level 1
 	if (strfind("Mage", class)) then
@@ -306,8 +309,6 @@ end
 function script_grind:run()
 	-- show grinder window
 	script_grind:window();
-
-
 
 	if (self.getSpells) then
 	if (script_getSpells.getSpellsStatus ~= 3) then
@@ -506,6 +507,7 @@ function script_grind:run()
 			script_paranoia.paranoiaUsed = false;
 			script_paranoia.doEmote = true;
 			script_paranoia.didEmote = false;
+			self.useAnotherVar = false;
 		end
 	end
 
@@ -791,6 +793,20 @@ function script_grind:run()
 			end
 
 			self.message = "Running the combat script...";
+
+			-- death counter turning variable on and off for 2 or more enemies attacking us
+			if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
+				if (IsInCombat()) and (self.enemyObj:GetHealthPercentage() > 20) then
+					self.useAnotherVar = false;
+				end
+			end
+
+			if (self.enemyObj ~= nil) and (not self.useAnotherVar) then
+				if (self.enemyObj:GetHealthPercentage() <= 20 or self.enemyObj:IsDead()) then
+					self.monsterKillCount = self.monsterKillCount + 1;
+					self.useAnotherVar = true;
+				end
+			end
 
 			-- In range: attack the target, combat script returns 0
 			if(self.combatError == 0) then
@@ -1541,6 +1557,11 @@ function script_grind:runRest()
 		local localObj = GetLocalPlayer();
 		local localHealth = localObj:GetHealthPercentage();
 		local localMana = localObj:GetManaPercentage();
+
+		local myMoney = GetMoney();
+		if (myMoney ~= self.currentMoney) then
+			self.moneyObtainedCount = myMoney - self.currentMoney;
+		end
 
 		-- check for pet to stop bugs
 		local pet = GetPet();
