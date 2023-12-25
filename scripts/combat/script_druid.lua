@@ -959,9 +959,10 @@ function script_druid:run(targetGUID)
 			end
 			
 			-- use moonfire to pull if has spell
-			if (HasSpell("Moonfire")) and (localMana >= self.drinkMana) and (not targetObj:HasDebuff("Moonfire")) then
+			if (HasSpell("Moonfire")) and (localMana >= self.drinkMana) and (not targetObj:HasDebuff("Moonfire")) and (not IsMoving()) and (targetObj:IsInLineOfSight()) then
 				if (CastSpellByName("Moonfire", targetObj)) then
 					self.waitTimer = GetTimeEX() + 1650;
+					script_grind:setWaitTimer(800);
 					targetObj:FaceTarget();
 					return 0;
 				end
