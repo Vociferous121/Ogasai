@@ -116,4 +116,5 @@ function script_followEX:doLoot(localObj)
 	--		StopMoving();
 	--	end
 	--end
+	return true;
 end

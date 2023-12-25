@@ -22,19 +22,7 @@ script_followHealsAndBuffs = {
 		-- based on class to reduce CPU usage it will only cast spells if you are that class...
 
 function script_followHealsAndBuffs:healAndBuff()
-	
-			-- Move in range: combat script return 3
-			if (script_follow.combatError == 3) then
-				script_follow.message = "Moving to target...";
-				script_follow:moveInLineOfSight(partyMember);		
-				return true;
-			end
-			
-			-- Move in line of sight and in range of the party member
-			if (script_follow:moveInLineOfSight(partyMember)) then
-				return true; 
-			end
-			
+		
 			local class = UnitClass('player');
 
 			-- shaman heals and buffs

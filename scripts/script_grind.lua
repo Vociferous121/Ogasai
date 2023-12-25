@@ -657,6 +657,13 @@ function script_grind:run()
 		script_grind:setWaitTimer(65);
 		return;
 		end
+
+		-- check party members
+		if (GetNumPartyMembers() >= 1) then
+			if (script_grindParty:partyOptions()) then
+				return true;
+			end
+		end
 		
 		-- Assign the next valid target to be killed within the pull range
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then

@@ -36,24 +36,23 @@ function script_grindParty:partyOptions()
 					memberEnergy = member:GetEnergyPercentage();
 				end
 
-			end
-			if (self.waitForMemberDistance) and (memberDistance > 100 and not IsInCombat()) and (not script_grindParty:isAttackingGroup()) then
-				if (IsMoving()) then StopMoving(); end
-				script_grind.message = 'Waiting for group members...';
-				ClearTarget();
+
+			if (self.waitForMemberDistance) and (memberDistance > 100) and (not IsInCombat()) and (not script_grindParty:isAttackingGroup()) then
+				if (IsMoving()) then
+					StopMoving();
+				end
+					script_grind.message = 'Waiting for group members...';
+					ClearTarget();
 				return true;
 			end
-			if (memberDistance < 100) and (not IsInCombat()) 
-			and ( (groupMana/manaUsers < 25)
-			or (member:HasBuff("Drink") and memberMana < 90)
-			or (member:HasBuff("Eat") and memberHealth < 90) )
-			then
+			if (member:HasBuff("Drink") and memberMana < 90) or (member:HasBuff("Eat") and memberHealth < 90) then
 				if (IsMoving()) then
 					StopMoving();
 				end
 				script_grind.message = 'Waiting for group to regen mana (25%+)...';
 				ClearTarget();
 			return true;
+			end
 			end
 		end
 	end
@@ -66,7 +65,7 @@ function script_grindParty:isAttackingGroup()
 	local i, typeObj = GetFirstObject();
 	local unitsInRange = 0;
 
-	for p = 1, GetNumPartyMembers()+1 do
+	for p = 1, GetNumPartyMembers() do
 		members = GetPartyMember(p);
 	end
 	
@@ -76,6 +75,7 @@ function script_grindParty:isAttackingGroup()
 				return true;
 			end
 		end
+	i, typeObj = GetNextObject(i);
 	end
 return false;
 end

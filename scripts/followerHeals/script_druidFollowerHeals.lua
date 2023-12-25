@@ -40,20 +40,6 @@ function script_druidFollowerHeals:HealsAndBuffs()
 				leaderObj = GetPartyMember(GetPartyLeaderIndex());
 				local localHealth = GetLocalPlayer():GetHealthPercentage();
 		end
-
-		-- Move in range: combat script return 3
-		if (script_follow.combatError == 3) then
-			script_follow.message = "Moving to target...";
-			script_follow:moveInLineOfSight(partyMember);		
-		return;
-		end
-			
-		-- Move in line of sight and in range of the party member
-		if (partyMember:GetDistance() > 40) or (not partyMember:IsInLineOfSight()) then
-			if (script_follow:moveInLineOfSight(partyMember)) then
-			return true; 
-			end
-		end
 	
           	-- druid heals
           	if (self.enableHeals) then
