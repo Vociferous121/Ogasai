@@ -1,0 +1,490 @@
+script_grind:setWaitTimer(ms) will STOP the bot
+self.waitTimer = GetTimeEX() + x will stop the combat script and cause a stutter if written wrong
+
+-- some spells have different conditions that need to follow - including using a parenthesis in the spell name like
+-- Create Healthstone (Major)
+-- Faeire Fire (Feral)
+-- UseItem(Scroll of Spirit IV)
+if HasSpell("Faerie Fire (Feral)") and not IsSpellOnCD("Faerie Fire (Feral)") and not targetObj:HasDebuff("Faerie Fire (Feral") then
+	CastSpellByName("Faerie Fire (Feral)()");
+	self.waitTimer = GetTimeEX() + 1600;
+	return 0;				
+end
+
+
+GetLastError() [number] spellId, [number] errorCode
+
+ClearLastError()
+
+
+
+	local __, lastError = GetLastError();
+	if (lastError ~= -1) then
+		DEFAULT_CHAT_FRAME:AddMessage(lastError);
+	end	
+
+SendChatMessage(" ");
+
+-- error codes
+spell not ready yet = 60
+target not in range = 89
+cant use item = 89
+cant use action = 89
+spell not ready already casting = 35
+stopped spell casting moving = 35
+already looted = 35
+not while sitting = 62
+cant do while moving = 46
+double poly = 5
+item not ready yet = 40
+cannot cast player is silenced = 141
+cant do that yet = 18
+not enough rage = 77
+cant do that yet = 77
+skin target level too high = 77
+can only use while swimming = 88
+you are in shapeshift form = 61
+missing regeant = 92
+no permission to loot corpse = 51
+must be behind target = 51
+
+	-- send debuffs on player to log file
+	for i=1,40 do
+		local D = UnitDebuff("player",i);
+		if (D) then
+			local string = (i.."="..D);
+			ToFile(string);
+		end
+	end
+added oGasai APIs:
+
+	-- local player 
+HasForm() [bool] player has a form
+IsCatForm()	[bool]
+IsBearForm()	[bool]
+IsTravelForm()	[bool]
+IsAquaticForm() [bool]
+IsGhostWolf()	[bool]
+CallPet()	[bool]
+IsStealth()	[bool]
+
+	-- local player has a target or pet has a target
+PlayerHasTarget()	[bool]
+PetHasTarget()	[bool]
+
+
+
+Wow APIs:
+https://wowwiki-archive.fandom.com/wiki/World_of_Warcraft_API?oldid=293138
+http://darkenedlinux.com/ogasai/showthread.php?tid=196
+oGasai APIs:
+[WoWUnits]
+FacePosition( ??? check unstuck script) -- presumably works like FaceAngle()
+WoWUnits:FaceTarget([bool] skipCheck = false)
+WoWUnits:GetDistance() [number] distance
+WoWUnits:HasDebuff([string] spellName) [bool]
+WoWUnits:HasBuff([string] spellName) [bool]
+WoWUnits:TargetEnemy() [bool]
+WoWUnits:IsTargetingMe() [bool]
+WoWUnits:GetDebuffStacks([string] spellName) [number] debuffStacks
+WoWUnits:GetBuffStacks([string] spellName) [number] buffStacks
+WoWUnits:IsSpellInRange([string] spellName) [bool]
+WoWUnits:CanAttack() [bool]
+WoWUnits:IsDead() [bool]
+WoWUnits:GetHealth() [number]
+WoWUnits:GetHealthPercentage() [number]
+WoWUnits:GetMana() [number]
+WoWUnits:GetManaPercentage() [number]
+WoWUnits:GetRage() [number]
+WoWUnits:GetRagePercentage() [number]
+WoWUnits:GetFocus() [number]
+WoWUnits:GetRagePercentage() [number]
+WoWUnits:GetEnergy() [number]
+WoWUnits:GetEnergyPercentage() [number]
+WoWUnits:GetComboPoints() [number]
+WoWUnits:GetLevel() [number]
+WoWUnits:GetPosition() [number] x, [number] y, [number] z
+WoWUnits:HasRangedWeapon() [bool]
+WoWUnits:IsMovementDisabed() [bool]
+WoWUnits:IsFleeing() [bool]
+WoWUnits:IsConfused() [bool]
+WoWUnits:IsStunned() [bool]
+WoWUnits:GetCreatureType() [string]
+WoWUnits:GetCreatureTypeIndex() [number]
+WoWUnits:IsInLineOfSight() [bool]
+WoWUnits:IsTapped() [bool]
+WoWUnits:IsTappedByMe() [bool]
+WoWUnits:IsSkinnable() [bool]
+WoWUnits:IsCritter() [bool]
+WoWUnits:GetUnitsTarget() [WoWUnits*] pObject
+WoWUnits:UnitInteract() [bool]
+WoWUnits:CastSpell([string] spellName) [bool])
+WoWUnits:GetFieldFlags() [number]
+WoWUnits:IsLootable() [bool]
+WoWUnits:GetGUID() [string] GUID
+WoWUnits:GetPointer() [nmber]
+	-- returns native pointer to object, used more for dev debugging
+WoWUnits:IsChanneling() [bool]
+WoWUnits:GetChanneling() [number] spellId
+WoWUnits:IsCasting() [bool]
+WoWUnits:GetCasting() [number] spellId
+WoWUnits:GetClassification() [number] type
+	-- Normal = 0
+	-- Elite = 1 
+	-- RareElite = 2 
+	-- WorldBoss = 3 
+	-- Rare = 4
+WoWUnits:GetUnitName() [string]
+	-- returns name of unit
+WoWUnits:CastSpellById([number] spellId) [bool]
+PersistLoadingScreen(true) -- the bot restarts itself after a loading screen (dungeon or boat) but variables are cleared
+
+[WoWGameObject]
+WoWGameObject:FaceTarget([bool] skipCheck = false)
+WoWGameObject:GetCreatorsGUID() [string] GUID
+WoWGameObject:GetObjectPosition() [number] x,  [number] y,  [number] z
+WoWGameObject:GameObjectInteract() [bool]
+WoWGameObject:GetObjectDisplayID() [number] displayID
+WoWGameObject:GetObjectState() [number] state
+WoWGameObject:IsGatherNode() [bool]
+WoWGameObject:GetPointer() [nmber]
+WoWGameObject:GetGUID() [string] GUID
+WoWGameObject:IsValid() [bool]
+
+
+[LocalPlayer]
+GetNearestEnemy() [WoWUnits*] pObject
+GetTarget() [WoWUnits*] pObject
+GetFirstObject() [WoWUnits*] pObject, [number] type -- Player = 4 Unit = 3,
+GetNextObject([WoWUnits*] pObject) [WoWUnits*] pObject, [number] type
+GetGUIDObject([string] GUID) [WoWUnits*] pObject
+GetLocalPlayer() [WoWUnits*] pObject
+GetContinentID() [number]
+GetFaction() [number]
+GetMapID() [number]
+GetCorpsePosition() [number] x, [number] y, [number] z
+FaceAngle([number] angle)
+	-- turn towards that angle, angle is not relative 
+in rad not degree, if you want to face 90  you need to convert to rad first
+x = math.rad(90)
+FaceAngle(x)
+GetSpellInfoX([string] spellName) [number] CastTime, [number] MaxRange, [number] MinRange,
+[number] PowerType, [number] Cost, [number] SpellId, [CSpellInfo*] SpellObj
+HasSpell([string] spellName) [bool]
+IsSpellOnCD([string] spellName) [bool]
+AutoAttackTarget()
+ResetNavigate()
+IsDrinking() [bool]
+IsEating() [bool]
+IsMoving() [bool]
+IsStanding() [bool]
+IsInCombat() [bool]
+IsIndoors() [bool]
+DisMount()
+IsMounted() [bool]
+IsGhost() [bool]
+Move([number] x, [number] y, [number] z) [bool]
+CanOverpower() [bool]
+IsAutoCasting([string] spellName) bool
+DeleteItem([string] itemName) [bool]
+HasItem([string] itemName) [bool]
+UseItem([string] itemName) [bool]
+UseItemOnWeapon([string] itemName) [bool]
+AreBagsFull() [bool]
+IsSwimming() [bool]
+GetPartyMember([number] index) [WoWUnits*] pObject
+GetPet() [WoWUnits*] pObject
+LootTarget() [bool]
+IsLooting() [bool]
+MountID([number] mountId)
+CastSpellById([number] spellId) [bool]
+IsSpellOnCoolDownById([number] spellId) [bool]
+JumpOrAscendStart()
+AutoAttack()
+IsChanneling() [bool]
+IsCasting() [bool]
+StopFalling()
+
+GetSpeed() [number] Current Speed, [number] MaxSpeed,
+
+[Core]
+StartBot()
+StopBot()
+	-- stops the bot
+Exit()
+	-- closes the wow client
+GetTime() [number]
+	-- returns games time, used for timers
+GetTimeStamp() [string]
+	-- returns time stamp, used for logging ie 08:15:20
+ToFile([string] text)
+	-- outputs text to file in logs foler
+ToConsole([string] text)
+	-- outputs text to external console window
+ToWoWConsole([string] text)
+	-- outputs text to interal wow dev console
+SetVarX([string*] name, [number] var)
+	-- Like SetCVar, best practice is to use self. over SetVar 
+GetVarX([string* name]) [number]
+	-- Like GetCVar, best practice is to use self. over GetVar 
+GetDistance3D([number] x1, [number] y1, [number] z1, [number] x2, [number] y2, [number] z2) [number] distance
+	-- returns distance between 2 3d points
+Raycast([number] x1, [number] y1, [number] z1, [number] x2, [number] y2, [number] z2) [bool] hit, [number] x, [number] y, [number] z
+	-- returns true if the ray intersects with a collider
+SetMaxTargetLevel([number] maxlevel) [void]
+	-- deprecated setting for GetNearestEnemy
+SetMinTargetLevel([number] minlevel) [void]
+	-- deprecated setting for GetNearestEnemy
+SetTargetLevel([number] minlevel, [number] maxnlevel) [void]
+	-- deprecated setting for GetNearestEnemy
+SetPVE([bool] on)
+	-- deprecated setting for GetNearestEnemy
+SetPullDistance([number] distance)
+	-- deprecated setting for GetNearestEnemy
+DrawPath([bool] onORoff)
+	-- draws walk path, lines between nodes
+DrawPoints([bool] onORoff)
+	-- draws walk path nodes
+NewTheme([bool] onORoff)
+	-- disabled new theme, makes menu look like the old one
+
+
+[Pathing]
+StopMoving() [bool]
+	-- stops character from moving by clicking on its current position,
+	-- do not call more then 1x, character will start to rotate due to some ctm bug,
+MoveToTarget([WoWUnits*] pTarget || [number] x, [number] y,  [number] z) [bool]
+	-- deprecated call
+GetPathAsyncInfo() [number] state, [number] time, [number] blackListSize
+IsNodeBlacklisted([number] x, [number] y,  [number] z,  [number] r) [bool]
+ClearNodeBlacklist() [number] nodesCleared
+IsSearchingForPath() [bool]
+GetPathSize([number] pathType) [number]
+GetPathPositionAtIndex([number] pathType, [number] index) [number] x, [number] y, [number] z
+IsPathLoaded([number] pathId) [bool]
+	-- IsPathLoaded(5) would return if the navmesh path is loaded
+ClearPath([number] pathId)
+SavePath([string] fileName, [number] pathId)
+LoadPath([string] fileName, [number] pathId)
+IsUsingNavmesh() [bool]
+GeneratePath([number] x1, [number] y1, [number] x1, [number] x2, [number] y2, [number] z2) [bool]
+UseNavmesh () -- ticks the "use navmesh" menu option
+IsUsingNavmesh() -- checks if the "use navmesh" option is true or false
+LoadNavmesh() -- loads the mmtiles into the bot
+GetLoadNavmeshProgress() -- returns 0 and 1 for navmesh loaded or not
+
+[pathId]
+walk path = 0
+navmesh blacklist = 4 --blacklist node list
+navmesh path = 5 -- can only read from
+	-- The following are no longer used in 2.1.X framework,
+	-- but can still be used to load other paths to swap between 
+grave path = 1 -- deprecated
+vendor path = 2 -- deprecated
+repair path = 3 -- deprecated
+
+[Drawing]
+SetSatusText([string] title, [string] text) [void]
+DrawText([string] text, [number] x, [number] y, [number] r, [number] g, [number] b) [void]
+WorldToScreen([number] x, [number] y, [number] z) [number] x, [number] y, [bool] isOnScreen
+DrawLine([number] x1, [number] y1, [number] x2, [number] y2, [number] r, [number] g, [number] b, [number] thickness)
+DrawRect([number] x1, [number] y1, [number] x2, [number] y2, [number] r, [number] g, [number] b,  [number] rounding, [number] rounding_corners, [number] thickness)
+DrawRectFilled([number] x1, [number] y1, [number] x2, [number] y2, [number] r, [number] g, [number] b, [number] w,  [number] rounding, [number] rounding_corners)
+
+[Vendor]
+SkipGossip()
+	-- Skips vendor text and opens items page 
+IsVendorWindowOpen() [bool]
+	-- Check is vendor page is open
+BuyItem([string] itemName, [number] num) [bool]
+	-- Buys item from vendor, vendor window must be open
+VendorHasItem([string] itemName) [bool]
+	-- Check if vendor has item, vendor window must be open
+SellItems([string] itemName) [bool]
+	-- Sell item to vendor
+	-- Moves item to trade window
+	-- Moves item to mailbox
+
+[Menu]
+ShowBar()
+HideBar()
+CollapsingHeader([string] title) [bool]
+Checkbox([string] text, [bool] isChecked) [bool] isChecked, [bool] wasChecked
+Text([string] text)
+Button([string] text)
+SameLine()
+SameSeparatorLine()
+InputText([string] title, [string] inputText) [string] inputText
+SliderFloat([string] title, [number] min, [number] max, [number] value) [number] value
+SliderInt([string] title, [number] min, [number] max, [number] value) [number] value
+ProgressBar([string] title, [number] progress)
+NewWindow([string] title, [number] width, [number] hight) [bool] isOpen
+EndWindow()
+RadioButton([string] title, [number] isSelected, [number] groupId) [number] isSelected, [bool] wasSelected
+AddScriptToMode([string] scriptText, [string] scriptName) [bool] wasAdded
+AddScriptToCombat([string] scriptText, [string] scriptName) [bool] wasAdded
+RunCombatDraw()
+ComboBox([string] title, [number] indexSelected, [string] ...) [number] indexSelected, [bool] newSelection
+CreateImage(([string] fileName) [image]
+
+
+[Image]
+image: DrawImage([number] width = defaultWidth, [number] height = defaultHeight)
+image: DrawImageButton(([number] width = defaultWidth, [number] height = defaultHeight) [bool]
+
+
+[Script]
+include([string] fileName) [bool] wasLoaded
+RunScript([string] scriptName)
+GetScript([string] scriptName) [string] script
+LoadScript([string] scriptName, [string] script) [bool] wasLoaded
+RunCombatScript([string] GUID) [number] error
+RunMountScript()
+RunRestScript()
+
+
+
+
+[errorCode]
+SPELL_FAILED_AFFECTING_COMBAT = 0x0,
+SPELL_FAILED_ALREADY_AT_FULL_HEALTH = 0x1,
+SPELL_FAILED_ALREADY_AT_FULL_MANA = 0x2,
+SPELL_FAILED_ALREADY_BEING_TAMED = 0x3,
+SPELL_FAILED_ALREADY_HAVE_CHARM = 0x4,
+SPELL_FAILED_ALREADY_HAVE_SUMMON = 0x5,
+SPELL_FAILED_ALREADY_OPEN = 0x6,
+SPELL_FAILED_MORE_POWERFUL_SPELL_ACTIVE = 0x7,
+SPELL_FAILED_BAD_IMPLICIT_TARGETS = 0x9,
+SPELL_FAILED_BAD_TARGETS = 0xA,
+SPELL_FAILED_CANT_BE_CHARMED = 0xB,
+SPELL_FAILED_CANT_BE_DISENCHANTED = 0xC,
+SPELL_FAILED_CANT_BE_PROSPECTED = 0xD,
+SPELL_FAILED_CANT_CAST_ON_TAPPED = 0xE,
+SPELL_FAILED_CANT_DUEL_WHILE_INVISIBLE = 0xF,
+SPELL_FAILED_CANT_DUEL_WHILE_STEALTHED = 0x10,
+SPELL_FAILED_CANT_TOO_CLOSE_TO_ENEMY = 0x11,
+SPELL_FAILED_CANT_DO_THAT_YET = 0x12,
+SPELL_FAILED_CASTER_DEAD = 0x13,
+SPELL_FAILED_CHARMED = 0x14,
+SPELL_FAILED_CHEST_IN_USE = 0x15,
+SPELL_FAILED_CONFUSED = 0x16,
+SPELL_FAILED_DONT_REPORT = 0x17,
+SPELL_FAILED_EQUIPPED_ITEM = 0x18,
+SPELL_FAILED_EQUIPPED_ITEM_CLASS = 0x19,
+SPELL_FAILED_EQUIPPED_ITEM_CLASS_MAINHAND = 0x1A,
+SPELL_FAILED_EQUIPPED_ITEM_CLASS_OFFHAND = 0x1B,
+SPELL_FAILED_ERROR = 0x1C,
+SPELL_FAILED_FIZZLE = 0x1D,
+SPELL_FAILED_FLEEING = 0x1E,
+SPELL_FAILED_FOOD_LOWLEVEL = 0x1F,
+SPELL_FAILED_HIGHLEVEL = 0x20,
+SPELL_FAILED_IMMUNE = 0x22,
+SPELL_FAILED_INTERRUPTED = 0x23,
+SPELL_FAILED_INTERRUPTED_COMBAT = 0x24,
+SPELL_FAILED_ITEM_ALREADY_ENCHANTED = 0x25,
+SPELL_FAILED_ITEM_GONE = 0x26,
+SPELL_FAILED_ENCHANT_NOT_EXISTING_ITEM = 0x27,
+SPELL_FAILED_ITEM_NOT_READY = 0x28,
+SPELL_FAILED_LEVEL_REQUIREMENT = 0x29,
+SPELL_FAILED_LINE_OF_SIGHT = 0x2A,
+SPELL_FAILED_LOWLEVEL = 0x2B,
+SPELL_FAILED_SKILL_NOT_HIGH_ENOUGH = 0x2C,
+SPELL_FAILED_MAINHAND_EMPTY = 0x2D,
+SPELL_FAILED_MOVING = 0x2E,
+SPELL_FAILED_NEED_AMMO = 0x2F,
+SPELL_FAILED_NEED_REQUIRES_SOMETHING = 0x30,
+SPELL_FAILED_NEED_EXOTIC_AMMO = 0x31,
+SPELL_FAILED_NOPATH = 0x32,
+SPELL_FAILED_NOT_BEHIND = 0x33,
+SPELL_FAILED_NOT_FISHABLE = 0x34,
+SPELL_FAILED_NOT_HERE = 0x35,
+SPELL_FAILED_NOT_INFRONT = 0x36,
+SPELL_FAILED_NOT_IN_CONTROL = 0x37,
+SPELL_FAILED_NOT_KNOWN = 0x38,
+SPELL_FAILED_NOT_MOUNTED = 0x39,
+SPELL_FAILED_NOT_ON_TAXI = 0x3A,
+SPELL_FAILED_NOT_ON_TRANSPORT = 0x3B,
+SPELL_FAILED_NOT_READY = 0x3C,
+SPELL_FAILED_NOT_SHAPESHIFT = 0x3D,
+SPELL_FAILED_NOT_STANDING = 0x3E,
+SPELL_FAILED_NOT_TRADEABLE = 0x3F,
+SPELL_FAILED_NOT_TRADING = 0x40,
+SPELL_FAILED_NOT_UNSHEATHED = 0x41,
+SPELL_FAILED_NOT_WHILE_GHOST = 0x42,
+SPELL_FAILED_NO_AMMO = 0x43,
+SPELL_FAILED_NO_CHARGES_REMAIN = 0x44,
+SPELL_FAILED_NO_CHAMPION = 0x45,
+SPELL_FAILED_NO_COMBO_POINTS = 0x46,
+SPELL_FAILED_NO_DUELING = 0x47,
+SPELL_FAILED_NO_ENDURANCE = 0x48,
+SPELL_FAILED_NO_FISH = 0x49,
+SPELL_FAILED_NO_ITEMS_WHILE_SHAPESHIFTED = 0x4A,
+SPELL_FAILED_NO_MOUNTS_ALLOWED = 0x4B,
+SPELL_FAILED_NO_PET = 0x4C,
+SPELL_FAILED_NO_POWER = 0x4D,
+SPELL_FAILED_NOTHING_TO_DISPEL = 0x4E,
+SPELL_FAILED_NOTHING_TO_STEAL = 0x4F,
+SPELL_FAILED_ONLY_ABOVEWATER = 0x50,
+SPELL_FAILED_ONLY_DAYTIME = 0x51,
+SPELL_FAILED_ONLY_INDOORS = 0x52,
+SPELL_FAILED_ONLY_MOUNTED = 0x53,
+SPELL_FAILED_ONLY_NIGHTTIME = 0x54,
+SPELL_FAILED_ONLY_OUTDOORS = 0x55,
+SPELL_FAILED_ONLY_SHAPESHIFT = 0x56,
+SPELL_FAILED_ONLY_STEALTHED = 0x57,
+SPELL_FAILED_ONLY_UNDERWATER = 0x58,
+SPELL_FAILED_OUT_OF_RANGE = 0x59,
+SPELL_FAILED_PACIFIED = 0x5A,
+SPELL_FAILED_POSSESSED = 0x5B,
+SPELL_FAILED_REQUIRES_AREA = 0x5D,
+SPELL_FAILED_REQUIRES_SPELL_FOCUS = 0x5E,
+SPELL_FAILED_ROOTED = 0x5F,
+SPELL_FAILED_SILENCED = 0x60,
+SPELL_FAILED_SPELL_IN_PROGRESS = 0x61,
+SPELL_FAILED_SPELL_LEARNED = 0x62,
+SPELL_FAILED_SPELL_UNAVAILABLE = 0x63,
+SPELL_FAILED_STUNNED = 0x64,
+SPELL_FAILED_TARGETS_DEAD = 0x65,
+SPELL_FAILED_TARGET_AFFECTING_COMBAT = 0x66,
+SPELL_FAILED_TARGET_AURASTATE = 0x67,
+SPELL_FAILED_TARGET_DUELING = 0x68,
+SPELL_FAILED_TARGET_ENEMY = 0x69,
+SPELL_FAILED_TARGET_ENRAGED = 0x6A,
+SPELL_FAILED_TARGET_FRIENDLY = 0x6B,
+SPELL_FAILED_TARGET_IN_COMBAT = 0x6C,
+SPELL_FAILED_TARGET_IS_PLAYER = 0x6D,
+SPELL_FAILED_TARGET_NOT_DEAD = 0x6E,
+SPELL_FAILED_TARGET_NOT_IN_PARTY = 0x6F,
+SPELL_FAILED_TARGET_NOT_LOOTED = 0x70,
+SPELL_FAILED_TARGET_NOT_PLAYER = 0x71,
+SPELL_FAILED_TARGET_NO_POCKETS = 0x72,
+SPELL_FAILED_TARGET_NO_WEAPONS = 0x73,
+SPELL_FAILED_TARGET_UNSKINNABLE = 0x74,
+SPELL_FAILED_THIRST_SATIATED = 0x75,
+SPELL_FAILED_TOO_CLOSE = 0x76,
+SPELL_FAILED_TOO_MANY_OF_ITEM = 0x77,
+SPELL_FAILED_TRAINING_POINTS = 0x79,
+SPELL_FAILED_TRY_AGAIN = 0x7A,
+SPELL_FAILED_UNIT_NOT_BEHIND = 0x7B,
+SPELL_FAILED_UNIT_NOT_INFRONT = 0x7C,
+SPELL_FAILED_WRONG_PET_FOOD = 0x7D,
+SPELL_FAILED_NOT_WHILE_FATIGUED = 0x7E,
+SPELL_FAILED_TARGET_NOT_IN_INSTANCE = 0x7F,
+SPELL_FAILED_NOT_WHILE_TRADING = 0x80,
+SPELL_FAILED_TARGET_NOT_IN_RAID = 0x81,
+SPELL_FAILED_DISENCHANT_WHILE_LOOTING = 0x82,
+SPELL_FAILED_PROSPECT_WHILE_LOOTING = 0x83,
+SPELL_FAILED_TARGET_FREEFORALL = 0x85,
+SPELL_FAILED_NO_EDIBLE_CORPSES = 0x86,
+SPELL_FAILED_ONLY_BATTLEGROUNDS = 0x87,
+SPELL_FAILED_TARGET_NOT_GHOST = 0x88,
+SPELL_FAILED_TOO_MANY_SKILLS = 0x89,
+SPELL_FAILED_CANT_USE_NEW_ITEM = 0x8A,
+SPELL_FAILED_WRONG_WEATHER = 0x8B,
+SPELL_FAILED_DAMAGE_IMMUNE = 0x8C,
+SPELL_FAILED_PREVENTED_BY_MECHANIC = 0x8D,
+SPELL_FAILED_PLAY_TIME = 0x8E,
+SPELL_FAILED_REPUTATION = 0x8F,
+SPELL_FAILED_MIN_SKILL = 0x90,
+SPELL_FAILED_UNKNOWN = 0x91,
+SPELL_CAST_OK = 0xFF,
