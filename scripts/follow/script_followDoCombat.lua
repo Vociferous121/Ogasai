@@ -6,6 +6,9 @@ function script_followDoCombat:run()
 
 			-- reset the combat status
 				script_follow.combatError = nil; 
+				if (not PlayerHasTarget()) then
+					self.enemyObj = GetTarget();
+				end
 			-- Run the combat script and retrieve combat script status if we have a valid target
 			if (script_follow.enemyObj ~= nil and script_follow.enemyObj ~= 0) then
 				script_follow.combatError = RunCombatScript(script_follow.enemyObj:GetGUID());

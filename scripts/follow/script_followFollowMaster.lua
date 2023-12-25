@@ -1,5 +1,6 @@
 script_followFollowMaster = {
 
+
 }
 
 function script_followFollowMaster:run()
@@ -10,10 +11,12 @@ function script_followFollowMaster:run()
 				if (script_follow:GetPartyLeaderObject() ~= 0) then
 					if(script_follow:GetPartyLeaderObject():GetDistance() > script_follow.followLeaderDistance and not script_follow:GetPartyLeaderObject():IsDead()) and (not localObj:IsDead()) then
 						local x, y, z = script_follow:GetPartyLeaderObject():GetPosition();
-						if (Move(x, y, z)) then
+						if (not script_follow.test) and (script_navEX:moveToTarget(GetLocalPlayer(), x, y, z)) then
 							script_follow.message = "Following Party Leader...";
 							script_follow.timer = GetTimeEX() + 300;
-							return true;
+						end
+						if script_follow.test then
+						Move(x, y, z);
 						end
 					end
 				end
@@ -22,10 +25,12 @@ function script_followFollowMaster:run()
 			if (script_follow:GetPartyLeaderObject() ~= 0) then
 				if(script_follow:GetPartyLeaderObject():GetDistance() > script_follow.followLeaderDistance and not script_follow:GetPartyLeaderObject():IsDead()) and (not localObj:IsDead()) then
 					local x, y, z = script_follow:GetPartyLeaderObject():GetPosition();
-					if (Move(x, y, z)) then
-						script_follow.message = "Following Party Leader...";
-						script_follow.timer = GetTimeEX() + 300;
-						return true;
+					if (not script_follow.test) and (script_navEX:moveToTarget(GetLocalPlayer(), x, y, z)) then
+					script_follow.message = "Following Party Leader...";
+					script_follow.timer = GetTimeEX() + 300;
+					end
+					if script_follow.test then
+					Move(x, y, z);
 					end
 				end
 			end

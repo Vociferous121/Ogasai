@@ -6,6 +6,13 @@ script_followMenu = {
 
 function script_followMenu:menu()
 
+	wasClicked, script_follow.test = Checkbox("Movement locked up?", script_follow.test);
+	if script_follow.test then
+	Text("Direct move-to-path. Bot will not turn corners");
+	Text("Distance Limited");
+	script_follow.followLeaderDistance = 10;
+	end
+
 	if (not script_follow.pause) then 
 		if (Button("Pause Bot")) then
 			script_follow.pause = true; 

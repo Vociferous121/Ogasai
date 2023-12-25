@@ -1,5 +1,6 @@
 script_follow = {
 
+	test = false, -- move
 	useMount = false,
 	disMountRange = 32,
 	mountTimer = 0,
@@ -34,11 +35,14 @@ script_follow = {
 	objectAttackingUs = 0,
 	meleeDistance = 3.5,
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
+	navFunctions2Loaded = include("scripts\\script_navEX.lua"),
 	helperLoaded = include("scripts\\script_helper.lua"),
 	drawDataLoaded = include("scripts\\script_drawData.lua"),
 	drawStatusLoaded = include("scripts\\script_drawStatus.lua"),
 	checkDebuffsLoaded = include("scripts\\script_checkDebuffs.lua"),
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
+	grindFunctions = include("scripts\\script_grind.lua"),
+
 	-- follow folder
 	healsLoaded = include("scripts\\follow\\script_followHealsAndBuffs.lua"),
 	moveToMemberLoaded = include("scripts\\follow\\script_followMoveToMember.lua"),
@@ -161,11 +165,7 @@ function script_follow:run()
 		end
 	end	
 
-	--if (IsMoving()) then
-		self.tickRate = 135;
-	--elseif (IsInCombat()) then
-	--	self.tickRate = 1550;
-	--end
+	self.tickRate = 135;
 
 	if(GetTimeEX() > self.timer) then
 		self.timer = GetTimeEX() + self.tickRate;
@@ -242,14 +242,6 @@ function script_follow:run()
 			self.message = 'Warning bags are full...';
 		end
 
-		--if (self.useVendor) and (AreBagsFull() and (not IsInCombat()) then
-		--	if we are close to a vendor
-		--		if run vendor script
-		-- 			return
-		--		end
-		--	end
-		--end
-
 		-- Loot
 		if (not IsInCombat() and script_followEX2:enemiesAttackingUs() == 0 and not localObj:HasBuff('Feign Death')) then
 			-- Loot if there is anything lootable and we are not in combat and if our bags aren't full
@@ -293,10 +285,10 @@ function script_follow:run()
 			local member = GetPartyMember(i);
 			if (not member:IsDead()) and (not localObj:IsDead()) and (not IsMoving()) then
 				if (member:GetDistance() > 40) or (not member:IsInLineOfSight()) then
-					script_followMoveToMember:moveInLineOfSight(member);
+					script_followMoveToMember:moveInLineOfSight();
 					self.message = "Moving to party leader...";
 				end
-				if (script_followHealsAndBuffs:healAndBuff(member)) then
+				if (script_followHealsAndBuffs:healAndBuff()) then
 					
 					self.message = "Healing/buffing the party...";
 					self.timer = GetTimeEX() + 1700;
@@ -338,10 +330,10 @@ function script_follow:run()
 				local member = GetPartyMember(i);
 				if (not member:IsDead()) and (not localObj:IsDead()) and (not IsMoving()) then
 					if (member:GetDistance() > 40) or (not member:IsInLineOfSight()) then
-					script_followMoveToMember:moveInLineOfSight(member);
+					script_followMoveToMember:moveInLineOfSight();
 						self.message = "Moving to party leader...";
 				end
-				if (script_followHealsAndBuffs:healAndBuff(member)) then
+				if (script_followHealsAndBuffs:healAndBuff()) then
 		
 					self.timer = GetTimeEX() + 1700;
 					ClearTarget();
@@ -354,7 +346,7 @@ function script_follow:run()
 			if (script_follow:GetPartyLeaderObject():GetUnitsTarget() ~= 0 and not script_follow:GetPartyLeaderObject():IsDead()) and (script_follow:GetPartyLeaderObject():GetDistance() < self.followLeaderDistance) then
 				if (script_follow:GetPartyLeaderObject():GetUnitsTarget():GetHealthPercentage() <= self.dpsHP and self.assistInCombat) then
 					self.enemyObj = script_follow:GetPartyLeaderObject():GetUnitsTarget();
-					script_followMoveToMember:moveInLineOfSight(leaderObj);
+					script_followMoveToMember:moveInLineOfSight();
 				elseif (script_followEX2:enemiesAttackingUs() == 0) then
 					self.enemyObj = nil;
 					ClearTarget();
@@ -373,12 +365,11 @@ function script_follow:run()
 				local member = GetPartyMember(i);
 				if (not member:IsDead()) and (not localObj:IsDead()) and (not IsMoving()) then
 					if (member:GetDistance() > 40) or (not member:IsInLineOfSight()) then
-						script_followMoveToMember:moveInLineOfSight(member);
+						script_followMoveToMember:moveInLineOfSight();
 						self.message = "Moving to party leader...";
 
 					end
-					if (script_followHealsAndBuffs:healAndBuff(member)) then
-						
+					if (script_followHealsAndBuffs:healAndBuff()) then
 						self.message = "Healing/buffing the party...";
 						self.timer = GetTimeEX() + 1700;
 						ClearTarget();
@@ -389,13 +380,17 @@ function script_follow:run()
 
 			if (not localObj:IsDead()) then
 				script_followDoCombat:run();
-				self.timer = GetTimeEX() + 1600;
+				if (IsAutoCasting("Attack")) and (self.enemyObj:GetDistance() > self.meleeDistance) then
+					self.waitTimer = GetTimeEX() + 1650;
+				elseif (IsInCombat()) and (not IsAutoCasting("Attack")) or (IsCasting()) or (IsChanneling()) then
+					self.waitTimer = GetTimeEX() + 1650;
+				end
 			end
 		
 		end
 		
 
-	end -- set wait timer tick rate
+	end
 
 	if (not IsCasting()) and (not IsChanneling()) and (not IsDrinking()) and (not IsEating()) and (not IsLooting()) and (self.lootObj == nil) then
 		if (script_followFollowMaster:run()) then

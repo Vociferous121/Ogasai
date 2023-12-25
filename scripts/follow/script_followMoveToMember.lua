@@ -15,7 +15,7 @@ function script_followMoveToMember:moveInLineOfSight(partyMember)
 	if (not self.followMember) and (GetNumPartyMembers() > 1) and (not IsCasting()) and (not IsChanneling()) and (not IsEating()) and (not IsDrinking()) then
 		if (not leaderObj:IsInLineOfSight() or leaderObj:GetDistance() > self.followLeaderDistance) then
 			local x, y, z = leaderObj:GetPosition();
-			Move(x , y, z);
+			script_navEX:moveToTarget(GetLocalPlayer(), x, y, z);
 			self.timer = GetTimeEX() + 200;
            		self.message = "Moving to Party Leader LoS";
 			return true;
@@ -25,7 +25,7 @@ function script_followMoveToMember:moveInLineOfSight(partyMember)
 	if (self.followMember) and (GetNumPartyMembers() > 1) and (not IsCasting()) and (not IsChanneling()) and (not IsEating()) and (not IsDrinking()) then
 		if (not partyMember:IsInLineOfSight() and partyMember:GetDistance() < self.followLeaderDistance) then
 			local x, y, z = partyMember:GetPosition();
-			Move(x , y, z);
+			script_navEX:moveToTarget(GetLocalPlayer(), x, y, z);
 			self.timer = GetTimeEX() + 200;
 			self.message = "Moving to party member LoS";
 			return true;
