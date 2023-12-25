@@ -29,7 +29,6 @@ script_follow = {
 	assistInCombat = false,
 	isChecked = true,
 	pause = true,
-	autoGhost = false,
 	message = "Starting the follower...",
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
 	helperLoaded = include("scripts\\script_helper.lua"),
@@ -217,9 +216,8 @@ function script_follow:run()
 
 				self.message = "Walking to corpse...";
 			-- Release body
-			if(not IsGhost()) and (self.autoGhost) then 
+			if(not IsGhost()) then
 				RepopMe(); 
-				self.waitTimer = GetTimeEX() + 5000;
 				return; 
 			end
 			-- Ressurrect within the ress distance to our corpse

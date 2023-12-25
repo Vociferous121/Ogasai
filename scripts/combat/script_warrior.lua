@@ -447,13 +447,12 @@ function script_warrior:run(targetGUID)	-- main content of script
 				targetObj:FaceTarget();
 			end
 			-- melee Skill: Heroic Strike if we got 15 rage battle stance
-			if (self.battleStance) then
-				if (localRage >= 15) then 
+			if (self.battleStance) and (not IsMoving()) then
+				if (localRage >= 15) and (targetHealth <= 80) then 
 					targetObj:FaceTarget();
 					if (targetObj:GetDistance() <= self.meleeDistance) then
 						CastSpellByName('Heroic Strike', targetObj);
 						targetObj:FaceTarget();
-						return 3;
 					end
 				targetObj:FaceTarget();
 				end 
