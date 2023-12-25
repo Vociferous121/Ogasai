@@ -46,9 +46,13 @@ function script_grindParty:partyOptions()
 				return true;
 			end
 			if (member:HasBuff("Drink") and memberMana < 90) or (member:HasBuff("Eat") and memberHealth < 90) then
-				if (IsMoving()) then
-					StopMoving();
+				if (member:GetDistance() < 10) then
+					local x, y, z = member:GetDistance();
+					if (script_navEX:moveToTarget(localObj, x, y, z)) then
+						return true;
+					end
 				end
+				
 				script_grind.message = 'Waiting for group to regen mana (25%+)...';
 				ClearTarget();
 			return true;

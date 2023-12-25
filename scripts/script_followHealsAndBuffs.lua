@@ -22,7 +22,15 @@ script_followHealsAndBuffs = {
 		-- based on class to reduce CPU usage it will only cast spells if you are that class...
 
 function script_followHealsAndBuffs:healAndBuff()
-		
+
+			if (IsInCombat()) and (script_follow.enemyObj ~= nil) then
+				if (script_follow.enemyObj:GetDistance() > 40) or (not script_follow.enemyObj:IsInLineOfSight()) then
+			
+				local _x, _y, _z = script_follow.enemyObj:GetPosition();
+				script_navEX:moveToTarget(GetLocalPlayer(), _x, _y, _z);
+				return;
+				end
+			end
 			local class = UnitClass('player');
 
 			-- shaman heals and buffs

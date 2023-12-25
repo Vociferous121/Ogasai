@@ -453,6 +453,11 @@ function script_priest:run(targetGUID)
 
 		else	
 
+			if (IsInCombat()) and (not localObj:HasRangedWeapon()) and (IsAutoCasting("Attack")) then
+				if (targetObj:GetDistance() > 6) then
+					return 3;
+				end
+			end
 
 			if (script_grind.skipHardPull) then
 				if (script_checkAdds:checkAdds()) then

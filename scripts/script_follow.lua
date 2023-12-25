@@ -334,23 +334,6 @@ function script_follow:run()
 				return;
 			end
 		end
-
-		-- Healer check: heal/buff the party
-		for i = 1, GetNumPartyMembers()+1 do
-			local member = GetPartyMember(i);
-			if (not member:IsDead()) and (not localObj:IsDead()) and (not IsMoving()) then
-				if (member:GetDistance() > 40) or (not member:IsInLineOfSight()) then
-					script_follow:moveInLineOfSight(partyMember);
-				end
-				if (script_followHealsAndBuffs:healAndBuff()) then
-					
-					self.message = "Healing/buffing the party...";
-					self.waitTimer = GetTimeEX() + 1000;
-					ClearTarget();
-					return true;
-				end
-			end
-		end
 				
 		-- Check if anything is attacking us Paladin
 		if (script_followEX2:enemiesAttackingUs() >= 2) then
@@ -407,14 +390,44 @@ function script_follow:run()
 		if (self.lootObj ~= nil and not IsInCombat()) then
 			return; 
 		else
+
+			-- Healer check: heal/buff the party
+			for i = 1, GetNumPartyMembers()+1 do
+				local member = GetPartyMember(i);
+				if (not member:IsDead()) and (not localObj:IsDead()) and (not IsMoving()) then
+					if (member:GetDistance() > 40) or (not member:IsInLineOfSight()) then
+						script_follow:moveInLineOfSight(partyMember);
+					end
+					if (script_followHealsAndBuffs:healAndBuff()) then
+						
+						self.message = "Healing/buffing the party...";
+						self.waitTimer = GetTimeEX() + 1000;
+						ClearTarget();
+						return true;
+					end
+				end
+			end
+
 			-- reset the combat status
 				self.combatError = nil; 
 			-- Run the combat script and retrieve combat script status if we have a valid target
 			if (self.enemyObj ~= nil and self.enemyObj ~= 0) then
 				self.combatError = RunCombatScript(self.enemyObj:GetGUID());
+				if (self.enemyObj:GetDistance() < 6) then
+					local x, y, z = self.enemyObj:GetPosition();
+					script_navEX:moveToTarget(localObj, x, y, z);
+				return;
+				end
 			end
-		end
+	
 			if (self.enemyObj ~= nil or IsInCombat()) then
+
+				if (self.enemyObj ~= nil) and (self.enemyObj:GetDistance() > 6) then
+					local xx, yy, zz = self.enemyObj:GetPosition();
+					if (script_navEX:moveToTarget(localObj, xx, yy, zz)) then
+						return;
+					end
+				end
 				self.message = "Running the combat script...";
 				-- In range: attack the target, combat script returns 0
 				if(self.combatError == 0) then
@@ -450,11 +463,12 @@ function script_follow:run()
 					return;
 				end
 			end
+		end
 		
 		-- Pre checks before navigating
-		if(IsLooting() or IsCasting() or IsChanneling() or IsDrinking() or IsEating() or IsInCombat()) then 
-			return;
-		end	
+		--if(IsLooting() or IsCasting() or IsChanneling() or IsDrinking() or IsEating() or IsInCombat()) then 
+		--	return;
+		--end	
 
 		-- Healer check: heal/buff the party
 		for i = 1, GetNumPartyMembers()+1 do
