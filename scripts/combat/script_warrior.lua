@@ -233,6 +233,10 @@ function script_warrior:run(targetGUID)	-- main content of script
 		return 2;
 	end
 
+	if (IsInCombat()) and (IsChanneling() or IsCasting()) then
+		targetObj:FaceTarget();
+	end
+
 	-- Check: Do nothing if we are channeling or casting or wait timer
 	if (IsChanneling()) or (IsCasting()) or (self.waitTimer >= GetTimeEX()) then
 		return 4;
@@ -438,6 +442,27 @@ function script_warrior:run(targetGUID)	-- main content of script
 				self.waitTimer = GetTimeEX() + 1500;
 				return 0;
 			end
+
+			if (IsChanneling() or IsCasting()) then
+				targetObj:FaceTarget();
+			end
+			-- melee Skill: Heroic Strike if we got 15 rage battle stance
+			if (self.battleStance) then
+				if (localRage >= 15) then 
+					targetObj:FaceTarget();
+					if (targetObj:GetDistance() <= self.meleeDistance) then
+						CastSpellByName('Heroic Strike', targetObj);
+						targetObj:FaceTarget();
+						return 0;
+					end
+				targetObj:FaceTarget();
+				end 
+				targetObj:FaceTarget();
+			end
+			if (IsChanneling() or IsCasting()) then
+				targetObj:FaceTarget();
+			end
+
 
 			-- shield block
 			-- main rage user use only if target has at least 1 sunder for threat gain
@@ -771,7 +796,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 				if (self.battleStance) then
 					if (localRage >= 15) then 
 						targetObj:FaceTarget();
-						if (targetObj:GetDistance() <= 6) and (targetObj:FaceTarget()) then
+						if (targetObj:GetDistance() <= self.meleeDistance) then
 							CastSpellByName('Heroic Strike', targetObj);
 							targetObj:FaceTarget();
 							return 0;

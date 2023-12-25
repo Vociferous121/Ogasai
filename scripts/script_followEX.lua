@@ -51,7 +51,7 @@ function script_followEX:drawStatus()
 		RunCombatDraw();
 end
 
-function script_grindEX:doLoot(localObj)
+function script_followEX:doLoot(localObj)
 		local _x, _y, _z = script_follow.lootObj:GetPosition();
 		local dist = script_follow.lootObj:GetDistance();
 	
@@ -110,12 +110,10 @@ function script_grindEX:doLoot(localObj)
 
 		script_follow.message = "Moving to loot...";		
 		script_navEX:moveToTarget(localObj, _x, _y, _z);	
-		script_grind:setWaitTimer(50);
 
-	if (script_follow.lootObj:GetDistance() <= 3 and not IsLooting()) then
-		if (IsMoving()) then
-			StopMoving();
-		end
-		script_follow.waitTimer = GetTimeEX() + 350; 
-	end
+	--if (script_follow.lootObj:GetDistance() <= 3 and not IsLooting()) then
+	--	if (IsMoving()) then
+	--		StopMoving();
+	--	end
+	--end
 end

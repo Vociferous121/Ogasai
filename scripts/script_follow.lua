@@ -137,11 +137,12 @@ function script_follow:GetPartyLeaderObject()
 end
 
 function script_follow:run()
-		script_follow:window();
+
+	script_follow:window();
 		
-		if (IsUsingNavmesh()) and (self.drawPath) then
-			script_drawData:drawPath();
-		end
+	if (IsUsingNavmesh()) and (self.drawPath) then
+		script_drawData:drawPath();
+	end
 
 	-- Set next to node distance and nav-mesh smoothness to double that number
 	if (IsMounted()) then
@@ -170,8 +171,22 @@ function script_follow:run()
 		return; 
 	end
 
+	-- Automatic loading of the nav mesh
+	if (not IsUsingNavmesh()) then 
+		UseNavmesh(true);
+		return; 
+	end
+	if (not LoadNavmesh()) then 
+		self.message = "Make sure you have mmaps-files...";
+		return;
+	end
+	if (GetLoadNavmeshProgress() ~= 1) then
+		self.message = "Loading the nav mesh... ";
+		return; 
+	end
+
 	-- auto unstuck feature
-	if (self.useUnStuck) then
+	if (self.useUnStuck) and (IsMoving()) then
 		if (not script_unstuck:pathClearAuto(2)) then
 			self.message = script_unstuck.message;
 			return true;
@@ -180,28 +195,9 @@ function script_follow:run()
 
 	localObj = GetLocalPlayer();
 
-	if(GetTimeEX() > self.timer) then
-		self.timer = GetTimeEX() + self.tickRate;
-
 		-- Wait out the wait-timer and/or casting or channeling
-		if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then
+		if (self.timer > GetTimeEX() or IsCasting() or IsChanneling()) then
 			return;
-		end
-
-		-- Automatic loading of the nav mesh
-		if (not IsUsingNavmesh()) then 
-			UseNavmesh(true);
-			return; 
-		end
-
-		if (not LoadNavmesh()) then 
-			self.message = "Make sure you have mmaps-files...";
-			return;
-		end
-		
-		if (GetLoadNavmeshProgress() ~= 1) then
-			self.message = "Loading the nav mesh... ";
-			return; 
 		end
 		
 		-- Corpse-walk if we are dead
@@ -281,7 +277,7 @@ function script_follow:run()
 			end
 				local isLoot = not IsInCombat() and not (self.lootObj == nil);
 			if (isLoot and not AreBagsFull()) then
-				script_grindEX:doLoot(localObj);
+				script_followEX:doLoot(localObj);
 				return;
 			elseif (AreBagsFull() and not hsWhenFull) then
 				self.lootObj = nil;
@@ -309,6 +305,7 @@ function script_follow:run()
 			local member = GetPartyMember(i);
 			if (not member:IsDead()) and (not localObj:IsDead()) then
 				if (script_followHealsAndBuffs:healAndBuff()) then
+					
 					self.message = "Healing/buffing the party...";
 					self.waitTimer = GetTimeEX() + 1000;
 					ClearTarget();
@@ -371,7 +368,6 @@ function script_follow:run()
 					end
 				end
 			end
-		end
 
 		if (script_follow:GetPartyLeaderObject() ~= 0) then
 			if (script_follow:GetPartyLeaderObject():GetUnitsTarget() ~= 0 and not script_follow:GetPartyLeaderObject():IsDead()) and (script_follow:GetPartyLeaderObject():GetDistance() < self.followLeaderDistance) then
@@ -453,7 +449,7 @@ function script_follow:run()
 
 		-- Follow our master
 		if (not self.skipLooting) then
-			if (self.lootObj ~= nil or self.lootObj ~= 0 or IsInCombat()) then
+			if (self.lootObj == nil or IsInCombat()) then
 				if (script_follow:GetPartyLeaderObject() ~= 0) then
 					if(script_follow:GetPartyLeaderObject():GetDistance() > self.followLeaderDistance and not script_follow:GetPartyLeaderObject():IsDead()) and (not localObj:IsDead()) then
 						local x, y, z = script_follow:GetPartyLeaderObject():GetPosition();

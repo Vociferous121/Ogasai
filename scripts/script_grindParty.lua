@@ -37,7 +37,7 @@ function script_grindParty:partyOptions()
 				end
 
 			end
-			if (self.waitForMemberDistance) and (memberDistance > 100 and not IsInCombat()) then
+			if (self.waitForMemberDistance) and (memberDistance > 100 and not IsInCombat()) and (not script_grindParty:isAttackingGroup()) then
 				if (IsMoving()) then StopMoving(); end
 				script_grind.message = 'Waiting for group members...';
 				ClearTarget();
@@ -54,6 +54,26 @@ function script_grindParty:partyOptions()
 				script_grind.message = 'Waiting for group to regen mana (25%+)...';
 				ClearTarget();
 			return true;
+			end
+		end
+	end
+return false;
+end
+
+function script_grindParty:isAttackingGroup()
+
+	local members = 0;
+	local i, typeObj = GetFirstObject();
+	local unitsInRange = 0;
+
+	for p = 1, GetNumPartyMembers()+1 do
+		members = GetPartyMember(p);
+	end
+	
+	while i ~= 0 do
+		if (typeObj == 3) and (i:GetDistance() < 60) then
+			if (i:GetUnitsTarget():GetGUID() == members:GetGUID()) then
+				return true;
 			end
 		end
 	end

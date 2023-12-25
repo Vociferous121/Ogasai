@@ -22,10 +22,6 @@ script_followHealsAndBuffs = {
 		-- based on class to reduce CPU usage it will only cast spells if you are that class...
 
 function script_followHealsAndBuffs:healAndBuff()
-
-		if(GetTimeEX() > self.timer) then
-			self.timer = GetTimeEX() + script_follow.tickRate;
-
 	
 			-- Move in range: combat script return 3
 			if (script_follow.combatError == 3) then
@@ -104,6 +100,5 @@ function script_followHealsAndBuffs:healAndBuff()
 			--		return true;
 			--	end
 			--end
-		end
-	return;
+return false;
 end
