@@ -193,10 +193,14 @@ function script_follow:run()
 		end
 	end
 
-	localObj = GetLocalPlayer();
+	if(GetTimeEX() > self.timer) then
+		self.timer = GetTimeEX() + self.tickRate;
+
+		localObj = GetLocalPlayer();
+
 
 		-- Wait out the wait-timer and/or casting or channeling
-		if (self.timer > GetTimeEX() or IsCasting() or IsChanneling()) then
+		if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then
 			return;
 		end
 		
@@ -447,30 +451,6 @@ function script_follow:run()
 			return;
 		end	
 
-		-- Follow our master
-		if (not self.skipLooting) then
-			if (self.lootObj == nil or IsInCombat()) then
-				if (script_follow:GetPartyLeaderObject() ~= 0) then
-					if(script_follow:GetPartyLeaderObject():GetDistance() > self.followLeaderDistance and not script_follow:GetPartyLeaderObject():IsDead()) and (not localObj:IsDead()) then
-						local x, y, z = script_follow:GetPartyLeaderObject():GetPosition();
-						self.message = "Following Party Leader...";
-						script_navEX:moveToTarget(GetLocalPlayer(), x, y, z);
-						self.waitTimer = GetTimeEX() + 300;
-						return;
-					end
-				end
-			end
-		elseif (self.skipLooting) then
-			if (script_follow:GetPartyLeaderObject() ~= 0) then
-				if(script_follow:GetPartyLeaderObject():GetDistance() > self.followLeaderDistance and not script_follow:GetPartyLeaderObject():IsDead()) and (not localObj:IsDead()) then
-					local x, y, z = script_follow:GetPartyLeaderObject():GetPosition();
-					self.message = "Following Party Leader...";
-					script_navEX:moveToTarget(GetLocalPlayer(), x, y, z);
-					self.waitTimer = GetTimeEX() + 300;
-					return;
-				end
-			end
-		end
 		-- Healer check: heal/buff the party
 		for i = 1, GetNumPartyMembers()+1 do
 			local member = GetPartyMember(i);
@@ -480,6 +460,34 @@ function script_follow:run()
 					self.waitTimer = GetTimeEX() + 1000;
 					ClearTarget();
 					return;
+				end
+			end
+		end
+	end -- set wait timer tick rate
+
+	-- Follow our master
+		if (not self.skipLooting) then
+			if (self.lootObj == nil or IsInCombat()) then
+				if (script_follow:GetPartyLeaderObject() ~= 0) then
+					if(script_follow:GetPartyLeaderObject():GetDistance() > self.followLeaderDistance and not script_follow:GetPartyLeaderObject():IsDead()) and (not localObj:IsDead()) then
+						local x, y, z = script_follow:GetPartyLeaderObject():GetPosition();
+						if (script_navEX:moveToTarget(GetLocalPlayer(), x, y, z)) then
+							self.message = "Following Party Leader...";
+							self.timer = GetTimeEX() + 300;
+							return true;
+						end
+					end
+				end
+			end
+		elseif (self.skipLooting) then
+			if (script_follow:GetPartyLeaderObject() ~= 0) then
+				if(script_follow:GetPartyLeaderObject():GetDistance() > self.followLeaderDistance and not script_follow:GetPartyLeaderObject():IsDead()) and (not localObj:IsDead()) then
+					local x, y, z = script_follow:GetPartyLeaderObject():GetPosition();
+					if (script_navEX:moveToTarget(GetLocalPlayer(), x, y, z)) then
+						self.message = "Following Party Leader...";
+						self.timer = GetTimeEX() + 300;
+						return true;
+					end
 				end
 			end
 		end

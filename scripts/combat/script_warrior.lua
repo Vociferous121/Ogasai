@@ -453,7 +453,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 					if (targetObj:GetDistance() <= self.meleeDistance) then
 						CastSpellByName('Heroic Strike', targetObj);
 						targetObj:FaceTarget();
-						return 0;
+						return 3;
 					end
 				targetObj:FaceTarget();
 				end 

@@ -63,6 +63,11 @@ function script_priestFollowerHeals:HealsAndBuffs()
 			end
 		end
 
+		-- Wait out the wait-timer and/or casting or channeling
+		if (self.timer > GetTimeEX() or IsCasting() or IsChanneling()) then
+			return;
+		end
+
                 -- Dispel Magic
                 if (HasSpell("Dispel Magic")) and (localMana > 20) and (GetNumPartyMembers() >= 1) then 
                     if (partyMember:HasDebuff("Sleep")) or (partyMember:HasDebuff("Druid's Slumber")) or (partyMember:HasDebuff("Terrify")) or (leaderObj:HasDebuff("Frost Nova")) or 
@@ -174,7 +179,7 @@ function script_priestFollowerHeals:HealsAndBuffs()
                             return true;
                         end -- move to member
                         if (CastHeal("Greater Heal", partyMember)) then
-                            self.timer = GetTimeEX() + 5500;
+                            self.timer = GetTimeEX() + 2000;
                             return true;
                         end
                     end
