@@ -15,6 +15,28 @@ script_followHealsAndBuffs = {
 
 }
 
+
+function getPartyMembers()
+	for i = 1, GetNumPartyMembers()+1 do
+
+			local partyMember = GetPartyMember(i);
+
+		if (i == GetNumPartyMembers()+1) then
+			partyMember = GetLocalPlayer();
+		end
+
+			local localMana = GetLocalPlayer():GetManaPercentage();
+			local localEnergy = GetLocalPlayer():GetEnergyPercentage();
+			local partyMemberHP = partyMember:GetHealthPercentage();
+
+		if (partyMemberHP > 0) and (localMana > 1 or localEnergy > 1) then
+				local partyMemberDistance = partyMember:GetDistance();
+				leaderObj = GetPartyMember(GetPartyLeaderIndex());
+				local localHealth = GetLocalPlayer():GetHealthPercentage();
+		end
+	end
+end
+
 		-- separated these files due to a limitation of file sizes.
 	
 		-- this is just the function to call heals and buffs based on class
@@ -47,7 +69,7 @@ function script_followHealsAndBuffs:healAndBuff()
 				end	
 			end
 
-			-- mage heals and buffs
+			-- mage buffs
 			if (class == 'Mage') then
 				if (script_mageFollowerHeals:HealsAndBuffs()) then
 					return true;
@@ -69,28 +91,28 @@ function script_followHealsAndBuffs:healAndBuff()
 				end
 			end
 
-			-- hunter heals and buffs
+			-- hunter buffs
 			--if (class == 'Hunter') then
 			--	if (script_hunterFollowerHeals:HealsAndBuffs()) then
 			--		return true;
 			--	end
 			--end
 
-			-- warlock heals and buffs
+			-- warlock buffs
 			--if (class == 'Warlock') then
 			--	if (script_warlockFollowerHeals:HealsAndBuffs()) then
 			--		return true;
 			--	end
 			--end
 
-			-- rogue heals and buffs
+			-- rogue buffs??
 			--if (class == 'Rogue') then
 			--	if (script_rogueFollowerHeals:HealsAndBuffs()) then
 			--		return true;
 			--	end
 			--end
 
-			-- warrior heals and buffs
+			-- warrior heals... and buffs
 			--if (class == 'Warrior') then
 			--	if (script_warriorFollowerHeals:HealsAndBuffs()) then
 			--		return true;

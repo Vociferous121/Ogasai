@@ -2,6 +2,29 @@ script_followEX2 = {
 
 }
 
+
+function script_followEX2:setup()
+
+	local class = UnitClass('player');
+	
+	if class == "Mage" then
+		script_follow.assistInCombat = true;
+	end
+	if class == "Warlock" then
+		script_follow.assistInComat = true;
+	end
+	if class == "Rogue" then
+		script_follow.assistInCombat = true;
+	end
+	if class == "Warrior" then
+		script_follow.assistInCombat = true;
+	end
+	if class == "Hunter" then
+		script_follow.assistInCombat = true;
+	end
+
+end
+
 function script_followEX2:enemiesAttackingUs() -- returns number of enemies attacking us
 		local unitsAttackingUs = 0; 
 		local currentObj, typeObj = GetFirstObject(); 

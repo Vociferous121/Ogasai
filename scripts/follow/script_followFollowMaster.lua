@@ -17,6 +17,7 @@ function script_followFollowMaster:run()
 						end
 						if script_follow.test then
 						Move(x, y, z);
+						script_follow.timer = GetTimeEX() + 300;
 						end
 					end
 				end
@@ -31,6 +32,7 @@ function script_followFollowMaster:run()
 					end
 					if script_follow.test then
 					Move(x, y, z);
+					script_follow.timer = GetTimeEX() + 300;
 					end
 				end
 			end

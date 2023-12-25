@@ -1,6 +1,7 @@
 script_mageFollowerHeals = {
 
 	timer = GetTimeEX(),
+	waitTimer = GetTimeEX(),
 
 }
 
@@ -9,6 +10,12 @@ function script_mageFollowerHeals:HealsAndBuffs()
 	if (not IsStanding()) then 
 		StopMoving();
 	end
+
+	-- Wait out the wait-timer and/or casting or channeling
+	if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then
+		return;
+	end
+
 	if(GetTimeEX() > self.timer) then
 		self.timer = GetTimeEX() + script_follow.tickRate;
 
@@ -34,20 +41,20 @@ function script_mageFollowerHeals:HealsAndBuffs()
 		-- Move in range: combat script return 3
 		if (script_follow.combatError == 3) then
 			script_follow.message = "Moving to target...";
-			script_follow:moveInLineOfSight(partyMember);		
+			script_followMoveToMember:moveInLineOfSight(partyMember);		
 		return;
 		end
 			
 		-- Move in line of sight and in range of the party member
 		if (partyMember:GetDistance() > 40) or (not partyMember:IsInLineOfSight()) then
-			if (script_follow:moveInLineOfSight(partyMember)) then
+			if (script_followMoveToMember:moveInLineOfSight(partyMember)) then
 			return true; 
 			end
 		end
 
 		-- Arcane Intellect
 		if (HasSpell("Arcane Intellect")) and (localMana > 40) and (not partyMember:HasBuff("Arcane Intellect")) then
-			if (script_follow:moveInLineOfSight(partyMember)) then
+			if (script_followMoveToMember:moveInLineOfSight(partyMember)) then
 				return true;
 			end
 			if (Buff("Arcane Intellect", partyMember)) then
@@ -55,7 +62,18 @@ function script_mageFollowerHeals:HealsAndBuffs()
 				return true;
 			end
 		end
+
+		-- dampen magic
+		if (HasSpell("Dampen Magic")) and (script_mage.useDampenMage) and (localMana >= 40) then
+			if (script_followMoveToMember:moveInLineOfSight(partyMember)) then
+				return true;
+			end
+			if (Buff("Dampen Magic", partyMember)) then
+				self.waitTimer = GetTimeEX() + 1500;
+				return true;
+			end
+		end
 	end
 	end
-return;
+return false;
 end

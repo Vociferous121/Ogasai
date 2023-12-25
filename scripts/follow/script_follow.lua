@@ -1,5 +1,4 @@
 script_follow = {
-
 	test = false, -- move
 	useMount = false,
 	disMountRange = 32,
@@ -50,6 +49,7 @@ script_follow = {
 	menuLoaded = include("scripts\\follow\\script_followMenu.lua"),
 	extraFunctions = include("scripts\\follow\\script_followEX.lua"),
 	followMasterLoaded = include("scripts\\follow\\script_followFollowMaster.lua"),
+
 }
 
 function script_follow:window()
@@ -61,31 +61,11 @@ function script_follow:window()
 	end
 end
 
-function getPartyMembers()
-	for i = 1, GetNumPartyMembers()+1 do
-
-			local partyMember = GetPartyMember(i);
-
-		if (i == GetNumPartyMembers()+1) then
-			partyMember = GetLocalPlayer();
-		end
-
-			local localMana = GetLocalPlayer():GetManaPercentage();
-			local localEnergy = GetLocalPlayer():GetEnergyPercentage();
-			local partyMemberHP = partyMember:GetHealthPercentage();
-
-		if (partyMemberHP > 0) and (localMana > 1 or localEnergy > 1) then
-				local partyMemberDistance = partyMember:GetDistance();
-				leaderObj = GetPartyMember(GetPartyLeaderIndex());
-				local localHealth = GetLocalPlayer():GetHealthPercentage();
-		end
-	end
-end
-
 function script_follow:setup()
 	self.lootCheck['timer'] = 0;
 	self.lootCheck['target'] = 0;
 	script_helper:setup();
+	script_followEX2:setup();
 	self.isSetup = true;
 	ClearTarget();
 end
@@ -343,7 +323,7 @@ function script_follow:run()
 		end
 
 		if (script_follow:GetPartyLeaderObject() ~= 0) then
-			if (script_follow:GetPartyLeaderObject():GetUnitsTarget() ~= 0 and not script_follow:GetPartyLeaderObject():IsDead()) and (script_follow:GetPartyLeaderObject():GetDistance() < self.followLeaderDistance) then
+			if (script_follow:GetPartyLeaderObject():GetUnitsTarget() ~= 0 and not script_follow:GetPartyLeaderObject():IsDead()) and (script_follow:GetPartyLeaderObject():GetDistance() < 45) then
 				if (script_follow:GetPartyLeaderObject():GetUnitsTarget():GetHealthPercentage() <= self.dpsHP and self.assistInCombat) then
 					self.enemyObj = script_follow:GetPartyLeaderObject():GetUnitsTarget();
 					script_followMoveToMember:moveInLineOfSight();
