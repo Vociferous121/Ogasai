@@ -18,6 +18,8 @@ script_priestFollowerHeals = {
 	clickFlashHeal = true,
 	clickGreaterHeal = true,
 	clickHeal = true,
+	waitTimer = GetTimeEX(),
+	timer = GetTimeEX(),
     
 }
 
@@ -30,8 +32,8 @@ function script_priestFollowerHeals:HealsAndBuffs()
 		StopMoving();
 	end
 
-	local waitTimer = script_follow.waitTimer;
-	local timer = script_follow.timer;
+	local waitTimer = self.waitTimer
+	local timer = self.timer;
 
 
 	-- Wait out the wait-timer and/or casting or channeling

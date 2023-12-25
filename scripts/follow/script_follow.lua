@@ -392,6 +392,8 @@ function script_follow:run()
 	--	return;
 	--end
 
-	script_followFollowMaster:run();
+	if (script_followFollowMaster:run()) then
+		return true;
+	end
 
 end -- end of function
