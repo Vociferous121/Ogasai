@@ -39,12 +39,8 @@ function script_followMenu:menu()
 	
 	if (CollapsingHeader("Group Options")) then
 
-		-- follower script tick rates
+		wasClicked, script_followDoVendor.useVendor = Checkbox("Use Vendoring (DOES NOT WORK)", script_followDoVendor.useVendor);
 
-		Text("Reaction Time (Tick Rate)");
-		script_follow.tickRate = SliderInt("Tick Rate", 200, 1500, script_follow.tickRate);
-		
-	Separator();
 
 			Text("Assist in combat? ")
 			
@@ -241,6 +237,10 @@ function script_followMenu:menu()
 		wasClicked, script_shamanFollowerHeals.useStoneskinTotem = Checkbox("Stoneskin", script_shamanFollowerHeals.useStoneskinTotem);
 		wasClicked, script_shamanFollowerHeals.useHealingStreamTotem = Checkbox("Healing Stream", script_shamanFollowerHeals.useHealingStreamTotem);
 		wasClicked, script_shamanFollowerHeals.useManaSpringTotem = Checkbox("Mana Spring", script_shamanFollowerHeals.useManaSpringTotem);
+	end
+
+	if (CollapsingHeader("Vendor Options")) then
+		script_vendorMenu:menu();
 	end
 
 	if (CollapsingHeader("Display Options")) then

@@ -5,6 +5,10 @@ script_followEX2 = {
 
 function script_followEX2:setup()
 
+	vendorDB:setup();
+	vendorDB:loadDBVendors();
+	script_vendor:setup();
+
 	local class = UnitClass('player');
 	
 	if class == "Mage" then

@@ -41,6 +41,10 @@ script_follow = {
 	checkDebuffsLoaded = include("scripts\\script_checkDebuffs.lua"),
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
 	grindFunctions = include("scripts\\script_grind.lua"),
+	vendorsLoaded = include("scripts\\script_vendor.lua"),
+	vendormenu = include("scripts\\script_vendorMenu.lua"),
+
+	doVendorStuff = include("scripts\\follow\\script_followDoVendor.lua"),
 
 	-- follow folder
 	healsLoaded = include("scripts\\follow\\script_followHealsAndBuffs.lua"),
@@ -156,6 +160,27 @@ function script_follow:run()
 		-- Wait out the wait-timer and/or casting or channeling
 		if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then
 			return;
+		end
+		
+		-- If bags are full
+		if (script_followDoVendor.useVendor) and (AreBagsFull() and not IsInCombat()) then
+			--if close to vendor
+				if (script_vendor:sell()) then
+					self.waitTimer = GetTimeEX() + 500;
+					if (CanMerchantRepair()) then
+						RepairAllItems(); 
+						-- sell
+						script_vendorMenu:sellLogic();
+						return true;
+					else
+						script_vendorMenu:sellLogic();
+						return true;
+					end
+				return true;
+				end
+					
+				
+			--end
 		end
 
 		-- Corpse-walk if we are dead
