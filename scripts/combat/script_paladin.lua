@@ -122,10 +122,7 @@ function script_paladin:run(targetGUID)
 	end	
 
 	if (script_paladinEX:healsAndBuffs(localObj, localMana)) then
-		if (not IsInCombat()) then
-			ClearTarget();
-		end
-		return;
+		return true;
 	end
 	-- Check: Do nothing if we are channeling or casting or wait timer
 	if (IsChanneling()) or (IsCasting()) or (self.waitTimer > GetTimeEX()) then
@@ -204,7 +201,7 @@ function script_paladin:run(targetGUID)
 			 end
 
 			if (script_paladinEX:healsAndBuffs(localObj, localMana)) then
-				return;
+				return true;
 			end
 
 			-- Check move into melee range
@@ -267,7 +264,7 @@ function script_paladin:run(targetGUID)
 
 			if (not targetObj:IsFleeing()) and (localMana > 8) then
 				if (script_paladinEX:healsAndBuffs(localObj, localMana)) then
-					return;
+					return true;
 				end
 			end
 
@@ -294,7 +291,7 @@ function script_paladin:run(targetGUID)
 			end
 
 			if (script_paladinEX:healsAndBuffs()) then
-				return;
+				return true;
 			end
 
 			-- dwarf stone form racial
@@ -339,7 +336,7 @@ function script_paladin:run(targetGUID)
 				
 				if (not targetObj:IsFleeing()) and (localMana > 8) then
 					if (script_paladinEX:healsAndBuffs(localObj, localMana)) then
-						return;
+						return true;
 					end
 				end
 					
@@ -505,11 +502,7 @@ function script_paladin:rest()
 	-- heal before eating
 	if (IsStanding()) and (not IsEating()) and (not IsDrinking()) and (not IsMoving()) and (not IsInCombat()) and (localMana > 8) then
 		if (script_paladinEX:healsAndBuffs(localObj, localMana)) then
-				ClearTarget();
-			if (IsMoving()) then
-				StopMoving();
-			end
-		return;
+			return true;
 		end
 	end
 

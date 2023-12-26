@@ -9,8 +9,6 @@ function script_paladinEX:healsAndBuffs(localObj, localMana)
 	local localHealth = GetLocalPlayer():GetHealthPercentage();
 	local localObj = GetLocalPlayer();
 
-	script_grind.tickRate = 1500;
-
 	if (not IsMounted()) then
 		if (not IsDrinking()) and (not IsEating()) then
 			if (not IsStanding()) then

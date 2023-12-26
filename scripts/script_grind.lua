@@ -130,6 +130,8 @@ script_grind = {
 	currentMoney = GetMoney(),
 	moneyObtainedCount = 0,
 	lastAvoidTarget = GetLocalPlayer(),
+	paranoiaCounter = 0,
+	usedParanoiaCounter = false,
 }
 
 function script_grind:setup()
@@ -465,6 +467,11 @@ function script_grind:run()
 	if (not script_paranoia.paranoiaUsed) then
 		script_paranoiaCheck:playersWithinRange2(self.paranoidRange);
 	end
+	if (script_paranoia.paranoiaUsed) and (not self.usedParanoiaCounter) then
+		self.paranoiaCounter = self.paranoiaCounter + 1
+		self.usedParanoiaCounter = true;
+	end
+
 
 	-- do paranoia
 	if (not IsLooting()) and (not IsInCombat()) and (not IsMounted()) and (not IsCasting()) and (not IsChanneling()) and (script_grind.playerName ~= "Unknown") and (script_grind.otherName ~= "Unknown") then	
@@ -511,6 +518,7 @@ function script_grind:run()
 			script_paranoia.currentTime = 0;
 			script_grind.currentTime2 = GetTimeEX() / 1000;
 			script_paranoia.paranoiaUsed = false;
+			self.usedParanoiaCounter = false;
 			script_paranoia.doEmote = true;
 			script_paranoia.didEmote = false;
 			self.useAnotherVar = false;
@@ -1394,7 +1402,9 @@ function script_grind:doLoot(localObj)
 	local dist = self.lootObj:GetDistance();
 	local localObj = GetLocalPlayer();
 
-		script_grind.tickRate = 135;
+		if (not self.adjustTickRate) then
+			script_grind.tickRate = 135;
+		end
 
 
 		if (not self.timerSet) and (not IsEating()) and (not IsDrinking()) and (IsStanding()) and (not IsInCombat()) then

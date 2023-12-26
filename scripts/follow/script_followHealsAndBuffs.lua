@@ -17,17 +17,13 @@ script_followHealsAndBuffs = {
 
 
 function getPartyMembers()
-	for i = 1, GetNumPartyMembers()+1 do
+	for i = 1, GetNumPartyMembers() do
 
-			local partyMember = GetPartyMember(i);
+		local partyMember = GetPartyMember(i);
 
-		if (i == GetNumPartyMembers()+1) then
-			partyMember = GetLocalPlayer();
-		end
-
-			local localMana = GetLocalPlayer():GetManaPercentage();
-			local localEnergy = GetLocalPlayer():GetEnergyPercentage();
-			local partyMemberHP = partyMember:GetHealthPercentage();
+		local localMana = GetLocalPlayer():GetManaPercentage();
+		local localEnergy = GetLocalPlayer():GetEnergyPercentage();
+		local partyMemberHP = partyMember:GetHealthPercentage();
 
 		if (partyMemberHP > 0) and (localMana > 1 or localEnergy > 1) then
 				local partyMemberDistance = partyMember:GetDistance();
@@ -53,6 +49,7 @@ function script_followHealsAndBuffs:healAndBuff()
 				return;
 				end
 			end
+
 			local class = UnitClass('player');
 
 			-- shaman heals and buffs

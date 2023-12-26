@@ -44,5 +44,5 @@ function script_counterMenu:menu()
 			Text("Money Obtained : " ..moneyObtainedCountGold.. " Gold " ..test.. " Silver");
 		end
 
-	--Text("Paranoia Used : nothing here yet!");
+		Text("Paranoia Used : " ..script_grind.paranoiaCounter);
 end

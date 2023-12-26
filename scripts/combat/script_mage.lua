@@ -28,7 +28,7 @@ script_mage = {
 	coneOfColdMana = 35,	-- use cone of cold above this mana %
 	coneOfColdHealth = 15,	-- use cone of cold above this health %
 	useWandMana = 10,	-- use wand below this mana %
-	useWandHealth = 20,	-- use wand below this target health %
+	useWandHealth = 10,	-- use wand below this target health %
 	manaShieldHealth = 80,	-- use mana shield below this health %
 	manaShieldMana = 20,	-- use mana shield above this mana %
 	useFrostWard = false,	-- use frost ward yes/no
@@ -507,7 +507,6 @@ function script_mage:run(targetGUID)
 						if (CastSpellByName("Blink")) then
 							targetObj:FaceTarget();
 							self.waitTimer = GetTimeEX() + 500;
-							return 0;
 						end
 					end
 				end
@@ -723,6 +722,11 @@ function script_mage:run(targetGUID)
 				end	
 			end
 
+			if (script_grind.skipHardPull) then
+				if (script_checkAdds:checkAdds()) then
+					return true;
+				end
+			end
 			
 			if (targetHealth > 10 or localHealth < 35) and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (not localObj:HasBuff('Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) and (not IsSwimming()) and (targetObj:IsInLineOfSight()) then
 				if (script_mage:runBackwards(targetObj, 8)) then -- Moves if the target is closer than 7 yards

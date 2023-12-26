@@ -2,27 +2,33 @@ script_checkAdds = {
 
 	addsRange = 35,	-- range circles from from adds
 	checkAddsRange = 5,	-- safe margin "runner script" move from adds
-	closestEnemy = 0,
-	intersectEnemy = nil,
+
+		-- these are global so we can rerun object manager from om script
+	closestEnemy = 0,	-- set closest enemy
+	intersectEnemy = nil,	-- set intersect enemy
 }
 
 -- requires target from grind script 'enemyObj'
 function script_checkAdds:checkAdds()
 
-		if (script_checkAdds:avoidToAggro(self.checkAddsRange)) then
+	-- check if there are adds and avoid those adds. call this to run avoid adds
+	if (script_checkAdds:avoidToAggro(self.checkAddsRange)) then
 
-			if (not script_unstuck:pathClearAuto(2)) then
-				script_unstuck:unstuck();
-				return true;
-			end
-
-			if (GetPet() ~= 0) then
-				PetFollow();
-			end
-			self.message = "Moving away from adds...";
-	
-		return true;
+		-- use unstuck script
+		if (not script_unstuck:pathClearAuto(2)) then
+			script_unstuck:unstuck();
+			return true;
 		end
+
+		-- if we have a pet then pet follow
+		if (GetPet() ~= 0) then
+			PetFollow();
+		end
+
+		self.message = "Moving away from adds...";
+	
+	return true;
+	end
 
 return false;
 end
@@ -45,6 +51,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 	local closestTargetDist = 999;
 	local quality = 250;
 
+	-- get table of move to points around targets
 	while theta <= 2*PI do
 		point = point + 1 -- get next table slot, starts at 0 
 		points[point] = { x = pointX + radius*cos(theta), y = pointY + radius*sin(theta) }
@@ -55,18 +62,23 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 	local closestPointToDest = nil;
 	local bestDestDist = 10000;
 
+	-- get points
 	for i = 1, point do
 		local firstPoint = i
 		local secondPoint = i + 1
 
+		-- get next point
 		if firstPoint == point then
 			secondPoint = 1
 		end
 
+		-- we if have move points then do
 		if points[firstPoint] and points[secondPoint] then
 
+			-- my distance
 			local myX, myY, myZ = GetLocalPlayer():GetPosition();
 
+			-- target distance based on move to points
 			local dist = math.sqrt((points[secondPoint].x-myX)^2 + (points[secondPoint].y-myY)^2);
 
 			-- Set closest theta point to move to
@@ -80,6 +92,8 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 				local lastNodeIndex = GetPathSize(5);
 				local destX, destY, destZ = GetPathPositionAtIndex(5, lastNodeIndex); 
 				local destDist = math.sqrt((points[secondPoint].x-destX)^2 + (points[secondPoint].y-destY)^2);
+				
+				-- get closest point to us
 				if (destDist < bestDestDist) then
 					bestDestDist = destDist;
 					closestPointToDest = i;
