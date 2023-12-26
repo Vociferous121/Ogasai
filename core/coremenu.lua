@@ -74,7 +74,7 @@ function coremenu:draw()
 		LoadScript("Grinder", "scripts\\script_grind.lua");
 		AddScriptToMode("Grinder", "script_grind");
 
-		LoadScript("Follower", "scripts\\script_follow.lua");
+		LoadScript("Follower", "scripts\\follow\\script_follow.lua");
 		AddScriptToMode("Follower", "script_follow");
 
 		LoadScript("Rotation", "scripts\\script_rotation.lua");

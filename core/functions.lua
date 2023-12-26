@@ -75,6 +75,15 @@ function IsAquaticForm()
 return false;
 end
 
+function CastGhostWolf()
+
+	if (HasSpell("Ghost Wolf")) and (not GetLocalPlayer():HasBuff("Ghost Wolf")) and (not IsSpellOnCD("Ghost Wolf")) then
+		CastSpellByName("Ghost Wolf", GetLocalPlayer());
+		return true;
+	end
+return false;
+end
+
 -- shaman has ghost wolf form
 function IsGhostWolf()
 	
@@ -119,7 +128,7 @@ function CastStealth()
 	if (HasSpell("Stealth")) or (HasSpell("Prowl")) then
 		if (HasSpell("Stealth")) then
 			if (not IsSpellOnCD("Stealth")) then
-				CastSpellByName("Stealth", localObj);
+				CastSpellByName("Stealth", GetLocalPlayer());
 				return true;
 			end
 		elseif (HasSpell("Prowl")) then
@@ -128,8 +137,8 @@ function CastStealth()
 					CastSpellByName("Cat Form");
 					return true;
 				end
-			elseif (not IsSpellOnCD("Prowl")) and (GetLocalPlayer:HasBuff("Cat Form")) then
-				CastSpellByName("Prowl", localObj);
+			elseif (not IsSpellOnCD("Prowl")) and (IsCatForm()) then
+				CastSpellByName("Prowl", GetLocalPlayer());
 				return true;
 			end
 		end
