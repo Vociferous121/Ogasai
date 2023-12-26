@@ -24,7 +24,7 @@ function coremenu:draw()
 		include("core\\core.lua");
 		include("core\\functions.lua");
 		include("core\\racialSpells.lua");
-        
+
 		-- Load DBs
 		include("scripts\\db\\vendorDB.lua");
 		include("scripts\\db\\hotspotDB.lua");

@@ -705,7 +705,6 @@ function script_grind:run()
 				self.blaclistLootTime = GetTimeEX();
 				self.newTargetTime = GetTimeEX(); -- reset time if we rest
 
-
 			-- blacklist the target if we had it for a long time and hp is high
 			elseif (((GetTimeEX()-self.newTargetTime)/1000) > self.blacklistTime and self.enemyObj:GetHealthPercentage() > 92) then 
 				script_grind:addTargetToHardBlacklist(self.enemyObj:GetGUID());
@@ -1828,7 +1827,9 @@ function script_grind:runRest()
 		self.message = "Resting...";
 
 		-- set new target time
-		self.newTargetTime = GetTimeEX();
+		if (self.enemyObj == nil or self.enemyObj == 0) then
+			self.newTargetTime = GetTimeEX();
+		end
 
 		-- Stop moving
 		if (IsMoving()) and (not localObj:IsMovementDisabed()) then

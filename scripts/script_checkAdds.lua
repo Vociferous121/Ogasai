@@ -261,7 +261,7 @@ function script_checkAdds:avoidToAggro(safeMargin)
 		-- avoid the closest mob
 			local range = self.addsRange;
 						
-		if (self.closestEnemy ~= 0) and (not HasDisabledMovement()) then
+		if (self.closestEnemy ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) then
 
 			local xT, yT, zT = self.closestEnemy:GetPosition();
 
@@ -489,7 +489,7 @@ function script_checkAdds:avoidToAggro2(safeMargin)
 		-- avoid the closest mob
 			local range = self.addsRange;
 						
-		if (self.closestEnemy ~= 0) and (not HasDisabledMovement()) and (closestEnemy:GetDistance() < self.addsRange + 2) then
+		if (self.closestEnemy ~= 0) and (not script_checkDebuff:hasDisabledMovement()) and (closestEnemy:GetDistance() < self.addsRange + 2) then
 
 			local xT, yT, zT = self.closestEnemy:GetPosition();
 
