@@ -493,6 +493,8 @@ function script_mage:run(targetGUID)
 			-- blink on movement stop debuffs
 			if (HasSpell("Blink")) and (not IsSpellOnCD("Blink")) then
 				if (script_checkDebuffs:hasDisabledMovement()) then
+					local a = targetObj:GetAngle();
+					FaceAngle(a);
 					if (CastSpellByName("Blink")) then
 						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 500;
@@ -505,6 +507,8 @@ function script_mage:run(targetGUID)
 			if (self.useBlink) then
 				if (HasSpell("Blink")) and (not IsSpellOnCD("Blink")) and (IsSpellOnCD("Frost Nova") or IsSpellOnCD("Cone of Cold")) and (targetObj:GetDistance() < 9) and (targetHealth > self.useWandHealth + 10) then
 					if (not targetObj:HasDebuff("Frostbite")) and (not targetObj:HasDebuff("Frost Nova")) and (not targetObj:HasDebuff("Blast Wave")) and (targetHealth > 10) then
+						local a = targetObj:GetAngle();
+						FaceAngle(a);
 						if (CastSpellByName("Blink")) then
 							targetObj:FaceTarget();
 							self.waitTimer = GetTimeEX() + 500;
@@ -697,6 +701,7 @@ function script_mage:run(targetGUID)
 			--Cone of Cold
 			if (self.useConeOfCold) and (HasSpell('Cone of Cold')) and (localMana >= self.coneOfColdMana) and (targetHealth >= self.coneOfColdHealth) then
 				if (not self.addPolymorphed) and (targetObj:GetDistance() < 9) and (not targetObj:HasDebuff("Frostbite")) and (not targetObj:HasDebuff("Frost Nova")) then
+						targetObj:FaceTarget();
 					if (script_mage:coneOfCold('Cone of Cold')) then
 						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 1500;

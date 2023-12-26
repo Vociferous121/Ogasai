@@ -695,7 +695,7 @@ function script_grind:run()
 		-- blacklist target time
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
 			-- Fix bug, when not targeting correctly
-			if (self.lastTarget ~= self.enemyObj:GetGUID()) then
+			if (self.lastTarget ~= self.enemyObj:GetGUID()) and (not IsMoving()) then
 				self.newTargetTime = GetTimeEX() + 200;
 				ClearTarget();
 			elseif (self.lastTarget == self.enemyObj:GetGUID() and not IsStanding() and not IsInCombat()) then
