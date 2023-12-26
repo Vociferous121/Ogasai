@@ -382,34 +382,36 @@ function script_helper:deleteItem()
 end
 
 function script_helper:useMount()
-	if (HasSpell("Summon Dreadsteed")) then
-		CastSpellByName("Summon Dreadsteed");
-		return true;
-	end
+	if (not HasForm()) then
+		if (HasSpell("Summon Dreadsteed")) then
+			CastSpellByName("Summon Dreadsteed");
+			return true;
+		end
+		
+		if (HasSpell("Summon Felsteed")) then
+			CastSpellByName("Summon Felsteed");
+			return true;
+		end
 	
-	if (HasSpell("Summon Felsteed")) then
-		CastSpellByName("Summon Felsteed");
-		return true;
-	end
-
-	if (HasSpell("Summon Charger")) then
-		CastSpellByName("Summon Charger");
-		return true;
-	end
-
-	if (HasSpell("Summon Warhorse")) then
-		CastSpellByName("Summon Warhorse");
-		return true;
-	end
-
-	for i=0,self.numMounts do
-		if (HasItem(self.myMounts[i])) then
-			if (UseItem(self.myMounts[i])) then
-				return true;
+		if (HasSpell("Summon Charger")) then
+			CastSpellByName("Summon Charger");
+			return true;
+		end
+	
+		if (HasSpell("Summon Warhorse")) then
+			CastSpellByName("Summon Warhorse");
+			return true;
+		end
+	
+		for i=0,self.numMounts do
+			if (HasItem(self.myMounts[i])) then
+				if (UseItem(self.myMounts[i])) then
+					return true;
+				end
 			end
 		end
 	end
-	return false;
+return false;
 end
 
 function script_helper:mountUp()

@@ -11,20 +11,20 @@ function script_paranoiaEX:checkStealth()
 	local localMana = localObj:GetManaPercentage();
 
 	-- rogue stealth
-	if (not IsMounted()) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not IsStealth()) and (not IsInCombat()) and (script_paranoia.currentTime < script_grind.currentTime2 - 190) then
+	if (not IsMounted() and not script_grind.useMount) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not IsStealth()) and (not IsInCombat()) and (script_paranoia.currentTime < script_grind.currentTime2 - 190) then
 		script_grind:setWaitTimer(1500);
 		CastSpellByName("Stealth");
 	end
 
 	-- druid cat form
-	if (not IsMounted()) and (not IsCatForm()) and (HasSpell("Prowl")) and (localMana >= script_druid.shapeshiftMana) then
+	if (not IsMounted() and not script_grind.useMount) and (not HasForm()) and (HasSpell("Prowl")) and (localMana >= script_druid.shapeshiftMana) then
 
 		script_grind:setWaitTimer(1500);
 		CastSpellByName("Cat Form");
 	end
 
 	-- druid cat form prowl
-	if (not IsMounted()) and (HasSpell("Cat Form")) and (IsCatForm()) and (HasSpell("Prowl")) and (not IsStealth()) and (not IsSpellOnCD("Prowl")) and (not IsInCombat()) and (script_paranoia.currentTime < script_grind.currentTime2 - 190) then
+	if (not IsMounted() and not script_grind.useMount) and (HasSpell("Cat Form")) and (IsCatForm()) and (HasSpell("Prowl")) and (not IsStealth()) and (not IsSpellOnCD("Prowl")) and (not IsInCombat()) and (script_paranoia.currentTime < script_grind.currentTime2 - 190) then
 
 		script_grind:setWaitTimer(1500);
 		CastSpellByName("Prowl");

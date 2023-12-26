@@ -113,7 +113,8 @@ function script_nav:moveToHotspot(localObj)
 		script_navEX:moveToTarget(localObj, self.currentHotSpotX, self.currentHotSpotY, self.currentHotSpotZ); 
 
 			if (not IsMounted()) or (HasSpell("Stealth")) or (HasSpell("Cat Form")) or (HasSpell("Travel Form")) or (HasSpell("Ghost Wolf")) then
-				script_paranoiaEX:checkStealth();
+				CastStealth();
+				CastGhostWolf();
 			end
 
 			return "Moving to hotspot " .. self.currentHotSpotName .. '...';

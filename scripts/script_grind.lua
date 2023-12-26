@@ -327,6 +327,11 @@ function script_grind:run()
 		script_expChecker:menu();
 	end
 
+	if (not IsUsingNavmesh()) then UseNavmesh(true);
+		self.message = "loading nav...";
+		return true;
+	end
+
 	-- logout timer
 	if (self.useLogoutTimer) then
 

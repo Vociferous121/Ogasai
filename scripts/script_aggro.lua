@@ -4,7 +4,7 @@ script_aggro = {
 	rY = 0,
 	rZ = 0,
 	rTime = 0,
-	adjustAggro = 2,	-- adjust blacklist distance range
+	adjustAggro = 3,	-- adjust blacklist distance range
 	tarDist = 0,		-- target distance checked with run away from adds range
 }
 
@@ -114,7 +114,7 @@ function script_aggro:safePullRecheck(target)
 
 	while currentObj ~= 0 do
  		if (typeObj == 3) then
-			aggro = script_checkAdds.addsRange - 10;
+			aggro = script_checkAdds.addsRange - 5;
 			cx, cy, cz = currentObj:GetPosition();
 			if (currentObj:CanAttack()) and (not currentObj:IsDead()) and (not currentObj:IsCritter()) and (GetDistance3D(tx, ty, tz, cx, cy, cz) <= aggro) then	
 				countUnitsInRange = countUnitsInRange + 1;
