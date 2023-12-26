@@ -4,6 +4,7 @@ script_debugMenu = {
 
 function script_debugMenu:menu()
 
+	-- show debug menu
 	if (CollapsingHeader("Debug Info")) then
 
 		-- debug info
@@ -60,8 +61,14 @@ function script_debugMenu:menu()
 
 		-- show grinder enemy object name and distance
 		if (script_grind.enemyObj ~= 0) and (script_grind.enemyObj ~= nil) then
+
+			-- grinder object
 			local a = script_grind.enemyObj:GetUnitName();
-			local b = math.floor(script_grind.enemyObj:GetDistance());
+
+			-- grinder object distance
+			local b = math.floor(a:GetDistance());
+
+			-- show distance
 			Text("Grinder enemyObj - " ..a.. " " ..b.. " (yds)");
 			
 		else

@@ -5,16 +5,28 @@ script_drawData = {
 -- draw monster/player/node data on screen
 
 function script_drawData:drawSavedTargetLocations()
+
+	-- for each location
 	for i = 0,script_nav.numSavedLocation-1 do
+
+		-- draw locations on screen
 		local tX, tY, onScreen = WorldToScreen(script_nav.savedLocations[i]['x'], script_nav.savedLocations[i]['y'], script_nav.savedLocations[i]['z']);
+	
+		-- if locations are on screen then show text
 		if (onScreen) then
 			DrawText('Auto Path Node', tX, tY-20, 0, 255, 255);
 			DrawText('ID: ' .. i+1, tX, tY-10, 0, 255, 255);
 			DrawText('ML: ' .. script_nav.savedLocations[i]['level'], tX, tY, 255, 255, 0);
 		end
 	end
+
+	-- if we have a hotspot
 	if (script_nav.currentHotSpotName ~= 0) then
+
+		-- draw current hotspot name
 		local tX, tY, onScreen = WorldToScreen(script_nav.currentHotSpotX , script_nav.currentHotSpotY, script_nav.currentHotSpotZ);
+
+		-- if locations are on screen then draw text
 		if (onScreen) then
 			DrawText('HOTSPOT: ' .. script_nav.currentHotSpotName, tX, tY, 0, 255, 255);
 		end
@@ -23,13 +35,25 @@ end
 
 function script_drawData:drawUnitsDataOnScreen()
 	local i, targetType = GetFirstObject();
+
+	-- run object manager
 	while i ~= 0 do
+
+		-- NPC targets
 		if (targetType == 3 and not i:IsCritter() and not i:IsDead() and i:CanAttack()) then
+			
+			-- draw NPC data
 			script_drawData:drawMonsterDataOnScreen(i);
 		end
+
+		-- player targets
 		if (targetType == 4 and not i:IsCritter() and not i:IsDead()) then
+	
+			-- draw player data
 			script_drawData:drawPlayerDataOnScreen(i);
 		end
+
+		-- get next target
 		i, targetType = GetNextObject(i);
 	end
 end
@@ -38,22 +62,39 @@ function script_drawData:drawMonsterDataOnScreen(target)
 	local player = GetLocalPlayer();
 	local distance = target:GetDistance();
 	local tX, tY, onScreen = WorldToScreen(target:GetPosition());
+
+	-- if targets on screen
 	if (onScreen) then
+	
+		-- draw creature level
 		DrawText(target:GetCreatureType() .. ' - ' .. target:GetLevel(), tX, tY-10, 255, 255, 0);
+
+		-- if target is target
 		if (GetTarget() == target) then 
+
+			-- draw text targeted
 			DrawText('(targeted)', tX, tY-20, 255, 0, 0); 
 		end
 
-		-- avoid targets
+		-- draw avoiding targets
 		if (script_grind:isTargetBlacklisted(target:GetGUID())) and (script_grind.skipHardPull)
 			and (not script_grind:isTargetHardBlacklisted(target:GetGUID())) then
+
+			-- draw text avoiding
 			DrawText("(Avoiding)", tX, tY-20, 255, 0, 0);
 		end
-		-- hard blacklisted targets
+
+		-- draw hard blacklisted targets
 		if (script_grind:isTargetHardBlacklisted(target:GetGUID())) then
+
+			-- draw text blacklisted
 			DrawText('(blacklisted)', tX, tY-20, 255, 150, 150);
 		end
+
+		-- draw unit HP
 		DrawText('HP: ' .. math.floor(target:GetHealthPercentage()) .. '%', tX, tY, 255, 0, 0);
+
+		-- draw unit distance
 		DrawText('' .. math.floor(distance) .. ' yd.', tX, tY+10, 255, 255, 255);
 	end
 end
