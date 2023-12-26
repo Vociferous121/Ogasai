@@ -695,16 +695,18 @@ function script_grind:run()
 		-- blacklist target time
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
 			-- Fix bug, when not targeting correctly
-			if (self.lastTarget ~= self.enemyObj:GetGUID()) and (not IsMoving()) then
-				self.newTargetTime = GetTimeEX() + 200;
+			if (self.lastTarget ~= self.enemyObj:GetGUID()) then
 				ClearTarget();
+				self.newTargetTime = GetTimeEX();
 			elseif (self.lastTarget == self.enemyObj:GetGUID() and not IsStanding() and not IsInCombat()) then
 				self.blaclistLootTime = GetTimeEX();
 				self.newTargetTime = GetTimeEX(); -- reset time if we rest
 			-- blacklist the target if we had it for a long time and hp is high
-			elseif (((GetTimeEX()-self.newTargetTime)/1000) > self.blacklistTime and self.enemyObj:GetHealthPercentage() > 92 and not self.enemyObj:IsInLineOfSight()) then 
+			elseif (((GetTimeEX()-self.newTargetTime)/1000) > self.blacklistTime and self.enemyObj:GetHealthPercentage() > 92) then 
 				script_grind:addTargetToHardBlacklist(self.enemyObj:GetGUID());
 				
+			elseif (self.enemyObj ~= nil and self.enemyObj ~= 0) and (IsInCombat()) then
+				self.newTargetTime = GetTimeEX();
 			end
 		end
 
@@ -942,8 +944,8 @@ function script_grind:run()
 
 		-- travel forms
 		if (not self.hotspotReached or script_vendor:getStatus() >= 1) and (not IsInCombat())
-		and (not IsMounted()) and (not IsIndoors()) and (not HasForm()) then
-			if (HasSpell("Ghost Wolf")) or (HasSpell("Travel Form")) or (self.useMount) then
+		and (not IsMounted()) and (not IsIndoors()) and (not HasForm()) and (not self.useMount) then
+			if (HasSpell("Ghost Wolf")) or (HasSpell("Travel Form")) then
 				if (IsMoving()) then
 					StopMoving();
 					return true;

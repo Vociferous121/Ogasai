@@ -21,6 +21,7 @@ script_grindMenu = {
 }
 
 function script_grindMenu:printHotspot()
+
 	--DEFAULT_CHAT_FRAME:AddMessage('Add this hotspot to your database by adding the following line in the setup-function in hotspotDB.lua:');
 	--DEFAULT_CHAT_FRAME:AddMessage('You can copy the line from logs//.txt');
 	local race, level = UnitRace("player"), GetLocalPlayer():GetLevel();
@@ -30,6 +31,7 @@ function script_grindMenu:printHotspot()
 					.. '", ' .. level .. ', ' .. level+2 .. ', ' .. hx .. ', ' .. hy .. ', ' .. hz .. ');'	
 	--DEFAULT_CHAT_FRAME:AddMessage(addString);
 	ToFile(addString);
+
 end
 
 function script_grindMenu:menu()

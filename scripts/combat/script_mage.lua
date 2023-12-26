@@ -160,24 +160,25 @@ function script_mage:runBackwards(targetObj, range)
  		local distance = targetObj:GetDistance();
  		local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
  		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
- 		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
+ 		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;
  		local moveX, moveY, moveZ = xT + xUV*10, yT + yUV*10, zT + zUV;		
  		if (distance <= range)
 			and (targetObj:IsInLineOfSight())
 			and (not script_checkDebuffs:hasDisabledMovement())
 		then 
+			if (IsMoving()) and (script_grind.jump) then
+				JumpOrAscendStart();
+				self.waitTimer = GetTimeEX() + 550;
+			end
+			local randomMove = math.random(-6, 6);		
+ 			if (script_navEX:moveToTarget(localObj, moveX, moveY+randomMove, moveZ)) then
+ 				return true;
+			end
 			if (script_grind.useUnstuck and IsMoving()) then
 				if (not script_unstuck:pathClearAuto(2)) then
 					script_unstuck:unstuck();
 					return true;
 				end
-			end
-			if (IsMoving()) and (script_grind.jump) then
-				JumpOrAscendStart();
-				self.waitTimer = GetTimeEX() + 300;
-			end
- 			if (script_navEX:moveToTarget(localObj, moveX, moveY, moveZ)) then
- 				return true;
 			end
 		return true;
 		end

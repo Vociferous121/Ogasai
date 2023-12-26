@@ -2,7 +2,8 @@ script_drawStatus = {
 
 }
 
--- draw status windows on screen
+-- draw status text and display boxes on screen
+	-- self.message follow.message grind.message etc
 
 function script_drawStatus:draw()
 	-- color
@@ -42,7 +43,7 @@ function script_drawStatus:draw()
 			DrawText(script_vendor:getMessage(), x+105, y, 0, 255, 255);
 		end
 	
-		local time = ((GetTimeEX()-script_grind.newTargetTime)/1000); 
+		local time = math.floor(((GetTimeEX()-script_grind.newTargetTime)/1000)); 
 	
 		if (script_grind.enemyObj ~= 0 and script_grind.enemyObj ~= nil and not script_grind.enemyObj:IsDead()) then
 	
