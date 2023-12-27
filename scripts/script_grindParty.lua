@@ -16,12 +16,13 @@ function script_grindParty:partyOptions()
 	local member = 0;
 	local memberDistance = 0;
 
-	for i = 1, GetNumPartyMembers()+1 do
+	for i = 1, GetNumPartyMembers() do
 
-		member = GetPartyMember(i);
-		memberHealth = member:GetHealthPercentage();
-		memberDistance = member:GetDistance();
-			
+		if (GetNumPartyMembers() > 0) then
+			member = GetPartyMember(i);
+			memberHealth = member:GetHealthPercentage();
+			SmemberDistance = member:GetDistance();
+		end	
 		if (member:GetManaPercentage() > 0) then
 			groupMana = groupMana + member:GetManaPercentage();
 			manaUsers = manaUsers + 1;

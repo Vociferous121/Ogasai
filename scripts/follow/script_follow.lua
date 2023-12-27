@@ -34,14 +34,14 @@ script_follow = {
 	objectAttackingUs = 0,
 	meleeDistance = 3.5,
 	useUnstuck = false,
-	navFunctionsLoaded = include("scripts\\script_nav.lua"),
-	navFunctions2Loaded = include("scripts\\script_navEX.lua"),
+	leader = 1,
+	followMember = false,
+
 	helperLoaded = include("scripts\\script_helper.lua"),
 	drawDataLoaded = include("scripts\\script_drawData.lua"),
 	drawStatusLoaded = include("scripts\\script_drawStatus.lua"),
 	checkDebuffsLoaded = include("scripts\\script_checkDebuffs.lua"),
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
-	grindFunctions = include("scripts\\script_grind.lua"),
 	vendorsLoaded = include("scripts\\script_vendor.lua"),
 	vendormenu = include("scripts\\script_vendorMenu.lua"),
 
@@ -74,15 +74,11 @@ function script_follow:setup()
 	ClearTarget();
 end
 
-function script_follow:draw()
-	script_followEX:drawStatus();
-end
-
 function script_follow:setWaitTimer(ms)
 	self.waitTimer = GetTimeEX() + ms;
 end
 
-function script_follow:GetPartyLeaderObject() 
+function GetPartyLeaderObject() 
 	if GetNumPartyMembers() > 0 then -- are we in a party?
 		leaderObj = GetPartyMember(GetPartyLeaderIndex());
 		if (leaderObj ~= nil) then
@@ -93,96 +89,66 @@ function script_follow:GetPartyLeaderObject()
 end
 
 function script_follow:run()
-
 	script_follow:window();
-		
-	if (IsUsingNavmesh()) and (self.drawPath) then
+	script_followEX:drawStatus();	
+	if (IsUsingNavmesh()) and (script_follow.drawPath) then
 		script_drawData:drawPath();
 	end
-
 	-- Set next to node distance and nav-mesh smoothness to double that number
 	if (IsMounted()) then
 		script_nav:setNextToNodeDist(8); NavmeshSmooth(14);
-	else
-		script_nav:setNextToNodeDist(self.nextToNodeDist);
-		NavmeshSmooth(self.nextToNodeDist*3);
 	end
-	
-	if (not self.isSetup) then
+	if (not IsMounted()) then	
+		script_nav:setNextToNodeDist(script_follow.nextToNodeDist);
+		NavmeshSmooth(script_follow.nextToNodeDist*3);
+	end
+	if (not script_follow.isSetup) then
 		script_follow:setup();
 	end
-	
-	if (not self.navFunctionsLoaded) then
-		self.message = "Error script_nav not loaded...";
-		return;
-	end
-
-	if (not self.helperLoaded) then	
-		self.message = "Error script_helper not loaded..."; 
-		return;
-	end
-
-	if (self.pause) then 
-		self.message = "Paused by user..."; 
+	if (script_follow.pause) then 
+		script_follow.message = "Paused by user..."; 
 		return; 
 	end
 
-	-- Automatic loading of the nav mesh
-	if (not IsUsingNavmesh()) then 
-		UseNavmesh(true);
-		return; 
+	if (not IsInCombat()) and (not IsCasting()) and (not IsChanneling()) then
+	self.tickRate = 150;
+	elseif (IsInCombat()) or (IsCasting()) or (IsChanneling()) then
+	self.tickRate = 500;
 	end
-	if (not LoadNavmesh()) then 
-		self.message = "Make sure you have mmaps-files...";
-		return;
-	end
-	if (GetLoadNavmeshProgress() ~= 1) then
-		self.message = "Loading the nav mesh... ";
-		return; 
-	end
-
-	-- auto unstuck feature
-	if (self.useUnStuck) and (IsMoving()) then
-		if (not script_unstuck:pathClearAuto(2)) then
-			self.message = script_unstuck.message;
-			return true;
-		end
-	end	
-
-	self.tickRate = 135;
-
-	if(GetTimeEX() > self.timer) then
+	if (GetTimeEX() > self.timer) then
 		self.timer = GetTimeEX() + self.tickRate;
 
 		localObj = GetLocalPlayer();
 
+		-- Automatic loading of the nav mesh
+		if (not IsUsingNavmesh()) then
+			UseNavmesh(true);
+			return;
+		end
+		if (not LoadNavmesh()) then
+			self.message = "Make sure you have mmaps-files...";
+			return;
+		end
+		if (GetLoadNavmeshProgress() ~= 1) then
+			self.message = "Loading the nav mesh... ";
+			return;
+		end
 
 		-- Wait out the wait-timer and/or casting or channeling
 		if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then
 			return;
 		end
 		
-		-- If bags are full
-		if (script_followDoVendor.useVendor) and (AreBagsFull() and not IsInCombat()) then
-			--if close to vendor
-				if (script_vendor:sell()) then
-					self.waitTimer = GetTimeEX() + 500;
-					if (CanMerchantRepair()) then
-						RepairAllItems(); 
-						-- sell
-						script_vendorMenu:sellLogic();
-						return true;
-					else
-						script_vendorMenu:sellLogic();
-						return true;
-					end
-				return true;
-				end
-					
-				
-			--end
-		end
+		local leaderObj = GetPartyLeaderObject();
 
+		-- follow leader object
+		if (leaderObj ~= 0 and leaderObj ~= nil) and
+		(not IsCasting()) and (not IsChanneling()) and (not IsDrinking()) and (not IsEating()) and (not IsLooting()) and (self.lootObj == nil) and (leaderObj:GetDistance() > self.followLeaderDistance or not leaderObj:IsInLineOfSight()) then
+			script_followMove:followLeader();
+			self.timer = GetTimeEX() + 135;
+			return;
+		end
+		
 		-- Corpse-walk if we are dead
 		if(localObj:IsDead()) then
 
@@ -212,12 +178,27 @@ function script_follow:run()
 		end
 
 		-- get target attacking us
-		if (IsInCombat()) and (self.enemyObj == nil) or (self.enemyObj == 0) then
-			TargetNearestEnemy();
-			if (localObj:GetUnitsTarget() ~= 0) then
-				self.enemyObj = localObj:GetUnitsTarget();
+		if (IsInCombat() and not PlayerHasTarget()) and (self.enemyObj == nil or self.enemyObj == 0) then
+
+			local i, type = GetFirstObject();
+
+			while i ~= 0 do
+				if (type == 3) and (i:CanAttack()) and (not i:IsDead()) and (not i:IsCritter()) and (i:GetDistance() < 55) then
+					if (i:GetUnitsTarget() ~= 0 and i:GetUnitsTarget() ~= nil) then
+						local aa = i:GetUnitsTarget():GetGUID();
+						local bb = GetLocalPlayer():GetGUID();
+						if (aa == bb) then
+							self.enemyObj = i;
+						end
+					end
+				end
+			i, type = GetNextObject(i);
 			end
+		elseif (PlayerHasTarget()) and (self.enemyObj == nil or self.enemyObj == 0) then
+			self.enemyObj = localObj:GetUnitsTarget();
 		end
+
+		self.enemyObj = GetTarget();
 				
 		-- Rest
 		if (not IsInCombat() and script_followEX2:enemiesAttackingUs() == 0 and not localObj:HasBuff('Feign Death')) then
@@ -286,19 +267,14 @@ function script_follow:run()
 		end
 
 		-- Healer check: heal/buff the party
-		for i = 1, GetNumPartyMembers()+1 do
+		for i = 1, GetNumPartyMembers() do
 			local member = GetPartyMember(i);
 			if (not member:IsDead()) and (not localObj:IsDead()) and (not IsMoving()) then
-				if (member:GetDistance() > 40) or (not member:IsInLineOfSight()) then
-					script_followMove:moveInLineOfSight();
-					self.message = "Moving to party leader...";
-				end
 				if (script_followHealsAndBuffs:healAndBuff()) then
-					
 					self.message = "Healing/buffing the party...";
 					self.timer = GetTimeEX() + 1700;
 					ClearTarget();
-					--return true;
+					return true;
 				end
 			end
 		end
@@ -322,24 +298,24 @@ function script_follow:run()
 			end
 		end
         
-		if  (GetNumPartyMembers() > 1) and (GetTarget() ~= 0 and GetTarget() ~= nil) then
+		if (GetNumPartyMembers() > 0) and (GetTarget() ~= 0 and GetTarget() ~= nil) then
             			local target = GetTarget();
 			if (target:CanAttack() and self.assistInCombat) then
 				self.enemyObj = target;
 			elseif (script_followEX2:enemiesAttackingUs() == 0) then
 				self.enemyObj = nil;
 			end 
-		else
-			-- Healer check: heal/buff the party
-			for i = 1, GetNumPartyMembers()+1 do
-				local member = GetPartyMember(i);
-				if (not member:IsDead()) and (not localObj:IsDead()) and (not IsMoving()) then
-					if (member:GetDistance() > 40) or (not member:IsInLineOfSight()) then
-					script_followMove:moveInLineOfSight();
-						self.message = "Moving to party leader...";
+		end
+
+		-- Healer check: heal/buff the party
+		for i = 1, GetNumPartyMembers() do
+			local member = GetPartyMember(i);
+			if (not member:IsDead()) and (not localObj:IsDead()) and (not IsMoving()) then
+				if (member:GetDistance() > 40) or (not member:IsInLineOfSight()) then
+				script_followMove:moveInLineOfSight(partyMember);
+					self.message = "Moving to party leader...";
 				end
 				if (script_followHealsAndBuffs:healAndBuff()) then
-		
 					self.timer = GetTimeEX() + 1700;
 					ClearTarget();
 					--return true;
@@ -347,58 +323,52 @@ function script_follow:run()
 			end
 		end
 
-		if (script_follow:GetPartyLeaderObject() ~= 0) then
-			if (script_follow:GetPartyLeaderObject():GetUnitsTarget() ~= 0 and not script_follow:GetPartyLeaderObject():IsDead()) and (script_follow:GetPartyLeaderObject():GetDistance() < 45) then
-				if (script_follow:GetPartyLeaderObject():GetUnitsTarget():GetHealthPercentage() <= self.dpsHP and self.assistInCombat) then
-					self.enemyObj = script_follow:GetPartyLeaderObject():GetUnitsTarget();
-					script_followMove:moveInLineOfSight();
-				elseif (script_followEX2:enemiesAttackingUs() == 0) then
-					self.enemyObj = nil;
-					ClearTarget();
-				end
+		-- check target health and assist in combat
+		if (leaderObj ~= 0) and (leaderObj ~= nil) then
+			if (leaderObj:GetUnitsTarget() ~= 0 and not leaderObj:IsDead()) and (leaderObj:GetDistance() < 45)
+				and (leaderObj:GetUnitsTarget():GetHealthPercentage() <= self.dpsHP and self.assistInCombat) then
+				self.enemyObj = leaderObj:GetUnitsTarget();
+				script_followMove:moveInLineOfSight(partyMember);
+			elseif (script_followEX2:enemiesAttackingUs() == 0) then
+				self.enemyObj = nil;
+				ClearTarget();
 			end
-       		end
-	end	
+		end
 
 		-- Finish loot before we engage new targets or navigate
 		if (self.lootObj ~= nil and not IsInCombat()) or IsLooting() then
 			return; 
-		else
-
-			-- Healer check: heal/buff the party
-			for i = 1, GetNumPartyMembers()+1 do
-				local member = GetPartyMember(i);
-				if (not member:IsDead()) and (not localObj:IsDead()) and (not IsMoving()) then
-					if (member:GetDistance() > 40) or (not member:IsInLineOfSight()) then
-						script_followMove:moveInLineOfSight();
-						self.message = "Moving to party leader...";
-
-					end
-					if (script_followHealsAndBuffs:healAndBuff()) then
-						self.message = "Healing/buffing the party...";
-						self.timer = GetTimeEX() + 1700;
-						ClearTarget();
-						--return true;
-					end
+		end
+	
+		-- Healer check: heal/buff the party
+		for i = 1, GetNumPartyMembers() do
+			local member = GetPartyMember(i);
+			if (not member:IsDead()) and (not localObj:IsDead()) and (not IsMoving()) then
+				if (member:GetDistance() > 40) or (not member:IsInLineOfSight()) then
+					script_followMove:moveInLineOfSight(partyMember);
+					self.message = "Moving to party leader...";
+				end
+				if (script_followHealsAndBuffs:healAndBuff()) then
+					self.message = "Healing/buffing the party...";
+					self.timer = GetTimeEX() + 1700;
+					ClearTarget();
+					--return true;
 				end
 			end
+		end
+	
+		if (not localObj:IsDead()) then
+			script_followDoCombat:run();
 
-			if (not localObj:IsDead()) then
-				script_followDoCombat:run();
-				if (IsAutoCasting("Attack")) and (self.enemyObj:GetDistance() > self.meleeDistance) then
-					self.waitTimer = GetTimeEX() + 1650;
-				elseif (IsInCombat()) and (not IsAutoCasting("Attack")) or (IsCasting()) or (IsChanneling()) then
-					self.waitTimer = GetTimeEX() + 1650;
-				end
+			self.enemyObj = GetTarget();
+			if (IsAutoCasting("Attack")) and (self.enemyObj:GetDistance() <= self.meleeDistance) then
+				self.waitTimer = GetTimeEX() + 1650;
+			elseif (IsInCombat()) and (not IsAutoCasting("Attack")) or (IsCasting()) or (IsChanneling()) then
+				self.waitTimer = GetTimeEX() + 1650;
 			end
-		
-		end
-		
-
+		end	
 	end
+end
 
-	if (not IsCasting()) and (not IsChanneling()) and (not IsDrinking()) and (not IsEating()) and (not IsLooting()) and (self.lootObj == nil) then
-		if (script_followMove:followLeader()) then
-		end
-	end
+function script_follow:draw()
 end

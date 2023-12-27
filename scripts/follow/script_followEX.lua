@@ -3,9 +3,8 @@ script_followEX = {
 	healsLoaded = include("scripts\\follow\\script_followHealsAndBuffs.lua"),
 	followEX2Loaded = include("scripts\\follow\\script_followEX2.lua"),
 
-
-		drawUnits = false,
-		drawAggro = false,
+	drawUnits = false,
+	drawAggro = false,
 }
 
 function script_followEX:getDistanceDif()
@@ -37,14 +36,15 @@ function script_followEX:drawStatus()
 	end
 		DrawRect(x - 10, y - 5, x + width, y + 80, 255, 255, 0,  1, 1, 1);
 		DrawRectFilled(x - 10, y - 5, x + width, y + 80, 0, 0, 0, 160, 0, 0);
-	if (script_follow:GetPartyLeaderObject()) and (GetNumPartyMembers() >= 1) then
-		DrawText('Follower - Range: ' .. math.floor(script_follow.followLeaderDistance) .. ' yd. ' .. 
-		'Master target: ' .. script_follow:GetPartyLeaderObject():GetUnitName(), x-5, y-4, r, g, b) y = y + 15;
-	elseif (GetNumPartyMembers() >= 1) then
-		DrawText('Follower - Follow range: ' .. math.floor(script_follow.followDistance) .. ' yd. ' .. 
-		'Master target: ' .. '', x-5, y-4, r, g, b) y = y + 15;
-	end 
-
+	if (GetPartyLeaderObject() ~= 0) then
+		if (GetPartyLeaderObject()) and (GetNumPartyMembers() > 0) then
+			DrawText('Follower - Range: ' .. math.floor(script_follow.followLeaderDistance) .. ' yd. ' .. 
+			'Master target: ' .. GetPartyLeaderObject():GetUnitName(), x-5, y-4, r, g, b) y = y + 15;
+		elseif (GetNumPartyMembers() > 0) then
+			DrawText('Follower - Follow range: ' .. math.floor(script_follow.followDistance) .. ' yd. ' .. 
+			'Master target: ' .. '', x-5, y-4, r, g, b) y = y + 15;
+		end 
+	end
 		DrawText('Status: ', x, y, r, g, b); 
 		y = y + 15; DrawText(script_follow.message or "error", x, y, 0, 255, 255);
 		y = y + 20; DrawText('Combat script status: ', x, y, r, g, b); y = y + 15;
@@ -112,7 +112,7 @@ function script_followEX:doLoot(localObj)
 			end
 		end
 
-		if (script_followMove:move(GetLocalPlayer(), _x, _y, _z)) then
+		if (script_navEX:moveToTarget(GetLocalPlayer(), _x, _y, _z)) then
 			script_follow.message = "Moving to loot...";		
 		end
 	end

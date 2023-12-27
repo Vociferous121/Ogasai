@@ -5,6 +5,8 @@ script_om = {
 -- move away from adds
 function script_om:FORCEOM()
 
+	currentObj, typeObj = GetFirstObject();
+
 	local closestDist = 999;
 
 	-- fuck this why won't you recognize closest target???
@@ -86,6 +88,8 @@ end
 
 -- move away from adds
 function script_om:FORCEOM2()
+
+	currentObj, typeObj = GetFirstObject();
 
 	while currentObj ~= 0 do
 		if (not script_grind.adjustTickRate) and (IsInCombat()) then

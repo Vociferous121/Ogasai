@@ -16,7 +16,7 @@ script_followHealsAndBuffs = {
 }
 
 
-function getPartyMembers()
+function GetPartyMembers()
 	for i = 1, GetNumPartyMembers() do
 
 		local partyMember = GetPartyMember(i);
@@ -33,21 +33,7 @@ function getPartyMembers()
 	end
 end
 
-		-- separated these files due to a limitation of file sizes.
-	
-		-- this is just the function to call heals and buffs based on class
-
-		-- based on class to reduce CPU usage it will only cast spells if you are that class...
-
 function script_followHealsAndBuffs:healAndBuff()
-
-			if (IsInCombat()) and (script_follow.enemyObj ~= nil) then
-				if (script_follow.enemyObj:GetDistance() > 40) or (not script_follow.enemyObj:IsInLineOfSight()) then
-			
-				local _x, _y, _z = script_follow.enemyObj:GetPosition();
-				script_navEX:moveToTarget(GetLocalPlayer(), _x, _y, _z);
-				end
-			end
 
 			local class = UnitClass('player');
 
@@ -61,7 +47,7 @@ function script_followHealsAndBuffs:healAndBuff()
 			-- priest heals and buffs
 			if (class == 'Priest') then
 				if (script_priestFollowerHeals:HealsAndBuffs()) then
-					--return true;
+					return true;
 				end	
 			end
 
@@ -88,30 +74,31 @@ function script_followHealsAndBuffs:healAndBuff()
 			end
 
 			-- hunter buffs
-			--if (class == 'Hunter') then
-			--	if (script_hunterFollowerHeals:HealsAndBuffs()) then
+			if (class == 'Hunter') then
+				if (script_hunterFollowerHeals:HealsAndBuffs()) then
 			--		return true;
-			--	end
-			--end
+				end
+			end
 
 			-- warlock buffs
-			--if (class == 'Warlock') then
-			--	if (script_warlockFollowerHeals:HealsAndBuffs()) then
+			if (class == 'Warlock') then
+				if (script_warlockFollowerHeals:HealsAndBuffs()) then
 			--		return true;
-			--	end
-			--end
+				end
+			end
 
 			-- rogue buffs??
-			--if (class == 'Rogue') then
-			--	if (script_rogueFollowerHeals:HealsAndBuffs()) then
+			if (class == 'Rogue') then
+				if (script_rogueFollowerHeals:HealsAndBuffs()) then
 			--		return true;
-			--	end
-			--end
+				end
+			end
 
 			-- warrior heals... and buffs
-			--if (class == 'Warrior') then
-			--	if (script_warriorFollowerHeals:HealsAndBuffs()) then
+			if (class == 'Warrior') then
+				if (script_warriorFollowerHeals:HealsAndBuffs()) then
 			--		return true;
-			--	end
-			--end
+				end
+			end
+	return false;
 end

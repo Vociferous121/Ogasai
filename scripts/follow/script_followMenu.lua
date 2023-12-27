@@ -10,7 +10,7 @@ function script_followMenu:menu()
 	if script_follow.test then
 	Text("Direct move-to-path. Bot will not turn corners");
 	Text("Distance Limited");
-	script_follow.followLeaderDistance = 10;
+	script_follow.followLeaderDistance = 6;
 	end
 
 	if (not script_follow.pause) then 

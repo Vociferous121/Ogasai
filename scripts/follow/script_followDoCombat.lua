@@ -26,7 +26,7 @@ function script_followDoCombat:run()
 						or (not enemy:IsInLineOfSight()) then
 						local x, y, z = enemy:GetPosition();
 						script_navEX:moveToTarget(localObj, x, y, z);
-					--return;
+					return;
 					end
 
 				-- else if we are a melee class then move into range except druid
@@ -38,34 +38,13 @@ function script_followDoCombat:run()
 						or (not enemy:IsInLineOfSight()) then
 						local x, y, z = enemy:GetPosition();
 						script_navEX:moveToTarget(localObj, x, y, z);
-					--return;
+					return;
 					end
 				end
-			end
 	
 
 			
 			if (enemy ~= nil or IsInCombat()) then
-
-			-- reset conditions above when they fail... they do...
-				local class = UnitClass('player');
-				if (enemy ~= nil) and (class == 'Priest' or class == 'Warlock' or class == 'mage')
-					and (not localObj:HasRangedWeapon()) and (not enemy:HasDebuff("Frost Nova")) then
-					if (enemy:GetDistance() > script_follow.meleeDistance)
-						or (not enemy:IsInLineOfSight()) then
-						local x, y, z = enemy:GetPosition();
-						script_navEX:moveToTarget(localObj, x, y, z);
-					return;
-					end
-				elseif (enemy ~= nil) and (not class == 'Druid') then
-					if (enemy:GetDistance() > script_follow.meleeDistance)
-						or (not enemy:IsInLineOfSight()) then
-						local x, y, z = enemy:GetPosition();
-						script_navEX:moveToTarget(localObj, x, y, z);
-					return;
-					end
-				end
-
 
 			-- get combat errors from combat scripts
 				script_follow.message = "Running the combat script...";
@@ -110,5 +89,6 @@ function script_followDoCombat:run()
 				enemy:FaceTarget();
 			end
 		end
+	end
 	return false;
 	end

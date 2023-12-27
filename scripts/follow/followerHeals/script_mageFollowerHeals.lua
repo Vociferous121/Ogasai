@@ -20,13 +20,9 @@ function script_mageFollowerHeals:HealsAndBuffs()
 		self.timer = GetTimeEX() + script_follow.tickRate;
 
 
-	for i = 1, GetNumPartyMembers()+1 do
+	for i = 1, GetNumPartyMembers() do
 
 			local partyMember = GetPartyMember(i);
-
-		if (i == GetNumPartyMembers()+1) then
-			partyMember = GetLocalPlayer();
-		end
 
 			local localMana = GetLocalPlayer():GetManaPercentage();
 			local localEnergy = GetLocalPlayer():GetEnergyPercentage();
@@ -38,13 +34,6 @@ function script_mageFollowerHeals:HealsAndBuffs()
 				local localHealth = GetLocalPlayer():GetHealthPercentage();
 		end
 
-		-- Move in range: combat script return 3
-		if (script_follow.combatError == 3) then
-			script_follow.message = "Moving to target...";
-			script_followMove:moveInLineOfSight(partyMember);		
-		return;
-		end
-			
 		-- Move in line of sight and in range of the party member
 		if (partyMember:GetDistance() > 40) or (not partyMember:IsInLineOfSight()) then
 			if (script_followMove:moveInLineOfSight(partyMember)) then

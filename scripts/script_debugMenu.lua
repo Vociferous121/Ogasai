@@ -31,26 +31,26 @@ function script_debugMenu:menu()
 			if (GetLocalPlayer():GetUnitsTarget():HasRangedWeapon()) then
 
 				-- true target has weapon
-				local a = "true";
-				Text("Target has ranged weapon? - " ..a);
+				local b = "true";
+				Text("Target has ranged weapon? - " ..b);
 			else
 			
 				-- false target has weapon
-				local a = "false";
-				Text("Target has ranged weapon? - " ..a);
+				local b = "false";
+				Text("Target has ranged weapon? - " ..b);
 			end
 		
 			-- true target is casting
 			if (GetLocalPlayer():GetUnitsTarget():IsCasting()) then
 
 				-- true target is casting
-				local a = "true";
-				Text("Target is casting? - " ..a);
+				local c = "true";
+				Text("Target is casting? - " ..c);
 			else
 
 				-- false target is casting
-				local a = "false";
-				Text("Target is casting? - " ..a);
+				local c = "false";
+				Text("Target is casting? - " ..c);
 			end
 		else
 
@@ -63,27 +63,29 @@ function script_debugMenu:menu()
 		if (script_grind.enemyObj ~= 0) and (script_grind.enemyObj ~= nil) then
 
 			-- grinder object
-			local a = script_grind.enemyObj:GetUnitName();
+			local d = script_grind.enemyObj:GetUnitName();
 
 			-- grinder object distance
-			local b = math.floor(a:GetDistance());
+			local ee = script_grind.enemyObj;
+			local e = math.floor(ee:GetDistance());
 
 			-- show distance
-			Text("Grinder enemyObj - " ..a.. " " ..b.. " (yds)");
+			Text("Grinder enemyObj - " ..d.. " " ..e.. " (yds)");
 			
 		else
 
 			-- else show no target text
 			Text("Grinder enemyObj - No Target!");
 		end
-		
-		-- make local var
-		if (1 == 1) then
 
 			-- show vendor status
-			local a = script_vendor.status;
-			Text("Vendor status - " ..a);
-		end
+			local f = script_vendor.status;
+			Text("Vendor status - " ..f);
+
+			-- show blacklist time/new target time out of combat
+			local gg = script_grind.newTargetTime;
+			local g = (GetTimeEX()-gg)/1000;
+			Text("Blacklist time : " ..g.. " sec");
 
 			-- separator for next menu - counter menu
 		Separator();

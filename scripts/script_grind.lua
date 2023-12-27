@@ -687,7 +687,7 @@ function script_grind:run()
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
 			self.lastTarget = self.enemyObj:GetGUID();
 		end
-		self.enemyObj = script_grind:assignTarget();
+			self.enemyObj = script_grind:assignTarget();
 		
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
 			-- Fix bug, when not targeting correctly

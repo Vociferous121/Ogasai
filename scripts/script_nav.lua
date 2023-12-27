@@ -3,7 +3,7 @@ script_nav = {
 	useNavMesh = true,
 	nextNavNodeDistance = 1.5, -- for mobs and loot
 	nextPathNodeDistance = 2.6, -- for walking paths
-	lastPathIndex = -1,
+	lastPathIndex = 0,
 	navPosition = {},
 	navPathPosition = {},
 	lastnavIndex = 0,
@@ -32,7 +32,7 @@ function script_nav:resetPath()
 	self.lastnavIndex = 0;
 	self.navPosition['x'], self.navPosition['y'], self.navPosition['z'] = 0, 0, 0;
 	local x, y, z = GetLocalPlayer():GetPosition();
-	GeneratePath(x, y, z, x+0.1, y+0.1, z);
+	GeneratePath(x, y, z, x+1, y+1, z);
 end
 
 function script_nav:loadHotspotDB(id)
