@@ -1818,8 +1818,12 @@ function script_grind:runRest()
 		self.message = "Resting...";
 
 		-- set new target time
-		if (self.enemyObj == nil or self.enemyObj == 0) then
+		if (not IsInCombat() and not IsMoving()) then
 			self.newTargetTime = GetTimeEX();
+			
+			if (IsDrinking() or IsEating()) and (not IsInCombat()) then
+				ClearTarget();
+			end
 		end
 
 		-- Stop moving
