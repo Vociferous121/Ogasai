@@ -212,9 +212,11 @@ function script_aggro:safeRess(corpseX, corpseY, corpseZ, ressRadius)
 
 				-- set safe res distances based on level
 				aggro = currentObj:GetLevel() - localObj:GetLevel() + 21;
+
+				-- extra safe range add 5 yards
 				local range = aggro + 5;
 
-				-- acceptable range
+				-- acceptable range to run avoid during ressurection
 				if currentObj:GetDistance() <= range then
 		
 					-- set closest enemy
@@ -224,10 +226,15 @@ function script_aggro:safeRess(corpseX, corpseY, corpseZ, ressRadius)
 				else
 						-- get nearest enemy from closest enemy position
 						local dist = currentObj:GetDistance();
+						local closestDist = 999
 
-						-- check distance
+						-- rerun object manager until you find closest target in range
 						if (dist < closestDist) then
+		
+							-- make that enemy the closest target
 							closestDist = dist;
+
+							-- closest enemy to avoid
 							closestEnemy = currentObj;
 						end
 					end

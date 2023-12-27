@@ -677,40 +677,31 @@ function script_grind:run()
 				return true;
 			end
 		end
-		
-		-- Assign the next valid target to be killed within the pull range
-		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
-			self.waitTimer = GetTimeEX() + 200;
-			self.lastTarget = self.enemyObj:GetGUID();
-		end
-
-		-- get target
-		self.enemyObj = script_grind:assignTarget();
 
 		-- use kills to level tracker
 		if (self.useExpChecker) then
 			script_expChecker:targetLevels();
 		end
-
-		-- blacklist target time
+		
+		-- Assign the next valid target to be killed within the pull range
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
-			
-			-- if lastTarget is not current enemyObj then clear target and reset time
+			self.lastTarget = self.enemyObj:GetGUID();
+		end
+		self.enemyObj = script_grind:assignTarget();
+		
+		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
+			-- Fix bug, when not targeting correctly
 			if (self.lastTarget ~= self.enemyObj:GetGUID()) then
-				ClearTarget();
 				self.newTargetTime = GetTimeEX();
-
-			--if last target is enemyObj and we are resting or waiting then reset blacklist time
+				ClearTarget();
 			elseif (self.lastTarget == self.enemyObj:GetGUID() and not IsStanding() and not IsInCombat()) then
-				self.blaclistLootTime = GetTimeEX();
 				self.newTargetTime = GetTimeEX(); -- reset time if we rest
-
 			-- blacklist the target if we had it for a long time and hp is high
 			elseif (((GetTimeEX()-self.newTargetTime)/1000) > self.blacklistTime and self.enemyObj:GetHealthPercentage() > 92) then 
 				script_grind:addTargetToHardBlacklist(self.enemyObj:GetGUID());
-
-			-- if we are in combat and have an enemyObj reset the timer and do combat
-			elseif (self.enemyObj ~= nil and self.enemyObj ~= 0) and (IsInCombat()) then
+				ClearTarget();
+				return;
+			elseif (IsInCombat()) and (self.enemyObj ~= nil and self.enemyObj ~= 0) and (self.enemyObj:IsInLineOfSight()) and (self.lastTarget == self.enemyObj:GetGUID()) then
 				self.newTargetTime = GetTimeEX();
 			end
 		end
