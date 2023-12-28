@@ -19,7 +19,7 @@ script_follow = {
 	myY = 0,
 	myZ = 0,
 	myTime = GetTimeEX(),
-	nextToNodeDist = 2.5,
+	nextToNodeDist = 3.2,
 	isSetup = false,
 	drawUnits = false,
 	acceptTimer = GetTimeEX(),
@@ -140,7 +140,9 @@ function script_follow:run()
 
 	-- auto unstuck feature
 	if (self.unstuck) and (IsMoving()) then
+		script_unstuck.turnSensitivity = 3;
 		if (not script_unstuck:pathClearAuto(2)) then
+			script_unstuck:unstuck();
 			self.message = script_unstuck.message;
 			return true;
 		end
@@ -376,6 +378,7 @@ function script_follow:run()
 				if (not IsCasting()) and (not IsChanneling())
 				and (not IsDrinking()) and (not IsEating()) and (not IsLooting()) then
 					if (script_followMove:followLeader()) then
+						script_follow:setWaitTimer(500);
 						return true;
 					end
 				end	
