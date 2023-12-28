@@ -113,10 +113,6 @@ function script_follow:run()
 		script_follow:setup();
 	end
 
-	if (self.pause) then 
-		self.message = "Paused by user..."; 
-		return; 
-	end
 
 	-- Automatic loading of the nav mesh
 	if (not IsUsingNavmesh()) then 
@@ -132,13 +128,18 @@ function script_follow:run()
 		return; 
 	end
 
+	if (self.pause) then 
+		self.message = "Paused by user..."; 
+		return; 
+	end
+
 	-- auto unstuck feature
-	--if (self.useUnStuck) and (IsMoving()) then
-	--	if (not script_unstuck:pathClearAuto(2)) then
-	--		self.message = script_unstuck.message;
-	--		return true;
-	--	end
-	--end	
+	if (self.useUnStuck) and (IsMoving()) then
+		if (not script_unstuck:pathClearAuto(2)) then
+			self.message = script_unstuck.message;
+			return true;
+		end
+	end	
 
 	self.tickRate = 135;
 
@@ -359,9 +360,9 @@ function script_follow:run()
 				end
 			end
 	
-			self.combatError = script_followDoCombat:run();
-			script_nav.lastnavIndex = 0;
-				
+			if (not self.enemyObj:IsDead()) and (self.enemyObj:CanAttack()) then
+				self.combatError = script_followDoCombat:run();
+			end
 		else
 
 			self.enemyObj = nil;
@@ -377,6 +378,11 @@ function script_follow:run()
 						return true;
 					end
 				end
+			end
+
+			if (leader:GetDistance() == 0) then
+				self.message = "leader GetDistance == 0... no path";
+				return;
 			end
 			
 			local leader = GetPartyLeaderObject();

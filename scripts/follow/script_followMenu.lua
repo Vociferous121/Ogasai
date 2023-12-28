@@ -6,6 +6,9 @@ script_followMenu = {
 
 function script_followMenu:menu()
 
+	local gi = gcinfo();
+	Text(gi);
+
 	wasClicked, script_follow.test = Checkbox("Movement locked up?", script_follow.test);
 	if script_follow.test then
 	Text("Direct move-to-path. Bot will not turn corners");
@@ -57,7 +60,7 @@ function script_followMenu:menu()
 			Separator();
 
 			Text("Distance to follow Party Leader  ");
-			script_follow.followLeaderDistance = SliderInt("Follow Leader Distance (yd)", 10, 100, script_follow.followLeaderDistance);
+			script_follow.followLeaderDistance = SliderInt("Follow Leader Distance (yd)", 5, 45, script_follow.followLeaderDistance);
 
 			--wasClicked, self.autoGhost = Checkbox("Auto Release on Death", self.autoGhost);
 

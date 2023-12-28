@@ -46,11 +46,11 @@ function script_mageFollowerHeals:HealsAndBuffs()
 		end
 			
 		-- Move in line of sight and in range of the party member
-		if (partyMember:GetDistance() > 40) or (not partyMember:IsInLineOfSight()) then
-			if (script_followMove:moveInLineOfSight()) then
-			return true; 
-			end
-		end
+		--if (partyMember:GetDistance() > 40) or (not partyMember:IsInLineOfSight()) then
+		--	if (script_followMove:moveInLineOfSight()) then
+		--	return true; 
+		--	end
+		--end
 
 		-- Arcane Intellect
 		if (HasSpell("Arcane Intellect")) and (localMana > 40) and (not partyMember:HasBuff("Arcane Intellect")) and (not partyMember:IsDead()) and (partyMemberHP > 5) then

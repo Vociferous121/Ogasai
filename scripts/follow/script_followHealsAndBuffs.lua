@@ -113,4 +113,5 @@ function script_followHealsAndBuffs:healAndBuff()
 			--		return true;
 			--	end
 			--end
+	return false;
 end

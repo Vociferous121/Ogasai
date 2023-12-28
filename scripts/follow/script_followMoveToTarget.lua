@@ -2,6 +2,8 @@ script_followMoveToTarget = {
 
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
 	navFunctions2Loaded = include("scripts\\script_navEX.lua"),
+	moveTimer = GetTimeEX(),
+	used = 0,
 }
 
 
@@ -11,19 +13,19 @@ function script_followMoveToTarget:moveToTarget(localObj, _x, _y, _z) -- use whe
 
 	-- Fetch our current position
 	localObj = GetLocalPlayer();
-	local _lx, _ly, _lz = localObj:GetPosition();
+	local _lx, _ly, _lz = GetPartyLeaderObject():GetPosition();
 
 	local _ix, _iy, _iz = GetPathPositionAtIndex(5, script_nav.lastnavIndex);	
 
 	-- If the target moves more than 5 yard then make a new path
 	if(GetDistance3D(_x, _y, _z, script_nav.navPosition['x'], script_nav.navPosition['y'], script_nav.navPosition['z']) > 5
-		or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
+		or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 45) then
 		script_nav.navPosition['x'] = _x;
 		script_nav.navPosition['y'] = _y;
 		script_nav.navPosition['z'] = _z;
 		GeneratePath(_lx, _ly, _lz, _x, _y, _z);
 		script_nav.lastnavIndex = 1; -- start at index 1, index 0 is our position
-		script_follow:setWaitTimer(135);
+		script_follow.message = "trying to find a path...";
 	end	
 
 	if (not IsPathLoaded(5)) then
@@ -42,13 +44,22 @@ function script_followMoveToTarget:moveToTarget(localObj, _x, _y, _z) -- use whe
 	end
 
 	-- Check: If move to coords are too far away, something wrong, dont move... BUT WHY ?!
-	if (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
+	if (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 50) then
 		GeneratePath(_lx, _ly, _lz, _lx, _ly, _lz);
+		script_follow.message = "cannot find path...";
 		return "Generating a new path...";
 	end
 
+
 	-- Move to the next destination in the path
 	Move(_ix, _iy, _iz);
-
+	if (not IsMoving()) and (GetLoadNavmeshProgress() ~= 0) and (GetTimeEX() > self.moveTimer) then
+		collectgarbage(script_nav.navPosition['z']);
+		collectgarbage(script_nav.navPosition['y']);
+		collectgarbage(script_nav.navPosition['x']);
+		script_followMoveToTarget.used = script_followMoveToTarget.used + 1;
+	end
+	
+	script_follow.message = "moving to target...";
 	return "Moving to target...";
 end

@@ -76,7 +76,7 @@ function script_followEX:doLoot(localObj)
 		end
 	
 		if(dist <= script_follow.lootDistance) then
-				script_follow.message = "Looting...";
+				script_follow.message = "Trying to loot before we follow leader...";
 			if (IsMoving() and not localObj:IsMovementDisabed()) then
 				StopMoving();
 				script_follow.timer = GetTimeEX() + 350;
@@ -112,15 +112,14 @@ function script_followEX:doLoot(localObj)
 				script_nav:resetNavigate();
 			end
 		end
-		if (not script_follow.test) then
-			if (script_followMoveToTarget:moveToTarget(GetLocalPlayer(), _x, _y, _z)) then
-			script_follow.message = "Moving to loot...";	
-			return;
-			end
+		if (not IsMoving()) and (GetLoadNavmeshProgress() ~= 0) then
+			collectgarbage(script_nav.navPosition['z']);
+			collectgarbage(script_nav.navPosition['y']);
+			collectgarbage(script_nav.navPosition['x']);
+			script_followMoveToTarget.used = script_followMoveToTarget.used + 1;
 		end
-		if (script_follow.test) then
-			Move(_x, _y, _z);
-			return;
+		if (script_followMoveToTarget:moveToTarget(GetLocalPlayer(), _x, _y, _z)) then
+			script_follow.message = "Moving to loot...";	
 		end
 	end
 end

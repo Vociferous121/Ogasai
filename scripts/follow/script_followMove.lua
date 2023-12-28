@@ -15,7 +15,7 @@ function script_followMove:followLeader()
 		local myX, myY, myZ = localObj:GetPosition();
 		local leadX, leadY, leadZ = leaderObj:GetPosition();
 
-		if (leaderObj:GetDistance() >= distance or GetDistance3D(myX, myY, myZ, leadX, leadY, leadZ) > distance) 
+		if (leaderObj:GetDistance() >= distance or GetDistance3D(myX, myY, myZ, leadX, leadY, leadZ) >= distance) 
 			and (not leaderObj:IsDead())
 			and (not localObj:IsDead())
 			and (not IsCasting())
@@ -24,19 +24,16 @@ function script_followMove:followLeader()
 			and (not IsEating())
 		then
 
-			local x, y, z = leaderObj:GetPosition();
+			local leadX, leadY, leadZ = leaderObj:GetPosition();
 
 			if (not script_follow.test) then
-				if (script_followMoveToTarget:moveToTarget(localObj, x, y, z)) then
+				if (script_followMoveToTarget:moveToTarget(localObj, leadX, leadY, leadZ)) then
 					script_follow.message = "Following Party Leader...";
-					return true;
 				end
 			end
 
 			if script_follow.test then
-				if (Move(x, y, z)) then
-					return true;
-				end
+				Move(x, y, z);
 			end
 		end
 	end
@@ -68,7 +65,6 @@ function script_followMove:moveInLineOfSight(partyMember)
 
 				if (script_followMoveToTarget:moveToTarget(GetLocalPlayer(), x, y, z)) then
 	           			self.message = "Moving to Party Leader LoS";
-					return;
 				end
 			end
 
