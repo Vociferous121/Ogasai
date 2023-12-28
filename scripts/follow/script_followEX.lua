@@ -124,4 +124,5 @@ function script_followEX:doLoot(localObj)
 		Move(_x, _y, _z);
 		end
 	end
+	return;
 end

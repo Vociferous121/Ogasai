@@ -323,7 +323,7 @@ function script_rogue:run(targetGUID)
 			end 
 
 			--stuck in combat
-			if (not PlayerHasTarget()) and (IsInCombat()) and (script_grind.enemiesAttackingUs() == 0) then
+			if (not PlayerHasTarget()) and (IsInCombat()) and (script_grind.enemiesAttackingUs() == 0) and (GetNumPartyMembers() < 1) then
 				self.message = "Stuck in combat... Waiting...";
 				return;
 			end
