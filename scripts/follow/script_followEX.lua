@@ -66,7 +66,7 @@ function script_followEX:doLoot(localObj)
 				ClearTarget();
 				script_follow.message = 'Reseting loot target...';
 			end
-				script_follow.lootCheck['timer'] = GetTimeEX() + 8000; -- 5 sec
+				script_follow.lootCheck['timer'] = GetTimeEX() + 10000; -- 5 sec
 			if (script_follow.lootObj ~= nil) then 
 				script_follow.lootCheck['target'] = script_follow.lootObj:GetGUID();
 			else
@@ -97,32 +97,24 @@ function script_followEX:doLoot(localObj)
 			end
 	
 			if(not script_follow.lootObj:UnitInteract() and not IsLooting()) then
-				script_follow.lootObj:UnitInteract();
 				script_follow.timer = GetTimeEX() + 550;
 				return;
 			end
 	
 			if (not LootTarget()) then
-				LootTarget();
-				--script_follow.timer = GetTimeEX() + 250;
+				script_follow.timer = GetTimeEX() + 250;
 				return;
 			else
 				script_follow.lootObj = nil;
-				--script_follow.timer = GetTimeEX() + 250;
+				script_follow.timer = GetTimeEX() + 250;
 	
 				-- If we reached the loot object, reset the nav path
 				script_nav:resetNavigate();
 			end
+
 		end
-		if (not script_follow.test) then
-			script_followMoveToTarget.moveToTarget(GetLocalPlayer(), _x, _y, _z);
-			script_follow.message = "Moving to loot...";	
-			return true;	
-		end
-		if (script_follow.test) then
-		self.message = "Trying to loot...";
-		Move(_x, _y, _z);
-		end
+		script_followMoveToTarget.moveToTarget(GetLocalPlayer(), _x, _y, _z);
+		script_follow.message = "Moving to loot...";	
+		return;
 	end
-	return;
 end

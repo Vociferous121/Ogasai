@@ -251,8 +251,9 @@ function script_follow:run()
 			if (self.lootObj == 0) then self.lootObj = nil; end
 			local isLoot = not IsInCombat() and not (self.lootObj == nil);
 			if (isLoot and not AreBagsFull()) then
-				script_followEX:doLoot(localObj);
-				return;
+				if (script_followEX:doLoot(localObj)) then
+					return true;
+				end
 			elseif (AreBagsFull() and not hsWhenFull) then
 				self.lootObj = nil;
 				self.message = "Warning the bags are full...";
