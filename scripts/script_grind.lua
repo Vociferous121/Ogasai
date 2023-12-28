@@ -330,7 +330,13 @@ function script_grind:run()
 	end
 
 	if (not IsUsingNavmesh()) then UseNavmesh(true);
-		self.message = "loading nav...";
+		return true;
+	end
+	if (not LoadNavmesh()) then script_grind.message = "Make sure you have mmaps-files...";
+		return true;
+	end
+	if (GetLoadNavmeshProgress() ~= 1) then
+		script_grind.message = "Loading Nav Mesh! Please Wait!";
 		return true;
 	end
 
@@ -445,7 +451,7 @@ function script_grind:run()
 	end
 
 
-	if (IsInCombat()) and (GetLocalPlayer():GetHealthPercentage() >= 1) and (self.skipHardPull) then
+	if (IsInCombat()) and (GetLocalPlayer():GetHealthPercentage() >= 1) and (self.skipHardPull) and (self.enemyObj ~= nil) then
 		script_om:FORCEOM();
 	end
 
@@ -735,8 +741,10 @@ function script_grind:run()
 		 then
 		
 			-- force reset of closestEnemy
+			if (self.enemyObj ~= nil) then
 			script_om:FORCEOM2();
-		
+			end
+
 			-- check and do move away from adds during combat
 			if (script_checkAdds:checkAdds()) then
 				return true;
@@ -956,9 +964,10 @@ function script_grind:run()
 				and (not self.enemyObj:IsFleeing())
 			then
 
+				if (self.enemyObj ~= nil) then
 				-- force reset or closestEnemy
 				script_om:FORCEOM2();
-
+				end
 				-- check and avoid adds
 				if (script_checkAdds:checkAdds()) then
 					return true;

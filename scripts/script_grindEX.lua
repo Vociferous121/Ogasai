@@ -28,20 +28,6 @@ function script_grindEX:doChecks()
 		--	end 
 		--end
 
-		if (not IsUsingNavmesh()) then UseNavmesh(true);
-			return true;
-		end
-
-		if (not LoadNavmesh()) then script_grind.message = "Make sure you have mmaps-files...";
-			return true;
-		end
-
-		if (GetLoadNavmeshProgress() ~= 1) then
-			script_grind.message = "Loading Nav Mesh! Please Wait!";
-			return true;
-		end
-		
-
 		if (localObj:IsDead()) and (script_paranoia:checkParanoia(40)) then
 			return;
 		end
