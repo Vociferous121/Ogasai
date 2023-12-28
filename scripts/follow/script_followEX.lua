@@ -80,49 +80,48 @@ function script_followEX:doLoot(localObj)
 			if (IsMoving() and not localObj:IsMovementDisabed()) then
 				StopMoving();
 				script_follow.timer = GetTimeEX() + 350;
-				return true;
+				return;
 			end
 	
 			if(not IsStanding()) then
 				StopMoving();
 				script_follow.timer = GetTimeEX() + 350;
-				return true;
+				return;
 			end
 	
 			-- Dismount
 			if (IsMounted()) then 
 				DisMount();
 				script_follow.timer = GetTimeEX() + 350;
-				return true; 
+				return;
 			end
 	
 			if(not script_follow.lootObj:UnitInteract() and not IsLooting()) then
 				script_follow.lootObj:UnitInteract();
 				script_follow.timer = GetTimeEX() + 550;
-				return true;
+				return;
 			end
 	
 			if (not LootTarget()) then
 				LootTarget();
-				script_follow.timer = GetTimeEX() + 250;
-				return true;
+				--script_follow.timer = GetTimeEX() + 250;
+				return;
 			else
 				script_follow.lootObj = nil;
-				script_follow.timer = GetTimeEX() + 250;
+				--script_follow.timer = GetTimeEX() + 250;
 	
 				-- If we reached the loot object, reset the nav path
 				script_nav:resetNavigate();
 			end
 		end
 		if (not script_follow.test) then
-		script_navEX.moveToTarget(GetLocalPlayer(), _x, _y, _z);
-		script_follow.message = "Moving to loot...";	
-		return;	
+			script_followMoveToTarget.moveToTarget(GetLocalPlayer(), _x, _y, _z);
+			script_follow.message = "Moving to loot...";	
+			return true;	
 		end
 		if (script_follow.test) then
 		self.message = "Trying to loot...";
 		Move(_x, _y, _z);
-		return;
 		end
 	end
 end

@@ -2,7 +2,6 @@ script_followMoveToTarget = {
 
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
 	navFunctions2Loaded = include("scripts\\script_navEX.lua"),
-	lastNavIndex = 0,
 }
 
 
@@ -14,7 +13,7 @@ function script_followMoveToTarget:moveToTarget(localObj, _x, _y, _z) -- use whe
 	localObj = GetLocalPlayer();
 	local _lx, _ly, _lz = localObj:GetPosition();
 
-	local _ix, _iy, _iz = GetPathPositionAtIndex(5, self.lastnavIndex);	
+	local _ix, _iy, _iz = GetPathPositionAtIndex(5, script_nav.lastnavIndex);	
 
 	-- If the target moves more than 5 yard then make a new path
 	if(GetDistance3D(_x, _y, _z, script_nav.navPosition['x'], script_nav.navPosition['y'], script_nav.navPosition['z']) > 5
@@ -23,7 +22,7 @@ function script_followMoveToTarget:moveToTarget(localObj, _x, _y, _z) -- use whe
 		script_nav.navPosition['y'] = _y;
 		script_nav.navPosition['z'] = _z;
 		GeneratePath(_lx, _ly, _lz, _x, _y, _z);
-		self.lastnavIndex = 1; -- start at index 1, index 0 is our position
+		script_nav.lastnavIndex = 1; -- start at index 1, index 0 is our position
 		script_follow:setWaitTimer(135);
 	end	
 
@@ -32,13 +31,13 @@ function script_followMoveToTarget:moveToTarget(localObj, _x, _y, _z) -- use whe
 	end
 
 	-- Get the current path node's coordinates
-	_ix, _iy, _iz = GetPathPositionAtIndex(5, self.lastnavIndex);
+	_ix, _iy, _iz = GetPathPositionAtIndex(5, script_nav.lastnavIndex);
 
 	-- If we are close to the next path node, increase our nav node index
 	if(GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) < script_nav.nextNavNodeDistance) then
-		self.lastnavIndex = 1 + self.lastnavIndex;		
-		if (GetPathSize(5) <= self.lastnavIndex) then
-			self.lastnavIndex = GetPathSize(5);
+		script_nav.lastnavIndex = 1 + script_nav.lastnavIndex;		
+		if (GetPathSize(5) <= script_nav.lastnavIndex) then
+			script_nav.lastnavIndex = GetPathSize(5);
 		end
 	end
 

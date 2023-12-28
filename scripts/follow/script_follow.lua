@@ -42,6 +42,8 @@ script_follow = {
 	grindFunctions = include("scripts\\script_grind.lua"),
 	vendorsLoaded = include("scripts\\script_vendor.lua"),
 	vendormenu = include("scripts\\script_vendorMenu.lua"),
+	nav1 = include("scripts\\script_nav.lua"),
+	mav2 = include("scripts\\script_navEX.lua"),
 
 	doVendorStuff = include("scripts\\follow\\script_followDoVendor.lua"),
 
@@ -239,7 +241,6 @@ function script_follow:run()
 			self.message = 'Warning bags are full...';
 		end
 
-		-- Loot
 		if (not IsInCombat() and script_followEX2:enemiesAttackingUs() == 0 and not localObj:HasBuff('Feign Death')) then
 			-- Loot if there is anything lootable and we are not in combat and if our bags aren't full
 			if (not self.skipLooting and not AreBagsFull()) then 
@@ -247,19 +248,15 @@ function script_follow:run()
 			else
 				self.lootObj = nil;
 			end
-			if (self.lootObj == 0) then
-				self.lootObj = nil; 
-			end
-				local isLoot = not IsInCombat() and not (self.lootObj == nil);
-			if (isLoot and not AreBagsFull()) and (self.lootObj ~= nil) and (not self.skipLooting) then
-				if (script_followEX:doLoot(localObj)) then
-					return true;
-				end
+			if (self.lootObj == 0) then self.lootObj = nil; end
+			local isLoot = not IsInCombat() and not (self.lootObj == nil);
+			if (isLoot and not AreBagsFull()) then
+				script_followEX:doLoot(localObj);
+				return;
 			elseif (AreBagsFull() and not hsWhenFull) then
 				self.lootObj = nil;
 				self.message = "Warning the bags are full...";
 			end
-
 		end
 
 		-- Clear dead/tapped targets
@@ -362,7 +359,8 @@ function script_follow:run()
 				end
 			end
 	
-			self.combatError = script_followDoCombat:run();	
+			self.combatError = script_followDoCombat:run();
+			script_nav.lastnavIndex = 0;
 				
 		else
 
@@ -380,14 +378,10 @@ function script_follow:run()
 					end
 				end
 			end
-			if (lootObj ~= nil) then
-				if (script_followEX:doLoot(localObj)) then
-					return true;
-				end
-			end
+			
 			local leader = GetPartyLeaderObject();
 			-- follow leader
-			if (self.combatError ~= 3) and (not IsInCombat()) and (leader ~= 0)
+			if (not IsInCombat()) and (leader ~= 0)
 				and (not leader:IsDead()) and (not localObj:IsDead()) then
 				if (not IsCasting()) and (not IsChanneling())
 				and (not IsDrinking()) and (not IsEating()) and (not IsLooting()) then

@@ -6,15 +6,16 @@ script_followMove = {
 
 function script_followMove:followLeader()
 
-	script_follow.tickRate = 0;
-
 	local leaderObj = GetPartyLeaderObject();
 	local distance = script_follow.followLeaderDistance;
 	local localObj = GetLocalPlayer();
 
 	if (leaderObj ~= 0 and leaderObj ~= nil) then
 
-		if (leaderObj:GetDistance() > distance)
+		local myX, myY, myZ = localObj:GetPosition();
+		local leadX, leadY, leadZ = leaderObj:GetPosition();
+
+		if (leaderObj:GetDistance() >= distance or GetDistance3D(myX, myY, myZ, leadX, leadY, leadZ) > distance) 
 			and (not leaderObj:IsDead())
 			and (not localObj:IsDead())
 			and (not IsCasting())
