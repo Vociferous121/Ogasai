@@ -54,6 +54,8 @@ script_follow = {
 	menuLoaded = include("scripts\\follow\\script_followMenu.lua"),
 	extraFunctions = include("scripts\\follow\\script_followEX.lua"),
 	moveToTargetLoaded = include("scripts\\follow\\script_followMoveToTarget.lua"),
+	moveToLootLoaded = include("scripts\\follow\\script_followMoveToLoot.lua"),
+
 
 }
 
@@ -262,8 +264,7 @@ function script_follow:run()
 
 		-- Clear dead/tapped targets
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
-			if ((self.enemyObj:IsTapped() and not self.enemyObj:IsTappedByMe()) 
-				or self.enemyObj:IsDead()) then
+			if (self.enemyObj:IsDead()) then
 				self.enemyObj = nil;
 				ClearTarget();
 			end
@@ -275,20 +276,12 @@ function script_follow:run()
 			AcceptGroup(); 
 		end
 
-		-- Healer check: heal/buff the party
-		if (GetNumPartyMembers() > 0) then
-			for i = 1, GetNumPartyMembers() do
-				local member = GetPartyMember(i);
-				if (not member:IsDead()) and (not localObj:IsDead()) and (not IsMoving()) then
-					if (script_followHealsAndBuffs:healAndBuff()) then
-						self.message = "Healing/buffing the party...";
-						self.waitTimer = GetTimeEX() + 500;
-						ClearTarget();
-						return true;
-					end
-				end
-			end
+		local leader = GetPartyLeaderObject();
+		if (leader:GetDistance() == 0) then
+			self.message = "leader GetDistance == 0... no path";
+			return;
 		end
+			
 
 		-- Check if anything is attacking us Priest
 		if (script_followEX2:enemiesAttackingUs() >= 1) then
@@ -318,15 +311,12 @@ function script_follow:run()
 		end
 
 		local enemy = self.enemyObj
-		if enemy ~= 0 and enemy ~= nil and (enemy:GetDistance() > self.followLeaderDistance)
-			and (not self.test) then
+		if enemy ~= 0 and enemy ~= nil and (enemy:GetDistance() > self.followLeaderDistance) then
 			self.enemyObj = nil;
-			ClearTarget();
 		end
 
 		-- get enemy to attack
 		-- i want to add a self.stickyTarget to stop the bot from swinging targets by GUID
-		local leader = GetPartyLeaderObject();
 		local distance = self.followLeaderDistance;
 		if (GetPartyLeaderObject() ~= 0) then
 			if (leader:GetUnitsTarget() ~= 0 and not leader:IsDead()) then
@@ -362,6 +352,7 @@ function script_follow:run()
 	
 			if (not self.enemyObj:IsDead()) and (self.enemyObj:CanAttack()) then
 				self.combatError = script_followDoCombat:run();
+				self.waitTimer = GetTimeEX() + 500;
 			end
 		else
 
@@ -380,11 +371,6 @@ function script_follow:run()
 				end
 			end
 
-			if (leader:GetDistance() == 0) then
-				self.message = "leader GetDistance == 0... no path";
-				return;
-			end
-			
 			local leader = GetPartyLeaderObject();
 			-- follow leader
 			if (not IsInCombat()) and (leader ~= 0) and (self.lootObj == nil)

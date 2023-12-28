@@ -8,6 +8,9 @@ function script_followMenu:menu()
 
 	local gi = gcinfo();
 	Text(gi);
+	local mt = script_followMoveToTarget.used;
+	SameLine();
+	Text(""..mt.."Resets Used....");
 
 	wasClicked, script_follow.test = Checkbox("Movement locked up?", script_follow.test);
 	if script_follow.test then
@@ -42,8 +45,6 @@ function script_followMenu:menu()
 	if (CollapsingHeader("Group Options")) then
 
 		wasClicked, script_followDoVendor.useVendor = Checkbox("Use Vendoring (DOES NOT WORK)", script_followDoVendor.useVendor);
-
-
 			Text("Assist in combat? ")
 			
 			wasClicked, script_follow.assistInCombat = Checkbox("Assist Party Leader", script_follow.assistInCombat);
@@ -61,8 +62,6 @@ function script_followMenu:menu()
 
 			Text("Distance to follow Party Leader  ");
 			script_follow.followLeaderDistance = SliderInt("Follow Leader Distance (yd)", 5, 45, script_follow.followLeaderDistance);
-
-			--wasClicked, self.autoGhost = Checkbox("Auto Release on Death", self.autoGhost);
 
 			SameLine();
 

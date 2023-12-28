@@ -107,19 +107,11 @@ function script_followEX:doLoot(localObj)
 			else
 				script_follow.lootObj = nil;
 				script_follow.timer = GetTimeEX() + 250;
-	
-				-- If we reached the loot object, reset the nav path
-				script_nav:resetNavigate();
 			end
-		end
-		if (not IsMoving()) and (GetLoadNavmeshProgress() ~= 0) then
-			collectgarbage(script_nav.navPosition['z']);
-			collectgarbage(script_nav.navPosition['y']);
-			collectgarbage(script_nav.navPosition['x']);
-			script_followMoveToTarget.used = script_followMoveToTarget.used + 1;
-		end
-		if (script_followMoveToTarget:moveToTarget(GetLocalPlayer(), _x, _y, _z)) then
-			script_follow.message = "Moving to loot...";	
+		else
+			if(script_followMoveToTarget:moveToLoot(GetLocalPlayer(), _x, _y, _z)) then
+				return;
+			end
 		end
 	end
 end

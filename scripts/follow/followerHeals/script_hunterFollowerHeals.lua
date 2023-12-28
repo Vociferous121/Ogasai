@@ -48,5 +48,5 @@ function script_hunterFollowerHeals:HealsAndBuffs()
 
 	end
 	end
-return;
+return false;
 end

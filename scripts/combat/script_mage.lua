@@ -169,9 +169,8 @@ function script_mage:runBackwards(targetObj, range)
 			if (IsMoving()) and (script_grind.jump) then
 				JumpOrAscendStart();
 				self.waitTimer = GetTimeEX() + 550;
-			end
-			local randomMove = math.random(-3, 3);		
- 			if (script_navEX:moveToTarget(localObj, moveX+randomMove, moveY+randomMove, moveZ)) then
+			end		
+ 			if (script_navEX:moveToTarget(localObj, moveX, moveY, moveZ)) then
  				return true;
 			end
 			if (script_grind.useUnstuck and IsMoving()) then
