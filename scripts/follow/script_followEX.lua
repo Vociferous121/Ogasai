@@ -3,8 +3,9 @@ script_followEX = {
 	healsLoaded = include("scripts\\follow\\script_followHealsAndBuffs.lua"),
 	followEX2Loaded = include("scripts\\follow\\script_followEX2.lua"),
 
-	drawUnits = false,
-	drawAggro = false,
+
+		drawUnits = false,
+		drawAggro = false,
 }
 
 function script_followEX:getDistanceDif()
@@ -51,6 +52,7 @@ function script_followEX:drawStatus()
 		RunCombatDraw();
 end
 
+
 function script_followEX:doLoot(localObj)
 
 	if (script_follow.lootObj ~= nil) then
@@ -64,7 +66,7 @@ function script_followEX:doLoot(localObj)
 				ClearTarget();
 				script_follow.message = 'Reseting loot target...';
 			end
-				script_follow.lootCheck['timer'] = GetTimeEX() + 10000; -- 10 sec
+				script_follow.lootCheck['timer'] = GetTimeEX() + 8000; -- 5 sec
 			if (script_follow.lootObj ~= nil) then 
 				script_follow.lootCheck['target'] = script_follow.lootObj:GetGUID();
 			else
@@ -101,6 +103,7 @@ function script_followEX:doLoot(localObj)
 			end
 	
 			if (not LootTarget()) then
+				LootTarget();
 				script_follow.timer = GetTimeEX() + 250;
 				return true;
 			else
@@ -111,9 +114,15 @@ function script_followEX:doLoot(localObj)
 				script_nav:resetNavigate();
 			end
 		end
-
-		if (script_navEX:moveToTarget(GetLocalPlayer(), _x, _y, _z)) then
-			script_follow.message = "Moving to loot...";		
+		if (not script_follow.test) then
+		script_navEX.moveToTarget(GetLocalPlayer(), _x, _y, _z);
+		script_follow.message = "Moving to loot...";	
+		return;	
+		end
+		if (script_follow.test) then
+		self.message = "Trying to loot...";
+		Move(_x, _y, _z);
+		return;
 		end
 	end
 end

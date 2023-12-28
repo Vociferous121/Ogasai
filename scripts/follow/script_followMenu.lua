@@ -10,7 +10,6 @@ function script_followMenu:menu()
 	if script_follow.test then
 	Text("Direct move-to-path. Bot will not turn corners");
 	Text("Distance Limited");
-	script_follow.followLeaderDistance = 6;
 	end
 
 	if (not script_follow.pause) then 
@@ -44,8 +43,11 @@ function script_followMenu:menu()
 
 			Text("Assist in combat? ")
 			
-			wasClicked, script_follow.assistInCombat = Checkbox("Assist Party Leader - best under 30 (yd)", script_follow.assistInCombat);
-			
+			wasClicked, script_follow.assistInCombat = Checkbox("Assist Party Leader", script_follow.assistInCombat);
+			Text("Combat range limited to follow distance...");
+
+			Separator();
+
 			if (script_follow.assistInCombat) then
 				
 				Text("Target Health to begin attacking");
@@ -239,8 +241,10 @@ function script_followMenu:menu()
 		wasClicked, script_shamanFollowerHeals.useManaSpringTotem = Checkbox("Mana Spring", script_shamanFollowerHeals.useManaSpringTotem);
 	end
 
-	if (CollapsingHeader("Vendor Options")) then
-		script_vendorMenu:menu();
+	if (script_followDoVendor.useVendor) then
+		if (CollapsingHeader("Vendor Options")) then
+			script_vendorMenu:menu();
+		end
 	end
 
 	if (CollapsingHeader("Display Options")) then

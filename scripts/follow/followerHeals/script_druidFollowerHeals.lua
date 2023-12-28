@@ -39,13 +39,6 @@ function script_druidFollowerHeals:HealsAndBuffs()
 				leaderObj = GetPartyMember(GetPartyLeaderIndex());
 				local localHealth = GetLocalPlayer():GetHealthPercentage();
 		end
-
-		-- Move in line of sight and in range of the party member
-		if (partyMember:GetDistance() > 40) or (not partyMember:IsInLineOfSight()) then
-			if (script_follow:moveInLineOfSight(partyMember)) then
-				return true; 
-			end
-		end
 	
           	-- druid heals
           	if (self.enableHeals) and (partyMember:GetGUID() ~= localObj:GetGUID()) and (partyMemberHP > 4) then
@@ -72,7 +65,7 @@ function script_druidFollowerHeals:HealsAndBuffs()
                 	-- natures swiftness
                 	if (HasSpell("Nature's Swiftness")) and (not localObj:HasBuff("Nature's Swiftness")) and (leaderObj:GetHealthPercentage() < 30) then
                 		if (not IsSpellOnCD("Nature's Swiftness")) and (localMana > 10) then
-                	        	if (script_followMove:moveInLineOfSight(partyMember)) then
+                	        	if (script_followMove:moveInLineOfSight()) then
                 	        	    return true;
                 	        	end -- move to member
                 	        	if (Cast("Nature's Swiftness", localObj)) then
@@ -85,7 +78,7 @@ function script_druidFollowerHeals:HealsAndBuffs()
                 	-- regrowth
                 	if (self.clickRegrowth) then
                 		if (HasSpell("Regrowth")) and (not partyMember:HasBuff("Regrowth")) and (partyMemberHP < self.regrowthHealth) and (localMana > self.regrowthMana) then
-                       			if (script_followMove:moveInLineOfSight(partyMember)) then
+                       			if (script_followMove:moveInLineOfSight()) then
                         	    		return true;
                         		end -- move to member
                         		if (Cast("Regrowth", partyMember)) then
@@ -97,7 +90,7 @@ function script_druidFollowerHeals:HealsAndBuffs()
 
                 	-- rejuvenation
                 	if (HasSpell("Rejuvenation")) and (not partyMember:HasBuff("Rejuvenation")) and (partyMemberHP < self.rejuvenationHealth) and (localMana > self.rejuvenationMana) then
-                		if (script_followMove:moveInLineOfSight(partyMember)) then
+                		if (script_followMove:moveInLineOfSight()) then
                 	                return true;
                 	    	end -- move to member
                 	    	if (Cast("Rejuvenation", partyMember)) then
@@ -109,7 +102,7 @@ function script_druidFollowerHeals:HealsAndBuffs()
                 	-- healing touch if has regrowth
 			if (self.clickHealingTouch) then
 				if (HasSpell("Healing Touch")) and (partyMember:HasBuff("Regrowth")) and (partyMemberHP < self.healingTouchHealth) and (localMana > self.healingTouchMana) then
-					if (script_followMove:moveInLineOfSight(partyMember)) then
+					if (script_followMove:moveInLineOfSight()) then
                 	        	    return true;
 					end -- move to member
                 	       		if (Cast("Healing Touch", partyMember)) then
@@ -122,7 +115,7 @@ function script_druidFollowerHeals:HealsAndBuffs()
 			-- low level healing touch
 			if (not HasSpell("Regrowth")) then
 				if (partyMemberHP < self.healingTouchHealth) and (localMana > self.healingTouchMana) then
-					if (script_followMove:moveInLineOfSight(partyMember)) then
+					if (script_followMove:moveInLineOfSight()) then
                 	        		return true;
 					end -- move to member
                 	       		if (Cast("Healing Touch", partyMember)) then

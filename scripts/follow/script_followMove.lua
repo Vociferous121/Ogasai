@@ -2,36 +2,39 @@ script_followMove = {
 	
 	navFunctionsLoaded = include("scripts\\script_nav.lua"),
 	navFunctions2Loaded = include("scripts\\script_navEX.lua"),
-	lastNavIndex = 0,
 }
 
 function script_followMove:followLeader()
+
+	script_follow.tickRate = 0;
 
 	local leaderObj = GetPartyLeaderObject();
 	local distance = script_follow.followLeaderDistance;
 	local localObj = GetLocalPlayer();
 
-	-- Follow our master
-	if (not script_follow.skipLooting and script_follow.lootObj == nil) or (script_follow.skipLooting) then
+	if (leaderObj ~= 0 and leaderObj ~= nil) then
 
-		if (leaderObj ~= 0 and leaderObj ~= nil) then
+		if (leaderObj:GetDistance() > distance)
+			and (not leaderObj:IsDead())
+			and (not localObj:IsDead())
+			and (not IsCasting())
+			and (not IsChanneling())
+			and (not IsDrinking())
+			and (not IsEating())
+		then
 
 			local x, y, z = leaderObj:GetPosition();
 
-
-			if (leaderObj:GetDistance() > distance)
-				and (not leaderObj:IsDead())
-				and (not localObj:IsDead()) then
-
-
-				if (not script_follow.test) then
-					script_navEX:moveToTarget(localObj, x, y, z);
+			if (not script_follow.test) then
+				if (script_followMoveToTarget:moveToTarget(localObj, x, y, z)) then
 					script_follow.message = "Following Party Leader...";
-					return;
+					return true;
 				end
+			end
 
-				if script_follow.test then
-					Move(x, y, z);
+			if script_follow.test then
+				if (Move(x, y, z)) then
+					return true;
 				end
 			end
 		end
@@ -60,11 +63,12 @@ function script_followMove:moveInLineOfSight(partyMember)
 
 				local x, y, z = leaderObj:GetPosition();
 
-			if (not leaderObj:IsInLineOfSight()) or (leaderObj:GetDistance() > distance) then
+			if (not leaderObj:IsInLineOfSight()) then
 
-				script_navEX:moveToTarget(GetLocalPlayer(), x, y, z);
-	           		self.message = "Moving to Party Leader LoS";
-				return;
+				if (script_followMoveToTarget:moveToTarget(GetLocalPlayer(), x, y, z)) then
+	           			self.message = "Moving to Party Leader LoS";
+					return;
+				end
 			end
 
 		elseif (script_follow.followMember)
@@ -80,7 +84,7 @@ function script_followMove:moveInLineOfSight(partyMember)
 
 			if (not partyMember:IsInLineOfSight()) and (partyMember:GetDistance() < distance) then
 			
-				script_navEX:moveToTarget()(GetLocalPlayer(), x, y, z);
+				script_followMoveToTarget:moveToTarget(GetLocalPlayer(), x, y, z);
 				self.message = "Moving to party member LoS";
 				return;
 			end

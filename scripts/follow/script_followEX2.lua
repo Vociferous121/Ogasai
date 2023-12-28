@@ -11,20 +11,17 @@ function script_followEX2:setup()
 
 	local class = UnitClass('player');
 	
-	if class == "Mage" then
+	if class == "Mage" 
+		or class == "Warlock"
+		or class == "Rogue"
+		or class == "Warrior"
+		or class == "Hunter" then
+		
 		script_follow.assistInCombat = true;
 	end
-	if class == "Warlock" then
-		script_follow.assistInComat = true;
-	end
-	if class == "Rogue" then
+	if class == "Priest" or class == "Paladin" or class == "Shaman" then
 		script_follow.assistInCombat = true;
-	end
-	if class == "Warrior" then
-		script_follow.assistInCombat = true;
-	end
-	if class == "Hunter" then
-		script_follow.assistInCombat = true;
+		script_follow.dpsHP = 50;
 	end
 
 end
