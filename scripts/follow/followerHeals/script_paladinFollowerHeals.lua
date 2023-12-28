@@ -33,6 +33,14 @@ function script_paladinFollowerHeals:HealsAndBuffs()
 	if (GetTimeEX() > self.timer) then
 		timer = GetTimeEX() + script_follow.tickRate;
 
+		-- Check if anything is attacking us Paladin
+		if (script_followEX2:enemiesAttackingUs() >= 2) then
+				local localMana = GetLocalPlayer():GetManaPercentage();
+			if (localMana > 6 and HasSpell('Divine Protection') and not IsSpellOnCD('Divine Protection')) then
+				CastSpellByName('Divine Protection');
+			end
+		end
+
 		for i = 1, GetNumPartyMembers() do
 
 		if (GetNumPartyMembers() > 0) then

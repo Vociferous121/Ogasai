@@ -1,0 +1,1 @@
+AreBagsFull() shows hunter quiver as a bag and doesn't show as full?

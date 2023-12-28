@@ -1,5 +1,4 @@
 script_follow = {
-	test = false, -- move
 	useMount = false,
 	disMountRange = 32,
 	mountTimer = 0,
@@ -10,7 +9,7 @@ script_follow = {
 	waitTimer = GetTimeEX(),
 	pullDistance = 150,
 	findLootDistance = 60,
-	lootDistance = 3,
+	lootDistance = 2.5,
 	skipLooting = false,
 	lootCheck = {},
 	ressDistance = 25,
@@ -20,11 +19,11 @@ script_follow = {
 	myY = 0,
 	myZ = 0,
 	myTime = GetTimeEX(),
-	nextToNodeDist = 8,
+	nextToNodeDist = 5,
 	isSetup = false,
 	drawUnits = false,
 	acceptTimer = GetTimeEX(),
-	followLeaderDistance = 13,
+	followLeaderDistance = 18,
 	followTimer = GetTimeEX(),
 	assistInCombat = false,
 	isChecked = true,
@@ -33,7 +32,10 @@ script_follow = {
 	drawNav = true,
 	objectAttackingUs = 0,
 	meleeDistance = 3.5,
-	useUnstuck = false,
+	unstuck = true,
+	followTimer = GetTimeEX(),
+	randomFollow = true,
+	limitAttackDist = false,
 	helperLoaded = include("scripts\\script_helper.lua"),
 	drawDataLoaded = include("scripts\\script_drawData.lua"),
 	drawStatusLoaded = include("scripts\\script_drawStatus.lua"),
@@ -136,7 +138,7 @@ function script_follow:run()
 	end
 
 	-- auto unstuck feature
-	if (self.useUnStuck) and (IsMoving()) then
+	if (self.unstuck) and (IsMoving()) then
 		if (not script_unstuck:pathClearAuto(2)) then
 			self.message = script_unstuck.message;
 			return true;
@@ -153,16 +155,20 @@ function script_follow:run()
 		if (not IsInCombat()) then
 			script_follow.combatError = nil; 
 		end
-		if (self.test) and (not IsCasting()) and (not IsChanneling()) then
-		local r = math.random(2, 13);
-		script_follow.followLeaderDistance = r;
+		--if (self.test) and (not IsCasting()) and (not IsChanneling()) then
+		--local r = math.random(2, 13);
+		--script_follow.followLeaderDistance = r;
+		--end
+		if (GetTimeEX() > self.followTimer) and (self.randomFollow) then
+			local r = math.random(15, 25);
+			script_follow.followLeaderDistance = r;
+			localObj = GetLocalPlayer();
+			self.followTimer = GetTimeEX() + 30000;
 		end
-		localObj = GetLocalPlayer();
 		-- Wait out the wait-timer and/or casting or channeling
 		if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then
 			return;
 		end
-		
 		
 		-- If bags are full
 		if (script_followDoVendor.useVendor) and (AreBagsFull() and not IsInCombat()) then
@@ -281,26 +287,7 @@ function script_follow:run()
 			self.message = "leader GetDistance == 0... no path";
 			return;
 		end
-			
 
-		-- Check if anything is attacking us Priest
-		if (script_followEX2:enemiesAttackingUs() >= 1) then
-				local localMana = GetLocalPlayer():GetManaPercentage();
-			if (localMana > 6 and HasSpell('Fade') and not IsSpellOnCD('Fade')) then
-				CastSpellByName('Fade');
-				return;
-			end
-		end
-				
-		-- Check if anything is attacking us Paladin
-		if (script_followEX2:enemiesAttackingUs() >= 2) then
-				local localMana = GetLocalPlayer():GetManaPercentage();
-			if (localMana > 6 and HasSpell('Divine Protection') and not IsSpellOnCD('Divine Protection')) then
-				CastSpellByName('Divine Protection');
-				return;
-			end
-		end
-        
 		if  (GetNumPartyMembers() > 0) and (GetTarget() ~= 0 and GetTarget() ~= nil) then
             			local target = GetTarget();
 			if (target:CanAttack() and self.assistInCombat) then
@@ -311,17 +298,17 @@ function script_follow:run()
 		end
 
 		local enemy = self.enemyObj
-		if enemy ~= 0 and enemy ~= nil and (enemy:GetDistance() > self.followLeaderDistance) then
+		if (self.limitAttackDist) and (enemy ~= 0) and (enemy ~= nil) and (enemy:GetDistance() > self.followLeaderDistance) then
 			self.enemyObj = nil;
 		end
 
 		-- get enemy to attack
 		-- i want to add a self.stickyTarget to stop the bot from swinging targets by GUID
 		local distance = self.followLeaderDistance;
-		if (GetPartyLeaderObject() ~= 0) then
+		if (GetPartyLeaderObject() ~= 0) and (self.limitAttackDist) and (self.assistInCombat) then
 			if (leader:GetUnitsTarget() ~= 0 and not leader:IsDead()) then
 						curTarget = GetPartyLeaderObject():GetUnitsTarget();
-				if (curTarget:GetHealthPercentage() <= self.dpsHP and self.assistInCombat) then
+				if (curTarget:GetHealthPercentage() <= self.dpsHP) then
 					tarX, tarY, tarZ = curTarget:GetPosition();
 					leaderX, leaderY, leaderZ = leader:GetPosition();
 					if (GetDistance3D(leaderX, leaderY, leaderZ, tarX, tarY, tarZ) <= distance) then
@@ -332,7 +319,17 @@ function script_follow:run()
 					ClearTarget();
 				end
 			end
-       		end
+       		elseif (GetPartyLeaderObject() ~= 0) and (not self.limitAttackDist) and (self.assistInCombat) then
+			if (leader:GetUnitsTarget() ~= 0 and not leader:IsDead()) then
+					curTarget = GetPartyLeaderObject():GetUnitsTarget();
+				if (curTarget:GetHealthPercentage() <= self.dpsHP) then
+					self.enemyObj = GetPartyLeaderObject():GetUnitsTarget();
+				end
+			elseif (script_followEX2:enemiesAttackingUs() == 0) then
+				self.enemyObj = nil;
+				ClearTarget();
+			end
+		end
 
 		-- do combat
 		if (not localObj:IsDead()) and (self.enemyObj ~= nil and self.enemyObj ~= 0) then

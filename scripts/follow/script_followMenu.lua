@@ -5,18 +5,13 @@ script_followMenu = {
 }
 
 function script_followMenu:menu()
-
+	Text("Garbage Data Lost - ");
+	SameLine();
 	local gi = gcinfo();
 	Text(gi);
 	local mt = script_followMoveToTarget.used;
 	SameLine();
-	Text(""..mt.."Resets Used....");
-
-	wasClicked, script_follow.test = Checkbox("Movement locked up?", script_follow.test);
-	if script_follow.test then
-	Text("Direct move-to-path. Bot will not turn corners");
-	Text("Distance Limited");
-	end
+	Text(""..mt.." Nav Resets Used....");
 
 	if (not script_follow.pause) then 
 		if (Button("Pause Bot")) then
@@ -53,9 +48,13 @@ function script_followMenu:menu()
 			Separator();
 
 			if (script_follow.assistInCombat) then
-				
+
+				wasClicked, script_follow.limitAttackDist = Checkbox("Limit Attack Range To Follow Distance "..script_follow.followLeaderDistance.. "yds", script_follow.limitAttackDist);
+
 				Text("Target Health to begin attacking");
 				script_follow.dpsHP = SliderInt("Health", 0, 100, script_follow.dpsHP);
+			
+				
 			end
 			
 			Separator();
@@ -66,9 +65,8 @@ function script_followMenu:menu()
 			SameLine();
 
 			wasClicked, script_follow.followMember = Checkbox("Follow Party Member", script_follow.followMember);
-
-			wasClicked, script_follow.useUnStuck = Checkbox("Use UnStuck Script", script_follow.useUnStuck);
-
+			wasClicked, script_follow.unstuck = Checkbox("Use UnStuck Script", script_follow.unstuck);
+			wasClicked, script_follow.randomFollow = Checkbox("Randomly Adjust Follow Distance", script_follow.randomFollow);
 			
 			Separator();
 			
@@ -229,12 +227,6 @@ function script_followMenu:menu()
 		
 		Text("Lesser Healing Wave Mana");
 		script_shamanFollowerHeals.lesserHealingWaveMana = SliderInt("Self Mana", 1, 100, script_shamanFollowerHeals.lesserHealingWaveMana);
-		
-		--Text("Chain Heal Health");
-		--script_shamanFollowerHeals.chainHealHealth = SliderInt("party member HP", 1, 100, script_shamanFollowerHeals.chainHealHealth);
-		
---		Text("Chain Heal Mana");
---		script_shamanFollowerHeals.chainHealMana = SliderInt("self mana", 1, 100, script_shamanFollowerHeals.chainHealMana);
 		
 		Text("Totems");
 		wasClicked, script_shamanFollowerHeals.useStrengthOfEarthTotem = Checkbox("Strength of Earth", script_shamanFollowerHeals.useStrengthOfEarthTotem);

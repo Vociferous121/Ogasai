@@ -45,6 +45,14 @@ function script_priestFollowerHeals:HealsAndBuffs()
 	if (GetTimeEX() > timer) then
 		timer = GetTimeEX() + script_follow.tickRate;
 
+		-- Check if anything is attacking us Priest
+		if (script_followEX2:enemiesAttackingUs() >= 1) then
+				local localMana = GetLocalPlayer():GetManaPercentage();
+			if (localMana > 6 and HasSpell('Fade') and not IsSpellOnCD('Fade')) then
+				CastSpellByName('Fade');
+			end
+		end
+
 	for i = 1, GetNumPartyMembers() do
 
 		if (GetNumPartyMembers() > 0) then

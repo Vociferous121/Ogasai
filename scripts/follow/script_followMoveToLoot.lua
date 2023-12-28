@@ -11,6 +11,7 @@ function script_followMoveToTarget:moveToLoot(localObj, _x, _y, _z) -- use when 
 
 	script_follow.drawNav = true;
 
+	local localObj = GetLocalPlayer();
 	-- Fetch our current position
 	local _lx, _ly, _lz = localObj:GetPosition();
 
