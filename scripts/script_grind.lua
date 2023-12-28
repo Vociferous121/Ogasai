@@ -807,7 +807,7 @@ function script_grind:run()
 
 			-- pet stays in combat on some server cores while returning to player
 				-- force bot to finish combat...
-			if (UnitClass('player') == "Warlock") or (UnitClass('player') == "Hunter") then
+			if (UnitClass('player') == "Warlock") or (UnitClass('player') == "Hunter") and (GetNumPartyMembers() == 0) then
 
 				-- force bot to attack pets target
 				if (script_warlock.waitAfterCombat or script_hunter.waitAfterCombat)

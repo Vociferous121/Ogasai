@@ -329,7 +329,7 @@ function script_warlock:run(targetGUID)
 	end
 
 	-- force bot to attack pets target
-	if (self.waitAfterCombat) and (IsInCombat()) and (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (playerHasTarget == 0) and (self.hasPet) then
+	if (GetNumPartyMembers() == 0) and (self.waitAfterCombat) and (IsInCombat()) and (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (playerHasTarget == 0) and (self.hasPet) then
 		if (petHasTarget ~= 0) then
 			if (GetPet():GetDistance() > 10) then
 				AssistUnit("pet");
@@ -413,7 +413,7 @@ function script_warlock:run(targetGUID)
 		local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
 
 	-- force bot to attack pets target
-	if (self.waitAfterCombat) and (IsInCombat()) and (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (playerHasTarget == 0) and (self.hasPet) then
+	if (GetNumPartyMembers() == 0) and (self.waitAfterCombat) and (IsInCombat()) and (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (playerHasTarget == 0) and (self.hasPet) then
 		if (petHasTarget ~= 0) then
 			if (GetPet():GetDistance() > 10) then
 				AssistUnit("pet");
@@ -664,7 +664,7 @@ function script_warlock:run(targetGUID)
 		local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
 
 	-- force bot to attack pets target
-	if (self.waitAfterCombat) and (IsInCombat()) and (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (playerHasTarget == 0) and (self.hasPet) then
+	if (GetNumPartyMembers() == 0) and (self.waitAfterCombat) and (IsInCombat()) and (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (playerHasTarget == 0) and (self.hasPet) then
 		if (petHasTarget ~= 0) then
 			if (GetPet():GetDistance() > 10) then
 				AssistUnit("pet");
@@ -1151,7 +1151,7 @@ if (GetPet() ~= 0) then
 		local playerHasTarget = GetLocalPlayer():GetUnitsTarget();
 
 	-- force bot to attack pets target
-	if (self.waitAfterCombat) and (IsInCombat()) and (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (playerHasTarget == 0) and (self.hasPet) then
+	if (GetNumPartyMembers() == 0) and (self.waitAfterCombat) and (IsInCombat()) and (GetPet() ~= 0 and GetPet():GetHealthPercentage() > 1) and (playerHasTarget == 0) and (self.hasPet) then
 		if (petHasTarget ~= 0) then
 			if (GetPet():GetDistance() > 10) then
 				AssistUnit("pet");

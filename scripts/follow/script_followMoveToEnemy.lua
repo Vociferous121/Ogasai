@@ -1,5 +1,7 @@
 script_followMoveToEnemy = {
 
+	moveTimer = GetTimeEX(),
+
 }
 
 function script_followMoveToEnemy:moveToEnemy(localObj, _x, _y, _z) -- use when moving to moving targets
@@ -14,7 +16,7 @@ function script_followMoveToEnemy:moveToEnemy(localObj, _x, _y, _z) -- use when 
 
 	-- If the target moves more than 5 yard then make a new path
 	if(GetDistance3D(_x, _y, _z, script_nav.navPosition['x'], script_nav.navPosition['y'], script_nav.navPosition['z']) > 2
-		or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
+		or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 35) then
 		script_nav.navPosition['x'] = _x;
 		script_nav.navPosition['y'] = _y;
 		script_nav.navPosition['z'] = _z;
@@ -53,6 +55,7 @@ function script_followMoveToEnemy:moveToEnemy(localObj, _x, _y, _z) -- use when 
 		collectgarbage(script_nav.navPosition['y']);
 		collectgarbage(script_nav.navPosition['x']);
 		script_followMoveToTarget.used = script_followMoveToTarget.used + 1;
+		self.moveTimer = GetTimeEX() + 1000;
 	end
 	
 	script_follow.message = "moving to target...";

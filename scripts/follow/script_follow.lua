@@ -138,6 +138,11 @@ function script_follow:run()
 		return; 
 	end
 
+	if (GetPartyLeaderObject() == 0) then
+		self.message = "No party leader...";
+		return;
+	end
+
 	-- auto unstuck feature
 	if (self.unstuck) and (IsMoving()) then
 		script_unstuck.turnSensitivity = 3;
@@ -352,7 +357,9 @@ function script_follow:run()
 	
 			if (not self.enemyObj:IsDead()) and (self.enemyObj:CanAttack()) then
 				self.combatError = script_followDoCombat:run();
-				self.waitTimer = GetTimeEX() + 500;
+				if (IsCasting()) or (IsChanneling()) then
+					script_follow:setWaitTimer(1500);
+				end
 			end
 		else
 

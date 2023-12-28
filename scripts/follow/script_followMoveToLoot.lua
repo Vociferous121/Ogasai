@@ -58,6 +58,7 @@ function script_followMoveToTarget:moveToLoot(localObj, _x, _y, _z) -- use when 
 		collectgarbage(script_nav.navPosition['y']);
 		collectgarbage(script_nav.navPosition['x']);
 		script_followMoveToTarget.used = script_followMoveToTarget.used + 1;
+		self.moveTimer = GetTimeEX() + 1000;
 	end
 	
 	script_follow.message = "moving to target...";

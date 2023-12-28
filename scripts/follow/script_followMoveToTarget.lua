@@ -59,6 +59,7 @@ function script_followMoveToTarget:moveToTarget(localObj, _x, _y, _z) -- use whe
 		collectgarbage(script_nav.navPosition['y']);
 		collectgarbage(script_nav.navPosition['x']);
 		script_followMoveToTarget.used = script_followMoveToTarget.used + 1;
+		self.moveTimer  = GetTimeEX() + 5000;
 	end
 	
 	script_follow.message = "moving to target...";
