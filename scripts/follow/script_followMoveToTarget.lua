@@ -19,7 +19,7 @@ function script_followMoveToTarget:moveToTarget(localObj, _x, _y, _z) -- use whe
 	local _ix, _iy, _iz = GetPathPositionAtIndex(5, script_nav.lastnavIndex);	
 
 	-- If the target moves more than 5 yard then make a new path
-	if(GetDistance3D(_x, _y, _z, script_nav.navPosition['x'], script_nav.navPosition['y'], script_nav.navPosition['z']) > 6
+	if(GetDistance3D(_x, _y, _z, script_nav.navPosition['x'], script_nav.navPosition['y'], script_nav.navPosition['z']) > 5
 		or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 60) then
 		script_nav.navPosition['x'] = _x;
 		script_nav.navPosition['y'] = _y;
@@ -27,7 +27,6 @@ function script_followMoveToTarget:moveToTarget(localObj, _x, _y, _z) -- use whe
 		GeneratePath(_lx, _ly, _lz, _x, _y, _z);
 		script_nav.lastnavIndex = 1; -- start at index 1, index 0 is our position
 		script_follow.message = "trying to find a path...";
-		script_follow:setWaitTimer(200);
 	end	
 
 	if (not IsPathLoaded(5)) then
@@ -63,5 +62,6 @@ function script_followMoveToTarget:moveToTarget(localObj, _x, _y, _z) -- use whe
 	end
 	
 	script_follow.message = "moving to target...";
+	script_follow:setWaitTimer(300);
 	return "Moving to target...";
 end

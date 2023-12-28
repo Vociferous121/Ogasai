@@ -162,8 +162,8 @@ function script_follow:run()
 		--local r = math.random(2, 13);
 		--script_follow.followLeaderDistance = r;
 		--end
-		if (GetTimeEX() > self.followTimer) and (self.randomFollow) then
-			local r = math.random(15, 25);
+		if (GetTimeEX() > self.followTimer) and (self.randomFollow) and (UnitClass('player') ~= 'Hunter') then
+			local r = math.random(10, 20);
 			script_follow.followLeaderDistance = r;
 			localObj = GetLocalPlayer();
 			self.followTimer = GetTimeEX() + 30000;
