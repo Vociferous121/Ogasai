@@ -72,7 +72,7 @@ function script_followEX:doLoot(localObj)
 			else
 				script_follow.lootCheck['target'] = 0;
 			end
-			return;
+		return;
 		end
 	
 		if(dist <= script_follow.lootDistance) then
@@ -111,10 +111,16 @@ function script_followEX:doLoot(localObj)
 				-- If we reached the loot object, reset the nav path
 				script_nav:resetNavigate();
 			end
-
 		end
-		script_followMoveToTarget.moveToTarget(GetLocalPlayer(), _x, _y, _z);
-		script_follow.message = "Moving to loot...";	
-		return;
+		if (not script_follow.test) then
+			if (script_followMoveToTarget:moveToTarget(GetLocalPlayer(), _x, _y, _z)) then
+			script_follow.message = "Moving to loot...";	
+			return;
+			end
+		end
+		if (script_follow.test) then
+			Move(_x, _y, _z);
+			return;
+		end
 	end
 end

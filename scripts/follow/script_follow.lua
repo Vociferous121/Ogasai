@@ -241,7 +241,7 @@ function script_follow:run()
 			self.message = 'Warning bags are full...';
 		end
 
-		if (not IsInCombat() and script_followEX2:enemiesAttackingUs() == 0 and not localObj:HasBuff('Feign Death')) then
+		if (not IsInCombat() or self.enemyObj == nil) and (script_followEX2:enemiesAttackingUs() == 0 and not localObj:HasBuff('Feign Death')) then
 			-- Loot if there is anything lootable and we are not in combat and if our bags aren't full
 			if (not self.skipLooting and not AreBagsFull()) then 
 				self.lootObj = script_nav:getLootTarget(self.findLootDistance);
@@ -251,9 +251,8 @@ function script_follow:run()
 			if (self.lootObj == 0) then self.lootObj = nil; end
 			local isLoot = not IsInCombat() and not (self.lootObj == nil);
 			if (isLoot and not AreBagsFull()) then
-				if (script_followEX:doLoot(localObj)) then
-					return true;
-				end
+				script_followEX:doLoot(localObj);
+					return;
 			elseif (AreBagsFull() and not hsWhenFull) then
 				self.lootObj = nil;
 				self.message = "Warning the bags are full...";
@@ -382,7 +381,7 @@ function script_follow:run()
 			
 			local leader = GetPartyLeaderObject();
 			-- follow leader
-			if (not IsInCombat()) and (leader ~= 0)
+			if (not IsInCombat()) and (leader ~= 0) and (self.lootObj == nil)
 				and (not leader:IsDead()) and (not localObj:IsDead()) then
 				if (not IsCasting()) and (not IsChanneling())
 				and (not IsDrinking()) and (not IsEating()) and (not IsLooting()) then
