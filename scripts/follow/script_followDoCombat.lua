@@ -72,7 +72,7 @@ function script_followDoCombat:run()
 					self.waitTimer = GetTimeEX() + 1000;
 					script_follow.message = "Moving to target...";
 					local x, y, z = enemy:GetPosition();
-					if (script_followMoveToTarget:moveToTarget(localObj, x, y, z)) then
+					if (script_followMoveToEnemy:moveToEnemy(localObj, x, y, z)) then
 						return;
 					end
 				end

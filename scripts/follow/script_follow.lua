@@ -19,7 +19,7 @@ script_follow = {
 	myY = 0,
 	myZ = 0,
 	myTime = GetTimeEX(),
-	nextToNodeDist = 5,
+	nextToNodeDist = 2.5,
 	isSetup = false,
 	drawUnits = false,
 	acceptTimer = GetTimeEX(),
@@ -57,6 +57,7 @@ script_follow = {
 	extraFunctions = include("scripts\\follow\\script_followEX.lua"),
 	moveToTargetLoaded = include("scripts\\follow\\script_followMoveToTarget.lua"),
 	moveToLootLoaded = include("scripts\\follow\\script_followMoveToLoot.lua"),
+	moveToEnemyLoaded = include("scripts\\follow\\script_followMoveToEnemy.lua"),
 
 
 }
@@ -110,7 +111,7 @@ function script_follow:run()
 		script_nav:setNextToNodeDist(8); NavmeshSmooth(14);
 	else
 		script_nav:setNextToNodeDist(self.nextToNodeDist);
-		NavmeshSmooth(self.nextToNodeDist*4);
+		NavmeshSmooth(self.nextToNodeDist*5);
 	end
 	
 	if (not self.isSetup) then

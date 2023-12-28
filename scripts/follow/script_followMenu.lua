@@ -43,7 +43,6 @@ function script_followMenu:menu()
 			Text("Assist in combat? ")
 			
 			wasClicked, script_follow.assistInCombat = Checkbox("Assist Party Leader", script_follow.assistInCombat);
-			Text("Combat range limited to follow distance...");
 
 			Separator();
 
