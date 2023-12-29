@@ -1,7 +1,5 @@
 script_navEX = {
 
-	navTimer = GetTimeEX()/1000,
-
 }
 
 function script_navEX:moveToTarget(localObj, _x, _y, _z) -- use when moving to moving targets
@@ -30,14 +28,7 @@ function script_navEX:moveToTarget(localObj, _x, _y, _z) -- use when moving to m
 		script_grind:setWaitTimer(80);
 	end
 
-	if (self.navUnstuck) and (not PlayerHasTarget()) then
-		Move(_lx-5, _ly-5, _lz); 
-		self.navUnstuck = false;
-		return "attempting to unstuck cannot get target path";	
- 	end
-
-	if (not IsPathLoaded(5)) and (not IsMoving()) then
-		self.navUnstuck = true;
+	if (not IsPathLoaded(5)) and (script_grind.enemyObj ~= nil) then
 		return "Generating path...";
 	end
 

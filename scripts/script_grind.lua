@@ -695,14 +695,16 @@ function script_grind:run()
 		end
 
 		self.enemyObj = script_grind:assignTarget();
+
 		
-		if (self.enemyObj ~= 0 and self.enemyObj ~= nil and self.enemyObj:IsInLineOfSight()) then
+		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
+			AttackTarget(self.enemyObj);
 			-- Fix bug, when not targeting correctly
 			if (self.lastTarget ~= self.enemyObj:GetGUID()) then
 				self.newTargetTime = GetTimeEX();
 				ClearTarget();
 			-- blacklist the target if we had it for a long time and hp is high
-			elseif (((GetTimeEX()-self.newTargetTime)/1000) > self.blacklistTime and self.enemyObj:GetHealthPercentage() > 92) then 
+			elseif (((GetTimeEX()-self.newTargetTime)/1000) > self.blacklistTime and self.enemyObj:GetHealthPercentage() > 92) then
 				script_grind:addTargetToHardBlacklist(self.enemyObj:GetGUID());
 				ClearTarget();
 				return;
@@ -1835,7 +1837,7 @@ function script_grind:runRest()
 			self.newTargetTime = GetTimeEX();
 			
 			if (IsDrinking() or IsEating()) and (not IsInCombat()) then
-				ClearTarget();
+		
 			end
 		end
 
