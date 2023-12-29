@@ -54,8 +54,8 @@ function script_grindMenu:menu()
 	--Text(math.floor(qwq));
 
 	--nav mesh progress
-	local qqq = GetLoadNavmeshProgress();
-	if (qqq ~= 1) then
+	local qqq = math.floor(GetLoadNavmeshProgress()*100);
+	if (qqq ~= 100) then
 	Text("Navmesh Loading Progress... " ..qqq);
 	end
 

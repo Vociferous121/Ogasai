@@ -162,13 +162,14 @@ function vendorDB:setup()
 	vendorDB:addVendor("Andrew Krighton", 0, 0, 12, true, false, false, false, false, -9462.3, 87.81, 58.33); -- Repair Goldshire
 	
 	-- Barrens - Horde
-
+	vendorDB:addVendor("Zlagk", 1, 1, 14, true, false, false, false, false, -560.13, -4217.21, 41.59);
 	vendorDB:addVendor("Uthrok", 1, 1, 17, false, false, false, false, false, -351.19, -2556.52, 95.78);
 	vendorDB:addVendor("Uthrok", 1, 1, 17, true, false, false, false, false, -351.19, -2556.52, 95.78);
 	vendorDB:addVendor("Sanuye Runetotem", 1, 1, 17, true, false, false, false, false, -2374.27, -1948.8, 96.08);
 	vendorDB:addVendor("Sanuye Runetotem", 1, 1, 17, false, false, false, false, false, -2374.27, -1948.8, 96.08);
 	vendorDB:addVendor("Innkeeper Byula", 1, 1, 17, false, true, false, false, false, -2376.28, -1995.74, 96.7);
 	vendorDB:addVendor("Innkeeper Byula", 1, 1, 17, false, false, true, false, false, -2376.28, -1995.74, 96.7);
+
 
 
 	-- Hillsbrad Foothills - Horde

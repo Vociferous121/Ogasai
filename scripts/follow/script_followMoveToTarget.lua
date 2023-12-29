@@ -4,6 +4,7 @@ script_followMoveToTarget = {
 	navFunctions2Loaded = include("scripts\\script_navEX.lua"),
 	moveTimer = GetTimeEX(),
 	used = 0,
+	qwe = false,
 }
 
 local localObj = GetLocalPlayer();
@@ -16,11 +17,11 @@ function script_followMoveToTarget:moveToTarget(localObj, _x, _y, _z) -- use whe
 	localObj = GetLocalPlayer();
 	local _lx, _ly, _lz = GetPartyLeaderObject():GetPosition();
 
-	local _ix, _iy, _iz = GetPathPositionAtIndex(5, script_nav.lastnavIndex);	
+	local _ix, _iy, _iz = GetPathPositionAtIndex(5, script_nav.lastnavIndex-1);	
 
 	-- If the target moves more than 5 yard then make a new path
-	if(GetDistance3D(_x, _y, _z, script_nav.navPosition['x'], script_nav.navPosition['y'], script_nav.navPosition['z']) > script_follow.followLeaderDistance*2
-		or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 20) then
+	if(GetDistance3D(_x, _y, _z, script_nav.navPosition['x'], script_nav.navPosition['y'], script_nav.navPosition['z']) > script_follow.followLeaderDistance
+		or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > script_follow.followLeaderDistance) then
 		script_nav.navPosition['x'] = _x;
 		script_nav.navPosition['y'] = _y;
 		script_nav.navPosition['z'] = _z;
@@ -35,11 +36,11 @@ function script_followMoveToTarget:moveToTarget(localObj, _x, _y, _z) -- use whe
 	end
 
 	-- Get the current path node's coordinates
-	_ix, _iy, _iz = GetPathPositionAtIndex(5, script_nav.lastnavIndex);
+	_ix, _iy, _iz = GetPathPositionAtIndex(5, script_nav.lastnavIndex-1);
 
 	-- If we are close to the next path node, increase our nav node index
 	if(GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) < script_nav.nextNavNodeDistance) then
-		script_nav.lastnavIndex = 2 + script_nav.lastnavIndex;		
+		script_nav.lastnavIndex = 1 + script_nav.lastnavIndex;		
 		if (GetPathSize(5) <= script_nav.lastnavIndex) then
 			script_nav.lastnavIndex = GetPathSize(5);
 		end
@@ -63,7 +64,27 @@ function script_followMoveToTarget:moveToTarget(localObj, _x, _y, _z) -- use whe
 		self.moveTimer  = GetTimeEX() + 5000;
 	end
 	
+	if (not script_follow.isStuck) then
+		script_follow:setWaitTimer((script_follow.followLeaderDistance-2)*100);
+	end
+
+	if (script_follow.isStuck) then
+	-- Calculate the point closest to our destination
+		local ind = -5;
+		local destX, destY, destZ = GetPathPositionAtIndex(5, ind); 
+		local leadX, leadY, leadZ = GetPartyLeaderObject():GetPosition();
+		local myX, myY, myZ = GetLocalPlayer():GetPosition();
+		if (leadY > 0) then
+			Move(destX+5, destY-25, destZ);
+			script_follow.isStuck = false;
+			return true;
+		end
+		if (leadY < 0) then
+			Move(destX-5, destY+25, destZ);
+			script_follow.isStuck = false;
+			return true;
+		end
+	end
 	script_follow.message = "moving to party member...";
-	script_follow:setWaitTimer((script_follow.followLeaderDistance)*100);
 	return "Moving to party member...";
 end

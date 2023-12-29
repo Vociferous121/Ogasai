@@ -6,7 +6,7 @@ script_followMenu = {
 
 function script_followMenu:menu()
 
-	local pg = GetLoadNavmeshProgress(); if pg ~= 1 then Text("Navmesh Loading "..pg.."  "); end
+	local pg = math.floor(GetLoadNavmeshProgress()*100); if pg ~= 100 then Text("Navmesh Loading "..pg.."  "); end
 	local mt = script_followMoveToTarget.used; SameLine(); Text(""..mt.." Nav Resets Used....");
 	if (not script_follow.pause) then if (Button("Pause Bot")) then	script_follow.pause = true; end elseif	(Button("Resume Bot")) then script_follow.pause = false; script_follow.myTime = GetTimeEX(); end SameLine();
 	if (Button("Reload Scripts")) then coremenu:reload(); end SameLine(); if (Button("Exit Bot")) then StopBot(); end

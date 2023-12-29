@@ -18,7 +18,6 @@ script_follow = {
 	drawUnits = false,
 	acceptTimer = GetTimeEX(),
 	followLeaderDistance = 18,
-	followTimer = GetTimeEX(),
 	assistInCombat = false,
 	isChecked = true,
 	pause = true,
@@ -30,6 +29,7 @@ script_follow = {
 	followTimer = GetTimeEX(),
 	randomFollow = true,
 	limitAttackDist = false,
+	isStuck = false,
 	helperLoaded = include("scripts\\script_helper.lua"),
 	drawDataLoaded = include("scripts\\script_drawData.lua"),
 	drawStatusLoaded = include("scripts\\script_drawStatus.lua"),
@@ -73,9 +73,17 @@ function script_follow:run() script_follow:window();
 	if (not IsUsingNavmesh()) then UseNavmesh(true); return; end
 	if (not LoadNavmesh()) then self.message = "Make sure you have mmaps-files..."; return; end
 	if (GetLoadNavmeshProgress() ~= 1) then self.message = "Loading the nav mesh... "; return; end
+
 	-- auto unstuck feature
-	if (self.unstuck) and (IsMoving()) then script_unstuck.turnSensitivity = 3; if (not script_unstuck:pathClearAuto(2)) then script_unstuck:unstuck();
-	self.message = script_unstuck.message; return true; end end self.tickRate = 135;
+	local thisTime = script_followMoveToTarget.moveTimer - 4000;
+	if (self.unstuck) and (IsMoving()) then
+	script_unstuck.turnSensitivity = 1;
+	if (not script_unstuck:pathClearAuto(2)) then
+		self.isStuck = true;
+		script_unstuck:unstuck();
+		self.message = script_unstuck.message;
+		return true;
+	end end self.tickRate = 135;
 
 	if(GetTimeEX() > self.timer) then
 		self.timer = GetTimeEX() + self.tickRate;
@@ -229,7 +237,7 @@ function script_follow:run() script_follow:window();
 				if (not member:IsDead()) and (not localObj:IsDead()) and (not IsMoving()) then
 					if (script_followHealsAndBuffs:healAndBuff()) then
 						self.message = "Healing/buffing the party...";
-						self.waitTimer = GetTimeEX() + 500;
+						--self.waitTimer = GetTimeEX() + 500;
 						ClearTarget();
 						return true;
 					end
@@ -249,7 +257,7 @@ function script_follow:run() script_follow:window();
 				if (not member:IsDead()) and (not localObj:IsDead()) and (not IsMoving()) then
 					if (script_followHealsAndBuffs:healAndBuff()) then
 						self.message = "Healing/buffing the party...";
-						self.waitTimer = GetTimeEX() + 500;
+						--self.waitTimer = GetTimeEX() + 500;
 						ClearTarget();
 						return true;
 					end
@@ -261,9 +269,10 @@ function script_follow:run() script_follow:window();
 			if (not IsInCombat()) and (leader ~= 0) and (self.lootObj == nil)
 				and (not leader:IsDead()) and (not localObj:IsDead()) then
 				if (not IsCasting()) and (not IsChanneling())
-				and (not IsDrinking()) and (not IsEating()) and (not IsLooting()) then
+				and (not IsDrinking()) and (not IsEating()) and (not IsLooting())
+				and (leader:GetDistance() > self.followLeaderDistance) then
 					if (script_followMove:followLeader()) then
-						script_follow:setWaitTimer(500);
+						script_follow:setWaitTimer(self.followLeaderDistance*100);
 						return true;
 					end
 				end	

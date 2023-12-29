@@ -13,6 +13,7 @@ function script_followDoVendor:sellStuff()
 return false;
 end
 
+-- are we close enough to vendor?
 function script_followDoVendor:closeToVendor()
 
 	local localObj = GetLocalPlayer();
@@ -52,9 +53,9 @@ function script_followDoVendor:closeToVendor()
 	--and (leader:GetDistance() <= self.followLeaderDistance + 10)
 
 		-- are we close enough to vendor to walk to it and sell?
-		if (GetDistance3D(x, y, z, vX, vY, vZ) <= distance)
-			and (GetDistance3D(leadX, leadY, leadZ, vX, vY, vZ) <= distance)
-			and (GetDistance3D(x, y, z, leadX, leadY, leadZ) <= distance) then
+		if (GetDistance3D(x, y, z, vX, vY, vZ) <= distance+10)
+			and (GetDistance3D(leadX, leadY, leadZ, vX, vY, vZ) <= distance+10)
+			and (GetDistance3D(x, y, z, leadX, leadY, leadZ) <= distance+10) then
 			return true;
 		end
 	end
