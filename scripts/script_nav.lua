@@ -246,12 +246,13 @@ function script_nav:moveToNav(localObj, _x, _y, _z)
 		self.navPathPosition['z'] = _z;
 		GeneratePath(_lx, _ly, _lz, _x, _y, _z);
 		self.lastpathnavIndex = -1; 
+	end
+
+	if (not script_grind.adjustTickRate) then
+		script_grind.tickRate = 0;
 	end	
 
 	if (not IsPathLoaded(5)) then
-		if (not script_grind.adjustTickRate) then
-			script_grind.tickRate = 0;
-		end
 		return "Generating path...";
 	end
 	

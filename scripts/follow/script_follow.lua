@@ -138,11 +138,6 @@ function script_follow:run()
 		return; 
 	end
 
-	if (GetPartyLeaderObject() == 0) then
-		self.message = "No party leader...";
-		return;
-	end
-
 	-- auto unstuck feature
 	if (self.unstuck) and (IsMoving()) then
 		script_unstuck.turnSensitivity = 3;

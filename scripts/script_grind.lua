@@ -693,15 +693,14 @@ function script_grind:run()
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
 			self.lastTarget = self.enemyObj:GetGUID();
 		end
-			self.enemyObj = script_grind:assignTarget();
+
+		self.enemyObj = script_grind:assignTarget();
 		
-		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
+		if (self.enemyObj ~= 0 and self.enemyObj ~= nil and self.enemyObj:IsInLineOfSight()) then
 			-- Fix bug, when not targeting correctly
 			if (self.lastTarget ~= self.enemyObj:GetGUID()) then
 				self.newTargetTime = GetTimeEX();
 				ClearTarget();
-			elseif (self.lastTarget == self.enemyObj:GetGUID() and not IsStanding() and not IsInCombat()) then
-				self.newTargetTime = GetTimeEX(); -- reset time if we rest
 			-- blacklist the target if we had it for a long time and hp is high
 			elseif (((GetTimeEX()-self.newTargetTime)/1000) > self.blacklistTime and self.enemyObj:GetHealthPercentage() > 92) then 
 				script_grind:addTargetToHardBlacklist(self.enemyObj:GetGUID());
@@ -709,6 +708,11 @@ function script_grind:run()
 				return;
 			elseif (IsInCombat()) and (self.enemyObj ~= nil and self.enemyObj ~= 0) and (self.enemyObj:IsInLineOfSight()) and (self.lastTarget == self.enemyObj:GetGUID()) then
 				self.newTargetTime = GetTimeEX();
+			end
+
+			if (not IsMoving()) and (not IsInCombat()) and (((GetTimeEX()-self.newTargetTime)/1000) > self.blacklistTime) then
+			local mx, my, mz = GetLocalPlayer():GetPosition();
+			Move(mx+5, my+5, mz);
 			end
 		end
 
