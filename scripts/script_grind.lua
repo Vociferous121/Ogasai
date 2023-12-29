@@ -698,7 +698,10 @@ function script_grind:run()
 
 		
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
-			AttackTarget(self.enemyObj);
+			if (not PlayerHasTarget()) then
+				local name = self.enemyObj:GetUnitName();
+				TargetByName(name);
+			end
 			-- Fix bug, when not targeting correctly
 			if (self.lastTarget ~= self.enemyObj:GetGUID()) then
 				self.newTargetTime = GetTimeEX();

@@ -172,6 +172,18 @@ function script_follow:run()
 		if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then
 			return;
 		end
+
+		-- Accept group invite
+		if (GetNumPartyMembers() < 1 and self.acceptTimer < GetTimeEX()) then 
+			self.acceptTimer = GetTimeEX() + 5000;
+			AcceptGroup(); 
+		end
+
+		local leader = GetPartyLeaderObject();
+		if (leader ~= 0 and leader:GetDistance() == 0) or (leader == 0) and (not localObj:IsDead()) then
+			self.message = "leader GetDistance == 0... no path";
+			return;
+		end
 		
 		-- If bags are full
 		if (script_followDoVendor.useVendor) and (AreBagsFull() and not IsInCombat()) then
@@ -208,8 +220,9 @@ function script_follow:run()
 				self.message = "Running to corpse...";
 				return;
 			else
-				if (script_aggro:safeRess()) then
-					script_follow.message = "Finding a safe spot to ress...";
+				local rx, ry, rz = GetCorpsePosition();
+				if (script_aggro:safeRess(rx, ry, rz, script_grind.ressDistance)) then
+					script_grind.message = "Finding a safe spot to ress...";
 					return true;
 				end
 				RetrieveCorpse();
@@ -277,18 +290,6 @@ function script_follow:run()
 				self.enemyObj = nil;
 				ClearTarget();
 			end
-		end
-
-		-- Accept group invite
-		if (GetNumPartyMembers() < 1 and self.acceptTimer < GetTimeEX()) then 
-			self.acceptTimer = GetTimeEX() + 5000;
-			AcceptGroup(); 
-		end
-
-		local leader = GetPartyLeaderObject();
-		if (leader:GetDistance() == 0) then
-			self.message = "leader GetDistance == 0... no path";
-			return;
 		end
 
 		if  (GetNumPartyMembers() > 0) and (GetTarget() ~= 0 and GetTarget() ~= nil) then
