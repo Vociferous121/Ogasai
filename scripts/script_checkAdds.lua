@@ -12,24 +12,25 @@ script_checkAdds = {
 function script_checkAdds:checkAdds()
 
 	-- check if there are adds and avoid those adds. call this to run avoid adds
-	if (script_checkAdds:avoidToAggro(self.checkAddsRange/2)) then
+	if(script_grind:enemiesWithinRange() <= 3) then
+		if (script_checkAdds:avoidToAggro(self.checkAddsRange)) then
 
-		-- use unstuck script
-		if (not script_unstuck:pathClearAuto(2)) then
-			script_unstuck:unstuck();
-			return true;
-		end
+			-- use unstuck script
+			if (not script_unstuck:pathClearAuto(2)) then
+				script_unstuck:unstuck();
+				return true;
+			end
 
-		-- if we have a pet then pet follow
-		if (GetPet() ~= 0) then
-			PetFollow();
-		end
+			-- if we have a pet then pet follow
+			if (GetPet() ~= 0) then
+				PetFollow();
+			end
 
-		self.message = "Moving away from adds...";
+			self.message = "Moving away from adds...";
 	
-	return;
+		return;
+		end
 	end
-
 return false;
 end
 
@@ -55,7 +56,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 	while theta <= 2*PI do
 		point = point + 1 -- get next table slot, starts at 0 
 		points[point] = { x = pointX + radius*cos(theta), y = pointY + radius*sin(theta) }
-		pointsTwo[point] = { x = pointX + (self.addsRange)*cos(theta), y = pointY + (self.addsRange)*sin(theta) }
+		pointsTwo[point] = { x = pointX + (self.addsRange+2)*cos(theta), y = pointY + (self.addsRange+2)*sin(theta) }
 		theta = theta + 2*PI / quality -- get next theta
 	end
 	
@@ -153,7 +154,7 @@ if (script_grind.enemyObj ~= nil and script_grind.enemyObj ~= 0) and (not script
 				self.closestEnemy = 0;
 				self.intersectEnemy = nil;
 				script_om:FORCEOM();
-			return true;
+			return;
 			end
 		end
 	end
@@ -353,7 +354,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 	while theta <= 2*PI do
 		point = point + 1 -- get next table slot, starts at 0 
 		points[point] = { x = pointX + radius*cos(theta), y = pointY + radius*sin(theta) }
-		pointsTwo[point] = { x = pointX + (self.addsRange)*cos(theta)*2, y = pointY + (self.addsRange)*sin(theta)*2 }
+		pointsTwo[point] = { x = pointX + (self.addsRange+2)*cos(theta)*2, y = pointY + (self.addsRange+2)*sin(theta)*2 }
 		theta = theta + 2*PI / quality -- get next theta
 	end
 	for i = 1, point do
@@ -495,7 +496,7 @@ function script_checkAdds:avoidToAggro2(safeMargin)
 		-- avoid the closest mob
 			local range = self.addsRange;
 						
-		if (self.closestEnemy ~= 0) and (not script_checkDebuff:hasDisabledMovement()) and (closestEnemy:GetDistance() < self.addsRange + 5) and (script_grind:enemiesWithinRange() <= 3) then
+		if (self.closestEnemy ~= 0) and (not script_checkDebuff:hasDisabledMovement()) and (closestEnemy:GetDistance() < self.addsRange + 5) then
 
 			local xT, yT, zT = self.closestEnemy:GetPosition();
 

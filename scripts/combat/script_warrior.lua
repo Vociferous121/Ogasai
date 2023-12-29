@@ -268,7 +268,7 @@ function script_warrior:run(targetGUID)	-- main content of script
 		if (IsInCombat()) and (script_grind.skipHardPull) and (GetNumPartyMembers() == 0) then
 			if (script_checkAdds:checkAdds()) then
 				script_om:FORCEOM();
-				return true;
+				return;
 			end
 		end
 

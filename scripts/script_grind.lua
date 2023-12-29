@@ -132,6 +132,7 @@ script_grind = {
 	lastAvoidTarget = GetLocalPlayer(),
 	paranoiaCounter = 0,
 	usedParanoiaCounter = false,
+	omTimer = GetTimeEX(),
 }
 
 function script_grind:setup()
@@ -340,6 +341,7 @@ function script_grind:run()
 			Exit();
 		end
 	end
+		
 
 	-- if bags full then set true
 	if (AreBagsFull()) then
@@ -553,6 +555,11 @@ function script_grind:run()
 		-- Do all checks
 		if (script_grindEX:doChecks()) then
 			return;
+		end
+
+		if (IsInCombat()) and (GetTimeEX() > self.omTimer) then
+			script_om:FORCEOM();
+			self.omTimer = GetTimeEX() + 5000;
 		end
 
 		-- Check: If our gear is yellow

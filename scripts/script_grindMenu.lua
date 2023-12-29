@@ -49,11 +49,17 @@ function script_grindMenu:menu()
 	--local a = gcinfo();
 	--Text("Garbage Data Lost " ..a);
 
+	--OM timer...
+	--local qwq = (script_grind.omTimer - GetTimeEX()) / 1000;
+	--Text(math.floor(qwq));
+
+	--nav mesh progress
 	local qqq = GetLoadNavmeshProgress();
 	if (qqq ~= 1) then
 	Text("Navmesh Loading Progress... " ..qqq);
 	end
 
+	-- rested exp
 	if (GetXPExhaustion() ~= nil) and (not script_paranoia.paranoiaUsed) then
 		if (math.ceil(20*GetXPExhaustion()/UnitXPMax("player")) == 30) then
 			Text('Rested Exp: MAX RESTED - '..math.ceil(20*GetXPExhaustion()/UnitXPMax("player")).. ' bubbles');
