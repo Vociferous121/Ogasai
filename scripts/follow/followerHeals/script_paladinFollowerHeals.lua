@@ -49,13 +49,7 @@ function script_paladinFollowerHeals:HealsAndBuffs()
 			local membersHP = member:GetHealthPercentage();
 			local memberDistance = member:GetDistance();
 			local leaderObj = GetPartyLeaderObject();
-			
-			-- Move in line of sight and in range of the party member
-			if (member:GetDistance() > 40) or (not member:IsInLineOfSight()) then
-				if (script_followMove:moveInLineOfSight()) then
-					return true; 
-				end
-			end
+			local px, py, pz = GetPartyMember(i):GetPosition();
 
                		 -- Cure Disease
                 	if (HasSpell("Cure Disease")) and (localMana > 10) then
@@ -81,9 +75,9 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                 	if (not member:HasBuff("Strength of Earth")) and (not member:HasBuff("Mana Spring")) then
                     		if (not member:HasBuff("Blessing of Wisdom")) and (not member:HasBuff("Blessing of Might")) then
                         		if (member:GetRagePercentage() > 1) or (member:GetEnergyPercentage() > 1) or (member:HasBuff("Bear Form") or member:HasBuff("Cat Form")) and (not member:GetManaPercentage() > 1) then
-                            			if (script_followMove:moveInLineOfSight()) then
-                            				return true;
-                            			end -- move to member
+                            			if (not member:IsInLineOfSight() and memberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then 											script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+							return true;
+                       			end
                             			if (Buff("Blessing of Might", member)) then
                                         		script_follow.timer = GetTimeEX() + 1500;
                                 			return true;	
@@ -95,9 +89,9 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                 	-- blessing of wisdom
                 	if (member:GetManaPercentage() > 1) and (HasSpell("Blessing of Wisdom")) and (not member:HasBuff("Blessing of Wisdom")) and (not member:HasBuff("Blessing of Might")) and (not member:HasBuff("Mana Spring")) then
                     		if (not member:GetRagePercentage() > 1) and (not member:GetEnergyPercentage() > 1) then
-                        		if (script_followMove:moveInLineOfSight()) then
-                            			return true;
-                        		end -- move to member
+                        		if (not member:IsInLineOfSight() and memberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then 											script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+							return true;
+                       			end
                         		if (Buff("Blessing of Wisdom", member)) then
                             			script_follow.timer = GetTimeEX() + 1500;
                             			return true;
@@ -107,9 +101,9 @@ function script_paladinFollowerHeals:HealsAndBuffs()
 
                 	-- Blessing of Protection
                 	if (localMana > 5) and (membersHP < self.bopHealth) and (HasSpell("Blessing of Protection")) then
-                    		if (script_followMove:moveInLineOfSight()) then
-                        		return true;
-                    		end -- move to member
+                    		if (not member:IsInLineOfSight() and memberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then 											script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+							return true;
+                       			end
                     		if (Cast("Blessing of Protection", member)) then
                         		script_follow.timer = GetTimeEX() + 1500;
                         		return true;
@@ -120,9 +114,9 @@ function script_paladinFollowerHeals:HealsAndBuffs()
 
 				-- Lay on Hands
                 		if (localMana < 25) and (membersHP < self.layOnHandsHealth) and (HasSpell("Lay on Hands")) then
-					if (script_followMove:moveInLineOfSight()) then
-						return true;
-					end
+					if (not member:IsInLineOfSight() and memberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then 											script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+							return true;
+                       			end
 					if (CastHeal("Lay on Hands", member)) then
                         			script_follow.timer = GetTimeEX() + 1500;
                         			return true;
@@ -141,9 +135,9 @@ function script_paladinFollowerHeals:HealsAndBuffs()
 
                 		-- Holy Light
                 		if (localMana > self.holyLightMana) and (membersHP <= self.partyHolyLightHealth) and (HasSpell("Holy Light")) then
-                			if (script_followMove:moveInLineOfSight()) then
-                		        	return true;
-                		    	end -- move to member
+                			if (not member:IsInLineOfSight() and memberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then 											script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+							return true;
+                       			end
                 			if (CastHeal("Holy Light", member)) then
                 		        	script_follow.timer = GetTimeEX() + 3000;
                 		        	return true;
@@ -152,9 +146,9 @@ function script_paladinFollowerHeals:HealsAndBuffs()
 
                 		-- Flash Of Light
                 		if (localMana > self.flashOfLightMana) and (membersHP < self.partyFlashOfLightHealth) and (HasSpell("Flash of Light")) then
-                 	   		if (script_followMove:moveInLineOfSight()) then
-                 	       			return true;
-                 	   		end -- move to member
+                 	   		if (not member:IsInLineOfSight() and memberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then 											script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+							return true;
+                       			end
                  	   		if (CastHeal("Flash of Light", member)) then
                  	       			return true;
                  	   		end
@@ -162,4 +156,5 @@ function script_paladinFollowerHeals:HealsAndBuffs()
 			end
 		end
 	end
+return false;
 end   

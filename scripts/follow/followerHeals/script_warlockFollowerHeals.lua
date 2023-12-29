@@ -31,19 +31,17 @@ function script_warlockFollowerHeals:HealsAndBuffs()
 				local partyMemberHP = partyMember:GetHealthPercentage();
 				local partyMemberDistance = partyMember:GetDistance();
 				leaderObj = GetPartyLeaderObject();
-
-				-- Move in line of sight and in range of the party member
-				if (partyMember:GetDistance() > 40) or (not partyMember:IsInLineOfSight()) then
-					if (script_follow:moveInLineOfSight(partyMember)) then
-						return true;
-					end
-				end
 	
 				if (HasSpell("Unending Breath")) and (script_warlock.useUnendingBreath) and (not partyMember:HasBuff("Unending Breath")) then
-					CastSpellByName("Unending Breath", partyMember);
-					return true;
+ 					if (not partyMember:IsInLineOfSight() and partyMemberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then 											script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+							return true;
+                       			end
+					if (CastSpellByName("Unending Breath", partyMember)) then
+						return true;
+					end
 				end
 			end
 		end
 	end
+return false;
 end

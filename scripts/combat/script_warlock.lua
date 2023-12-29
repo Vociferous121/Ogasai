@@ -177,6 +177,8 @@ function script_warlock:setup()
 	self.fearTimer = GetTimeEX();
 	self.cooldownTimer = GetTimeEX();
 
+	local localObj = GetLocalPlayer();
+
 	if (not localObj:HasRangedWeapon()) then
 		self.useWand = false;
 	end

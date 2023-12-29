@@ -30,13 +30,10 @@ function script_warriorFollowerHeals:HealsAndBuffs()
 				leaderObj = GetPartyLeaderObject();
 				local partyMemberDistance = partyMember:GetDistance();
 			
-				-- Move in line of sight and in range of the party member
-				if (partyMember:GetDistance() > 40) or (not partyMember:IsInLineOfSight()) then
-					if (script_follow:moveInLineOfSight(partyMember)) then
-						return true; 
-					end
-				end
+			-- some sort of buff here?
+			-- return true!
 			end
 		end
 	end
+return false;
 end

@@ -19,9 +19,9 @@ function script_followEX2:setup()
 		
 		script_follow.assistInCombat = true;
 	end
-	if class == "Priest" or class == "Paladin" or class == "Shaman" then
+	if class == "Priest" or class == "Paladin" or class == "Shaman" or class == "Druid" then
 		script_follow.assistInCombat = true;
-		script_follow.dpsHP = 50;
+		script_follow.dpsHP = 75;
 	end
 
 end

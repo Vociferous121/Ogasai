@@ -19,7 +19,7 @@ function script_followMoveToTarget:moveToTarget(localObj, _x, _y, _z) -- use whe
 	local _ix, _iy, _iz = GetPathPositionAtIndex(5, script_nav.lastnavIndex);	
 
 	-- If the target moves more than 5 yard then make a new path
-	if(GetDistance3D(_x, _y, _z, script_nav.navPosition['x'], script_nav.navPosition['y'], script_nav.navPosition['z']) > 5
+	if(GetDistance3D(_x, _y, _z, script_nav.navPosition['x'], script_nav.navPosition['y'], script_nav.navPosition['z']) > script_follow.followLeaderDistance*2
 		or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 20) then
 		script_nav.navPosition['x'] = _x;
 		script_nav.navPosition['y'] = _y;
@@ -27,6 +27,7 @@ function script_followMoveToTarget:moveToTarget(localObj, _x, _y, _z) -- use whe
 		GeneratePath(_lx, _ly, _lz, _x, _y, _z);
 		script_nav.lastnavIndex = 1; -- start at index 1, index 0 is our position
 		script_follow.message = "trying to find a path...";
+		script_follow:setWaitTimer(100);
 	end	
 
 	if (not IsPathLoaded(5)) then
@@ -38,7 +39,7 @@ function script_followMoveToTarget:moveToTarget(localObj, _x, _y, _z) -- use whe
 
 	-- If we are close to the next path node, increase our nav node index
 	if(GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) < script_nav.nextNavNodeDistance) then
-		script_nav.lastnavIndex = 1 + script_nav.lastnavIndex;		
+		script_nav.lastnavIndex = 2 + script_nav.lastnavIndex;		
 		if (GetPathSize(5) <= script_nav.lastnavIndex) then
 			script_nav.lastnavIndex = GetPathSize(5);
 		end
@@ -63,6 +64,6 @@ function script_followMoveToTarget:moveToTarget(localObj, _x, _y, _z) -- use whe
 	end
 	
 	script_follow.message = "moving to party member...";
-	script_follow:setWaitTimer(300);
+	script_follow:setWaitTimer((script_follow.followLeaderDistance)*100);
 	return "Moving to party member...";
 end

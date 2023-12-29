@@ -165,11 +165,7 @@ function script_mage:runBackwards(targetObj, range)
  		if (distance <= range)
 			and (targetObj:IsInLineOfSight())
 			and (not script_checkDebuffs:hasDisabledMovement())
-		then 
-			if (IsMoving()) and (script_grind.jump) then
-				JumpOrAscendStart();
-				self.waitTimer = GetTimeEX() + 550;
-			end		
+		then 		
  			if (script_navEX:moveToTarget(localObj, moveX, moveY, moveZ)) then
  				return true;
 			end
@@ -404,7 +400,7 @@ function script_mage:run(targetGUID)
 		if (IsInCombat()) and (script_grind.skipHardPull) and (GetNumPartyMembers() == 0) then
 			if (script_checkAdds:checkAdds()) then
 				script_om:FORCEOM();
-				return true;
+				return;
 			end
 		end
 
@@ -673,6 +669,14 @@ function script_mage:run(targetGUID)
 				end
 			end
 
+			if (IsInCombat()) and (script_grind.skipHardPull) and (GetNumPartyMembers() == 0) then
+				if (script_checkAdds:checkAdds()) then
+					self.message = "moving away from adds...";
+					script_om:FORCEOM();
+					return;
+				end
+			end
+
 			-- Check: Frostnova when the target is close, but not when we polymorhped one enemy or the target is affected by Frostbite
 			if (not self.addPolymorphed) and (targetObj:GetDistance() < 9 and not targetObj:HasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova")) and self.useFrostNova then
 				script_grind.tickRate = 100;
@@ -793,6 +797,14 @@ function script_mage:run(targetGUID)
 				script_grind.tickRate = 0;
 				self.message = "Frost nova the target(s)...";
 				CastSpellByName("Frost Nova");
+			end
+
+			if (IsInCombat()) and (script_grind.skipHardPull) and (GetNumPartyMembers() == 0) then
+				if (script_checkAdds:checkAdds()) then
+					self.message = "moving away from adds...";
+					script_om:FORCEOM();
+					return;
+				end
 			end
 			
 					-- check range

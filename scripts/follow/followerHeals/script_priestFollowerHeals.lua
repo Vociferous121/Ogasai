@@ -55,19 +55,15 @@ function script_priestFollowerHeals:HealsAndBuffs()
 
 		for i = 1, GetNumPartyMembers() do
 
+				local partyMember = GetPartyMember(i);
+
 			if (GetNumPartyMembers() > 0) then
 
-				local partyMember = GetPartyMember(i);
 				local partyMembersHP = partyMember:GetHealthPercentage();
 				local partyMemberDistance = partyMember:GetDistance();
-				local leaderObj = GetPartyMember(GetPartyLeaderIndex());
-	
-				-- Move in line of sight and in range of the party member
-				if (partyMember:GetDistance() > 40) or (not partyMember:IsInLineOfSight()) then
-					if (script_followMove:moveInLineOfSight()) then
-						return true; 
-					end
-				end
+				local leaderObj = GetPartyLeaderObject();
+				local px, py, pz = GetPartyMember(i):GetPosition();
+				local localObj = GetLocalPlayer();
 	
 				-- Dispel Magic
 				if (HasSpell("Dispel Magic")) and (localMana > 20) then 
@@ -107,9 +103,9 @@ function script_priestFollowerHeals:HealsAndBuffs()
                 		-- Power word Fortitude
                 		if (HasSpell("Power Word: Fortitude")) and (localMana > 40)
 					and (not partyMember:HasBuff("Power Word: Fortitude")) then
-					if (script_followMove:moveInLineOfSight()) then
-						return true;
-						end
+					if (not partyMember:IsInLineOfSight() and partyMemberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then 											script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+							return true;
+                       			end
 					if (Cast("Power Word: Fortitude", partyMember)) then
 						waitTimer = GetTimeEX() + 1500;
 						return true;
@@ -119,9 +115,9 @@ function script_priestFollowerHeals:HealsAndBuffs()
 				-- Divine Spirit
 				if (HasSpell("Divine Spirit")) and (localMana > 30)
 					and (not partyMember:HasBuff("Divine Spirit")) then
-					if (script_followMove:moveInLineOfSight()) then
-						return true;
-					end
+					if (not partyMember:IsInLineOfSight() and partyMemberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+							return true;
+                       				end
 					if (Cast("Divine Spirit", partyMember)) then
 						waitTimer = GetTimeEX() + 1500;
 						return true;
@@ -168,17 +164,16 @@ function script_priestFollowerHeals:HealsAndBuffs()
 						end
 					end
 				end
-			end
 
 			if (self.enableHeals) and (GetNumPartyMembers() > 0) then
-	
+			local localMana = GetLocalPlayer():GetManaPercentage();
 	                	-- flash heal 
 	                	if (self.clickFlashHeal) then
                 			if (localMana > self.flashHealMana)
 						and (partyMembersHP < self.partyFlashHealHealth) then
-               	        			if (script_followMove:moveInLineOfSight()) then
-               	        	    			return true;
-                	        		end
+               	        			if (not partyMember:IsInLineOfSight() and partyMemberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+							return true;
+                       				end
                 	        		if (CastHeal("Flash Heal", partyMember)) then
                 	            			waitTimer = GetTimeEX() + 2000;
 							return true;
@@ -191,9 +186,9 @@ function script_priestFollowerHeals:HealsAndBuffs()
 	               	    		if (localMana > self.greaterHealMana)
 						and (partyMembersHP < self.partyGreaterHealHealth)
 						and (HasSpell("Greater Heal")) then
-         		               		if (script_followMove:moveInLineOfSight()) then
-         	        	          		return true;
-         	        	      		end
+         		               		if (not partyMember:IsInLineOfSight() and partyMemberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+							return true;
+                       				end
          	        	       		if (CastHeal("Greater Heal", partyMember)) then
          	        	       			waitTimer = GetTimeEX() + 2000;
          	                   			return true;
@@ -205,9 +200,9 @@ function script_priestFollowerHeals:HealsAndBuffs()
                 		if (self.clickHeal) then
                     			if (localMana > self.healMana) and (partyMembersHP < self.partyHealHealth)
 						and (HasSpell("Heal")) then
-                        			if (script_followMove:moveInLineOfSight()) then
-                        	    			return true;
-                        			end
+                        			if (not partyMember:IsInLineOfSight() and partyMemberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+							return true;
+                       				end
                         			if (CastHeal("Heal", partyMember)) then
                         	    			waitTimer = GetTimeEX() + 3200;
                         	    			return true;
@@ -219,9 +214,9 @@ function script_priestFollowerHeals:HealsAndBuffs()
 	                	-- level 20+ at very low mana
 	                	if (localObj:GetLevel() >= 20) then
 	                    		if (localMana <= 8) and (partyMembersHP <= 20) then
-	                        		if (script_followMove:moveInLineOfSight()) then
-	                            			return true;
-	                        		end	
+	                        		if (not partyMember:IsInLineOfSight() and partyMemberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+							return true;
+                       				end	
 	                        		if (CastHeal("Lesser Heal", partyMember)) then
 	                        			waitTimer = GetTimeEX() + 2000;
 	                        		end
@@ -231,9 +226,9 @@ function script_priestFollowerHeals:HealsAndBuffs()
 	                    		if (localMana > self.lesserHealMana)
 					and (partyMembersHP < self.partyLesserHealHealth)
 						and (HasSpell("Lesser Heal")) then
-	                        		if (script_followMove:moveInLineOfSight()) then
-	                        			return true;
-	                   			end
+	                        		if (not partyMember:IsInLineOfSight() and partyMemberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+							return true;
+                       				end
 	                        		if (CastHeal("Lesser Heal", partyMember)) then
 	                            			waitTimer = GetTimeEX() + 2000;
 	                            			return true;
@@ -245,8 +240,8 @@ function script_priestFollowerHeals:HealsAndBuffs()
                 		if (self.clickRenew) then
                     			if (localMana > self.renewMana) and (partyMembersHP < self.partyRenewHealth)
 						and (not partyMember:HasBuff("Renew")) and (HasSpell("Renew")) then
-                        			if (script_followMove:moveInLineOfSight()) then
-                        				return true;
+                        			if (not partyMember:IsInLineOfSight() and partyMemberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+							return true;
                        				end
                         			if (CastHeal("Renew", partyMember)) then
                         	    			waitTimer = GetTimeEX() + 1650;
@@ -260,7 +255,7 @@ function script_priestFollowerHeals:HealsAndBuffs()
                     			if (localMana > self.shieldMana) and (partyMembersHP < self.partyShieldHealth)
 						and (not partyMember:HasDebuff("Weakened Soul"))
 						and (HasSpell("Power Word: Shield")) then
-                        			if (script_followMove:moveInLineOfSight()) then
+                        			if (not partyMember:IsInLineOfSight() and partyMemberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
 							return true;
                        				end
                         			if (CastHeal("Power Word: Shield", partyMember)) then 
@@ -270,6 +265,7 @@ function script_priestFollowerHeals:HealsAndBuffs()
                     			end
 	   			end
     			end
+		end
 		end
 	end
 return false;

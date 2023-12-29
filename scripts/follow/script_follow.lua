@@ -85,11 +85,11 @@ function script_follow:run() script_follow:window();
 		if (not IsInCombat()) then
 			script_follow.combatError = nil; 
 		end
-		if (GetTimeEX() > self.followTimer) and (self.randomFollow) and (UnitClass('player') ~= 'Hunter') then
+		if (GetTimeEX() > self.followTimer) and (self.randomFollow) then
 			local r = math.random(10, 20);
 			script_follow.followLeaderDistance = r;
 			localObj = GetLocalPlayer();
-			self.followTimer = GetTimeEX() + 30000;
+			self.followTimer = GetTimeEX() + 18000;
 		end
 		-- Wait out the wait-timer and/or casting or channeling
 		if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then
@@ -106,7 +106,7 @@ function script_follow:run() script_follow:window();
 	
 		local isVendoring = false;
 		-- If bags are full
-		if (script_followDoVendor.useVendor or AreBagsFull())
+		if (script_followDoVendor.useVendor)
 			and (not IsInCombat()) and (script_followDoVendor:closeToVendor()) then
 				isVendoring = true;
 			if (script_vendor:sell()) then
@@ -124,6 +124,7 @@ function script_follow:run() script_follow:window();
 			end
 		end
 
+		local localObj = GetLocalPlayer();
 		-- Corpse-walk if we are dead
 		if(localObj:IsDead()) then script_follow.tickRate = 100; self.message = "Walking to corpse...";
 		-- Release body
@@ -219,8 +220,6 @@ function script_follow:run() script_follow:window();
 			end
 		end
 
-		
-
 		-- do combat
 		if (not localObj:IsDead()) and (self.enemyObj ~= nil and self.enemyObj ~= 0) then
 
@@ -275,7 +274,6 @@ function script_follow:run() script_follow:window();
 			self.message = "leader GetDistance == 0... no path";
 			return;
 		end
-		-- random follow distance timer here 10 sec?
-		
+		-- random follow distance timer here 10 sec?	
 	end
 end

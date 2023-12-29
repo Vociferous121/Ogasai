@@ -265,7 +265,7 @@ function script_rogue:run(targetGUID)
 		if (IsInCombat()) and (script_grind.skipHardPull) and (GetNumPartyMembers() == 0) then
 			if (script_checkAdds:checkAdds()) then
 				script_om:FORCEOM();
-				return true;
+				return;
 			end
 		end
 

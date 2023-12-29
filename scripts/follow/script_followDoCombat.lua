@@ -9,6 +9,8 @@ function script_followDoCombat:run()
 	-- reset the combat status
 	script_follow.combatError = nil; 
 
+	local localObj = GetLocalPlayer();
+
 	-- local enemy var
 	local enemy = script_follow.enemyObj;
 

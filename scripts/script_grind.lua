@@ -763,7 +763,8 @@ function script_grind:run()
 
 			-- check and do move away from adds during combat
 			if (script_checkAdds:checkAdds()) then
-				return true;
+				script_om:FORCEOM();
+				return;
 			end
 		end
 		
@@ -986,7 +987,8 @@ function script_grind:run()
 				end
 				-- check and avoid adds
 				if (script_checkAdds:checkAdds()) then
-					return true;
+					script_om:FORCEOM();
+					return;
 				end
 
 				-- try unstuck script

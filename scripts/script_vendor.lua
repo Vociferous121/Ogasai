@@ -590,6 +590,7 @@ function script_vendor:buy(itemName, itemNum, isFood, isDrink)
 end
 
 function script_vendor:removeShapeShift()
+		local localObj = GetLocalPlayer();
 	if (localObj:HasBuff('Bear Form')) then
 		CastSpellByName('Bear Form');
 	elseif (localObj:HasBuff('Cat Form')) then

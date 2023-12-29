@@ -31,17 +31,17 @@ function script_mageFollowerHeals:HealsAndBuffs()
 				local partyMemberHP = partyMember:GetHealthPercentage();
 				local partyMemberDistance = partyMember:GetDistance();
 				leaderObj = GetPartyLeaderObject();
+				local px, py, pz = GetPartyMember(i):GetPosition();
 
 				-- Move in line of sight and in range of the party member
 				if (partyMember:GetDistance() > 40) or (not partyMember:IsInLineOfSight()) then
-					if (script_followMove:moveInLineOfSight()) then
-						return true; 
-					end
+					script_followMoveToTarget:moveToTarget(localObj, px, py, pz);
+					return true;
 				end
 
 				-- Arcane Intellect
 				if (HasSpell("Arcane Intellect")) and (localMana > 40) and (not partyMember:HasBuff("Arcane Intellect")) and (not partyMember:IsDead()) and (partyMemberHP > 5) then
-					if (script_followMove:moveInLineOfSight()) then
+					if (not partyMember:IsInLineOfSight()) then 											script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
 						return true;
 					end
 					if (Buff("Arcane Intellect", partyMember)) then
@@ -52,7 +52,7 @@ function script_mageFollowerHeals:HealsAndBuffs()
 		
 				-- dampen magic
 				if (HasSpell("Dampen Magic")) and (not partyMember:HasBuff("Dampen Magic")) and (script_mage.useDampenMage) and (localMana >= 40) and (not partyMember:IsDead()) and (partyMemberHP > 5) then
-					if (script_followMove:moveInLineOfSight()) then
+					if (not partyMember:IsInLineOfSight()) then 											script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
 						return true;
 					end
 					if (Buff("Dampen Magic", partyMember)) then
@@ -63,4 +63,5 @@ function script_mageFollowerHeals:HealsAndBuffs()
 			end -- end getnumpartymembers
 		end -- end for loop
 	end -- wait timer
+return false;
 end -- end function

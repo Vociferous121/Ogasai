@@ -8,6 +8,8 @@ function coremenu:reload()
 	coremenu:draw();
 end
 
+localObj = GetLocalPlayer();
+
 function coremenu:draw()
 
 	if (self.isSetup == false) then

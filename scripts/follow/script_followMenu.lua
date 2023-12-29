@@ -5,35 +5,11 @@ script_followMenu = {
 }
 
 function script_followMenu:menu()
-	Text("Garbage Data Lost - ");
-	SameLine();
-	local gi = gcinfo();
-	Text(gi);
-	local mt = script_followMoveToTarget.used;
-	SameLine();
-	Text(""..mt.." Nav Resets Used....");
 
-	if (not script_follow.pause) then 
-		if (Button("Pause Bot")) then
-			script_follow.pause = true; 
-		end
-
-	elseif (Button("Resume Bot")) then 
-		script_follow.pause = false; 
-		script_follow.myTime = GetTimeEX(); 
-	end
-	
-	SameLine();
-
-	if (Button("Reload Scripts")) then 
-		coremenu:reload(); 
-	end
-
-	SameLine();
-
-	if (Button("Exit Bot")) then
-		StopBot();
-	end
+	local pg = GetLoadNavmeshProgress(); if pg ~= 1 then Text("Navmesh Loading "..pg.."  "); end
+	local mt = script_followMoveToTarget.used; SameLine(); Text(""..mt.." Nav Resets Used....");
+	if (not script_follow.pause) then if (Button("Pause Bot")) then	script_follow.pause = true; end elseif	(Button("Resume Bot")) then script_follow.pause = false; script_follow.myTime = GetTimeEX(); end SameLine();
+	if (Button("Reload Scripts")) then coremenu:reload(); end SameLine(); if (Button("Exit Bot")) then StopBot(); end
 
 	Separator();
 	
@@ -47,8 +23,8 @@ function script_followMenu:menu()
 			Separator();
 
 			if (script_follow.assistInCombat) then
-
-				wasClicked, script_follow.limitAttackDist = Checkbox("Limit Attack Range To Follow Distance "..script_follow.followLeaderDistance.. "yds", script_follow.limitAttackDist);
+				local this = script_follow.followLeaderDistance;
+				wasClicked, script_follow.limitAttackDist = Checkbox("Limit Attack Range To Follow Distance "..this.. "yds", script_follow.limitAttackDist);
 
 				Text("Target Health to begin attacking");
 				script_follow.dpsHP = SliderInt("Health", 0, 100, script_follow.dpsHP);
@@ -66,6 +42,14 @@ function script_followMenu:menu()
 			wasClicked, script_follow.followMember = Checkbox("Follow Party Member", script_follow.followMember);
 			wasClicked, script_follow.unstuck = Checkbox("Use UnStuck Script", script_follow.unstuck);
 			wasClicked, script_follow.randomFollow = Checkbox("Randomly Adjust Follow Distance", script_follow.randomFollow);
+			if (UnitClass('player') == "Hunter") then
+				script_follow.randomFollow = false;
+			end
+			if (script_follow.randomFollow) then
+				local followTimer = math.floor((GetTimeEX() - script_follow.followTimer) / 1000);
+				SameLine();
+				Text(followTimer);
+			end
 			
 			Separator();
 			

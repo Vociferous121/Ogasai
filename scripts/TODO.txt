@@ -2,3 +2,6 @@ AreBagsFull() shows hunter quiver as a bag and doesn't show as full?
 
 generating path from navEX:moveToTarget function locks up bot and causes crashes if bot cannot find a math.
 can use Move(x,y,z) to force bot out. set a timer? move to last path node?
+
+follower unstuck need to add new nav coords to move. simply using unstuck over and over again wasn't the intent...
+lastmavpathindex, lastnavindex, use these to move out of stuck spots and recalculate coords to leader...
