@@ -1,7 +1,7 @@
 script_checkAdds = {
 
 	addsRange = 35,	-- range circles from from adds
-	checkAddsRange = 5,	-- safe margin "runner script" move from adds
+	checkAddsRange = 5,	-- safe margin move from adds
 
 		-- these are global so we can rerun object manager from om script
 	closestEnemy = 0,	-- set closest enemy
@@ -12,7 +12,7 @@ script_checkAdds = {
 function script_checkAdds:checkAdds()
 
 	-- check if there are adds and avoid those adds. call this to run avoid adds
-	if (script_checkAdds:avoidToAggro(self.checkAddsRange)) then
+	if (script_checkAdds:avoidToAggro(self.checkAddsRange/2)) then
 
 		-- use unstuck script
 		if (not script_unstuck:pathClearAuto(2)) then
@@ -27,7 +27,7 @@ function script_checkAdds:checkAdds()
 
 		self.message = "Moving away from adds...";
 	
-	return true;
+	return;
 	end
 
 return false;
@@ -90,7 +90,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 			-- Calculate the point closest to our destination
 			if (IsPathLoaded(5)) then
 				local lastNodeIndex = GetPathSize(5);
-				local destX, destY, destZ = GetPathPositionAtIndex(5, lastNodeIndex); 
+				local destX, destY, destZ = GetPathPositionAtIndex(5, lastNodeIndex+1); 
 				local destDist = math.sqrt((points[secondPoint].x-destX)^2 + (points[secondPoint].y-destY)^2);
 				
 				-- get closest point to us
@@ -275,14 +275,14 @@ function script_checkAdds:avoidToAggro(safeMargin)
 				local xx, yy, zz = self.intersectEnemy:GetPosition();
 				local centerX, centerY = (x+xx)/2, (y+yy)/2;
 			
-				script_checkAdds:avoid(centerX, centerY, zP, aggroRange/2, self.checkAddsRange/2);
+				script_checkAdds:avoid(centerX, centerY, zP, aggroRange/3, self.checkAddsRange*2);
 				PetFollow();
 			else
-				script_checkAdds:avoid(xT, yT, zP, aggro/2, self.checkAddsRange/2);
+				script_checkAdds:avoid(xT, yT, zP, aggro/3, self.checkAddsRange/2);
 				PetFollow();
 			end
 
-		return true;
+		return;
 		end
 	currentObj, typeObj = GetNextObject(currentObj);
 
@@ -291,12 +291,15 @@ function script_checkAdds:avoidToAggro(safeMargin)
 	return false;
 end
 
+
+
+
 function script_checkAdds:aggroIntersect(target)
 	local x, y, z = target:GetPosition();
 	self.intersectEnemy = nil;
 	while currentObj ~= 0 do
  		if (typeObj == 3)
-			and (currentObj:GetDistance() <= self.addsRange)
+			and (currentObj:GetDistance() <= 35)
 			--and (currentObj:IsInLineOfSight())
 		then
 			if (currentObj:CanAttack())
@@ -326,6 +329,9 @@ function script_checkAdds:aggroIntersect(target)
  	end
 return nil;
 end
+
+
+
 
 function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 	-- thx benjamin
@@ -433,7 +439,7 @@ function script_checkAdds:avoid(pointX,pointY,pointZ, radius, safeDist)
 				self.closestEnemy = 0;
 				self.intersectEnemy = nil;
 				script_om:FORCEOM();
-			return true;
+			return;
 			end
 		end
 	end
@@ -489,7 +495,7 @@ function script_checkAdds:avoidToAggro2(safeMargin)
 		-- avoid the closest mob
 			local range = self.addsRange;
 						
-		if (self.closestEnemy ~= 0) and (not script_checkDebuff:hasDisabledMovement()) and (closestEnemy:GetDistance() < self.addsRange + 2) then
+		if (self.closestEnemy ~= 0) and (not script_checkDebuff:hasDisabledMovement()) and (closestEnemy:GetDistance() < self.addsRange + 5) and (script_grind:enemiesWithinRange() <= 3) then
 
 			local xT, yT, zT = self.closestEnemy:GetPosition();
 
@@ -503,12 +509,12 @@ function script_checkAdds:avoidToAggro2(safeMargin)
 				local xx, yy, zz = self.intersectEnemy:GetPosition();
 				local centerX, centerY = (x+xx)/2, (y+yy)/2;
 			
-				script_checkAdds:avoid(centerX, centerY, zP, aggroRange, self.checkAddsRange/2);
+				script_checkAdds:avoid(centerX, centerY, zP, aggroRange/3, self.checkAddsRange*2);
 				PetFollow();
 
 			else
 
-				script_checkAdds:avoid(xT, yT, zP, aggro, self.checkAddsRange/2);
+				script_checkAdds:avoid(xT, yT, zP, aggro/3, self.checkAddsRange/2);
 				PetFollow();
 			end
 

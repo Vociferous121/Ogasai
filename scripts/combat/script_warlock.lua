@@ -467,6 +467,13 @@ function script_warlock:run(targetGUID)
 	--Valid Enemy
 	if (targetObj ~= 0 and targetObj ~= nil) and (not localObj:IsStunned()) and (not script_checkDebuffs:hasSilence()) then
 
+		if (IsInCombat()) and (script_grind.skipHardPull) and (GetNumPartyMembers() == 0) then
+			if (script_checkAdds:checkAdds()) then
+				script_om:FORCEOM();
+				return true;
+			end
+		end
+
 		-- in group with a mage? run backwards!
 		if (GetNumPartyMembers() >= 1) then
 			if (targetObj:HasDebuff("Frost Nova")) or (targetObj:HasDebuff("Frostbite")) then
@@ -687,12 +694,6 @@ function script_warlock:run(targetGUID)
 					script_warlockDOTS:curseOfAgony(targetObj);
 					script_warlockDOTS:immolate(targetObj);
 					ClearTarget();
-				end
-			end
-
-			if (script_grind.skipHardPull) then
-				if (script_checkAdds:checkAdds()) then
-					return true;
 				end
 			end
 

@@ -576,7 +576,13 @@ function script_druid:run(targetGUID)
 	--Valid Enemy
 	if (targetObj ~= 0) and (not localObj:IsStunned()) then
 
-		
+		if (IsInCombat()) and (script_grind.skipHardPull) and (GetNumPartyMembers() == 0) then
+			if (script_checkAdds:checkAdds()) then
+				script_om:FORCEOM();
+				return true;
+			end
+		end
+
 		-- Cant Attack dead targets
 		if (targetObj:IsDead() or not targetObj:CanAttack()) then
 			return 0;
@@ -996,12 +1002,6 @@ function script_druid:run(targetGUID)
 			-- dismount before combat
 			if (IsMounted()) then
 				DisMount();
-			end
-
-			if (script_grind.skipHardPull) then
-				if (script_checkAdds:checkAdds()) then
-					return true;
-				end
 			end
 
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";

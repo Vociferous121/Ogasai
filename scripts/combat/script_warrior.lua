@@ -264,6 +264,14 @@ function script_warrior:run(targetGUID)	-- main content of script
 	--Valid Enemy
 	if (targetObj ~= 0) and (not localObj:IsStunned()) and (not localObj:IsMovementDisabed()) and (not localObj:HasDebuff("Disarm")) then
 		
+
+		if (IsInCombat()) and (script_grind.skipHardPull) and (GetNumPartyMembers() == 0) then
+			if (script_checkAdds:checkAdds()) then
+				script_om:FORCEOM();
+				return true;
+			end
+		end
+
 		-- Cant Attack dead targets
 		if (targetObj:IsDead()) or (not targetObj:CanAttack()) then
 			self.waitTimer = GetTimeEX() + 2000;
@@ -372,11 +380,6 @@ function script_warrior:run(targetGUID)	-- main content of script
 
 		else	
 
-			if (script_grind.skipHardPull) then
-				if (script_checkAdds:checkAdds()) then
-					return true;
-				end
-			end
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
 			if (GetLocalPlayer():GetUnitsTarget() ~= 0) and (not IsAutoCasting("Attack")) and (targetObj:GetDistance() <= 8) and (not IsMoving()) then

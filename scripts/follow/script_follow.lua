@@ -107,7 +107,6 @@ function script_follow:run() script_follow:window();
 		local isVendoring = false;
 		-- If bags are full
 		if (script_followDoVendor.useVendor or AreBagsFull())
-			--and (leader:GetDistance() <= self.followLeaderDistance + 10)
 			and (not IsInCombat()) and (script_followDoVendor:closeToVendor()) then
 				isVendoring = true;
 			if (script_vendor:sell()) then
@@ -126,64 +125,25 @@ function script_follow:run() script_follow:window();
 		end
 
 		-- Corpse-walk if we are dead
-		if(localObj:IsDead()) then
-
-			script_follow.tickRate = 100;
-
-				self.message = "Walking to corpse...";
-			-- Release body
-			if(not IsGhost()) then
-				RepopMe(); 
-				return; 
-			end
-			-- Ressurrect within the ress distance to our corpse
-				local _lx, _ly, _lz = localObj:GetPosition();
-
-			if(GetDistance3D(_lx, _ly, _lz, GetCorpsePosition()) > self.ressDistance) then
-				script_nav:moveToNav(localObj, GetCorpsePosition());
-				self.message = "Running to corpse...";
-				return;
-			else
-				local rx, ry, rz = GetCorpsePosition();
-				if (script_aggro:safeRess(rx, ry, rz, script_grind.ressDistance)) then
-					script_grind.message = "Finding a safe spot to ress...";
-					return;
-				end
-				RetrieveCorpse();
-			end
-			return;
-		end
+		if(localObj:IsDead()) then script_follow.tickRate = 100; self.message = "Walking to corpse...";
+		-- Release body
+		if(not IsGhost()) then RepopMe(); return; end
+		-- Ressurrect within the ress distance to our corpse
+		local _lx, _ly, _lz = localObj:GetPosition(); if(GetDistance3D(_lx, _ly, _lz, GetCorpsePosition()) > self.ressDistance) then
+		script_nav:moveToNav(localObj, GetCorpsePosition()); self.message = "Running to corpse..."; return; else local rx, ry, rz = GetCorpsePosition();
+		if (script_aggro:safeRess(rx, ry, rz, script_grind.ressDistance)) then script_grind.message = "Finding a safe spot to ress..."; return; end RetrieveCorpse();end return;end
 
 		-- get target attacking us
-		--if (IsInCombat()) and (self.enemyObj == nil) or (self.enemyObj == 0) then
-		--	TargetNearestEnemy();
-			if (localObj:GetUnitsTarget() ~= 0) then
-				self.enemyObj = localObj:GetUnitsTarget();
-			end
-		--end
+		if (localObj:GetUnitsTarget() ~= 0) then self.enemyObj = localObj:GetUnitsTarget(); end
 				
 		-- Rest
-		if (not IsInCombat() and script_followEX2:enemiesAttackingUs() == 0 and not localObj:HasBuff('Feign Death')) then
-			if(RunRestScript()) then
-				self.message = "Resting...";
-				-- Stop moving
-				if (IsMoving() and not localObj:IsMovementDisabed()) then
-					StopMoving(); 
-					return; 
-				end
-				-- Dismount
-				if (IsMounted()) then
-					DisMount(); 
-					return; 
-				end
-				-- Add 2500 ms timer to the rest script rotations (timer could be set already)
-				if ((self.waitTimer - GetTimeEX()) < 2500) then
-					self.timer = GetTimeEX()+2500;
-				end
-			ClearTarget();
-			return;	
-			end
-		end
+		if (not IsInCombat() and script_followEX2:enemiesAttackingUs() == 0 and not localObj:HasBuff('Feign Death')) then if(RunRestScript()) then self.message = "Resting...";
+		-- Stop moving
+		if (IsMoving() and not localObj:IsMovementDisabed()) then StopMoving(); return; end
+		-- Dismount
+		if (IsMounted()) then DisMount(); return; end
+		-- Add 2500 ms timer to the rest script rotations (timer could be set already)
+		if ((self.waitTimer - GetTimeEX()) < 2500) then self.timer = GetTimeEX()+2500; end ClearTarget(); return; end end
 
 		-- If bags are full
 		if (AreBagsFull() and not IsInCombat()) then
@@ -315,6 +275,7 @@ function script_follow:run() script_follow:window();
 			self.message = "leader GetDistance == 0... no path";
 			return;
 		end
+		-- random follow distance timer here 10 sec?
 		
 	end
 end

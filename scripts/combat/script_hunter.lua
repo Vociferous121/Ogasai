@@ -271,6 +271,13 @@ function script_hunter:run(targetGUID)
 	--Valid Enemy
 	if (targetObj ~= 0 and targetObj ~= nil) then
 
+		if (IsInCombat()) and (script_grind.skipHardPull) and (GetNumPartyMembers() == 0) then
+			if (script_checkAdds:checkAdds()) then
+				script_om:FORCEOM();
+				return true;
+			end
+		end
+
 		self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 
 		if (self.hasPet) and (not GetPet() ~= 0) then
@@ -370,11 +377,6 @@ function script_hunter:run(targetGUID)
 
 		else
 
-			if (script_grind.skipHardPull) then
-				if (script_checkAdds:checkAdds()) then
-					return true;
-				end
-			end
 
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
 

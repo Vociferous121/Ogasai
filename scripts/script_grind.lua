@@ -329,17 +329,6 @@ function script_grind:run()
 		script_expChecker:menu();
 	end
 
-	if (not IsUsingNavmesh()) then UseNavmesh(true);
-		return true;
-	end
-	if (not LoadNavmesh()) then script_grind.message = "Make sure you have mmaps-files...";
-		return true;
-	end
-	if (GetLoadNavmeshProgress() ~= 1) then
-		script_grind.message = "Loading Nav Mesh! Please Wait!";
-		return true;
-	end
-
 	-- logout timer
 	if (self.useLogoutTimer) then
 
@@ -434,6 +423,18 @@ function script_grind:run()
 		--reset new target time for blacklisting
 		script_grind.newTargetTime = GetTimeEX();
 		return;
+	end
+
+
+	if (not IsUsingNavmesh()) then UseNavmesh(true);
+		return true;
+	end
+	if (not LoadNavmesh()) then script_grind.message = "Make sure you have mmaps-files...";
+		return true;
+	end
+	if (GetLoadNavmeshProgress() ~= 1) then
+		script_grind.message = "Loading Nav Mesh! Please Wait!";
+		return true;
 	end
 
 	-- Check: Spend talent points
@@ -698,7 +699,7 @@ function script_grind:run()
 
 		
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
-			if (not PlayerHasTarget()) then
+			if (not PlayerHasTarget()) and (not IsMoving()) then
 				self.enemyObj:AutoAttack();
 			end
 			-- Fix bug, when not targeting correctly
@@ -1573,19 +1574,19 @@ function script_grind:enemiesAttackingUs() -- returns number of enemies attackin
 end
 
 function script_grind:enemiesWithinRange() -- returns number of enemies within range
-	local unitsAttackingUs = 0; 
+	local unitsInRange = 0; 
 	local currentObj, typeObj = GetFirstObject(); 
 	while currentObj ~= 0 do 
     	if (typeObj == 3) and (PlayerHasTarget()) then
 		if (currentObj:CanAttack()) and (not currentObj:IsDead()) then
                 	if (currentObj:GetDistance() < GetLocalPlayer():GetUnitsTarget():GetDistance() + script_checkAdds.addsRange) then 
-                		unitsAttackingUs = unitsAttackingUs + 1; 
+                		unitsInRange = unitsInRange + 1; 
                 	end 
             	end 
        	end
         currentObj, typeObj = GetNextObject(currentObj); 
     end
-    return unitsAttackingUs;
+    return unitsInRange;
 end
 
 

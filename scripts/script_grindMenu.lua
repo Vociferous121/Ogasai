@@ -46,8 +46,13 @@ function script_grindMenu:menu()
 	end
 
 	--garbage collection info
-	local a = gcinfo();
-	Text("Garbage Data Lost " ..a);
+	--local a = gcinfo();
+	--Text("Garbage Data Lost " ..a);
+
+	local qqq = GetLoadNavmeshProgress();
+	if (qqq ~= 1) then
+	Text("Navmesh Loading Progress... " ..qqq);
+	end
 
 	if (GetXPExhaustion() ~= nil) and (not script_paranoia.paranoiaUsed) then
 		if (math.ceil(20*GetXPExhaustion()/UnitXPMax("player")) == 30) then

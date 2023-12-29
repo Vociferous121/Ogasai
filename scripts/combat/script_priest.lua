@@ -266,7 +266,15 @@ function script_priest:run(targetGUID)
 	
 	--Valid Enemy
 	if (targetObj ~= 0) and (targetObj ~= nil) and (not localObj:IsStunned()) and (not script_checkDebuffs:hasSilence()) then
-		
+
+
+		if (IsInCombat()) and (script_grind.skipHardPull) and (GetNumPartyMembers() == 0) then
+			if (script_checkAdds:checkAdds()) then
+				script_om:FORCEOM();
+				return true;
+			end
+		end
+
 		-- Cant Attack dead targets
 		if (targetObj:IsDead()) or (not targetObj:CanAttack()) then
 			ClearTarget();
@@ -456,12 +464,6 @@ function script_priest:run(targetGUID)
 			if (IsInCombat()) and (not localObj:HasRangedWeapon()) and (IsAutoCasting("Attack")) then
 				if (targetObj:GetDistance() > 6) then
 					return 3;
-				end
-			end
-
-			if (script_grind.skipHardPull) then
-				if (script_checkAdds:checkAdds()) then
-					return true;
 				end
 			end
 

@@ -251,14 +251,7 @@ function script_rogue:run(targetGUID)
 		DisMount();
 	end
 
-	-- check adds and run away
-	if (IsInCombat()) and (PlayerHasTarget()) and (script_grind.skipHardPull) and (not self.enableRotation) then
-		if (script_checkAdds:checkAdds()) then
-			script_grind.tickRate = 135;
-			return true;
-		end
-	end
-
+	
 	-- force auto attack in combat
 	--if (IsInCombat()) and (PlayerHasTarget()) and (not IsAutoCasting("Attack")) then
 	--	targetObj:AutoAttack();
@@ -268,6 +261,13 @@ function script_rogue:run(targetGUID)
 
 		--Valid Enemy
 		if (targetObj ~= 0) and (not localObj:IsStunned()) then
+
+		if (IsInCombat()) and (script_grind.skipHardPull) and (GetNumPartyMembers() == 0) then
+			if (script_checkAdds:checkAdds()) then
+				script_om:FORCEOM();
+				return true;
+			end
+		end
 
 		-- Set Slice and Dice level 10 or greater
 			if not (HasSpell("Slice and Dice")) then

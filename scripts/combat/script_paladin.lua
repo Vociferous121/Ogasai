@@ -153,6 +153,13 @@ function script_paladin:run(targetGUID)
 	--Valid Enemy
 	if (targetObj ~= 0) and (not localObj:IsStunned()) then
 
+		if (IsInCombat()) and (script_grind.skipHardPull) and (GetNumPartyMembers() == 0) then
+			if (script_checkAdds:checkAdds()) then
+				script_om:FORCEOM();
+				return true;
+			end
+		end
+
 		-- Cant Attack dead targets
 		if (targetObj:IsDead()) or (not targetObj:CanAttack()) then
 			self.waitTimer = GetTimeEX() + 1200;
@@ -232,12 +239,6 @@ function script_paladin:run(targetGUID)
 		-- Combat WE ARE NOW IN COMBAT
 
 		else	
-
-			if (script_grind.skipHardPull) then
-				if (script_checkAdds:checkAdds()) then
-					return true;
-				end
-			end
 
 			if (not IsAutoCasting("Attack")) and (not IsMoving()) then
 				targetObj:AutoAttack();

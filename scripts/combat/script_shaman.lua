@@ -428,6 +428,14 @@ function script_shaman:run(targetGUID)
 	--Valid Enemy
 	if (targetObj ~= 0) and (not localObj:IsStunned()) and (not script_checkDebuffs:hasDisabledMovement()) then
 	
+
+		if (IsInCombat()) and (script_grind.skipHardPull) and (GetNumPartyMembers() == 0) then
+			if (script_checkAdds:checkAdds()) then
+				script_om:FORCEOM();
+				return true;
+			end
+		end
+
 		-- Cant Attack dead targets
 		if (targetObj:IsDead() or not targetObj:CanAttack()) then
 			return 0;
@@ -582,9 +590,7 @@ function script_shaman:run(targetGUID)
 	-- Combat
 		else	
 
-			if (script_grind.skipHardPull) and (not self.useWaterTotem) and (not self.useFireTotem) and (not self.useEarthTotem) and (not self.useAirTotem) then
-				script_checkAdds:checkAdds();
-			end
+		
 
 	-- NOW IN COMBAT
 	

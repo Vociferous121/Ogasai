@@ -400,7 +400,14 @@ function script_mage:run(targetGUID)
 
 	--Valid Enemy
 	if (targetObj ~= 0) and (targetObj ~= nil) and (not localObj:IsStunned()) and (not localObj:IsMovementDisabed()) then
-		
+
+		if (IsInCombat()) and (script_grind.skipHardPull) and (GetNumPartyMembers() == 0) then
+			if (script_checkAdds:checkAdds()) then
+				script_om:FORCEOM();
+				return true;
+			end
+		end
+
 		-- Cant Attack dead targets
 		if (targetObj:IsDead()) or (not targetObj:CanAttack()) then
 			ClearTarget();
@@ -473,11 +480,7 @@ function script_mage:run(targetGUID)
 
 		else	
 
-			if (script_grind.skipHardPull) and (GetNumPartyMembers() == 0) then
-				if (script_checkAdds:checkAdds()) then
-					return true;
-				end
-			end
+
 
 			-- display message in ogasai message box
 			self.message = "Killing " .. targetObj:GetUnitName() .. "...";
