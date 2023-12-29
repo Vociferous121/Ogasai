@@ -39,7 +39,7 @@ function script_followMenu:menu()
 	
 	if (CollapsingHeader("Group Options")) then
 
-		wasClicked, script_followDoVendor.useVendor = Checkbox("Use Vendoring (DOES NOT WORK)", script_followDoVendor.useVendor);
+		wasClicked, script_followDoVendor.useVendor = Checkbox("Use Vendoring", script_followDoVendor.useVendor);
 			Text("Assist in combat? ")
 			
 			wasClicked, script_follow.assistInCombat = Checkbox("Assist Party Leader", script_follow.assistInCombat);

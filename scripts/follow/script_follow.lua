@@ -1,7 +1,4 @@
 script_follow = {
-	useMount = false,
-	disMountRange = 32,
-	mountTimer = 0,
 	enemyObj = nil,
 	lootObj = nil,
 	timer = GetTimeEX(),
@@ -15,9 +12,6 @@ script_follow = {
 	ressDistance = 25,
 	combatError = 0,
 	dpsHP = 95,
-	myX = 0,
-	myY = 0,
-	myZ = 0,
 	myTime = GetTimeEX(),
 	nextToNodeDist = 3.2,
 	isSetup = false,
@@ -47,8 +41,6 @@ script_follow = {
 	nav1 = include("scripts\\script_nav.lua"),
 	mav2 = include("scripts\\script_navEX.lua"),
 
-	doVendorStuff = include("scripts\\follow\\script_followDoVendor.lua"),
-
 	-- follow folder
 	healsLoaded = include("scripts\\follow\\script_followHealsAndBuffs.lua"),
 	moveToMemberLoaded = include("scripts\\follow\\script_followMove.lua"),
@@ -58,97 +50,32 @@ script_follow = {
 	moveToTargetLoaded = include("scripts\\follow\\script_followMoveToTarget.lua"),
 	moveToLootLoaded = include("scripts\\follow\\script_followMoveToLoot.lua"),
 	moveToEnemyLoaded = include("scripts\\follow\\script_followMoveToEnemy.lua"),
+	doVendorStuff = include("scripts\\follow\\script_followDoVendor.lua"),
 
 
 }
 
-function script_follow:window()
-	if (self.isChecked) then 
-		EndWindow();
-		if(NewWindow("Follower Options", 320, 360)) then 
-			script_followMenu:menu();
-		end
-	end
-end
+-- i'm sorry :( file size limitations....
+function script_follow:window() if (self.isChecked) then EndWindow(); if(NewWindow("Follower Options", 320, 360)) then script_followMenu:menu(); end end end
+function script_follow:setup() self.lootCheck['timer'] = 0; self.lootCheck['target'] = 0; script_helper:setup(); script_followEX2:setup(); self.isSetup = true; ClearTarget(); end
+function script_follow:draw() script_followEX:drawStatus(); end
+function script_follow:setWaitTimer(ms) self.waitTimer = GetTimeEX() + (ms); end
+function GetPartyLeaderObject() if GetNumPartyMembers() > 0 then leaderObj = GetPartyMember(GetPartyLeaderIndex()); if (leaderObj ~= nil) then return leaderObj; end end return 0; end
+function script_follow:run() script_follow:window();	
 
-function script_follow:setup()
-	self.lootCheck['timer'] = 0;
-	self.lootCheck['target'] = 0;
-	script_helper:setup();
-	script_followEX2:setup();
-	self.isSetup = true;
-	ClearTarget();
-end
-
-function script_follow:draw()
-	script_followEX:drawStatus();
-end
-
-function script_follow:setWaitTimer(ms)
-	self.waitTimer = GetTimeEX() + ms;
-end
-
-function GetPartyLeaderObject() 
-	if GetNumPartyMembers() > 0 then -- are we in a party?
-		leaderObj = GetPartyMember(GetPartyLeaderIndex());
-		if (leaderObj ~= nil) then
-			return leaderObj;
-		end
-	end
-	return 0;
-end
-
-function script_follow:run()
-
-	script_follow:window();
-		
-	if (IsUsingNavmesh()) and (self.drawPath) then
-		script_drawData:drawPath();
-	end
-	
+	if (IsUsingNavmesh()) and (self.drawPath) then script_drawData:drawPath(); end
 	-- Set next to node distance and nav-mesh smoothness to double that number
-	if (IsMounted()) then
-		script_nav:setNextToNodeDist(8); NavmeshSmooth(14);
-	else
-		script_nav:setNextToNodeDist(self.nextToNodeDist);
-		NavmeshSmooth(self.nextToNodeDist*5);
-	end
-	
-	if (not self.isSetup) then
-		script_follow:setup();
-	end
-
-
+	if (IsMounted()) then script_nav:setNextToNodeDist(8); NavmeshSmooth(14);
+	else script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*5); end
+	if (not self.isSetup) then script_follow:setup(); end
+	if (self.pause) then self.message = "Paused by user..."; return; end
 	-- Automatic loading of the nav mesh
-	if (not IsUsingNavmesh()) then 
-		UseNavmesh(true);
-		return; 
-	end
-	if (not LoadNavmesh()) then 
-		self.message = "Make sure you have mmaps-files...";
-		return;
-	end
-	if (GetLoadNavmeshProgress() ~= 1) then
-		self.message = "Loading the nav mesh... ";
-		return; 
-	end
-
-	if (self.pause) then 
-		self.message = "Paused by user..."; 
-		return; 
-	end
-
+	if (not IsUsingNavmesh()) then UseNavmesh(true); return; end
+	if (not LoadNavmesh()) then self.message = "Make sure you have mmaps-files..."; return; end
+	if (GetLoadNavmeshProgress() ~= 1) then self.message = "Loading the nav mesh... "; return; end
 	-- auto unstuck feature
-	if (self.unstuck) and (IsMoving()) then
-		script_unstuck.turnSensitivity = 3;
-		if (not script_unstuck:pathClearAuto(2)) then
-			script_unstuck:unstuck();
-			self.message = script_unstuck.message;
-			return true;
-		end
-	end	
-
-	self.tickRate = 135;
+	if (self.unstuck) and (IsMoving()) then script_unstuck.turnSensitivity = 3; if (not script_unstuck:pathClearAuto(2)) then script_unstuck:unstuck();
+	self.message = script_unstuck.message; return true; end end self.tickRate = 135;
 
 	if(GetTimeEX() > self.timer) then
 		self.timer = GetTimeEX() + self.tickRate;
@@ -158,10 +85,6 @@ function script_follow:run()
 		if (not IsInCombat()) then
 			script_follow.combatError = nil; 
 		end
-		--if (self.test) and (not IsCasting()) and (not IsChanneling()) then
-		--local r = math.random(2, 13);
-		--script_follow.followLeaderDistance = r;
-		--end
 		if (GetTimeEX() > self.followTimer) and (self.randomFollow) and (UnitClass('player') ~= 'Hunter') then
 			local r = math.random(10, 20);
 			script_follow.followLeaderDistance = r;
@@ -181,10 +104,12 @@ function script_follow:run()
 
 		local leader = GetPartyLeaderObject();
 	
+		local isVendoring = false;
 		-- If bags are full
 		if (script_followDoVendor.useVendor or AreBagsFull())
-			and (leader:GetDistance() <= self.followLeaderDistance)
+			--and (leader:GetDistance() <= self.followLeaderDistance + 10)
 			and (not IsInCombat()) and (script_followDoVendor:closeToVendor()) then
+				isVendoring = true;
 			if (script_vendor:sell()) then
 				if (CanMerchantRepair()) then
 					RepairAllItems(); 
@@ -280,9 +205,8 @@ function script_follow:run()
 			elseif (AreBagsFull() and not hsWhenFull) then
 				self.lootObj = nil;
 				self.message = "Warning the bags are full...";
-			end
+			end	
 		end
-
 		-- Clear dead/tapped targets
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
 			if (self.enemyObj:IsDead()) then
@@ -290,8 +214,10 @@ function script_follow:run()
 				ClearTarget();
 			end
 		end
-
-		if  (GetNumPartyMembers() > 0) and (GetTarget() ~= 0 and GetTarget() ~= nil) then
+		if (GetPet() ~= 0) and (GetPet() ~= nil) and (GetPet():GetUnitsTarget() ~= 0) then
+			self.enemyObj = GetPet():GetUnitsTarget():GetGUID();
+		end
+		if (GetNumPartyMembers() > 0) and (GetTarget() ~= 0 and GetTarget() ~= nil) then
             			local target = GetTarget();
 			if (target:CanAttack() and self.assistInCombat) then
 				self.enemyObj = target;
@@ -299,7 +225,6 @@ function script_follow:run()
 				self.enemyObj = nil;
 			end 
 		end
-
 		local enemy = self.enemyObj
 		if (self.limitAttackDist) and (enemy ~= 0) and (enemy ~= nil) and (enemy:GetDistance() > self.followLeaderDistance) then
 			self.enemyObj = nil;
@@ -333,6 +258,8 @@ function script_follow:run()
 				ClearTarget();
 			end
 		end
+
+		
 
 		-- do combat
 		if (not localObj:IsDead()) and (self.enemyObj ~= nil and self.enemyObj ~= 0) then
@@ -384,7 +311,7 @@ function script_follow:run()
 			end
 		end
 
-		if (leader ~= 0 and leader:GetDistance() == 0) or (leader == 0) then
+		if (leader ~= 0 and leader:GetDistance() == 0) or (leader == 0) and (not isVendoring) then
 			self.message = "leader GetDistance == 0... no path";
 			return;
 		end

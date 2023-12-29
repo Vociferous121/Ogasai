@@ -20,7 +20,7 @@ function script_followMoveToTarget:moveToTarget(localObj, _x, _y, _z) -- use whe
 
 	-- If the target moves more than 5 yard then make a new path
 	if(GetDistance3D(_x, _y, _z, script_nav.navPosition['x'], script_nav.navPosition['y'], script_nav.navPosition['z']) > 5
-		or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 60) then
+		or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 20) then
 		script_nav.navPosition['x'] = _x;
 		script_nav.navPosition['y'] = _y;
 		script_nav.navPosition['z'] = _z;

@@ -699,8 +699,7 @@ function script_grind:run()
 		
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
 			if (not PlayerHasTarget()) then
-				local name = self.enemyObj:GetUnitName();
-				TargetByName(name);
+				self.enemyObj:AutoAttack();
 			end
 			-- Fix bug, when not targeting correctly
 			if (self.lastTarget ~= self.enemyObj:GetGUID()) then

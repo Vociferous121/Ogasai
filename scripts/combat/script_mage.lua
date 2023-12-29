@@ -473,7 +473,7 @@ function script_mage:run(targetGUID)
 
 		else	
 
-			if (script_grind.skipHardPull) then
+			if (script_grind.skipHardPull) and (GetNumPartyMembers() == 0) then
 				if (script_checkAdds:checkAdds()) then
 					return true;
 				end
@@ -728,7 +728,7 @@ function script_mage:run(targetGUID)
 				end	
 			end
 
-			if (script_grind.skipHardPull) then
+			if (script_grind.skipHardPull) and (GetNumPartyMembers() == 0) then
 				if (script_checkAdds:checkAdds()) then
 					return true;
 				end

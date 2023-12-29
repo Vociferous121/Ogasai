@@ -32,21 +32,31 @@ function script_followEX2:enemiesAttackingUs() -- returns number of enemies atta
 	while currentObj ~= 0 do 
 		if typeObj == 3 then
 			if (currentObj:CanAttack() and not currentObj:IsDead()) then
-				if (script_followEX2:IsTargetingMe(currentObj)) then 
+				if (script_followEX2:IsTargetingMe(currentObj)) 
+					or (script_followEX2:IsTargetingPet(currentObj)) then
 					unitsAttackingUs = unitsAttackingUs + 1; 
                 		end 
            		 end 
        		end
       		currentObj, typeObj = GetNextObject(currentObj); 
 	end
-   		return unitsAttackingUs;
+   	return unitsAttackingUs;
 end
 
-function script_followEX2:IsTargetingMe(target) -- self.enemyObj
+function script_followEX2:IsTargetingMe(target)
 	local localPlayer = GetLocalPlayer();
 	if (localPlayer ~= nil and localPlayer ~= 0 and not localPlayer:IsDead()) then
 		if (target:GetUnitsTarget() ~= nil and target:GetUnitsTarget() ~= 0) then
 			return target:GetUnitsTarget():GetGUID() == localPlayer:GetGUID();
+		end
+	end
+	return false;
+end
+function script_followEX2:IsTargetingPet(target)
+	local localPlayer = GetLocalPlayer();
+	if (GetPet() ~= nil and GetPet() ~= 0 and not localPlayer:IsDead()) then
+		if (target:GetUnitsTarget() ~= nil and target:GetUnitsTarget() ~= 0) then
+			return target:GetUnitsTarget():GetGUID() == GetPet:GetGUID();
 		end
 	end
 	return false;
