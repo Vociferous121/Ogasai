@@ -180,24 +180,23 @@ function script_follow:run()
 		end
 
 		local leader = GetPartyLeaderObject();
-		if (leader ~= 0 and leader:GetDistance() == 0) or (leader == 0) and (not localObj:IsDead()) then
-			self.message = "leader GetDistance == 0... no path";
-			return;
-		end
-		
+	
 		-- If bags are full
-		if (script_followDoVendor.useVendor) and (AreBagsFull() and not IsInCombat()) then
+		if (script_followDoVendor.useVendor or AreBagsFull())
+			and (leader:GetDistance() <= self.followLeaderDistance)
+			and (not IsInCombat()) and (script_followDoVendor:closeToVendor()) then
 			if (script_vendor:sell()) then
 				if (CanMerchantRepair()) then
 					RepairAllItems(); 
 					-- sell
 					script_vendorMenu:sellLogic();
-					return true;
+					self.waitTimer = GetTimeEX() + 300;
+					return;
 				else
 					script_vendorMenu:sellLogic();
-					return true;
+					return;
 				end
-			return true;
+			return;
 			end
 		end
 
@@ -223,7 +222,7 @@ function script_follow:run()
 				local rx, ry, rz = GetCorpsePosition();
 				if (script_aggro:safeRess(rx, ry, rz, script_grind.ressDistance)) then
 					script_grind.message = "Finding a safe spot to ress...";
-					return true;
+					return;
 				end
 				RetrieveCorpse();
 			end
@@ -353,9 +352,6 @@ function script_follow:run()
 	
 			if (not self.enemyObj:IsDead()) and (self.enemyObj:CanAttack()) then
 				self.combatError = script_followDoCombat:run();
-				if (IsCasting()) or (IsChanneling()) then
-					script_follow:setWaitTimer(1500);
-				end
 			end
 		else
 
@@ -387,5 +383,11 @@ function script_follow:run()
 				end	
 			end
 		end
+
+		if (leader ~= 0 and leader:GetDistance() == 0) or (leader == 0) then
+			self.message = "leader GetDistance == 0... no path";
+			return;
+		end
+		
 	end
 end

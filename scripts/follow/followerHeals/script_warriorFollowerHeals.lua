@@ -1,42 +1,42 @@
 script_warriorFollowerHeals = {
 
+	timer = GetTimeEX(),
+	waitTimer = GetTimeEX(),
+
 }
 
 function script_warriorFollowerHeals:HealsAndBuffs()
 
-    for i = 1, GetNumPartyMembers()+1 do
+	if (not IsStanding()) then 
+		StopMoving();
+	end
+
+	-- Wait out the wait-timer and/or casting or channeling
+	if (waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then
+		return;
+	end
+
+	-- set tick rate for scripts
+	if (GetTimeEX() > timer) then
+		timer = GetTimeEX() + script_follow.tickRate;
+
+   		 for i = 1, GetNumPartyMembers() do
 
 			local partyMember = GetPartyMember(i);
 
-		if (i == GetNumPartyMembers()+1) then
-			partyMember = GetLocalPlayer();
-		end
-
-			local localMana = GetLocalPlayer():GetManaPercentage();
-			local localEnergy = GetLocalPlayer():GetEnergyPercentage();
-			local partyMemberHP = partyMember:GetHealthPercentage();
-
-		if (partyMemberHP > 0) and (localMana > 1 or localEnergy > 1) then
-				local partyMemberDistance = partyMember:GetDistance();
-				leaderObj = GetPartyMember(GetPartyLeaderIndex());
+			if (GetNumPartyMembers() > 0) then
+				local partyMemberHP = partyMember:GetHealthPercentage();
 				local localHealth = GetLocalPlayer():GetHealthPercentage();
-		end
-
-		-- Move in range: combat script return 3
-		if (script_follow.combatError == 3) then
-			script_follow.message = "Moving to target...";
-			script_follow:moveInLineOfSight(partyMember);		
-		return;
-		end
+				leaderObj = GetPartyLeaderObject();
+				local partyMemberDistance = partyMember:GetDistance();
 			
-		-- Move in line of sight and in range of the party member
-		if (partyMember:GetDistance() > 40) or (not partyMember:IsInLineOfSight()) then
-			if (script_follow:moveInLineOfSight(partyMember)) then
-			return true; 
+				-- Move in line of sight and in range of the party member
+				if (partyMember:GetDistance() > 40) or (not partyMember:IsInLineOfSight()) then
+					if (script_follow:moveInLineOfSight(partyMember)) then
+						return true; 
+					end
+				end
 			end
 		end
-
-
-    end
-	return;
+	end
 end

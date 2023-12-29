@@ -28,30 +28,17 @@ function script_followDoCombat:run()
 	if(GetTimeEX() > self.timer) then
 		self.timer = GetTimeEX() + script_follow.tickRate;
 
-	if (enemy ~= 0 and enemy ~= nil) or (IsInCombat()) and (not enemy:IsDead()) then
-
-		-- Run the combat script and retrieve combat script status if we have a valid target
-		if (enemy ~= nil and enemy ~= 0) or (IsInCombat()) then
-
-			script_follow.combatError = RunCombatScript(enemy:GetGUID());
-
-			-- set combat conditions by class
-			local class = UnitClass('player');
-
-				-- no wand equipped then use melee - priest/warlock/mage
-				--if (enemy ~= nil) and (class == 'Priest' or class == 'Warlock' or class == 'mage')
-				--	and (not localObj:HasRangedWeapon()) and (not enemy:HasDebuff("Frost Nova")) then
-
-					-- move to melee distance
-				--	if (enemy:GetDistance() > script_follow.meleeDistance)
-				--		or (not enemy:IsInLineOfSight()) then
-				--		local x, y, z = enemy:GetPosition();
-				--		script_followMoveToTarget:moveToTarget(localObj, x, y, z);
-				--		return;
-				--	end
-				--end
-
-			-- get combat errors from combat scripts
+		if (enemy ~= 0 and enemy ~= nil) or (IsInCombat()) and (not enemy:IsDead()) then
+	
+			-- Run the combat script and retrieve combat script status if we have a valid target
+			if (enemy ~= nil and enemy ~= 0) or (IsInCombat()) then
+	
+				script_follow.combatError = RunCombatScript(enemy:GetGUID());
+	
+				-- set combat conditions by class
+				local class = UnitClass('player');
+	
+				-- get combat errors from combat scripts
 
 				script_follow.message = "Running the combat script...";
 				-- In range: attack the target, combat script returns 0
@@ -93,6 +80,8 @@ function script_followDoCombat:run()
 					enemy:FaceTarget();
 				end
 			end
+		self.waitTimer = GetTimeEX() + 1500;
+		script_follow:setWaitTimer(1500);
 		end
 	end
 end

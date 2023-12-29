@@ -61,6 +61,6 @@ function script_followMoveToTarget:moveToLoot(localObj, _x, _y, _z) -- use when 
 		self.moveTimer = GetTimeEX() + 1000;
 	end
 	
-	script_follow.message = "moving to target...";
-	return "Moving to target...";
+	script_follow.message = "moving to loot...";
+	return "Moving to loot...";
 end

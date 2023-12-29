@@ -62,7 +62,7 @@ function script_followMoveToTarget:moveToTarget(localObj, _x, _y, _z) -- use whe
 		self.moveTimer  = GetTimeEX() + 5000;
 	end
 	
-	script_follow.message = "moving to target...";
+	script_follow.message = "moving to party member...";
 	script_follow:setWaitTimer(300);
-	return "Moving to target...";
+	return "Moving to party member...";
 end
