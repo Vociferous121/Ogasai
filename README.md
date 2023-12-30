@@ -1,6 +1,9 @@
  # oGasai Scripts for WoW Classic
  Ogasaism
 
+A good idea to get a decent injector.
+ https://remotedll.en.lo4d.com/windows
+
 USE WITH CAUTION on turtle wow. There are much better places to play, anyways.
 This bot will not PvP. This can be adjusted to PvP but I will not do it. The bot "may" choose to attack a player for defensive purposes on a PvP server only. Like with any WoW bot, you can change the bot to do PvP, but this can be extremely detrimental to any community and the purpose of this bot is not to harm any server. My choice of using this bot over others is to learn coding from a basic language like LUA.
 ## Files are currently changed daily. There are possibly many bugs that I have not found yet. If you find something that completely hinders the use of the bot please message on discord or make a pull request here on github and I will fix it ASAP. 
