@@ -59,11 +59,12 @@ function script_followDoCombat:run()
 				-- Move in range: combat script return 3
 				if (script_follow.combatError == 3) then
 					self.waitTimer = GetTimeEX() + 1000;
+					script_follow:setWaitTimer(1000);
 					script_follow.message = "Moving to target...";
 					local x, y, z = enemy:GetPosition();
-					if (script_followMoveToEnemy:moveToEnemy(localObj, x, y, z)) then
-						return;
-					end
+					script_followMoveToEnemy:moveToEnemy(localObj, x, y, z);
+						
+				return;
 				end
 				-- Do nothing, return : combat script return 4
 				if (script_follow.combatError == 4) then

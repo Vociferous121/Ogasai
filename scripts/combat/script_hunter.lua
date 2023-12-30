@@ -135,9 +135,6 @@ function script_hunter:runBackwards(targetObj, range)
  		local moveX, moveY, moveZ = xT + xUV*20, yT + yUV*20, zT + zUV;		
  		if (distance < range and targetObj:IsInLineOfSight()) then
  			script_navEX:moveToTarget(localObj, moveX, moveY, moveZ);
-			if (IsMoving()) and (script_grind.jump) then
-				JumpOrAscendStart();
-			end
  			return true;
  		end
 	end

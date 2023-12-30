@@ -12,7 +12,7 @@ function script_followMoveToEnemy:moveToEnemy(localObj, _x, _y, _z) -- use when 
 	localObj = GetLocalPlayer();
 	local _lx, _ly, _lz = localObj:GetPosition();
 
-	local _ix, _iy, _iz = GetPathPositionAtIndex(5, script_nav.lastnavIndex);	
+	local _ix, _iy, _iz = GetPathPositionAtIndex(5, script_nav.lastnavIndex+1);	
 
 	-- If the target moves more than 5 yard then make a new path
 	if(GetDistance3D(_x, _y, _z, script_nav.navPosition['x'], script_nav.navPosition['y'], script_nav.navPosition['z']) > 2

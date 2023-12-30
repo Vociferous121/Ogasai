@@ -77,13 +77,9 @@ function script_follow:run() script_follow:window();
 	-- auto unstuck feature
 	local thisTime = script_followMoveToTarget.moveTimer - 4000;
 	if (self.unstuck) and (IsMoving()) then
-	script_unstuck.turnSensitivity = 1;
-	if (not script_unstuck:pathClearAuto(2)) then
-		self.isStuck = true;
-		script_unstuck:unstuck();
-		self.message = script_unstuck.message;
-		return true;
-	end end self.tickRate = 135;
+	script_unstuck.turnSensitivity = 3;
+	if (not script_unstuck:pathClearAuto(2)) then self.isStuck = true; script_unstuck:unstuck();
+	self.message = script_unstuck.message; return true; else self.isStuck = false; end end self.tickRate = 135;
 
 	if(GetTimeEX() > self.timer) then
 		self.timer = GetTimeEX() + self.tickRate;
@@ -237,7 +233,6 @@ function script_follow:run() script_follow:window();
 				if (not member:IsDead()) and (not localObj:IsDead()) and (not IsMoving()) then
 					if (script_followHealsAndBuffs:healAndBuff()) then
 						self.message = "Healing/buffing the party...";
-						--self.waitTimer = GetTimeEX() + 500;
 						ClearTarget();
 						return true;
 					end
@@ -257,7 +252,6 @@ function script_follow:run() script_follow:window();
 				if (not member:IsDead()) and (not localObj:IsDead()) and (not IsMoving()) then
 					if (script_followHealsAndBuffs:healAndBuff()) then
 						self.message = "Healing/buffing the party...";
-						--self.waitTimer = GetTimeEX() + 500;
 						ClearTarget();
 						return true;
 					end
@@ -270,9 +264,9 @@ function script_follow:run() script_follow:window();
 				and (not leader:IsDead()) and (not localObj:IsDead()) then
 				if (not IsCasting()) and (not IsChanneling())
 				and (not IsDrinking()) and (not IsEating()) and (not IsLooting())
-				and (leader:GetDistance() > self.followLeaderDistance) then
+				and (leader:GetDistance() > self.followLeaderDistance-5) then
 					if (script_followMove:followLeader()) then
-						script_follow:setWaitTimer(self.followLeaderDistance*100);
+						self.isStuck = false;
 						return true;
 					end
 				end	

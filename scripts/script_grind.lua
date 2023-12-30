@@ -706,7 +706,7 @@ function script_grind:run()
 
 		
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
-			if (not PlayerHasTarget()) and (not IsMoving()) then
+			if (not PlayerHasTarget()) and (not IsMoving()) and (not script_grind:isTargetHardBlacklisted(self.enemyObj)) then
 				self.enemyObj:AutoAttack();
 			end
 			-- Fix bug, when not targeting correctly
