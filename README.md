@@ -7,6 +7,7 @@ A good idea to get a decent injector.
  # LOADER INSTRUCTIONS
  - open loader
  - open game
+ - create undocumented thread
  - find game process or processes
  - find dll
  - inject dll
