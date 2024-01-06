@@ -169,12 +169,6 @@ function script_mage:runBackwards(targetObj, range)
  			if (script_navEX:moveToTarget(localObj, moveX, moveY, moveZ)) then
  				return true;
 			end
-			if (script_grind.useUnstuck and IsMoving()) then
-				if (not script_unstuck:pathClearAuto(2)) then
-					script_unstuck:unstuck();
-					return true;
-				end
-			end
 		return true;
 		end
 	end

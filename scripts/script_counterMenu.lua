@@ -61,5 +61,5 @@ function script_counterMenu:menu()
 		
 		-- show paranoia counter
 		Text("Paranoia Used : " ..paranoiaCounter);
-
+		
 end

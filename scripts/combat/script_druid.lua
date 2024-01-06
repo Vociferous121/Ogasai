@@ -429,12 +429,12 @@ function script_druid:healsAndBuffs()
 		if (not HasSpell("Abolish Poison")) and (HasSpell("Cure Poison")) and (script_checkDebuffs:hasPoison()) and (localMana >= 45) and (not IsMoving()) and (IsStanding()) and (not IsSpellOnCD("Cure Poison")) then
 			if (CastSpellByName("Cure Poison", localObj)) then 
 				self.waitTimer = GetTimeEX() + 1750; 
-				return 0; 
+				return true; 
 			end
 		elseif (HasSpell("Abolish Poison")) and (not localObj:HasBuff("Abolish Poison")) and (script_checkDebuffs:hasPoison()) and (localMana >= 45) and (not IsMoving()) and (IsStanding()) and (not IsSpellOnCD("Abolish Poison")) then
 			if (CastSpellByName("Abolish Poison", targetObj)) then
 				self.waitTimer = GetTimeEX() + 1750;
-				return 0;
+				return true;
 			end
 		end
 
@@ -443,7 +443,7 @@ function script_druid:healsAndBuffs()
 			if (localMana >= 30) then
 				if (CastSpellByName("Remove Curse", localObj)) then
 					self.waitTimer = GetTimeEX() + 1750;
-					return 0;
+					return true;
 				end
 			end
 		end
@@ -461,7 +461,7 @@ function script_druid:healsAndBuffs()
 	end
 
 	-- if we have regrowth and rejuvenation and 2 or more targets are attacking us then cast healing touch
-	if (HasSpell("Regrowth")) and (hasRegrowth) and (hasRejuv) and (script_grind:enemiesAttackingUs(10) >= 2) and (not IsBearForm() and not IsCatForm() and not isMoonkin and not IsTravelForm() and not IsMounted()) and (localHealth < self.healthToShift) and (not IsSpellOnCD("Healing Touch")) and (not script_checkDebuffs:hasSilence())  then
+	if (HasSpell("Regrowth")) and (hasRegrowth) and (hasRejuv) and (script_grind:enemiesAttackingUs(10) > 2) and (not IsBearForm() and not IsCatForm() and not isMoonkin and not IsTravelForm() and not IsMounted()) and (localHealth < self.healthToShift) and (not IsSpellOnCD("Healing Touch")) and (not script_checkDebuffs:hasSilence())  then
 
 		if (CastSpellByName("Healing Touch", localObj)) then
 			self.waitTimer = GetTimeEX() + 1500;

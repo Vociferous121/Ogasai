@@ -171,6 +171,7 @@ function script_checkDebuffs:hasSilence()
 
 	if (player:HasDebuff("Silence"))
 	or (player:HasDebuff("Sonic Burst"))
+	or (player:HasDebuff("Overwhelming Stench"))
 
 	then
 	
