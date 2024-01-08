@@ -749,7 +749,7 @@ function script_druid:run(targetGUID)
 			end
 							
 			-- Auto Attack
-			if (targetObj:GetDistance() < 30) and (not IsAutoCasting("Attack")) and (localMana >= self.drinkMana) then
+			if (targetObj:GetDistance() < 30) and (not IsAutoCasting("Attack")) and (localMana >= self.drinkMana) and (not IsMoving()) then
 				targetObj:AutoAttack();
 				
 			end
@@ -1142,7 +1142,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- keep auto attack on
-				if (not IsAutoCasting("Attack")) then
+				if (not IsAutoCasting("Attack")) and (not IsMoving()) then
 					targetObj:AutoAttack();
 					if (targetObj:GetDistance() < self.meleeDistance) and (not IsMoving()) then
 						targetObj:FaceTarget();
@@ -1227,7 +1227,7 @@ function script_druid:run(targetGUID)
 				and (not localObj:HasBuff("Frenzied Regeneration"))				
 				then
 						targetObj:FaceTarget();
-					if (CastSpellByName("Maul", targetObj)) then
+					if (CastSpellByName("Maul", targetObj)) and (not IsMoving()) then
 						targetObj:AutoAttack();
 						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 200;
@@ -1243,7 +1243,7 @@ function script_druid:run(targetGUID)
 				and (not localObj:HasBuff("Frenzied Regeneration"))
 				then
 						targetObj:FaceTarget();
-					if (CastSpellByName("Maul", targetObj)) then
+					if (CastSpellByName("Maul", targetObj)) and (not IsMoving()) then
 						targetObj:AutoAttack();
 						targetObj:FaceTarget();
 						self.waitTimer = GetTimeEX() + 200;
@@ -1301,7 +1301,7 @@ function script_druid:run(targetGUID)
 				end
 
 				-- keep auto attack on
-				if (not IsAutoCasting("Attack")) then
+				if (not IsAutoCasting("Attack")) and (not IsMoving()) then
 					targetObj:AutoAttack();
 					if (not IsMoving()) then
 						targetObj:FaceTarget();
@@ -1481,8 +1481,8 @@ function script_druid:run(targetGUID)
 				if (targetObj:GetDistance() <= self.meleeDistance) then
 					if (not IsMoving()) then
 						targetObj:FaceTarget();
+						targetObj:AutoAttack();
 					end
-					targetObj:AutoAttack();
 				else
 					return 3;
 				end
