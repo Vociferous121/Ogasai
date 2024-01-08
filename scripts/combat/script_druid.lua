@@ -386,7 +386,7 @@ function script_druid:healsAndBuffs()
 						script_grind.tickRate = 2550;
 						self.waitTimer = GetTimeEX() + 2550
 						script_grind:setWaitTimer(2550);
-						return 4;
+						return true;
 					end
 				end
 			end
@@ -700,6 +700,12 @@ function script_druid:run(targetGUID)
 			then
 				if (not localObj:HasBuff("Frenzied Regeneration")) and (not IsLooting()) then
 					if (script_druid:healsAndBuffs()) then
+						if (IsMoving()) then
+							StopMoving();
+							return true;
+						end
+						script_grind.waitTimer = GetTimeEX() + 2000;
+						self.waitTimer = GetTimeEX() + 2000;
 					return true;
 					end
 				end
@@ -1016,6 +1022,12 @@ function script_druid:run(targetGUID)
 			then
 				if (not localObj:HasBuff("Frenzied Regeneration")) and (not IsLooting()) then
 					if (script_druid:healsAndBuffs()) then
+						if (IsMoving()) then
+							StopMoving();
+							return true;
+						end
+						script_grind.waitTimer = GetTimeEX() + 2000;
+						self.waitTimer = GetTimeEX() + 2000;
 					return true;
 					end
 				end
@@ -1408,6 +1420,12 @@ function script_druid:run(targetGUID)
 			then
 				if (not localObj:HasBuff("Frenzied Regeneration")) and (not IsLooting()) then
 					if (script_druid:healsAndBuffs()) then
+						if (IsMoving()) then
+							StopMoving();
+							return true;
+						end
+						script_grind.waitTimer = GetTimeEX() + 2000;
+						self.waitTimer = GetTimeEX() + 2000;
 					return true;
 					end
 				end
@@ -1546,6 +1564,8 @@ function script_druid:rest()
 	-- check heals and buffs
 	if (not IsLooting()) and (script_grind.lootObj == nil or script_grind.lootObj == 0) and (not IsDrinking()) and (not IsEating()) and (not localObj:HasBuff("Frenzied Regeneration")) and (not IsInCombat()) and (not script_checkDebuffs:hasSilence()) then
 		if (script_druid:healsAndBuffs()) then
+			script_grind.waitTimer = GetTimeEX() + 2000;
+			self.waitTimer = GetTimeEX() + 2000;
 			if (IsMoving()) then
 				StopMoving();
 				return true;

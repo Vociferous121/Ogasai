@@ -208,6 +208,17 @@ function script_vendor:repair()
 			return false;
 		end
 	end
+
+	if (script_vendor:getStatus() >= 1) and (not IsInCombat())
+		and (not IsMounted()) and (not IsIndoors()) and (not HasForm()) and (script_grind.useMount)
+	then
+		if (IsMoving()) then
+			StopMoving();
+			return;
+		end
+	return;
+	end
+
 	
 	if (vendor ~= nil) then
 		local vX, vY, vZ = vendor['pos']['x'], vendor['pos']['y'], vendor['pos']['z'];
@@ -273,6 +284,16 @@ function script_vendor:sell()
 
 	if (self.timer > GetTimeEX()) then
 		return true;
+	end
+
+	if (script_vendor:getStatus() >= 1) and (not IsInCombat())
+		and (not IsMounted()) and (not IsIndoors()) and (not HasForm()) and (script_grind.useMount)
+	then
+		if (IsMoving()) then
+			StopMoving();
+			return;
+		end
+	return;
 	end
 
 	local localObj = GetLocalPlayer();

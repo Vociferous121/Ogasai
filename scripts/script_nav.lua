@@ -116,6 +116,13 @@ function script_nav:moveToHotspot(localObj)
 				CastStealth();
 				CastGhostWolf();
 			end
+			if (not IsInCombat()) and (not IsMounted()) and (not IsIndoors()) and (not HasForm()) and (script_grind.useMount) then
+				if (IsMoving()) then
+					StopMoving();
+					return;
+				end
+			return;
+			end
 
 			return "Moving to hotspot " .. self.currentHotSpotName .. '...';
 	else

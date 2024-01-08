@@ -404,9 +404,11 @@ function script_helper:useMount()
 		end
 	
 		for i=0,self.numMounts do
-			if (HasItem(self.myMounts[i])) then
-				if (UseItem(self.myMounts[i])) then
-					return true;
+			if (not IsMoving()) then
+				if (HasItem(self.myMounts[i])) then
+					if (UseItem(self.myMounts[i])) then
+						return true;
+					end
 				end
 			end
 		end
@@ -417,12 +419,16 @@ end
 function script_helper:mountUp()
 
 	if (GetLocalPlayer():GetLevel() >= 40) and (not IsMounted()) and (not IsInCombat()) and (not HasForm()) then
+			if (IsMoving()) then
+				StopMoving();
+				return;
+			end
 			if (script_helper:useMount()) then
 				script_grind:setWaitTimer(4200);
 				self.waitTimer = GetTimeEX() + 4200;
-				return true;
+				return;
 			end
-		return true;
+		return;
 	end
 
 return false;

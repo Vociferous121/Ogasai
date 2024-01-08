@@ -594,14 +594,21 @@ function script_grind:run()
 		then
 			if (IsMoving()) then
 				StopMoving();
-				return true;
+				return;
 			end
 			if (not IsIndoors()) and (not IsMoving()) then
 				if (script_helper:mountUp()) then
 					script_grind:setWaitTimer(4500);
+					return;
 				end
 			end
 		return true;
+		end
+
+		if (not self.hotspotReached or script_vendor:getStatus() >= 1) and (not IsInCombat())
+			and (not IsMounted()) and (not IsIndoors()) and (not HasForm()) and (script_grind.useMount)
+		then
+			return;
 		end
 		
 		-- Gather
@@ -635,12 +642,13 @@ function script_grind:run()
 			then
 				if (IsMoving()) then
 					StopMoving();
-					return true;
+					return;
 				end
 				if (not IsIndoors()) and (not IsMoving()) then
 					if (script_helper:mountUp()) then
 						script_grind:setWaitTimer(4500);
 						self.waitTimer = GetTimeEX() + 4500;
+						return;
 					end
 				end
 			return true;
@@ -1018,13 +1026,14 @@ function script_grind:run()
 		and (not IsMounted()) and (not IsIndoors()) and (not HasForm()) and (self.useMount) then
 			if (IsMoving()) then
 				StopMoving();
-				return true;
+				return;
 			end
 
 			-- use helper mount function
 			if (not IsIndoors()) and (not IsMoving()) then
 				if (script_helper:mountUp()) then
 					script_grind:setWaitTimer(4500);
+					return;
 				end
 			end
 		return true;
