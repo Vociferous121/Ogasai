@@ -533,32 +533,25 @@ function hotspotDB:getHotSpotByID(id)
 end
 
 function hotspotDB:getHotspotID(race, level)
-	local hotspotID = -1;
+	local bestDist = 10000;
+	local bestIndex = -1;
 
 	for i=0, self.numHotspots - 1 do
 		if (level >= self.hotspotList[i]['minLevel'] and level <= self.hotspotList[i]['maxLevel']) then
-
-			local myX, myY, myZ = GetLocalPlayer():GetPosition();
- 			
-			local distanceX = (self.hotspotList[i]['pos']['x'] - myX); 
-			local distanceY = (self.hotspotList[i]['pos']['y'] - myY);
-			local distanceX2 = (myX - self.hotspotList[i]['pos']['x']); 
-			local distanceY2 = (myY - self.hotspotList[i]['pos']['y']);
- 			
-			-- go to closest location if possible
-			if (myX < 0) then
-				if (distanceX < 1000 and distanceY < 1000) then			
-					hotspotID = i;
-				end
-			elseif (myX > 0) then
-				if (distanceX2 < 1000 and distanceY2 < 1000) then
-					hotspotID = i;
+			
+			-- Race specific or All races or faction
+			if (self.hotspotList[i]['race'] == race or 
+				self.hotspotList[i]['race'] == 'All' or
+				self.hotspotList[i]['race'] == UnitFactionGroup("player") ) then
+				local myX, myY, myZ = GetLocalPlayer():GetPosition();
+				local _dist = GetDistance3D(myX, myY, myZ, self.hotspotList[i]['pos']['x'], self.hotspotList[i]['pos']['y'], self.hotspotList[i]['pos']['z']);
+				if(_dist < bestDist) then
+					bestDist = _dist;
+					bestIndex = i;
 				end
 			end
-				
-			
 		end
 	end
 
-	return hotspotID;
+	return bestIndex;
 end

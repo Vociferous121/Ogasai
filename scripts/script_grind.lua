@@ -418,16 +418,6 @@ function script_grind:run()
 		end
 	end
 
-	-- pause bot
-	if (self.pause) then self.message = "Paused by user...";
-		-- set paranoid used to off to reset paranoia
-		script_paranoia.paranoiaUsed = false;
-		--reset new target time for blacklisting
-		script_grind.newTargetTime = GetTimeEX();
-		return;
-	end
-
-
 	if (not IsUsingNavmesh()) then UseNavmesh(true);
 		return true;
 	end
@@ -437,6 +427,15 @@ function script_grind:run()
 	if (GetLoadNavmeshProgress() ~= 1) then
 		script_grind.message = "Loading Nav Mesh! Please Wait!";
 		return true;
+	end
+
+	-- pause bot
+	if (self.pause) then self.message = "Paused by user...";
+		-- set paranoid used to off to reset paranoia
+		script_paranoia.paranoiaUsed = false;
+		--reset new target time for blacklisting
+		script_grind.newTargetTime = GetTimeEX();
+		return;
 	end
 
 	-- Check: Spend talent points
@@ -547,6 +546,12 @@ function script_grind:run()
 	if (script_helper:deleteItem()) then
 		return;
 	end	
+	
+	if (IsInCombat()) and (not IsMoving()) then
+		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
+			self.enemyObj:FaceTarget();
+		end
+	end
 
 	-- set tick rate for scripts
 	if (GetTimeEX() > self.timer) then

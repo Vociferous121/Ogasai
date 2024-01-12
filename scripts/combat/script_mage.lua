@@ -334,6 +334,16 @@ function script_mage:run(targetGUID)
 	-- Assign the target 
 	targetObj =  GetGUIDObject(targetGUID);
 
+	if (targetHealth > 10 or localHealth < 35) and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (not localObj:HasBuff('Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) and (not IsSwimming()) and (targetObj:IsInLineOfSight()) then
+		if (script_mage:runBackwards(targetObj, 8)) then -- Moves if the target is closer than 7 yards
+			script_grind.tickRate = 0;
+			self.message = "Moving away from target...";
+			if (targetObj:GetDistance() > 7) and (not IsMoving()) then
+				targetObj:FaceTarget();
+			end
+		end
+	end
+
 	-- clear dead targets
 	if (targetObj == 0) or (targetObj == nil) or (targetObj:IsDead()) then
 		ClearTarget();
@@ -358,7 +368,6 @@ function script_mage:run(targetGUID)
 			script_grind.tickRate = tickRandom;
 		end
 	end
-
 
 	-- check silence and use wand
 	if (IsInCombat())
@@ -1072,10 +1081,11 @@ if (not IsMounted()) then
 	
 		-- arcane intellect
 		if (HasSpell("Arcane Intellect")) and (not localObj:HasBuff("Arcane Intellect")) and (localMana > 25) then
-			CastSpellByName("Arcane Intellect", localObj);
-			self.waitTimer = GetTimeEX() + 1700;
-			script_grind:setWaitTimer(1700);
-			return true;
+			if (CastSpellByName("Arcane Intellect", localObj)) then
+				self.waitTimer = GetTimeEX() + 1700;
+				script_grind:setWaitTimer(1700);
+				return true;
+			end
 		end
 		
 		-- ice armor / frost armor
