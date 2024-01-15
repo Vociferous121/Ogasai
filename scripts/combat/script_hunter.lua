@@ -134,8 +134,9 @@ function script_hunter:runBackwards(targetObj, range)
  		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
  		local moveX, moveY, moveZ = xT + xUV*20, yT + yUV*20, zT + zUV;		
  		if (distance < range and targetObj:IsInLineOfSight()) then
- 			script_navEX:moveToTarget(localObj, moveX, moveY, moveZ);
- 			return true;
+ 			if (script_navEX:moveToTarget(localObj, moveX, moveY, moveZ)) then
+ 				return true;
+			end
  		end
 	end
 	return false;
@@ -204,6 +205,19 @@ function script_hunter:run(targetGUID)
 	if (self.hasPet and not IsInCombat()) then
 		if (script_hunterEX:petChecks()) then
 			return 0;
+		end
+	end
+
+	-- walk away from target if pet target guid is the same guid as target targeting me
+	if (GetPet() ~= 0) and (self.hasPet) and (targetObj:GetDistance() <= 15) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) and (targetObj:IsInLineOfSight()) then
+		if (targetObj:GetUnitsTarget():GetGUID() == pet:GetGUID()) then
+			if (script_hunter:runBackwards(targetObj, 16)) then
+				script_grind.tickRate = 100;
+				script_rotation.tickRate = 135;
+				PetAttack();
+				self.message = "Moving away from target for range attacks...";
+				return true;
+			end	
 		end
 	end
 
@@ -502,29 +516,31 @@ function script_hunter:run(targetGUID)
 
 			-- follower 
 			if (GetNumPartyMembers() > 0) then
-				if (targetObj:GetDistance() <= 14) and (targetObj:IsInLineOfSight())
+				if (targetObj:GetDistance() <= 16) and (targetObj:IsInLineOfSight())
 				and (targetObj:GetUnitsTarget() ~= 0)
 				and (targetObj:GetUnitsTarget():GetGUID() ~= localObj:GetGUID()) then
-					if (script_hunter:runBackwards(targetObj, 15)) then
+						if (script_hunter:runBackwards(targetObj, 17)) then
 						script_grind.tickRate = 100;
 						script_rotation.tickRate = 135;
 						PetAttack();
 						self.message = "Moving away from target for range attacks...";
-						return;
-					end
+						return true;
+						end
+					
 				end
 			end
 			-- walk away from target if pet target guid is the same guid as target targeting me
-			if (GetPet() ~= 0) and (self.hasPet) and (targetObj:GetDistance() <= 14) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) and (targetObj:IsInLineOfSight()) then
+			if (GetPet() ~= 0) and (self.hasPet) and (targetObj:GetDistance() <= 15) and (not script_grind:isTargetingMe(targetObj)) and (targetObj:GetUnitsTarget() ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) and (targetObj:IsInLineOfSight()) then
 				if (targetObj:GetUnitsTarget():GetGUID() == pet:GetGUID()) then
 
-					if (script_hunter:runBackwards(targetObj, 15)) then
+					if (script_hunter:runBackwards(targetObj, 16)) then
 						script_grind.tickRate = 100;
 						script_rotation.tickRate = 135;
 						PetAttack();
 						self.message = "Moving away from target for range attacks...";
-						return 4;
+					return true;
 					end
+				
 				end
 			end
 
@@ -534,6 +550,8 @@ function script_hunter:run(targetGUID)
 				if (self.useMark) then
 					if (HasSpell("Hunter's Mark")) and (not targetObj:HasDebuff("Hunter's Mark")) and (targetObj:IsInLineOfSight()) and (targetHealth >= 50) and (localMana >= self.useMarkMana) then
 						CastSpellByName("Hunter's Mark");
+						self.waitTimer = GetTimeEX() + 1650;
+						PetAttack();
 						targetObj:FaceTarget();
 						return 0;
 					end
@@ -605,19 +623,20 @@ function script_hunter:run(targetGUID)
 			end
 
 			-- walk away from target if pet target guid is the same guid as target targeting me
-			if (GetPet() ~= 0) and (self.hasPet) and (targetObj:GetDistance() <= 14)
+			if (GetPet() ~= 0) and (self.hasPet) and (targetObj:GetDistance() <= 16)
 				and (not script_grind:isTargetingMe(targetObj))
 				and (targetObj:GetUnitsTarget() ~= 0)
 				and (not script_checkDebuffs:hasDisabledMovement()) and (targetObj:IsInLineOfSight()) then
 				if (targetObj:GetUnitsTarget():GetGUID() == pet:GetGUID()) then
 
-					if (script_hunter:runBackwards(targetObj, 15)) then
+					if (script_hunter:runBackwards(targetObj, 17)) then
 						script_grind.tickRate = 100;
 						script_rotation.tickRate = 135;
 						PetAttack();
 						self.message = "Moving away from target for range attacks...";
-						return 4;
+						return true;
 					end
+					
 				end
 			end
 

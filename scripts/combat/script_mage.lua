@@ -334,16 +334,6 @@ function script_mage:run(targetGUID)
 	-- Assign the target 
 	targetObj =  GetGUIDObject(targetGUID);
 
-	if (targetHealth > 10 or localHealth < 35) and (targetObj:HasDebuff("Frostbite") or targetObj:HasDebuff("Frost Nova")) and (not localObj:HasBuff('Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) and (not IsSwimming()) and (targetObj:IsInLineOfSight()) then
-		if (script_mage:runBackwards(targetObj, 8)) then -- Moves if the target is closer than 7 yards
-			script_grind.tickRate = 0;
-			self.message = "Moving away from target...";
-			if (targetObj:GetDistance() > 7) and (not IsMoving()) then
-				targetObj:FaceTarget();
-			end
-		end
-	end
-
 	-- clear dead targets
 	if (targetObj == 0) or (targetObj == nil) or (targetObj:IsDead()) then
 		ClearTarget();
@@ -912,21 +902,6 @@ function script_mage:rest()
 		script_mage:setup();
 	end
 
-	-- set tick rate for script to run
-	if (not script_grind.adjustTickRate) then
-
-		local tickRandom = random(550, 1261);
-
-		if (IsMoving()) or (not IsInCombat()) and (not localObj:IsCasting()) then
-			script_grind.tickRate = 135;
-		elseif (not IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
-			script_grind.tickRate = tickRandom
-		elseif (IsInCombat()) and (not IsMoving()) or (localObj:IsCasting()) then
-			script_grind.tickRate = tickRandom;
-		end
-	end
-
-
 	local localObj = GetLocalPlayer();
 	local localMana = localObj:GetManaPercentage();
 	local localHealth = localObj:GetHealthPercentage();
@@ -941,6 +916,10 @@ function script_mage:rest()
 	end
 
 if (not IsMounted()) then
+
+	if (self.waitTimer > GetTimeEX()) then
+		return;
+	end
 
 	--Create Water
 	local waterIndex = -1;
@@ -1081,7 +1060,7 @@ if (not IsMounted()) then
 	
 		-- arcane intellect
 		if (HasSpell("Arcane Intellect")) and (not localObj:HasBuff("Arcane Intellect")) and (localMana > 25) then
-			if (CastSpellByName("Arcane Intellect", localObj)) then
+			if (not CastSpellByName("Arcane Intellect", localObj)) then
 				self.waitTimer = GetTimeEX() + 1700;
 				script_grind:setWaitTimer(1700);
 				return true;
@@ -1090,13 +1069,13 @@ if (not IsMounted()) then
 		
 		-- ice armor / frost armor
 		if (HasSpell("Ice Armor")) and (not localObj:HasBuff("Ice Armor")) and (localMana > 20) then
-			if (CastSpellByName("Ice Armor", localObj)) then
+			if (not CastSpellByName("Ice Armor", localObj)) then
 				self.waitTimer = GetTimeEX() + 1700;
 				script_grind:setWaitTimer(1700);
 				return true;
 			end
 		elseif (not HasSpell("Ice Armor")) and (HasSpell("Frost Armor")) and (not localObj:HasBuff("Frost Armor")) and (localMana > 20) then	
-			if (CastSpellByName("Frost Armor", localObj)) then
+			if (not CastSpellByName("Frost Armor", localObj)) then
 				self.waitTimer = GetTimeEX() + 1700;
 				script_grind:setWaitTimer(1700);
 				return true;
@@ -1106,7 +1085,7 @@ if (not IsMounted()) then
 		-- dampen magic
 		if (self.useDampenMagic) then
 			if (HasSpell("Dampen Magic")) and (not localObj:HasBuff("Dampen Magic")) and (localMana > 15) then
-					if (CastSpellByName("Dampen Magic", localObj)) then
+					if (not CastSpellByName("Dampen Magic", localObj)) then
 					self.waitTimer = GetTimeEX() + 1700;
 					script_grind:setWaitTimer(1700);
 					return true;
@@ -1116,7 +1095,7 @@ if (not IsMounted()) then
 	
 		-- combustion
 		if (HasSpell("Combustion")) and (not IsSpellOnCD("Combustion")) and not (localObj:HasBuff("Combustion")) and (self.fireMage) then	
-			if (CastSpellByName("Combustion")) then
+			if (not CastSpellByName("Combustion")) then
 				self.waitTimer = GetTimeEX() + 1700;
 				script_grind:setWaitTimer(1700);
 				return true;
@@ -1126,7 +1105,7 @@ if (not IsMounted()) then
 		-- frost ward
 		if (self.useFrostWard) and (HasSpell("Frost Ward")) and (not localObj:HasBuff("Frost Ward")) then
 			if (localMana > 50) and (not localObj:HasBuff("Fire Ward")) then
-				if (CastSpellByName("Frost Ward", localObj)) then
+				if (not CastSpellByName("Frost Ward", localObj)) then
 					self.waitTimer = GetTimeEX() + 1700;
 					script_grind:setWaitTimer(1700);
 					return true;
@@ -1137,7 +1116,7 @@ if (not IsMounted()) then
 		-- fire ward
 		if (self.useFireWard) and (HasSpell("Fire Ward")) and (not localObj:HasBuff("Fire Ward")) then
 			if (localMana > 50) and (not localObj:HasBuff("Frost Ward")) then
-				if (CastSpellByName("Fire Ward", localObj)) then
+				if (not CastSpellByName("Fire Ward", localObj)) then
 					self.waitTimer = GetTimeEX() + 1700;
 					script_grind:setWaitTimer(1700);
 					return true;
@@ -1147,7 +1126,7 @@ if (not IsMounted()) then
 
 		-- remove curse
 		if (HasSpell("Remove Lesser Curse")) and (script_checkDebuffs:hasCurse()) and (localMana > 10) then
-			if (CastSpellByName("Remove Lesser Curse", localObj)) then
+			if (not CastSpellByName("Remove Lesser Curse", localObj)) then
 				self.waitTimer = GetTimeEX() + 1800;
 				script_grind:setWaitTimer(1800);
 				return true;
@@ -1225,11 +1204,12 @@ function script_mage.frostMagePull(targetObj)
 	else
 		if (IsMoving()) then
 			StopMoving();
+			return;
 		end
 		if (PlayerHasTarget()) then
 			targetObj:FaceTarget();
 		end
-		if (not IsMoving()) and (CastSpellByName("Frostbolt", targetObj)) then
+		if (CastSpellByName("Frostbolt", targetObj)) then
 			self.waitTimer = GetTimeEX() + 2300;
 			script_grind:setWaitTimer(2300);
 			if (PlayerHasTarget()) then

@@ -30,6 +30,7 @@ script_follow = {
 	randomFollow = true,
 	limitAttackDist = false,
 	isStuck = false,
+	adjustTickRate = false,
 	helperLoaded = include("scripts\\script_helper.lua"),
 	drawDataLoaded = include("scripts\\script_drawData.lua"),
 	drawStatusLoaded = include("scripts\\script_drawStatus.lua"),
@@ -66,7 +67,7 @@ function script_follow:run() script_follow:window();
 	if (IsUsingNavmesh()) and (self.drawPath) then script_drawData:drawPath(); end
 	-- Set next to node distance and nav-mesh smoothness to double that number
 	if (IsMounted()) then script_nav:setNextToNodeDist(8); NavmeshSmooth(14);
-	else script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*5); end
+	else script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist); end
 	if (not self.isSetup) then script_follow:setup(); end
 	if (self.pause) then self.message = "Paused by user..."; return; end
 	-- Automatic loading of the nav mesh
@@ -81,23 +82,27 @@ function script_follow:run() script_follow:window();
 	if (not script_unstuck:pathClearAuto(2)) then self.isStuck = true; script_unstuck:unstuck();
 	self.message = script_unstuck.message; return true; else self.isStuck = false; end end self.tickRate = 135;
 
-	if(GetTimeEX() > self.timer) then
-		self.timer = GetTimeEX() + self.tickRate;
+		if (IsMoving()) then
+			script_follow.tickRate = 50;
+		end
+		if (IsInCombat()) and (not IsMoving()) then
+			script_follow.tickRate = 500;
+		end
 		if (not IsMoving()) and (not IsInCombat()) then
 			self.message = "Waiting for action";
 		end
 		if (not IsInCombat()) then
 			script_follow.combatError = nil; 
 		end
+		-- Wait out the wait-timer and/or casting or channeling
+		if (self.waitTimer > GetTimeEX() + self.tickRate or IsCasting() or IsChanneling()) then
+			return;
+		end
 		if (GetTimeEX() > self.followTimer) and (self.randomFollow) then
 			local r = math.random(10, 20);
 			script_follow.followLeaderDistance = r;
 			localObj = GetLocalPlayer();
 			self.followTimer = GetTimeEX() + 18000;
-		end
-		-- Wait out the wait-timer and/or casting or channeling
-		if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then
-			return;
 		end
 
 		-- Accept group invite
@@ -148,7 +153,7 @@ function script_follow:run() script_follow:window();
 		-- Dismount
 		if (IsMounted()) then DisMount(); return; end
 		-- Add 2500 ms timer to the rest script rotations (timer could be set already)
-		if ((self.waitTimer - GetTimeEX()) < 2500) then self.timer = GetTimeEX()+2500; end ClearTarget(); return; end end
+		if ((self.waitTimer - GetTimeEX()) < 2500) then self.waitTimer = GetTimeEX()+2500; end ClearTarget(); return; end end
 
 		-- If bags are full
 		if (AreBagsFull() and not IsInCombat()) then
@@ -166,7 +171,7 @@ function script_follow:run() script_follow:window();
 			local isLoot = not IsInCombat() and not (self.lootObj == nil);
 			if (isLoot and not AreBagsFull()) then
 				script_followEX:doLoot(localObj);
-					return;
+					return true;
 			elseif (AreBagsFull() and not hsWhenFull) then
 				self.lootObj = nil;
 				self.message = "Warning the bags are full...";
@@ -232,6 +237,7 @@ function script_follow:run() script_follow:window();
 				local member = GetPartyMember(i);
 				if (not member:IsDead()) and (not localObj:IsDead()) and (not IsMoving()) then
 					if (script_followHealsAndBuffs:healAndBuff()) then
+						--self.waitTimer = GetTimeEX() + 1550;
 						self.message = "Healing/buffing the party...";
 						ClearTarget();
 						return true;
@@ -278,5 +284,5 @@ function script_follow:run() script_follow:window();
 			return;
 		end
 		-- random follow distance timer here 10 sec?	
-	end
+
 end

@@ -30,6 +30,9 @@ function script_followDoCombat:run()
 	if(GetTimeEX() > self.timer) then
 		self.timer = GetTimeEX() + script_follow.tickRate;
 
+		if script_follow.enemyObj ~= nil then
+			local enemy = script_follow.enemyObj;
+
 		if (enemy ~= 0 and enemy ~= nil) or (IsInCombat()) and (not enemy:IsDead()) then
 	
 			-- Run the combat script and retrieve combat script status if we have a valid target
@@ -58,11 +61,13 @@ function script_followDoCombat:run()
 				end
 				-- Move in range: combat script return 3
 				if (script_follow.combatError == 3) then
-					self.waitTimer = GetTimeEX() + 1000;
-					script_follow:setWaitTimer(1000);
+					self.waitTimer = GetTimeEX() + 100;
+					script_follow:setWaitTimer(100);
 					script_follow.message = "Moving to target...";
 					local x, y, z = enemy:GetPosition();
-					script_followMoveToEnemy:moveToEnemy(localObj, x, y, z);
+					if (script_followMoveToEnemy:moveToEnemy(localObj, x, y, z)) then
+						return true;
+					end
 						
 				return;
 				end
@@ -83,8 +88,9 @@ function script_followDoCombat:run()
 					enemy:FaceTarget();
 				end
 			end
-		self.waitTimer = GetTimeEX() + 1500;
-		script_follow:setWaitTimer(1500);
+			end
+		--self.waitTimer = GetTimeEX() + 1500;
+		--script_follow:setWaitTimer(1500);
 		end
 	end
 end

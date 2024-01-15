@@ -1,6 +1,7 @@
 script_rogue = {
 	message = 'Rogue Combat Script',
 	rogueMenu = include("scripts\\combat\\script_rogueEX.lua"),
+	rogueMenu2 = include("scripts\\combat\\script_rogueEX2.lua"),
 	mainhandPoison = "Instant Poison",
 	offhandPoison = "Instant Poison",
 	cpGenerator = 'Sinister Strike',
@@ -33,6 +34,10 @@ script_rogue = {
 	useBandage = true,
 	hasBandages = false,
 	riposteActionBarSlot = 8,
+	exposeArmorStacks = 2,
+	useExposeArmor = false,
+	useRupture = false,
+	ruptureStacks = 2,
 }
 
 function script_rogue:setup()
@@ -251,12 +256,6 @@ function script_rogue:run(targetGUID)
 		DisMount();
 	end
 
-	
-	-- force auto attack in combat
-	--if (IsInCombat()) and (PlayerHasTarget()) and (not IsAutoCasting("Attack")) then
-	--	targetObj:AutoAttack();
-	--end
-
 	if (self.enableGrind) then
 
 		--Valid Enemy
@@ -285,24 +284,7 @@ function script_rogue:run(targetGUID)
 			if (not IsStanding()) then
 				JumpOrAscendStart();
 			end
-
-			-- pick pocket
-			--if (HasSpell("Pick Pocket")) and (IsStealth()) and (not IsInCombat()) and (not IsAutoCasting("Attack")) then
-			--	if (targetObj:GetCreatureType() == 'Humanoid') or (targetObj:GetCreatureType() == 'Undead') then
-			--		if (targetObj:GetDistance() <= 5) and (IsStealth()) then
-			--			CastSpellByName("Pick Pocket");
-			--			if (IsLooting()) then
-			--				LootTarget();
-			--				script_grind.doLoot();
-			--				return;
-			--			end
-			--			return;
-			--		else
-			--			return 3;
-			--		end
-			--	end
-			--end
-
+	
 			targetHealth = targetObj:GetHealthPercentage();
 
 			-- Don't attack if we should rest first
@@ -334,19 +316,11 @@ function script_rogue:run(targetGUID)
 				self.message = "Pulling " .. targetObj:GetUnitName() .. "...";
 
 				-- Auto Attack
-				if (targetObj:GetDistance() < 40) and (not IsMoving()) then
+				if (targetObj:GetDistance() < 40) and (not IsMoving()) and (not IsAutoCasting("Attack")) then
 					targetObj:AutoAttack();
 				-- stops spamming auto attacking while moving to target
-				elseif (targetObj:GetDistance() <= 8) then
+				elseif (targetObj:GetDistance() <= 8) and (not IsAutoCasting("Attack")) then
 					targetObj:AutoAttack();
-				end
-
-				if (targetObj:IsInLineOfSight() and not IsMoving()) then
-					if (targetObj:GetDistance() <= 10) and (targetObj:IsInLineOfSight()) then
-						if (not targetObj:FaceTarget()) then
-							targetObj:FaceTarget();
-						end
-					end
 				end
 
 				-- Stealth in range if enabled
@@ -367,14 +341,6 @@ function script_rogue:run(targetGUID)
 					end
 				end
 
-				if (targetObj:IsInLineOfSight() and not IsMoving()) then
-					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-						if (not targetObj:FaceTarget()) then
-							targetObj:FaceTarget();
-						end
-					end
-				end
-
 				-- Check if we are in melee range
 				if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) and (PlayerHasTarget()) then
 					return 3;
@@ -385,7 +351,8 @@ function script_rogue:run(targetGUID)
 					script_rogue:spellAttack(self.cpGenerator, targetObj);
 					return 0;
 				end
- 
+				
+				
 
 				-- now in Combat
 			else	
@@ -403,14 +370,6 @@ function script_rogue:run(targetGUID)
 				-- Check if we are in melee range
 				if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) and (PlayerHasTarget()) then
 					return 3;
-				end
-
-				if (targetObj:IsInLineOfSight() and not IsMoving()) then
-					if (targetObj:GetDistance() <= 10) and (targetObj:IsInLineOfSight()) then
-						if (not targetObj:FaceTarget()) then
-							targetObj:FaceTarget();
-						end
-					end
 				end
 
 				if (HasSpell('Kidney Shot')) and (localCP >= 1) and (targetObj:IsCasting()) and (not IsSpellOnCD('Kidney Shot')) and (localEnergy >= 25) then
@@ -442,14 +401,6 @@ function script_rogue:run(targetGUID)
 						script_grind.tickRate = 80;
 						return 4; 
 					end 
-				end
-
-				if (targetObj:IsInLineOfSight() and not IsMoving() and targetHealth <= 99) then
-					if (targetObj:GetDistance() <= self.followTargetDistance) and (targetObj:IsInLineOfSight()) then
-						if (not targetObj:FaceTarget()) then
-							targetObj:FaceTarget();
-						end
-					end
 				end		
 				
 				if (GetNumPartyMembers() >= 1) and (HasSpell("Feint")) and (script_grind:isTargetingMe(targetObj)) and (not IsSpellOnCD("Feint")) and (localEnergy >= 20) then
@@ -584,6 +535,26 @@ function script_rogue:run(targetGUID)
 						self.waitTimer = GetTimeEX() + 1100;
 						return 0;
 					end	
+				end
+
+				-- expose armor
+				if (self.useExposeArmor) and (HasSpell("Expose Armor")) and (not IsSpellOnCD("Expose Armor")) and (not targetObj:HasDebuff("Expose Armor")) and (not targetObj:HasDebuff("Sunder Armor")) then
+					if (localCP >= self.exposeArmorStacks) and (localEnergy >= 25) then
+						if (CastSpellByName("Expose Armor")) then
+							self.waitTimer = GetTimeEX() + 1050;
+							return 0;
+						end
+					end
+				end
+
+				-- rupture
+				if (self.useRupture) and (HasSpell("Rupture")) and (not IsSpellOnCD("Rupture")) and (not targetObj:HasDebuff("Rupture")) then
+					if (localCP >= self.ruptureStacks) and (localEnergy >= 25) then
+						if (CastSpellByName("Rupture")) then
+							self.waitTimer = GetTimeEX() + 1050;
+							return 0;
+						end
+					end
 				end
 
 				-- Use CP generator attack 
@@ -1080,6 +1051,7 @@ function script_rogue:rest()
 
 	if (HasSpell("Stealth")) and (not IsStealth()) and (IsSpellOnCD("Stealth")) and (self.useStealth) and (not IsLooting()) and (script_grind.lootObj == nil) and (vendorStatus ~= 1) and (vendorStatus ~= 2) and (vendorStatus ~= 3) and (vendorStatus ~= 4) then
 		self.message = "Waiting for Stealth cooldown...";
+		ClearTarget();
 		return 4;
 	end
 	

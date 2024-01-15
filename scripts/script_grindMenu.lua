@@ -171,6 +171,10 @@ function script_grindMenu:menu()
 				script_grindMenu:printHotspot(); 
 			end
 
+			if (not script_grind.hotspotReached) then
+				Text("Distance To Hotspot Reached");
+				script_grind.hotspotReachedDistance = SliderInt("HSD", 10, 100, script_grind.hotspotReachedDistance);
+			end
 		-- distance from hotspot slider
 			Text('Distance To Move From Hotspot');
 			script_grind.distToHotSpot = SliderInt("DHS (yd)", 1, 2500, script_grind.distToHotSpot); Separator();

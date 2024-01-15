@@ -170,12 +170,6 @@ function script_paladin:run(targetGUID)
 			JumpOrAscendStart();
 		end
 
-		if (targetObj:GetDistance() <= 8) and (not IsMoving()) then
-			if (not targetObj:FaceTarget()) then
-				targetObj:FaceTarget();
-			end
-		end
-
 		-- Auto Attack
 		if (targetObj:GetDistance() < 40) and (not IsAutoCasting("Attack")) then
 			targetObj:AutoAttack();
@@ -229,21 +223,16 @@ function script_paladin:run(targetGUID)
 			if (targetObj:GetDistance() <= self.meleeDistance) then
 				if (not IsAutoCasting("Attack")) then
 					targetObj:AutoAttack();
-				end
-				if (not IsMoving()) then
-					targetObj:FaceTarget();
+					if (IsMoving()) then
+						StopMoving();
+						return;
+					end
 				end
 			end
-
 				
 		-- Combat WE ARE NOW IN COMBAT
 
 		else	
-
-			if (not IsAutoCasting("Attack")) and (not IsMoving()) then
-				targetObj:AutoAttack();
-				targetObj:FaceTarget();
-			end
 
 			-- Check move into melee range
 			if (targetObj:GetDistance() > self.meleeDistance) or (not targetObj:IsInLineOfSight()) then
@@ -339,10 +328,6 @@ function script_paladin:run(targetGUID)
 					if (script_paladinEX:healsAndBuffs(localObj, localMana)) then
 						return true;
 					end
-				end
-					
-				if (targetObj:IsInLineOfSight() and not IsMoving()) and (targetObj:GetDistance() <= 6) then
-					targetObj:FaceTarget();	
 				end
 
 				-- hammer of justice when fleeing

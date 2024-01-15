@@ -12,11 +12,11 @@ function script_followMoveToEnemy:moveToEnemy(localObj, _x, _y, _z) -- use when 
 	localObj = GetLocalPlayer();
 	local _lx, _ly, _lz = localObj:GetPosition();
 
-	local _ix, _iy, _iz = GetPathPositionAtIndex(5, script_nav.lastnavIndex+1);	
+	local _ix, _iy, _iz = GetPathPositionAtIndex(5, script_nav.lastnavIndex);	
 
 	-- If the target moves more than 5 yard then make a new path
-	if(GetDistance3D(_x, _y, _z, script_nav.navPosition['x'], script_nav.navPosition['y'], script_nav.navPosition['z']) > 2
-		or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 35) then
+	if(GetDistance3D(_x, _y, _z, script_nav.navPosition['x'], script_nav.navPosition['y'], script_nav.navPosition['z']) > 5
+		or GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 60) then
 		script_nav.navPosition['x'] = _x;
 		script_nav.navPosition['y'] = _y;
 		script_nav.navPosition['z'] = _z;
@@ -41,7 +41,7 @@ function script_followMoveToEnemy:moveToEnemy(localObj, _x, _y, _z) -- use when 
 	end
 
 	-- Check: If move to coords are too far away, something wrong, dont move... BUT WHY ?!
-	if (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 25) then
+	if (GetDistance3D(_lx, _ly, _lz, _ix, _iy, _iz) > 50) then
 		GeneratePath(_lx, _ly, _lz, _lx, _ly, _lz);
 		script_follow.message = "cannot find path...";
 		return "Generating a new path...";
@@ -55,7 +55,7 @@ function script_followMoveToEnemy:moveToEnemy(localObj, _x, _y, _z) -- use when 
 		collectgarbage(script_nav.navPosition['y']);
 		collectgarbage(script_nav.navPosition['x']);
 		script_followMoveToTarget.used = script_followMoveToTarget.used + 1;
-		self.moveTimer = GetTimeEX() + 1000;
+		self.moveTimer = GetTimeEX() + 300;
 	end
 	
 	script_follow.message = "moving to enemy...";

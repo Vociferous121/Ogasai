@@ -268,15 +268,16 @@ function script_shaman:healsAndBuffs()
 	if (not IsCasting()) and (not IsChanneling()) then
 		if (localHealth < self.healHealth) then
 			if (localMana >= self.healMana) then 
-				CastSpellByName(self.healingSpell, localObj);
-				if (self.healingSpell ~= "Lesser Healing Wave") then
-					self.waitTimer = GetTimeEX() + 4000;
-					script_grind:setWaitTimer(4000);
-					return 4;
-				else
-					self.waitTimer = GetTimeEX() + 2500;
-					script_grind:setWaitTimer(2500);
-					return 4;
+				if (not CastSpellByName(self.healingSpell, localObj)) then
+					if (self.healingSpell ~= "Lesser Healing Wave") then
+						self.waitTimer = GetTimeEX() + 4000;
+						script_grind:setWaitTimer(4000);
+						return 4;
+					else
+						self.waitTimer = GetTimeEX() + 2500;
+						script_grind:setWaitTimer(2500);
+						return 4;
+					end
 				end
 			end
 		end
@@ -317,7 +318,7 @@ function script_shaman:healsAndBuffs()
 	-- Check: Lightning Shield
 	if (IsStanding()) and (HasSpell("Lightning Shield")) and (localMana >= 35)
 	and (not localObj:HasBuff("Lightning Shield")) and (IsStanding()) then
-		if (CastSpellByName("Lightning Shield", localObj)) then
+		if (not CastSpellByName("Lightning Shield", localObj)) then
 			self.waitTimer = GetTimeEX() + 1500;
 			script_grind:setWaitTimer(1500);
 			return 0;
@@ -444,14 +445,6 @@ function script_shaman:run(targetGUID)
 		if (not IsStanding()) then
 			JumpOrAscendStart();
 		end
-
-		-- Auto Attack
-		--if (targetObj:GetDistance() < 40) then
-		--	targetObj:AutoAttack();
-		--	if (not IsMoving()) then
-		--		targetObj:FaceTarget();
-		--	end
-		--end
 	
 		targetHealth = targetObj:GetHealthPercentage();
 
@@ -478,12 +471,6 @@ function script_shaman:run(targetGUID)
 
 			-- Dismount
 			if (IsMounted() and targetObj:GetDistance() < 25) then DisMount(); return 0; end
-
-			if (not IsMoving() and targetObj:GetDistance() <= 10 and targetObj:IsInLineOfSight()) then
-				targetObj:FaceTarget();
-			end
-
-
 
 			if (self.pullLightningBolt) then
 				-- Check: Not in range
@@ -518,9 +505,7 @@ function script_shaman:run(targetGUID)
 			end
 
 	
-			if (not IsMoving()) and (targetObj:GetDistance() <= 10) then
-				targetObj:FaceTarget();
-			else
+			if (targetObj:GetDistance() > self.meleeDistance) then
 				return 3;
 			end
 
@@ -553,7 +538,7 @@ function script_shaman:run(targetGUID)
 				if (not self.pullLightningBolt) and (HasSpell("Flame Shock"))
 					and (localMana >= self.drinkMana) and (not IsSpellOnCD("Flame Shock"))
 					and (targetObj:GetDistance() <= 20) then
-					if (CastSpellByName("Flame Shock", targetObj)) then
+					if (not CastSpellByName("Flame Shock", targetObj)) then
 						self.waitTimer = GetTimeEX() + 1500;
 						return 0;
 					end
@@ -562,9 +547,6 @@ function script_shaman:run(targetGUID)
 		
 			if (not IsAutoCasting("Attack")) and (not IsMoving()) then
 				targetObj:AutoAttack();
-				if (not IsMoving()) then
-					targetObj:FaceTarget();
-				end
 			end
 
 			if (script_shamanEX2:useTotem()) and (not localObj:HasBuff(self.totemBuff))
@@ -603,7 +585,6 @@ function script_shaman:run(targetGUID)
 				
 			-- stop moving if we get close enough to target
 			if (targetObj:GetDistance() <= self.meleeDistance) and (targetHealth >= 80) then
-				targetObj:FaceTarget();
 				if (IsMoving()) then
 					StopMoving();
 				end
@@ -611,11 +592,6 @@ function script_shaman:run(targetGUID)
 
 			-- Dismount
 			if (IsMounted()) then DisMount(); end
-
-			if (targetObj:GetDistance() <= self.meleeDistance) and (not IsMoving())
-				and (targetObj:IsInLineOfSight()) then
-				targetObj:FaceTarget();
-			end
 
 			-- stop moving if we get close enough to target and not in combat yet
 			if (not IsInCombat()) and (targetObj:GetDistance() <= self.meleeDistance)
@@ -656,10 +632,6 @@ function script_shaman:run(targetGUID)
 
 			if (not IsAutoCasting("Attack")) and (targetObj:GetDistance() <= self.meleeDistance) then 
 				targetObj:AutoAttack();
-				if (not IsMoving()) and (targetObj:GetDistance() <= 8)
-					and (targetObj:IsInLineOfSight()) then
-					targetObj:FaceTarget();
-				end
 			end
 
 
@@ -676,10 +648,6 @@ function script_shaman:run(targetGUID)
 				if (script_helper:useManaPotion()) then 
 					return 0; 
 				end 
-			end
-
-			if (targetObj:GetDistance() <= self.meleeDistance) and (not IsMoving()) and (targetObj:IsInLineOfSight()) then
-				targetObj:FaceTarget();
 			end
 	
 			-- frost shock target is low health and possible fleeing
@@ -817,12 +785,7 @@ function script_shaman:run(targetGUID)
 					and (targetHealth >= 80) then
 					if (IsMoving()) then
 						StopMoving();
-						targetObj:FaceTarget();
 					end
-				end
-
-				if (not IsMoving()) and (targetObj:IsInLineOfSight()) and (targetObj:GetDistance() <= self.meleeDistance) then
-					targetObj:FaceTarget();
 				end
 
 				-- War Stomp Tauren Racial
@@ -932,7 +895,7 @@ function script_shaman:rest()
 			return true;
 		end
 
-		if (not IsDrinking()) and (IsStanding()) then
+		if (not IsDrinking()) and (IsStanding()) and (not HasForm()) then
 			script_grind:setWaitTimer(2000);
 			if (script_helper:drinkWater()) then 
 				script_grind:setWaitTimer(2000);
@@ -959,7 +922,7 @@ function script_shaman:rest()
 			return true;
 		end
 
-		if (not IsEating()) and (IsStanding()) then
+		if (not IsEating()) and (IsStanding()) and (not HasForm()) then
 			script_grind:setWaitTimer(2000);
 			if (script_helper:eat()) then 
 				script_grind:setWaitTimer(2000);

@@ -21,18 +21,21 @@ function script_hunterEX:chooseAspect(targetObj)
 	if (hasMonkey) and (localObj:GetLevel() < 10) then 
 		if (not localObj:HasBuff('Aspect of the Monkey')) then  
 			CastSpellByName('Aspect of the Monkey'); 
+			script_hunter.waitTimer = GetTimeEX() + 1550;
 			return true; 
 		end	
 	elseif (hasMonkey) and (targetObj ~= nil) and (not targetObj ~= 0) then
 		if (targetObj:GetDistance() <= 5) and (IsInCombat()) and (localHealth <= 50) then
 			if (not localObj:HasBuff('Aspect of the Monkey')) then  
 				CastSpellByName('Aspect of the Monkey'); 
+				script_hunter.waitTimer = GetTimeEX() + 1550;
 				return true; 
 			end
 		else
 			if (hasHawk) and (targetObj:GetDistance() <= 37) and (not targetObj:IsDead()) and (targetObj:CanAttack()) then 
 				if (not localObj:HasBuff('Aspect of the Hawk')) then 
 					CastSpellByName('Aspect of the Hawk'); 
+					script_hunter.waitTimer = GetTimeEX() + 1550;
 					return true; 
 				end 
 			end
@@ -40,6 +43,7 @@ function script_hunterEX:chooseAspect(targetObj)
 	elseif (script_hunter.useCheetah) and (hasCheetah) and (not IsInCombat()) and (targetObj == nil) and (localMana > script_hunter.drinkMana + 10) then 
 		if (not localObj:HasBuff('Aspect of the Cheetah')) then 
 			CastSpellByName('Aspect of the Cheetah'); 
+			script_hunter.waitTimer = GetTimeEX() + 1550;
 			return true;  
 		end 
 	end

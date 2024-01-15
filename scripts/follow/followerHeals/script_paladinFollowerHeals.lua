@@ -25,23 +25,21 @@ function script_paladinFollowerHeals:HealsAndBuffs()
 	end
 
 	-- Wait out the wait-timer and/or casting or channeling
-	if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then
+	if (self.waitTimer > GetTimeEX() + script_follow.tickRate or IsCasting() or IsChanneling()) then
 		return;
 	end
 
-	-- set tick rate for scripts
-	if (GetTimeEX() > self.timer) then
-		timer = GetTimeEX() + script_follow.tickRate;
-
-		-- Check if anything is attacking us Paladin
-		if (script_followEX2:enemiesAttackingUs() >= 2) then
-				local localMana = GetLocalPlayer():GetManaPercentage();
-			if (localMana > 6 and HasSpell('Divine Protection') and not IsSpellOnCD('Divine Protection')) then
-				CastSpellByName('Divine Protection');
-			end
+	-- Check if anything is attacking us Paladin
+	if (script_followEX2:enemiesAttackingUs() >= 2) then
+			local localMana = GetLocalPlayer():GetManaPercentage();
+		if (localMana > 6 and HasSpell('Divine Protection') and not IsSpellOnCD('Divine Protection')) then
+			CastSpellByName('Divine Protection');
+			script_follow.timer = GetTimeEX() + 1650;
+			self.waitTimer = GetTimeEX() + 1650;
 		end
+	end
 
-		for i = 1, GetNumPartyMembers() do
+	for i = 1, GetNumPartyMembers() do
 
 		if (GetNumPartyMembers() > 0) then
 
@@ -55,8 +53,9 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                 	if (HasSpell("Cure Disease")) and (localMana > 10) then
                 		if (member:HasDebuff("Infected Wound")) then
                         		if (CastHeal("Cure Disease", member)) then
-                        		    script_follow.timer = GetTimeEX() + 1500;
-                        		    return true;
+						script_follow.timer = GetTimeEX() + 1650;
+						self.waitTimer = GetTimeEX() + 1650;
+                        		return true;
                         		end
                     		end
                 	end
@@ -65,7 +64,8 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                		if (HasSpell("Purify")) and (localMana > 10) then
                     		if (member:HasDebuff("Irradiated")) or (member:HasDebuff("Infected Wound")) then
                         		if (CastHeal("Purify", member)) then
-                            			script_follow.timer = GetTimeEX() + 1500;
+						script_follow.timer = GetTimeEX() + 1650;
+						self.waitTimer = GetTimeEX() + 1650;
                             			return true;
                         		end
                     		end
@@ -74,12 +74,17 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                		-- blessing of might
                 	if (not member:HasBuff("Strength of Earth")) and (not member:HasBuff("Mana Spring")) then
                     		if (not member:HasBuff("Blessing of Wisdom")) and (not member:HasBuff("Blessing of Might")) then
-                        		if (member:GetRagePercentage() > 1) or (member:GetEnergyPercentage() > 1) or (member:HasBuff("Bear Form") or member:HasBuff("Cat Form")) and (not member:GetManaPercentage() > 1) then
-                            			if (not member:IsInLineOfSight() and memberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then 											script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+                        		if (member:GetRagePercentage() > 1) or (member:GetEnergyPercentage() > 1)
+						or (member:HasBuff("Bear Form") or member:HasBuff("Cat Form")) and (not member:GetManaPercentage() > 1) then
+                            			if (not member:IsInLineOfSight() and member:GetDistance() < script_follow.followLeaderDistance
+							and leaderObj:IsInLineOfSight()) then 															script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+							self.waitTimer = GetTimeEX() + 550;
+							script_follow.waitTimer = GetTimeEX() + 550;
 							return true;
-                       			end
+                       				end
                             			if (Buff("Blessing of Might", member)) then
-                                        		script_follow.timer = GetTimeEX() + 1500;
+							script_follow.timer = GetTimeEX() + 1650;
+							self.waitTimer = GetTimeEX() + 1650;
                                 			return true;	
                             			end
                         		end
@@ -89,11 +94,16 @@ function script_paladinFollowerHeals:HealsAndBuffs()
                 	-- blessing of wisdom
                 	if (member:GetManaPercentage() > 1) and (HasSpell("Blessing of Wisdom")) and (not member:HasBuff("Blessing of Wisdom")) and (not member:HasBuff("Blessing of Might")) and (not member:HasBuff("Mana Spring")) then
                     		if (not member:GetRagePercentage() > 1) and (not member:GetEnergyPercentage() > 1) then
-                        		if (not member:IsInLineOfSight() and memberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then 											script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+                        		if (not member:IsInLineOfSight() and memberDistance < script_follow.followLeaderDistance
+							and leaderObj:IsInLineOfSight()) then 
+							script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+							self.waitTimer = GetTimeEX() + 550;
+							script_follow.waitTimer = GetTimeEX() + 550;
 							return true;
                        			end
                         		if (Buff("Blessing of Wisdom", member)) then
-                            			script_follow.timer = GetTimeEX() + 1500;
+                            			script_follow.timer = GetTimeEX() + 1650;
+						self.waitTimer = GetTimeEX() + 1650;
                             			return true;
                         		end
                     		end
@@ -101,24 +111,32 @@ function script_paladinFollowerHeals:HealsAndBuffs()
 
                 	-- Blessing of Protection
                 	if (localMana > 5) and (membersHP < self.bopHealth) and (HasSpell("Blessing of Protection")) then
-                    		if (not member:IsInLineOfSight() and memberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then 											script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+                    		if (not member:IsInLineOfSight() and memberDistance < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then 				script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+							self.waitTimer = GetTimeEX() + 550;
+							script_follow.waitTimer = GetTimeEX() + 550;
 							return true;
                        			end
                     		if (Cast("Blessing of Protection", member)) then
-                        		script_follow.timer = GetTimeEX() + 1500;
+                        		script_follow.timer = GetTimeEX() + 1650;
+					self.waitTimer = GetTimeEX() + 1650;
                         		return true;
                     		end
                 	end
 
 			-- paladin heals
-
+			if (script_paladinFollowerHeals.enableHeals) then
 				-- Lay on Hands
                 		if (localMana < 25) and (membersHP < self.layOnHandsHealth) and (HasSpell("Lay on Hands")) then
-					if (not member:IsInLineOfSight() and memberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then 											script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
-							return true;
+					if (not member:IsInLineOfSight() and memberDistance < script_follow.followLeaderDistance
+						and leaderObj:IsInLineOfSight()) then
+						script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+						script_follow.waitTimer = GetTimeEX() + 550;
+						self.waitTimer = GetTimeEX() + 550;
+						return true;
                        			end
 					if (CastHeal("Lay on Hands", member)) then
-                        			script_follow.timer = GetTimeEX() + 1500;
+                        			script_follow.timer = GetTimeEX() + 1650;
+						self.waitTimer = GetTimeEX() + 1650;
                         			return true;
 					end
 				end
@@ -135,21 +153,32 @@ function script_paladinFollowerHeals:HealsAndBuffs()
 
                 		-- Holy Light
                 		if (localMana > self.holyLightMana) and (membersHP <= self.partyHolyLightHealth) and (HasSpell("Holy Light")) then
-                			if (not member:IsInLineOfSight() and memberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then 											script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+                			if (not member:IsInLineOfSight() and memberDistance < script_follow.followLeaderDistance
+						and leaderObj:IsInLineOfSight()) then
+							script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+							script_follow.waitTimer = GetTimeEX() + 550;
+							self.waitTimer = GetTimeEX() + 550;
 							return true;
                        			end
                 			if (CastHeal("Holy Light", member)) then
-                		        	script_follow.timer = GetTimeEX() + 3000;
+                		        	script_follow.timer = GetTimeEX() + 3200;
+						self.waitTimer = GetTimeEX() + 3500;
                 		        	return true;
                 		    	end
                 		end
 
                 		-- Flash Of Light
                 		if (localMana > self.flashOfLightMana) and (membersHP < self.partyFlashOfLightHealth) and (HasSpell("Flash of Light")) then
-                 	   		if (not member:IsInLineOfSight() and memberDistance() < script_follow.followLeaderDistance and leaderObj:IsInLineOfSight()) then 											script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+                 	   		if (not member:IsInLineOfSight() and memberDistance < script_follow.followLeaderDistance
+						and leaderObj:IsInLineOfSight()) then 
+						script_followMoveToTarget:moveToTarget(GetLocalPlayer(), px, py, pz);
+							self.waitTimer = GetTimeEX() + 550;
+							script_follow.waitTimer = GetTimeEX() + 550;
 							return true;
                        			end
                  	   		if (CastHeal("Flash of Light", member)) then
+						self.waitTimer = GetTimeEX() + 1650;
+						script_follow.waitTimer = GetTimeEX() + 1650;
                  	       			return true;
                  	   		end
 				end       

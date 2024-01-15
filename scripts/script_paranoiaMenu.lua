@@ -4,8 +4,10 @@ script_paranoiaMenu = {
 
 function script_paranoiaMenu:menu()
 
-		Separator();
+	Separator();
 
+	wasClicked, script_grind.useRandomNode = Checkbox("Randomize Node Dist", script_grind.useRandomNode);
+	SameLine();
 	wasClicked, script_grind.jump = Checkbox("Random Jump", script_grind.jump);
 	
 	if (script_grind.jump) then
@@ -13,6 +15,7 @@ function script_paranoiaMenu:menu()
 		Text("- 100 = No Jumping");
 		script_grind.jumpRandomFloat = SliderInt("Jump Rate", 92, 100, script_grind.jumpRandomFloat);
 	end
+	
 		
 	-- paranoid on/off button
 	wasClicked, script_paranoia.paranoidOn = Checkbox("Enable Paranoia", script_paranoia.paranoidOn);

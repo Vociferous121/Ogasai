@@ -46,7 +46,7 @@ function script_followMenu:menu()
 				script_follow.randomFollow = false;
 			end
 			if (script_follow.randomFollow) then
-				local followTimer = math.floor((GetTimeEX() - script_follow.followTimer) / 1000);
+				local followTimer = math.floor( (script_follow.followTimer - GetTimeEX()) / 1000);
 				SameLine();
 				Text(followTimer);
 			end

@@ -64,34 +64,34 @@ function script_followEX:doLoot(localObj)
 				script_follow.message = "Trying to loot before we follow leader...";
 			if (IsMoving() and not localObj:IsMovementDisabed()) then
 				StopMoving();
-				script_follow.timer = GetTimeEX() + 350;
+				script_follow.waitTimer = GetTimeEX() + 350;
 				return;
 			end
 	
 			if(not IsStanding()) then
 				StopMoving();
-				script_follow.timer = GetTimeEX() + 350;
+				script_follow.waitTimer = GetTimeEX() + 350;
 				return;
 			end
 	
 			-- Dismount
 			if (IsMounted()) then 
 				DisMount();
-				script_follow.timer = GetTimeEX() + 350;
+				script_follow.waitTimer = GetTimeEX() + 350;
 				return;
 			end
 	
 			if(not script_follow.lootObj:UnitInteract() and not IsLooting()) then
-				script_follow.timer = GetTimeEX() + 550;
+				script_follow.waitTimer = GetTimeEX() + 550;
 				return;
 			end
 	
 			if (not LootTarget()) then
-				script_follow.timer = GetTimeEX() + 250;
+				script_follow.waitTimer = GetTimeEX() + 250;
 				return;
 			else
 				script_follow.lootObj = nil;
-				script_follow.timer = GetTimeEX() + 250;
+				script_follow.waitTimer = GetTimeEX() + 250;
 			end
 		else
 			if(script_followMoveToTarget:moveToLoot(GetLocalPlayer(), _x, _y, _z)) then

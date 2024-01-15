@@ -1,8 +1,8 @@
 script_nav = {
 	includeNavEX= include("scripts\\script_navEX.lua"),
 	useNavMesh = true,
-	nextNavNodeDistance = 1.5, -- for mobs and loot
-	nextPathNodeDistance = 2.6, -- for walking paths
+	nextNavNodeDistance = 4.9, -- for mobs and loot
+	nextPathNodeDistance = 10.1, -- for walking paths
 	lastPathIndex = 0,
 	navPosition = {},
 	navPathPosition = {},
@@ -219,7 +219,6 @@ function script_nav:getLootTarget(lootRadius)
 
 	return bestTarget;
 end
-
 
 function script_nav:moveToNav(localObj, _x, _y, _z)
 

@@ -23,8 +23,8 @@ script_grind = {
 	omLoaded = include("scripts\\script_om.lua"),
 	jump = true,	-- enable jumping out of combat
 	jumpRandomFloat = 96,	-- jump > than 
-	useVendor = false,	-- use vendor
-	repairWhenYellow = false,	-- repair when yellow
+	useVendor = true,	-- use vendor
+	repairWhenYellow = true,	-- repair when yellow
 	stopWhenFull = false,	-- stop when bags are full
 	hsWhenFull = false,	-- hearthstone when bags are full
 	useMount = false,	-- use mount
@@ -64,7 +64,7 @@ script_grind = {
 	skipMechanical = false,	
 	skipElites = true,	-- skip elites (currently disabled)
 	paranoidRange = 75,	-- paranoia range
-	nextToNodeDist = 3.8, -- (Set to about half your nav smoothness)
+	nextToNodeDist = 4.1, -- (Set to about half your nav smoothness)
 	blacklistedTargets = {},	-- GUID table of blacklisted targets
 	blacklistedNum = 0,	-- number of blacklisted targets
 	hardBlacklistedTargets = {},	-- GUID table of blacklisted targets
@@ -133,6 +133,9 @@ script_grind = {
 	paranoiaCounter = 0,
 	usedParanoiaCounter = false,
 	omTimer = GetTimeEX(),
+	hotspotReachedDistance = 50,
+	nodeTimer = GetTimeEX(),
+	useRandomNode = true,
 }
 
 function script_grind:setup()
@@ -240,8 +243,11 @@ function script_grind:setup()
 	local randomRange = math.random(50, 90);
 	self.paranoidRange = randomRange;
 
+	self.nodeTimer = GetTimeEX();
+
 	-- why was this not iterated before?
 	local level = GetLocalPlayer():GetLevel();
+
 	if (level < 10) then
 		script_checkAdds.addsRange = 15;
 	end
@@ -342,7 +348,6 @@ function script_grind:run()
 		end
 	end
 		
-
 	-- if bags full then set true
 	if (AreBagsFull()) then
 		self.bagsFull = true;
@@ -350,10 +355,10 @@ function script_grind:run()
 
 	 -- Set next to node distance and nav-mesh smoothness to double that number
 	if (IsMounted()) then
-		script_nav:setNextToNodeDist(14); NavmeshSmooth(26);
+		script_nav:setNextToNodeDist(14); NavmeshSmooth(14);
 	else
 		-- else set to preset variable
-		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*2.5);
+		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist);
 	end
 
 		localObj = GetLocalPlayer();
@@ -362,7 +367,7 @@ function script_grind:run()
 		script_nav:setNextToNodeDist(10); NavmeshSmooth(26);
 	else
 		-- else set to preset variable
-		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*3);
+		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist);
 	end
 
 	-- night elf whisp
@@ -373,24 +378,24 @@ function script_grind:run()
 	else
 		-- else set to preset variable
 		script_nav:setNextToNodeDist(self.nextToNodeDist);
-		NavmeshSmooth(self.nextToNodeDist*4);
+		NavmeshSmooth(self.nextToNodeDist);
 	end
 	
 	-- player is dead
 	if (localObj:IsDead() or IsGhost()) then
 		script_nav:setNextToNodeDist(8);
-		NavmeshSmooth(16);
+		NavmeshSmooth(8);
 		self.tickRate = 100;
 	else
 		-- else set to preset variable
 		script_nav:setNextToNodeDist(self.nextToNodeDist);
-		NavmeshSmooth(self.nextToNodeDist*4);
+		NavmeshSmooth(self.nextToNodeDist);
 	end
 
 	if (IsIndoors()) then
 		script_nav:setNextToNodeDist(4); NavmeshSmooth(16);
 	else
-		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist*2.5);
+		script_nav:setNextToNodeDist(self.nextToNodeDist); NavmeshSmooth(self.nextToNodeDist);
 	end
 	
 	-- run setup function if not ran yet
@@ -429,6 +434,17 @@ function script_grind:run()
 		return true;
 	end
 
+	--random node dist
+	if (self.useRandomNode) and (not IsGhost() and not localObj:IsDead() and not HasForm() and not IsMounted() and not IsIndoors()) then
+		local randomNodeDist = math.random(4, 9);
+		if (IsMoving()) and (GetTimeEX() > self.nodeTimer) then
+			self.nextToNodeDist = randomNodeDist;
+			script_nav.nextNavNodeDistance = randomNodeDist;
+			script_nav.nextPathNodeDistance = randomNodeDist;
+			self.nodeTimer = GetTimeEX() + 1000;
+		end
+	end
+
 	-- pause bot
 	if (self.pause) then self.message = "Paused by user...";
 		-- set paranoid used to off to reset paranoia
@@ -444,6 +460,21 @@ function script_grind:run()
 			self.message = "Checking/learning talent: " .. script_talent:getNextTalentName();
 			return;
 		end
+	end
+
+	-- run backwards target has frost nova
+	if (GetLocalPlayer():GetUnitsTarget() ~= 0) then
+		if (GetLocalPlayer():GetUnitsTarget():GetHealthPercentage() > 10 or GetLocalPlayer():GetHealthPercentage() < 35) and (GetLocalPlayer():GetUnitsTarget():HasDebuff("Frostbite") or GetLocalPlayer():GetUnitsTarget():HasDebuff("Frost Nova")) and (not GetLocalPlayer():HasBuff('Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) and (not IsSwimming()) and (GetLocalPlayer():GetUnitsTarget():IsInLineOfSight()) then
+		if (script_mage:runBackwards(targetObj, 8)) then -- Moves if the target is closer than 7 yards
+			script_grind.tickRate = 0;
+			script_grind.waitTimer = GetTimeEX();
+			self.message = "Moving away from target...";
+			if (GetLocalPlayer():GetUnitsTarget():GetDistance() > 7) and (not IsMoving()) then
+				GetLocalPlayer():GetUnitsTarget():FaceTarget();
+			end
+		return;
+		end
+	end
 	end
 
 	-- delete items
@@ -549,14 +580,16 @@ function script_grind:run()
 	
 	if (IsInCombat()) and (not IsMoving()) then
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
-			self.enemyObj:FaceTarget();
+			if (self.enemyObj:GetDistance() <= 30) then
+				self.enemyObj:FaceTarget();
+			end
 		end
 	end
 
 	-- set tick rate for scripts
-	if (GetTimeEX() > self.timer) then
-		self.timer = GetTimeEX() + self.tickRate;
-
+	if (self.waitTimer > GetTimeEX() + self.tickRate) then
+		return;
+	end
 		-- Do all checks
 		if (script_grindEX:doChecks()) then
 			return;
@@ -629,7 +662,7 @@ function script_grind:run()
 		end
 
 		-- hotspot reached distance
-		if (script_nav:getDistanceToHotspot() <= 45) then
+		if (script_nav:getDistanceToHotspot() <= self.hotspotReachedDistance) then
 			self.hotspotReached = true;
 		end
 
@@ -659,15 +692,6 @@ function script_grind:run()
 			return true;
 			end
 
-			-- Druid travel form
-			--if (not IsIndoors()) then
-			--	if (not IsMounted()) and (not script_paranoia:checkParanoia()) and (not IsSwimming()) and (not self.useMount) then
-			--		if (script_druidEX:travelForm()) then
-			--			self.waitTimer = GetTimeEX() + 1000;
-			--		end
-			--	end
-			--end
-
 			-- druid cat form
 			if (not IsMounted()) and (not self.useMount) and (not HasSpell("Travel Form")) and (HasSpell("Cat Form")) and (not localObj:HasBuff("Cat Form")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) then
 				if (CastSpellByName("Cat Form")) then
@@ -675,13 +699,6 @@ function script_grind:run()
 					return 0;
 				end
 			end
-
-			-- rogue stealth
-			--if (not IsMounted()) and (not self.useMount) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not localObj:IsDead()) and (GetLocalPlayer():GetHealthPercentage() >= 95) and (not script_checkDebuffs:hasPoison()) then
-			--	if (CastSpellByName("Stealth", localObj)) then
-			--		self.waitTimer = GetTimeEX() + 1200;
-			--	end
-			--end
 
 			-- Shaman Ghost Wolf 
 			if (not IsMounted()) and (not self.useMount) and (not script_grind.useMount) and (HasSpell('Ghost Wolf')) and (not localObj:HasBuff('Ghost Wolf')) and (not localObj:IsDead()) then
@@ -694,8 +711,8 @@ function script_grind:run()
 
 		-- move to hotspot location
 		self.message = script_nav:moveToHotspot(localObj);
-		script_grind:setWaitTimer(65);
-		return;
+		script_grind:setWaitTimer(self.nextToNodeDist * 10);
+		return true;
 		end
 
 		-- check party members
@@ -719,7 +736,7 @@ function script_grind:run()
 
 		
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
-			if (not PlayerHasTarget()) and (not IsMoving()) and (not script_grind:isTargetHardBlacklisted(self.enemyObj)) and (not IsAutoCasting("Attack")) then
+			if (not PlayerHasTarget()) and (not script_grind:isTargetHardBlacklisted(self.enemyObj)) and (not IsAutoCasting("Attack")) and (self.enemyObj:GetDistance() <= self.pullDistance) then
 				self.enemyObj:AutoAttack();
 			end
 			-- Fix bug, when not targeting correctly
@@ -781,6 +798,10 @@ function script_grind:run()
 			end
 		end
 		
+		if (script_hunter.waitAfterCombat or script_warlock.waitAfterCombat) and (IsInCombat()) and (not PetHasTarget()) and (script_grind.enemiesAttackingUs() == 0 and not script_grind:isAnyTargetTargetingMe()) then
+			self.message = "waiting after combat - stuck in combat";
+			return;
+		end
 		-- Finish loot before we engage new targets or navigate - return
 		if (self.lootObj ~= nil and not IsInCombat()) then
 			return; 
@@ -834,7 +855,6 @@ function script_grind:run()
 			-- don't avoid our current target check adds script
 			self.lastAvoidTarget = self.enemyObj;
 
-
 			-- pet stays in combat on some server cores while returning to player
 				-- force bot to finish combat...
 			if (UnitClass('player') == "Warlock") or (UnitClass('player') == "Hunter") and (GetNumPartyMembers() == 0) then
@@ -857,13 +877,25 @@ function script_grind:run()
 							PetFollow();
 						end
 
-						-- if pet doesn't have a target then return until out of combat phase
-					elseif (not PlayerHasTarget()) then
-						AssistUnit("pet");
+					-- if pet doesn't have a target then return until out of combat phase
+					elseif (not PlayerHasTarget() and not PetHasTarget() and script_grind.enemiesAttackingUs() == 0) and (IsInCombat()) then
+						--AssistUnit("pet");
 						self.message = "Stuck in combat! WAITING!";
-						return 4;
+						if (IsMoving()) then
+							StopMoving();
+							return;
+						end
+						return;
 					end
 				end
+			end
+			if (HasSpell("Lightning Bolt")) and (IsInCombat()) and (script_grind:enemiesAttackingUs() == 0) then
+				self.message = "Stuck in combat! WAITING!";
+				if (IsMoving()) then
+					StopMoving();
+					return;
+				end
+				return 4;
 			end
 
 			-- reset object manager and check adds enemies
@@ -939,24 +971,23 @@ function script_grind:run()
 
 				-- adjust tick rate to make targeting and movement quicker
 				if (not script_grind.adjustTickRate) and (PlayerHasTarget()) then
-					script_grind.tickRate = 135;
+					script_grind.tickRate = 75;
 				end
 
 				-- if we have a valid position coordinates
 				if (_x ~= 0 and x ~= 0) then
 
-					-- add some randomness to movement
-					local moveBuffer = math.random(-2, 2);
 
 				-- move to target
-				self.message = script_navEX:moveToTarget(localObj, _x+moveBuffer, _y+moveBuffer, _z);
+				self.message = script_navEX:moveToTarget(localObj, _x, _y, _z);
 
 					-- set wait timer to move clicks
-					script_grind:setWaitTimer(110);
-
-					return;
-				end
+					if (IsMoving()) then
+						script_grind:setWaitTimer(100);
+					end
 				return;
+				end
+			return;
 			end
 
 			-- Do nothing, return : combat script return 4
@@ -1083,7 +1114,7 @@ function script_grind:run()
 
 				-- move to saved locations
 				self.message = script_nav:moveToSavedLocation(localObj, self.minLevel, self.maxLevel, self.staticHotSpot);
-				script_grind:setWaitTimer(85);
+				script_grind:setWaitTimer(self.nextToNodeDist * 10);
 
 
 				-- check stealth rogue
@@ -1110,7 +1141,6 @@ function script_grind:run()
 			-- Navigate
 			self.message = script_nav:navigate(localObj);
 		end
-	end 
 end
 
 
@@ -1746,7 +1776,7 @@ function script_grind:doLoot(localObj)
 	-- move to loot object
 	self.message = "Moving to loot...";		
 	script_navEX:moveToTarget(localObj, _x, _y, _z);	
-	script_grind:setWaitTimer(80);
+	script_grind:setWaitTimer(self.nextToNodeDist * 10);
 
 	-- wait momentarily once we reached lootObj / stop moving / etc
 	if (self.lootObj:GetDistance() <= self.lootDistance) then
@@ -1900,5 +1930,24 @@ function script_grind:runRest()
 		end
 	return true;	
 	end
+return false;
+end
+
+function script_grind:isAnyTargetTargetingMe()
+	local player = GetLocalPlayer();
+
+	-- Return a target targeting us
+	local i, targetType = GetFirstObject();
+	while i ~= 0 do
+		if (targetType == 3) then
+			if (i:GetUnitsTarget() ~= 0 and i:GetUnitsTarget() ~= nil) then
+				if (i:GetUnitsTarget():GetGUID() == player:GetGUID()) then 
+					return true
+				end
+			end
+		end
+		i, targetType = GetNextObject(i);
+	end
+
 return false;
 end
